@@ -1,10 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BitrixApi.DTO;
@@ -12,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace BitrixApi.REST
 {
-    public class BitrixRestApi : IBitrixRestApi
+	public class BitrixRestApi : IBitrixRestApi
     {
         static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly HttpClient client = new HttpClient();
@@ -42,11 +39,11 @@ namespace BitrixApi.REST
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
             await semaphoreSlim.WaitAsync();
-            DealRequest request = null;
+            DealResponse request = null;
             try{
                 logger.Info("Ждем Deal");
                 Thread.Sleep(20);
-                request = JsonConvert.DeserializeObject<DealRequest>(await msg);
+                request = JsonConvert.DeserializeObject<DealResponse>(await msg);
                 logger.Info("Подождали Deal");
             }
             finally{
@@ -57,8 +54,10 @@ namespace BitrixApi.REST
         }
         
         //crm.contact.get
-        public async Task<Contact> GetContact( uint id )
+        public Contact GetContact( uint id )
         {
+			throw new NotImplementedException();
+			/*
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.contact.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
@@ -75,29 +74,33 @@ namespace BitrixApi.REST
                 semaphoreSlim.Release();
             }
             
-            return request.Result; 
+            return request.Result;
+			*/ 
         }
         
         //crm.company.get
-        public async Task<Company> GetCompany( uint id )
+        public Company GetCompany( uint id )
         {
-            AddJsonHeader();
+			throw new NotImplementedException();
+			/*
+			AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.company.get.json?id={id}";
             var msg = client.GetStringAsync(requestUri);
             await semaphoreSlim.WaitAsync();
 
-            CompanyRequest request = null;
+            CompanyResponse request = null;
             try{
                 logger.Info("Ждем Company");
                 Thread.Sleep(1000);
-                request = JsonConvert.DeserializeObject<CompanyRequest>(await msg);
+                request = JsonConvert.DeserializeObject<CompanyResponse>(await msg);
                 logger.Info("Подождали Company");
             }
             finally{
                 semaphoreSlim.Release();
             }
             
-            return request.Result; 
+            return request.Result;
+			*/
         }
 
         //crm.product.get
@@ -108,13 +111,13 @@ namespace BitrixApi.REST
             var productDataTask = client.GetStringAsync(requestUri);
             await semaphoreSlim.WaitAsync();
 
-            ProductRequest request = null;
+            ProductResponse request = null;
             try{
                 logger.Info("Ждем Product");
 
                 Thread.Sleep(1000);
                 var productData = await productDataTask;
-                request = JsonConvert.DeserializeObject<ProductRequest>(productData);
+                request = JsonConvert.DeserializeObject<ProductResponse>(productData);
                 logger.Info("Подождали Product");
 
             }
@@ -125,19 +128,19 @@ namespace BitrixApi.REST
             return request.Result; 
         }
 
-        public async Task<IList<ProductFromDeal>> GetProductsForDeal(uint dealId)
+        public async Task<IList<DealProductItem>> GetProductsForDeal(uint dealId)
         {
             AddJsonHeader();
             string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.productrows.get.json?id={dealId}";
             var msg = client.GetStringAsync(requestUri);
             await semaphoreSlim.WaitAsync();
 
-            ProductFromDealRequest request = null;
+            DealProductItemResponse request = null;
             try{
                 logger.Info("Ждем ProductFromDeal");
 
                 Thread.Sleep(1000);
-                request = JsonConvert.DeserializeObject<ProductFromDealRequest>(await msg);
+                request = JsonConvert.DeserializeObject<DealProductItemResponse>(await msg);
                 logger.Info("Подождали ProductFromDeal");
 
             }
@@ -148,13 +151,14 @@ namespace BitrixApi.REST
             return request.Result; 
         }
 
+		/*
         public async Task<IList<uint>> GetDealsIdsBetweenDates(DateTime date1, DateTime date2)
         {
             string date1Formatted = date1.ToString("dd.MM.yyyy HH:mm:ss");
             string date2Formatted = date2.ToString("dd.MM.yyyy HH:mm:ss");
             IList<uint> listOfIds = new List<uint>();
             AddJsonHeader();
-            ListofDealsRequest request;
+            DealsResponse request;
             uint i = 0;
             bool needOneMoretime = false;
             do{
@@ -163,7 +167,7 @@ namespace BitrixApi.REST
                                     $"FILTER[<DATE_CREATE]={date2Formatted}&" +
                                     $"FILTER[STAGE_ID]={createInDVStageId}&" +
                                     $"start={50 * i}";
-                request = JsonConvert.DeserializeObject<ListofDealsRequest>(await client.GetStringAsync(requestUri));
+                request = JsonConvert.DeserializeObject<DealsResponse>(await client.GetStringAsync(requestUri));
                 if (request.Total > 50)
                     needOneMoretime = true;
                 
@@ -179,7 +183,7 @@ namespace BitrixApi.REST
                                      $"FILTER[<DATE_MODIFY]={date2Formatted}&" +
                                      $"FILTER[STAGE_ID]={createInDVStageId}&" +
                                      $"start={50 * i}";
-                request = JsonConvert.DeserializeObject<ListofDealsRequest>(await client.GetStringAsync(requestUri2));
+                request = JsonConvert.DeserializeObject<DealsResponse>(await client.GetStringAsync(requestUri2));
                 foreach (var dealFromList in request.Result)
                     listOfIds.Add(dealFromList.Id);
             }
@@ -189,8 +193,64 @@ namespace BitrixApi.REST
                         "\nДесериализация в DTO...");
             return listOfIds;
         }
+		*/
 
-        public async Task<bool> SendWONBitrixStatus(uint bitrixId)
+		public IList<Deal> GetDeals(DateTime dateTimeFrom, DateTime dateTimeTo)
+		{
+			using(var httpClient = CreateHttpClient())
+			{
+				List<Deal> deals = new List<Deal>();
+
+				string dateFrom = dateTimeFrom.ToString("dd.MM.yyyy HH:mm:ss");
+				string dateTo = dateTimeTo.ToString("dd.MM.yyyy HH:mm:ss");
+
+				int next = 0;
+				bool hasNext = true;
+				do
+				{
+					string requestUri = $"{baseURL}/rest/{userId}/{token}/crm.deal.list.json?" +
+						$"FILTER[>DATE_CREATE]={dateFrom}&" +
+						$"FILTER[<DATE_CREATE]={dateTo}&" +
+						//Включаем сделки только со временем доставки
+						$"FILTER[>UF_CRM_5DA9BBA03A12A]=0&" +
+						//Включаем сделки только в статусе Завести в ДВ
+						$"FILTER[STAGE_ID]={createInDVStageId}" +
+						//Добавляем в выгрузку все пользовательские поля
+						$"&select[]=*&select[]=UF_*" +
+						$"&start={next}";
+
+					var requestTask = httpClient.GetStringAsync(requestUri);
+					requestTask.Wait();
+					var responseString = requestTask.Result;
+					DealsResponse response;
+					try
+					{
+						response = JsonConvert.DeserializeObject<DealsResponse>(responseString);
+					}
+					catch(Exception e)
+					{
+						logger.Error(e, "Не удалось распарсить одну из сделок");
+						continue;
+					}
+
+					if(response == null || response.Result == null)
+					{
+						continue;
+					}
+
+					deals.AddRange(response.Result);
+
+					logger.Info($"Загружено сделок {deals.Count}/{response.Total}");
+					hasNext = response.Next.HasValue;
+					next = response.Next.HasValue ? response.Next.Value : 0;
+				} while(hasNext);
+
+				return deals;
+			}
+		}
+
+
+		public async Task<bool> SendWONBitrixStatus(uint bitrixId)
         {
             return true; //TODO test
             
@@ -219,6 +279,7 @@ namespace BitrixApi.REST
 
         #region CustomFields
 
+		/*
         //crm.deal.userfield.list
         public async Task<IList<CustomFieldFromList>> GetAllCustomFieldsFromDeal()
         {
@@ -239,7 +300,9 @@ namespace BitrixApi.REST
             
             return request.Result; 
         }
+		*/
         
+		/*
         //crm.deal.userfield.get
         public async Task<CustomField> GetCustomFieldDeal(int id)
         {
@@ -258,7 +321,9 @@ namespace BitrixApi.REST
             
             return request.Result; 
         }
+		*/
 
+		/*
         public async Task<Dictionary<string, CustomField>> GetMapCustomFieldsShitNamesToRus()
         {
             var map = new Dictionary<string, CustomField>();
@@ -270,6 +335,7 @@ namespace BitrixApi.REST
             }
             return map;
         }
+
         
         public string SerializeCustomFieldsShitToRusNamesToFile(Dictionary<string, CustomField> ShitToRusNames)
         {
@@ -296,6 +362,7 @@ namespace BitrixApi.REST
                 File.WriteAllText(filenameWithDate, text);
             }
         }
+		*/
 
         #endregion CustomFields
         
@@ -305,6 +372,17 @@ namespace BitrixApi.REST
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
         }
-        
-    }
+
+		private HttpClient CreateHttpClient()
+		{
+			HttpClient client = new HttpClient();
+
+			client.DefaultRequestHeaders.Accept.Clear();
+			var jsonHeader = new MediaTypeWithQualityHeaderValue("application/json");
+			client.DefaultRequestHeaders.Accept.Add(jsonHeader);
+
+			return client;
+		}
+
+	}
 }

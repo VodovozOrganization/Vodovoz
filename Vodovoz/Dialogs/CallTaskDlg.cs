@@ -23,6 +23,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using QS.Project.Services;
 using QS.Project.Journal;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Dialogs
 {

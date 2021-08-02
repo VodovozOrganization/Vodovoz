@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -14,7 +14,8 @@ using Vodovoz.EntityRepositories;
 using VodovozInfrastructure.Utils;
 
 namespace BitrixIntegration {
-    public class DealCollector {
+    public class DealCollector 
+	{
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IBitrixRestApi bitrixApi;
         private readonly IDealFromBitrixRepository dealFromBitrixRepository;
@@ -23,25 +24,25 @@ namespace BitrixIntegration {
         public DealCollector(IBitrixRestApi _bitrixRestApi, IDealFromBitrixRepository _dealFromBitrixRepository)
         {
             bitrixApi = _bitrixRestApi ?? throw new ArgumentNullException(nameof(_bitrixRestApi));
-            dealFromBitrixRepository = _dealFromBitrixRepository ?? 
-                                       throw new ArgumentNullException(nameof(_dealFromBitrixRepository));
+            dealFromBitrixRepository = _dealFromBitrixRepository ?? throw new ArgumentNullException(nameof(_dealFromBitrixRepository));
         }
 
 
         public async Task<IList<Deal>> CollectDeals(IUnitOfWork uow, DateTime day, bool checkFailed)
         {
-            //Вот тут будет нахождение всех нужных сделок в зависимости от флага
-            var startDate = day.StartOfDay();
-            var endDate = day.EndOfDay();
-            var listOfIds = await bitrixApi.GetDealsIdsBetweenDates(startDate, endDate);
-            if (checkFailed) return await CollectDeals(uow, listOfIds);
+			throw new NotImplementedException();
+            ////Вот тут будет нахождение всех нужных сделок в зависимости от флага
+            //var startDate = day.StartOfDay();
+            //var endDate = day.EndOfDay();
+            //var listOfIds = await bitrixApi.GetDealsIdsBetweenDates(startDate, endDate);
+            //if (checkFailed) return await CollectDeals(uow, listOfIds);
             
-            /*var failedDeals = dealFromBitrixRepository.GetAllFailed(uow, startDate, endDate);
-            listOfIds = FilterFailedDealsFromList(listOfIds, failedDeals);*/
-            //Теперь listOfIds отфильтрованы зафейленными
-            return await CollectDeals(uow, listOfIds);
+            ///*var failedDeals = dealFromBitrixRepository.GetAllFailed(uow, startDate, endDate);
+            //listOfIds = FilterFailedDealsFromList(listOfIds, failedDeals);*/
+            ////Теперь listOfIds отфильтрованы зафейленными
+            //return await CollectDeals(uow, listOfIds);
         }
-
+		/*
         IList<uint> FilterFailedDealsFromList(IList<uint> listOfIds, IList<DealFromBitrix>  failedDeals)
         {
             // Отфильтруем уже зафейленные
@@ -50,6 +51,7 @@ namespace BitrixIntegration {
             logger.Info($"Отфильтровано {failedDeals.Count - notFailedDeals.Length} зафейленных сделок");
             return notFailedDeals;
         }
+		*/
         
         public async Task<IList<Deal>> CollectDeals(IUnitOfWork uow, IList<uint> dealsIds)
         {

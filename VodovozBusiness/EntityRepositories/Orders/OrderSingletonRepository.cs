@@ -808,7 +808,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId)
 		{
 			return uow.Session.QueryOver<VodovozOrder>()
-				.Where(x => x.BitrixId == bitrixId)
+				.Where(x => x.BitrixDealId == bitrixId)
 				.SingleOrDefault();
 		}
 		

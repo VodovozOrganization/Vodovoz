@@ -1,25 +1,31 @@
+﻿using BitrixApi.DTO;
+using QS.DomainModel.UoW;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using BitrixApi.DTO;
-using QS.DomainModel.UoW;
-using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories;
-using Vodovoz.Repository.Client;
 using VodovozInfrastructure.Utils;
 using Contact = BitrixApi.DTO.Contact;
 using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 
-namespace BitrixIntegration {
-    public class Matcher {
-        
+namespace BitrixIntegration
+{
+	public class Matcher 
+	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IDeliveryPointRepository deliveryPointRepository;
+
+		public Matcher(IDeliveryPointRepository deliveryPointRepository)
+		{
+			this.deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+		}
+        
         #region ByBitrixId
         public bool MatchOrderByBitrixId(IUnitOfWork uow, uint dealId, out Order outOrder)
         {
@@ -40,26 +46,28 @@ namespace BitrixIntegration {
         
         public bool MatchCounterpartyByBitrixId(IUnitOfWork uow, uint bitrixId, out Counterparty outCounterparty)
         {
-            
-            Counterparty counterparty = null;
-            counterparty = CounterpartyRepository.GetCounterpartyByBitrixId(uow, bitrixId);
-            
-            if (counterparty == null){
-                outCounterparty = null;
-                logger.Info($"Не удалось сопоставить Counterparty по BitrixId: {bitrixId}");
 
-                return false;
-            }
-            else{
-                outCounterparty = counterparty;
-                logger.Info($"Сопоставление Counterparty: {outCounterparty.Id} по BitrixId: {bitrixId} прошло успешно");
+			//Counterparty counterparty = null;
+			//counterparty = CounterpartyRepository.GetCounterpartyByBitrixId(uow, bitrixId);
 
-                return true;
-            }
-            
-        }
-        
-        public bool MatchNomenclatureByBitrixId(IUnitOfWork uow, uint productId, out Nomenclature outNomenclature)
+			//if (counterparty == null){
+			//    outCounterparty = null;
+			//    logger.Info($"Не удалось сопоставить Counterparty по BitrixId: {bitrixId}");
+
+			//    return false;
+			//}
+			//else{
+			//    outCounterparty = counterparty;
+			//    logger.Info($"Сопоставление Counterparty: {outCounterparty.Id} по BitrixId: {bitrixId} прошло успешно");
+
+			//    return true;
+			//}
+			outCounterparty = null;
+
+				return false;
+		}
+
+		public bool MatchNomenclatureByBitrixId(IUnitOfWork uow, uint productId, out Nomenclature outNomenclature)
         {
             Nomenclature nomenclature = null;
             nomenclature = NomenclatureRepository.GetNommenclatureByBitrixId(uow, productId);
@@ -86,51 +94,54 @@ namespace BitrixIntegration {
         /// <exception cref="NullReferenceException">Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления</exception>
         public bool MatchCompanyPhoneAndName(IUnitOfWork uow, Company company, out Counterparty outCounterparty)
         {
-            //Формат записанный в Value +7 (981) 944-86-31
-            var phone = company.Phones.First().Value;
-            var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
+			//Формат записанный в Value +7 (981) 944-86-31
+			/* var phone = company.Phones.First().Value;
+			 var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
 
-            IList<Counterparty> counterparties = null;
-            
-            counterparties = CounterpartyRepository.GetCounterpartesByPartOfName(
-                uow,
-                company.Title?? 
-                throw new NullReferenceException($"Компания с BitrixId {company.Id} не содержит названия, необходимого для сопоставления"),
-                digitsNum
-            );
-            
-            if (counterparties.Count == 1){
-                outCounterparty = counterparties.First();
-                outCounterparty.BitrixId = company.Id;
-                logger.Info($"Для компании с BitrixId {company.Id} у нас найден 1 контрагент {outCounterparty.Id} по телефону и названию");
-                uow.Save(outCounterparty);
-                return true;
-            }
-            else{
-                logger.Warn($"Для контакта с BitrixId {company.Id} у нас не найдено контрагентов по телефону и названию");
-                outCounterparty = null;
-                return false;
-            }
-        }
+			 IList<Counterparty> counterparties = null;
 
-        /// <summary>
-        /// Находит контрагента по номеру и ФИО контакта
-        /// </summary>
-        /// <exception cref="NullReferenceException">Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления</exception>
-        public bool MatchCounterpartyByPhoneAndSecondName(IUnitOfWork uow, Contact contact, out Counterparty outCounterparty)
+			 counterparties = CounterpartyRepository.GetCounterpartiesByNameAndPhone(
+				 uow,
+				 company.Title?? 
+				 throw new NullReferenceException($"Компания с BitrixId {company.Id} не содержит названия, необходимого для сопоставления"),
+				 digitsNum
+			 );
+
+			 if (counterparties.Count == 1){
+				 outCounterparty = counterparties.First();
+				 outCounterparty.BitrixId = company.Id;
+				 logger.Info($"Для компании с BitrixId {company.Id} у нас найден 1 контрагент {outCounterparty.Id} по телефону и названию");
+				 uow.Save(outCounterparty);
+				 return true;
+			 }
+			 else{
+				 logger.Warn($"Для контакта с BitrixId {company.Id} у нас не найдено контрагентов по телефону и названию");
+				 outCounterparty = null;
+				 return false;
+			 }*/
+			outCounterparty = null;
+
+				return false;
+		}
+
+		/// <summary>
+		/// Находит контрагента по номеру и ФИО контакта
+		/// </summary>
+		/// <exception cref="NullReferenceException">Контакт не содержит имени, фамилии и отчества, необходимых для сопоставления</exception>
+		public bool MatchCounterpartyByPhoneAndSecondName(IUnitOfWork uow, Contact contact, out Counterparty outCounterparty)
         {
             //Формат записанный в Value +7 (981) 944-86-31
             var phone = contact.Phones.First().Value;
             var digitsNum = PhoneUtils.NumberTrim(phone, out var _);
 
-            // digitsNum = "9215667037";
-            // contact.NAME = null;
-            // contact.LAST_NAME = null;
-            // contact.SECOND_NAME = "Исаевич";
+			// digitsNum = "9215667037";
+			// contact.NAME = null;
+			// contact.LAST_NAME = null;
+			// contact.SECOND_NAME = "Исаевич";
+
+			/*IList<Counterparty> counterparties = null;
             
-            IList<Counterparty> counterparties = null;
-            
-            counterparties = CounterpartyRepository.GetCounterpartesByPartOfName(
+            counterparties = CounterpartyRepository.GetCounterpartiesByNameAndPhone(
                 uow,
                 contact.SecondName?? contact.LastName ?? contact.Name ?? 
                     throw new NullReferenceException("Контакт не содержит имени, фамилии и отчества, " +
@@ -151,53 +162,51 @@ namespace BitrixIntegration {
                             "по телефону и части имени");
                 outCounterparty = null;
                 return false;
-            }
-        }
+            }*/
+			outCounterparty = null;
 
-        /// <summary>
-        /// Находит точку доставки по номеру и ФИО 
-        /// </summary>
-        /// <exception cref="NullReferenceException">deal = null</exception>
-        public bool MatchDeliveryPoint(IUnitOfWork uow, Deal deal, Counterparty counterparty, out DeliveryPoint outDeliveryPoint)
+				return false;
+		}
+
+		/// <summary>
+		/// Находит точку доставки по номеру и ФИО 
+		/// </summary>
+		/// <exception cref="NullReferenceException">deal = null</exception>
+		public bool MatchDeliveryPoint(IUnitOfWork uow, Deal deal, Counterparty counterparty, out DeliveryPoint outDeliveryPoint)
         {
-            if (deal == null) throw new ArgumentNullException(nameof(deal));
-            
-            if (!deal.Coordinates.Contains(',')){
-                logger.Error($"Ошибка в формате координат {deal.Coordinates}, ожидалось разделение запятой");
-                outDeliveryPoint = null;
-                return false;
-            }
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
 
-            //parsing coordinates from deal
-            var splitted = deal.Coordinates.Split(',');
-            var latitudeString = splitted[0].Trim();
-            var longitudeString = splitted[1].Trim();
+			if(deal is null)
+			{
+				throw new ArgumentNullException(nameof(deal));
+			}
 
-            var longitudeParsed = decimal.TryParse(longitudeString, NumberStyles.Any, CultureInfo.InvariantCulture,
-                out var longitude);
+			if(counterparty is null)
+			{
+				throw new ArgumentNullException(nameof(counterparty));
+			}
 
-            var latitudeParsed = decimal.TryParse(latitudeString, NumberStyles.Any, CultureInfo.InvariantCulture,
-                out var latitude);
+			Coordinate coordinate = Coordinate.Parse(deal.Coordinates);
 
-            if(!longitudeParsed || !latitudeParsed) {
-                throw new InvalidOperationException($"Невозможно распарсить координаты: longitude:{longitudeString} и latitude:{latitudeString} для заказа с Id: {deal.Id}");
-            }
-            
-            logger.Info($"Распаршены координаты: longitude: {longitude} и latitude {latitude}");
-            IList<DeliveryPoint> deliveryPointsOfCounerparty = DeliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, latitude, longitude, counterparty.Id);
-        
-            if (deliveryPointsOfCounerparty.Count == 1){
-                logger.Info($"Сопоставлена 1 точка доставки Id: {deliveryPointsOfCounerparty.First().Id}, {deliveryPointsOfCounerparty.First().ShortAddress}");
-                outDeliveryPoint = deliveryPointsOfCounerparty.First();
+            IList<DeliveryPoint> deliveryPoints = deliveryPointRepository.GetDeliveryPointForCounterpartyByCoordinates(uow, coordinate.Latitude, coordinate.Longitude, counterparty.Id);
+            if(deliveryPoints.Count == 1)
+			{
+                logger.Info($"Найдена точка доставки по координатам Id: {deliveryPoints.First().Id}, {deliveryPoints.First().ShortAddress}");
+                outDeliveryPoint = deliveryPoints.First();
                 return true;
             }
-            // В одном доме несколько наших клиентов
 
-            if(deliveryPointsOfCounerparty.Count > 1){
-                logger.Info($"В одном доме несколько наших клиентов deliveryPoints.Count: {deliveryPointsOfCounerparty.Count}");
+			throw new NotImplementedException("Сделать заглушку, ожидается переработка хранения адреса в битриксе");
+			/*
+            // В одном доме несколько наших клиентов
+            if(deliveryPoints.Count > 1){
+                logger.Info($"В одном доме несколько наших клиентов deliveryPoints.Count: {deliveryPoints.Count}");
 
                 //СОПОСТАВЛЯЕМ ПО ДОМУ УЛИЦЕ ИТД
-                foreach (var dp in deliveryPointsOfCounerparty){
+                foreach (var dp in deliveryPoints){
                     if(dp.Room != null && dp.Room != "." && dp.Room != "-") {
                         // Тк кк значения бывают такие "13-Н ком.21"
                         if (dp.Room.Contains(deal.RoomNumber)){
@@ -235,7 +244,7 @@ namespace BitrixIntegration {
             logger.Warn($"У контрагента {counterparty.Id} не нашлось точки доставки с координатами из битрикса {deal.Id}");
             // У контрагента не нашлось точки доставки с координатами из битрикса
             // Берем все точки доставки контрагента и пытаемся сопоставить по наличию в них дома + квартиры
-            var deliveryPointsForCounterparty = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery(uow, counterparty);
+            var deliveryPointsForCounterparty = deliveryPointRepository.DeliveryPointsForCounterpartyQuery(uow, counterparty);
             foreach (var dp in deliveryPointsForCounterparty){
                 var numsFromHouse = NumbersUtils.GetNumbersFromString(deal.HouseAndBuilding);
                 var numsFromRoom = (NumbersUtils.GetNumbersFromString(deal.RoomNumber));
@@ -263,7 +272,7 @@ namespace BitrixIntegration {
             }
             logger.Warn($"Для сделки {deal.Id} с контрагентом {counterparty.Id} не получилось сопоставить адрес");
             outDeliveryPoint = null;
-            return false;
+            return false;*/
         }
 
         public bool MatchNomenclatureByName(IUnitOfWork uow, string productName, out Nomenclature outNomenclature)

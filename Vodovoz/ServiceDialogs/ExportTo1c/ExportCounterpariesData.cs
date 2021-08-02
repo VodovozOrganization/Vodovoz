@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QSOrmProject;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Repositories;
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -10,16 +10,16 @@ namespace BitrixApi.DTO
         public uint Id { get; set; }
         
         [JsonProperty("COMMENTS")] 
-        public string? Comments { get; set; }
+        public string Comments { get; set; }
         
         [JsonProperty("NAME")] 
-        public string? Name { get; set; }
+        public string Name { get; set; }
         
         [JsonProperty("SECOND_NAME")] 
-        public string? SecondName { get; set; }
+        public string SecondName { get; set; }
         
         [JsonProperty("LAST_NAME")] 
-        public string? LastName { get; set; }
+        public string LastName { get; set; }
         
         [JsonProperty("LEAD_ID")] 
         public string LeadId { get; set; }
@@ -51,8 +51,5 @@ namespace BitrixApi.DTO
         
         [JsonProperty("PHONE")] 
         public IList<Phone> Phones { get; set; }
-        
-        [JsonProperty("EMAIL")] 
-        public IList<Email> Emails { get; set; }
     }
 }

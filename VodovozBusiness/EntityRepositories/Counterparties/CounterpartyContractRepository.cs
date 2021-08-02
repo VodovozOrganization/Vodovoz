@@ -11,7 +11,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;
 using Vodovoz.Repository.Client;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class CounterpartyContractRepository : ICounterpartyContractRepository
 	{

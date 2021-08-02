@@ -69,7 +69,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DriverCallType)					.Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.OrderSource)						.Column("order_source").CustomType<OrderSourceStringType>();
 			Map(x => x.OrderPaymentStatus)				.Column("order_payment_status").CustomType<OrderPaymentStatusStringType>();
-			Map(x => x.BitrixId)					    .Column("bitrix_id");
+			Map(x => x.BitrixDealId)					    .Column("bitrix_id");
 
 			
 			References(x => x.Client)					.Column("client_id");

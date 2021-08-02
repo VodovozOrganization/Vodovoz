@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 
 namespace BitrixIntegration {
-    public class MainCycle {
+    public class MainCycle 
+	{
         private static int eventCount;
         
         private readonly IUnitOfWork uow;
@@ -24,19 +25,20 @@ namespace BitrixIntegration {
         }
         
         
-        private int SavedDay;
-        private int SavedHour;
+        private int savedDay;
+        private int savedHour;
         
         private async Task EventAAsync()
         {
-            SavedDay = DateTime.Now.Day;
-            SavedHour = DateTime.Now.Hour;
+			/*
+            savedDay = DateTime.Now.Day;
+            savedHour = DateTime.Now.Hour;
             while (true)
             {
                 await Task.Run(async () =>
                 {
                     //Сменился день
-                    if (DateTime.Now.Day != SavedDay)
+                    if (DateTime.Now.Day != savedDay)
                     {
                         Console.Out.WriteLine("Day Changed");
                         var date = DateTime.Now.AddDays(-1);
@@ -44,7 +46,7 @@ namespace BitrixIntegration {
                         var dealsList = await dealCollector.CollectDeals(uow, date, true);
                         foreach (var deal in dealsList){
                             try{
-                                var order = await dealProcessor.Process(deal);
+                                var order = await dealProcessor.ProcessDeal(deal);
                                 await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
 
                             }
@@ -56,17 +58,17 @@ namespace BitrixIntegration {
                             }
                         }
                         
-                        SavedDay = DateTime.Now.Day;
+                        savedDay = DateTime.Now.Day;
                     }
                     //Сменился час
-                    else if (DateTime.Now.Hour != SavedHour)
+                    else if (DateTime.Now.Hour != savedHour)
                     {
                         var date = DateTime.Now.AddHours(-1);
                         
                         var dealsList = await dealCollector.CollectDeals(uow, date, true);
                         foreach (var deal in dealsList){
                             try{
-                                var order = await dealProcessor.Process(deal);
+                                var order = await dealProcessor.ProcessDeal(deal);
                                 await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
 
                             }
@@ -78,7 +80,7 @@ namespace BitrixIntegration {
                             }
                         }
                         
-                        SavedHour = DateTime.Now.Hour;
+                        savedHour = DateTime.Now.Hour;
                     }
                     //Каждая минута
                     else
@@ -89,7 +91,7 @@ namespace BitrixIntegration {
                         var dealsList = await dealCollector.CollectDeals(uow, date, false);
                         foreach (var deal in dealsList){
                             try{
-                                var order = await dealProcessor.Process(deal);
+                                var order = await dealProcessor.ProcessDeal(deal);
                                 await dealCollector.SendSuccessDealFromBitrixToDB(uow, deal.Id, order);
                             }
                             catch (Exception e){
@@ -103,6 +105,7 @@ namespace BitrixIntegration {
                 });
                 await Task.Delay(TimeSpan.FromSeconds(MINDEALWAITSEC));
             }
+			*/
         }
     }
 }

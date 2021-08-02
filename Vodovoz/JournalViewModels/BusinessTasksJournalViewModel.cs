@@ -26,6 +26,7 @@ using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.JournalViewModels
 {

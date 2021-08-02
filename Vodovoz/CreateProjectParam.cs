@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using Autofac;
@@ -117,6 +117,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz
 {
@@ -396,7 +397,7 @@ namespace Vodovoz
 			#endregion
 
 			#region Repository
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyRepository)))
 				.Where(t => t.Name.EndsWith("Repository"))
 				.AsSelf();
 			#endregion

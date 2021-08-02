@@ -49,5 +49,19 @@ namespace VodovozInfrastructure.Utils
 			return temp;
 		}
 
+		public static string ToDigitNumberWithoutCountryCode(string number)
+		{
+			var digitNumber = RemoveNonDigit(number);
+			var startedWith7 = digitNumber.StartsWith("7", StringComparison.Ordinal);
+			var startedWith8 = digitNumber.StartsWith("8", StringComparison.Ordinal) && digitNumber.Length == 11;
+
+			if(startedWith7 || startedWith8)
+			{
+				return digitNumber.Substring(1);
+			}
+
+			return digitNumber;
+		}
+
 	}
 }

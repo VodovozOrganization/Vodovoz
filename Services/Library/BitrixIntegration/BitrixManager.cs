@@ -2,14 +2,11 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-//using BitrixApi.DTO.DataContractJsonSerializer;
+using BitrixApi.DTO;
 using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.EntityRepositories;
-using Deal = BitrixApi.DTO.Deal;
-using DealRequest = BitrixApi.DTO.DealRequest;
 
 namespace BitrixIntegration
 {
@@ -25,10 +22,10 @@ namespace BitrixIntegration
 		//TODO gavr переделать на коллекцию объектов содержащих статус и заказ и менять статусы у данных заказов в битрикс
 		static BlockingCollection<Deal> dealsQueue = new BlockingCollection<Deal>(); 
 		//Очередь необработанных
-		static BlockingCollection<DealRequest> unsavedEventsQueue = new BlockingCollection<DealRequest>();
+		static BlockingCollection<DealResponse> unsavedEventsQueue = new BlockingCollection<DealResponse>();
 		static bool IsInitialized => !(string.IsNullOrWhiteSpace(token));
 		static int workerTasksCreatedCounter = 0;
-		private static ICoR cor;
+		private static DealProcessor dealProcessor;
 		
 
 		static BitrixManager()
@@ -215,9 +212,9 @@ namespace BitrixIntegration
 			token = _token;
 		}
 
-		public static void SetCoR(ICoR _cor)
+		public static void SetDealProcessor(DealProcessor processor)
 		{
-			cor = _cor;
+			dealProcessor = processor;
 		}
 
 		#endregion

@@ -16,6 +16,9 @@ using QSProjectsLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Common;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
@@ -185,28 +188,33 @@ namespace VodovozBitrixIntegrationService
 				BitrixManager.SetToken(token);
 
 				var uow = UnitOfWorkFactory.CreateWithoutRoot();
-				var matcher = new Matcher();
+				var deliveryPointRepository = new DeliveryPointRepository();
+				var matcher = new Matcher(deliveryPointRepository);
 				var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(userId, token);
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
 				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+				var orderRepository = OrderSingletonRepository.GetInstance();
+				var counterpartyRepository = new CounterpartyRepository();
 				
-					var cor = new DealProcessor(
+					var dealProcessor = new DealProcessor(
 						bitrixApi,
 						matcher,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
 						measurementUnitsRepository,
-						bitrixServiceSettings
+						bitrixServiceSettings,
+						orderRepository,
+						counterpartyRepository
 					);
 					
 					var dealCollector = new DealCollector(bitrixApi, new DealFromBitrixRepository());
-					var mainCycle = new MainCycle(uow, dealCollector, cor);
+					var mainCycle = new MainCycle(uow, dealCollector, dealProcessor);
 					
 					await mainCycle.RunProcessCycle();
 					
-				BitrixManager.SetCoR(cor);
+				BitrixManager.SetDealProcessor(dealProcessor);
 
 				bitrixHost.AddServiceEndpoint(contract, binding, address);
 				

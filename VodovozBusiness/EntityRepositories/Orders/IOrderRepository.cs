@@ -132,6 +132,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		bool CanAddVodovozCatalogToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroup);
+
+		Domain.Orders.Order GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId);
 	}
 
 	public class ClientEquipmentNode

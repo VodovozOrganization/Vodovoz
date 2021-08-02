@@ -41,27 +41,10 @@
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Employees\" />
-    <Folder Include="Counterparties\" />
-    <Folder Include="Goods\" />
-    <Folder Include="Deletion\" />
-    <Folder Include="Domain\" />
-    <Folder Include="Domain\Fuel\" />
-    <Folder Include="Domain\Orders\" />
-    <Folder Include="Domain\Logistic\" />
-    <Folder Include="Domain\Client\" />
-    <Folder Include="Domain\Payments\" />
-    <Folder Include="Domain\Goods\" />
-    <Folder Include="Domain\Documents\" />
-    <Folder Include="Domain\WageCalculation\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\" />
-    <Folder Include="ErrorReporting\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
+    <Compile Include="Domain\Common\CoordinateTests.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceControllerTests.cs" />
     <Compile Include="Domain\WaterFixedPricesGeneratorTests.cs" />
     <Compile Include="Employees\PersonnelTests.cs" />

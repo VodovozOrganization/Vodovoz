@@ -1,11 +1,8 @@
-#nullable enable
-using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace BitrixApi.DTO
 {
-    public class CompanyRequest
+	public class CompanyResponse
     {
         [JsonProperty("result")] 
         public Company Result { get; set; }

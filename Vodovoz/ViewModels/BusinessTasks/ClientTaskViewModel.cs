@@ -16,13 +16,13 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Dialogs.Phones;
 using Vodovoz.Parameters;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {

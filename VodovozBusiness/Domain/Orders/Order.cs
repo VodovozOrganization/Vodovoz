@@ -27,6 +27,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -119,11 +120,11 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
 		}
 		
-		uint? bitrixId;
+		uint? bitrixDealId;
 		[Display(Name = "Id заказа в битриксе")]
-		public virtual uint? BitrixId {
-			get => bitrixId;
-			set => SetField(ref bitrixId, value);
+		public virtual uint? BitrixDealId {
+			get => bitrixDealId;
+			set => SetField(ref bitrixDealId, value);
 		}
 
 		OrderStatus orderStatus;
@@ -1089,7 +1090,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.ByCard && (OnlineOrder == null || BitrixId == null))
+			if(PaymentType == PaymentType.ByCard && (OnlineOrder == null || BitrixDealId == null))
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 

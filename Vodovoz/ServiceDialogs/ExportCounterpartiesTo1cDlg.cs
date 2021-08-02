@@ -5,6 +5,7 @@ using System.Xml;
 using Gtk;
 using NHibernate.Util;
 using QSProjectsLib;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ServiceDialogs
@@ -23,7 +24,7 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnBtnRunToFileClicked(object sender, EventArgs e)
 		{
-			using(var exportOperation = new ExportCounterpartiesTo1C()) {
+			using(var exportOperation = new ExportCounterpartiesTo1C(new CounterpartyRepository())) {
 				this.exportInProgress = true;
 				LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);
 				this.exportInProgress = false;
