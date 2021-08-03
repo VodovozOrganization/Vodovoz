@@ -14,11 +14,11 @@ using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -27,6 +27,7 @@ namespace Vodovoz.ViewWidgets
 	public partial class UndeliveredOrderView : WidgetOnDialogBase
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 
 		private Order _newOrder = null;
@@ -111,7 +112,7 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
-			referenceNewDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery();
+			referenceNewDeliverySchedule.ItemsQuery = _deliveryScheduleRepository.AllQuery();
 			referenceNewDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
 			referenceNewDeliverySchedule.Binding.AddBinding(undelivery, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceNewDeliverySchedule.Sensitive = false;

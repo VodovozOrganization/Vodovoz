@@ -51,6 +51,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -112,6 +113,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
+		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -481,7 +483,7 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
-			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.NotArchiveQuery();
+			referenceDeliverySchedule.ItemsQuery = _deliveryScheduleRepository.NotArchiveQuery();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
