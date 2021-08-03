@@ -8,7 +8,6 @@ using Chats;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
-using ChatRepository = Vodovoz.Repository.Chats.ChatRepository;
 
 namespace Vodovoz.ServiceDialogs.Chat
 {
@@ -16,6 +15,7 @@ namespace Vodovoz.ServiceDialogs.Chat
 	{
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
+		private readonly IChatRepository _chatRepository = new ChatRepository();
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		IList<Employee> Recipients;
 		
@@ -53,10 +53,12 @@ namespace Vodovoz.ServiceDialogs.Chat
 					recipient.Id,
 					textviewMessage.Buffer.Text
 				);
+				
 				var unreaded = unreadedMessages.FirstOrDefault (x => x.EmployeeId == recipient.Id);
+				
 				if(unreaded == null)
 				{
-					var chat = ChatRepository.GetChatForDriver (UoW, recipient);
+					var chat = _chatRepository.GetChatForDriver(UoW, recipient);
 					if(chat != null)
 					{
 						chat.UpdateLastReadedTime (currentEmployee);

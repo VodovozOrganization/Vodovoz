@@ -527,7 +527,6 @@
     <Compile Include="HibernateMapping\Chat\ChatMap.cs" />
     <Compile Include="HibernateMapping\Chat\ChatMessageMap.cs" />
     <Compile Include="HibernateMapping\Chat\LastReadedMessageMap.cs" />
-    <Compile Include="Repositories\Chats\ChatRepository.cs" />
     <Compile Include="Repositories\Chats\LastReadedRepository.cs" />
     <Compile Include="Domain\Orders\Documents\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Orders\Documents\Torg12Document.cs" />

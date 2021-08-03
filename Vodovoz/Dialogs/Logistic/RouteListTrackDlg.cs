@@ -13,8 +13,8 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repository.Chats;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
 
@@ -25,6 +25,7 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IChatRepository _chatRepository = new ChatRepository();
 
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
@@ -134,7 +135,7 @@ namespace Vodovoz
 			var drivers = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedIds());
 			foreach (var driver in drivers) {
 
-				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				var chat = _chatRepository.GetChatForDriver(uow, driver);
 				if (chat == null) {
 					var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<Chat> ();
 					chatUoW.Root.ChatType = ChatType.DriverAndLogists;

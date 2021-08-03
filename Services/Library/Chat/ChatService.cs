@@ -8,7 +8,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
-using ChatRepository = Vodovoz.Repository.Chats.ChatRepository;
 
 namespace Chats
 {
@@ -17,6 +16,7 @@ namespace Chats
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
+		private static readonly IChatRepository _chatRepository = new ChatRepository();
 		
 		public static string UserNameOfServer = "Электронный друг";
 
@@ -31,7 +31,7 @@ namespace Chats
 					if (driver == null)
 						return false;
 
-					var chat = ChatRepository.GetChatForDriver(uow, driver);
+					var chat = _chatRepository.GetChatForDriver(uow, driver);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -64,7 +64,7 @@ namespace Chats
 				{
 					var recipient = senderUoW.GetById<Employee>(recipientId);
 
-					var chat = ChatRepository.GetChatForDriver(senderUoW, recipient);
+					var chat = _chatRepository.GetChatForDriver(senderUoW, recipient);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -100,7 +100,7 @@ namespace Chats
 					if (driver == null)
 						return null;
 
-					var chat = ChatRepository.GetChatForDriver(uow, driver);
+					var chat = _chatRepository.GetChatForDriver(uow, driver);
 					if (chat == null)
 						return null;
 					var messages = new List<MessageDTO>();
@@ -127,7 +127,7 @@ namespace Chats
 					if (driver == null)
 						return false;
 
-					var chat = ChatRepository.GetChatForDriver(senderUoW, driver);
+					var chat = _chatRepository.GetChatForDriver(senderUoW, driver);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -169,7 +169,7 @@ namespace Chats
 					if (driver == null)
 						return false;
 
-					var chat = ChatRepository.GetChatForDriver(senderUoW, driver);
+					var chat = _chatRepository.GetChatForDriver(senderUoW, driver);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -211,7 +211,7 @@ namespace Chats
 				if (driver == null)
 					return false;
 
-				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				var chat = _chatRepository.GetChatForDriver(uow, driver);
 				if (chat == null) {
 					chat = new ChatClass ();
 					chat.ChatType = ChatType.DriverAndLogists;
