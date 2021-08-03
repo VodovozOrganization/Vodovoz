@@ -802,10 +802,10 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value>='№' + {order_id} + ' №п/п 1-' + {order_items_count} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
+            <Value>='№п/п 1-' + {order_items_count} + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
             <ZIndex>1</ZIndex>
-            <Left>152.50pt</Left>
-            <Top>107.40pt</Top>
+            <Left>152.5pt</Left>
+            <Top>107.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
