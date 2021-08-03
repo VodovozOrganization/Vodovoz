@@ -9,6 +9,7 @@ using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
 using QS.Dialog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -210,6 +211,15 @@ namespace Vodovoz.Domain.Orders
 				   Contract != null && Contract.Id == 0)
 				{
 					UpdateContract();
+				}
+				if(Contract != null && Contract.Id != 0 && DeliveryDate.HasValue && Contract.IssueDate != DeliveryDate.Value
+				   && isFirstOrder
+				   && Contract != null
+				   && OrderStatus != OrderStatus.Closed
+				   && !SelfDelivery)
+				{
+					Contract.IssueDate = DeliveryDate.Value.Date;
+					MessageDialogHelper.RunWarningDialog("Дата договора будет изменена при сохранении текущего заказа!");
 				}
 			}
 		}

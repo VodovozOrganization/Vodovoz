@@ -1089,6 +1089,10 @@
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj">
+      <Project>{3c0f3944-cbd5-4bd6-83d4-cf33ad6fc68c}</Project>
+      <Name>QS.Project.Gtk</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
