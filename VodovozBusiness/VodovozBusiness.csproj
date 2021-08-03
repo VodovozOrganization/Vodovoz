@@ -496,8 +496,6 @@
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateItemMap.cs" />
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateMap.cs" />
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
-    <Compile Include="Repositories\Accounting\AccountExpenseRepository.cs" />
-    <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />

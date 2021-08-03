@@ -11,10 +11,10 @@ using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Accounting;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -23,6 +23,8 @@ namespace Vodovoz
 	{
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IAccountExpenseRepository _accountExpenseRepository = new AccountExpenseRepository();
+		private readonly IAccountIncomeRepository _accountIncomeRepository = new AccountIncomeRepository();
 		private BankTransferDocumentParser parser;
 		private IUnitOfWork uow;
 
@@ -577,7 +579,7 @@ namespace Vodovoz
 					var organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
 					//Мы платим
 					if (organization == null) {
-						if (!AccountExpenseRepository.AccountExpenseExists (uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerCheckingAccount)) {
+						if (!_accountExpenseRepository.AccountExpenseExists (uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerCheckingAccount)) {
 							organization = OrganizationRepository.GetOrganizationByInn (uow, doc.PayerInn);
 							var expenseUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountExpense> ();
 							expenseUoW.Root.Number = Int32.Parse (doc.Number);
@@ -600,7 +602,7 @@ namespace Vodovoz
 					} 
 					//Нам платят
 					else {
-						if (!AccountIncomeRepository.AccountIncomeExists (uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerInn, doc.PayerCheckingAccount)) {
+						if (!_accountIncomeRepository.AccountIncomeExists (uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerInn, doc.PayerCheckingAccount)) {
 							var incomeUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountIncome> ();
 							incomeUoW.Root.Number = Int32.Parse (doc.Number);
 							incomeUoW.Root.Date = doc.Date;

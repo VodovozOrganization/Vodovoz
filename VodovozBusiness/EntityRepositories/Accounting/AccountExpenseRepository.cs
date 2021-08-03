@@ -4,7 +4,7 @@ using Vodovoz.Domain.Accounting;
 
 namespace Vodovoz.EntityRepositories.Accounting
 {
-	public class AccountExpenseRepository
+	public class AccountExpenseRepository : IAccountExpenseRepository
 	{
 		public bool AccountExpenseExists (IUnitOfWork uow, int year, int number, string accountNumber)
 		{
