@@ -531,7 +531,6 @@
     <Compile Include="Domain\Orders\Documents\Torg12Document.cs" />
     <Compile Include="Domain\Employees\FineNomenclature.cs" />
     <Compile Include="HibernateMapping\Employees\FineNomenclatureMap.cs" />
-    <Compile Include="Repositories\Client\DocTemplateRepository.cs" />
     <Compile Include="DocTemplates\WaterAgreementParser.cs" />
     <Compile Include="DocTemplates\NonFreeRentAgreementParser.cs" />
     <Compile Include="DocTemplates\FreeRentAgreementParser.cs" />

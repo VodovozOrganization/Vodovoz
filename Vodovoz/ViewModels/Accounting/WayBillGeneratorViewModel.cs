@@ -5,12 +5,11 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
-using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Additions.Accounting;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.ViewModels.Accounting
@@ -25,7 +24,8 @@ namespace Vodovoz.ViewModels.Accounting
             INavigationManager navigation,
             IWayBillDocumentRepository wayBillDocumentRepository,
             RouteGeometryCalculator calculator,
-            IEntityAutocompleteSelectorFactory entityAutocompleteSelectorFactory) : base(unitOfWorkFactory, interactiveService, navigation)
+            IEntityAutocompleteSelectorFactory entityAutocompleteSelectorFactory,
+            IDocTemplateRepository docTemplateRepository) : base(unitOfWorkFactory, interactiveService, navigation)
         {
             EntityAutocompleteSelectorFactory = entityAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(entityAutocompleteSelectorFactory));
 
@@ -35,7 +35,9 @@ namespace Vodovoz.ViewModels.Accounting
             if (calculator == null)
                 throw new ArgumentNullException(nameof(calculator));
 
-            this.Entity = new WayBillDocumentGenerator(UnitOfWorkFactory.CreateWithoutRoot(), wayBillDocumentRepository, calculator);
+            Entity = new WayBillDocumentGenerator(
+	            UnitOfWorkFactory.CreateWithoutRoot(), wayBillDocumentRepository, calculator, docTemplateRepository);
+            
             TabName = "Путевые листы для ФО";
             CreateCommands();
         }

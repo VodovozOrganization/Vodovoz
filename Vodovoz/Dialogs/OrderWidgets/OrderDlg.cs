@@ -114,6 +114,7 @@ namespace Vodovoz
 		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
+		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -2018,7 +2019,7 @@ namespace Vodovoz
 				if(allList.Count <= 0)
 					return;
 
-				allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
+				allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW, _docTemplateRepository));
 
 				string whatToPrint = allList.Count > 1
 					? "документов"

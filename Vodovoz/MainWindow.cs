@@ -122,6 +122,7 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -2002,6 +2003,7 @@ public partial class MainWindow : Gtk.Window
 	    };
 	    
         var employeesJournalFactory = new EmployeeJournalFactory(employeeFilter);
+        var docTemplateRepository = new DocTemplateRepository();
 
         tdiMain.OpenTab(
             () => new WayBillGeneratorViewModel
@@ -2011,7 +2013,8 @@ public partial class MainWindow : Gtk.Window
 	            NavigationManagerProvider.NavigationManager,
 	            new WayBillDocumentRepository(),
 	            new RouteGeometryCalculator(DistanceProvider.Osrm),
-	            employeesJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
+	            employeesJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+	            docTemplateRepository
             ));
     }
 
