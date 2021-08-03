@@ -1198,10 +1198,10 @@ WHERE o.id = @order_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>15.2pt</Width>
+            <Width>53.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.0pt</Width>
+            <Width>15.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>118.5pt</Width>
@@ -1263,7 +1263,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>№</Value>
+                      <Value>Код товара/</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1283,7 +1283,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>Код товара/</Value>
+                      <Value>№</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1604,7 +1604,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox94">
-                      <Value>п/п</Value>
+                      <Value>работ, услуг</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1623,7 +1623,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95">
-                      <Value>работ, услуг</Value>
+                      <Value>п/п</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2006,7 +2006,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value>1</Value>
+                      <Value>А</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2025,7 +2025,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value>Б</Value>
+                      <Value>1</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2379,8 +2379,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>=RowNumber()</Value>
-                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!id.Value</Value>
+                      <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2389,9 +2389,10 @@ WHERE o.id = @order_id
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <PaddingRight>0pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
                         <PaddingTop>1pt</PaddingTop>
+                        <PaddingLeft >3pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2399,18 +2400,19 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value>=Fields!id.Value</Value>
+                      <Value>=RowNumber()</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
