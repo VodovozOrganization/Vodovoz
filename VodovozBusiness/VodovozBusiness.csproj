@@ -551,7 +551,6 @@
     <Compile Include="Domain\FineTemplate.cs" />
     <Compile Include="Domain\BaseParameter.cs" />
     <Compile Include="HibernateMapping\BaseParameterMap.cs" />
-    <Compile Include="Repositories\Client\DeliveryPointRepository.cs" />
     <Compile Include="Domain\Logistic\AtWorkBase.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriver.cs" />
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />

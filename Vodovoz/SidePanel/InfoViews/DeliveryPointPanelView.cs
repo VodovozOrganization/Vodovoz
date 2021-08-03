@@ -16,10 +16,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -31,6 +31,7 @@ namespace Vodovoz.SidePanel.InfoViews
 {
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
@@ -101,7 +102,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.ShowAll();
 
 			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
-			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
+			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
 			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
 			var bottlesAtCounterparty = BottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";

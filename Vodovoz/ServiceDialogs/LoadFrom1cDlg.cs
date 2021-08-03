@@ -7,7 +7,6 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QSBanks;
 using QSBanks.Repositories;
 using QS.BusinessCommon.Domain;
 using QS.BusinessCommon.Repository;
@@ -20,13 +19,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Client;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -34,6 +33,7 @@ namespace Vodovoz
 	public partial class LoadFrom1cDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
 
@@ -738,7 +738,7 @@ namespace Vodovoz
 			if(client == null)
 				return;
 
-			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(uow, client, addressCodeNode?.InnerText, addressNode?.InnerText);
+			DeliveryPoint deliveryPoint = _deliveryPointRepository.GetByAddress1c(uow, client, addressCodeNode?.InnerText, addressNode?.InnerText);
 
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
 			if(!LoadedOrderDates.Contains(deliveryDate))
