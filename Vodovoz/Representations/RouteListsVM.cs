@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewers;
@@ -521,8 +522,7 @@ namespace Vodovoz.ViewModel
 									new SubdivisionJournalFactory(),
 									new GtkTabsOpener(),
 									new UndeliveredOrdersJournalOpener(),
-									new SalesPlanJournalFactory(),
-									new NomenclatureSelectorFactory()
+									new DeliveryShiftRepository()
 								)
 							);
 					},
