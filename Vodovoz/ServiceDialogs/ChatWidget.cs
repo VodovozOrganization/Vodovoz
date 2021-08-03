@@ -10,7 +10,6 @@ using Vodovoz.Domain.Employees;
 using Chats;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
-using LastReadedRepository = Vodovoz.Repository.Chats.LastReadedRepository;
 
 namespace Vodovoz
 {
@@ -23,6 +22,7 @@ namespace Vodovoz
 		private Employee currentEmployee;
 		private IUnitOfWorkGeneric<Chat> chatUoW;
 		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
+		private readonly ILastReadedRepository _lastReadedRepository = new LastReadedRepository();
 
 		static IChatService getChatService()
 		{
@@ -73,7 +73,7 @@ namespace Vodovoz
 			}
 
 			ChatCallbackObservable.GetInstance().AddObserver(this);
-			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
+			var lastReaded = _lastReadedRepository.GetLastReadedMessageForEmployee(chatUoW, chatUoW.Root, currentEmployee);
 
 			if (lastReaded != null)
 			{
@@ -178,7 +178,7 @@ namespace Vodovoz
 		private void updateTitle() {
 			if (!isActive)
 			{
-				var newMessagesCount = LastReadedRepository.GetLastReadedMessagesCountForEmployee(chatUoW, chatUoW.Root, currentEmployee);
+				var newMessagesCount = _lastReadedRepository.GetLastReadedMessagesCountForEmployee(chatUoW, chatUoW.Root, currentEmployee);
 				if (newMessagesCount > 0)
 				{
 					if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)

@@ -527,7 +527,6 @@
     <Compile Include="HibernateMapping\Chat\ChatMap.cs" />
     <Compile Include="HibernateMapping\Chat\ChatMessageMap.cs" />
     <Compile Include="HibernateMapping\Chat\LastReadedMessageMap.cs" />
-    <Compile Include="Repositories\Chats\LastReadedRepository.cs" />
     <Compile Include="Domain\Orders\Documents\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Orders\Documents\Torg12Document.cs" />
     <Compile Include="Domain\Employees\FineNomenclature.cs" />
@@ -1043,7 +1042,6 @@
     <Folder Include="Attributes\" />
     <Folder Include="Domain\Chat\" />
     <Folder Include="HibernateMapping\Chat\" />
-    <Folder Include="Repositories\Chats\" />
     <Folder Include="Repositories\Client\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Logistic\" />
