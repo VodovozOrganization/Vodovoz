@@ -5,16 +5,19 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Chats;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
+using ChatRepository = Vodovoz.Repository.Chats.ChatRepository;
 
 namespace Chats
 {
 	public class ChatService : IChatService
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
+		
 		public static string UserNameOfServer = "Электронный друг";
 
 		#region IChatService implementation
@@ -101,7 +104,7 @@ namespace Chats
 					if (chat == null)
 						return null;
 					var messages = new List<MessageDTO>();
-					var chatMessages = ChatMessageRepository.GetChatMessagesForPeriod(uow, chat, days);
+					var chatMessages = _chatMessageRepository.GetChatMessagesForPeriod(uow, chat, days);
 					foreach (var m in chatMessages)
 					{
 						messages.Add(new MessageDTO(m, driver));

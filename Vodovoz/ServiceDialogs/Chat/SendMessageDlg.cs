@@ -4,16 +4,18 @@ using System.Linq;
 using System.ServiceModel;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository.Chats;
 using Chats;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
+using ChatRepository = Vodovoz.Repository.Chats.ChatRepository;
 
 namespace Vodovoz.ServiceDialogs.Chat
 {
 	public partial class SendMessageDlg : Gtk.Dialog
 	{
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		IList<Employee> Recipients;
 		
@@ -41,7 +43,7 @@ namespace Vodovoz.ServiceDialogs.Chat
 				ChatMain.ChatServiceUrl).CreateChannel();
 				
 			var accessToLogisticChat = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(UoW, currentEmployee, accessToLogisticChat);
+			var unreadedMessages = _chatMessageRepository.GetUnreadedChatMessages(UoW, currentEmployee, accessToLogisticChat);
 			bool needCommit = false;
 
 			foreach(var recipient in Recipients)

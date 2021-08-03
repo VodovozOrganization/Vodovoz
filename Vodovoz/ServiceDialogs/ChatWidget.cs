@@ -7,9 +7,10 @@ using QS.DomainModel.UoW;
 using QS.Tdi;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository.Chats;
 using Chats;
+using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
+using LastReadedRepository = Vodovoz.Repository.Chats.LastReadedRepository;
 
 namespace Vodovoz
 {
@@ -21,6 +22,7 @@ namespace Vodovoz
 		private TextTagTable textTags;
 		private Employee currentEmployee;
 		private IUnitOfWorkGeneric<Chat> chatUoW;
+		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
 
 		static IChatService getChatService()
 		{
@@ -64,8 +66,12 @@ namespace Vodovoz
 				this.Destroy();
 				return;
 			}
+			
 			if (!ChatCallbackObservable.IsInitiated)
-				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
+			{
+				ChatCallbackObservable.CreateInstance(currentEmployee.Id, _chatMessageRepository);
+			}
+
 			ChatCallbackObservable.GetInstance().AddObserver(this);
 			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
 
@@ -133,7 +139,7 @@ namespace Vodovoz
 
 		private void updateChat()
 		{
-			var messages = ChatMessageRepository.GetChatMessagesForPeriod(chatUoW, chatUoW.Root, showMessagePeriod);
+			var messages = _chatMessageRepository.GetChatMessagesForPeriod(chatUoW, chatUoW.Root, showMessagePeriod);
 
 			TextBuffer tempBuffer = new TextBuffer(textTags);
 			TextIter iter = tempBuffer.EndIter;
