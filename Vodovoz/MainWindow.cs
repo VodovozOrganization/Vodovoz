@@ -1293,7 +1293,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-            () => new QSReport.ReportViewDlg(new MastersVisitReport())
+            () => new QSReport.ReportViewDlg(new MastersVisitReport(new EmployeeRepository()))
         );
     }
 

@@ -10,24 +10,22 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
-using QS.Project.Repositories;
-using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz
 {
 	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public FineDlg()
 		{
@@ -256,7 +254,7 @@ namespace Vodovoz
 
         private bool GetAuthor(out Employee cashier)
         {
-            cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
             if (cashier == null)
             {
                 MessageDialogHelper.RunErrorDialog(

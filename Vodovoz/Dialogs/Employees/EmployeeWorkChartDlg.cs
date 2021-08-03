@@ -6,6 +6,8 @@ using QS.Tdi;
 using Vodovoz;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
@@ -13,9 +15,10 @@ namespace Dialogs.Employees
 {
 	public partial class EmployeeWorkChartDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
 	{
-		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+			
+		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private List<EmployeeWorkChart> loadedCharts = new List<EmployeeWorkChart>();
 		private List<EmployeeWorkChart> newCharts = new List<EmployeeWorkChart>();
 		private List<EmployeeWorkChart> chartsToDelete = new List<EmployeeWorkChart>();
@@ -110,7 +113,7 @@ namespace Dialogs.Employees
 
 					logger.Debug("Загрузка данных из БД");
 
-					charts = EmployeeRepository.GetWorkChartForEmployeeByDate(
+					charts = _employeeRepository.GetWorkChartForEmployeeByDate(
 						uow, emp, new DateTime(year, month, 1));
 
 					foreach(var item in charts)

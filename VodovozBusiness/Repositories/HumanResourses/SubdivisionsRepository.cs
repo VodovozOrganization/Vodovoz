@@ -23,7 +23,7 @@ namespace Vodovoz.Repositories.HumanResources
 		[Obsolete]
 		public static IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false)
 		{
-			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetAllDepartments(uow, orderByDescending);
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetAllDepartmentsOrderedByName(uow, orderByDescending);
 		}
 
 		/// <summary>

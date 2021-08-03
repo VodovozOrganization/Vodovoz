@@ -12,10 +12,9 @@ using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Cash;
 
 namespace Vodovoz
 {
@@ -23,6 +22,7 @@ namespace Vodovoz
 	public partial class LoadBankTransferDocumentDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private BankTransferDocumentParser parser;
 		private IUnitOfWork uow;
 
@@ -375,7 +375,7 @@ namespace Vodovoz
 					var recipientCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
 					if (recipientCounterparty == null) {
 						//Возможно это сотрудник
-						var employee = EmployeeRepository.GetEmployeeByINNAndAccount (uow, doc.RecipientInn, doc.RecipientCheckingAccount);
+						var employee = _employeeRepository.GetEmployeeByINNAndAccount(uow, doc.RecipientInn, doc.RecipientCheckingAccount);
 						if (employee == null) {
 							documents.SetValue (iter, (int)Columns.RecipientNameColorCol, NeedToAdd);
 							documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
@@ -589,7 +589,7 @@ namespace Vodovoz
 							expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (expenseUoW, doc.RecipientInn);
 							if (expenseUoW.Root.Counterparty == null) {
-								expenseUoW.Root.Employee = EmployeeRepository.GetEmployeeByINNAndAccount (expenseUoW, doc.RecipientInn, doc.RecipientCheckingAccount);
+								expenseUoW.Root.Employee =_employeeRepository.GetEmployeeByINNAndAccount (expenseUoW, doc.RecipientInn, doc.RecipientCheckingAccount);
 								expenseUoW.Root.EmployeeAccount = expenseUoW.Root.Employee.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
 							} else {
 								expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);

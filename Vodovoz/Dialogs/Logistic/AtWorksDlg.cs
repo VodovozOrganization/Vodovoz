@@ -388,7 +388,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var SelectForwarder = new OrmReference(
 				UoW,
-				Repositories.HumanResources.EmployeeRepository.ActiveForwarderOrderedQuery()
+				_employeeRepository.ActiveForwarderOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -579,11 +579,12 @@ namespace Vodovoz.Dialogs.Logistic
 					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
 					return false;
 				}
-
+			
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
 			{
-				atWorkDriver.CommentLastEditedAuthor = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				atWorkDriver.CommentLastEditedAuthor = currentEmployee;
 				atWorkDriver.CommentLastEditedDate = DateTime.Now;
 			}
 			driversWithCommentChanged.Clear();

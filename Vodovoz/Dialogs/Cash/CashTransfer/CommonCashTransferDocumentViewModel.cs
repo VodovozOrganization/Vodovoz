@@ -12,12 +12,14 @@ using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class CommonCashTransferDocumentViewModel : ViewModel<CommonCashTransferDocument>
 	{
 		private readonly ICategoryRepository _categoryRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IList<Subdivision> availableSubdivisionsForUser;
@@ -25,10 +27,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		public CommonCashTransferDocumentViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
 			IUnitOfWorkFactory factory,
-			ICategoryRepository categoryRepository) : base(entityUoWBuilder, factory)
+			ICategoryRepository categoryRepository,
+			IEmployeeRepository employeeRepository) : base(entityUoWBuilder, factory)
 		{
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
-			
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+
 			if(entityUoWBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
@@ -50,7 +54,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		public Employee Cashier {
 			get {
 				if(cashier == null) {
-					cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+					cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				}
 				return cashier;
 			}

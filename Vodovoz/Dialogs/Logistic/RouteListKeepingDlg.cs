@@ -42,6 +42,8 @@ namespace Vodovoz
 {
 	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;
 		private bool logisticanEditing = true;
@@ -92,7 +94,7 @@ namespace Vodovoz
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						new EmployeeRepository(),
+						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -405,7 +407,7 @@ namespace Vodovoz
 				if(changedList.Count == 0)
 					return true;
 
-				var currentEmployee = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 				if(currentEmployee == null) {
 					MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 					return true;

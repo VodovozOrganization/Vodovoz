@@ -6,34 +6,38 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Android;
 using Vodovoz.Services;
 using SmsPaymentService;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace VodovozAndroidDriverService
 {
 	public class AndroidDriverServiceInstanceProvider : IInstanceProvider
 	{
-		private readonly WageParameterService wageParameterService;
-		private readonly IDriverServiceParametersProvider parameters;
-		private readonly ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory;
-		private readonly IDriverNotificator driverNotificator;
+		private readonly WageParameterService _wageParameterService;
+		private readonly IDriverServiceParametersProvider _parameters;
+		private readonly ChannelFactory<ISmsPaymentService> _smsPaymentChannelFactory;
+		private readonly IDriverNotificator _driverNotificator;
+		private readonly IEmployeeRepository _employeeRepository;
 
 		public AndroidDriverServiceInstanceProvider(
 			WageParameterService wageParameterService, 
 			IDriverServiceParametersProvider parameters,
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
-			IDriverNotificator driverNotificator
-			)
+			IDriverNotificator driverNotificator,
+			IEmployeeRepository employeeRepository)
 		{
-			this.wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-			this.smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
-			this.driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+			_smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
+			_driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new AndroidDriverService(wageParameterService, parameters, smsPaymentChannelFactory, driverNotificator);
+			return new AndroidDriverService(
+				_wageParameterService, _parameters, _smsPaymentChannelFactory, _driverNotificator, _employeeRepository);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

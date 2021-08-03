@@ -19,19 +19,23 @@ using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class IncomeCashTransferDocumentViewModel : ViewModel<IncomeCashTransferDocument>
 	{
 		private readonly ICategoryRepository _categoryRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		
 		public IncomeCashTransferDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICategoryRepository categoryRepository) : base(uowBuilder, unitOfWorkFactory)
+			ICategoryRepository categoryRepository,
+			IEmployeeRepository employeeRepository) : base(uowBuilder, unitOfWorkFactory)
 		{
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			if(uowBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
@@ -51,7 +55,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		public Employee Cashier {
 			get {
 				if(cashier == null) {
-					cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+					cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				}
 				return cashier;
 			}

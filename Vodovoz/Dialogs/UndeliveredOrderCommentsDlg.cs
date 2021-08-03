@@ -4,6 +4,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 
@@ -11,6 +12,7 @@ namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveredOrderCommentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		IUnitOfWork UoW { get; set; }
 		UndeliveredOrderComment Comment { get; set; }
 		CommentedFields Field { get; set; }
@@ -30,7 +32,7 @@ namespace Vodovoz.Dialogs
 			UoW = uow;
 			Field = field;
 			UndeliveredOrder = uow.GetById<UndeliveredOrder>(id);
-			Employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			Employee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 			if(Employee == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику и вы не можете комментировать недовозы, так как некого указывать в качестве автора.");
 				FailInitialize = true;

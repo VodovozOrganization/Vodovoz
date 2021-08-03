@@ -15,6 +15,7 @@ using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.ViewModelBased;
 using Vodovoz.JournalFilters.Cash;
 using CashRepository = Vodovoz.Repository.Cash.CashRepository;
@@ -144,13 +145,13 @@ namespace Vodovoz.Representations
 				//функция диалога создания документа
 				() => {
 					var viewModel = new IncomeCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository());
+						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
 					var viewModel = new IncomeCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository());
+						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -227,13 +228,13 @@ namespace Vodovoz.Representations
 				//функция диалога создания документа
 				() => {
 					var viewModel = new CommonCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository());
+						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
 					var viewModel = new CommonCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository());
+						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

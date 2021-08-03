@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using SmsPaymentService;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace VodovozAndroidDriverService
 {
@@ -58,8 +59,14 @@ namespace VodovozAndroidDriverService
 				string.Format("http://{0}:{1}/SmsPaymentService", smsPaymentServiceHostName, smsPaymentServicePort)
 			);
 
-			WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator);
+			WageParameterService wageParameterService =
+				new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+			
+			var employeeRepository = new EmployeeRepository();
+				
+			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider =
+				new AndroidDriverServiceInstanceProvider(
+					wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator, employeeRepository);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

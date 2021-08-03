@@ -13,7 +13,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repository.Chats;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
@@ -22,7 +22,10 @@ namespace Vodovoz
 {
 	public partial class RouteListTrackDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		
+		private readonly IEmployeeRepository _employeeRepository;
+
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
 		private uint timerId;
@@ -34,16 +37,19 @@ namespace Vodovoz
 		private Gtk.Window mapWindow;
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
-		public RouteListTrackDlg()
+		public RouteListTrackDlg(IEmployeeRepository employeeRepository)
 		{
-			this.Build();
-			this.TabName = "Мониторинг";
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+
+			Build();
+			TabName = "Мониторинг";
 			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM(uow);
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Visible = buttonSendMessage.Visible = false;
-			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
+			
 			if (currentEmployee == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
@@ -136,8 +142,8 @@ namespace Vodovoz
 					chatUoW.Save ();
 					chat = chatUoW.Root;
 				}
-				TabParent.OpenTab (ChatWidget.GenerateHashName (chat.Id),
-					() => new ChatWidget (chat.Id)
+				TabParent.OpenTab (ChatWidget.GenerateHashName(chat.Id),
+					() => new ChatWidget(chat.Id, _employeeRepository)
 				);
 			}
 		}
@@ -371,8 +377,8 @@ namespace Vodovoz
 		protected void OnButtonSendMessageClicked (object sender, EventArgs e)
 		{
 			var selected = yTreeViewDrivers.GetSelectedObjects<WorkingDriverVMNode> ();
-			var drivers = selected.Select (x => x.Id).ToArray();
-			var sendDlg = new SendMessageDlg (drivers);
+			var drivers = selected.Select(x => x.Id).ToArray();
+			var sendDlg = new SendMessageDlg(drivers, _employeeRepository);
 
 			if(sendDlg.Run () == (int)Gtk.ResponseType.Ok)
 			{

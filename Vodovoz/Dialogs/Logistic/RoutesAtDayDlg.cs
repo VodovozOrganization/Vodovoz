@@ -37,6 +37,7 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz
@@ -46,6 +47,7 @@ namespace Vodovoz
 	{
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -1211,7 +1213,7 @@ namespace Vodovoz
 		{
 			var SelectDrivers = new OrmReference(
 				UoW,
-				EmployeeRepository.ActiveDriversOrderedQuery()
+				_employeeRepository.ActiveDriversOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -1243,7 +1245,7 @@ namespace Vodovoz
 		{
 			var SelectForwarder = new OrmReference(
 				UoW,
-				EmployeeRepository.ActiveForwarderOrderedQuery()
+				_employeeRepository.ActiveForwarderOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -1288,7 +1290,7 @@ namespace Vodovoz
 
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
-			var logistican = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var logistican = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(logistican == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				return;
@@ -1457,7 +1459,7 @@ namespace Vodovoz
 		protected void OnLabel2WidgetEvent(object o, WidgetEventArgs args)
 		{
 			if(args.Event.Type == EventType.ButtonPress && (args.Event as EventButton).Button == 1) {
-				var user = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				var user = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				if(user.User.Id != 94)
 					return;
 

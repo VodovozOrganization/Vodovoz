@@ -16,6 +16,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.EntityRepositories;
 using NHibernate.Criterion;
 using RdlEngine;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -125,7 +126,7 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+				var employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
 				email.AuthorId = employee != null ? employee.Id : 0;
 				email.ManualSending = true;
 			}

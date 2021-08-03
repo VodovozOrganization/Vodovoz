@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
@@ -36,11 +37,14 @@ namespace Vodovoz
 	public partial class NomenclatureDlg : QS.Dialog.Gtk.EntityDialogBase<Nomenclature>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		Warehouse selectedWarehouse;
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		
+		private Warehouse _selectedWarehouse;
 
 		public NomenclatureDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature>();
 			TabName = "Новая номенклатура";
 			ConfigureDlg();
@@ -48,7 +52,7 @@ namespace Vodovoz
 
 		public NomenclatureDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Nomenclature>(id);
 			ConfigureDlg();
 		}
@@ -230,7 +234,7 @@ namespace Vodovoz
 			if(Entity.CreatedBy == null) {
 				return "";
 			}
-			var employee = EmployeeRepository.GetEmployeesForUser(UoW, s.Id).FirstOrDefault();
+			var employee = _employeeRepository.GetEmployeesForUser(UoW, s.Id).FirstOrDefault();
 			if(employee == null) {
 				return Entity.CreatedBy.Name;
 			} else {

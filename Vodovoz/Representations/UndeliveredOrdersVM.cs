@@ -21,8 +21,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 using NLog;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Representations
 {
@@ -496,7 +496,7 @@ namespace Vodovoz.Representations
 		public UndeliveredOrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
-			var currEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			var currEmployee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
 			if(currEmployee != null)
 				currUser = currEmployee.Id;
 		}

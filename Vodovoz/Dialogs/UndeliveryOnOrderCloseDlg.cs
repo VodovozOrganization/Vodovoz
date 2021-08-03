@@ -4,13 +4,14 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveryOnOrderCloseDlg : QS.Dialog.Gtk.SingleUowTabBase
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		UndeliveredOrder undelivery;
 		Order order;
 
@@ -29,10 +30,12 @@ namespace Vodovoz.Dialogs
 
 		public void ConfigureDlg()
 		{
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			
 			undelivery = new UndeliveredOrder{
 				UoW = UoW,
-				Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
-				EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
+				Author = currentEmployee,
+				EmployeeRegistrator = currentEmployee,
 				TimeOfCreation = DateTime.Now,
 				OldOrder = order
 			};

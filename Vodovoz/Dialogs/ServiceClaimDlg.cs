@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
@@ -26,6 +27,8 @@ namespace Vodovoz
 {
 	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{
 			get{
@@ -97,7 +100,7 @@ namespace Vodovoz
 
 		void CreateOrder()
 		{
-			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+			var employee =_employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 			var order = Order.CreateFromServiceClaim(Entity, employee);
 			UoWGeneric.Save(order);
 			UoWGeneric.Commit();

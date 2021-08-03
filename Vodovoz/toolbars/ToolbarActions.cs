@@ -864,7 +864,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg()
+			() => new RouteListTrackDlg(new EmployeeRepository())
 		);
 	}
 

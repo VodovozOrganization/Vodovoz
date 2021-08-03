@@ -11,18 +11,20 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -307,7 +309,7 @@ namespace Vodovoz
 		{
 			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path)) as RouteListItem;
 
-			node.CashierCommentAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			node.CashierCommentAuthor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if (node.CashierCommentCreateDate.HasValue)
 				node.CashierCommentLastUpdate = DateTime.Now.Date;

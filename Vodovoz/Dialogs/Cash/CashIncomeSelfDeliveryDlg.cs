@@ -10,8 +10,6 @@ using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using QS.Services;
 using Vodovoz.EntityRepositories;
@@ -23,13 +21,10 @@ using Vodovoz.Core.DataService;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Documents;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -65,9 +60,9 @@ namespace Vodovoz.Dialogs.Cash
 
 		public CashIncomeSelfDeliveryDlg(IPermissionService permissionService)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
-			Entity.Casher = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
             incomeCategoryList.AddRange(_categoryRepository.SelfDeliveryIncomeCategories(UoW));
             if (Entity.Id == 0){
                 Entity.IncomeCategory = incomeCategoryList.FirstOrDefault();

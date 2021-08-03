@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using FluentNHibernate.Data;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -14,15 +13,14 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveredOrderDlg : QS.Dialog.Gtk.SingleUowTabBase, ITdiTabAddedNotifier
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
 		UndeliveredOrder UndeliveredOrder { get; set; }
@@ -35,7 +33,7 @@ namespace Vodovoz.Dialogs
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						OrderSingletonRepository.GetInstance(),
-						new EmployeeRepository(),
+						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
@@ -50,13 +48,14 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
-			UndeliveredOrder.Author = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			UndeliveredOrder.EmployeeRegistrator = Repositories.HumanResources.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			UndeliveredOrder.Author = UndeliveredOrder.EmployeeRegistrator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+
 			if(UndeliveredOrder.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}
+			
 			TabName = "Новый недовоз";
 			UndeliveredOrder.TimeOfCreation = DateTime.Now;
 			ConfigureDlg();

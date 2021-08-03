@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Representations;
 
@@ -14,12 +15,13 @@ namespace Vodovoz.Dialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NuanceDlg : QS.Dialog.Gtk.EntityDialogBase<Comments>
 	{
-		object UoWforeign;
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private object UoWforeign;
 
 		public NuanceDlg(object uow)
 		{
 			UoWforeign = uow;
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Comments>();
 
 			ConfigureDlg();
@@ -28,7 +30,7 @@ namespace Vodovoz.Dialogs
 		public NuanceDlg(object uow, int id)
 		{
 			UoWforeign = uow;
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Comments>(id);
 
 			ConfigureDlg();
@@ -36,7 +38,7 @@ namespace Vodovoz.Dialogs
 
 		protected void ConfigureDlg()
 		{
-			referenceAuthor.ItemsQuery = EmployeeRepository.ActiveEmployeeOrderedQuery();
+			referenceAuthor.ItemsQuery = _employeeRepository.ActiveEmployeeOrderedQuery();
 			referenceAuthor.SetObjectDisplayFunc<Employee>(e => e.ShortName);
 			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			referenceAuthor.Sensitive = false;
@@ -87,7 +89,7 @@ namespace Vodovoz.Dialogs
 		public override bool Save()
 		{
 
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать , так как некого указывать в качестве автора документа.");
 				FailInitialize = true;

@@ -62,7 +62,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		/// <returns>Список подразделений</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		public IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false)
+		public IList<Subdivision> GetAllDepartmentsOrderedByName(IUnitOfWork uow, bool orderByDescending = false)
 		{
 			var query = uow.Session.QueryOver<Subdivision>()
 			   .OrderBy(i => i.Name);
@@ -78,7 +78,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
 		public IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false)
 		{
-			return GetAllDepartments(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
+			return GetAllDepartmentsOrderedByName(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
 		}
 
 		/// <summary>
