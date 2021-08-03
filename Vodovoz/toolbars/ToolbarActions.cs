@@ -69,6 +69,8 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.Views.Suppliers;
 
 public partial class MainWindow : Window
 {
@@ -133,6 +135,7 @@ public partial class MainWindow : Window
 	//Suppliers
 	Action ActionNewRequestToSupplier;
 	Action ActionJournalOfRequestsToSuppliers;
+	Action ActionWarehousesBalanceSummary;
 
 	//ТрО
 	private Action ActionCarEventsJournal;
@@ -212,6 +215,7 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
 		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
+		ActionWarehousesBalanceSummary = new Action(nameof(ActionWarehousesBalanceSummary), "Остатки по складам", null, "table");
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
@@ -282,6 +286,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		w1.Add(ActionExportImportNomenclatureCatalog, null);
+		w1.Add(ActionWarehousesBalanceSummary, null);
 
 		//ТрО
 		w1.Add(ActionCarEventsJournal, null);
@@ -357,11 +362,19 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
+		ActionWarehousesBalanceSummary.Activated += ActionWarehousesBalanceSummary_Activated;
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 		
 		#endregion
+	}
+
+	private void ActionWarehousesBalanceSummary_Activated(object sender, EventArgs e)
+	{
+		var viewModel = new WarehousesBalanceSummaryViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService,
+			NavigationManager);
+		tdiMain.AddTab(viewModel);
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
