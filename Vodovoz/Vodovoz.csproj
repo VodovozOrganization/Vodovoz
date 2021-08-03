@@ -1654,6 +1654,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
+    <Compile Include="Views\Suppliers\WarehousesBalanceSummaryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
