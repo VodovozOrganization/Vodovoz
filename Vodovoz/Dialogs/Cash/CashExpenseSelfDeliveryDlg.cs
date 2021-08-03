@@ -10,7 +10,6 @@ using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using QS.Services;
 using Vodovoz.EntityRepositories;
@@ -38,6 +37,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
         private List<ExpenseCategory> expenseCategoryList = new List<ExpenseCategory>();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
@@ -243,7 +243,7 @@ namespace Vodovoz.Dialogs.Cash
 		{
 			if (Entity.Order != null)
 			{
-				Entity.FillFromOrder(UoW);
+				Entity.FillFromOrder(UoW, _cashRepository);
 			}
 		}
 		

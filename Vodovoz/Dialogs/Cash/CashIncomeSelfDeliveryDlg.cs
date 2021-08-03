@@ -37,6 +37,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
         private List<IncomeCategory> incomeCategoryList = new List<IncomeCategory>();
@@ -246,7 +247,7 @@ namespace Vodovoz.Dialogs.Cash
 		{
 			if (Entity.Order != null)
 			{
-				Entity.FillFromOrder(UoW);
+				Entity.FillFromOrder(UoW, _cashRepository);
 			}
 		}
 		

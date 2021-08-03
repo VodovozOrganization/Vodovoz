@@ -10,7 +10,6 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Parameters;
-using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic

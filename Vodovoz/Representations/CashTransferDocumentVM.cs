@@ -16,15 +16,14 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.ViewModelBased;
 using Vodovoz.JournalFilters.Cash;
-using CashRepository = Vodovoz.Repository.Cash.CashRepository;
 
 namespace Vodovoz.Representations
 {
 	public class CashTransferDocumentVM : MultipleEntityModelBase<CashTransferDocumentVMNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICashRepository _cashRepository;
 
 		private CashTransferDocumentVMNode resultAlias = null;
 
@@ -34,13 +33,17 @@ namespace Vodovoz.Representations
             set => RepresentationFilter = value as IRepresentationFilter;
         }
 
-        public CashTransferDocumentVM(IUnitOfWorkFactory unitOfWorkFactory, CashTransferDocumentsFilter cashTransferDocumentsFilter)
+        public CashTransferDocumentVM(
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        CashTransferDocumentsFilter cashTransferDocumentsFilter,
+	        ICashRepository cashRepository)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Filter = cashTransferDocumentsFilter;
-            Filter.UoW = UoW;
+			Filter.UoW = UoW;
             JournalFilter = Filter;
 
 			RegisterIncomeTransfer();
@@ -75,7 +78,7 @@ namespace Vodovoz.Representations
 
 		public override string GetSummaryInfo()
 		{
-			return $"{base.GetSummaryInfo()}. В сейфе инкасcатора: {CurrencyWorks.GetShortCurrencyString(CashRepository.GetCashInTransfering(UoW))}";
+			return $"{base.GetSummaryInfo()}. В сейфе инкасcатора: {CurrencyWorks.GetShortCurrencyString(_cashRepository.GetCashInTransfering(UoW))}";
 		}
 
 		private void RegisterIncomeTransfer()
@@ -145,13 +148,13 @@ namespace Vodovoz.Representations
 				//функция диалога создания документа
 				() => {
 					var viewModel = new IncomeCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
+						EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
 					var viewModel = new IncomeCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
+						EntityUoWBuilder.ForOpen(node.DocumentId), _unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -228,13 +231,13 @@ namespace Vodovoz.Representations
 				//функция диалога создания документа
 				() => {
 					var viewModel = new CommonCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForCreate(), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
+						EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
 					var viewModel = new CommonCashTransferDocumentViewModel(
-						EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
+						EntityUoWBuilder.ForOpen(node.DocumentId), _unitOfWorkFactory, new CategoryRepository(), new EmployeeRepository());
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

@@ -653,11 +653,15 @@ public partial class MainWindow : Window
 
 	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
+		var cashRepository = new CashRepository();
+		
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
 			() => {
-				var vm = new CashTransferDocumentVM(UnitOfWorkFactory.GetDefaultFactory,
-                    new CashTransferDocumentsFilter());
+				var vm = new CashTransferDocumentVM(
+					UnitOfWorkFactory.GetDefaultFactory,
+                    new CashTransferDocumentsFilter(),
+					cashRepository);
 				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
 			}
 		);
@@ -886,10 +890,12 @@ public partial class MainWindow : Window
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
 	{
+		var cashRepository = new CashRepository();
+		
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<CashMultipleDocumentVM>(),
 			() => {
-				var vm = new CashMultipleDocumentVM(new CashDocumentsFilter());
+				var vm = new CashMultipleDocumentVM(new CashDocumentsFilter(), cashRepository);
 				return new MultipleEntityJournal("Журнал кассовых документов", vm, vm);
 			}
 		);

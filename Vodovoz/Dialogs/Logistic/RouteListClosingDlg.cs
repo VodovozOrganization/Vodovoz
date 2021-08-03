@@ -415,9 +415,7 @@ namespace Vodovoz
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
 
-		private decimal GetCashOrder() {
-			return CashRepository.CurrentRouteListCash(UoW, Entity.Id);
-		}
+		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum() {
 			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal &&
@@ -793,7 +791,7 @@ namespace Vodovoz
 				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
-			var cash = CashRepository.CurrentRouteListCash(UoW, Entity.Id);
+			var cash = _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {

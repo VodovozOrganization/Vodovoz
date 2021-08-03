@@ -35,13 +35,10 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using CashRepository = Vodovoz.Repository.Cash.CashRepository;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -70,7 +67,7 @@ namespace Vodovoz.Domain.Logistic
 
 		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository(new RouteListRepository());
 		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
-		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		
 		#region Свойства
@@ -544,7 +541,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
 
-		public virtual bool HasMoneyDiscrepancy => Total != cashRepository.CurrentRouteListCash(UoW, Id);
+		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
 		#endregion
 
@@ -1693,7 +1690,7 @@ namespace Vodovoz.Domain.Logistic
 			Income cashIncome = null;
 			Expense cashExpense = null;
 
-			var currentRouteListCash = CashRepository.CurrentRouteListCash(UoW, this.Id);
+			var currentRouteListCash = _cashRepository.CurrentRouteListCash(UoW, this.Id);
 			var different = Total - currentRouteListCash;
 			if(different == 0M) {
 				return messages.ToArray();

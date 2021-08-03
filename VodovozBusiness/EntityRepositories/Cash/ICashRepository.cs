@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.EntityRepositories.Cash
@@ -17,5 +18,6 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// </summary>
 		decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null);
 		bool OrderHasIncome(IUnitOfWork uow, int orderId);
+		IList<OperationNode> GetCashBalanceForOrganizations(IUnitOfWork uow);
 	}
 }

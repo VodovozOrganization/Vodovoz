@@ -158,6 +158,7 @@
     <Compile Include="EntityRepositories\Cash\CategoryRepository.cs" />
     <Compile Include="EntityRepositories\Cash\IAccountableDebtsRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICategoryRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\OperationNode.cs" />
     <Compile Include="EntityRepositories\Chats\ChatMessageRepository.cs" />
     <Compile Include="EntityRepositories\Chats\ChatRepository.cs" />
     <Compile Include="EntityRepositories\Chats\IChatMessageRepository.cs" />
@@ -499,7 +500,6 @@
     <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
-    <Compile Include="Repositories\Cash\CashRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentKindRepository.cs" />
