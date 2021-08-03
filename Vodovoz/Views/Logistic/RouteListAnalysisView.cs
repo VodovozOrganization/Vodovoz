@@ -15,7 +15,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -52,7 +51,7 @@ namespace Vodovoz.Views.Logistic
 			entityVMEntryLogistician.SetEntityAutocompleteSelectorFactory(ViewModel.LogisticanSelectorFactory);
 			entityVMEntryLogistician.Binding.AddBinding(ViewModel.Entity, rl => rl.Logistician, w => w.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(ViewModel.UoW);
+			speccomboShift.ItemsList = ViewModel.DeliveryShifts;
 			speccomboShift.Binding.AddBinding(ViewModel.Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			datePickerDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date).InitializeFromSource();

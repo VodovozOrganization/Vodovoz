@@ -45,6 +45,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
@@ -154,7 +155,7 @@ namespace Vodovoz
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = Repository.Logistics.DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();

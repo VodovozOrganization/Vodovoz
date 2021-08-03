@@ -8,7 +8,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
 using QS.Dialog;
@@ -22,8 +21,6 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
-using QS.Osm;
-using QS.Osm.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -36,6 +33,7 @@ namespace Vodovoz
 	{
 		#region Поля
 
+		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		bool editing = true;
 
 		List<RouteListKeepingItemNode> items;
@@ -91,7 +89,7 @@ namespace Vodovoz
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);
+			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoWGeneric);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();

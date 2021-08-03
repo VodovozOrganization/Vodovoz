@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,25 +23,23 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewWidgets.Mango;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz
 {
 	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;
@@ -143,7 +140,7 @@ namespace Vodovoz
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.Sensitive = logisticanEditing;
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = logisticanEditing;
 

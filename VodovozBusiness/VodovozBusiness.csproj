@@ -504,7 +504,6 @@
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentKindRepository.cs" />
-    <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
     <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
     <Compile Include="Repositories\Logistics\RouteListRepository.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
