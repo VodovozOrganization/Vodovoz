@@ -11,7 +11,6 @@ using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Services;
 using Vodovoz.EntityRepositories;
@@ -40,6 +39,7 @@ namespace Vodovoz
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -381,9 +381,11 @@ namespace Vodovoz
 			FillDebts ();
 		}
 
-		protected void FillDebts(){
-			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null) {
-				var advances = AccountableDebtsRepository
+		protected void FillDebts()
+		{
+			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null)
+			{
+				var advances = _accountableDebtsRepository
 					.UnclosedAdvance(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
 				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
 				.ToList ();

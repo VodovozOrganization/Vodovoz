@@ -35,6 +35,7 @@ namespace Vodovoz
 		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 
 		protected decimal Debt {
 			get {
@@ -310,15 +311,14 @@ namespace Vodovoz
 			logger.Info("Получаем долг {0}...", Entity.Accountable.ShortName);
 			//Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
 
-			var advaces = 
-				Repository.Cash.AccountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, 
-					Entity.Organisation?.Id);
+			var advances =
+				_accountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, Entity.Organisation?.Id);
 
-			Debt = advaces.Sum(a => a.UnclosedMoney);
+			Debt = advances.Sum(a => a.UnclosedMoney);
 
 			advanceList = new List<RecivedAdvance>();
 
-			advaces.ToList().ForEach(adv => advanceList.Add(new RecivedAdvance(adv)));
+			advances.ToList().ForEach(adv => advanceList.Add(new RecivedAdvance(adv)));
 			advanceList.ForEach(i => i.SelectChanged += I_SelectChanged);
 			ytreeviewDebts.ItemsDataSource = advanceList;
 

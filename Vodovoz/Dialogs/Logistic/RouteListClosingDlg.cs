@@ -46,7 +46,6 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using AccountableDebtsRepository = Vodovoz.Repository.Cash.AccountableDebtsRepository;
 
 namespace Vodovoz
 {
@@ -57,8 +56,9 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private readonly ICashRepository _cashRepository = new EntityRepositories.Cash.CashRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -196,7 +196,7 @@ namespace Vodovoz
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 
-			decimal unclosedAdvanceMoney = AccountableDebtsRepository.EmloyeeDebt(UoW, Entity.Driver);
+			decimal unclosedAdvanceMoney = _accountableDebtsRepository.EmployeeDebt(UoW, Entity.Driver);
 			ylabelUnclosedAdvancesMoney.LabelProp =
 				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
 
