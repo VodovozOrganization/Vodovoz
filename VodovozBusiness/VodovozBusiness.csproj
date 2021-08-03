@@ -679,7 +679,6 @@
     <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
-    <Compile Include="Repositories\HumanResourses\SubdivisionsRepository.cs" />
     <Compile Include="Repositories\HumanResourses\UserRepository.cs" />
     <Compile Include="Domain\Employees\EmployeeDocument.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeDocumentMap.cs" />

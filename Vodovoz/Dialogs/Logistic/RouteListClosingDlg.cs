@@ -20,7 +20,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -59,6 +58,7 @@ namespace Vodovoz
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -1168,7 +1168,7 @@ namespace Vodovoz
 
 		bool CheckIfCashier()
 		{
-			var cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var cashSubdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			return cashSubdivisions.Contains(_employeeRepository.GetEmployeeForCurrentUser(UoW)?.Subdivision);
 		}
 

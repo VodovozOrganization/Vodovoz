@@ -17,7 +17,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.ViewModel;
 
@@ -28,6 +28,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 
 		private Order _newOrder = null;
@@ -141,7 +142,9 @@ namespace Vodovoz.ViewWidgets
 			};
 
 			if(undelivery.Id <= 0)
-				yentInProcessAtDepartment.Subject = SubdivisionsRepository.GetQCDepartment(UoW);
+			{
+				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(UoW);
+			}
 
 			refRegisteredBy.RepresentationModel = new EmployeesVM(UoW);
 			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();

@@ -30,7 +30,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
@@ -39,6 +38,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz
 {
@@ -47,7 +47,8 @@ namespace Vodovoz
 	{
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();		
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -243,7 +244,7 @@ namespace Vodovoz
 
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
 
-			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var subdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!subdivisions.Any()) {
 				MessageDialogHelper.RunErrorDialog("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
 				FailInitialize = true;

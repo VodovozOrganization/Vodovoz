@@ -5,6 +5,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 
@@ -12,6 +13,8 @@ namespace Vodovoz.Domain.Permissions
 {
 	public static class EntitySubdivisionForUserPermissionValidator
 	{
+		private static readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private static readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		/// <summary>
 		/// Проверка прав доступа по списку сущностей для текущего пользователя
 		/// </summary>
@@ -22,13 +25,12 @@ namespace Vodovoz.Domain.Permissions
 			return Validate(uow, user.Id, entityTypes);
 		}
 
-
 		public static IEnumerable<IEntitySubdivisionForUserPermissionValidationResult> Validate(IUnitOfWork uow, int userId, Type[] entityTypes)
 		{
 			var result = new List<EntitySubdivisionForUserPermissionValidationResult>();
 
 			string[] entityNames = entityTypes.Select(x => x.Name).ToArray();
-			var employee = new EmployeeRepository().GetEmployeesForUser(uow, userId).FirstOrDefault();
+			var employee = _employeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
 			Subdivision mainSubdivision = employee?.Subdivision;
 
 			if(mainSubdivision != null) {
@@ -52,7 +54,7 @@ namespace Vodovoz.Domain.Permissions
 				}
 			}
 
-			var subdivisionsForEntities = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(uow, entityTypes);
+			var subdivisionsForEntities = _subdivisionRepository.GetSubdivisionsForDocumentTypes(uow, entityTypes);
 			var specialPermissions = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForSomeEntities(uow, userId, entityNames)
 				.Where(x => subdivisionsForEntities.Contains(x.Subdivision) || Subdivision.ReferenceEquals(x.Subdivision, mainSubdivision));
 
@@ -93,7 +95,7 @@ namespace Vodovoz.Domain.Permissions
 		public static IEnumerable<IEntitySubdivisionForUserPermissionValidationResult> Validate(IUnitOfWork uow, int userId, Type entityType)
 		{
 			var result = new List<EntitySubdivisionForUserPermissionValidationResult>();
-			var employee = new EmployeeRepository().GetEmployeesForUser(uow, userId).FirstOrDefault();
+			var employee = _employeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
 			var mainPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(entityType, userId);
 			Subdivision mainSubdivision = employee?.Subdivision;
 
@@ -115,7 +117,7 @@ namespace Vodovoz.Domain.Permissions
 			}
 
 
-			var subdivisionsForEntities = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(uow, new Type[] { entityType });
+			var subdivisionsForEntities = _subdivisionRepository.GetSubdivisionsForDocumentTypes(uow, new Type[] { entityType });
 			var specialPermissions = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForOneEntity(uow, userId, entityType.Name)
 				.Where(x => subdivisionsForEntities.Contains(x.Subdivision) || Subdivision.ReferenceEquals(x.Subdivision, mainSubdivision));
 
