@@ -598,7 +598,6 @@
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Orders\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
-    <Compile Include="Repositories\Client\WaterPricesRepository.cs" />
     <Compile Include="Domain\Client\SalesEquipmentAgreement.cs" />
     <Compile Include="Domain\Client\SalesEquipment.cs" />
     <Compile Include="DocTemplates\EquipmentAgreementParser.cs" />
