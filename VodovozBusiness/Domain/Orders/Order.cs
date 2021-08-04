@@ -213,9 +213,9 @@ namespace Vodovoz.Domain.Orders
 					UpdateContract();
 				}
 				if(Contract != null && Contract.Id != 0 && DeliveryDate.HasValue 
-				   && lastDate==Contract.IssueDate 
+				   && lastDate == Contract.IssueDate 
 				   && Contract.IssueDate != DeliveryDate.Value
-				   && _orderRepository.IfOrderDeliveryIsFirst(UoW, Client, Id)
+				   && _orderRepository.CanChangeContractDate(UoW, Client, DeliveryDate.Value, Id)
 				   && OrderStatus != OrderStatus.Closed)
 				{
 					Contract.IssueDate = DeliveryDate.Value.Date;

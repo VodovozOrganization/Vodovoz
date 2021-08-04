@@ -334,30 +334,30 @@ namespace Vodovoz.EntityRepositories.Orders
 			else
 				return queryResult.List();
 		}
-
+		
 		/// <summary>
-		/// Проверка, если заказ клиента является первым.
+		/// Проверка возможности изменения даты контракта при изменении даты доставки заказа.
+		/// Если дата первого заказа меньше newDeliveryDate и это - текущий изменяемый заказ - возвращает True.
+		/// Если первый заказ меньше newDeliveryDate и он не является текущим заказом - возвращает False.
 		/// </summary>
-		/// <param name="UoW"></param>
-		/// <param name="client"></param>
-		/// <param name="newDeliveryDate"></param>
-		/// <returns></returns>
-		public bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, int orderId)
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="client">Поиск заказов по этому контрагенту</param>
+		/// <param name="newDeliveryDate">Новая дата доставки заказа</param>
+		/// <param name="orderId">Текущий изменяемый заказ</param>
+		/// <returns>Возможность смены даты контракта</returns>
+		public bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId)
 		{
 			VodovozOrder orderAlias = null;
 			
-			var queryResult = UoW.Session.QueryOver(() => orderAlias)
+			var result = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client == client)
 				.OrderBy(() => orderAlias.DeliveryDate).Asc
 				.List().FirstOrDefault();
-			
-			if(queryResult.Id == orderId)
+			if(result.DeliveryDate < newDeliveryDate && result.Id != orderId)
 			{
-				//Если не найдены заказы с более ранней датой доставки
-				return true;
+				return false;
 			}
-			//Если существуют заказы с более ранней датой доставки
-			return false;
+			return true;
 		}
 
 		/// <summary>

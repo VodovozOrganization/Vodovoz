@@ -86,14 +86,16 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Domain.Orders.Order> GetLatestOrdersForCounterparty(IUnitOfWork UoW, Counterparty client, int? count = null);
 
 		/// <summary>
-		/// Проверка необходима, если контракт ещё не был заключен (дата контракта равна первому заказу клиента),
-		/// и нужно изменить дату контракта при изменении даты доставки.
+		/// Проверка возможности изменения даты контракта при изменении даты доставки заказа.
+		/// Если дата первого заказа меньше newDeliveryDate и это - текущий изменяемый заказ - возвращает True.
+		/// Если первый заказ меньше newDeliveryDate и он не является текущим заказом - возвращает False.
 		/// </summary>
-		/// <param name="UoW"></param>
-		/// <param name="client"></param>
-		/// <param name="newDeliveryDate"></param>
-		/// <returns></returns>
-		bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, int orderId);
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="client">Поиск заказов по этому контрагенту</param>
+		/// <param name="newDeliveryDate">Новая дата доставки заказа</param>
+		/// <param name="orderId">Текущий изменяемый заказ</param>
+		/// <returns>Возможность смены даты контракта</returns>
+		bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId);
 
 		OrderStatus[] GetOnClosingOrderStatuses();
 
