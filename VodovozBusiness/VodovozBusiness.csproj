@@ -579,7 +579,6 @@
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
-    <Compile Include="Repositories\Logistics\CachedDistanceRepository.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverDistrictPriorityMap.cs" />
