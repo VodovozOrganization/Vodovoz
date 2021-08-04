@@ -99,19 +99,16 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
 			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-					_nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+					new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository,
+					UserSingletonRepository.GetInstance());
+			
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
 				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				{"subdivisionService", subdivisionRepository},
 				//Autofac: ICommonServices
 				{"nomenclatureSelectorFactory", nomenclatureSelectorFactory},
 				//Autofac: IUserRepository
