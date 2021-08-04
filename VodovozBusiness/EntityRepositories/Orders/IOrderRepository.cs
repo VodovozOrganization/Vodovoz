@@ -85,6 +85,16 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="count">Требуемое количество последних заказов.</param>
 		IList<Domain.Orders.Order> GetLatestOrdersForCounterparty(IUnitOfWork UoW, Counterparty client, int? count = null);
 
+		/// <summary>
+		/// Проверка необходима, если контракт ещё не был заключен (дата контракта равна первому заказу клиента),
+		/// и нужно изменить дату контракта при изменении даты доставки.
+		/// </summary>
+		/// <param name="UoW"></param>
+		/// <param name="client"></param>
+		/// <param name="newDeliveryDate"></param>
+		/// <returns></returns>
+		bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, DateTime newDeliveryDate, int orderId);
+
 		OrderStatus[] GetOnClosingOrderStatuses();
 
 		Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);

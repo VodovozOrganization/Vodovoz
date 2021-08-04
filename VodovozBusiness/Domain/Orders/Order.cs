@@ -206,10 +206,21 @@ namespace Vodovoz.Domain.Orders
 			get => deliveryDate;
 			set
 			{
+				var lastDate = deliveryDate;
 				if(SetField(ref deliveryDate, value) && 
 				   Contract != null && Contract.Id == 0)
 				{
 					UpdateContract();
+				}
+				if(Contract != null && Contract.Id != 0 && DeliveryDate.HasValue 
+				   && lastDate==Contract.IssueDate 
+				   && Contract.IssueDate != DeliveryDate.Value
+				   && _orderRepository.IfOrderDeliveryIsFirst(UoW, Client, value.Value, Id)
+				   && OrderStatus != OrderStatus.Closed)
+				{
+					Contract.IssueDate = DeliveryDate.Value.Date;
+					InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Дата договора будет изменена при сохранении текущего заказа!");
 				}
 			}
 		}

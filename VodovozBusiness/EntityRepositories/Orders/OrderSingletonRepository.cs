@@ -20,6 +20,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
+using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -332,6 +333,31 @@ namespace Vodovoz.EntityRepositories.Orders
 				return queryResult.Take(count.Value).List();
 			else
 				return queryResult.List();
+		}
+
+		/// <summary>
+		/// Проверка необходима, если контракт ещё не был заключен (дата контракта равна первому заказу клиента),
+		/// и нужно изменить дату контракта при изменении даты доставки.
+		/// </summary>
+		/// <param name="UoW"></param>
+		/// <param name="client"></param>
+		/// <param name="newDeliveryDate"></param>
+		/// <returns></returns>
+		public bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, DateTime newDeliveryDate, int orderId)
+		{
+			VodovozOrder orderAlias = null;
+			var queryResult = UoW.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Client == client)
+				.Where(() => orderAlias.DeliveryDate < newDeliveryDate)
+				.Where(()=>orderAlias.Id != orderId)
+				.List();
+			if(queryResult.Any())
+			{
+				//Если существуют заказы с более ранней датой доставки
+				return false;
+			}
+			//Если не найдены заказы с более ранней датой доставки
+			return true;
 		}
 
 		/// <summary>
