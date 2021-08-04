@@ -49,7 +49,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IOrderRepository orderRepository;
 		private readonly IAtWorkRepository atWorkRepository;
 		private readonly IGtkTabsOpener gtkTabsOpener;
-		private readonly ICarRepository carRepository;
 		private readonly IUserRepository userRepository;
 		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
@@ -75,7 +74,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -126,6 +125,8 @@ namespace Vodovoz.ViewModels.Logistic
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
+		
+		public ICarRepository CarRepository { get; }
 
 		void CreateCommands()
 		{
@@ -226,7 +227,7 @@ namespace Vodovoz.ViewModels.Logistic
 					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
-						var allCars = carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+						var allCars = CarRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 						foreach(var n in selectedNodes) {
 							var drv = UoW.GetById<Employee>(n.Id);
@@ -954,7 +955,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(drivers.Count > 0) {
 				foreach(var driver in drivers) {
-					var car = carRepository.GetCarByDriver(UoW, driver);
+					var car = CarRepository.GetCarByDriver(UoW, driver);
 
 					if(car != null)
 						totalBottles += car.MaxBottles;

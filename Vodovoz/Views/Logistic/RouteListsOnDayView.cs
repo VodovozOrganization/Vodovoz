@@ -879,7 +879,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			var SelectDriverCar = new OrmReference(
 				ViewModel.UoW,
-				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
+				ViewModel.CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;

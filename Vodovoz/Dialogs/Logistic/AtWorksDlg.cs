@@ -19,11 +19,11 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Sale;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -50,6 +50,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly ICarRepository _carRepository = new CarRepository();
 		
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -210,7 +211,7 @@ namespace Vodovoz.Dialogs.Logistic
 						continue;
 					}
 
-					var car = CarRepository.GetCarByDriver(UoW, driver);
+					var car = _carRepository.GetCarByDriver(UoW, driver);
 					var daySchedule = GetDriverWorkDaySchedule(driver);
 
 					var atwork = new AtWorkDriver(driver, DialogAtDate, car, daySchedule);
@@ -277,7 +278,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selectDriverCar = new OrmReference(
 				UoW,
-				CarRepository.ActiveCompanyCarsQuery()
+				_carRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			selectDriverCar.Tag = driver;
@@ -453,7 +454,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var addDrivers = e.SelectedNodes;
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
 				var drv = UoW.GetById<Employee>(driver.Id);
