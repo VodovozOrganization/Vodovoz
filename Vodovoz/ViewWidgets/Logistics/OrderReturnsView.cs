@@ -397,7 +397,7 @@ namespace Vodovoz
 			};
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
 				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
-			entityVMEntryDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
