@@ -16,6 +16,7 @@ using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz
 {
@@ -25,6 +26,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -39,7 +41,7 @@ namespace Vodovoz
 		private IList<RouteColumn> columnsInfo {
 			get {
 				if(_columnsInfo == null && UoW != null)
-					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns(UoW);
+					_columnsInfo = _routeColumnRepository.ActiveColumns(UoW);
 				return _columnsInfo;
 			}
 		}

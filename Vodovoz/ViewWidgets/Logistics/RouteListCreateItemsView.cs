@@ -10,8 +10,6 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -22,14 +20,12 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -37,14 +33,15 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 
 		private int goodsColumnsCount = -1;
 		private bool isEditable = true;
 
 		private IList<RouteColumn> _columnsInfo;
 
-		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? Repository.Logistics.RouteColumnRepository.ActiveColumns(RouteListUoW);
+		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
