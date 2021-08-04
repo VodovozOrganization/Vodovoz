@@ -500,7 +500,6 @@
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentKindRepository.cs" />
     <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
-    <Compile Include="Repositories\Logistics\RouteListRepository.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
     <Compile Include="Repositories\Operations\BottlesRepository.cs" />
     <Compile Include="Repositories\Operations\DepositRepository.cs" />
