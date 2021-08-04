@@ -90,8 +90,7 @@ namespace Vodovoz.ViewModels.Mango
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
-			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
+			LatestOrder = orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
 			NotifyConfiguration.Instance.BatchSubscribe(_RefreshCounterparty)
