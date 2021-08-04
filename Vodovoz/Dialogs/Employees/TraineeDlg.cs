@@ -46,6 +46,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IUserRepository _userRepository = new UserRepository();
 
 		public TraineeDlg()
 		{
@@ -199,6 +200,7 @@ namespace Vodovoz.Dialogs.Employees
 				ServicesConfig.CommonServices,
 				_validationContextFactory,
 				_phonesViewModelFactory,
+				_userRepository,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),

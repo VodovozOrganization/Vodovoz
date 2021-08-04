@@ -5,17 +5,14 @@ using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Helpers;
-using QS.Project.Dialogs;
 using QS.BusinessCommon.Domain;
 using QSOrmProject;
 using QS.Validation;
 using QSWidgetLib;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
@@ -39,6 +36,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUserRepository _userRepository = new UserRepository();
 		
 		private Warehouse _selectedWarehouse;
 
@@ -258,7 +256,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info("Сохраняем номенклатуру...");
-			Entity.SetNomenclatureCreationInfo(UserSingletonRepository.GetInstance());
+			Entity.SetNomenclatureCreationInfo(_userRepository);
 			pricesView.SaveChanges();
 			UoWGeneric.Save();
 			return true;

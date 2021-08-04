@@ -16,7 +16,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;

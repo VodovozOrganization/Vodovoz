@@ -420,7 +420,7 @@ namespace Vodovoz
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
 			builder.RegisterType<EmployeeRepository>().As<IEmployeeRepository>();
 			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
-			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
+			builder.RegisterType<UserRepository>().As<IUserRepository>();
 			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();
 			
 			#endregion

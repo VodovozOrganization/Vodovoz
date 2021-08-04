@@ -4,9 +4,9 @@ using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Domain.Permissions
@@ -15,13 +15,15 @@ namespace Vodovoz.Domain.Permissions
 	{
 		private static readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private static readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private static readonly IUserRepository _userRepository = new UserRepository();
+		
 		/// <summary>
 		/// Проверка прав доступа по списку сущностей для текущего пользователя
 		/// </summary>
 		/// <param name="entityTypes">Список сущностей</param>
 		public static IEnumerable<IEntitySubdivisionForUserPermissionValidationResult> Validate(IUnitOfWork uow, Type[] entityTypes)
 		{
-			var user = UserRepository.GetCurrentUser(uow);
+			var user = _userRepository.GetCurrentUser(uow);
 			return Validate(uow, user.Id, entityTypes);
 		}
 
@@ -88,7 +90,7 @@ namespace Vodovoz.Domain.Permissions
 		/// <param name="entityTypes">Список сущностей</param>
 		public static IEnumerable<IEntitySubdivisionForUserPermissionValidationResult> Validate(IUnitOfWork uow, Type entityType)
 		{
-			var user = UserRepository.GetCurrentUser(uow);
+			var user = _userRepository.GetCurrentUser(uow);
 			return Validate(uow, user.Id, entityType);
 		}
 

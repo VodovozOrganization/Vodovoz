@@ -111,7 +111,7 @@ namespace Vodovoz
 		
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
@@ -157,7 +157,7 @@ namespace Vodovoz
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, userRepository);
+							NomenclatureRepository, _userRepository);
 				}
 				return nomenclatureSelectorFactory;
 			}
@@ -233,7 +233,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
-			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, userRepository.GetCurrentUser(UoW).Id);
+			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
@@ -355,7 +355,7 @@ namespace Vodovoz
 		{
 			if(_currentEmployee == null)
 			{
-				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, userRepository.GetCurrentUser(UoW).Id);
+				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
@@ -993,7 +993,7 @@ namespace Vodovoz
 				}
 			}
 			
-			int currentUserId = userRepository.GetCurrentUser(UoW).Id;
+			int currentUserId = _userRepository.GetCurrentUser(UoW).Id;
 			bool canChangeCommentOdz = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
 			bool canChangeSalesDepartmentComment = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_sales_department_comment", currentUserId);
 			textODZComments.Sensitive = canChangeCommentOdz;
@@ -1567,7 +1567,7 @@ namespace Vodovoz
 				NomenclatureSelectorFactory,
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
-				userRepository
+				_userRepository
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -1607,7 +1607,7 @@ namespace Vodovoz
 				NomenclatureSelectorFactory,
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
-				userRepository
+				_userRepository
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};

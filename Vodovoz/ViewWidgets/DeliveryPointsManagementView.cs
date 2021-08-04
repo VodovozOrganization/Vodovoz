@@ -85,7 +85,7 @@ namespace Vodovoz
 			}
 
 			var client = DeliveryPointUoW.Root;
-			var dpViewModel = new DeliveryPointViewModel(client, UserSingletonRepository.GetInstance(), new GtkTabsOpener(),
+			var dpViewModel = new DeliveryPointViewModel(client, new UserRepository(), new GtkTabsOpener(),
 				new PhoneRepository(), ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 				new HousesDataLoader(OsmWorker.GetOsmService()),
@@ -100,7 +100,7 @@ namespace Vodovoz
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
-			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
 				ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 				new HousesDataLoader(OsmWorker.GetOsmService()),

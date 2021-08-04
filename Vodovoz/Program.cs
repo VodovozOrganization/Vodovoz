@@ -39,6 +39,7 @@ using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
@@ -215,7 +216,7 @@ namespace Vodovoz
 			IChangePasswordModel changePasswordModel;
 			
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var userRepository = new UserSingletonRepository();
+				var userRepository = new UserRepository();
 				var currentUser = userRepository.GetCurrentUser(uow);
 				if(currentUser is null) {
 					throw new InvalidOperationException("CurrentUser is null");

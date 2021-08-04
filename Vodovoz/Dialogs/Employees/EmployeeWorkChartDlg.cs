@@ -6,9 +6,7 @@ using QS.Tdi;
 using Vodovoz;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
 namespace Dialogs.Employees

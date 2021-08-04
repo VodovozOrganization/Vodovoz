@@ -13,7 +13,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders

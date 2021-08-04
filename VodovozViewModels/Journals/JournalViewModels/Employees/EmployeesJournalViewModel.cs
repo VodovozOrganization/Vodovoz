@@ -12,6 +12,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -218,7 +219,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
 			commonServices,
 			_validationContextFactory,
-			_phonesViewModelFactory);
+			_phonesViewModelFactory,
+			new UserRepository());
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
@@ -235,6 +237,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),
 				commonServices,
 				_validationContextFactory,
-				_phonesViewModelFactory);
+				_phonesViewModelFactory,
+				new UserRepository());
 	}
 }

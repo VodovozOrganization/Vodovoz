@@ -679,7 +679,6 @@
     <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
-    <Compile Include="Repositories\HumanResourses\UserRepository.cs" />
     <Compile Include="Domain\Employees\EmployeeDocument.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeDocumentMap.cs" />
     <Compile Include="Domain\Employees\EmployeeContract.cs" />
@@ -884,7 +883,7 @@
     <Compile Include="Domain\WageCalculation\WageParameterTargets.cs" />
     <Compile Include="Domain\WageCalculation\SalesPlan.cs" />
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanMap.cs" />
-    <Compile Include="EntityRepositories\UserSingletonRepository.cs" />
+    <Compile Include="EntityRepositories\UserRepository.cs" />
     <Compile Include="EntityRepositories\IUserRepository.cs" />
     <Compile Include="Domain\Orders\Documents\AssemblyListDocument.cs" />
     <Compile Include="EntityRepositories\Logistic\AtWorkRepository.cs" />
@@ -1054,7 +1053,6 @@
     <Folder Include="Domain\Payments\" />
     <Folder Include="HibernateMapping\Payments\" />
     <Folder Include="Repositories\Payments\" />
-    <Folder Include="Repositories\HumanResourses\" />
     <Folder Include="Domain\Permissions\" />
     <Folder Include="HibernateMapping\Permissions\" />
     <Folder Include="Repositories\Permissions\" />

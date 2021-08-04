@@ -187,7 +187,7 @@ namespace Vodovoz
 
 				var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
 
-				var userRepository = UserSingletonRepository.GetInstance();
+				var userRepository = new UserRepository();
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
@@ -288,7 +288,7 @@ namespace Vodovoz
 
 			var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
 
-			var userRepository = UserSingletonRepository.GetInstance();
+			var userRepository = new UserRepository();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
 

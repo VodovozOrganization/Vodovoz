@@ -5,12 +5,9 @@ using QS.DomainModel.UoW;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz
 {
@@ -18,6 +15,7 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUserRepository _userRepository = new UserRepository();
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -67,7 +65,7 @@ namespace Vodovoz
 				yentryrefWarehouse.Sensitive = false;
 
 			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();

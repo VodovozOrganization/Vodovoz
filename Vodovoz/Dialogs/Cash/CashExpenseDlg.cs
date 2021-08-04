@@ -71,7 +71,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание расходного ордера");
@@ -101,7 +101,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр расходного ордера");
 				FailInitialize = true;
@@ -111,7 +111,9 @@ namespace Vodovoz
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			canEditRectroactively = permmissionValidator.Validate(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			canEditRectroactively =
+				permmissionValidator.Validate(
+					typeof(Expense), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			ConfigureDlg();
 		}

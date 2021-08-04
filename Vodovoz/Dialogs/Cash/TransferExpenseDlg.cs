@@ -3,10 +3,10 @@ using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
-using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -15,7 +15,7 @@ namespace Vodovoz.Dialogs.Cash
 	{
 		public TransferExpenseDlg()
 		{
-			this.Build();
+			Build();
 			throw new InvalidOperationException($"Для данного диалога невозможно создание новой сущности");
 		}
 
@@ -24,7 +24,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
 			
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;

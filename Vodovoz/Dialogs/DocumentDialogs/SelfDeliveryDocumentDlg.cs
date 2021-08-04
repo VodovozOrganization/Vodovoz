@@ -14,10 +14,8 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Core.DataService;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -93,7 +91,7 @@ namespace Vodovoz
 		private IPermissionResult CheckPermission()
 		{
 			IPermissionService permissionService = ServicesConfig.CommonServices.PermissionService;
-			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
+			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId);
 		}
 
 		private bool canEditDocument;
@@ -182,8 +180,13 @@ namespace Vodovoz
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(SelfDeliveryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(
+					typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefOrder.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();

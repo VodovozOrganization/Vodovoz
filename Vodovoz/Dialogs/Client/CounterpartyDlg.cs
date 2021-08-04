@@ -50,9 +50,7 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 
@@ -62,8 +60,8 @@ namespace Vodovoz
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         
-        private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
-        private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+        private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+        private readonly IUserRepository _userRepository = new UserRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
@@ -221,7 +219,7 @@ namespace Vodovoz
                     nomenclatureSelectorFactory =
                         new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
                             ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-                            NomenclatureRepository, userRepository);
+                            NomenclatureRepository, _userRepository);
                 }
                 return nomenclatureSelectorFactory;
             }
@@ -422,7 +420,8 @@ namespace Vodovoz
 
             // Прикрепляемые документы
 
-            var filesViewModel = new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices);
+            var filesViewModel = new CounterpartyFilesViewModel(
+	            Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository);
             counterpartyfilesview1.ViewModel = filesViewModel;
 
             chkNeedNewBottles.Binding.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active).InitializeFromSource();
@@ -641,11 +640,11 @@ namespace Vodovoz
                     UoW,
                     this,
                     ServicesConfig.CommonServices,
-                    employeeService,
+                    _employeeService,
                     CounterpartySelectorFactory,
                     NomenclatureSelectorFactory,
                     NomenclatureRepository,
-                    userRepository);
+                    _userRepository);
 
         }
 
@@ -713,7 +712,7 @@ namespace Vodovoz
 		        nomenclatureSelectorFactory,
 		        counterpartySelectorFactory,
 		        nomenclatureRepository,
-		        userRepository,
+		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),
@@ -740,7 +739,7 @@ namespace Vodovoz
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        UndeliveredOrdersJournalOpener,
-		        employeeService,
+		        _employeeService,
 		        CounterpartySelectorFactory,
 		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
@@ -751,7 +750,7 @@ namespace Vodovoz
 		        new GtkReportViewOpener(),
 		        new GtkTabsOpener(),
 		        NomenclatureRepository,
-		        userRepository,
+		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),

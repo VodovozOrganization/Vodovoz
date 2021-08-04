@@ -367,15 +367,15 @@ public partial class MainWindow : Window
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-		
+		var userRepository = new UserRepository();
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
-				UserSingletonRepository.GetInstance());
+				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 		
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
@@ -388,22 +388,22 @@ public partial class MainWindow : Window
 				counterpartySelectorFactory,
 				nomenclatureSelectorFactory,
 				nomenclatureRepository,
-				UserSingletonRepository.GetInstance()
+				userRepository
 			)
 		);
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e) {
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-		
+		var userRepository = new UserRepository();
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
-				UserSingletonRepository.GetInstance());
+				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 		
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
@@ -416,7 +416,7 @@ public partial class MainWindow : Window
 			counterpartySelectorFactory,
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
-			UserSingletonRepository.GetInstance()
+			userRepository
 		);
 		tdiMain.AddTab(requestsJournal);
 	}
@@ -545,7 +545,7 @@ public partial class MainWindow : Window
 					new AtWorkRepository(),
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
-					UserSingletonRepository.GetInstance(),
+					new UserRepository(),
 					new BaseParametersProvider(),
 					new EmployeeJournalFactory()
 				)
@@ -973,7 +973,8 @@ public partial class MainWindow : Window
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-		
+		var userRepository = new UserRepository();
+
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
 			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
@@ -981,27 +982,28 @@ public partial class MainWindow : Window
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
 				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
-				UserSingletonRepository.GetInstance());
+				userRepository);
 
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
-		var ordersJournal = new OrderJournalViewModel(filter,
-													  UnitOfWorkFactory.GetDefaultFactory,
-													  ServicesConfig.CommonServices,
-													  VodovozGtkServicesConfig.EmployeeService,
-													  nomenclatureSelectorFactory,
-													  counterpartySelectorFactory,
-													  nomenclatureRepository,
-													  UserSingletonRepository.GetInstance(),
-													  new OrderSelectorFactory(),
-													  new EmployeeJournalFactory(),
-													  new CounterpartyJournalFactory(),
-													  new DeliveryPointJournalFactory(),
-													  subdivisionJournalFactory,
-													  new GtkTabsOpener(),
-													  new UndeliveredOrdersJournalOpener(),
-													  new SalesPlanJournalFactory(),
-													  new NomenclatureSelectorFactory()
-													  );
+		var ordersJournal = new OrderJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			nomenclatureSelectorFactory,
+			counterpartySelectorFactory,
+			nomenclatureRepository,
+			userRepository,
+			new OrderSelectorFactory(),
+			new EmployeeJournalFactory(),
+			new CounterpartyJournalFactory(),
+			new DeliveryPointJournalFactory(),
+			subdivisionJournalFactory,
+			new GtkTabsOpener(),
+			new UndeliveredOrdersJournalOpener(),
+			new SalesPlanJournalFactory(),
+			new NomenclatureSelectorFactory()
+		);
 		
 		tdiMain.AddTab(ordersJournal);
 	}

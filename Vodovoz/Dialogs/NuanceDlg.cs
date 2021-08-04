@@ -7,7 +7,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Dialogs

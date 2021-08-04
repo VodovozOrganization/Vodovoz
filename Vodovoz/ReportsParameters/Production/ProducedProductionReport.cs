@@ -1,34 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters.Production
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ProducedProductionReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ProducedProductionReport(
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository)
+		public ProducedProductionReport(IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory)
 		{
-			this.Build();
+			Build();
 			
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yenumcomboboxMonths.ItemsEnum = typeof(Month);
@@ -40,23 +30,7 @@ namespace Vodovoz.ReportsParameters.Production
             ycomboboxProduction.SetRenderTextFunc<Warehouse>(x => x.Name);
 			ycomboboxProduction.ItemsList = UoW.Session.QueryOver<Warehouse>().Where(x => x.TypeOfUse == WarehouseUsing.Production).List();
 
-			entryreferenceNomenclature.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(typeof(Nomenclature),
-					() =>
-					{
-						var nomenclatureFilter = new NomenclatureFilterViewModel();
-						return new NomenclaturesJournalViewModel(
-							nomenclatureFilter,
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							new EmployeeService(),
-							nomenclatureSelectorFactory, 
-							counterpartySelectorFactory,
-							nomenclatureRepository,
-							UserSingletonRepository.GetInstance()
-							);
-					})
-			);
+			entryreferenceNomenclature.SetEntityAutocompleteSelectorFactory(nomenclatureSelectorFactory);
 			buttonCreateReport.Sensitive = true;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}

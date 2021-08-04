@@ -24,8 +24,8 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
-		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
-        private readonly IFilePickerService filePickerService;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+        private readonly IFilePickerService _filePickerService;
         private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
         private readonly IList<ComplaintKind> _complaintKinds;
@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Complaints
 			string phone = null
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-            this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+            _filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
             EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
@@ -114,8 +114,8 @@ namespace Vodovoz.ViewModels.Complaints
 			orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,
 			gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
 		{
-			Counterparty _client = UoW.GetById<Counterparty>(client.Id);
-			Entity.Counterparty = _client;
+			var curClient = UoW.GetById<Counterparty>(client.Id);
+			Entity.Counterparty = curClient;
 			Entity.Phone = phone;
 		}
 		
@@ -139,14 +139,14 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
-			string phone = null) : this
-		(uowBuilder,unitOfWorkFactory,employeeService,counterpartySelectorFactory,subdivisionRepository,commonServices,
-			nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService, orderSelectorFactory, employeeJournalFactory,
-			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,  gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, counterpartySelectorFactory, subdivisionRepository,
+			commonServices, nomenclatureSelectorFactory, nomenclatureRepository, userRepository, filePickerService, orderSelectorFactory,
+			employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, gtkDialogsOpener,
+			undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
 		{
-			Order _order = UoW.GetById<Order>(order.Id);
-			Entity.Order = _order;
-			Entity.Counterparty = _order.Client;
+			var curOrder = UoW.GetById<Order>(order.Id);
+			Entity.Order = curOrder;
+			Entity.Counterparty = curOrder.Client;
 			Entity.Phone = phone;
 		}
 
@@ -167,7 +167,7 @@ namespace Vodovoz.ViewModels.Complaints
             {
                 if (filesViewModel == null)
                 {
-                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, filePickerService, CommonServices);
+                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _filePickerService, CommonServices, UserRepository);
                 }
                 return filesViewModel;
             }
@@ -215,7 +215,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
 			get {
 				if(guiltyItemsViewModel == null) {
-					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository, employeeSelectorFactory);
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository, _employeeSelectorFactory);
 				}
 
 				return guiltyItemsViewModel;

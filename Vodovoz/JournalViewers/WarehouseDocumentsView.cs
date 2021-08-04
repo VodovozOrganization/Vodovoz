@@ -98,7 +98,7 @@ namespace Vodovoz
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
-								UserSingletonRepository.GetInstance(),
+								new UserRepository(),
 								new RdlPreviewOpener(),
 								ServicesConfig.CommonServices
 							);
@@ -200,7 +200,7 @@ namespace Vodovoz
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
-									UserSingletonRepository.GetInstance(),
+									new UserRepository(),
 									new RdlPreviewOpener(),
 									ServicesConfig.CommonServices
 								);

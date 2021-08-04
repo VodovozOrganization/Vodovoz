@@ -342,12 +342,17 @@ namespace Vodovoz.Domain.Employees
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
-				throw new ArgumentNullException($"Не найден сервис {nameof(employeeRepository)}");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
 			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is ISubdivisionService subdivisionService))
 			{
-				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionService)}");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(subdivisionService)}");
+			}
+			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
 			}
 			
 			foreach(var item in base.Validate(validationContext)) {
@@ -376,27 +381,39 @@ namespace Vodovoz.Domain.Employees
 					new[] { nameof(LoginForNewUser) });
 			}
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
-				User exist = UserSingletonRepository.GetInstance().GetUserByLogin(UoW, LoginForNewUser);
+				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
+				{
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
 						new[] { nameof(LoginForNewUser) });
+				}
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				string mes = null;
 				bool userExists = false;
 
-				try {
-					userExists = UserSingletonRepository.GetInstance().MySQLUserWithLoginExists(UoW, LoginForNewUser);
-				} catch(HibernateException ex) {
-					if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
-						mes = $"У вас недостаточно прав для создания нового пользователя";
-					else 
-						throw;
+				try
+				{
+					userExists = userRepository.MySQLUserWithLoginExists(UoW, LoginForNewUser);
 				}
-				if(!String.IsNullOrWhiteSpace(mes)) {
+				catch(HibernateException ex)
+				{
+					if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
+					{
+						mes = $"У вас недостаточно прав для создания нового пользователя";
+					}
+					else
+					{
+						throw;
+					}
+				}
+				if(!String.IsNullOrWhiteSpace(mes))
+				{
 					yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
-				} else if(userExists) {
+				}
+				else if(userExists)
+				{
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
 						new[] { nameof(LoginForNewUser) });
 				}

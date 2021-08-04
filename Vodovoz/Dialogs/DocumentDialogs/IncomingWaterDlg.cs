@@ -27,6 +27,7 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUserRepository _userRepository = new UserRepository();
 
 		public IncomingWaterDlg()
 		{
@@ -78,8 +79,13 @@ namespace Vodovoz
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(IncomingWater), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(
+					typeof(IncomingWater), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryProduct.Sensitive = false;
@@ -105,7 +111,7 @@ namespace Vodovoz
 					nomenclatureFilter,
 					counterpartySelectorFactory,
 					nomenclatureRepository,
-					UserSingletonRepository.GetInstance()
+					_userRepository
 				);
 			
 			yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);

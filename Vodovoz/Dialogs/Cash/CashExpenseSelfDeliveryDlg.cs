@@ -12,7 +12,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModel;
 using QS.Services;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -75,7 +74,7 @@ namespace Vodovoz.Dialogs.Cash
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
@@ -104,7 +103,7 @@ namespace Vodovoz.Dialogs.Cash
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;
@@ -123,7 +122,9 @@ namespace Vodovoz.Dialogs.Cash
 			
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			canEditRectroactively = permmissionValidator.Validate(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			
+			canEditRectroactively =
+				permmissionValidator.Validate(typeof(Expense), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			ConfigureDlg();
 		}

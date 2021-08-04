@@ -484,7 +484,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						subdivisionRepository,
 						commonServices,
 						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        filePickerService
+                        filePickerService,
+						new UserRepository()
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(

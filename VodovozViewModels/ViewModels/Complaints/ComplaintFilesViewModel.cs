@@ -14,7 +14,8 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintFilesViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		private readonly IFilePickerService filePicker;
+		private readonly IFilePickerService _filePicker;
+		private readonly IUserRepository _userRepository;
 		private bool readOnly;
 
 		public virtual bool ReadOnly {
@@ -22,9 +23,15 @@ namespace Vodovoz.ViewModels.Complaints
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public ComplaintFilesViewModel(Complaint entity, IUnitOfWork uow, IFilePickerService filePicker, ICommonServices commonServices) : base(entity, commonServices)
+		public ComplaintFilesViewModel(
+			Complaint entity,
+			IUnitOfWork uow,
+			IFilePickerService filePicker,
+			ICommonServices commonServices,
+			IUserRepository userRepository) : base(entity, commonServices)
 		{
-			this.filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			UoW = uow;
 			CreateCommands();
 		}
@@ -48,7 +55,7 @@ namespace Vodovoz.ViewModels.Complaints
 			AddItemCommand = new DelegateCommand(
 				() => {
 
-					if(filePicker.OpenSelectFilePicker(out string filePath)) {
+					if(_filePicker.OpenSelectFilePicker(out string filePath)) {
 						var complaintFile = new ComplaintFile();
 						complaintFile.FileStorageId = Path.GetFileName(filePath);
 
@@ -93,15 +100,19 @@ namespace Vodovoz.ViewModels.Complaints
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
 				(file) => {
 
-					var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
+					var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
 
 					if(string.IsNullOrWhiteSpace(vodUserTempDir))
+					{
 						return;
+					}
 
 					var tempFilePath = Path.Combine(Path.GetTempPath(), vodUserTempDir, file.FileStorageId);
 
 					if(!File.Exists(tempFilePath))
+					{
 						File.WriteAllBytes(tempFilePath, file.ByteFile);
+					}
 
 					var process = new Process();
 					process.StartInfo.FileName = Path.Combine(vodUserTempDir, file.FileStorageId);
@@ -119,7 +130,7 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			LoadItemCommand = new DelegateCommand<ComplaintFile>(
 				(file) => {
-					if(filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
 						File.WriteAllBytes(filePath, file.ByteFile);
 				},
 				(file) => { return !ReadOnly; }

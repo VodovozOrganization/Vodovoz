@@ -13,6 +13,7 @@ using QS.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
@@ -86,7 +87,8 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission =
+				permissionService.ValidateUserPermission(typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
@@ -117,7 +119,8 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission =
+				permissionService.ValidateUserPermission(typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;
@@ -127,7 +130,9 @@ namespace Vodovoz
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			canEditRectroactively = permmissionValidator.Validate(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			canEditRectroactively =
+				permmissionValidator.Validate(
+					typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;

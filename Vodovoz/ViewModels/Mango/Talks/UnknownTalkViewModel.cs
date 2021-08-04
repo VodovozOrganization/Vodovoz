@@ -13,7 +13,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
@@ -99,11 +98,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
 			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-					_nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+					new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
 
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
@@ -111,7 +107,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				{"subdivisionService", subdivisionRepository},
 				//Autofac: ICommonServices
 				{"nomenclatureSelectorFactory", nomenclatureSelectorFactory},
 				//Autofac: IUserRepository

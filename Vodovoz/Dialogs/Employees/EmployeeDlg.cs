@@ -13,7 +13,6 @@ using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Services;
-using QS.Validation;
 using QS.Widgets.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
@@ -45,10 +44,10 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.WageCalculation;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
@@ -56,6 +55,7 @@ namespace Vodovoz
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>, INotifyPropertyChanged
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUserRepository _userRepository = new UserRepository();
 
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
@@ -345,7 +345,7 @@ namespace Vodovoz
 				new HierarchicalPresetPermissionValidator(
 					_employeeRepository,
 					new PermissionRepository()),
-				UserSingletonRepository.GetInstance(),
+				_userRepository,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager,
 				_employeeRepository
@@ -814,6 +814,7 @@ namespace Vodovoz
 			
 			validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), subdivisionService);
 			validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
+			validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 
 			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
 			{

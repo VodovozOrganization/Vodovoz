@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
@@ -8,18 +7,8 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.EntityRepositories
 {
-	public class UserSingletonRepository : IUserRepository
+	public class UserRepository : IUserRepository
 	{
-		private static UserSingletonRepository instance;
-
-		[Obsolete("Необходимо избавляться от синглтонов")]
-		public static UserSingletonRepository GetInstance()
-		{
-			if(instance == null)
-				instance = new UserSingletonRepository();
-			return instance;
-		}
-
 		public User GetCurrentUser(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<User>()

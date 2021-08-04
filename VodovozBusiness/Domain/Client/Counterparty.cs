@@ -22,7 +22,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using VodovozInfrastructure.Attributes;
 

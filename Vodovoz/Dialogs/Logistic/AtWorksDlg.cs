@@ -22,7 +22,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
@@ -32,7 +31,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using EmployeeRepository = Vodovoz.EntityRepositories.Employees.EmployeeRepository;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -51,6 +49,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IUserRepository _userRepository = new UserRepository();
 		
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -375,7 +374,8 @@ namespace Vodovoz.Dialogs.Logistic
 					employeeUow,
 					ServicesConfig.CommonServices,
 					_validationContextFactory,
-					_phonesViewModelFactory);
+					_phonesViewModelFactory,
+					_userRepository);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),

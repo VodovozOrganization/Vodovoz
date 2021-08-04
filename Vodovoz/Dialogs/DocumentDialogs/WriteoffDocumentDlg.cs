@@ -13,8 +13,8 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -99,8 +99,13 @@ namespace Vodovoz
 			Entity.ObservableItems.ElementRemoved += (aList, aIdx, aObject) => ySpecCmbWarehouses.Sensitive = !Entity.ObservableItems.Any();
 			ySpecCmbWarehouses.Sensitive = editing && !Entity.Items.Any();
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(WriteoffDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(
+					typeof(WriteoffDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				referenceCounterparty.Sensitive = false;

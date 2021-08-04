@@ -18,6 +18,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -42,6 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
 		private readonly ValidationContext _validationContext;
+		private readonly IUserRepository _userRepository;
 
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -81,6 +83,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ICommonServices commonServices,
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
+			IUserRepository userRepository,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null
 			) : base(commonServices?.InteractiveService, navigationManager)
@@ -103,6 +106,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_validationContext = 
 				(validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory)))
 					.CreateNewValidationContext(Entity);
@@ -581,6 +585,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			//TODO проверить правильность работы
 			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
+			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 
 			if(!Validate())
 			{

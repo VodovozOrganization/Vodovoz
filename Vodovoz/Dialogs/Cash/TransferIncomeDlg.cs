@@ -3,10 +3,10 @@ using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
-using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -28,7 +28,7 @@ namespace Vodovoz.Dialogs.Cash
 			if(Entity.TypeDocument != IncomeInvoiceDocumentType.IncomeTransferDocument) {
 				throw new InvalidOperationException($"Диалог доступен только для документа типа {nameof(IncomeInvoiceDocumentType.IncomeTransferDocument)}");
 			}
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;

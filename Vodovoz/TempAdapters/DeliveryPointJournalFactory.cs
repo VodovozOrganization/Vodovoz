@@ -11,9 +11,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -32,7 +30,7 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
 				() => new DeliveryPointJournalViewModel(
-					UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
 					ContactParametersProvider.Instance,
 					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 					new HousesDataLoader(OsmWorker.GetOsmService()),
@@ -47,7 +45,7 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<DeliveryPointByClientJournalViewModel>(typeof(DeliveryPoint),
 				() => new DeliveryPointByClientJournalViewModel(
-					UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
 					ContactParametersProvider.Instance,
 					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 					new HousesDataLoader(OsmWorker.GetOsmService()),

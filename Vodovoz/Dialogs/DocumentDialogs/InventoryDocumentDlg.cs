@@ -9,9 +9,7 @@ using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -26,6 +24,7 @@ using Vodovoz.ViewModels.Reports;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
 using Vodovoz.Parameters;
@@ -106,8 +105,13 @@ namespace Vodovoz
 				return;
 			}
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(InventoryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(
+					typeof(InventoryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ydatepickerDocDate.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();

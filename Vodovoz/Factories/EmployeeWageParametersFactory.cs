@@ -17,13 +17,14 @@ namespace Vodovoz.Factories
 		{
 			//TODO уточнить, может лучше создавать новые объекты
 			var employeeRepository = new EmployeeRepository();
+			var userRepository = new UserRepository();
 			
 			var validator = new HierarchicalPresetPermissionValidator(
 				employeeRepository,
 				new PermissionRepository());
 
-			return new EmployeeWageParametersViewModel(employee, tab, uow, validator, UserSingletonRepository.GetInstance(),
-				ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager, employeeRepository);
+			return new EmployeeWageParametersViewModel(employee, tab, uow, validator, userRepository, ServicesConfig.CommonServices,
+				NavigationManagerProvider.NavigationManager, employeeRepository);
 		}
 	}
 }

@@ -8,7 +8,6 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Goods;
 using System.Linq;
@@ -19,6 +18,7 @@ using NHibernate;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Gamma.GtkWidgets;
+using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Employees;
 
@@ -72,10 +72,13 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
-			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
+			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
+			{
 				var permissionValidator = 
 					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-				canEdit &= permissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+				
+				canEdit &= permissionValidator.Validate(
+					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			}
 
 			canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);

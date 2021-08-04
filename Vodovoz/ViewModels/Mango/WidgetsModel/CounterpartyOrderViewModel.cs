@@ -6,14 +6,11 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -23,23 +20,15 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
@@ -53,7 +42,9 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		private readonly RouteListRepository routedListRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
@@ -74,14 +65,19 @@ namespace Vodovoz.ViewModels.Mango
 			RouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderParametersProvider orderParametersProvider,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			INomenclatureRepository nomenclatureRepository,
 			int count = 5)
-		: base()
 		{
-			this.Client = client;
-			this.tdiNavigation = tdinavigation;
+			Client = client;
+			tdiNavigation = tdinavigation;
 			this.routedListRepository = routedListRepository;
-			this.MangoManager = mangoManager;
+			MangoManager = mangoManager;
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
 			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
@@ -207,32 +203,21 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			if (order != null)
 			{
-				var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
-				IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-						ServicesConfig.CommonServices);
+				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
-				IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-					new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-						CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+				var nomenclatureSelectorFactory =
+					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
 
-				IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-							.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-						nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-				ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-				
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
 					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
 					{"employeeSelectorFactory", employeeSelectorFactory},
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
-					{"subdivisionService",subdivisionRepository},
 					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
-					{"nomenclatureRepository",nomenclatureRepository},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);

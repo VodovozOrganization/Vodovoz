@@ -181,7 +181,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
 				ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()),
 				new StreetsDataLoader(OsmWorker.GetOsmService()),
