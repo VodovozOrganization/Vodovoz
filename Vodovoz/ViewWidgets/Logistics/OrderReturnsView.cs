@@ -105,6 +105,8 @@ namespace Vodovoz
 		RouteListItem routeListItem;
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
+		private IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
+
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		private CallTaskWorker callTaskWorker;
@@ -277,7 +279,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(OrderRepository.GetDiscountReasons(UoW))
+					.FillItems(_orderRepository.GetActiveDiscountReasons(UoW))
 				.AddSetter((c, n) => c.Editable = n.Discount > 0)
 				.AddSetter(
 					(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
