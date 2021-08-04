@@ -93,7 +93,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="client"></param>
 		/// <param name="newDeliveryDate"></param>
 		/// <returns></returns>
-		bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, DateTime newDeliveryDate, int orderId);
+		bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, int orderId);
 
 		OrderStatus[] GetOnClosingOrderStatuses();
 

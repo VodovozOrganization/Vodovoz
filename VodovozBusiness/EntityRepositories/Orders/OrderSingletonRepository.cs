@@ -336,28 +336,28 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		/// <summary>
-		/// Проверка необходима, если контракт ещё не был заключен (дата контракта равна первому заказу клиента),
-		/// и нужно изменить дату контракта при изменении даты доставки.
+		/// Проверка, если заказ клиента является первым.
 		/// </summary>
 		/// <param name="UoW"></param>
 		/// <param name="client"></param>
 		/// <param name="newDeliveryDate"></param>
 		/// <returns></returns>
-		public bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, DateTime newDeliveryDate, int orderId)
+		public bool IfOrderDeliveryIsFirst(IUnitOfWork UoW, Counterparty client, int orderId)
 		{
 			VodovozOrder orderAlias = null;
+			
 			var queryResult = UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client == client)
-				.Where(() => orderAlias.DeliveryDate < newDeliveryDate)
-				.Where(()=>orderAlias.Id != orderId)
-				.List();
-			if(queryResult.Any())
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.List().FirstOrDefault();
+			
+			if(queryResult.Id == orderId)
 			{
-				//Если существуют заказы с более ранней датой доставки
-				return false;
+				//Если не найдены заказы с более ранней датой доставки
+				return true;
 			}
-			//Если не найдены заказы с более ранней датой доставки
-			return true;
+			//Если существуют заказы с более ранней датой доставки
+			return false;
 		}
 
 		/// <summary>
