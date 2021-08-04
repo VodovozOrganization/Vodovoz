@@ -1307,7 +1307,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 		
-		public virtual void CompleteRouteAndCreateTask(WageParameterService wageParameterService, CallTaskWorker callTaskWorker)
+		public virtual void CompleteRouteAndCreateTask(
+			WageParameterService wageParameterService,
+			CallTaskWorker callTaskWorker,
+			ITrackRepository trackRepository)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -1319,7 +1322,7 @@ namespace Vodovoz.Domain.Logistic
 				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
 			}
 
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();
@@ -1330,7 +1333,7 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save(this);
 		}
 		
-		public virtual void CompleteRoute(WageParameterService wageParameterService)
+		public virtual void CompleteRoute(WageParameterService wageParameterService, ITrackRepository trackRepository)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -1338,7 +1341,7 @@ namespace Vodovoz.Domain.Logistic
 
 			ChangeStatus(RouteListStatus.Delivered);
 
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();

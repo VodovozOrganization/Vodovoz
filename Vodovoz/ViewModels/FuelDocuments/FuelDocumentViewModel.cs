@@ -13,10 +13,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Navigation;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 
@@ -26,7 +26,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository;
+		private readonly ITrackRepository _trackRepository;
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
@@ -165,12 +166,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
 			IFuelRepository fuelRepository,
-			INavigationManager navigationManager
-		) : base(commonServices.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			ICategoryRepository categoryRepository) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
 			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
 			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
 
 			UoW = uow;
@@ -190,12 +194,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
 			IFuelRepository fuelRepository,
-			INavigationManager navigationManager
-		) : base(commonServices.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			ICategoryRepository categoryRepository) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
 			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
 			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
 
 			UoW = uow;
@@ -217,12 +224,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ISubdivisionRepository subdivisionsRepository, 
 			IEmployeeRepository employeeRepository, 
 			IFuelRepository fuelRepository,
-			INavigationManager navigationManager
-		) : base(commonServices.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			ICategoryRepository categoryRepository) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
 			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
 			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
 
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
@@ -245,9 +255,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			TabName = "Выдача топлива";
 			fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(commonOrganisationProvider);
 			CreateCommands();
-			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
+			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+			
 			if(FuelDocument.Id == 0)
+			{
 				FuelDocument.FillEntity(RouteList);
+			}
+
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 		}
 
@@ -376,11 +390,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			var text = new List<string>();
 			decimal fc = (decimal)RouteList.Car.FuelConsumption;
 
-			var track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
-			bool hasTrack = track != null && track.Distance.HasValue;
+			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+			bool hasTrack = curTrack != null && curTrack.Distance.HasValue;
 
 			if(hasTrack)
-				text.Add($"Расстояние по треку: {track.TotalDistance:f1}({track.Distance ?? 0:N1}+{track.DistanceToBase ?? 0:N1}) км.");
+			{
+				text.Add($"Расстояние по треку: {curTrack.TotalDistance:f1}({curTrack.Distance ?? 0:N1}+{curTrack.DistanceToBase ?? 0:N1}) км.");
+			}
 
 			text.Add($"Подтвержденное расстояние {RouteList.ConfirmedDistance}");
 

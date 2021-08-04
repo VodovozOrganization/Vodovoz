@@ -18,7 +18,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Android.DTO;
 using SmsPaymentService;
 using Vodovoz.EntityRepositories.Logistic;
-using TrackRepository = Vodovoz.Repository.Logistics.TrackRepository;
 
 namespace Android
 {
@@ -33,6 +32,7 @@ namespace Android
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ITrackRepository _trackRepository;
 
 		public AndroidDriverService(
 			WageParameterService wageParameterService, 
@@ -41,7 +41,8 @@ namespace Android
 			IDriverNotificator driverNotificator,
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
-			IRouteListItemRepository routeListItemRepository)
+			IRouteListItemRepository routeListItemRepository,
+			ITrackRepository trackRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -50,6 +51,7 @@ namespace Android
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 		}
 
 		/// <summary>
@@ -281,7 +283,7 @@ namespace Android
 					if (!CheckAuth(authKey))
 						return null;
 
-					var track = TrackRepository.GetTrackForRouteList(uow, routeListId);
+					var track = _trackRepository.GetTrackByRouteListId(uow, routeListId);
 
 					if (track != null)
 						return track.Id;
@@ -440,7 +442,7 @@ namespace Android
 						return false;
 					}
 
-					routeList.CompleteRoute(_wageParameterService);
+					routeList.CompleteRoute(_wageParameterService, _trackRepository);
 					uow.Save(routeList);
 					uow.Commit();
 					return true;

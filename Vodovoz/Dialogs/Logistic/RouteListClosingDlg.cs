@@ -59,6 +59,7 @@ namespace Vodovoz
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -941,7 +942,7 @@ namespace Vodovoz
 
 		private void GetFuelInfo()
 		{
-			track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
 
 			var fuelOtlayedOp = UoWGeneric.Root.FuelOutlayedOperation;
 			var givedOp = Entity.FuelDocuments.Select(x => x.FuelOperation.Id);
@@ -1200,7 +1201,9 @@ namespace Vodovoz
 					  new SubdivisionRepository(),
 					  _employeeRepository,
 					  new FuelRepository(),
-					  NavigationManagerProvider.NavigationManager
+					  NavigationManagerProvider.NavigationManager,
+					  _trackRepository,
+					  _categoryRepository
   			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1214,7 +1217,9 @@ namespace Vodovoz
 				  new SubdivisionRepository(),
 				  _employeeRepository,
 				  new FuelRepository(),
-				  NavigationManagerProvider.NavigationManager
+				  NavigationManagerProvider.NavigationManager,
+				  _trackRepository,
+				  _categoryRepository
 		  	);
 			TabParent.AddSlaveTab(this, tab);
 		}

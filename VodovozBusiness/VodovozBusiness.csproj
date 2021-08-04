@@ -188,6 +188,7 @@
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
@@ -517,7 +518,6 @@
     <Compile Include="Domain\Logistic\TrackPoint.cs" />
     <Compile Include="HibernateMapping\Logistic\TrackMap.cs" />
     <Compile Include="HibernateMapping\Logistic\TrackPointMap.cs" />
-    <Compile Include="Repositories\Logistics\TrackRepository.cs" />
     <Compile Include="Domain\Chat\Chat.cs" />
     <Compile Include="Domain\Chat\ChatMessage.cs" />
     <Compile Include="Domain\Chat\LastReadedMessage.cs" />

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
 
@@ -25,7 +26,8 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IChatRepository _chatRepository = new ChatRepository();
+		private readonly IChatRepository _chatRepository;
+		private readonly ITrackRepository _trackRepository;
 
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
@@ -38,9 +40,11 @@ namespace Vodovoz
 		private Gtk.Window mapWindow;
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
-		public RouteListTrackDlg(IEmployeeRepository employeeRepository)
+		public RouteListTrackDlg(IEmployeeRepository employeeRepository, IChatRepository chatRepository, ITrackRepository trackRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 
 			Build();
 			TabName = "Мониторинг";
@@ -165,10 +169,10 @@ namespace Vodovoz
 				var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 				.SelectMany(x => x.RouteListsIds.Keys).ToArray();
 				var start = DateTime.Now;
-				var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, routesIds);
+				var lastPoints = _trackRepository.GetLastPointForRouteLists(uow, routesIds);
 
 				var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.RouteListId).ToArray();
-				var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
+				var ere20Minuts = _trackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
 				logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
 				carsOverlay.Clear();
 				carMarkers = new Dictionary<int, CarMarker>();
@@ -225,7 +229,7 @@ namespace Vodovoz
 				int colorIter = 0;
 			foreach(var routeId in driverRow.RouteListsIds)
 			{
-				var pointList = Repository.Logistics.TrackRepository.GetPointsForRouteList(uow, routeId.Key);
+				var pointList = _trackRepository.GetPointsForRouteList(uow, routeId.Key);
 				if (pointList.Count == 0)
 					continue;
 

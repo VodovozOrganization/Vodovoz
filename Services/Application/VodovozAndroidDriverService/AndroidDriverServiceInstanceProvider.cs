@@ -20,6 +20,7 @@ namespace VodovozAndroidDriverService
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ITrackRepository _trackRepository;
 
 		public AndroidDriverServiceInstanceProvider(
 			WageParameterService wageParameterService, 
@@ -28,7 +29,8 @@ namespace VodovozAndroidDriverService
 			IDriverNotificator driverNotificator,
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
-			IRouteListItemRepository routeListItemRepository)
+			IRouteListItemRepository routeListItemRepository,
+			ITrackRepository trackRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -37,6 +39,7 @@ namespace VodovozAndroidDriverService
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 		}
 
 		#region IInstanceProvider implementation
@@ -45,7 +48,7 @@ namespace VodovozAndroidDriverService
 		{
 			return new AndroidDriverService(
 				_wageParameterService, _parameters, _smsPaymentChannelFactory, _driverNotificator, _employeeRepository,
-				_routeListRepository, _routeListItemRepository);
+				_routeListRepository, _routeListItemRepository, _trackRepository);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

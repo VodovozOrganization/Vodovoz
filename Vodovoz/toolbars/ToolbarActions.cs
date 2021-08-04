@@ -44,6 +44,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -866,9 +867,13 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
+		var employeeRepository = new EmployeeRepository();
+		var chatRepository = new ChatRepository();
+		var trackRepository = new TrackRepository();
+		
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(new EmployeeRepository())
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository)
 		);
 	}
 

@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Organization;
@@ -597,7 +598,9 @@ namespace Vodovoz.ViewModel
 														new SubdivisionRepository(), 
 														new EmployeeRepository(), 
 														new FuelRepository(),
-														NavigationManagerProvider.NavigationManager
+														NavigationManagerProvider.NavigationManager,
+														new TrackRepository(),
+														new CategoryRepository()
 									)
 								);
 						}

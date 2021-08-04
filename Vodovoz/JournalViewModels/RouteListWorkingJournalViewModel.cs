@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
@@ -345,7 +346,9 @@ namespace Vodovoz.JournalViewModels
                                 subdivisionRepository,
                                 new EmployeeRepository(),
                                 fuelRepository,
-                                NavigationManagerProvider.NavigationManager
+                                NavigationManagerProvider.NavigationManager,
+                                new TrackRepository(),
+                                new CategoryRepository()
                             )
                         );
                     }

@@ -46,10 +46,11 @@ namespace Vodovoz
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-		private IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
@@ -404,7 +405,7 @@ namespace Vodovoz
 							"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
 							RouteListStatus.OnClosing.GetEnumTitle()))
 						{
-							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
+							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker, _trackRepository);
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.

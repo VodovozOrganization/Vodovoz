@@ -25,7 +25,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Converters;
-using TrackRepository = Vodovoz.Repository.Logistics.TrackRepository;
 
 namespace Vodovoz
 {
@@ -34,6 +33,7 @@ namespace Vodovoz
 		#region Поля
 
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		bool editing = true;
 
 		List<RouteListKeepingItemNode> items;
@@ -211,7 +211,7 @@ namespace Vodovoz
 
 		protected void OnButtonFromTrackClicked(object sender, EventArgs e)
 		{
-			var track = TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
 			if(track == null) {
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
 				return;

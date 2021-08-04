@@ -38,6 +38,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 		private ICarUnloadRepository CarUnloadRepository => CarUnloadSingletonRepository.GetInstance();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
@@ -208,7 +209,7 @@ namespace Vodovoz
 
 			if (Entity.RouteList.Status == RouteListStatus.Delivered)
 			{
-				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
+				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker, _trackRepository);
 			}
 			
 			logger.Info("Сохраняем разгрузочный талон...");
