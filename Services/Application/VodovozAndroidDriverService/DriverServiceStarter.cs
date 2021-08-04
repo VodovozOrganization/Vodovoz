@@ -4,7 +4,6 @@ using Android;
 using Chats;
 using Nini.Config;
 using NLog;
-using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -12,6 +11,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using SmsPaymentService;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace VodovozAndroidDriverService
 {
@@ -63,10 +63,12 @@ namespace VodovozAndroidDriverService
 				new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 			
 			var employeeRepository = new EmployeeRepository();
+			var routeListRepository = new RouteListRepository();
 				
 			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider =
 				new AndroidDriverServiceInstanceProvider(
-					wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator, employeeRepository);
+					wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator, employeeRepository,
+					routeListRepository);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

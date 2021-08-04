@@ -10,7 +10,6 @@ using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository.Logistics;
 using QS.DomainModel.Tracking;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Services;
@@ -18,6 +17,9 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Android.DTO;
 using SmsPaymentService;
+using Vodovoz.EntityRepositories.Logistic;
+using RouteListItemRepository = Vodovoz.Repository.Logistics.RouteListItemRepository;
+using TrackRepository = Vodovoz.Repository.Logistics.TrackRepository;
 
 namespace Android
 {
@@ -30,19 +32,22 @@ namespace Android
 		private readonly ChannelFactory<ISmsPaymentService> _smsPaymentChannelFactory;
 		private readonly IDriverNotificator _driverNotificator;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IRouteListRepository _routeListRepository;
 
 		public AndroidDriverService(
 			WageParameterService wageParameterService, 
 			IDriverServiceParametersProvider parameters,
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
 			IDriverNotificator driverNotificator,
-			IEmployeeRepository employeeRepository)
+			IEmployeeRepository employeeRepository,
+			IRouteListRepository routeListRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
 			_smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
 			_driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 		}
 
 		/// <summary>
@@ -174,7 +179,7 @@ namespace Android
 					
 					var result = new List<RouteListDTO>();
 					var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
-					var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
+					var routeLists = _routeListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
 
 					foreach (RouteList rl in routeLists)
 					{
