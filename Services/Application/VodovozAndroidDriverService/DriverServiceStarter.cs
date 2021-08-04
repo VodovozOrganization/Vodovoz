@@ -64,11 +64,12 @@ namespace VodovozAndroidDriverService
 			
 			var employeeRepository = new EmployeeRepository();
 			var routeListRepository = new RouteListRepository();
+			var routeListItemRepository = new RouteListItemRepository();
 				
 			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider =
 				new AndroidDriverServiceInstanceProvider(
 					wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator, employeeRepository,
-					routeListRepository);
+					routeListRepository, routeListItemRepository);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

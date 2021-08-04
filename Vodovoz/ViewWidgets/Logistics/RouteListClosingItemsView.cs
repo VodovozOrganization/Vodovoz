@@ -27,6 +27,7 @@ namespace Vodovoz
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -295,7 +296,7 @@ namespace Vodovoz
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
 			if (item.WasTransfered) {
-				var transferedFrom = Repository.Logistics.RouteListItemRepository.GetTransferedFrom (UoW, item);
+				var transferedFrom = _routeListItemRepository.GetTransferedFrom(UoW, item);
 				if (transferedFrom != null)
 					return String.Format ("Заказ из МЛ №{0} водителя {1}.",
 										 transferedFrom.RouteList.Id,

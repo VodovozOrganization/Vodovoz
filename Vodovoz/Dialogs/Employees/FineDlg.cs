@@ -10,11 +10,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -26,6 +26,7 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		public FineDlg()
 		{
@@ -68,7 +69,7 @@ namespace Vodovoz
 		public FineDlg(UndeliveredOrder undeliveredOrder) : this()
 		{
 			Entity.UndeliveredOrder = undeliveredOrder;
-			var RouteList = RouteListItemRepository.GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
+			var RouteList = _routeListItemRepository.GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
 			Entity.RouteList = RouteList;
 		}
 

@@ -518,7 +518,6 @@
     <Compile Include="HibernateMapping\Logistic\TrackMap.cs" />
     <Compile Include="HibernateMapping\Logistic\TrackPointMap.cs" />
     <Compile Include="Repositories\Logistics\TrackRepository.cs" />
-    <Compile Include="Repositories\Logistics\RouteListItemRepository.cs" />
     <Compile Include="Domain\Chat\Chat.cs" />
     <Compile Include="Domain\Chat\ChatMessage.cs" />
     <Compile Include="Domain\Chat\LastReadedMessage.cs" />

@@ -18,7 +18,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Android.DTO;
 using SmsPaymentService;
 using Vodovoz.EntityRepositories.Logistic;
-using RouteListItemRepository = Vodovoz.Repository.Logistics.RouteListItemRepository;
 using TrackRepository = Vodovoz.Repository.Logistics.TrackRepository;
 
 namespace Android
@@ -33,6 +32,7 @@ namespace Android
 		private readonly IDriverNotificator _driverNotificator;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public AndroidDriverService(
 			WageParameterService wageParameterService, 
@@ -40,7 +40,8 @@ namespace Android
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
 			IDriverNotificator driverNotificator,
 			IEmployeeRepository employeeRepository,
-			IRouteListRepository routeListRepository)
+			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -48,6 +49,7 @@ namespace Android
 			_driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 		}
 
 		/// <summary>
@@ -241,7 +243,7 @@ namespace Android
 				{
 					if (orderUoW == null || orderUoW.Root == null)
 						return null;
-					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					OrderDTO orderDTO = new OrderDTO(routeListItem);
 					SmsPaymentStatus? smsPaymentStatus = OrderSingletonRepository.GetInstance().GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
 					if(smsPaymentStatus == null) {
@@ -329,7 +331,7 @@ namespace Android
 					if(orderUoW == null || orderUoW.Root == null)
 						return false;
 
-					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					if(routeListItem == null)
 						return false;
 

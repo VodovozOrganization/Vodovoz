@@ -19,6 +19,7 @@ namespace VodovozAndroidDriverService
 		private readonly IDriverNotificator _driverNotificator;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public AndroidDriverServiceInstanceProvider(
 			WageParameterService wageParameterService, 
@@ -26,7 +27,8 @@ namespace VodovozAndroidDriverService
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
 			IDriverNotificator driverNotificator,
 			IEmployeeRepository employeeRepository,
-			IRouteListRepository routeListRepository)
+			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -34,6 +36,7 @@ namespace VodovozAndroidDriverService
 			_driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 		}
 
 		#region IInstanceProvider implementation
@@ -41,7 +44,8 @@ namespace VodovozAndroidDriverService
 		public object GetInstance(InstanceContext instanceContext)
 		{
 			return new AndroidDriverService(
-				_wageParameterService, _parameters, _smsPaymentChannelFactory, _driverNotificator, _employeeRepository, _routeListRepository);
+				_wageParameterService, _parameters, _smsPaymentChannelFactory, _driverNotificator, _employeeRepository,
+				_routeListRepository, _routeListItemRepository);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)
