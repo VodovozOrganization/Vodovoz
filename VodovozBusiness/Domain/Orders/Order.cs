@@ -991,40 +991,24 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null
+					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
+					                 && validationContext.Items.ContainsKey("uowFactory")
 					                 && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") 
 					                 && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) 
 					{
-						var ordersForDeliveryPoints = _orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
-																	 .Where(
-																		 o => o.Id != Id
-																		 && o.DeliveryDate == DeliveryDate
-																		 && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-																		 && !o.IsService
-																		);
-
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
-						if(!hasMaster
-						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-						   && ordersForDeliveryPoints.Any()) 
-						{
-							yield return new ValidationResult(
-								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
-								new[] { this.GetPropertyName(o => o.OrderEquipments) });
-						}
-
 						var orderCheckedOutsideSession = _orderRepository
-							.GetSameOrderOutsideTransaction((IUnitOfWorkFactory) validationContext.Items["factory"], DeliveryDate.Value,
+							.GetSameOrderOutsideTransaction((IUnitOfWorkFactory) validationContext.Items["uowFactory"], DeliveryDate.Value,
 								DeliveryPoint)
 							.Where(o => o.Id != Id).ToList();
 
 						if(!hasMaster
 						   && DeliveryDate.HasValue
-						   && validationContext.Items.ContainsKey("factory")
 						   && orderCheckedOutsideSession.Count>0)
 						{
 							yield return new ValidationResult(
-								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки недавно был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
+								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}

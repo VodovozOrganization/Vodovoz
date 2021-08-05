@@ -1162,7 +1162,7 @@ namespace Vodovoz
 			{
 				{ "NewStatus", OrderStatus.Accepted },
 				{ "IsCopiedFromUndelivery", templateOrder != null },//индикатор того, что заказ - копия, созданная из недовозов
-				{ "factory", uowFactory }
+				{ "uowFactory", uowFactory }
 			});
 
 			if(!Validate(validationContext))
