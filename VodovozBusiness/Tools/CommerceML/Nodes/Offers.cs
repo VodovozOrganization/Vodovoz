@@ -3,25 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {
-	public class Offers : IXmlConvertable 
+	public class Offers : IXmlConvertable
 	{
-		Dictionary<int, decimal> amounts;
+		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
+		private readonly Dictionary<int, decimal> _amounts;
 
 		public Offers(Export export)
 		{
 			myExport = export;
 			myExport.OnProgressPlusOneTask("Выгружаем наличие на складе");
 
-			var warehouses = WarehouseRepository.WarehousesForPublishOnlineStore(myExport.UOW);
+			var warehouses = _warehouseRepository.WarehousesForPublishOnlineStore(myExport.UOW);
 			var nomenclatureIds = myExport.Catalog.Goods.NomenclatureIds;
 			var warehousesIds = warehouses.Select(x => x.Id).ToArray();
 
-			amounts = StockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
+			_amounts = StockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
 		}
 
 		Export myExport;
@@ -48,7 +49,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				                                      new XElement("Единица", good.Unit?.Name),
 				                                      new XElement("Коэффициент", 1)
 				                                     )));
-				goodxml.Add(new XElement("Количество", XmlConvert.ToString(amounts[good.Id])));
+				goodxml.Add(new XElement("Количество", XmlConvert.ToString(_amounts[good.Id])));
 				xml.Add(goodxml);
 			}
 			return xml;

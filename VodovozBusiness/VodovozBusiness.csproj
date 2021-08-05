@@ -505,9 +505,6 @@
     <Compile Include="Repositories\RentPackageRepository.cs" />
     <Compile Include="Repositories\ServiceClaimRepository.cs" />
     <Compile Include="Repositories\StockRepository.cs" />
-    <Compile Include="Repositories\Store\SelfDeliveryRepository.cs" />
-    <Compile Include="Repositories\Store\WagonRepository.cs" />
-    <Compile Include="Repositories\Store\WarehouseRepository.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />
@@ -686,7 +683,6 @@
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
     <Compile Include="Repositories\Orders\OrderRepository.cs" />
-    <Compile Include="Repositories\Store\CarLoadRepository.cs" />
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
     <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
