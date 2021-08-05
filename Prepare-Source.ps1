@@ -3,10 +3,28 @@ Write-Output "1) git pull"
 Write-Output "2) nuget restore"
 Write-Output "3) Очистить кэш nuget пакетов"
 Write-Output "4) build Vodovoz.sln (for Windows, временно не работает)"
+Write-Output "5) remove obj & bin folder"
 Write-Output "Можно вызывать вместе, например git+nuget=12"
 $selection = Read-Host
 
-if ($selection.Contains("3")){
+function Get-Tree($Path, $Include = '*') {
+    @(Get-Item $Path -Include $Include -Force) +
+    (Get-ChildItem $Path -Recurse -Filter $Include -Force) |
+    Sort-Object pspath -Descending -unique
+}
+
+function Remove-Tree($Path, $Include = '*') {
+    Get-Tree $Path $Include | Remove-Item -force -recurse -Verbose
+}
+
+if ($selection.Contains("5")) {
+    Set-Location ../
+    Remove-Tree bin
+    Remove-Tree obj
+    Set-Location Vodovoz
+}
+
+if ($selection.Contains("3")) {
     dotnet nuget locals all --clear
 }
 
