@@ -429,6 +429,23 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 					  .List().FirstOrDefault();
 		}
+		
+		public IList<Domain.Orders.Order> GetSameOrderOutsideTransaction(IUnitOfWorkFactory uowFactory, DateTime date, DeliveryPoint deliveryPoint)
+		{
+			var uow = uowFactory.CreateWithoutRoot();
+			
+			var notSupportedStatuses = new OrderStatus[] {
+				OrderStatus.NewOrder,
+				OrderStatus.Canceled,
+				OrderStatus.NotDelivered
+			};
+
+			return uow.Session.QueryOver<VodovozOrder>()
+				.WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
+				.Where(x => x.DeliveryDate == date)
+				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
+				.List();
+		}
 
 		public bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)
 		{
