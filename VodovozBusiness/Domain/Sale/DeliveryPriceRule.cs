@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Sale;
 
@@ -87,8 +88,16 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(DistrictRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(IDistrictRuleRepository)) is IDistrictRuleRepository districtRuleRepository))
+			{
+				throw new ArgumentNullException(nameof(districtRuleRepository));
+			}
+			
+			if(districtRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
+			{
 				yield return new ValidationResult("Такое правило уже существует и нельзя его создавать");
+			}
 		}
 
 		#endregion

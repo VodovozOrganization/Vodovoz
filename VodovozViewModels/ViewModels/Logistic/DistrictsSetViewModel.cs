@@ -15,6 +15,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -26,11 +27,13 @@ namespace Vodovoz.ViewModels.Logistic
             ICommonServices commonServices,
             IEntityDeleteWorker entityDeleteWorker,
             IEmployeeRepository employeeRepository,
+            IDistrictRuleRepository districtRuleRepository,
             INavigationManager navigation = null) 
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
-            this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
-            this.commonServices = commonServices;
+            _entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
+            DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
+            
             TabName = "Районы с графиками доставки";
             
             CanChangeDistrictWageTypePermissionResult = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
@@ -50,14 +53,13 @@ namespace Vodovoz.ViewModels.Logistic
 
             SortDistricts();
 
-            geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+            _geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
             SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>();
             NewBorderVertices = new GenericObservableList<PointLatLng>();
         }
 
-        private readonly ICommonServices commonServices;
-        private readonly IEntityDeleteWorker entityDeleteWorker;
-        private readonly GeometryFactory geometryFactory;
+        private readonly IEntityDeleteWorker _entityDeleteWorker;
+        private readonly GeometryFactory _geometryFactory;
 
         public readonly bool CanChangeDistrictWageTypePermissionResult;
         public readonly bool CanEditDistrict;
@@ -65,6 +67,7 @@ namespace Vodovoz.ViewModels.Logistic
         public readonly bool CanCreateDistrict;
         public readonly bool CanEdit;
 
+        public IDistrictRuleRepository DistrictRuleRepository { get; }
         public GenericObservableList<DeliveryScheduleRestriction> ScheduleRestrictions => SelectedWeekDayName.HasValue && SelectedDistrict != null
             ? SelectedDistrict.GetScheduleRestrictionCollectionByWeekDayName(SelectedWeekDayName.Value)
             : null;
@@ -198,7 +201,7 @@ namespace Vodovoz.ViewModels.Logistic
             () => {
                 var distrToDel = selectedDistrict;
                 Entity.ObservableDistricts.Remove(SelectedDistrict);
-                if(entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW)) {
+                if(_entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW)) {
                     SelectedDistrict = null;
                 }
                 else {
@@ -227,7 +230,7 @@ namespace Vodovoz.ViewModels.Logistic
                 NewBorderVertices.Add(closingPoint);
                 SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>(NewBorderVertices.ToList());
                 NewBorderVertices.Clear();
-                SelectedDistrict.DistrictBorder = geometryFactory.CreatePolygon(SelectedDistrictBorderVertices.Select(p => new Coordinate(p.Lat,p.Lng)).ToArray());
+                SelectedDistrict.DistrictBorder = _geometryFactory.CreatePolygon(SelectedDistrictBorderVertices.Select(p => new Coordinate(p.Lat,p.Lng)).ToArray());
                 IsCreatingNewBorder = false;
             },
             () => IsCreatingNewBorder
@@ -379,10 +382,17 @@ namespace Vodovoz.ViewModels.Logistic
         public override bool Save(bool close)
         {
             if(Entity.Id == 0)
-                Entity.DateCreated = DateTime.Now;
-            if(base.Save(close)) {
-                if(!commonServices.InteractiveService.Question("Продолжить редактирование районов?", "Успешно сохранено"))
-                    Close(false, CloseSource.Save);
+            {
+	            Entity.DateCreated = DateTime.Now;
+            }
+
+            if(base.Save(close))
+            {
+                if(!CommonServices.InteractiveService.Question("Продолжить редактирование районов?", "Успешно сохранено"))
+                {
+	                Close(false, CloseSource.Save);
+                }
+
                 return true;
             }
             return false;

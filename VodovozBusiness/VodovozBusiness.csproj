@@ -665,7 +665,6 @@
     <Compile Include="Domain\Sale\DeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\IDeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\CommonDistrictRuleItem.cs" />
-    <Compile Include="Repositories\Sale\DistrictRuleRepository.cs" />
     <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
     <Compile Include="Domain\Employees\EmployeeDocument.cs" />
