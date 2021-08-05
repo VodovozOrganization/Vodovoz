@@ -47,6 +47,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalFilters;
@@ -738,8 +739,7 @@ namespace Vodovoz
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
 		        new UndeliveredOrdersJournalOpener(),
-				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory()
+				new UndeliveredOrdersRepository()
 			);
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
@@ -775,7 +775,8 @@ namespace Vodovoz
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory()
+				new NomenclatureSelectorFactory(),
+		        new UndeliveredOrdersRepository()
 	        );
 	        
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);

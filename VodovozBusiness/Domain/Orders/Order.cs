@@ -35,6 +35,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -59,6 +60,7 @@ namespace Vodovoz.Domain.Orders
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 
 		#region Платная доставка
 
@@ -2625,7 +2627,7 @@ namespace Vodovoz.Domain.Orders
 			   || initialStatus == newStatus)
 				return;
 
-			var undeliveries = Repositories.UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
+			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",

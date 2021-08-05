@@ -9,6 +9,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalSelector;
@@ -72,8 +73,7 @@ namespace Vodovoz.TempAdapters
 					subdivisionJournalFactory,
 					new GtkTabsOpener(),
 					new UndeliveredOrdersJournalOpener(),
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
+					new UndeliveredOrdersRepository()
 				)
 			);
 		}

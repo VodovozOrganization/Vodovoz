@@ -15,12 +15,12 @@ using QS.Project.Journal;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
-using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -57,7 +57,8 @@ namespace Vodovoz.ViewModels.Logistic
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			IDeliveryShiftRepository deliveryShiftRepository) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			IDeliveryShiftRepository deliveryShiftRepository,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -66,6 +67,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			UndeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			if(deliveryShiftRepository == null)
@@ -99,7 +102,8 @@ namespace Vodovoz.ViewModels.Logistic
 		public IEntityAutocompleteSelectorFactory LogisticanSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
-		
+		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
+
 		public readonly IList<DeliveryShift> DeliveryShifts;
 		
 		public Employee CurrentEmployee { get; }
@@ -158,7 +162,8 @@ namespace Vodovoz.ViewModels.Logistic
 						_employeeJournalFactory,
 						employeeService,
 						_undeliveredOrdersJournalOpener,
-						_orderSelectorFactory);
+						_orderSelectorFactory,
+						UndeliveredOrdersRepository);
 
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();
 					
@@ -309,7 +314,7 @@ namespace Vodovoz.ViewModels.Logistic
 			return bottles;
 		}
 
-		private UndeliveredOrder GetUndeliveredOrder() => 
+		private UndeliveredOrder GetUndeliveredOrder() =>
 			UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, SelectedItem.Order.Id).SingleOrDefault();
 
 		public void SetLogisticianCommentAuthor()

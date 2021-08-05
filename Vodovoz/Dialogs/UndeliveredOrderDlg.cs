@@ -12,7 +12,7 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -21,6 +21,8 @@ namespace Vodovoz.Dialogs
 	public partial class UndeliveredOrderDlg : QS.Dialog.Gtk.SingleUowTabBase, ITdiTabAddedNotifier
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
 		UndeliveredOrder UndeliveredOrder { get; set; }
@@ -132,7 +134,8 @@ namespace Vodovoz.Dialogs
 		{
 			if(UndeliveredOrder.Id > 0)
 				return true;
-			var otherUndelivery = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
+			var otherUndelivery =
+				_undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
 			if(otherUndelivery == null)
 				return true;
 			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, UndeliveredOrder.GetUndeliveryInfo());

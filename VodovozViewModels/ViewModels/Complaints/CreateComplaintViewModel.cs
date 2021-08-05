@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -57,6 +58,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			string phone = null
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -75,9 +77,12 @@ namespace Vodovoz.ViewModels.Complaints
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			UndeliveredOrdersJournalOpener =
+				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			SalesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+			UndeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -109,10 +114,12 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, counterpartySelectorFactory,
 			subdivisionRepository, commonServices, nomenclatureSelectorFactory, nomenclatureRepository, userRepository, filePickerService,
 			orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,
-			gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
+			gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, undeliveredOrdersRepository,
+			phone)
 		{
 			var curClient = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = curClient;
@@ -139,10 +146,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, counterpartySelectorFactory, subdivisionRepository,
 			commonServices, nomenclatureSelectorFactory, nomenclatureRepository, userRepository, filePickerService, orderSelectorFactory,
 			employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, gtkDialogsOpener,
-			undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
+			undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, undeliveredOrdersRepository, phone)
 		{
 			var curOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = curOrder;
@@ -287,5 +295,6 @@ namespace Vodovoz.ViewModels.Complaints
         public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 		public ISalesPlanJournalFactory SalesPlanJournalFactory { get; }
 		public INomenclatureSelectorFactory NomenclatureSelector { get; }
+		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
 	}
 }

@@ -14,7 +14,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -194,8 +193,9 @@ namespace Vodovoz.Views.Logistic
 			
 			var openNotDeliveredOrder = new MenuItem($"Открыть недовоз");
 			openNotDeliveredOrder.Activated += (s, args) => ViewModel.OpenUndeliveredOrderCommand.Execute();
-			openNotDeliveredOrder.Sensitive = ViewModel.SelectedItem.Status == RouteListItemStatus.Canceled && 
-			                                  UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(ViewModel.UoW, ViewModel.SelectedItem.Order.Id).Any();
+			openNotDeliveredOrder.Sensitive = 
+				ViewModel.SelectedItem.Status == RouteListItemStatus.Canceled
+				&& ViewModel.UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(ViewModel.UoW, ViewModel.SelectedItem.Order.Id).Any();
 			menu.Add(openNotDeliveredOrder);
 			
 			var createFine = new MenuItem($"Создать штраф");

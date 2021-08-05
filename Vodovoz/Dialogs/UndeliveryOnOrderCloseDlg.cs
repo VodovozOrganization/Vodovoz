@@ -5,13 +5,15 @@ using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveryOnOrderCloseDlg : QS.Dialog.Gtk.SingleUowTabBase
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+
 		UndeliveredOrder undelivery;
 		Order order;
 
@@ -70,7 +72,7 @@ namespace Vodovoz.Dialogs
 		/// нового (но не добавленного) недовоза.</returns>
 		bool CanCreateUndelivery()
 		{
-			var otherUndelivery = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, order).FirstOrDefault();
+			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, order).FirstOrDefault();
 			if(otherUndelivery == null)
 				return true;
 			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo());

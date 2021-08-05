@@ -125,6 +125,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -945,7 +946,8 @@ public partial class MainWindow : Gtk.Window
 	            new DeliveryPointJournalFactory(),
 	            subdivisionJournalFactory,
 	            new SalesPlanJournalFactory(),
-	            new NomenclatureSelectorFactory()
+	            new NomenclatureSelectorFactory(),
+	            new UndeliveredOrdersRepository()
             )
         );
     }
@@ -2099,7 +2101,8 @@ public partial class MainWindow : Gtk.Window
 	            new DeliveryPointJournalFactory(),
 	            subdivisionJournalFactory,
 	            new SalesPlanJournalFactory(),
-	            new NomenclatureSelectorFactory()
+	            new NomenclatureSelectorFactory(),
+	            new UndeliveredOrdersRepository()
             )
         );
     }
@@ -2152,8 +2155,7 @@ public partial class MainWindow : Gtk.Window
                     subdivisionJournalFactory,
                     new GtkTabsOpener(),
                     new UndeliveredOrdersJournalOpener(),
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
+					new UndeliveredOrdersRepository()
             )
         );
     }

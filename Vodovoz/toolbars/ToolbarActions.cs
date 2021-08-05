@@ -48,6 +48,7 @@ using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -1013,8 +1014,7 @@ public partial class MainWindow : Window
 			subdivisionJournalFactory,
 			new GtkTabsOpener(),
 			new UndeliveredOrdersJournalOpener(),
-			new SalesPlanJournalFactory(),
-			new NomenclatureSelectorFactory()
+			new UndeliveredOrdersRepository()
 		);
 		
 		tdiMain.AddTab(ordersJournal);
@@ -1040,7 +1040,8 @@ public partial class MainWindow : Window
 			new EmployeeJournalFactory(),
 			VodovozGtkServicesConfig.EmployeeService,
 			new UndeliveredOrdersJournalOpener(),
-			new OrderSelectorFactory())
+			new OrderSelectorFactory(),
+			new UndeliveredOrdersRepository())
 		);
 	}
 

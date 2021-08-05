@@ -37,6 +37,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -523,7 +524,8 @@ namespace Vodovoz.ViewModel
 									new SubdivisionJournalFactory(),
 									new GtkTabsOpener(),
 									new UndeliveredOrdersJournalOpener(),
-									new DeliveryShiftRepository()
+									new DeliveryShiftRepository(),
+									new UndeliveredOrdersRepository()
 								)
 							);
 					},
