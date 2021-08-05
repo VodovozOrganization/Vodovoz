@@ -954,6 +954,11 @@ namespace Vodovoz.Domain.Client
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(depositRepository)}");
 			}
 			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IMoneyRepository)) is IMoneyRepository moneyRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(moneyRepository)}");
+			}
+			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
 			}
@@ -1006,7 +1011,7 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
 				}
 
-				var balance = Repository.Operations.MoneyRepository.GetCounterpartyDebt(UoW, this);
+				var balance = moneyRepository.GetCounterpartyDebt(UoW, this);
 				
 				if(balance != 0)
 				{

@@ -13,7 +13,6 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
@@ -48,6 +47,7 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Factories;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Journals.JournalViewModels;
@@ -63,13 +63,16 @@ namespace Vodovoz
         private static Logger logger = LogManager.GetCurrentClassLogger();
         
         private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+        private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
         private readonly IUserRepository _userRepository = new UserRepository();
         private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
         private readonly IDepositRepository _depositRepository = new DepositRepository();
+        private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
         private  INomenclatureRepository nomenclatureRepository;
+        private ValidationContext _validationContext;
 
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
@@ -303,6 +306,7 @@ namespace Vodovoz
             ConfigureTabSpecialFields();
             ConfigureTabPrices();
             ConfigureTabFixedPrices();
+            ConfigureValidationContext();
             
             //make actions menu
             var menu = new Gtk.Menu();
@@ -663,6 +667,14 @@ namespace Vodovoz
             fixedpricesview.ViewModel = fixedPricesViewModel;
         }
 
+        private void ConfigureValidationContext()
+        {
+	        _validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
+	        
+	        _validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
+        }
 
         private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
         {
@@ -795,12 +807,7 @@ namespace Vodovoz
 
                 Entity.UoW = UoW;
 
-                var validationContext = new ValidationContext(Entity);
-                
-                validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
-                validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
-                
-                if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+                if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
                 {
 	                return false;
                 }
