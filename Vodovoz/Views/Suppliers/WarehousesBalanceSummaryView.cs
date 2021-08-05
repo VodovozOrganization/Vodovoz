@@ -16,6 +16,7 @@ namespace Vodovoz.Views.Suppliers
 	public partial class WarehousesBalanceSummaryView : TabViewBase<WarehousesBalanceSummaryViewModel>
 	{
 		private Task _generationTask;
+		private double _totalTime;
 
 		public WarehousesBalanceSummaryView(WarehousesBalanceSummaryViewModel viewModel) : base(viewModel)
 		{
@@ -90,6 +91,8 @@ namespace Vodovoz.Views.Suppliers
 			}
 
 			treeData.ColumnsConfig = columnsConfig.AddColumn("").Finish();
+			ViewModel.ShowWarning($"Отчет остатков по складам сформирован за {_totalTime}с." +
+			                      $"\r\nАлгоритм {ViewModel.AlgoTime}с. Запрос ~{_totalTime - ViewModel.AlgoTime}с.");
 		}
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -106,6 +109,7 @@ namespace Vodovoz.Views.Suppliers
 		{
 			ViewModel.ReportGenerationCancelationTokenSource = new CancellationTokenSource();
 			ViewModel.IsGenerating = true;
+			var start = DateTime.Now;
 
 			_generationTask = Task.Run(async () =>
 			{
@@ -131,6 +135,7 @@ namespace Vodovoz.Views.Suppliers
 				}
 				finally
 				{
+					_totalTime = (DateTime.Now - start).TotalSeconds;
 					Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.IsGenerating = false;
