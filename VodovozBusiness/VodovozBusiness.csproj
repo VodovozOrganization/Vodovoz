@@ -533,7 +533,6 @@
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
     <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
     <Compile Include="Domain\Operations\FuelOperation.cs" />
-    <Compile Include="Repositories\Operations\FuelRepository.cs" />
     <Compile Include="Domain\Logistic\FuelDocument.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentMap.cs" />
     <Compile Include="Domain\Employees\EmployeeWorkChart.cs" />

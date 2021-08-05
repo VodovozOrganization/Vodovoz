@@ -60,6 +60,7 @@ namespace Vodovoz
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly IFuelRepository _fuelRepository = new FuelRepository();
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -964,9 +965,8 @@ namespace Vodovoz
 				else
 					car = null;
 
-				balanceBeforeOp = Repository.Operations.FuelRepository.GetFuelBalance(
-					UoW, driver, car, Entity.Car.FuelType,
-					Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
+				balanceBeforeOp = _fuelRepository.GetFuelBalance(
+					UoW, driver, car, Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
 			}
 		}
 
