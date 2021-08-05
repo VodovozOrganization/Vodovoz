@@ -62,6 +62,7 @@ namespace Vodovoz
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
 		private Employee _employeeForCurrentUser;
+		private ValidationContext _validationContext;
 
 		public EmployeeDlg()
 		{
@@ -350,6 +351,8 @@ namespace Vodovoz
 				NavigationManagerProvider.NavigationManager,
 				_employeeRepository
 			);
+			
+			ConfigureValidationContext();
 
 			logger.Info("Ok");
 		}
@@ -805,18 +808,14 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("У вас недостаточно прав для создания сотрудника");
 				return false;
 			}
+			
 			//Проверяем, чтобы в БД не попала пустая строка
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
+			{
 				Entity.AndroidLogin = null;
+			}
 
-			//TODO проверить корректность работы
-			var validationContext = new ValidationContext(Entity);
-			
-			validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), subdivisionService);
-			validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
-			validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
-
-			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 			{
 				return false;
 			}
@@ -884,6 +883,15 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
+		}
+
+		private void ConfigureValidationContext()
+		{
+			_validationContext = new ValidationContext(Entity);
+
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
+			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)

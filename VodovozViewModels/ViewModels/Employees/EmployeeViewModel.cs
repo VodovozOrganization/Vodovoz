@@ -42,7 +42,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
-		private readonly ValidationContext _validationContext;
 		private readonly IUserRepository _userRepository;
 
 		private bool _canActivateDriverDistrictPrioritySetPermission;
@@ -52,6 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private Employee _employeeForCurrentUser;
 		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
 		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
+		private ValidationContext _validationContext;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
 		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
@@ -107,10 +107,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_validationContext = 
-				(validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory)))
-					.CreateNewValidationContext(Entity);
-			
+
+			if(validationContextFactory == null)
+			{
+				throw new ArgumentNullException(nameof(validationContextFactory));
+			}
+
+			ConfigureValidationContext(validationContextFactory);
+
 			if(phonesViewModelFactory == null)
 			{
 				throw new ArgumentNullException(nameof(phonesViewModelFactory));
@@ -145,7 +149,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
 			}
 		}
-		
+
 		private Employee EmployeeForCurrentUser => 
 			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
@@ -550,6 +554,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 		
+		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
+		{
+			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
+			
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
+			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
+		}
+		
 		public void SaveAndClose()
 		{
 			if(!HasChanges)
@@ -581,11 +594,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				Entity.AndroidLogin = null;
 			}
-
-			//TODO проверить правильность работы
-			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
-			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 
 			if(!Validate())
 			{
