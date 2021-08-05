@@ -497,7 +497,6 @@
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateItemMap.cs" />
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateMap.cs" />
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
-    <Compile Include="Repositories\ServiceClaimRepository.cs" />
     <Compile Include="Repositories\StockRepository.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="Attributes\Code1c.cs" />
@@ -685,7 +684,6 @@
     <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
     <Compile Include="Domain\Client\CallTask.cs" />
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />
-    <Compile Include="Repositories\ResidueRepository.cs" />
     <Compile Include="Domain\Logistic\Discrepancy.cs" />
     <Compile Include="Domain\Operations\CashTransferOperation.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentBase.cs" />
