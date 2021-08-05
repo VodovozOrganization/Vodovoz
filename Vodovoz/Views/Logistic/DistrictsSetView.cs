@@ -20,7 +20,6 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

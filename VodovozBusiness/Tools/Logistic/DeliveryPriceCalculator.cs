@@ -9,13 +9,13 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Repositories;
-using ScheduleRestrictionRepository = Vodovoz.Repositories.Sale.ScheduleRestrictionRepository;
 
 namespace Vodovoz.Tools.Logistic
 {
 	public static class DeliveryPriceCalculator
 	{
 		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -46,7 +46,7 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
-				districts = ScheduleRestrictionRepository.GetDistrictsWithBorder(uow);
+				districts = _scheduleRestrictionRepository.GetDistrictsWithBorder(uow);
 				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
 
 				//Координаты

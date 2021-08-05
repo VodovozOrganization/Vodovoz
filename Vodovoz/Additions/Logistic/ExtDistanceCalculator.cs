@@ -13,7 +13,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {

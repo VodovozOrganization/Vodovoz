@@ -31,7 +31,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using ScheduleRestrictionRepository = Vodovoz.Repositories.Sale.ScheduleRestrictionRepository;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -53,6 +52,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -303,7 +303,7 @@ namespace Vodovoz.Dialogs.Logistic
 			if(toAdd.Count == 0)
 				return;
 
-			var orders = ScheduleRestrictionRepository.OrdersCountByDistrict(UoW, DialogAtDate, 12);
+			var orders = _scheduleRestrictionRepository.OrdersCountByDistrict(UoW, DialogAtDate, 12);
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {

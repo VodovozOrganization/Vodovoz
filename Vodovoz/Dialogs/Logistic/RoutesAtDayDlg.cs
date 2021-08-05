@@ -39,7 +39,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
-using ScheduleRestrictionRepository = Vodovoz.Repositories.Sale.ScheduleRestrictionRepository;
 
 namespace Vodovoz
 {
@@ -52,6 +51,7 @@ namespace Vodovoz
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -1197,7 +1197,7 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
+			logisticanDistricts = _scheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),

@@ -66,7 +66,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IUserRepository userRepository,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IGeographicGroupRepository geographicGroupRepository) : base(commonServices?.InteractiveService, navigationManager)
+			IGeographicGroupRepository geographicGroupRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -78,6 +79,8 @@ namespace Vodovoz.ViewModels.Logistic
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			GeographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			ScheduleRestrictionRepository =
+				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -129,6 +132,7 @@ namespace Vodovoz.ViewModels.Logistic
 		
 		public ICarRepository CarRepository { get; }
 		public IGeographicGroupRepository GeographicGroupRepository { get; }
+		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
 
 		void CreateCommands()
 		{

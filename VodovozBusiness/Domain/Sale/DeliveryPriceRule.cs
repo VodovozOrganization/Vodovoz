@@ -7,7 +7,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -91,7 +90,7 @@ namespace Vodovoz.Domain.Sale
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IDistrictRuleRepository)) is IDistrictRuleRepository districtRuleRepository))
 			{
-				throw new ArgumentNullException(nameof(districtRuleRepository));
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(districtRuleRepository)}");
 			}
 			
 			if(districtRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))

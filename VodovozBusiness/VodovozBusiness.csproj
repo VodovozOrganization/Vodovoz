@@ -585,7 +585,6 @@
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
     <Compile Include="Domain\Sale\District.cs" />
-    <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Orders\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
     <Compile Include="Domain\Client\SalesEquipmentAgreement.cs" />
@@ -1027,7 +1026,6 @@
     <Folder Include="Repositories\Client\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Logistic\" />
-    <Folder Include="Repositories\Sale\" />
     <Folder Include="Domain\Sale\" />
     <Folder Include="HibernateMapping\Sale\" />
     <Folder Include="Tools\CommerceML\" />

@@ -9,7 +9,6 @@ using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using QSOrmProject;
@@ -17,14 +16,12 @@ using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
-using Gamma.Utilities;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
@@ -730,7 +727,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(ViewModel.UoW);
+			ViewModel.LogisticanDistricts = ViewModel.ScheduleRestrictionRepository.GetDistrictsWithBorder(ViewModel.UoW);
 			foreach(var district in ViewModel.LogisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),

@@ -551,7 +551,8 @@ public partial class MainWindow : Window
 					new UserRepository(),
 					new BaseParametersProvider(),
 					new EmployeeJournalFactory(),
-					new GeographicGroupRepository()
+					new GeographicGroupRepository(),
+					new ScheduleRestrictionRepository()
 				)
 			);
 	}
