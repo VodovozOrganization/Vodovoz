@@ -497,7 +497,6 @@
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateItemMap.cs" />
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateMap.cs" />
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
-    <Compile Include="Repositories\StockRepository.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />

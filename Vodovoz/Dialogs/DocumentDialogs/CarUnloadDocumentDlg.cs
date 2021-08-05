@@ -26,6 +26,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using Vodovoz.Tools;
@@ -516,7 +517,7 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 			FillOtherReturnsTable();
-			Entity.ReturnedEmptyBottlesBefore(UoW, new RouteListRepository());
+			Entity.ReturnedEmptyBottlesBefore(UoW, new RouteListRepository(new StockRepository()));
 		}
 		#endregion
 

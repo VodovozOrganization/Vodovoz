@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -24,7 +25,7 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 		
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();

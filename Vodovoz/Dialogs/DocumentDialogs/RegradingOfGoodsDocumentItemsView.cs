@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -25,12 +24,14 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IStockRepository _stockRepository = new StockRepository();
 		RegradingOfGoodsDocumentItem newRow;
 		RegradingOfGoodsDocumentItem FineEditItem;
 
@@ -245,7 +246,7 @@ namespace Vodovoz
 		private void LoadStock()
 		{
 			var nomenclatureIds = DocumentUoW.Root.Items.Select(x => x.NomenclatureOld.Id).ToArray();
-			var inStock = Repositories.StockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
+			var inStock = _stockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
 				nomenclatureIds, DocumentUoW.Root.TimeStamp);
 
 			foreach(var item in DocumentUoW.Root.Items)

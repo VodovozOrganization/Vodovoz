@@ -9,6 +9,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
@@ -17,6 +18,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class ShiftChangeWarehouseDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly IStockRepository _stockRepository = new StockRepository();
 		public IList<NomenclatureCategory> Categories { get; set; }
 
 		public ShiftChangeWarehouseDocumentItemsView()
@@ -68,9 +70,14 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
 			if(DocumentUoW.Root.Items.Count == 0)
-				DocumentUoW.Root.FillItemsFromStock(DocumentUoW, Categories ?? null);
+			{
+				DocumentUoW.Root.FillItemsFromStock(DocumentUoW, _stockRepository, Categories ?? null);
+			}
 			else
-				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW, Categories ?? null);
+			{
+				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW, _stockRepository, Categories ?? null);
+			}
+
 			UpdateButtonState();
 		}
 

@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.ViewModel
@@ -32,7 +33,7 @@ namespace Vodovoz.ViewModel
 		}
 		
 		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-		private readonly IRouteListRepository routeListRepository = new RouteListRepository();
+		private readonly IRouteListRepository routeListRepository = new RouteListRepository(new StockRepository());
 
 		public ReadyForShipmentFilter Filter {
 			get => RepresentationFilter as ReadyForShipmentFilter;

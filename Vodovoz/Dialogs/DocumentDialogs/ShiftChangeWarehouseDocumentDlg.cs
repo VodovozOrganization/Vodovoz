@@ -22,6 +22,7 @@ using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
@@ -33,6 +34,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly IStockRepository _stockRepository = new StockRepository();
 
 		private SelectableParametersReportFilter filter;
 
@@ -316,23 +318,29 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			if(Entity.Items.Count == 0)
-				Entity.FillItemsFromStock(UoW,
-						nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
-						nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
-						nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
-						nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
-						productGroupToInclude: productGroupToInclude.ToArray(),
-						productGroupToExclude: productGroupToExclude.ToArray()
-					);
-			else
-				Entity.UpdateItemsFromStock(UoW,
+			{
+				Entity.FillItemsFromStock(
+					UoW,
+					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
 					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
 					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
 					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
 					productGroupToInclude: productGroupToInclude.ToArray(),
-					productGroupToExclude: productGroupToExclude.ToArray()
-					);
+					productGroupToExclude: productGroupToExclude.ToArray());
+			}
+			else
+			{
+				Entity.UpdateItemsFromStock(
+					UoW,
+					_stockRepository,
+					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
+					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
+					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
+					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
+					productGroupToInclude: productGroupToInclude.ToArray(),
+					productGroupToExclude: productGroupToExclude.ToArray());
+			}
 
 			UpdateButtonState();
 		}

@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -46,7 +47,7 @@ namespace Vodovoz
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
@@ -215,7 +216,7 @@ namespace Vodovoz
 
 		void CheckCarLoadDocuments()
 		{
-			if(Entity.Id > 0 && new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any())
+			if(Entity.Id > 0 && _routeListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
 				IsEditable = false;
 		}
 
@@ -433,10 +434,14 @@ namespace Vodovoz
 
                     return;
 				}
-				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
-					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
+				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)
+				{
+					if(_routeListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
+					{
 						MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
-					} else {
+					}
+					else
+					{
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.New, callTaskWorker);
 					}
 					UpdateButtonStatus();

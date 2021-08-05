@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
@@ -196,12 +197,15 @@ namespace Vodovoz.Domain.Documents
 			return cnt;
 		}
 
-		public virtual void UpdateStockAmount(IUnitOfWork uow)
+		public virtual void UpdateStockAmount(IUnitOfWork uow, IStockRepository stockRepository)
 		{
 			if(!Items.Any() || Warehouse == null)
+			{
 				return;
+			}
+
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
-			var inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, nomenclatureIds, TimeStamp);
+			var inStock = stockRepository.NomenclatureInStock(uow, Warehouse.Id, nomenclatureIds, TimeStamp);
 
 			foreach(var item in Items) {
 				item.AmountInStock = inStock[item.Nomenclature.Id];

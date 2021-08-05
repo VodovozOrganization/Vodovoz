@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz
 {
@@ -100,7 +101,8 @@ namespace Vodovoz
 								new WarehouseRepository(),
 								new UserRepository(),
 								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices
+								ServicesConfig.CommonServices,
+								new StockRepository()
 							);
 						},
 						this
@@ -121,7 +123,8 @@ namespace Vodovoz
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices
+								ServicesConfig.CommonServices,
+								new StockRepository()
 							);
 						},
 						this
@@ -173,7 +176,8 @@ namespace Vodovoz
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new StockRepository()
 								);
 							},
 							this
@@ -202,7 +206,8 @@ namespace Vodovoz
 									new WarehouseRepository(),
 									new UserRepository(),
 									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new StockRepository()
 								);
 							},
 							this

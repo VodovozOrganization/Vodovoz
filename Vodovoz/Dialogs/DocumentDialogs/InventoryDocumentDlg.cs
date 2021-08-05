@@ -27,6 +27,7 @@ using NHibernate.Transform;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 
 namespace Vodovoz
@@ -36,6 +37,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
 		private INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository(new NomenclatureParametersProvider());
 		private SelectableParametersReportFilter filter;
 		private InventoryDocumentItem FineEditItem;
@@ -365,21 +367,30 @@ namespace Vodovoz
 			FillDiscrepancies();
 
 			if(Entity.Items.Count == 0)
-				Entity.FillItemsFromStock(UoW,
+			{
+				Entity.FillItemsFromStock(
+					UoW,
+					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
 					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
 					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
 					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
 					productGroupToInclude: productGroupToInclude.ToArray(),
 					productGroupToExclude: productGroupToExclude.ToArray());
+			}
 			else
-				Entity.UpdateItemsFromStock(UoW,
+			{
+				Entity.UpdateItemsFromStock(
+					UoW,
+					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
 					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
 					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
 					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
 					productGroupToInclude: productGroupToInclude.ToArray(),
 					productGroupToExclude: productGroupToExclude.ToArray());
+			}
+
 			UpdateButtonState();
 		}
 

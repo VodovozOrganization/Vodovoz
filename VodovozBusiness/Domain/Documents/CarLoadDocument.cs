@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.Domain.Documents
@@ -133,11 +134,11 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateStockAmount(IUnitOfWork uow)
+		public virtual void UpdateStockAmount(IUnitOfWork uow, IStockRepository stockRepository)
 		{
 			if(!Items.Any() || Warehouse == null)
 				return;
-			var inStock = Repositories.StockRepository.NomenclatureInStock(
+			var inStock = stockRepository.NomenclatureInStock(
 				uow,
 				Warehouse.Id,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),

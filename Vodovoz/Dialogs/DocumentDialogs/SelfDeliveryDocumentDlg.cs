@@ -27,6 +27,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
@@ -36,6 +37,7 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
 		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -127,7 +129,7 @@ namespace Vodovoz
 			yentryrefOrder.ChangedByUser += (sender, e) => { FillTrees(); };
 
 			UpdateOrderInfo();
-			Entity.UpdateStockAmount(UoW);
+			Entity.UpdateStockAmount(UoW, _stockRepository);
 			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
 			//bottlereceptionview1.UoW = UoW;
@@ -303,7 +305,7 @@ namespace Vodovoz
 		{
 			UpdateOrderInfo();
 			Entity.FillByOrder();
-			Entity.UpdateStockAmount(UoW);
+			Entity.UpdateStockAmount(UoW, _stockRepository);
 			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			UpdateAmounts();
 		}
@@ -311,7 +313,7 @@ namespace Vodovoz
 		protected void OnWarehouseSelected(object sender, EventArgs e)
 		{
 			Entity.FillByOrder();
-			Entity.UpdateStockAmount(UoW);
+			Entity.UpdateStockAmount(UoW, _stockRepository);
 			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
 			UpdateAmounts();
 			UpdateWidgets();

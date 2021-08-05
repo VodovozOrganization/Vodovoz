@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -110,7 +111,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void FillItemsFromStock(IUnitOfWork uow,
+		public virtual void FillItemsFromStock(
+			IUnitOfWork uow,
+			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
 			string[] nomenclatureTypeToInclude,
@@ -121,17 +124,22 @@ namespace Vodovoz.Domain.Documents
 			if(Warehouse == null)
 				return;
 
-			var selectedNomenclature = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+			var selectedNomenclature = stockRepository.NomenclatureInStock(
+				uow,
+				Warehouse.Id,
 				nomenclaturesToInclude,
 				nomenclaturesToExclude,
 				nomenclatureTypeToInclude,
 				nomenclatureTypeToExclude,
 				productGroupToInclude,
 				productGroupToExclude);
+			
 			FillItemsFromStock(uow, selectedNomenclature);
 		}
 
-		public virtual void UpdateItemsFromStock(IUnitOfWork uow,
+		public virtual void UpdateItemsFromStock(
+			IUnitOfWork uow,
+			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
 			string[] nomenclatureTypeToInclude,
@@ -142,7 +150,9 @@ namespace Vodovoz.Domain.Documents
 			if(Warehouse == null)
 				return;
 
-			var inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+			var inStock = stockRepository.NomenclatureInStock(
+				uow,
+				Warehouse.Id,
 				nomenclaturesToInclude,
 				nomenclaturesToExclude,
 				nomenclatureTypeToInclude,

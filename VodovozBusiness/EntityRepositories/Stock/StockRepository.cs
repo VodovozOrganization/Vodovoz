@@ -176,7 +176,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			return result;
 		}
 
-		public static Dictionary<int, decimal> NomenclatureInStock(
+		public Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow, int warehouseId,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,

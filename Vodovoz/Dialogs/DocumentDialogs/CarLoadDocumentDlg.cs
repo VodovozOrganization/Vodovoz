@@ -19,6 +19,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -26,8 +27,9 @@ namespace Vodovoz
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
+		private IStockRepository _stockRepository = new StockRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 
 		private CallTaskWorker callTaskWorker;
@@ -121,9 +123,9 @@ namespace Vodovoz
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
 
 			UpdateRouteListInfo();
-			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
-			Entity.UpdateInRouteListAmount(UoW, new RouteListRepository());
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
+			Entity.UpdateInRouteListAmount(UoW, _routeListRepository);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
 			carloaddocumentview1.SetButtonEditing(editing);
 			buttonSave.Sensitive = editing;
@@ -157,7 +159,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 			
-			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
+			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			var valid = new QS.Validation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -217,7 +219,7 @@ namespace Vodovoz
 
 		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			Entity.UpdateStockAmount(UoW);
+			Entity.UpdateStockAmount(UoW, _stockRepository);
 			carloaddocumentview1.UpdateAmounts();
 		}
 

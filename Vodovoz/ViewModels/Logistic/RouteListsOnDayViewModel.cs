@@ -1265,7 +1265,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 
-			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(DateForRouting)
+			var routesQuery1 = routeListRepository.GetRoutesAtDay(DateForRouting)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!ShowCompleted)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);

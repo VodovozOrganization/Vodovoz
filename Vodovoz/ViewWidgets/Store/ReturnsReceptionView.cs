@@ -19,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Repository.Store;
@@ -42,7 +43,7 @@ namespace Vodovoz
 		public ReturnsReceptionView()
 		{
 			_terminalNomenclatureProvider = new BaseParametersProvider();
-			_routeListRepository = new RouteListRepository();
+			_routeListRepository = new RouteListRepository(new StockRepository());
 			_carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
 			_carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
 

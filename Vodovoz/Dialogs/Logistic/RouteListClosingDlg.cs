@@ -40,6 +40,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
@@ -61,6 +62,7 @@ namespace Vodovoz
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IFuelRepository _fuelRepository = new FuelRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -1074,15 +1076,14 @@ namespace Vodovoz
 
 		private void ReloadReturnedToWarehouse()
 		{
-			allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
+			allReturnsToWarehouse = _routeListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
 			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
-			bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
+			bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 			
-			var rlRepository = new RouteListRepository();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			
 			var defectiveNomenclaturesIds = nomenclatureRepository
@@ -1090,7 +1091,7 @@ namespace Vodovoz
 				.Select(n => n.Id)
 				.ToArray();
 
-			var returnedDefectiveItems = rlRepository.GetReturnsToWarehouse(
+			var returnedDefectiveItems = _routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
 				defectiveNomenclaturesIds);

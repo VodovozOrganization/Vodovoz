@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models;
@@ -64,12 +65,14 @@ namespace Vodovoz.Domain.Logistic
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
-
-		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository(new RouteListRepository());
+		
 		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository =
+			new CarLoadDocumentRepository(new RouteListRepository(new StockRepository()));
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -702,14 +705,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool ShipIfCan(IUnitOfWork uow, CallTaskWorker callTaskWorker)
 		{
-			var routeListRepository = new RouteListRepository();
-
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
 
-			var terminalsTransferedToThisRL = routeListRepository.TerminalTransferedCountToRouteList(uow, this);
+			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(uow, this);
 
-			var inLoaded = routeListRepository.AllGoodsLoaded(uow, this);
-			var goods = routeListRepository.GetGoodsAndEquipsInRL(uow, this);
+			var inLoaded = _routeListRepository.AllGoodsLoaded(uow, this);
+			var goods = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
 			foreach(var good in goods) {
@@ -777,7 +778,7 @@ namespace Vodovoz.Domain.Logistic
 
 			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var loadedTerminalAmount = carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
 			if (loadedTerminalAmount > 0) {
@@ -881,14 +882,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
 			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
-			var bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
+			var bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
 			var notloadedNomenclatures = NotLoadedNomenclatures(true);
-			var allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
+			var allReturnsToWarehouse = _routeListRepository.GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
 			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
 
 			var hasItemsDiscrepancies = discrepancies.Any(discrepancy => discrepancy.Remainder != 0);
@@ -1662,7 +1663,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
 			var parametersProvider = new BaseParametersProvider();
-			var controller = new RouteListClosingDocumentsController(parametersProvider, _employeeRepository, new RouteListRepository(), parametersProvider);
+			var controller =
+				new RouteListClosingDocumentsController(parametersProvider, _employeeRepository, _routeListRepository, parametersProvider);
 			controller.UpdateDocuments(this, uow);
 		}
 
@@ -1961,8 +1963,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			if(Id > 0) {
-				var loadedNomenclatures = new RouteListRepository().AllGoodsLoaded(UoW, this);
-				var nomenclaturesToLoad = new RouteListRepository().GetGoodsAndEquipsInRL(UoW, this);
+				var loadedNomenclatures = _routeListRepository.AllGoodsLoaded(UoW, this);
+				var nomenclaturesToLoad = _routeListRepository.GetGoodsAndEquipsInRL(UoW, this);
 				
 				foreach(var n in nomenclaturesToLoad) {
 					

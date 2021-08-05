@@ -61,6 +61,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.ServiceClaims;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
@@ -70,7 +71,6 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories;
 using Vodovoz.Representations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -113,6 +113,7 @@ namespace Vodovoz
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 		private readonly IServiceClaimRepository _serviceClaimRepository = new ServiceClaimRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -2940,7 +2941,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
 			if(stock <= 0) {
 				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
 					return;
@@ -3012,7 +3013,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
+			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
 			if(stock <= 0) {
 				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
 					return;

@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz
@@ -14,6 +15,9 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		
 		public CarLoadDocumentView()
 		{
 			this.Build();
@@ -150,12 +154,12 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), new SubdivisionRepository(), true);
-			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, _routeListRepository, new SubdivisionRepository(), true);
+			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, _routeListRepository);
 
 			if(DocumentUoW.Root.Warehouse != null)
 			{
-				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
+				DocumentUoW.Root.UpdateStockAmount(DocumentUoW, _stockRepository);
 				UpdateAmounts();
 			}
 		}
@@ -167,7 +171,7 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), null, false);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, _routeListRepository, null, false);
 
 			var items = DocumentUoW.Root.Items;
 			string errorNomenclatures = string.Empty;
@@ -190,10 +194,10 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
+			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, _routeListRepository);
 			if(DocumentUoW.Root.Warehouse != null)
 			{
-				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
+				DocumentUoW.Root.UpdateStockAmount(DocumentUoW, _stockRepository);
 				UpdateAmounts();
 			}
 		}

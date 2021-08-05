@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Repositories;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {
 	public class Offers : IXmlConvertable
 	{
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly Dictionary<int, decimal> _amounts;
 
 		public Offers(Export export)
@@ -22,7 +23,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			var nomenclatureIds = myExport.Catalog.Goods.NomenclatureIds;
 			var warehousesIds = warehouses.Select(x => x.Id).ToArray();
 
-			_amounts = StockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
+			_amounts = _stockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
 		}
 
 		Export myExport;

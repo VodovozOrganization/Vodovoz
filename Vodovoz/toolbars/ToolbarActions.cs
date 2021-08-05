@@ -47,6 +47,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -542,7 +543,7 @@ public partial class MainWindow : Window
 					ServicesConfig.CommonServices,
 					new DeliveryScheduleParametersProvider(SingletonParametersProvider.Instance),
 					new GtkTabsOpener(),
-					new RouteListRepository(),
+					new RouteListRepository(new StockRepository()),
 					new SubdivisionRepository(),
 					OrderSingletonRepository.GetInstance(),
 					new AtWorkRepository(),
@@ -861,7 +862,7 @@ public partial class MainWindow : Window
                      routeListFilter,
                      UnitOfWorkFactory.GetDefaultFactory,
                      ServicesConfig.CommonServices,
-                     new RouteListRepository(),
+                     new RouteListRepository(new StockRepository()),
                      new FuelRepository(),
                      new CallTaskRepository(),
                      new BaseParametersProvider(),

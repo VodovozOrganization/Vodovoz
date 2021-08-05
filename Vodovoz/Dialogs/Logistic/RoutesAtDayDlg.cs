@@ -38,6 +38,7 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz
@@ -52,6 +53,7 @@ namespace Vodovoz
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -720,7 +722,7 @@ namespace Vodovoz
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 
-			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery1 = _routeListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
@@ -1108,19 +1110,21 @@ namespace Vodovoz
 
 		private bool CheckAlreadyAddedAddress(Order order)
 		{
-			RouteListRepository routeListRepository = new RouteListRepository();
-			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
-			if(routeList == null) {
+			var routeList = _routeListRepository.GetRouteListByOrder(UoW, order);
+			
+			if(routeList == null)
+			{
 				return true;
 			}
+			
 			MessageDialogHelper.RunWarningDialog($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
 			return false;
 		}
 
 		private bool CheckRouteListWasChanged(RouteList routeList)
 		{
-			RouteListRepository routeListRepository = new RouteListRepository();
-			if(routeListRepository.RouteListWasChanged(routeList)) {
+			if(_routeListRepository.RouteListWasChanged(routeList))
+			{
 				MessageDialogHelper.RunWarningDialog($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
 				return false;
 			}

@@ -18,14 +18,21 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repositories;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class RouteListRepository : IRouteListRepository
 	{
+		private readonly IStockRepository _stockRepository;
+		
+		public RouteListRepository(IStockRepository stockRepository)
+		{
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+		}
+		
 		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date)
 		{
 			RouteList routeListAlias = null;
@@ -350,8 +357,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-
-				if(StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
+				if(_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount
@@ -409,9 +415,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 						Amount = amount
 					};
 				}
-
-
-				if (StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
+				
+				if (_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{

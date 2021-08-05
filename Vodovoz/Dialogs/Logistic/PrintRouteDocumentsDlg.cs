@@ -18,6 +18,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 
 		Gdk.Pixbuf vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
