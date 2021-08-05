@@ -1914,7 +1914,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value> регистрационный
+                      <Value>регистрационный
 номер партии
 товара,
 подлежащего
