@@ -14,7 +14,7 @@ namespace DriverAPI.Library.Converters
 			this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 		}
 
-		public PaymentDtoType convertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
 		{
 			switch (paymentType)
 			{
@@ -40,7 +40,7 @@ namespace DriverAPI.Library.Converters
 				case PaymentType.ContractDoc:
 					return PaymentDtoType.ContractDocumentation;
 				default:
-					throw new ConverterException(nameof(paymentType), paymentType, $"Значение {paymentType} не поддерживается");
+					throw new ConverterException(nameof(paymentType), paymentType, $"Значение { paymentType } не поддерживается");
 			}
 		}
 	}
