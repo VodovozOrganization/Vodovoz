@@ -1057,6 +1057,10 @@
     <Folder Include="Journal\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\GammaBinding\Gamma.Utilities\Gamma.Utilities.csproj">
+      <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
+      <Name>Gamma.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
       <Name>RdlEngine</Name>
@@ -1068,10 +1072,6 @@
     <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
       <Name>System.Data.Bindings</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
-      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
-      <Name>GammaUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
