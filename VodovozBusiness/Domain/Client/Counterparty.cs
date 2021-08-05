@@ -24,7 +24,6 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories.Orders;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client

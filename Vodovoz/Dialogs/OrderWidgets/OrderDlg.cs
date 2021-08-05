@@ -118,6 +118,7 @@ namespace Vodovoz
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
+		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -1523,12 +1524,19 @@ namespace Vodovoz
 		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			if(!(e.SelectedItem is PromotionalSet proSet))
+			{
 				return;
+			}
 
-			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet))
+			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _promotionalSetRepository))
+			{
 				ActivatePromotionalSet(proSet);
+			}
+
 			if(!yCmbPromoSets.IsSelectedNot)
+			{
 				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
+			}
 		}
 
 		bool CanAddNomenclaturesToOrder()

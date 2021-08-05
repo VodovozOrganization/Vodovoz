@@ -801,7 +801,6 @@
     <Compile Include="EntityRepositories\CallTasks\ICallTaskRepository.cs" />
     <Compile Include="Tools\CallTasks\CallTaskSingletonFactory.cs" />
     <Compile Include="EntityRepositories\Orders\OrderRepository.cs" />
-    <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />
     <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\CallTaskWorker.cs" />
@@ -1023,7 +1022,6 @@
     <Folder Include="Domain\Permissions\" />
     <Folder Include="HibernateMapping\Permissions\" />
     <Folder Include="Repositories\Permissions\" />
-    <Folder Include="Repositories\Orders\" />
     <Folder Include="Domain\StoredResources\" />
     <Folder Include="Domain\Cash\CashTransfer\" />
     <Folder Include="HibernateMapping\Cash\Transfer\" />

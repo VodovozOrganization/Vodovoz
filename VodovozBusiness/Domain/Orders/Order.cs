@@ -1979,7 +1979,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns><c>true</c>, если можно добавить промо-набор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
+		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
@@ -1991,11 +1991,16 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(SelfDelivery)
+			{
 				return true;
+			}
 
-			var proSetDict = Repositories.Orders.PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			
 			if(!proSetDict.Any())
+			{
 				return true;
+			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
 			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
