@@ -21,6 +21,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Orders;
 using VodovozInfrastructure.Attributes;
@@ -943,6 +944,11 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(bottlesRepository)}");
+			}
+			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
 			}
@@ -983,35 +989,50 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Необходимо заполнить комментарий по закрытию поставок",
 						new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
 
-			if(IsArchive) {
+			if(IsArchive)
+			{
 				var unclosedContracts = CounterpartyContracts.Where(c => !c.IsArchive)
 					.Select(c => c.Id.ToString()).ToList();
+				
 				if(unclosedContracts.Count > 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}", string.Join(", ", unclosedContracts)),
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
+				}
 
 				var balance = Repository.Operations.MoneyRepository.GetCounterpartyDebt(UoW, this);
+				
 				if(balance != 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
+				}
 
 				var activeOrders = OrderRepository.GetCurrentOrders(UoW, this);
+				
 				if(activeOrders.Count > 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", string.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
+				}
 
 				var deposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, this, null);
-				if(balance != 0)
+				
+				if(deposit != 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
+				}
 
-				var bottles = Repository.Operations.BottlesRepository.GetBottlesAtCounterparty(UoW, this);
-				if(balance != 0)
+				var bottles = bottlesRepository.GetBottlesAtCounterparty(UoW, this);
+				
+				if(bottles != 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
-
+				}
 			}
 
 			if(Id == 0 && CameFrom == null) {

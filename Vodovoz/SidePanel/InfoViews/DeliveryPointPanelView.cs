@@ -18,13 +18,14 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets.Mango;
+using DepositRepository = Vodovoz.Repository.Operations.DepositRepository;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -32,6 +33,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
+		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
@@ -101,10 +103,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
 
-			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
+			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
 			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
-			var bottlesAtCounterparty = BottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
+			var bottlesAtCounterparty = _bottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
 			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);

@@ -42,9 +42,11 @@ using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalFilters;
@@ -62,6 +64,7 @@ namespace Vodovoz
         
         private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
         private readonly IUserRepository _userRepository = new UserRepository();
+        private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
@@ -780,21 +783,34 @@ namespace Vodovoz
 
         public override bool Save()
         {
-            try {
+            try
+            {
                 SetSensetivity(false);
-                if(Entity.PayerSpecialKPP == String.Empty)
-                    Entity.PayerSpecialKPP = null;
+                
+                if(Entity.PayerSpecialKPP == string.Empty)
+                {
+	                Entity.PayerSpecialKPP = null;
+                }
+
                 Entity.UoW = UoW;
-                var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
-                if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-                    return false;
+
+                var validationContext = new ValidationContext(Entity);
+                validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
+                
+                if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+                {
+	                return false;
+                }
+
                 logger.Info("Сохраняем контрагента...");
                 phonesView.RemoveEmpty();
                 emailsView.RemoveEmpty();
                 UoWGeneric.Save();
                 logger.Info("Ok.");
                 return true;
-            } finally{
+            }
+            finally
+            {
                 SetSensetivity(true);
             }
         }
