@@ -990,7 +990,10 @@ namespace Vodovoz.Domain.Orders
 					// Конец проверки цен
 
 					//создание нескольких заказов на одну дату и точку доставки
-					if(!SelfDelivery && DeliveryPoint != null) {
+					if(!SelfDelivery && DeliveryPoint != null
+					                 && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") 
+					                 && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) 
+					{
 						var ordersForDeliveryPoints = _orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
 																	 .Where(
 																		 o => o.Id != Id
@@ -1003,10 +1006,25 @@ namespace Vodovoz.Domain.Orders
 
 						if(!hasMaster
 						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-						   && ordersForDeliveryPoints.Any()
-						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
+						   && ordersForDeliveryPoints.Any()) 
+						{
 							yield return new ValidationResult(
 								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
+								new[] { this.GetPropertyName(o => o.OrderEquipments) });
+						}
+
+						var orderCheckedOutsideSession = _orderRepository
+							.GetSameOrderOutsideTransaction((IUnitOfWorkFactory) validationContext.Items["factory"], DeliveryDate.Value,
+								DeliveryPoint)
+							.Where(o => o.Id != Id).ToList();
+
+						if(!hasMaster
+						   && DeliveryDate.HasValue
+						   && validationContext.Items.ContainsKey("factory")
+						   && orderCheckedOutsideSession.Count>0)
+						{
+							yield return new ValidationResult(
+								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки недавно был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}
