@@ -36,6 +36,7 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		private int goodsColumnsCount = -1;
 		private bool isEditable = true;
@@ -295,10 +296,18 @@ namespace Vodovoz
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
-				if(selectedDistrict != null) {
-					foreach(var order in OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id)))
+				if(selectedDistrict != null)
+				{
+					var orders = _orderRepository.GetAcceptedOrdersForRegion(
+						RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id));
+					
+					foreach(var order in orders)
+					{
 						if(RouteListUoW.Root.ObservableAddresses.All(a => a.Order.Id != order.Id))
+						{
 							RouteListUoW.Root.AddAddressFromOrder(order);
+						}
+					}
 				}
 			};
 			MyTab.TabParent.AddSlaveTab(MyTab, journalViewModel);

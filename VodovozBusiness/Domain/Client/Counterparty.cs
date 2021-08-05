@@ -23,6 +23,7 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories.Orders;
 using VodovozInfrastructure.Attributes;
 
@@ -965,6 +966,11 @@ namespace Vodovoz.Domain.Client
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(counterpartyRepository)}");
 			}
 			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IOrderRepository)) is IOrderRepository orderRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderRepository)}");
+			}
+			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
 			}
@@ -1025,7 +1031,7 @@ namespace Vodovoz.Domain.Client
 						string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
 				}
 
-				var activeOrders = OrderRepository.GetCurrentOrders(UoW, this);
+				var activeOrders = orderRepository.GetCurrentOrders(UoW, this);
 				
 				if(activeOrders.Count > 0)
 				{

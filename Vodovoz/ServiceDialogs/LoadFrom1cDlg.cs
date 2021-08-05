@@ -18,7 +18,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -35,8 +34,9 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
+		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<string> IncludeParents = new List<string>{
 			"00000002",
@@ -77,7 +77,7 @@ namespace Vodovoz
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
+						_orderRepository,
 						new EmployeeRepository(),
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
@@ -1039,7 +1039,7 @@ namespace Vodovoz
 
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
-			var ExistOrders = OrderRepository.GetOrdersByCode1c(uow, orderCodes1c);
+			var ExistOrders = _orderRepository.GetOrdersByCode1c(uow, orderCodes1c);
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -1048,8 +1048,10 @@ namespace Vodovoz
 
 			List<Order> OrdersInDataBase = new List<Order>();
 			foreach (var date in LoadedOrderDates)
-				OrdersInDataBase.AddRange(OrderRepository.GetOrdersBetweenDates(uow, date, date));
-			
+			{
+				OrdersInDataBase.AddRange(_orderRepository.GetOrdersBetweenDates(uow, date, date));
+			}
+
 
 			//Проверка заказов
 			foreach (var loaded in OrdersList)

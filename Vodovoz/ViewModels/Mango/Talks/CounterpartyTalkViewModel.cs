@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _uow;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -53,7 +55,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
+			INomenclatureRepository nomenclatureRepository,
+			IOrderRepository orderRepository) : base(navigation, manager)
 		{
 			NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
@@ -64,6 +67,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 
 			if(ActiveCall.CounterpartyIds.Any())
@@ -204,7 +208,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void BottleActCommand()
 		{
-			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits();
+			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(_orderRepository);
 			parameters.SetCounterparty(currentCounterparty);
 			ReportViewDlg dialog = _tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters) as ReportViewDlg;
 			parameters.OnUpdate(true);

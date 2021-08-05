@@ -124,6 +124,7 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -1540,7 +1541,7 @@ public partial class MainWindow : Gtk.Window
 	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-            () => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory))
+            () => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new OrderRepository()))
         );
     }
 
@@ -1638,7 +1639,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-            () => new QSReport.ReportViewDlg(new FirstSecondClientReport())
+            () => new QSReport.ReportViewDlg(new FirstSecondClientReport(new OrderRepository()))
         );
     }
 

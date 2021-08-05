@@ -491,7 +491,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.RevisionBottlesAndDeposits>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits())
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(new OrderRepository()))
 		);
 	}
 
@@ -546,7 +546,7 @@ public partial class MainWindow : Window
 					new GtkTabsOpener(),
 					new RouteListRepository(new StockRepository()),
 					new SubdivisionRepository(),
-					OrderSingletonRepository.GetInstance(),
+					new OrderRepository(),
 					new AtWorkRepository(),
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
@@ -593,7 +593,7 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
-			OrderSingletonRepository.GetInstance(),
+			new OrderRepository(),
 			new OrganizationParametersProvider(SingletonParametersProvider.Instance),
 			new BaseParametersProvider(),
 			paymentsRepository
@@ -647,7 +647,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			new CallTaskWorker(CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
-				OrderSingletonRepository.GetInstance(),
+				new OrderRepository(),
 				new EmployeeRepository(),
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,

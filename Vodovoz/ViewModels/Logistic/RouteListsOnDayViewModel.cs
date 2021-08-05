@@ -42,7 +42,6 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IRouteListRepository routeListRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly IOrderRepository orderRepository;
 		private readonly IAtWorkRepository atWorkRepository;
 		private readonly IGtkTabsOpener gtkTabsOpener;
 		private readonly IUserRepository userRepository;
@@ -83,7 +82,7 @@ namespace Vodovoz.ViewModels.Logistic
 				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
-			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			this.OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			
@@ -133,6 +132,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public ICarRepository CarRepository { get; }
 		public IGeographicGroupRepository GeographicGroupRepository { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
+		public IOrderRepository OrderRepository { get; }
 
 		void CreateCommands()
 		{
@@ -905,14 +905,14 @@ namespace Vodovoz.ViewModels.Logistic
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			int totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											 .GetExecutableQueryOver(UoW.Session)
 											 .Select(Projections.Count<Order>(x => x.Id))
 											 .Where(o => !o.IsContractCloser)
 											 .And(o => !o.IsService)
 											 .SingleOrDefault<int>();
 
-			decimal totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal totalBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -922,7 +922,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .And(o => !o.IsService)
 											  .SingleOrDefault<decimal>();
 												
-			decimal total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total6LBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -932,7 +932,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .And(o => !o.IsService)
 											  .SingleOrDefault<decimal>();
 
-			decimal total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total600mlBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -1205,7 +1205,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
 					.Where(x => x.IsContractCloser == false)
-					.Where(x => !orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
+					.Where(x => !OrderRepository.IsOrderCloseWithoutDelivery(UoW, x));
 
 				baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
 
@@ -1411,7 +1411,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			ObservableDeliverySummary.Clear();
 
-			var baseQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			var baseQuery = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => !o.IsService);

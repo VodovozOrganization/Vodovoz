@@ -227,7 +227,7 @@ namespace DriverAPI
 			services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
 			services.AddScoped<IRouteListRepository, RouteListRepository>();
 			services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
-			services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
+			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 			// Провайдеры параметров

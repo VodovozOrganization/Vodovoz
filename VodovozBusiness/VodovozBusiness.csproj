@@ -672,7 +672,6 @@
     <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
-    <Compile Include="Repositories\Orders\OrderRepository.cs" />
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
     <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
@@ -801,7 +800,7 @@
     <Compile Include="EntityRepositories\CallTasks\CallTaskRepository.cs" />
     <Compile Include="EntityRepositories\CallTasks\ICallTaskRepository.cs" />
     <Compile Include="Tools\CallTasks\CallTaskSingletonFactory.cs" />
-    <Compile Include="EntityRepositories\Orders\OrderSingletonRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderRepository.cs" />
     <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />
     <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />

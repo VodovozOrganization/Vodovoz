@@ -33,6 +33,7 @@ namespace Android
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ITrackRepository _trackRepository;
+		private readonly IOrderRepository _orderRepository;
 
 		public AndroidDriverService(
 			WageParameterService wageParameterService, 
@@ -42,7 +43,8 @@ namespace Android
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
-			ITrackRepository trackRepository)
+			ITrackRepository trackRepository,
+			IOrderRepository orderRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -52,6 +54,7 @@ namespace Android
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		/// <summary>
@@ -247,7 +250,7 @@ namespace Android
 						return null;
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					OrderDTO orderDTO = new OrderDTO(routeListItem);
-					SmsPaymentStatus? smsPaymentStatus = OrderSingletonRepository.GetInstance().GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
+					SmsPaymentStatus? smsPaymentStatus = _orderRepository.GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
 					if(smsPaymentStatus == null) {
 						orderDTO.PaymentStatus = PaymentStatus.None;
 					} else {

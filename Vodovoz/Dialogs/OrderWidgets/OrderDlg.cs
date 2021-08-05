@@ -114,24 +114,24 @@ namespace Vodovoz
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 		private readonly IServiceClaimRepository _serviceClaimRepository = new ServiceClaimRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
-
-		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
-		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
-		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
-		private ICashRepository cashRepository { get; } = new CashRepository();
+		
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
 				if (nomenclatureRepository == null) {
-					nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
+					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 				}
 				return nomenclatureRepository;
 			}
@@ -188,7 +188,7 @@ namespace Vodovoz
 
 		public Order Order => Entity;
 
-		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -197,7 +197,7 @@ namespace Vodovoz
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						orderRepository,
+						_orderRepository,
 						_employeeRepository,
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
@@ -361,7 +361,7 @@ namespace Vodovoz
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
-			_discountReasons = orderRepository.GetActiveDiscountReasons(UoW);
+			_discountReasons = _orderRepository.GetActiveDiscountReasons(UoW);
 			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
@@ -377,7 +377,7 @@ namespace Vodovoz
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 			} else
 				labelPreviousOrder.Visible = false;
-			hboxStatusButtons.Visible = orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
+			hboxStatusButtons.Visible = _orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 				|| Entity.OrderStatus == OrderStatus.Canceled
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
@@ -698,7 +698,7 @@ namespace Vodovoz
 				
 				foreach(var flyer in activeFlyers)
 				{
-					if(!orderRepository.CanAddFlyerToOrder(
+					if(!_orderRepository.CanAddFlyerToOrder(
 						UoW,
 						new RouteListParametersProvider(SingletonParametersProvider.Instance),
 						flyer.FlyerNomenclature.Id,
@@ -759,7 +759,7 @@ namespace Vodovoz
 
 		void ControlsActionBottleAccessibility()
 		{
-			bool canAddAction = Entity.CanAddStockBottle(OrderSingletonRepository.GetInstance()) || Entity.IsBottleStock;
+			bool canAddAction = Entity.CanAddStockBottle(_orderRepository) || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
 			lblActionBtlTareFromClient.Visible = yEntTareActBtlFromClient.Visible = yChkActionBottle.Active;
 			hboxReturnTare.Visible = !canAddAction;
@@ -783,7 +783,7 @@ namespace Vodovoz
 					.SetTag(nameof(Nomenclature))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
-				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
+				.AddColumn(!_orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
 					.SetTag("Count")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
@@ -960,7 +960,7 @@ namespace Vodovoz
 		
 		private void ConfigureSendDocumentByEmailWidget()
 		{
-			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, _currentEmployee, ServicesConfig.InteractiveService);
+			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(_emailRepository, _currentEmployee, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox19.Add(sendEmailView);
 			sendEmailView.Show();
@@ -1067,7 +1067,7 @@ namespace Vodovoz
 
 				logger.Info("Сохраняем заказ...");
 				
-				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
+				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(_emailRepository)) {
 					bool sendEmail = true;
 					var emailAddressForBill = Entity.GetEmailAddressForBill();
 					if(emailAddressForBill == null) {
@@ -2148,8 +2148,8 @@ namespace Vodovoz
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e) {
 			
-			bool isShipped = !orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
-			bool orderHasIncome = cashRepository.OrderHasIncome(UoW, Entity.Id);
+			bool isShipped = !_orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
+			bool orderHasIncome = _cashRepository.OrderHasIncome(UoW, Entity.Id);
 
 			if (Entity.SelfDelivery && (orderHasIncome || isShipped)) {
 				MessageDialogHelper.RunErrorDialog(
@@ -2182,7 +2182,7 @@ namespace Vodovoz
 				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider(), CallTaskWorker);
 				UpdateUIState();
 
-				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 				if(routeListItem != null) {
 					routeListItem.StatusLastUpdate = DateTime.Now;
 					routeListItem.FillCountsOnCanceled();
@@ -2574,7 +2574,7 @@ namespace Vodovoz
 			RouteListStatus? rlStatus = null;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				if(Entity.Id != 0)
-					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
+					rlStatus = _orderRepository.GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
 				var sensitive = rlStatus.HasValue 
 					&& !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
 				scrolledWindowManagerComment.Sensitive = sensitive;
@@ -2654,7 +2654,7 @@ namespace Vodovoz
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
-			buttonCancelOrder.Sensitive = (orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading)) && Entity.OrderStatus != OrderStatus.NewOrder;
+			buttonCancelOrder.Sensitive = (_orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading)) && Entity.OrderStatus != OrderStatus.NewOrder;
 
 			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted
@@ -2701,7 +2701,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var sameOrder = orderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
+			var sameOrder = _orderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
 			if(sameOrder != null && templateOrder == null) {
 				MessageDialogHelper.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
 			}
@@ -2755,7 +2755,7 @@ namespace Vodovoz
 				throw new ArgumentNullException(nameof(emailAddressForBill));
 			}
 
-			if(!EmailServiceSetting.SendingAllowed || emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
+			if(!EmailServiceSetting.SendingAllowed || _emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
 			}
 

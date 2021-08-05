@@ -43,7 +43,7 @@ namespace Vodovoz
 			callTaskWorker ?? (callTaskWorker = new CallTaskWorker(
 				CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
-				OrderSingletonRepository.GetInstance(),
+				new OrderRepository(),
 				new EmployeeRepository(),
 				new BaseParametersProvider(),
 				ServicesConfig.CommonServices.UserService,

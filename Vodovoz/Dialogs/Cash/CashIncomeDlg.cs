@@ -47,7 +47,7 @@ namespace Vodovoz
 				new CashDistributionCommonOrganisationProvider(
 					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
-				OrderSingletonRepository.GetInstance());
+				new OrderRepository());
 		
 		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
 			new IncomeCashOrganisationDistributor(

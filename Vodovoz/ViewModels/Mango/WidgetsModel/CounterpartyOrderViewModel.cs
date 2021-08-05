@@ -41,13 +41,13 @@ namespace Vodovoz.ViewModels.Mango
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
-		private readonly RouteListRepository routedListRepository;
+		private readonly RouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
-		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		private IUnitOfWork UoW;
 
@@ -72,15 +72,14 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			Client = client;
 			tdiNavigation = tdinavigation;
-			this.routedListRepository = routedListRepository;
+			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
-			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
+			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
 			NotifyConfiguration.Instance.BatchSubscribe(_RefreshCounterparty)
@@ -101,7 +100,7 @@ namespace Vodovoz.ViewModels.Mango
 		}
 		private void _RefreshOrders()
 		{
-			LatestOrder = orderRepository.GetLatestOrdersForCounterparty(UoW, Client, 5).ToList();
+			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, Client, 5).ToList();
 			OnPropertyChanged(nameof(LatestOrder));
 		}
 		#endregion
@@ -133,12 +132,12 @@ namespace Vodovoz.ViewModels.Mango
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed
 			) {
-				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
+				RouteList routeList = _routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
-				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
+				RouteList routeList = _routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
@@ -160,7 +159,7 @@ namespace Vodovoz.ViewModels.Mango
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 							CallTaskSingletonFactory.GetInstance(),
 							new CallTaskRepository(),
-							orderRepository,
+							_orderRepository,
 							_employeeRepository,
 							new BaseParametersProvider(),
 							ServicesConfig.CommonServices.UserService,
@@ -182,7 +181,7 @@ namespace Vodovoz.ViewModels.Mango
 				page.PageClosed += (sender, e) => {
 					order.SetUndeliveredStatus(UoW, new BaseParametersProvider(), callTaskWorker);
 
-					var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, order);
+					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
 						routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
 						routeListItem.StatusLastUpdate = DateTime.Now;

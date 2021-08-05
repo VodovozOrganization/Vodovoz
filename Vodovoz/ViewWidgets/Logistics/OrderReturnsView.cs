@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -13,7 +12,6 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSProjectsLib;
-using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
@@ -21,7 +19,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using QS.Dialog;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -33,10 +30,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
-using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -44,7 +38,8 @@ using Vodovoz.TempAdapters;
 namespace Vodovoz
 {
     public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
-	{
+    {
+	    private readonly IOrderRepository _orderRepository = new OrderRepository();
 		class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
@@ -115,7 +110,7 @@ namespace Vodovoz
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
+						_orderRepository,
 						new EmployeeRepository(),
 						new BaseParametersProvider(),
 						ServicesConfig.CommonServices.UserService,
@@ -278,7 +273,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(OrderRepository.GetDiscountReasons(UoW))
+					.FillItems(_orderRepository.GetDiscountReasons(UoW))
 				.AddSetter((c, n) => c.Editable = n.Discount > 0)
 				.AddSetter(
 					(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null

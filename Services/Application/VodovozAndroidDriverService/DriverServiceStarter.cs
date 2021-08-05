@@ -12,6 +12,7 @@ using Vodovoz.Services;
 using SmsPaymentService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 
 namespace VodovozAndroidDriverService
@@ -67,11 +68,12 @@ namespace VodovozAndroidDriverService
 			var routeListRepository = new RouteListRepository(new StockRepository());
 			var routeListItemRepository = new RouteListItemRepository();
 			var trackRepository = new TrackRepository();
+			var orderRepository = new OrderRepository();
 				
 			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider =
 				new AndroidDriverServiceInstanceProvider(
 					wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator, employeeRepository,
-					routeListRepository, routeListItemRepository, trackRepository);
+					routeListRepository, routeListItemRepository, trackRepository, orderRepository);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

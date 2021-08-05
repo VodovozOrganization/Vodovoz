@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.Dialogs
@@ -13,6 +14,7 @@ namespace Vodovoz.Dialogs
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		UndeliveredOrder undelivery;
 		Order order;
@@ -75,7 +77,7 @@ namespace Vodovoz.Dialogs
 			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, order).FirstOrDefault();
 			if(otherUndelivery == null)
 				return true;
-			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo());
+			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo(_orderRepository));
 			return false;
 		}
 

@@ -480,7 +480,7 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			var ordersOnDay = ViewModel.OrdersOnDay;
-			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
+			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersOnDay) {
 				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
@@ -827,7 +827,7 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			var ordersOnDay = ViewModel.OrdersOnDay.Select(x => x).Where(x => !x.IsService).ToList();
-			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
+			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 
 			//добавляем маркеры нераспределенных заказов из районов водителя
 			foreach(var order in ordersOnDay) {

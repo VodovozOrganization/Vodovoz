@@ -8,6 +8,7 @@ using Vodovoz.Services;
 using SmsPaymentService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace VodovozAndroidDriverService
 {
@@ -21,6 +22,7 @@ namespace VodovozAndroidDriverService
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ITrackRepository _trackRepository;
+		private readonly IOrderRepository _orderRepository;
 
 		public AndroidDriverServiceInstanceProvider(
 			WageParameterService wageParameterService, 
@@ -30,7 +32,8 @@ namespace VodovozAndroidDriverService
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
-			ITrackRepository trackRepository)
+			ITrackRepository trackRepository,
+			IOrderRepository orderRepository)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -40,6 +43,7 @@ namespace VodovozAndroidDriverService
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		#region IInstanceProvider implementation
@@ -48,7 +52,7 @@ namespace VodovozAndroidDriverService
 		{
 			return new AndroidDriverService(
 				_wageParameterService, _parameters, _smsPaymentChannelFactory, _driverNotificator, _employeeRepository,
-				_routeListRepository, _routeListItemRepository, _trackRepository);
+				_routeListRepository, _routeListItemRepository, _trackRepository, _orderRepository);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)

@@ -277,7 +277,7 @@ namespace Vodovoz.JournalViewModels
             var callTaskWorker = new CallTaskWorker(
                     CallTaskSingletonFactory.GetInstance(),
                     callTaskRepository,
-                    OrderSingletonRepository.GetInstance(),
+                    new OrderRepository(),
                     new EmployeeRepository(),
                     baseParametersProvider,
                     commonServices.UserService,

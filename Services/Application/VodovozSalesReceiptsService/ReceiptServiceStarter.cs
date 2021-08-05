@@ -18,7 +18,7 @@ namespace VodovozSalesReceiptsService
 			_logger.Info("Запуск службы фискализации и печати кассовых чеков...");
 
 			var fiscalizationWorker = new FiscalizationWorker(
-				OrderSingletonRepository.GetInstance(),
+				new OrderRepository(),
 				new SalesReceiptSender(modulKassaBaseAddress),
 				new OrderParametersProvider(SingletonParametersProvider.Instance),
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
@@ -31,7 +31,7 @@ namespace VodovozSalesReceiptsService
 
 			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
 				new BaseParametersProvider(),
-				OrderSingletonRepository.GetInstance(),
+				new OrderRepository(),
 				new OrderParametersProvider(SingletonParametersProvider.Instance),
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
 				new SalesReceiptsParametersProvider(SingletonParametersProvider.Instance)

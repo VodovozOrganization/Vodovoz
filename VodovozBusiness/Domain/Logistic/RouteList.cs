@@ -57,7 +57,7 @@ namespace Vodovoz.Domain.Logistic
 				new CashDistributionCommonOrganisationProvider(
 					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
 				new RouteListItemCashDistributionDocumentRepository(),
-				OrderSingletonRepository.GetInstance());
+				new OrderRepository());
 		
 		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
 			new ExpenseCashOrganisationDistributor();
@@ -72,6 +72,8 @@ namespace Vodovoz.Domain.Logistic
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository =
 			new CarLoadDocumentRepository(new RouteListRepository(new StockRepository()));
+
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		#region Свойства
 
@@ -951,7 +953,7 @@ namespace Vodovoz.Domain.Logistic
 					|| Status == RouteListStatus.Delivered) {
 						if(Status != RouteListStatus.Delivered) {
 							foreach(var item in Addresses) {
-								bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 								if(!isInvalidStatus)
 									item.Order.OrderStatus = OrderStatus.OnTheWay;
@@ -1065,7 +1067,7 @@ namespace Vodovoz.Domain.Logistic
 					   || Status == RouteListStatus.Confirmed
 					   || Status == RouteListStatus.Delivered) {
 						foreach(var item in Addresses) {
-							bool isInvalidStatus =  OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+							bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
 								item.Order.OrderStatus = OrderStatus.OnTheWay;

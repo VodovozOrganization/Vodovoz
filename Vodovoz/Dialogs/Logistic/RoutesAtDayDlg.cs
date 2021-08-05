@@ -54,6 +54,7 @@ namespace Vodovoz
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -672,7 +673,7 @@ namespace Vodovoz
 			District districtAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 
-			var baseOrderQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			var baseOrderQuery = _orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session);
 			var selectedGeographicGroup = geographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			if(selectedGeographicGroup.Any()) {
@@ -686,7 +687,7 @@ namespace Vodovoz
 			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
 				.Future();
 
-			OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			_orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
@@ -705,7 +706,7 @@ namespace Vodovoz
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
 									 .Where(x => !x.IsContractCloser)
-									 .Where(x => !OrderSingletonRepository.GetInstance().IsOrderCloseWithoutDelivery(UoW,x))
+									 .Where(x => !_orderRepository.IsOrderCloseWithoutDelivery(UoW, x))
 									 .ToList()
 									 ;
 
@@ -856,7 +857,7 @@ namespace Vodovoz
 		private void Refresh()
 		{
 			FillDialogAtDay();
-			FillFullOrdersInfo(OrderSingletonRepository.GetInstance());
+			FillFullOrdersInfo(_orderRepository);
 			OnTabNameChanged();
 		}
 

@@ -18,24 +18,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
-	public class OrderSingletonRepository : IOrderRepository
+	public class OrderRepository : IOrderRepository
 	{
-		private static OrderSingletonRepository instance;
-
-		[Obsolete("Необходимо избавляться от синглтонов")]
-		public static OrderSingletonRepository GetInstance()
-		{
-			if(instance == null)
-				instance = new OrderSingletonRepository();
-			return instance;
-		}
-
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
 			return QueryOver.Of<VodovozOrder>()

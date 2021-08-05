@@ -16,13 +16,12 @@ using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
@@ -58,11 +57,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices)
+			IUserRepository userRepository,
+			IOrderRepository orderRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
@@ -94,6 +95,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), currentEmployee, commonServices.InteractiveService, UoW);
 		}
+		
+		public IOrderRepository OrderRepository { get; }
 
 		#region Commands
 

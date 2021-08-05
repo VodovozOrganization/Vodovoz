@@ -12,8 +12,8 @@ using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -261,9 +261,9 @@ namespace Vodovoz.Domain.Orders
 			AddAutoComment(CommentedFields.Reason);
 		}
 
-		public virtual IList<Employee> GetDrivers()
+		public virtual IList<Employee> GetDrivers(IOrderRepository orderRepository)
 		{
-			var rls = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
+			var rls = orderRepository.GetAllRLForOrder(UoW, OldOrder);
 			return rls?.Select(r => r.Driver).ToList();
 		}
 
@@ -335,7 +335,7 @@ namespace Vodovoz.Domain.Orders
 		/// Сбор различной информации о недоставленном заказе
 		/// </summary>
 		/// <returns>Строка</returns>
-		public virtual string GetOldOrderInfo()
+		public virtual string GetOldOrderInfo(IOrderRepository orderRepository)
 		{
 			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
 			if(oldOrder != null) {
@@ -351,9 +351,9 @@ namespace Vodovoz.Domain.Orders
 				else
 					info.AppendLine(string.Format("<b>Интервал:</b> {0}", oldOrder.DeliverySchedule.Name));
 				info.AppendLine(string.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.TotalSum)));
-				int watter19LQty = OrderRepository.Get19LWatterQtyForOrder(UoW, oldOrder);
-				var eqToClient = OrderRepository.GetEquipmentToClientForOrder(UoW, oldOrder);
-				var eqFromClient = OrderRepository.GetEquipmentFromClientForOrder(UoW, oldOrder);
+				int watter19LQty = orderRepository.Get19LWatterQtyForOrder(UoW, oldOrder);
+				var eqToClient = orderRepository.GetEquipmentToClientForOrder(UoW, oldOrder);
+				var eqFromClient = orderRepository.GetEquipmentFromClientForOrder(UoW, oldOrder);
 
 				if(watter19LQty > 0) {
 					info.AppendLine(string.Format("<b>19л вода:</b> {0}", watter19LQty));
@@ -368,13 +368,19 @@ namespace Vodovoz.Domain.Orders
 						eq += string.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count);
 					info.AppendLine(string.Format("<b>От клиента:</b> {0}", eq.Trim()));
 				}
-				if(GetDrivers().Any()) {
-					StringBuilder drivers = new StringBuilder();
-					foreach(var d in GetDrivers())
-						drivers.AppendFormat("{0} ← ", d.ShortName);
-					info.AppendLine(string.Format("<b>Водитель:</b> {0}", drivers.ToString().Trim(new char[] { ' ', '←' })));
+
+				var drivers = GetDrivers(orderRepository);
+				if(drivers.Any())
+				{
+					var sb = new StringBuilder();
+					foreach(var d in drivers)
+					{
+						sb.AppendFormat("{0} ← ", d.ShortName);
+					}
+
+					info.AppendLine(string.Format("<b>Водитель:</b> {0}", sb.ToString().Trim(new char[] { ' ', '←' })));
 				}
-				var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
+				var routeLists = orderRepository.GetAllRLForOrder(UoW, OldOrder);
 				if(routeLists.Any()) {
 					StringBuilder rls = new StringBuilder();
 					foreach(var l in routeLists)
@@ -390,7 +396,7 @@ namespace Vodovoz.Domain.Orders
 		/// Получение полей недовоза в виде строки
 		/// </summary>
 		/// <returns>Строка</returns>
-		public virtual string GetUndeliveryInfo()
+		public virtual string GetUndeliveryInfo(IOrderRepository orderRepository)
 		{
 			StringBuilder info = new StringBuilder("\n");
 			if(InProcessAtDepartment != null)
@@ -400,7 +406,7 @@ namespace Vodovoz.Domain.Orders
 				foreach(GuiltyInUndelivery g in ObservableGuilty)
 					info.AppendLine(string.Format("\t{0}", g));
 			}
-			var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
+			var routeLists = orderRepository.GetAllRLForOrder(UoW, OldOrder);
 			if(routeLists.Any()) {
 				info.AppendLine(string.Format("<i>Место:</i> {0}", DriverCallType.GetEnumTitle()));
 				if(DriverCallTime.HasValue)

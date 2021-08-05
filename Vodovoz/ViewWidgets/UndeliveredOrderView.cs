@@ -17,8 +17,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -30,6 +30,7 @@ namespace Vodovoz.ViewWidgets
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		private Order _newOrder = null;
 		private Order _oldOrder = null;
@@ -77,7 +78,7 @@ namespace Vodovoz.ViewWidgets
 			}
 			var filterOrders = new OrdersFilter(UoW);
 			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
-			var grantedStatusesArray = OrderRepository.GetStatusesForOrderCancelation();
+			var grantedStatusesArray = _orderRepository.GetStatusesForOrderCancelation();
 			foreach(OrderStatus status in Enum.GetValues(typeof(OrderStatus))) {
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
@@ -85,7 +86,7 @@ namespace Vodovoz.ViewWidgets
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
 			yEForUndeliveredOrder.Changed += (sender, e) => {
 				_oldOrder = undelivery.OldOrder;
-				lblInfo.Markup = undelivery.GetOldOrderInfo();
+				lblInfo.Markup = undelivery.GetOldOrderInfo(_orderRepository);
 				if(undelivery.Id <= 0)
 					undelivery.OldOrderStatus = _oldOrder.OrderStatus;
 				_routeListDoesNotExist = _oldOrder != null && (undelivery.OldOrderStatus == OrderStatus.NewOrder
@@ -153,7 +154,7 @@ namespace Vodovoz.ViewWidgets
 
 			txtReason.Binding.AddBinding(undelivery, u => u.Reason, w => w.Buffer.Text).InitializeFromSource();
 
-			lblInfo.Markup = undelivery.GetOldOrderInfo();
+			lblInfo.Markup = undelivery.GetOldOrderInfo(_orderRepository);
 
 			yenumcomboboxTransferType.ItemsEnum = typeof(TransferType);
 			yenumcomboboxTransferType.Binding.AddBinding(undelivery, u => u.OrderTransferType, w => w.SelectedItemOrNull).InitializeFromSource();

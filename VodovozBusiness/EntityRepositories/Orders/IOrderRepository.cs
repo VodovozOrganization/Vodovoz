@@ -33,6 +33,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="order">Заказ</param>
 		IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, Domain.Orders.Order order);
 
+		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<Domain.Orders.Order> orders);
+
 		IList<Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>

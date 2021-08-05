@@ -46,6 +46,7 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
@@ -70,6 +71,7 @@ namespace Vodovoz
         private readonly IDepositRepository _depositRepository = new DepositRepository();
         private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
         private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+        private readonly IOrderRepository _orderRepository = new OrderRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
@@ -677,6 +679,7 @@ namespace Vodovoz
 	        _validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
 	        _validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
 	        _validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
         }
 
         private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
