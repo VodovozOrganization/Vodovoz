@@ -20,7 +20,7 @@ namespace DriverAPI.Library.Converters
 				case RouteListItemStatus.Transfered:
 					return RouteListAddressDtoStatus.Transfered;
 				default:
-					throw new ConverterException(nameof(routeListItemStatus), routeListItemStatus, $"Значение {routeListItemStatus} не поддерживается");
+					throw new ConverterException(nameof(routeListItemStatus), routeListItemStatus, $"Значение { routeListItemStatus } не поддерживается");
 			}
 		}
 	}
