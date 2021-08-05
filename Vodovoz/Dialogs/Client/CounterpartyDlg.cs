@@ -292,7 +292,6 @@ namespace Vodovoz
             }
 
             ConfigureTabInfo();
-            ConfigureTabComments();
             ConfigureTabContacts();
             ConfigureTabProxies();
             ConfigureTabContracts();
@@ -474,11 +473,6 @@ namespace Vodovoz
             }
 
             SetVisibilityForCloseDeliveryComments();
-        }
-
-        private void ConfigureTabComments()
-        {
-            commentsview4.UoW = UoW;
         }
 
         private void ConfigureTabContacts()
@@ -816,35 +810,29 @@ namespace Vodovoz
             if(radioInfo.Active)
                 notebook1.CurrentPage = 0;
         }
-
-        protected void OnRadioCommentsToggled(object sender, EventArgs e)
-        {
-            if(radioComments.Active)
-                notebook1.CurrentPage = 1;
-        }
-
+        
         protected void OnRadioContactsToggled(object sender, EventArgs e)
         {
             if(radioContacts.Active)
-                notebook1.CurrentPage = 2;
+                notebook1.CurrentPage = 1;
         }
 
         protected void OnRadioDetailsToggled(object sender, EventArgs e)
         {
             if(radioDetails.Active)
-                notebook1.CurrentPage = 3;
+                notebook1.CurrentPage = 2;
         }
 
         protected void OnRadiobuttonProxiesToggled(object sender, EventArgs e)
         {
             if(radiobuttonProxies.Active)
-                notebook1.CurrentPage = 4;
+                notebook1.CurrentPage = 3;
         }
 
         protected void OnRadioContractsToggled(object sender, EventArgs e)
         {
             if(radioContracts.Active)
-                notebook1.CurrentPage = 5;
+                notebook1.CurrentPage = 4;
         }
 
         protected void OnRadioDocumentsToggled(object sender, EventArgs e)
@@ -855,7 +843,7 @@ namespace Vodovoz
                 documentsConfigured = true;
             }
             if (radioDocuments.Active)
-                notebook1.CurrentPage = 6;
+                notebook1.CurrentPage = 5;
         }
 
         protected void OnRadioDeliveryPointToggled(object sender, EventArgs e)
@@ -866,30 +854,30 @@ namespace Vodovoz
                 deliveryPointsConfigured = true;
             }
             if(radioDeliveryPoint.Active)
-                notebook1.CurrentPage = 7;
+                notebook1.CurrentPage = 6;
         }
 
         protected void OnRadioTagsToggled(object sender, EventArgs e)
         {
             if(radioTags.Active)
-                notebook1.CurrentPage = 8;
+                notebook1.CurrentPage = 7;
         }
 
         protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
         {
             if(radioSpecialDocFields.Active)
-                notebook1.CurrentPage = 9;
+                notebook1.CurrentPage = 8;
         }
 
         protected void OnRbnPricesToggled(object sender, EventArgs e)
         {
             if(rbnPrices.Active)
-                notebook1.CurrentPage = 10;
+                notebook1.CurrentPage = 9;
         }
 
         public void OpenFixedPrices()
         {
-            notebook1.CurrentPage = 11;
+            notebook1.CurrentPage = 10;
         }
 
         void YEnumCounterpartyType_Changed(object sender, EventArgs e)

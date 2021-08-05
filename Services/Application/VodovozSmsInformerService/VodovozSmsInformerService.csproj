@@ -64,6 +64,7 @@
     <Compile Include="SmsInformerInstanceProvider.cs" />
     <Compile Include="SmsInformerServiceHost.cs" />
     <Compile Include="SmsInformerServiceBehavior.cs" />
+    <Compile Include="UndeliveryNotApprovedSmsInformer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

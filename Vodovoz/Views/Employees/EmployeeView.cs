@@ -6,7 +6,9 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Banks.Domain;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
 using QS.Views.GtkUI;
@@ -20,13 +22,16 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
 {
-	public partial class EmployeeView : TabViewBase<EmployeeViewModel>
+	public partial class EmployeeView : TabViewBase<EmployeeViewModel>, IEntityDialog
 	{
 		public EmployeeView(EmployeeViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
 		}
+		
+		public IUnitOfWork UoW => ViewModel.UoW;
+		public object EntityObject => ViewModel.UoWGeneric.RootObject;
 
 		private void ConfigureDlg()
 		{

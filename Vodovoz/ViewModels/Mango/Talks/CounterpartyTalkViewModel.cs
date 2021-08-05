@@ -73,7 +73,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel
-						(client, unitOfWorkFactory, tdinavigation,routedListRepository,this.MangoManager,_orderParametersProvider);
+						(client, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager,_orderParametersProvider,
+						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.FirstOrDefault().Client;
@@ -126,7 +127,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 						_tdiNavigation,
 						_routedListRepository,
 						MangoManager,
-						_orderParametersProvider);
+						_orderParametersProvider,
+						_employeeJournalFactory,
+						_counterpartyJournalFactory,
+						_nomenclatureRepository);
 				
 				CounterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
@@ -146,7 +150,19 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					_uow.Save<Counterparty>(client);
 					_uow.Commit();
 				}
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository,this.MangoManager,_orderParametersProvider);
+				
+				CounterpartyOrderViewModel model =
+					new CounterpartyOrderViewModel(
+						client,
+						UnitOfWorkFactory.GetDefaultFactory,
+						_tdiNavigation,
+						_routedListRepository,
+						MangoManager,
+						_orderParametersProvider,
+						_employeeJournalFactory,
+						_counterpartyJournalFactory,
+						_nomenclatureRepository);
+				
 				CounterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				MangoManager.AddCounterpartyToCall(client.Id);
@@ -173,11 +189,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-					.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-					_nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-			ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+					new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository,
+					UserSingletonRepository.GetInstance());
 
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
@@ -186,7 +200,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				{"subdivisionService",subdivisionRepository},
 				//Autofac: ICommonServices
 				{"nomenclatureSelectorFactory", nomenclatureSelectorFactory},
 				//Autofac: IUserRepository

@@ -53,7 +53,9 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		private readonly RouteListRepository routedListRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
@@ -74,17 +76,21 @@ namespace Vodovoz.ViewModels.Mango
 			RouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderParametersProvider orderParametersProvider,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			INomenclatureRepository nomenclatureRepository,
 			int count = 5)
-		: base()
 		{
-			this.Client = client;
-			this.tdiNavigation = tdinavigation;
+			Client = client;
+			tdiNavigation = tdinavigation;
 			this.routedListRepository = routedListRepository;
-			this.MangoManager = mangoManager;
+			MangoManager = mangoManager;
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
-			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
+			LatestOrder = orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
 			NotifyConfiguration.Instance.BatchSubscribe(_RefreshCounterparty)
@@ -207,32 +213,22 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			if (order != null)
 			{
-				var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
-				IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-						ServicesConfig.CommonServices);
+				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
-				IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-					new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-						CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+				var nomenclatureSelectorFactory =
+					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository,
+						UserSingletonRepository.GetInstance());
 
-				IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-							.CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-						nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-				ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-				
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
 					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
 					{"employeeSelectorFactory", employeeSelectorFactory},
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
-					{"subdivisionService",subdivisionRepository},
 					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
-					{"nomenclatureRepository",nomenclatureRepository},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);

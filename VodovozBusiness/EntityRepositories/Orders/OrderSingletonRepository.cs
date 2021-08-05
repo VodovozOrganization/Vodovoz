@@ -20,6 +20,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
+using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -332,6 +333,31 @@ namespace Vodovoz.EntityRepositories.Orders
 				return queryResult.Take(count.Value).List();
 			else
 				return queryResult.List();
+		}
+		
+		/// <summary>
+		/// Проверка возможности изменения даты контракта при изменении даты доставки заказа.
+		/// Если дата первого заказа меньше newDeliveryDate и это - текущий изменяемый заказ - возвращает True.
+		/// Если первый заказ меньше newDeliveryDate и он не является текущим заказом - возвращает False.
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="client">Поиск заказов по этому контрагенту</param>
+		/// <param name="newDeliveryDate">Новая дата доставки заказа</param>
+		/// <param name="orderId">Текущий изменяемый заказ</param>
+		/// <returns>Возможность смены даты контракта</returns>
+		public bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId)
+		{
+			VodovozOrder orderAlias = null;
+			
+			var result = uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Client == client)
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.List().FirstOrDefault();
+			if(result.DeliveryDate < newDeliveryDate && result.Id != orderId)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		/// <summary>
