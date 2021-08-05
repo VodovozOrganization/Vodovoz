@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using QS.DomainModel.UoW;
 using RestSharp;
 using RestSharp.Authenticators;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 using Vodovoz.Tools.CommerceML.Nodes;
@@ -24,6 +25,7 @@ namespace Vodovoz.Tools.CommerceML
 	public class Export
 	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 
         #region Глобальные настройки экспорта
         static public XmlWriterSettings WriterSettings = new XmlWriterSettings
@@ -253,7 +255,7 @@ namespace Vodovoz.Tools.CommerceML
 		{
 			OnProgressPlusOneTask("Получение общих объектов");
 
-			var org = OrganizationRepository.GetOrganizationByInn(UOW, "7816453294");
+			var org = _organizationRepository.GetOrganizationByInn(UOW, "7816453294");
 			DefaultOwner = new Owner(this, org);
 
 			rootCatalog = new Root(this, RootContents.Catalog);

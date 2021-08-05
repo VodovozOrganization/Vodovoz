@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Accounting;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Repositories;
 
 namespace Vodovoz
@@ -27,6 +28,7 @@ namespace Vodovoz
 		private readonly IAccountExpenseRepository _accountExpenseRepository = new AccountExpenseRepository();
 		private readonly IAccountIncomeRepository _accountIncomeRepository = new AccountIncomeRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private BankTransferDocumentParser _parser;
 		private IUnitOfWork _uow;
 
@@ -341,13 +343,18 @@ namespace Vodovoz
 				var doc = (documents.GetValue (iter, (int)Columns.TransferDocumentCol) as TransferDocument);
 
 				//Сначала пробуем найти нашу организацию. Она должна фигурировать либо как получатель либо как плательщик.
-				var organization = OrganizationRepository.GetOrganizationByInn (_uow, doc.PayerInn);
-				if (organization == null) {
+				var organization = _organizationRepository.GetOrganizationByInn(_uow, doc.PayerInn);
+				if (organization == null)
+				{
 					//Нам платят
-					organization = OrganizationRepository.GetOrganizationByInn (_uow, doc.RecipientInn);
-					if (organization == null) {
-						organization = OrganizationRepository.GetOrganizationByAccountNumber (_uow, doc.RecipientCheckingAccount);
-						if (organization == null) {
+					organization = _organizationRepository.GetOrganizationByInn(_uow, doc.RecipientInn);
+					
+					if (organization == null)
+					{
+						organization = _organizationRepository.GetOrganizationByAccountNumber(_uow, doc.RecipientCheckingAccount);
+						
+						if (organization == null)
+						{
 							progressBar.Fraction = 0;
 							progressBar.Text = "Ошибка обработки выгрузки!";
 							throw new Exception ("Не удалось обнаружить нашу организацию ни по ИНН, ни по номеру счета. Заполните организацию, или проверьте корректность ИНН.");
@@ -582,11 +589,13 @@ namespace Vodovoz
 						continue;
 					//Получаем документ
 					var doc = (TransferDocument)documents.GetValue (iter, (int)Columns.TransferDocumentCol);
-					var organization = OrganizationRepository.GetOrganizationByInn (_uow, doc.RecipientInn);
+					var organization = _organizationRepository.GetOrganizationByInn (_uow, doc.RecipientInn);
 					//Мы платим
-					if (organization == null) {
-						if (!_accountExpenseRepository.AccountExpenseExists (_uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerCheckingAccount)) {
-							organization = OrganizationRepository.GetOrganizationByInn (_uow, doc.PayerInn);
+					if (organization == null)
+					{
+						if (!_accountExpenseRepository.AccountExpenseExists (_uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerCheckingAccount))
+						{
+							organization = _organizationRepository.GetOrganizationByInn (_uow, doc.PayerInn);
 							var expenseUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountExpense> ();
 							expenseUoW.Root.Number = Int32.Parse (doc.Number);
 							expenseUoW.Root.Date = doc.Date;
