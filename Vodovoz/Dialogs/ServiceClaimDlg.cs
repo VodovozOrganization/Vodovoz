@@ -16,6 +16,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -27,6 +28,7 @@ namespace Vodovoz
 	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{
@@ -137,7 +139,7 @@ namespace Vodovoz
 			referenceEngineer.RepresentationModel = new EmployeesVM();
 			referenceEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
-			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();
+			yentryEquipmentReplacement.ItemsQuery = _equipmentRepository.AvailableOnDutyEquipmentQuery();
 			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
 			yentryEquipmentReplacement.Binding
 				.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
@@ -407,12 +409,15 @@ namespace Vodovoz
 
 			UpdateEquipmentState();
 			FixNomenclatureAndEquipmentSensitivity ();
-			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
+			referenceEquipment.ItemsQuery = _equipmentRepository.GetEquipmentAtDeliveryPointQuery(UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
 		}
 
 		void UpdateEquipmentState()
 		{
-			int equipmentsCounts = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
+			int equipmentsCounts =
+				_equipmentRepository.GetEquipmentAtDeliveryPointQuery(
+					Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
+			
 			if (equipmentsCounts == 0 && Entity.Equipment == null)
 			{
 				enumcomboWithSerial.SelectedItem = ServiceClaimEquipmentSerialType.WithoutSerial;

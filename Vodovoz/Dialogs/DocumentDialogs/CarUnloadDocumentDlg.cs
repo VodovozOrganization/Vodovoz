@@ -24,6 +24,7 @@ using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
@@ -39,6 +40,7 @@ namespace Vodovoz
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 		private ICarUnloadRepository CarUnloadRepository => CarUnloadSingletonRepository.GetInstance();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
@@ -238,7 +240,7 @@ namespace Vodovoz
 
 		void UpdateAlreadyUnloaded()
 		{
-			alreadyUnloadedEquipment = Repositories.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
+			alreadyUnloadedEquipment = _equipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
 			returnsreceptionview.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 

@@ -5,7 +5,6 @@ using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
@@ -13,14 +12,15 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repositories;
 using System.Linq;
+using Vodovoz.EntityRepositories.Equipments;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EquipmentReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		IList<ServiceClaim> serviceClaims;
 
 		GenericObservableList<ReceptionEquipmentItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionEquipmentItemNode>();
@@ -159,7 +159,7 @@ namespace Vodovoz
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
 			var nomenclature = MyOrmDialog.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId);
-			var selectUnusedEquipment = new OrmReference(EquipmentRepository.GetUnusedEquipment(nomenclature));
+			var selectUnusedEquipment = new OrmReference(_equipmentRepository.GetUnusedEquipment(nomenclature));
 			selectUnusedEquipment.Mode = OrmReferenceMode.Select;
 			selectUnusedEquipment.ObjectSelected += SelectUnusedEquipment_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, selectUnusedEquipment);
