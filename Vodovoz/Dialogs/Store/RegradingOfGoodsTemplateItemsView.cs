@@ -5,13 +5,16 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		RegradingOfGoodsTemplateItem newRow;
+		private RegradingOfGoodsTemplateItem _newRow;
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		public RegradingOfGoodsTemplateItemsView()
 		{
@@ -53,7 +56,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var selectOldNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var selectOldNomenclature = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			selectOldNomenclature.TabName =	"Выберите номенклатуру на замену";
 			selectOldNomenclature.Mode = OrmReferenceMode.Select;
 			selectOldNomenclature.ObjectSelected += SelectOldNomenclature_ObjectSelected1;
@@ -63,12 +66,12 @@ namespace Vodovoz
 		void SelectOldNomenclature_ObjectSelected1 (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var nomenclature = e.Subject as Nomenclature;
-			newRow = new RegradingOfGoodsTemplateItem()
+			_newRow = new RegradingOfGoodsTemplateItem()
 				{
 					NomenclatureOld = nomenclature
 				};
 
-			var selectNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var selectNewNomenclature = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			selectNewNomenclature.Mode = OrmReferenceMode.Select;
 			selectNewNomenclature.TabName = "Выберите новую номенклатуру";
 			selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;
@@ -78,13 +81,13 @@ namespace Vodovoz
 		void SelectNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var nomenclature = e.Subject as Nomenclature;
-			newRow.NomenclatureNew = nomenclature;
-			TemplateUoW.Root.AddItem(newRow);
+			_newRow.NomenclatureNew = nomenclature;
+			TemplateUoW.Root.AddItem(_newRow);
 		}
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var changeOldNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var changeOldNomenclature = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			changeOldNomenclature.TabName =	"Изменить старую номенклатуру";
 			changeOldNomenclature.Mode = OrmReferenceMode.Select;
 			changeOldNomenclature.ObjectSelected += ChangeOldNomenclature_ObjectSelected1;;
@@ -104,7 +107,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var changeNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var changeNewNomenclature = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			changeNewNomenclature.Mode = OrmReferenceMode.Select;
 			changeNewNomenclature.TabName = "Изменить новую номенклатуру";
 			changeNewNomenclature.ObjectSelected += ChangeNewNomenclature_ObjectSelected;;

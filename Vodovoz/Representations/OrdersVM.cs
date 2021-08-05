@@ -9,12 +9,10 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
-using QS.Services;
 using QS.Utilities.Text;
 using QSProjectsLib;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -24,18 +22,19 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalViewers;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModel
 {
 	public class OrdersVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		public OrdersFilter Filter {
 			get => RepresentationFilter as OrdersFilter;
 			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
@@ -405,7 +404,7 @@ namespace Vodovoz.ViewModel
 		public OrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
-			sanitizationNomenclature = NomenclatureRepository.GetSanitisationNomenclature(UoW);
+			sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(UoW);
 			ShowColumns(false);
 		}
 	}

@@ -1578,7 +1578,7 @@ public partial class MainWindow : Gtk.Window
     {
         var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
         var userRepository = new UserRepository();
-
+        
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);

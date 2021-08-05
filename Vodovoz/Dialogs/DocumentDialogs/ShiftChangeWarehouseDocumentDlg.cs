@@ -21,6 +21,8 @@ using Gamma.GtkWidgets;
 using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -30,6 +32,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 
 		private SelectableParametersReportFilter filter;
 
@@ -336,7 +339,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var nomenclatureSelectDlg = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
 			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
 			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);

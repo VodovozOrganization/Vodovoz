@@ -8,12 +8,15 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		public IList<NomenclatureCategory> Categories { get; set; }
 
 		public ShiftChangeWarehouseDocumentItemsView()
@@ -82,7 +85,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var nomenclatureSelectDlg = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
 			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, nomenclatureSelectDlg);

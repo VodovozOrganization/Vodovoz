@@ -7,15 +7,17 @@ using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repositories;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DepositRefundItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
@@ -93,7 +95,7 @@ namespace Vodovoz.ViewWidgets
 				new OrmReference(
 					typeof(Nomenclature),
 					UoW,
-					NomenclatureRepository.NomenclatureEquipmentsQuery()
+					_nomenclatureRepository.NomenclatureEquipmentsQuery()
 										  .GetExecutableQueryOver(UoW.Session)
 										  .RootCriteria
 					) {

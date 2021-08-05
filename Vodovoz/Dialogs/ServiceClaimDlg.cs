@@ -17,7 +17,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -29,6 +30,7 @@ namespace Vodovoz
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 		
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{
@@ -148,7 +150,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			referenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
-			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
+			referenceNomenclature.ItemsQuery = _nomenclatureRepository.NomenclatureOfItemsForService();
 			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
 
 			referenceEquipment.SubjectType = typeof(Equipment);
@@ -320,12 +322,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddServiceClicked (object sender, EventArgs e)
 		{
-			OpenDialog (NomenclatureRepository.NomenclatureOfServices ());
+			OpenDialog (_nomenclatureRepository.NomenclatureOfServices());
 		}
 
 		protected void OnButtonAddPartClicked (object sender, EventArgs e)
 		{
-			OpenDialog (NomenclatureRepository.NomenclatureOfPartsForService ());
+			OpenDialog (_nomenclatureRepository.NomenclatureOfPartsForService());
 		}
 
 		void OpenDialog (NHibernate.Criterion.QueryOver<Nomenclature> nomenclatureType)

@@ -13,7 +13,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Logistic;
@@ -22,11 +21,15 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Representations;
 
 namespace Vodovoz
@@ -37,8 +40,11 @@ namespace Vodovoz
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		
 		private Warehouse _selectedWarehouse;
+		private ValidationContext _validationContext;
 
 		public NomenclatureDlg()
 		{
@@ -190,6 +196,15 @@ namespace Vodovoz
 			menuActions.Menu = menu;
 			menu.ShowAll();
 			menuActions.Sensitive = !UoWGeneric.IsNew;
+
+			ConfigureValidationContext();
+		}
+
+		private void ConfigureValidationContext()
+		{
+			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
+			
+			_validationContext.ServiceContainer.AddService(typeof(INomenclatureRepository), _nomenclatureRepository);
 		}
 
 		private void YСolorBtnBottleCapColorOnColorSet(object sender, EventArgs e) {
@@ -248,13 +263,16 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(String.IsNullOrWhiteSpace(Entity.Code1c)) {
-				Entity.Code1c = NomenclatureRepository.GetNextCode1c(UoW);
+			if(String.IsNullOrWhiteSpace(Entity.Code1c))
+			{
+				Entity.Code1c = _nomenclatureRepository.GetNextCode1c(UoW);
 			}
 
-			var valid = new QSValidator<Nomenclature>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
+			{
 				return false;
+			}
+
 			logger.Info("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo(_userRepository);
 			pricesView.SaveChanges();
