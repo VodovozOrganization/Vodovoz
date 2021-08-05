@@ -7,8 +7,8 @@ using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Repositories;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -16,6 +16,7 @@ namespace Vodovoz.Tools.Logistic
 	{
 		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
+		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -38,7 +39,7 @@ namespace Vodovoz.Tools.Logistic
 
 			//Топливо
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
-				var fuel = FuelRepository.GetDefaultFuel(uow);
+				var fuel = _fuelRepository.GetDefaultFuel(uow);
 				if(fuel == null) {
 					result.ErrorMessage = string.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
 					return result;

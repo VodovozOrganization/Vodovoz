@@ -725,7 +725,6 @@
     <Compile Include="Services\IStandartNomenclatures.cs" />
     <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Services\IStandartDiscountsService.cs" />
-    <Compile Include="Repositories\FuelRepository.cs" />
     <Compile Include="HibernateMapping\Operations\FuelIncomeOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\FuelExpenseOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\FuelTransferOperationMap.cs" />
