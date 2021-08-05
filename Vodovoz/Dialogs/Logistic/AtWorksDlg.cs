@@ -20,10 +20,10 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using ScheduleRestrictionRepository = Vodovoz.Repositories.Sale.ScheduleRestrictionRepository;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -51,7 +52,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly ICarRepository _carRepository = new CarRepository();
-		
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory)
@@ -96,7 +98,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+					.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
 					.AddSetter(
 						(c, n) => {
 							c.Editable = true;

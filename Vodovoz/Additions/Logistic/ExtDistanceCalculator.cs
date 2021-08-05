@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
@@ -41,6 +42,7 @@ namespace Vodovoz.Tools.Logistic
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
@@ -86,7 +88,7 @@ namespace Vodovoz.Tools.Logistic
 			Provider = provider;
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
-			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
+			var basesHashes = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
 			hashes = points.Select(CachedDistance.GetHash)
 						   .Concat(basesHashes)
 						   .Distinct()

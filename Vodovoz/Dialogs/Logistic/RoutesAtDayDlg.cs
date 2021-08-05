@@ -31,14 +31,15 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
+using ScheduleRestrictionRepository = Vodovoz.Repositories.Sale.ScheduleRestrictionRepository;
 
 namespace Vodovoz
 {
@@ -50,6 +51,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();		
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private readonly ICarRepository _carRepository = new CarRepository();
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -216,7 +218,7 @@ namespace Vodovoz
 																		  .AddColumn("База")
 																			.AddComboRenderer(x => x.GeographicGroup)
 																			.SetDisplayFunc(x => x.Name)
-																			.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+																			.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
 																			.AddSetter(
 																				(c, n) => {
 																					c.Editable = n.Car != null;
@@ -761,7 +763,7 @@ namespace Vodovoz
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
 			//добавляем маркеры складов
-			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
+			foreach(var b in _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
 				var addressMarker = new PointMarker(
 					new PointLatLng(
 						(double)b.BaseLatitude,

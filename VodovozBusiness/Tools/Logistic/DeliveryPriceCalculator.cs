@@ -7,13 +7,15 @@ using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Repositories;
-using Vodovoz.Repositories.Sale;
+using ScheduleRestrictionRepository = Vodovoz.Repositories.Sale.ScheduleRestrictionRepository;
 
 namespace Vodovoz.Tools.Logistic
 {
 	public static class DeliveryPriceCalculator
 	{
+		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -55,7 +57,8 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
+					var gg =
+						_geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
 					if(gg != null && gg.BaseCoordinatesExist)
 						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));

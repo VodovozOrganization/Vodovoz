@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
-using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -27,7 +26,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -36,9 +34,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -69,14 +65,19 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory
-		) : base(commonServices.InteractiveService, navigationManager)
+			IEmployeeJournalFactory employeeJournalFactory,
+			IGeographicGroupRepository geographicGroupRepository) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			if(defaultDeliveryDayScheduleSettings == null)
+			{
+				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			}
+
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			GeographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -127,6 +128,7 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 		
 		public ICarRepository CarRepository { get; }
+		public IGeographicGroupRepository GeographicGroupRepository { get; }
 
 		void CreateCommands()
 		{

@@ -10,8 +10,8 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
@@ -19,7 +19,8 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
-		SelectableParametersReportFilter filter;
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private SelectableParametersReportFilter filter;
 
 		public NomenclatureForShipment()
 		{
@@ -34,7 +35,7 @@ namespace Vodovoz.ReportsParameters.Store
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			lstGeoGrp.SetRenderTextFunc<GeographicGroup>(g => string.Format("{0}", g.Name));
-			lstGeoGrp.ItemsList = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 
 			var nomenclatureTypeParam = filter.CreateParameterSet(
 				"Типы номенклатур",

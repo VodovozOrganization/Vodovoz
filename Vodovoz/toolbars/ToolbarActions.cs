@@ -46,6 +46,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -549,7 +550,8 @@ public partial class MainWindow : Window
 					NavigationManagerProvider.NavigationManager,
 					new UserRepository(),
 					new BaseParametersProvider(),
-					new EmployeeJournalFactory()
+					new EmployeeJournalFactory(),
+					new GeographicGroupRepository()
 				)
 			);
 	}
