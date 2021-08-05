@@ -25,7 +25,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets.Mango;
-using DepositRepository = Vodovoz.Repository.Operations.DepositRepository;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -34,6 +33,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
+		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
@@ -108,7 +108,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
 			var bottlesAtCounterparty = _bottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
-			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
+			var depositsAtDeliveryPoint = _depositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 

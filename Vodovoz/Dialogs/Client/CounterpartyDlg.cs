@@ -65,6 +65,7 @@ namespace Vodovoz
         private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
         private readonly IUserRepository _userRepository = new UserRepository();
         private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
+        private readonly IDepositRepository _depositRepository = new DepositRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
@@ -795,7 +796,9 @@ namespace Vodovoz
                 Entity.UoW = UoW;
 
                 var validationContext = new ValidationContext(Entity);
+                
                 validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
+                validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
                 
                 if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
                 {

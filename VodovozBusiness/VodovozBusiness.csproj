@@ -501,7 +501,6 @@
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentKindRepository.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
-    <Compile Include="Repositories\Operations\DepositRepository.cs" />
     <Compile Include="Repositories\Operations\MoneyRepository.cs" />
     <Compile Include="Repositories\OrganizationRepository.cs" />
     <Compile Include="Repositories\RentPackageRepository.cs" />
