@@ -12,7 +12,7 @@ using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
@@ -269,7 +269,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string GetAllCommentsForTheField(CommentedFields field)
 		{
-			var comments = UndeliveredOrderCommentsRepository.GetComments(UoW, this, field);
+			var comments = new UndeliveredOrderCommentsRepository().GetComments(UoW, this, field);
 			StringBuilder sb = new StringBuilder();
 
 			int cnt = 0;

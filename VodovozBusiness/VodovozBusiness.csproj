@@ -609,7 +609,6 @@
     <Compile Include="Domain\Orders\Documents\EquipmentReturnDocument.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveredOrderCommentsMap.cs" />
     <Compile Include="Domain\Orders\UndeliveredOrderComment.cs" />
-    <Compile Include="Repositories\UndeliveredOrderCommentsRepository.cs" />
     <Compile Include="Domain\Client\ClientCameFrom.cs" />
     <Compile Include="HibernateMapping\Counterparty\ClientCameFromMap.cs" />
     <Compile Include="Tools\CommerceML\Export.cs" />

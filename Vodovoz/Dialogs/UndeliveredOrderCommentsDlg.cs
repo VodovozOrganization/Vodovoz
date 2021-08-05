@@ -5,13 +5,15 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveredOrderCommentsDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+
+		private readonly IUndeliveredOrderCommentsRepository _undeliveredOrderCommentsRepository = new UndeliveredOrderCommentsRepository();
 		IUnitOfWork UoW { get; set; }
 		UndeliveredOrderComment Comment { get; set; }
 		CommentedFields Field { get; set; }
@@ -70,7 +72,7 @@ namespace Vodovoz.Dialogs
 
 		void GetComments()
 		{
-			yTreeComments.ItemsDataSource = UndeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
+			yTreeComments.ItemsDataSource = _undeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
 		}
 
 		protected void OnBtnAddCommentClicked(object sender, EventArgs e)

@@ -4,7 +4,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -12,6 +12,7 @@ namespace Vodovoz.ViewWidgets
 	public partial class UndeliveredOrderCommentsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrderCommentsRepository _undeliveredOrderCommentsRepository = new UndeliveredOrderCommentsRepository();
 		
 		public UndeliveredOrderCommentsView()
 		{
@@ -61,7 +62,7 @@ namespace Vodovoz.ViewWidgets
 
 		void GetComments()
 		{
-			yTreeComments.ItemsDataSource = UndeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
+			yTreeComments.ItemsDataSource = _undeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
 		}
 
 		protected void OnBtnAddCommentClicked(object sender, EventArgs e)
