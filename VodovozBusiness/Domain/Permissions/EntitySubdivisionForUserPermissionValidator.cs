@@ -6,8 +6,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Domain.Permissions
 {
@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Permissions
 		private static readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private static readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
 		private static readonly IUserRepository _userRepository = new UserRepository();
+		private static readonly IPermissionRepository _permissionRepository = new PermissionRepository();
 		
 		/// <summary>
 		/// Проверка прав доступа по списку сущностей для текущего пользователя
@@ -57,7 +58,7 @@ namespace Vodovoz.Domain.Permissions
 			}
 
 			var subdivisionsForEntities = _subdivisionRepository.GetSubdivisionsForDocumentTypes(uow, entityTypes);
-			var specialPermissions = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForSomeEntities(uow, userId, entityNames)
+			var specialPermissions = _permissionRepository.GetAllSubdivisionForUserEntityPermissionForSomeEntities(uow, userId, entityNames)
 				.Where(x => subdivisionsForEntities.Contains(x.Subdivision) || Subdivision.ReferenceEquals(x.Subdivision, mainSubdivision));
 
 			foreach(var entityType in entityTypes) {
@@ -120,7 +121,7 @@ namespace Vodovoz.Domain.Permissions
 
 
 			var subdivisionsForEntities = _subdivisionRepository.GetSubdivisionsForDocumentTypes(uow, new Type[] { entityType });
-			var specialPermissions = PermissionRepository.GetAllSubdivisionForUserEntityPermissionForOneEntity(uow, userId, entityType.Name)
+			var specialPermissions = _permissionRepository.GetAllSubdivisionForUserEntityPermissionForOneEntity(uow, userId, entityType.Name)
 				.Where(x => subdivisionsForEntities.Contains(x.Subdivision) || Subdivision.ReferenceEquals(x.Subdivision, mainSubdivision));
 
 			foreach(var permissionitem in specialPermissions.Where(x => x.TypeOfEntity.Type == entityType.Name)) {

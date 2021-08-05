@@ -11,7 +11,7 @@ using QS.Project.Repositories;
 using QS.Widgets.GtkUI;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repositories.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Core.Permissions
@@ -120,6 +120,8 @@ namespace Vodovoz.Core.Permissions
 
 	public class EntitySubdivisionForUserPermissionModel
 	{
+		private readonly IPermissionRepository _permissionRepository = new PermissionRepository();
+
 		private IUnitOfWork uow;
 		private Subdivision subdivision;
 		private UserBase user;
@@ -137,7 +139,7 @@ namespace Vodovoz.Core.Permissions
 			this.uow = uow;
 			this.user = user;
 
-			originalPermissionList = PermissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
+			originalPermissionList = _permissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
 			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(originalPermissionList.ToList());
 
 			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
