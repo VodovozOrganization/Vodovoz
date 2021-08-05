@@ -20,6 +20,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz
@@ -39,6 +40,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -176,7 +178,7 @@ namespace Vodovoz
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.ChangedByUser += YEntryRouteList_ValueOrVisibilityChanged;
 
-			yentryClient.ItemsQuery = Repositories.CounterpartyRepository.ActiveClientsQuery ();
+			yentryClient.ItemsQuery = _counterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();

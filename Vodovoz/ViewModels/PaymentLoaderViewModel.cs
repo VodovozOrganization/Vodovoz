@@ -14,6 +14,7 @@ using Vodovoz.Repositories;
 using Vodovoz.Domain.Orders;
 using System.Threading.Tasks;
 using QS.Dialog;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.ViewModels
@@ -23,6 +24,7 @@ namespace Vodovoz.ViewModels
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly int _vodovozId;
 		private readonly int _vodovozSouthId;
 		private IReadOnlyList<Domain.Organizations.Organization> _organisations;		
@@ -41,7 +43,8 @@ namespace Vodovoz.ViewModels
 			INavigationManager navigationManager,
 			IOrganizationParametersProvider organizationParametersProvider,
 			IProfitCategoryProvider profitCategoryProvider,
-			IPaymentsRepository paymentsRepository) 
+			IPaymentsRepository paymentsRepository,
+			ICounterpartyRepository counterpartyRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -51,6 +54,7 @@ namespace Vodovoz.ViewModels
 
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 
 			if(organizationParametersProvider == null)
 			{
@@ -180,7 +184,7 @@ namespace Vodovoz.ViewModels
 					continue;
 				}
 
-				var counterparty = CounterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
+				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
 				var curPayment = new Payment(doc, org, counterparty);
 
 				if(!autoPaymentMatching.IncomePaymentMatch(curPayment))

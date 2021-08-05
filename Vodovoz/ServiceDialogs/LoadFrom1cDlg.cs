@@ -34,6 +34,7 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
 
@@ -960,7 +961,7 @@ namespace Vodovoz
 			progressbar.Text = "Загружаем таблицу существующих контрагентов.";
 			QSMain.WaitRedraw ();
 			var counterpartyCodes1c = CounterpatiesList.Select(c => c.Code1c).ToArray();
-			var ExistCouterpaties = Repositories.CounterpartyRepository.GetCounterpartiesByCode1c (uow, counterpartyCodes1c);
+			var ExistCouterpaties = _counterpartyRepository.GetCounterpartiesByCode1c (uow, counterpartyCodes1c);
 
 			progressbar.Text = "Сверяем контрагентов...";
 			progressbar.Adjustment.Value = 0;

@@ -15,6 +15,7 @@ using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
@@ -160,7 +161,8 @@ namespace Vodovoz.JournalViewModels
 						_navigationManager,
 						_organizationParametersProvider,
 						_profitCategoryProvider,
-						_paymentsRepository
+						_paymentsRepository,
+						new CounterpartyRepository()
 					),
 					//функция диалога открытия документа
 					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(

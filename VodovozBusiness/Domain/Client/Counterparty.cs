@@ -20,9 +20,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Retail;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Repositories;
 using Vodovoz.Repositories.Orders;
 using VodovozInfrastructure.Attributes;
 
@@ -932,9 +932,9 @@ namespace Vodovoz.Domain.Client
 
 		#region IValidatableObject implementation
 
-		private bool CheckForINNDuplicate()
+		private bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository)
 		{
-			IList<Counterparty> counterarties = CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(UoW, INN);
 			if(counterarties == null)
 				return false;
 			if(counterarties.Any(x => x.Id != Id))
@@ -959,11 +959,17 @@ namespace Vodovoz.Domain.Client
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(moneyRepository)}");
 			}
 			
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(ICounterpartyRepository)) is ICounterpartyRepository counterpartyRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(counterpartyRepository)}");
+			}
+			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
 			}
 
-			if(CheckForINNDuplicate()) {
+			if(CheckForINNDuplicate(counterpartyRepository)) {
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 												  new[] { this.GetPropertyName(o => o.INN) });
 			}

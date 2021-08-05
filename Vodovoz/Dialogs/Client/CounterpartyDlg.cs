@@ -16,7 +16,6 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -44,6 +43,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -68,6 +68,7 @@ namespace Vodovoz
         private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
         private readonly IDepositRepository _depositRepository = new DepositRepository();
         private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
+        private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
@@ -364,7 +365,7 @@ namespace Vodovoz
             ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
             ySpecCmbCameFrom.Sensitive = Entity.Id == 0;
-            ySpecCmbCameFrom.ItemsList = CounterpartyRepository.GetPlacesClientCameFrom(
+            ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
                 UoW,
                 Entity.CameFrom == null || !Entity.CameFrom.IsArchive
             );
@@ -674,6 +675,7 @@ namespace Vodovoz
 	        _validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
 	        _validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
 	        _validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
         }
 
         private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
@@ -832,7 +834,7 @@ namespace Vodovoz
         private bool CheckDuplicate()
         {
             string INN = UoWGeneric.Root.INN;
-            IList<Counterparty> counterarties = Repositories.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+            IList<Counterparty> counterarties = _counterpartyRepository.GetCounterpartiesByINN(UoW, INN);
             return counterarties != null && counterarties.Any(x => x.Id != UoWGeneric.Root.Id);
         }
 
@@ -979,7 +981,7 @@ namespace Vodovoz
         {
             if(yentrySignPost.Completion == null) {
                 yentrySignPost.Completion = new EntryCompletion();
-                var list = CounterpartyRepository.GetUniqueSignatoryPosts(UoW);
+                var list = _counterpartyRepository.GetUniqueSignatoryPosts(UoW);
                 yentrySignPost.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
                 yentrySignPost.Completion.TextColumn = 0;
                 yentrySignPost.Completion.Complete();
@@ -990,7 +992,7 @@ namespace Vodovoz
         {
             if(yentrySignBaseOf.Completion == null) {
                 yentrySignBaseOf.Completion = new EntryCompletion();
-                var list = CounterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
+                var list = _counterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
                 yentrySignBaseOf.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
                 yentrySignBaseOf.Completion.TextColumn = 0;
                 yentrySignBaseOf.Completion.Complete();
