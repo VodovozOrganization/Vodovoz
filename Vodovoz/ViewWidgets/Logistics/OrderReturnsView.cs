@@ -43,9 +43,9 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
-    public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
 	{
-		class OrderNode : PropertyChangedBase
+		private class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -55,13 +55,17 @@ namespace Vodovoz
 			}
 
 			Counterparty client;
-			public Counterparty Client {
+
+			public Counterparty Client
+			{
 				get => client;
 				set => SetField(ref client, value, () => Client);
 			}
 
 			DeliveryPoint deliveryPoint;
-			public DeliveryPoint DeliveryPoint {
+
+			public DeliveryPoint DeliveryPoint
+			{
 				get => deliveryPoint;
 				set => SetField(ref deliveryPoint, value, () => DeliveryPoint);
 			}
@@ -75,61 +79,73 @@ namespace Vodovoz
 				BaseOrder = order;
 			}
 
-			public ChangedType CompletedChange {
-				get {
-					if(Client == null || DeliveryPoint == null) {
+			public ChangedType CompletedChange
+			{
+				get
+				{
+					if(Client == null || DeliveryPoint == null)
+					{
 						return ChangedType.None;
 					}
-					if(Client.Id == BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
+
+					if(Client.Id == BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id)
+					{
 						return ChangedType.DeliveryPoint;
 					}
-					if(Client.Id != BaseOrder.Client.Id) {
+
+					if(Client.Id != BaseOrder.Client.Id)
+					{
 						return ChangedType.Both;
 					}
+
 					return ChangedType.None;
 				}
 			}
 		}
-		List<OrderItemReturnsNode> equipmentFromClient;
-		List<OrderItemReturnsNode> itemsToClient;
 
-		IUnitOfWork uow;
-
-		public IUnitOfWork UoW {
-			get => uow;
-			set {
-				uow = value;
-				depositrefunditemsview1.Configure(uow, routeListItem.Order, true);
-			}
-		}
-		OrderNode orderNode;
-		RouteListItem routeListItem;
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-
+		#region Поля и свойства
+		private IUnitOfWork _uow;
+		private bool _canEditPrices;
+		private OrderNode _orderNode;
+		private CallTaskWorker _callTaskWorker;
+		private readonly RouteListItem _routeListItem;
+		private List<OrderItemReturnsNode> _itemsToClient;
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
-						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
-				}
-				return callTaskWorker;
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+
+		private readonly IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
+
+		public IUnitOfWork UoW
+		{
+			get => _uow;
+			set
+			{
+				_uow = value;
+				depositrefunditemsview1.Configure(_uow, _routeListItem.Order, true);
 			}
-			set { callTaskWorker = value; }
 		}
+
+		public virtual CallTaskWorker CallTaskWorker
+		{
+			get =>
+				_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
+					CallTaskSingletonFactory.GetInstance(),
+					new CallTaskRepository(),
+					OrderSingletonRepository.GetInstance(),
+					EmployeeSingletonRepository.GetInstance(),
+					new BaseParametersProvider(),
+					ServicesConfig.CommonServices.UserService,
+					SingletonErrorReporter.Instance));
+			set => _callTaskWorker = value;
+		}
+		#endregion
 
 		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
 		{
 			this.Build();
-			this.routeListItem = routeListItem;
+			this._routeListItem = routeListItem;
 			this.TabName = "Изменение заказа №" + routeListItem.Order.Id;
 
 			UoW = uow;
@@ -148,22 +164,24 @@ namespace Vodovoz
 		private void UpdateListsSentivity()
 		{
 			ytreeToClient.Sensitive =
-			orderEquipmentItemsView.Sensitive =
-			depositrefunditemsview1.Sensitive = routeListItem.IsDelivered();
+				orderEquipmentItemsView.Sensitive =
+					depositrefunditemsview1.Sensitive = _routeListItem.IsDelivered();
 		}
 
 		private void UpdateItemsList()
 		{
-			itemsToClient = new List<OrderItemReturnsNode>();
-			var nomenclatures = routeListItem.Order.OrderItems
+			_itemsToClient = new List<OrderItemReturnsNode>();
+			var nomenclatures = _routeListItem.Order.OrderItems
 				.Where(item => !item.Nomenclature.IsSerial).ToList();
-			foreach(var item in nomenclatures) {
-				itemsToClient.Add(new OrderItemReturnsNode(item));
+			foreach(var item in nomenclatures)
+			{
+				_itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
-			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum ?? 0);
 
-			ytreeToClient.ItemsDataSource = itemsToClient;
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(_routeListItem.Order.ActualGoodsTotalSum ?? 0);
+
+			ytreeToClient.ItemsDataSource = _itemsToClient;
 		}
 
 		private void OpenSelectNomenclatureDlg()
@@ -174,10 +192,12 @@ namespace Vodovoz
 				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
 				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
+			PermissionControlledRepresentationJournal SelectDialog =
+				new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter))
+				{
+					Mode = JournalSelectMode.Single,
+					ShowFilter = true
+				};
 			SelectDialog.CustomTabName("Номенклатура на продажу");
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 			TabParent.AddSlaveTab(this, SelectDialog);
@@ -186,58 +206,65 @@ namespace Vodovoz
 		private void NomenclatureSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
 			var selectedIds = e.GetSelectedIds();
-			if(!selectedIds.Any()) {
-				return;
-			}
-			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds.First());
-			CounterpartyContract contract = routeListItem.Order.Contract;
-			if(routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null) {
+			if(!selectedIds.Any())
+			{
 				return;
 			}
 
-			if(routeListItem.Order.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-			   && nomenclature.Category == NomenclatureCategory.master) {
+			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds.First());
+			CounterpartyContract contract = _routeListItem.Order.Contract;
+			if(_routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null)
+			{
+				return;
+			}
+
+			if(_routeListItem.Order.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+			   && nomenclature.Category == NomenclatureCategory.master)
+			{
 				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 				return;
 			}
 
-			if(routeListItem.Order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+			if(_routeListItem.Order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
+			{
 				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
-			switch(nomenclature.Category) {
+
+			switch(nomenclature.Category)
+			{
 				case NomenclatureCategory.water:
-					routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
+					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
 					break;
 				case NomenclatureCategory.master:
-					routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
+					_routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
 					break;
 				default:
-					routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature, true);
+					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature, true);
 					break;
 			}
+
 			UpdateItemsList();
 		}
 
 		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
 		{
-			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum ?? 0);
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(_routeListItem.Order.ActualGoodsTotalSum ?? 0);
 		}
-
-		bool canEditPrices;
 
 		protected void Configure()
 		{
-			canEditPrices = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
-			orderNode = new OrderNode(routeListItem.Order);
+			_canEditPrices =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
+			_orderNode = new OrderNode(_routeListItem.Order);
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
-			referenceClient.Binding.AddBinding(orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
+			referenceClient.Binding.AddBinding(_orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
 			referenceClient.CanEditReference = false;
-			orderEquipmentItemsView.Configure(UoW, routeListItem.Order, new FlyerRepository());
-			ConfigureDeliveryPointRefference(orderNode.Client);
+			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
+			ConfigureDeliveryPointRefference(_orderNode.Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
@@ -258,12 +285,12 @@ namespace Vodovoz
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
-						.AddSetter((cell, node) => cell.Editable = node.HasPrice && canEditPrices)
+						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-					.AddSetter((cell, node) => cell.Editable = canEditPrices)
+					.AddSetter((cell, node) => cell.Editable = _canEditPrices)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
@@ -278,12 +305,12 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(OrderRepository.GetDiscountReasons(UoW))
+					.FillItems(_orderRepository.GetActiveDiscountReasons(UoW))
 				.AddSetter((c, n) => c.Editable = n.Discount > 0)
 				.AddSetter(
 					(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
-					? new Gdk.Color(0xff, 0x66, 0x66)
-					: new Gdk.Color(0xff, 0xff, 0xff)
+						? new Gdk.Color(0xff, 0x66, 0x66)
+						: new Gdk.Color(0xff, 0xff, 0xff)
 				)
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum).Digits(2)
@@ -292,27 +319,29 @@ namespace Vodovoz
 				.Finish();
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
-			yenumcomboOrderPayment.Binding.AddBinding(routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
 			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
-			ySpecPaymentFrom.Binding.AddBinding(routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
-			ySpecPaymentFrom.Binding.AddFuncBinding(routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible).InitializeFromSource();
+			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
+			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
+				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
 
-			routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => {
-				UpdateItemsList();
-			};
+			_routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => { UpdateItemsList(); };
 
-			routeListItem.Order.ObservableOrderItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderItemsFromNullToZero();
-			routeListItem.Order.ObservableOrderEquipments.ElementAdded += (aList, aIdx) => ActualCountsOfOrderEqupmentFromNullToZero();
-			routeListItem.Order.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderDepositsFromNullToZero();
+			_routeListItem.Order.ObservableOrderItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderItemsFromNullToZero();
+			_routeListItem.Order.ObservableOrderEquipments.ElementAdded += (aList, aIdx) => ActualCountsOfOrderEqupmentFromNullToZero();
+			_routeListItem.Order.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderDepositsFromNullToZero();
 
-			yspinbuttonBottlesByStockCount.Binding.AddBinding(routeListItem.Order, e => e.BottlesByStockCount, w => w.ValueAsInt).InitializeFromSource();
-			yspinbuttonBottlesByStockActualCount.Binding.AddBinding(routeListItem.Order, e => e.BottlesByStockActualCount, w => w.ValueAsInt).InitializeFromSource();
+			yspinbuttonBottlesByStockCount.Binding.AddBinding(_routeListItem.Order, e => e.BottlesByStockCount, w => w.ValueAsInt)
+				.InitializeFromSource();
+			yspinbuttonBottlesByStockActualCount.Binding
+				.AddBinding(_routeListItem.Order, e => e.BottlesByStockActualCount, w => w.ValueAsInt).InitializeFromSource();
 			yspinbuttonBottlesByStockActualCount.ValueChanged += OnYspinbuttonBottlesByStockActualCountChanged;
-			hboxBottlesByStock.Visible = routeListItem.Order.IsBottleStock;
+			hboxBottlesByStock.Visible = _routeListItem.Order.IsBottleStock;
 			OnlineOrderVisible();
 		}
 
@@ -325,7 +354,8 @@ namespace Vodovoz
 
 		void ActualCountsOfOrderDepositsFromNullToZero()
 		{
-			foreach(var dep in routeListItem.Order.OrderDepositItems) {
+			foreach(var dep in _routeListItem.Order.OrderDepositItems)
+			{
 				if(dep.ActualCount == null)
 					dep.ActualCount = 0;
 			}
@@ -333,7 +363,8 @@ namespace Vodovoz
 
 		void ActualCountsOfOrderEqupmentFromNullToZero()
 		{
-			foreach(var equip in routeListItem.Order.OrderEquipments) {
+			foreach(var equip in _routeListItem.Order.OrderEquipments)
+			{
 				if(equip.ActualCount == null)
 					equip.ActualCount = 0;
 			}
@@ -341,7 +372,8 @@ namespace Vodovoz
 
 		void ActualCountsOfOrderItemsFromNullToZero()
 		{
-			foreach(var item in routeListItem.Order.OrderItems) {
+			foreach(var item in _routeListItem.Order.OrderItems)
+			{
 				if(item.ActualCount == null)
 					item.ActualCount = 0;
 			}
@@ -350,28 +382,32 @@ namespace Vodovoz
 		int GetMaxCount(OrderItemReturnsNode node)
 		{
 			var count = (node.Nomenclature.Category == NomenclatureCategory.service
-						 || node.Nomenclature.Category == NomenclatureCategory.master
-						 || node.Nomenclature.Category == NomenclatureCategory.deposit) ? 1 : 9999;
+			             || node.Nomenclature.Category == NomenclatureCategory.master
+			             || node.Nomenclature.Category == NomenclatureCategory.deposit)
+				? 1
+				: 9999;
 			return count;
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
 		{
-			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel {
+			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel
+			{
 				Counterparty = client
 			};
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
 				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
-			entityVMEntryDeliveryPoint.Binding.AddBinding(orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
-			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
-				routeListItem.FillCountsOnCanceled();
+			dlg.DlgSaved += (s, ea) =>
+			{
+				_routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
+				_routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
 			};
@@ -379,11 +415,12 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveryCanceledClicked(object sender, EventArgs e)
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
-			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
-				routeListItem.FillCountsOnCanceled();
+			dlg.DlgSaved += (s, ea) =>
+			{
+				_routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
+				_routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
 			};
@@ -391,65 +428,70 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
-			routeListItem.RestoreOrder();
-			routeListItem.FirstFillClosing(UoW, wageParameterService);
+			_routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+			_routeListItem.RestoreOrder();
+			_routeListItem.FirstFillClosing(UoW, _wageParameterService);
 			UpdateListsSentivity();
 			UpdateButtonsState();
 		}
 
 		void UpdateButtonsState()
 		{
-			bool isTransfered = routeListItem.Status == RouteListItemStatus.Transfered;
-			buttonDeliveryCanceled.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Canceled;
-			buttonNotDelivered.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Overdue;
-			buttonDelivered.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Completed && routeListItem.Status != RouteListItemStatus.EnRoute;
+			bool isTransfered = _routeListItem.Status == RouteListItemStatus.Transfered;
+			buttonDeliveryCanceled.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Canceled;
+			buttonNotDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Overdue;
+			buttonDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Completed &&
+			                            _routeListItem.Status != RouteListItemStatus.EnRoute;
 		}
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)
 		{
-			routeListItem.RecalculateTotalCash();
+			_routeListItem.RecalculateTotalCash();
 		}
 
 		private void AcceptOrderChange()
 		{
-			if(orderNode.CompletedChange == OrderNode.ChangedType.None) {
-				orderNode = new OrderNode(routeListItem.Order);
+			if(_orderNode.CompletedChange == OrderNode.ChangedType.None)
+			{
+				_orderNode = new OrderNode(_routeListItem.Order);
 				return;
 			}
 
-			if(orderNode.CompletedChange == OrderNode.ChangedType.DeliveryPoint) {
-				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
+			if(_orderNode.CompletedChange == OrderNode.ChangedType.DeliveryPoint)
+			{
+				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
 			}
 
-			if(orderNode.CompletedChange == OrderNode.ChangedType.Both) {
-				//Сначала ставим точку доставки чтобы при установке клиента она была доступна, 
-				//иначе при записи клиента убирается не его точка доставки и будет ошибка при 
-				//изменении документов которые должны меняться при смене клиента потомучто точка 
+			if(_orderNode.CompletedChange == OrderNode.ChangedType.Both)
+			{
+				//Сначала ставим точку доставки чтобы при установке клиента она была доступна,
+				//иначе при записи клиента убирается не его точка доставки и будет ошибка при
+				//изменении документов которые должны меняться при смене клиента потомучто точка
 				//доставки будет пустая
-				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
-				routeListItem.Order.Client = orderNode.Client;
-				routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(), routeListItem.BottlesReturned);
+				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
+				_routeListItem.Order.Client = _orderNode.Client;
+				_routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(), _routeListItem.BottlesReturned);
 			}
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
 		{
-			ConfigureDeliveryPointRefference(orderNode.Client);
+			ConfigureDeliveryPointRefference(_orderNode.Client);
 			entityVMEntryDeliveryPoint.OpenSelectDialog();
 		}
 
 		protected void OnReferenceClientChanged(object sender, EventArgs e)
 		{
 			PaymentType? previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
-			Enum[] hideEnums = { PaymentType.cashless };
+			Enum[] hideEnums = {PaymentType.cashless};
 			PersonType personType = (referenceClient.Subject as Counterparty).PersonType;
 			if(personType == PersonType.natural)
 				yenumcomboOrderPayment.AddEnumToHideList(hideEnums);
 			else
 				yenumcomboOrderPayment.ClearEnumHideList();
 
-			if(previousPaymentType.HasValue) {
+			if(previousPaymentType.HasValue)
+			{
 				if(personType == PersonType.natural && hideEnums.Contains(previousPaymentType.Value))
 					yenumcomboOrderPayment.SelectedItem = PaymentType.cash;
 				else
@@ -464,8 +506,9 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteOrderItemClicked(object sender, EventArgs e)
 		{
-			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode && selectedItemNode.OrderItem != null) {
-				routeListItem.Order.RemoveAloneItem(selectedItemNode.OrderItem);
+			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode && selectedItemNode.OrderItem != null)
+			{
+				_routeListItem.Order.RemoveAloneItem(selectedItemNode.OrderItem);
 				UpdateItemsList();
 			}
 		}
@@ -474,20 +517,23 @@ namespace Vodovoz
 		{
 			//Если оборудование добавлено в изменении заказа то базовое количество равно 0,
 			//значит такое оборудование можно удалять из изменения заказа
-			if(e.OrderItem == null && e.Count == 0) {
-				routeListItem.Order.RemoveEquipment(e);
+			if(e.OrderItem == null && e.Count == 0)
+			{
+				_routeListItem.Order.RemoveEquipment(e);
 			}
 		}
 
 		public bool CanClose()
 		{
 			IOrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
-			ValidationContext validationContext = new ValidationContext(routeListItem.Order,null, new Dictionary<object, object>{
-					{ "NewStatus", OrderStatus.Closed },
-				{ "AddressStatus", routeListItem.Status }});
+			ValidationContext validationContext = new ValidationContext(_routeListItem.Order, null, new Dictionary<object, object>
+			{
+				{"NewStatus", OrderStatus.Closed},
+				{"AddressStatus", _routeListItem.Status}
+			});
 			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
-			routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(routeListItem.Order, validationContext);
-			routeListItem.Order.CheckAndSetOrderIsService();
+			_routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(_routeListItem.Order, validationContext);
+			_routeListItem.Order.CheckAndSetOrderIsService();
 			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();
 			//Не блокируем закрытие вкладки
 			return true;
@@ -498,16 +544,17 @@ namespace Vodovoz
 			OnlineOrderVisible();
 		}
 
-		private void OnlineOrderVisible() {
+		private void OnlineOrderVisible()
+		{
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
-				(routeListItem.Order.PaymentType == PaymentType.ByCard 
-				 || routeListItem.Order.PaymentType == PaymentType.Terminal);
+				(_routeListItem.Order.PaymentType == PaymentType.ByCard
+				 || _routeListItem.Order.PaymentType == PaymentType.Terminal);
 		}
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
 			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
-			routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
+			_routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
 		}
 
 		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)
@@ -535,8 +582,10 @@ namespace Vodovoz
 
 		public bool IsEquipment => orderEquipment != null;
 
-		public bool IsSerialEquipment {
-			get {
+		public bool IsSerialEquipment
+		{
+			get
+			{
 				return
 					IsEquipment
 					&& orderEquipment.Equipment != null
@@ -544,42 +593,58 @@ namespace Vodovoz
 			}
 		}
 
-		public bool IsDelivered {
+		public bool IsDelivered
+		{
 			get => ActualCount > 0;
-			set {
+			set
+			{
 				if(IsEquipment && IsSerialEquipment)
 					ActualCount = value ? 1 : 0;
 			}
 		}
 
-		public decimal ActualCount {
-			get {
-				if(IsEquipment) {
+		public decimal ActualCount
+		{
+			get
+			{
+				if(IsEquipment)
+				{
 					if(IsSerialEquipment)
 						return orderEquipment.Confirmed ? 1 : 0;
 					return orderEquipment.ActualCount ?? 0;
 				}
+
 				return orderItem.ActualCount ?? 0;
 			}
-			set {
-				if(IsEquipment) {
+			set
+			{
+				if(IsEquipment)
+				{
 					if(IsSerialEquipment)
 						orderEquipment.ActualCount = value > 0 ? 1 : 0;
-					orderEquipment.ActualCount = (int?)value;
-				} else {
+					orderEquipment.ActualCount = (int?) value;
+				}
+				else
+				{
 					orderItem.ActualCount = value;
 				}
 			}
 		}
 
-		public Nomenclature Nomenclature {
-			get {
-				if(IsEquipment) {
-					if(IsSerialEquipment) {
+		public Nomenclature Nomenclature
+		{
+			get
+			{
+				if(IsEquipment)
+				{
+					if(IsSerialEquipment)
+					{
 						return orderEquipment.Equipment.Nomenclature;
 					}
+
 					return orderEquipment.Nomenclature;
 				}
+
 				return orderItem.Nomenclature;
 			}
 		}
@@ -590,37 +655,47 @@ namespace Vodovoz
 
 		public bool HasPrice => !IsEquipment || orderEquipment.OrderItem != null;
 
-		public string ConfirmedComments {
+		public string ConfirmedComments
+		{
 			get => IsEquipment ? orderEquipment.ConfirmedComment : null;
-			set {
+			set
+			{
 				if(IsEquipment)
 					orderEquipment.ConfirmedComment = value;
 			}
 		}
 
-		public decimal Price {
-			get {
+		public decimal Price
+		{
+			get
+			{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Price : 0;
 				return orderItem.Price;
 			}
-			set {
-				if(IsEquipment) {
+			set
+			{
+				if(IsEquipment)
+				{
 					if(orderEquipment.OrderItem != null)
 						orderEquipment.OrderItem.Price = value;
-				} else
+				}
+				else
 					orderItem.Price = value;
 			}
 		}
 
-		public bool IsDiscountInMoney {
-			get {
+		public bool IsDiscountInMoney
+		{
+			get
+			{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null && orderEquipment.OrderItem.IsDiscountInMoney;
 				return orderItem.IsDiscountInMoney;
 			}
 
-			set {
+			set
+			{
 				if(IsEquipment)
 					orderEquipment.OrderItem.IsDiscountInMoney = orderEquipment.OrderItem != null && value;
 				else
@@ -628,68 +703,89 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal ManualChangingDiscount {
-			get {
+		public decimal ManualChangingDiscount
+		{
+			get
+			{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.ManualChangingDiscount : 0;
 				return orderItem.ManualChangingDiscount;
 			}
 
-			set {
-				if(IsEquipment) {
+			set
+			{
+				if(IsEquipment)
+				{
 					if(orderEquipment.OrderItem != null)
 						orderEquipment.OrderItem.ManualChangingDiscount = value;
-				} else
+				}
+				else
 					orderItem.ManualChangingDiscount = value;
 			}
 		}
 
-		public decimal DiscountSetter {
-			get {
+		public decimal DiscountSetter
+		{
+			get
+			{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountSetter : 0;
 				return orderItem.DiscountSetter;
 			}
 
-			set {
-				if(IsEquipment) {
+			set
+			{
+				if(IsEquipment)
+				{
 					if(orderEquipment.OrderItem != null)
 						orderEquipment.OrderItem.DiscountSetter = value;
-				} else
+				}
+				else
 					orderItem.DiscountSetter = value;
 			}
 		}
 
-		public decimal Discount {
-			get {
+		public decimal Discount
+		{
+			get
+			{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Discount : 0m;
 				return orderItem.Discount;
 			}
-			set {
-				if(IsEquipment) {
+			set
+			{
+				if(IsEquipment)
+				{
 					if(orderEquipment.OrderItem != null)
 						orderEquipment.OrderItem.Discount = value;
-				} else
+				}
+				else
 					orderItem.Discount = value;
 			}
 		}
 
-		public decimal DiscountMoney {
-			get {
+		public decimal DiscountMoney
+		{
+			get
+			{
 				if(IsEquipment)
 					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountMoney : 0m;
 				return orderItem.DiscountMoney;
 			}
 		}
 
-		public DiscountReason DiscountReason {
+		public DiscountReason DiscountReason
+		{
 			get => IsEquipment ? orderEquipment.OrderItem?.DiscountReason : orderItem.DiscountReason;
-			set {
-				if(IsEquipment) {
+			set
+			{
+				if(IsEquipment)
+				{
 					if(orderEquipment.OrderItem != null)
 						orderEquipment.OrderItem.DiscountReason = value;
-				} else
+				}
+				else
 					orderItem.DiscountReason = value;
 			}
 		}

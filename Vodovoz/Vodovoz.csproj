@@ -848,10 +848,6 @@
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CommentsView.cs" />
-    <Compile Include="ViewWidgets\CommentsView.cs" />
-    <Compile Include="ViewWidgets\CommentsTemplateView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CommentsTemplateView.cs" />
     <Compile Include="Dialogs\NuanceDlg.cs" />
     <Compile Include="Dialogs\CommentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CommentDlg.cs" />
@@ -962,8 +958,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
     <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
-    <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
     <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />

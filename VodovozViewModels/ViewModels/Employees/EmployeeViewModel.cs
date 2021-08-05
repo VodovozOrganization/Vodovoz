@@ -6,6 +6,7 @@ using System.Text;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Permissions;
@@ -669,6 +670,19 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			_logger.Info("Ok");
 			return true;
+		}
+
+		public override bool CompareHashName(string hashName)
+		{
+			if(Entity == null || UoWGeneric == null || UoWGeneric.IsNew) {
+				return false;
+			}
+			return GenerateHashName(Entity.Id) == hashName;
+		}
+		
+		private string GenerateHashName(int id)
+		{
+			return DomainHelper.GenerateDialogHashName(typeof(Employee), id);
 		}
 		
 		public override void Close(bool askSave, CloseSource source)

@@ -7,5 +7,6 @@ namespace Vodovoz.EntityRepositories.SmsNotifications
 	public interface ISmsNotificationRepository
 	{
 		IEnumerable<NewClientSmsNotification> GetUnsendedNewClientSmsNotifications(IUnitOfWork uow);
+		IEnumerable<UndeliveryNotApprovedSmsNotification> GetUnsendedUndeliveryNotApprovedSmsNotifications(IUnitOfWork uow);
 	}
 }
