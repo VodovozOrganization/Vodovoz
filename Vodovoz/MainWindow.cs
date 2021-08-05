@@ -124,6 +124,7 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -1439,9 +1440,11 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnOnLineActionActivated(object sender, EventArgs e)
     {
+	    var paymentsRepository = new PaymentsRepository();
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport())
+            () => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport(paymentsRepository))
         );
     }
 

@@ -668,7 +668,6 @@
     <Compile Include="Repositories\Sale\DistrictRuleRepository.cs" />
     <Compile Include="Domain\Payments\PaymentByCardOnline.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentByCardOnlineMap.cs" />
-    <Compile Include="Repositories\Payments\PaymentsRepository.cs" />
     <Compile Include="Domain\Employees\EmployeeDocument.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeDocumentMap.cs" />
     <Compile Include="Domain\Employees\EmployeeContract.cs" />
@@ -1042,7 +1041,6 @@
     <Folder Include="Tools\Orders\" />
     <Folder Include="Domain\Payments\" />
     <Folder Include="HibernateMapping\Payments\" />
-    <Folder Include="Repositories\Payments\" />
     <Folder Include="Domain\Permissions\" />
     <Folder Include="HibernateMapping\Permissions\" />
     <Folder Include="Repositories\Permissions\" />

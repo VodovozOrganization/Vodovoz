@@ -45,6 +45,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Chats;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
@@ -580,6 +581,7 @@ public partial class MainWindow : Window
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
 		var filter = new PaymentsJournalFilterViewModel();
+		var paymentsRepository = new PaymentsRepository();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
 			filter,
@@ -588,7 +590,8 @@ public partial class MainWindow : Window
 			NavigationManagerProvider.NavigationManager,
 			OrderSingletonRepository.GetInstance(),
 			new OrganizationParametersProvider(SingletonParametersProvider.Instance),
-			new BaseParametersProvider()
+			new BaseParametersProvider(),
+			paymentsRepository
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);

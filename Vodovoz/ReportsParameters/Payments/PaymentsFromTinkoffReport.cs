@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using Vodovoz.Repositories.Payments;
 using QS.Dialog.GtkUI;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
 	public partial class PaymentsFromTinkoffReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public PaymentsFromTinkoffReport()
+		private readonly IPaymentsRepository _paymentsRepository;
+		
+		public PaymentsFromTinkoffReport(IPaymentsRepository paymentsRepository)
 		{
-			this.Build();
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
@@ -28,7 +32,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
             dateperiodpicker.PeriodChangedByUser += OnCustomPeriodChanged;
 			ySCmbShop.SetRenderTextFunc<string>(o => string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
-			ySCmbShop.ItemsList = PaymentsRepository.GetAllShopsFromTinkoff(UoW);
+			ySCmbShop.ItemsList =_paymentsRepository.GetAllShopsFromTinkoff(UoW);
 		}
 
 		void SetControlsAccessibility()

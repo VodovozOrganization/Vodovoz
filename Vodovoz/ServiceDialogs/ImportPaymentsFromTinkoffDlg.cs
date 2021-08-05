@@ -12,18 +12,19 @@ using QS.DomainModel.UoW;
 using QS.Widgets;
 using QSProjectsLib;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Repositories.Payments;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.ServiceDialogs
 {
 	//FIXME Переименовать диалог при переписывании на MVVM.
 	public partial class ImportPaymentsFromTinkoffDlg : TdiTabBase
 	{
-		PaymentsFromTinkoffParser tinkoffParser;
-		PaymentsFromYookassaParser yookassaParser;
-		private MenuItem readTinkoff;
-		private MenuItem readYookassa;
-        private Widget readFileButton;
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
+		private PaymentsFromTinkoffParser _tinkoffParser;
+		private PaymentsFromYookassaParser _yookassaParser;
+		private MenuItem _readTinkoff;
+		private MenuItem _readYookassa;
+        private Widget _readFileButton;
 
         GenericObservableList<PaymentByCardOnline> paymentsByCard;
 		List<string> errorList = new List<string>();
@@ -89,24 +90,24 @@ namespace Vodovoz.ServiceDialogs
 			MenuButton menuButton = new MenuButton {Label = "Прочитать данные из файла"};
 			Menu childActionButtons = new Menu();
 			
-			readTinkoff = new MenuItem("Прочитать выгрузку Тинькова");
-			readTinkoff.Activated += (sender, args) => ReadTinkoffPayments();
-			readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+			_readTinkoff = new MenuItem("Прочитать выгрузку Тинькова");
+			_readTinkoff.Activated += (sender, args) => ReadTinkoffPayments();
+			_readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
 			
-			readYookassa = new MenuItem("Прочитать выгрузку Юкассы");
-			readYookassa.Activated += (sender, args) => ReadYookassaPayments();
-			readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+			_readYookassa = new MenuItem("Прочитать выгрузку Юкассы");
+			_readYookassa.Activated += (sender, args) => ReadYookassaPayments();
+			_readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
 
-			childActionButtons.Add(readTinkoff);
-			childActionButtons.Add(readYookassa);
+			childActionButtons.Add(_readTinkoff);
+			childActionButtons.Add(_readYookassa);
 
 			childActionButtons.ShowAll();
 			menuButton.Menu = childActionButtons;
-			readFileButton = menuButton;
-            readFileButton.ShowAll();
+			_readFileButton = menuButton;
+            _readFileButton.ShowAll();
 
-			hboxButtons.Add(readFileButton);
-			Box.BoxChild readFileButtonBox = (Box.BoxChild)hboxButtons[readFileButton];
+			hboxButtons.Add(_readFileButton);
+			Box.BoxChild readFileButtonBox = (Box.BoxChild)hboxButtons[_readFileButton];
 			readFileButtonBox.Position = 0;
 			readFileButtonBox.Expand = false;
 			readFileButtonBox.Fill = false;
@@ -121,9 +122,12 @@ namespace Vodovoz.ServiceDialogs
 		bool IsPaymentUploadedAlready(PaymentByCardOnline payment)
 		{
 			if(otherPaymentsFromDB == null || !otherPaymentsFromDB.Any())
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					otherPaymentsFromDB = PaymentsRepository.GetPaymentsByTwoMonths(uow, payment.DateAndTime);
+			{
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					otherPaymentsFromDB = _paymentsRepository.GetPaymentsByTwoMonths(uow, payment.DateAndTime);
 				}
+			}
 
 			return otherPaymentsFromDB.Any(
 				x =>
@@ -134,7 +138,7 @@ namespace Vodovoz.ServiceDialogs
 
 		void SetControlsAccessibility(bool enabled = false)
 		{
-			btnUpload.Sensitive = readFileButton.Sensitive = enabled;
+			btnUpload.Sensitive = _readFileButton.Sensitive = enabled;
 			chkAll.Sensitive = enabled;
 		}
 
@@ -148,9 +152,9 @@ namespace Vodovoz.ServiceDialogs
 				return;
 			}
 			
-			tinkoffParser = new PaymentsFromTinkoffParser(fChooser.Filename);
-			tinkoffParser.Parse();
-			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(tinkoffParser.PaymentsFromTinkoff);
+			_tinkoffParser = new PaymentsFromTinkoffParser(fChooser.Filename);
+			_tinkoffParser.Parse();
+			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_tinkoffParser.PaymentsFromTinkoff);
 			ShowParsedPayments();
 		}
 
@@ -164,9 +168,9 @@ namespace Vodovoz.ServiceDialogs
 				return;
 			}
 
-			yookassaParser = new PaymentsFromYookassaParser(fChooser.Filename);
-			yookassaParser.Parse();
-			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(yookassaParser.PaymentsFromYookassa);
+			_yookassaParser = new PaymentsFromYookassaParser(fChooser.Filename);
+			_yookassaParser.Parse();
+			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_yookassaParser.PaymentsFromYookassa);
 			ShowParsedPayments();
 		}
 		
@@ -226,9 +230,9 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnFilechooserSelectionChanged(object sender, EventArgs e)
 		{
-            readFileButton.Sensitive = !string.IsNullOrWhiteSpace(fChooser.Filename);
-			readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
-			readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+            _readFileButton.Sensitive = !string.IsNullOrWhiteSpace(fChooser.Filename);
+			_readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+			_readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
 
 			btnUpload.Sensitive = false;
 			UpdateDescription();
@@ -327,7 +331,7 @@ namespace Vodovoz.ServiceDialogs
 				errorList.Clear();
 			}
 			paymentsByCard.Clear();
-            readFileButton.Sensitive = true;
+            _readFileButton.Sensitive = true;
 		}
 
 		protected void OnBtnCancelClicked(object sender, EventArgs e)
