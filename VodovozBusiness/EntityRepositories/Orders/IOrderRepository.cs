@@ -74,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="UoW">IUnitOfWork</param>
 		/// <param name="deliveryPoint">Точка доставки.</param>
 		/// <param name="count">Требуемое количество последних заказов.</param>
-		IList<Domain.Orders.Order> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null);
+		IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory UoW, DeliveryPoint deliveryPoint, int? count = null);
 
 		/// <summary>
 		/// Список последних заказов для контрагента .

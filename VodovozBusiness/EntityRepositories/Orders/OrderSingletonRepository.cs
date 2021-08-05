@@ -430,11 +430,12 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .List().FirstOrDefault();
 		}
 		
-		public IList<Domain.Orders.Order> GetSameOrderOutsideTransaction(IUnitOfWorkFactory uowFactory, DateTime date, DeliveryPoint deliveryPoint)
+		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uowFactory, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var uow = uowFactory.CreateWithoutRoot();
 			
-			var notSupportedStatuses = new OrderStatus[] {
+			var notSupportedStatuses = new OrderStatus[] 
+			{
 				OrderStatus.NewOrder,
 				OrderStatus.Canceled,
 				OrderStatus.NotDelivered
