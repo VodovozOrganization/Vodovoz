@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace DriverAPI.Controllers
 {
@@ -15,18 +16,21 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class OrdersController : ControllerBase
 	{
-		private readonly IEmployeeModel employeeData;
-		private readonly UserManager<IdentityUser> userManager;
-		private readonly IOrderModel aPIOrderData;
+		private readonly ILogger<OrdersController> _logger;
+		private readonly IEmployeeModel _employeeData;
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly IOrderModel _aPIOrderData;
 
 		public OrdersController(
+			ILogger<OrdersController> logger,
 			IEmployeeModel employeeData,
 			UserManager<IdentityUser> userManager,
 			IOrderModel aPIOrderData)
 		{
-			this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
-			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 		}
 
 		/// <summary>
@@ -38,7 +42,8 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
-			return aPIOrderData.Get(orderId);
+			_logger.LogInformation($"Получение заказа: { orderId }");
+			return _aPIOrderData.Get(orderId);
 		}
 
 		// POST: CompleteOrderDelivery / CompleteRouteListAddress
@@ -46,10 +51,12 @@ namespace DriverAPI.Controllers
 		[Route("/api/CompleteOrderDelivery")]
 		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
-			var user = userManager.GetUserAsync(User).Result;
-			var driver = employeeData.GetByAPILogin(user.UserName);
+			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId }");
 
-			aPIOrderData.CompleteOrderDelivery(
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			_aPIOrderData.CompleteOrderDelivery(
 				driver,
 				completedOrderRequestModel.OrderId,
 				completedOrderRequestModel.BottlesReturnCount,
@@ -71,11 +78,15 @@ namespace DriverAPI.Controllers
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			IEnumerable<PaymentDtoType> availableTypesToChange = aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
+			_logger.LogInformation($"Смена типа оплаты заказа: { orderId }");
+
+			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
 			if (!availableTypesToChange.Contains(newPaymentType))
 			{
-				throw new ArgumentOutOfRangeException($"Попытка сменить тип оплаты у заказа {orderId} на недоступный для этого заказа тип оплаты {newPaymentType}");
+				var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на недоступный для этого заказа тип оплаты { newPaymentType }";
+				_logger.LogWarning(errorMessage);
+				throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
 			}
 
 			Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
@@ -90,10 +101,12 @@ namespace DriverAPI.Controllers
 			}
 			else
 			{
-				throw new ArgumentOutOfRangeException($"Попытка сменить тип оплаты у заказа {orderId} на не поддерживаемый для смены тип оплаты {newPaymentType}");
+				var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на не поддерживаемый для смены тип оплаты { newPaymentType }";
+				_logger.LogWarning(errorMessage);
+				throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
 			}
 
-			aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType);
+			_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType);
 		}
 	}
 }
