@@ -74,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="UoW">IUnitOfWork</param>
 		/// <param name="deliveryPoint">Точка доставки.</param>
 		/// <param name="count">Требуемое количество последних заказов.</param>
-		IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory UoW, DeliveryPoint deliveryPoint, int? count = null);
+		IList<Domain.Orders.Order> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null);
 
 		/// <summary>
 		/// Список последних заказов для контрагента .
@@ -100,7 +100,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetOnClosingOrderStatuses();
 
 		Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
-		IList<Domain.Orders.Order> GetSameOrderOutsideTransaction(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
+		IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
         Domain.Orders.Order GetOrder(IUnitOfWork unitOfWork, int orderId);
         IList<Domain.Orders.Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 

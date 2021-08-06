@@ -1002,8 +1002,7 @@ namespace Vodovoz.Domain.Orders
 							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"], DeliveryDate.Value,
 								DeliveryPoint)
 							.Where(o => o.Id != Id
-							   && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-							   && !o.IsService).ToList();
+							            && !o.IsService).ToList();
 
 						if(!hasMaster
 						   && DeliveryDate.HasValue
