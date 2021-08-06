@@ -1643,10 +1643,7 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
     <Compile Include="Views\Logistic\SectorsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SectorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SectorJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

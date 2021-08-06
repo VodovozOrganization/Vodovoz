@@ -22,6 +22,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -306,6 +307,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+				new SectorsRepository(),
 				EntityUoWBuilder.ForOpen(id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			TabParent.AddSlaveTab(this, dpViewModel);
 		}
