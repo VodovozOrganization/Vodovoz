@@ -43,6 +43,12 @@ namespace Vodovoz.Domain.Sectors
 			set => SetField(ref _deliveryScheduleRestriction, value);
 		}
 
+		public SectorWeekDaySchedule()
+		{
+			DeliverySchedule = new DeliverySchedule();
+			DeliveryScheduleRestriction = new DeliveryScheduleRestriction();
+		}
+
 		public object Clone()
 		{
 			#warning Пересмотреть логику клонирования

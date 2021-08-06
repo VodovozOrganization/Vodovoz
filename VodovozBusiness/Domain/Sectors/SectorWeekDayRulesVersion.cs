@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
@@ -51,21 +52,34 @@ namespace Vodovoz.Domain.Sectors
 			set => SetField(ref _sector, value);
 		}
 
-		private List<SectorWeekDaySchedule> _sectorSchedules;
+		private List<SectorWeekDaySchedule> _sectorSchedules = new List<SectorWeekDaySchedule>();
 
-		public List<SectorWeekDaySchedule> SectorSchedules
+		public virtual List<SectorWeekDaySchedule> SectorSchedules
 		{
 			get => _sectorSchedules;
 			set => SetField(ref _sectorSchedules, value);
 		}
 		
-		private List<SectorWeekDayDeliveryRule> _sectorDeliveryRules;
+		private List<SectorWeekDayDeliveryRule> _sectorDeliveryRules = new List<SectorWeekDayDeliveryRule>();
 
-		public List<SectorWeekDayDeliveryRule> SectorDeliveryRules
+		public virtual List<SectorWeekDayDeliveryRule> SectorDeliveryRules
 		{
 			get => _sectorDeliveryRules;
 			set => SetField(ref _sectorDeliveryRules, value);
 		}
+
+		private GenericObservableList<SectorWeekDaySchedule> _observableSectorSchedules;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SectorWeekDaySchedule> ObservableSectorSchedules =>
+			_observableSectorSchedules ?? (_observableSectorSchedules =
+				new GenericObservableList<SectorWeekDaySchedule>(SectorSchedules));
+		
+		
+		private GenericObservableList<SectorWeekDayDeliveryRule> _observableSectorDeliveryRules;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SectorWeekDayDeliveryRule> ObservableSectorDeliveryRules =>
+			_observableSectorDeliveryRules ?? (_observableSectorDeliveryRules =
+				new GenericObservableList<SectorWeekDayDeliveryRule>(SectorDeliveryRules));
 		
 		private SectorsSetStatus _status;
 		public virtual SectorsSetStatus Status

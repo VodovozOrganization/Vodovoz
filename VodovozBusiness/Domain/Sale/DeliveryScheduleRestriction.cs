@@ -35,6 +35,11 @@ namespace Vodovoz.Domain.Sale
             set => SetField(ref acceptBefore, value, () => AcceptBefore);
         }
 
+        public DeliveryScheduleRestriction()
+        {
+	        DeliverySchedule = new DeliverySchedule();
+	        AcceptBefore = new AcceptBefore();
+        }
         public virtual string AcceptBeforeTitle => AcceptBefore?.Name ?? "";
         public virtual object Clone()
         {

@@ -36,7 +36,7 @@ namespace Vodovoz.Domain.Sectors
 			set => SetField(ref dateCreated, value);
 		}
 
-		private List<SectorVersion> _sectorVersions;
+		private List<SectorVersion> _sectorVersions = new List<SectorVersion>();
 
 		public virtual List<SectorVersion> SectorVersions
 		{
@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.Sectors
 		public virtual GenericObservableList<SectorVersion> ObservableSectorVersions => _observableSectorVersions ??
 		                                                                               (_observableSectorVersions = new GenericObservableList<SectorVersion>(SectorVersions));
 		
-		private List<SectorDeliveryRuleVersion> _sectorDeliveryRuleVersions;
+		private List<SectorDeliveryRuleVersion> _sectorDeliveryRuleVersions = new List<SectorDeliveryRuleVersion>();
 
 		public virtual List<SectorDeliveryRuleVersion> SectorDeliveryRuleVersions
 		{
@@ -63,7 +63,7 @@ namespace Vodovoz.Domain.Sectors
 			_observableSectorDeliveryRuleVersions ??
 			(_observableSectorDeliveryRuleVersions = new GenericObservableList<SectorDeliveryRuleVersion>(SectorDeliveryRuleVersions));
 		
-		private List<SectorWeekDayRulesVersion> _sectorWeekDayRulesVersions;
+		private List<SectorWeekDayRulesVersion> _sectorWeekDayRulesVersions = new List<SectorWeekDayRulesVersion>();
 
 		public virtual List<SectorWeekDayRulesVersion> SectorWeekDayRulesVersions
 		{
@@ -77,7 +77,7 @@ namespace Vodovoz.Domain.Sectors
 			_observableSectorWeekDayRulesVersions ??
 			(_observableSectorWeekDayRulesVersions = new GenericObservableList<SectorWeekDayRulesVersion>(SectorWeekDayRulesVersions));
 		
-		private List<DeliveryPointSectorVersion> _deliveryPointSectorVersions;
+		private List<DeliveryPointSectorVersion> _deliveryPointSectorVersions = new List<DeliveryPointSectorVersion>();
 
 		public virtual List<DeliveryPointSectorVersion> DeliveryPointSectorVersions
 		{
