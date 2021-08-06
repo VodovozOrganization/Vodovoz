@@ -4,11 +4,13 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -16,7 +18,9 @@ namespace Vodovoz
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		
 		public CarLoadDocumentView()
 		{
@@ -154,7 +158,7 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, _routeListRepository, new SubdivisionRepository(), true);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, _routeListRepository, _subdivisionRepository, true);
 			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, _routeListRepository);
 
 			if(DocumentUoW.Root.Warehouse != null)

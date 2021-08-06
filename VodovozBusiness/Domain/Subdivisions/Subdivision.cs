@@ -143,11 +143,11 @@ namespace Vodovoz
 			return false;
 		}
 
-		public virtual string GetWarehousesNames(IUnitOfWork uow)
+		public virtual string GetWarehousesNames(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository)
 		{
 			string result = string.Empty;
 			if(Id != 0) {
-				var whs = new SubdivisionRepository().GetWarehouses(uow, this).Select(w => w.Name);
+				var whs = subdivisionRepository.GetWarehouses(uow, this).Select(w => w.Name);
 				result = string.Join(", ", whs);
 			}
 			return result;

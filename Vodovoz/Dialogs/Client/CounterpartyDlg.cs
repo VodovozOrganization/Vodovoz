@@ -118,7 +118,7 @@ namespace Vodovoz
 	        {
 		        if (subdivisionRepository is null)
 		        {
-			        subdivisionRepository = new SubdivisionRepository();
+			        subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		        }
 		        return subdivisionRepository;
 	        }
@@ -157,7 +157,7 @@ namespace Vodovoz
         public virtual INomenclatureRepository NomenclatureRepository {
             get {
                 if(nomenclatureRepository == null) {
-                    nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
+                    nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
                 };
                 return nomenclatureRepository;
             }

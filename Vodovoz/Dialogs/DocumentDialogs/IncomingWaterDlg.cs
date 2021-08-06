@@ -99,7 +99,8 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
-			var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
+			var nomenclatureRepository = 
+				new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(

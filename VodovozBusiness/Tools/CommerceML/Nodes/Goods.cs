@@ -10,7 +10,8 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 {
 	public class Goods : IXmlConvertable
 	{
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public IList<Nomenclature> Nomenclatures { get; private set; }
 
 		public Goods(Export export)

@@ -8,13 +8,14 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Permissions
 {
 	public static class EntitySubdivisionForUserPermissionValidator
 	{
 		private static readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private static readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private static readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		private static readonly IUserRepository _userRepository = new UserRepository();
 		private static readonly IPermissionRepository _permissionRepository = new PermissionRepository();
 		

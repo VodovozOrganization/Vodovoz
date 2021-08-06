@@ -34,7 +34,8 @@ namespace Vodovoz.ViewModel
 {
 	public class OrdersVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		public OrdersFilter Filter {
 			get => RepresentationFilter as OrdersFilter;

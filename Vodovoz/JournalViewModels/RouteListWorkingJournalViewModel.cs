@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
@@ -348,7 +349,7 @@ namespace Vodovoz.JournalViewModels
                                 fuelRepository,
                                 NavigationManagerProvider.NavigationManager,
                                 new TrackRepository(),
-                                new CategoryRepository()
+                                new CategoryRepository(new ParametersProvider())
                             )
                         );
                     }

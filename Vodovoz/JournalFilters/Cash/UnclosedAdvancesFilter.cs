@@ -4,6 +4,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -13,7 +14,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			repEntryAccountable.RepresentationModel = new ViewModel.EmployeesVM();
-			yentryExpense.ItemsQuery = new CategoryRepository().ExpenseCategoriesQuery();
+			yentryExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
 		}
 
 		public UnclosedAdvancesFilter(IUnitOfWork uow) : this()

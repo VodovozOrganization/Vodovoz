@@ -43,7 +43,7 @@ namespace Vodovoz.TempAdapters
 		{
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory =

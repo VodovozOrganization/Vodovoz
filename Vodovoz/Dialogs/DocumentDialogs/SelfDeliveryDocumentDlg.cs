@@ -38,6 +38,10 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
+
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -105,7 +109,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()));
+			Entity.InitializeDefaultValues(UoW, _nomenclatureRepository);
 			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
@@ -130,7 +134,7 @@ namespace Vodovoz
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW, _stockRepository);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
@@ -263,15 +267,15 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
-			Entity.UpdateReceptions(UoW, GoodsReceptionList, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
+			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
 			var callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						new OrderRepository(),
 						_employeeRepository,
-						new BaseParametersProvider(),
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
@@ -306,7 +310,7 @@ namespace Vodovoz
 			UpdateOrderInfo();
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW, _stockRepository);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			UpdateAmounts();
 		}
 
@@ -314,7 +318,7 @@ namespace Vodovoz
 		{
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW, _stockRepository);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			UpdateAmounts();
 			UpdateWidgets();
 			FillTrees();
@@ -336,7 +340,7 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(new NomenclatureRepository(new NomenclatureParametersProvider()).NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
+			OrmReference refWin = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
 				FilterClass = null,
 				Mode = OrmReferenceMode.Select
 			};

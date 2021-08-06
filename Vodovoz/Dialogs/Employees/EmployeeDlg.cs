@@ -57,10 +57,11 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
+				new OrganizationParametersProvider(new ParametersProvider()));
 
 		private Employee _employeeForCurrentUser;
 		private ValidationContext _validationContext;
@@ -504,7 +505,7 @@ namespace Vodovoz
 				UoW,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
+				_baseParametersProvider,
 				_employeeRepository
 			);
 
@@ -529,7 +530,7 @@ namespace Vodovoz
 				UoW,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
+				_baseParametersProvider,
 				_employeeRepository
 			);
 
@@ -567,7 +568,7 @@ namespace Vodovoz
 				UoW,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
+				_baseParametersProvider,
 				_employeeRepository
 			);
 
@@ -694,7 +695,7 @@ namespace Vodovoz
 				workScheduleSet,
 				UoW,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
+				_baseParametersProvider,
 				_employeeRepository
 			);
 			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
@@ -711,7 +712,7 @@ namespace Vodovoz
 				newDriverWorkScheduleSet,
 				UoW,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
+				_baseParametersProvider,
 				_employeeRepository
 			);
 			driverWorkScheduleSetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -854,7 +855,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(_wageCalculationRepository, new BaseParametersProvider(), ServicesConfig.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _baseParametersProvider, ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
 			UoWGeneric.Save(Entity);

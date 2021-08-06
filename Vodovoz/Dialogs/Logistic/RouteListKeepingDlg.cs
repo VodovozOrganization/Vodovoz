@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
@@ -46,7 +47,8 @@ namespace Vodovoz
 		private bool logisticanEditing = true;
 		private bool isUserLogist = true;
 		private Employee previousForwarder = null;
-		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+		WageParameterService wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -92,7 +94,7 @@ namespace Vodovoz
 						new CallTaskRepository(),
 						new OrderRepository(),
 						_employeeRepository,
-						new BaseParametersProvider(),
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}

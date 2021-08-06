@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -24,8 +25,9 @@ namespace Vodovoz.Dialogs.Logistic
 	public partial class RouteListControlDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
@@ -39,7 +41,7 @@ namespace Vodovoz.Dialogs.Logistic
 						new CallTaskRepository(),
 						new OrderRepository(),
 						new EmployeeRepository(),
-						new BaseParametersProvider(),
+						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}

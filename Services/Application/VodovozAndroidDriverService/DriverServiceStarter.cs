@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 
 namespace VodovozAndroidDriverService
 {
@@ -61,10 +62,11 @@ namespace VodovozAndroidDriverService
 				string.Format("http://{0}:{1}/SmsPaymentService", smsPaymentServiceHostName, smsPaymentServicePort)
 			);
 
-			var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+			var wageParameterService = new WageParameterService(
+				new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 			
 			var employeeRepository = new EmployeeRepository();
-			var routeListRepository = new RouteListRepository(new StockRepository());
+			var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 			var routeListItemRepository = new RouteListItemRepository();
 			var trackRepository = new TrackRepository();
 			var orderRepository = new OrderRepository();

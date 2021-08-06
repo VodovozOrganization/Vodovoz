@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureOfGoodsWithoutEmptyBottlesQuery();
 		QueryOver<Nomenclature> NomenclatureWaterOnlyQuery();
 		QueryOver<Nomenclature> NomenclatureEquipOnlyQuery();
-		Nomenclature GetDefaultBottle(IUnitOfWork uow);
+		Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow);
 
 		/// <summary>
 		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.

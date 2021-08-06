@@ -25,6 +25,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -45,12 +46,12 @@ namespace Vodovoz
 				new CallTaskRepository(),
 				new OrderRepository(),
 				new EmployeeRepository(),
-				new BaseParametersProvider(),
+				new BaseParametersProvider(new ParametersProvider()),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance));
 
 		private readonly WageParameterService wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
 		#endregion
 

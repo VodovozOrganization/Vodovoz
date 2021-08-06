@@ -191,7 +191,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}

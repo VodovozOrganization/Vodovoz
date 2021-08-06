@@ -14,7 +14,8 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private RegradingOfGoodsTemplateItem _newRow;
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		public RegradingOfGoodsTemplateItemsView()
 		{

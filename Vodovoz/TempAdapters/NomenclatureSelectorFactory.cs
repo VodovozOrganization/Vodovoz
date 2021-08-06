@@ -43,7 +43,7 @@ namespace Vodovoz.TempAdapters
 			nomenclatureFilter.RestrictArchive = true;
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
 			var counterpartySelectorFactory =
@@ -77,7 +77,7 @@ namespace Vodovoz.TempAdapters
 			nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
 			nomenclatureFilter.RestrictArchive = false;
 			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
 			var counterpartySelectorFactory =
@@ -120,7 +120,7 @@ namespace Vodovoz.TempAdapters
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
 					ServicesConfig.CommonServices);
-			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
 			var nomenclatureSelectorFactory =
@@ -153,7 +153,7 @@ namespace Vodovoz.TempAdapters
 						RestrictCategory = NomenclatureCategory.additional, RestrictArchive = false
 					};
 
-					var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+					var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 					var userRepository = new UserRepository();
 
 					var counterpartySelectorFactory =

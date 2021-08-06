@@ -118,7 +118,7 @@ namespace VodovozSmsPaymentService
 					paymentSender, 
 					driverPaymentService,
 					smsPaymentStatusNotificationReciever,
-					new OrderParametersProvider(SingletonParametersProvider.Instance),
+					new OrderParametersProvider(new ParametersProvider()),
 					smsPaymentFileCache,
 					new SmsPaymentDTOFactory(new OrderOrganizationProviderFactory().CreateOrderOrganizationProvider())
 				);

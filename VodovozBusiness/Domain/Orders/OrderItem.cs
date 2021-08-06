@@ -22,7 +22,8 @@ namespace Vodovoz.Domain.Orders
 	{
 		private int? paidDeliveryNomenclatureId;
 		private int PaidDeliveryNomenclatureId => 
-			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId).Value;
+			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId =
+				new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId).Value;
 		
 		#region Свойства
 

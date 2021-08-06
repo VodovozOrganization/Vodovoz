@@ -11,6 +11,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.ReportsParameters
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(false);
-			IPotentialFreePromosetsReportDefaultsProvider defaultsValuesProvider = new BaseParametersProvider();
+			IPotentialFreePromosetsReportDefaultsProvider defaultsValuesProvider = new BaseParametersProvider(new ParametersProvider());
 
 			ytreeview1.ColumnsConfig = FluentColumnsConfig<PromosetReportNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(x => x.Active)

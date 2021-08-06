@@ -11,7 +11,6 @@ namespace Vodovoz.Parameters
 	public class ParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();
-		public static IParametersProvider Instance { get; private set; }
 
 		private readonly Dictionary<string, BaseParameter> parameters = new Dictionary<string, BaseParameter>();
 

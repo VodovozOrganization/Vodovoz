@@ -103,10 +103,11 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
-			SingletonParametersProvider.Instance.RefreshParameters();
+			//TODO подумать над этой частью
+			//SingletonParametersProvider.Instance.RefreshParameters();
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
-			var baseParameters = new BaseParametersProvider();
+			var baseParameters = new BaseParametersProvider(new ParametersProvider());
 			SingletonErrorReporter.Initialize(
 				ReportWorker.GetReportService(),
 				applicationInfo,
@@ -266,20 +267,23 @@ namespace Vodovoz
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			//Настройка сервисов
-			if(SingletonParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("email_service_address")) {
-				if(SingletonParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("email_service_address"));
+
+			var parametersProvider = new ParametersProvider();
+			
+			if(parametersProvider.ContainsParameter("email_send_enabled_database") && parametersProvider.ContainsParameter("email_service_address")) {
+				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName) {
+					EmailServiceSetting.Init(parametersProvider.GetParameterValue("email_service_address"));
 				}
 			}
-			if(SingletonParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("sms_service_address")) {
-				if(SingletonParametersProvider.Instance.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
-					InstantSmsServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("sms_service_address"));
+			if(parametersProvider.ContainsParameter("instant_sms_enabled_database") && parametersProvider.ContainsParameter("sms_service_address")) {
+				if(parametersProvider.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
+					InstantSmsServiceSetting.Init(parametersProvider.GetParameterValue("sms_service_address"));
 				}
 			}
 			
-			if(SingletonParametersProvider.Instance.ContainsParameter("sms_payment_send_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("sms_payment_send_service_address")) {
-				if(SingletonParametersProvider.Instance.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
-					SmsPaymentServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("sms_payment_send_service_address"));
+			if(parametersProvider.ContainsParameter("sms_payment_send_enabled_database") && parametersProvider.ContainsParameter("sms_payment_send_service_address")) {
+				if(parametersProvider.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
+					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));
 				}
 			}
 

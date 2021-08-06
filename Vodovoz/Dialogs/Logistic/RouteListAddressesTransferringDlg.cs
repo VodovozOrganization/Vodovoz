@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using GC = System.GC;
@@ -38,7 +39,7 @@ namespace Vodovoz
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IEmployeeService _employeeService;

@@ -33,7 +33,9 @@ namespace Vodovoz
 {
 	public partial class CashExpenseDlg : QS.Dialog.Gtk.EntityDialogBase<Expense>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static IParametersProvider _parametersProvider = new ParametersProvider();
+		
 		private decimal currentEmployeeWage = default(decimal);
 		private bool canEdit = true;
 		private readonly bool canCreate;
@@ -42,13 +44,13 @@ namespace Vodovoz
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IWagesMovementRepository _wagesMovementRepository = new WagesMovementRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
+					new OrganizationParametersProvider(_parametersProvider)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				new OrderRepository());
 		
@@ -58,7 +60,7 @@ namespace Vodovoz
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor = 
 			new FuelCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)));
+					new OrganizationParametersProvider(_parametersProvider)));
 
 		public CashExpenseDlg (IPermissionService permissionService)
 		{

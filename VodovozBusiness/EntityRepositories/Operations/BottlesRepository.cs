@@ -101,7 +101,7 @@ namespace Vodovoz.EntityRepositories.Operations
 			if(routeListItems.Any())
 				return routeListItems.Sum(q => q.BottlesReturned);
 
-			var defBottle = nomenclatureRepository.GetDefaultBottle(uow);
+			var defBottle = nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
 
 			var query = uow.Session.QueryOver<SelfDeliveryDocumentReturned>()

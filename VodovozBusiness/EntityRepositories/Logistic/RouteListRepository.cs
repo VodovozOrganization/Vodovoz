@@ -27,10 +27,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public class RouteListRepository : IRouteListRepository
 	{
 		private readonly IStockRepository _stockRepository;
+		private readonly BaseParametersProvider _baseParametersProvider;
 		
-		public RouteListRepository(IStockRepository stockRepository)
+		public RouteListRepository(IStockRepository stockRepository, BaseParametersProvider baseParametersProvider)
 		{
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 		}
 		
 		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date)
@@ -337,7 +339,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null) {
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 			
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
@@ -372,7 +374,7 @@ namespace Vodovoz.EntityRepositories.Logistic
         {
             CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
-            var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+            var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
             var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
             var anyAddressesRequireTermanal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
@@ -392,7 +394,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal) && transferedCount == 0;
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
@@ -537,8 +539,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			{
 				throw new ArgumentNullException(nameof(routeList));
 			}
-
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
 
 			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
 				.Where(dttd => dttd.RouteListTo.Id == routeList.Id

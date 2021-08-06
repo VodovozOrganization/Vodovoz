@@ -96,6 +96,8 @@ namespace Vodovoz
 		IFixedPricesHolderProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -132,7 +134,7 @@ namespace Vodovoz
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
 				if (nomenclatureRepository == null) {
-					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
 				}
 				return nomenclatureRepository;
 			}
@@ -200,7 +202,7 @@ namespace Vodovoz
 						new CallTaskRepository(),
 						_orderRepository,
 						_employeeRepository,
-						new BaseParametersProvider(),
+						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -464,7 +466,7 @@ namespace Vodovoz
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			var excludedPaymentFromId = new OrderParametersProvider(SingletonParametersProvider.Instance).PaymentByCardFromSmsId;
+			var excludedPaymentFromId = new OrderParametersProvider(_parametersProvider).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
 			else
@@ -621,8 +623,7 @@ namespace Vodovoz
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) => {
-				IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
-				Entity.RecalculateStockBottles(standartDiscountsService);
+				Entity.RecalculateStockBottles(_baseParametersProvider);
 				ControlsActionBottleAccessibility();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
@@ -701,7 +702,7 @@ namespace Vodovoz
 				{
 					if(!_orderRepository.CanAddFlyerToOrder(
 						UoW,
-						new RouteListParametersProvider(SingletonParametersProvider.Instance),
+						new RouteListParametersProvider(_parametersProvider),
 						flyer.FlyerNomenclature.Id,
 						geographicGroupId))
 					{
@@ -961,7 +962,8 @@ namespace Vodovoz
 		
 		private void ConfigureSendDocumentByEmailWidget()
 		{
-			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(_emailRepository, _currentEmployee, ServicesConfig.InteractiveService);
+			SendDocumentByEmailViewModel = 
+				new SendDocumentByEmailViewModel(_emailRepository, _currentEmployee, ServicesConfig.InteractiveService, _parametersProvider);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox19.Add(sendEmailView);
 			sendEmailView.Show();
@@ -1158,7 +1160,7 @@ namespace Vodovoz
 
 		private void ProcessSmsNotification()
 		{
-			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
  			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
@@ -1201,8 +1203,9 @@ namespace Vodovoz
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
 				}
-				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
+				
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(
+					UoW, _baseParametersProvider, new RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.Closed, CallTaskWorker);
@@ -1918,7 +1921,7 @@ namespace Vodovoz
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
-				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity));
+				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity, _baseParametersProvider));
 
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
@@ -2187,7 +2190,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider(), CallTaskWorker);
+				Entity.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 				UpdateUIState();
 
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
@@ -2243,8 +2246,7 @@ namespace Vodovoz
 
 		protected void OnYEntTareActBtlFromClientChanged(object sender, EventArgs e)
 		{
-			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
-			Entity.CalculateBottlesStockDiscounts(standartDiscountsService);
+			Entity.CalculateBottlesStockDiscounts(_baseParametersProvider);
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
@@ -2783,7 +2785,7 @@ namespace Vodovoz
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
 				Recipient = new EmailContact("", emailAddressForBill.Address),
-				Sender = new EmailContact("vodovoz-spb.ru", SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+				Sender = new EmailContact("vodovoz-spb.ru", _parametersProvider.GetParameterValue("email_for_email_delivery")),
 				Order = Entity.Id,
 				OrderDocumentType = OrderDocumentType.Bill
 			};

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
@@ -8,11 +9,17 @@ namespace Vodovoz.EntityRepositories.Cash
 {
 	public class CategoryRepository : ICategoryRepository
 	{
+		private readonly IParametersProvider _parametersProvider;
 		const string defaultIncomeCategory 			 = "default_income_category";
 		const string routeListClosingIncomeCategory  = "routelist_income_category_id";
 		const string routeListClosingExpenseCategory = "routelist_expense_category_id";
 		const string fuelDocumentExpenseCategory 	 = "fuel_expense";
 		const string employeeSalaryExpenseCategory   = "employee_salary"; 		// Параметр базы для статьи расхода для авансов.
+
+		public CategoryRepository(IParametersProvider parametersProvider)
+		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+		}
 
 		public IList<IncomeCategory> IncomeCategories(IUnitOfWork uow)
 		{
@@ -52,11 +59,14 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public IncomeCategory DefaultIncomeCategory(IUnitOfWork uow)
 		{
-			if (SingletonParametersProvider.Instance.ContainsParameter(defaultIncomeCategory)) {
+			if (_parametersProvider.ContainsParameter(defaultIncomeCategory)) {
 				int id = -1;
-				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(defaultIncomeCategory));
+				id = int.Parse(_parametersProvider.GetParameterValue(defaultIncomeCategory));
 				if (id == -1)
+				{
 					return null;
+				}
+
 				return uow.Session.QueryOver<IncomeCategory> ()
 					.Where (inc => inc.Id == id)
 					.Take (1)
@@ -67,12 +77,16 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public IncomeCategory RouteListClosingIncomeCategory(IUnitOfWork uow)
 		{
-			if (SingletonParametersProvider.Instance.ContainsParameter(routeListClosingIncomeCategory))
+			if (_parametersProvider.ContainsParameter(routeListClosingIncomeCategory))
 			{
 				int id = -1;
-				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(routeListClosingIncomeCategory));
+				id = int.Parse(_parametersProvider.GetParameterValue(routeListClosingIncomeCategory));
+				
 				if (id == -1)
+				{
 					return null;
+				}
+
 				return uow.Session.QueryOver<IncomeCategory> ()
 					.Where (inc => inc.Id == id)
 					.Take (1)
@@ -83,12 +97,16 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public ExpenseCategory RouteListClosingExpenseCategory(IUnitOfWork uow)
 		{
-			if (SingletonParametersProvider.Instance.ContainsParameter(routeListClosingExpenseCategory))
+			if (_parametersProvider.ContainsParameter(routeListClosingExpenseCategory))
 			{
 				int id = -1;
-				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(routeListClosingExpenseCategory));
+				id = int.Parse(_parametersProvider.GetParameterValue(routeListClosingExpenseCategory));
+				
 				if (id == -1)
+				{
 					return null;
+				}
+
 				return uow.Session.QueryOver<ExpenseCategory> ()
 					.Where (inc => inc.Id == id)
 					.Take (1)
@@ -99,12 +117,16 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public ExpenseCategory FuelDocumentExpenseCategory(IUnitOfWork uow)
 		{
-			if(SingletonParametersProvider.Instance.ContainsParameter(fuelDocumentExpenseCategory))
+			if(_parametersProvider.ContainsParameter(fuelDocumentExpenseCategory))
 			{
 				int id = -1;
-				id = int.Parse (SingletonParametersProvider.Instance.GetParameterValue(fuelDocumentExpenseCategory));
+				id = int.Parse(_parametersProvider.GetParameterValue(fuelDocumentExpenseCategory));
+				
 				if (id == -1)
+				{
 					return null;
+				}
+
 				return uow.Session.QueryOver<ExpenseCategory> ()
 					.Where (fExp => fExp.Id == id)
 					.Take (1)
@@ -115,11 +137,15 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public ExpenseCategory EmployeeSalaryExpenseCategory(IUnitOfWork uow)
 		{
-			if(SingletonParametersProvider.Instance.ContainsParameter(employeeSalaryExpenseCategory)) {
+			if(_parametersProvider.ContainsParameter(employeeSalaryExpenseCategory)) {
 				int id = -1;
-				id = int.Parse(SingletonParametersProvider.Instance.GetParameterValue(employeeSalaryExpenseCategory));
+				id = int.Parse(_parametersProvider.GetParameterValue(employeeSalaryExpenseCategory));
+				
 				if(id == -1)
+				{
 					return null;
+				}
+
 				return uow.Session.QueryOver<ExpenseCategory>()
 					.Where(fExp => fExp.Id == id)
 					.Take(1)

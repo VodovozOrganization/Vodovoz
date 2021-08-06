@@ -38,7 +38,8 @@ namespace Vodovoz
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private INomenclatureRepository nomenclatureRepository { get; } =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private SelectableParametersReportFilter filter;
 		private InventoryDocumentItem FineEditItem;
 

@@ -54,15 +54,20 @@ namespace Vodovoz
 		#region поля
 
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IFuelRepository _fuelRepository = new FuelRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -71,9 +76,8 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		//TODO вернуться к текущему сотруднику
 		//private Employee _currentEmployee;
-		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
@@ -90,7 +94,7 @@ namespace Vodovoz
 						new CallTaskRepository(),
 						new OrderRepository(),
 						_employeeRepository,
-						new BaseParametersProvider(),
+						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -161,7 +165,7 @@ namespace Vodovoz
 
 
 			canCloseRoutelist = new PermissionRepository()
-				.HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), _employeeRepository, ServicesConfig.UserService);
+				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService);
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
@@ -252,7 +256,7 @@ namespace Vodovoz
 
 			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures(false,
-				terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+				_baseParametersProvider.GetNomenclatureIdForTerminal);
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
@@ -485,7 +489,7 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider,
+							_baseParametersProvider,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
 							_categoryRepository
@@ -505,7 +509,7 @@ namespace Vodovoz
 							Entity.Id, 
 							RouteListAddressesTransferringDlg.OpenParameter.Sender,
 							employeeNomenclatureMovementRepository,
-							terminalNomenclatureProvider,
+							_baseParametersProvider,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
 							_categoryRepository
@@ -593,7 +597,7 @@ namespace Vodovoz
 		Nomenclature DefaultBottle {
 			get {
 				if(defaultBottle == null) {
-					var db = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider()).GetDefaultBottle(UoW);
+					var db = _nomenclatureRepository.GetDefaultBottleNomenclature(UoW);
 					defaultBottle = db ?? throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
 				}
 				return defaultBottle;
@@ -1077,16 +1081,14 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = _routeListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
+			var returnedBottlesNom = int.Parse(_parametersProvider.GetParameterValue("returned_bottle_nomenclature_id"));
 			bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
-			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-			
-			var defectiveNomenclaturesIds = nomenclatureRepository
+
+			var defectiveNomenclaturesIds = _nomenclatureRepository
 				.GetNomenclatureOfDefectiveGoods(UoW)
 				.Select(n => n.Id)
 				.ToArray();
@@ -1199,7 +1201,7 @@ namespace Vodovoz
 					  UoW,
 					  Entity,
 					  ServicesConfig.CommonServices,
-					  new SubdivisionRepository(),
+					  _subdivisionRepository,
 					  _employeeRepository,
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
@@ -1215,7 +1217,7 @@ namespace Vodovoz
 				  UoW,
 				  ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
 				  ServicesConfig.CommonServices,
-				  new SubdivisionRepository(),
+				  _subdivisionRepository,
 				  _employeeRepository,
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,

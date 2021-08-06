@@ -17,7 +17,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		public IList<NomenclatureCategory> Categories { get; set; }
 

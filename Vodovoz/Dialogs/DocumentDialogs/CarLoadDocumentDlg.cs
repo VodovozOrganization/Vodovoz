@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -29,7 +30,8 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private IStockRepository _stockRepository = new StockRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 
 		private CallTaskWorker callTaskWorker;
@@ -41,7 +43,7 @@ namespace Vodovoz
 						new CallTaskRepository(),
 						new OrderRepository(),
 						_employeeRepository,
-						new BaseParametersProvider(),
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}

@@ -13,6 +13,13 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 {
 	public class SubdivisionRepository : ISubdivisionRepository
 	{
+		private readonly IParametersProvider _parametersProvider;
+
+		public SubdivisionRepository(IParametersProvider parametersProvider)
+		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+		}
+		
 		/// <summary>
 		/// Список подразделений в которых произодится работа с указанными документами
 		/// </summary>
@@ -51,9 +58,13 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		public Subdivision GetQCDepartment(IUnitOfWork uow)
 		{
 			var qcDep = "номер_отдела_ОКК";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(qcDep))
+			
+			if(!_parametersProvider.ContainsParameter(qcDep))
+			{
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
-			return uow.GetById<Subdivision>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(qcDep)));
+			}
+
+			return uow.GetById<Subdivision>(int.Parse(_parametersProvider.GetParameterValue(qcDep)));
 		}
 
 		/// <summary>

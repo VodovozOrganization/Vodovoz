@@ -34,11 +34,13 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -48,11 +50,12 @@ namespace Vodovoz
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();		
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");

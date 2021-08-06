@@ -254,7 +254,7 @@ namespace Vodovoz.Reports
 				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(SingletonParametersProvider.Instance);
+			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(new ParametersProvider());
 			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
 			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
 

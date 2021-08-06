@@ -22,7 +22,8 @@ namespace VodovozMobileService
 	public class MobileService : IMobileService
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public static string BaseUrl { get; set; }
 
 		public MobileService()

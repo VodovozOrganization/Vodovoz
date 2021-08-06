@@ -18,6 +18,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -35,7 +36,7 @@ namespace Vodovoz
 		private readonly bool canEditRectroactively;
 		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 
 		protected decimal Debt {

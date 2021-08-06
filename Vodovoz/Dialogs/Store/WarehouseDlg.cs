@@ -3,12 +3,13 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private Nomenclature selectedNomenclature;
 

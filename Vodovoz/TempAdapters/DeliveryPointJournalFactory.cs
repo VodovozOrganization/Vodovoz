@@ -36,7 +36,8 @@ namespace Vodovoz.TempAdapters
 					new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-						new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+						new WaterFixedPricesGenerator(
+							new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 					_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
 					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 		}
@@ -51,7 +52,8 @@ namespace Vodovoz.TempAdapters
 					new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-						new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+						new WaterFixedPricesGenerator(
+							new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 					_deliveryPointJournalFilter
 					?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
 					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));

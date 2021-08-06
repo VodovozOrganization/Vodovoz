@@ -61,6 +61,9 @@ namespace Vodovoz.Domain.Orders
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+
 		#region Платная доставка
 
 		private int paidDeliveryNomenclatureId;
@@ -68,8 +71,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			get
 			{
-				if (paidDeliveryNomenclatureId == default(int)) {
-					paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId;
+				if (paidDeliveryNomenclatureId == default(int))
+				{
+					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
 				}
 
 				return paidDeliveryNomenclatureId;
@@ -1646,7 +1650,7 @@ namespace Vodovoz.Domain.Orders
 			};
 			AddOrderItem(newItem);
 
-			Nomenclature followingNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetNomenclatureToAddWithMaster(UoW);
+			Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
 			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
@@ -2800,7 +2804,8 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
+					UpdateBottlesMovementOperationWithoutDelivery(
+						UoW, new BaseParametersProvider(new ParametersProvider()), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
 					ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 
@@ -3299,7 +3304,7 @@ namespace Vodovoz.Domain.Orders
 			nomenclaturesNeedUpdate = new List<Nomenclature>();
 			if(AddCertificates && DeliveryDate.HasValue) {
 				IList<Certificate> newList = new List<Certificate>();
-				foreach(var item in new NomenclatureRepository(new NomenclatureParametersProvider()).GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
+				foreach(var item in _nomenclatureRepository.GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
 					if(item.Value.All(c => c.IsArchive || c.ExpirationDate.HasValue && c.ExpirationDate.Value < DeliveryDate))
 						nomenclaturesNeedUpdate.Add(item.Key);
 					else

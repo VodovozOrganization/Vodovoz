@@ -26,6 +26,7 @@ namespace Vodovoz.Tools.CommerceML
 	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+        private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
         #region Глобальные настройки экспорта
         static public XmlWriterSettings WriterSettings = new XmlWriterSettings
@@ -128,19 +129,19 @@ namespace Vodovoz.Tools.CommerceML
 		{
 			Errors.Clear();
             TotalTasks = 12;
-			ExportMode mode = SingletonParametersProvider.Instance.ContainsParameter(OnlineStoreExportMode) 
-				? (ExportMode)Enum.Parse(typeof(ExportMode), SingletonParametersProvider.Instance.GetParameterValue(OnlineStoreExportMode))
+			ExportMode mode = _parametersProvider.ContainsParameter(OnlineStoreExportMode) 
+				? (ExportMode)Enum.Parse(typeof(ExportMode), _parametersProvider.GetParameterValue(OnlineStoreExportMode))
 				: ExportMode.Umi;
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var configuredUrl = SingletonParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
+			var configuredUrl = _parametersProvider.GetParameterValue(OnlineStoreUrlParameterName);
 			var parsedUrl = new Uri(configuredUrl);
 			var path = parsedUrl.LocalPath; 
 			var client = new RestClient(configuredUrl.Replace(path, ""));
 			client.CookieContainer = new System.Net.CookieContainer();
-			client.Authenticator = new HttpBasicAuthenticator(SingletonParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
-			                                                  SingletonParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
+			client.Authenticator = new HttpBasicAuthenticator(_parametersProvider.GetParameterValue(OnlineStoreLoginParameterName),
+				_parametersProvider.GetParameterValue(OnlineStorePasswordParameterName));
 			var request = new RestRequest(path + "?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);

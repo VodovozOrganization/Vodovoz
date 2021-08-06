@@ -153,7 +153,7 @@ namespace Vodovoz
 			lblId.LabelProp = Entity.Id.ToString();
 
 			radioFixedPrices.Toggled += OnRadioFixedPricesToggled;
-			var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 			var nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
 			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(nomenclatureRepository);
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();

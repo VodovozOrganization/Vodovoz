@@ -34,6 +34,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -44,16 +45,18 @@ namespace Vodovoz
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
-		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 
-		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 
 		bool isEditable;
 
@@ -341,7 +344,7 @@ namespace Vodovoz
 					new CallTaskRepository(),
 					new OrderRepository(),
 					_employeeRepository,
-					new BaseParametersProvider(),
+					_baseParametersProvider,
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);
 

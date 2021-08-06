@@ -38,17 +38,17 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModel
 {
 	public class RouteListsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
+		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
 			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
@@ -301,7 +301,7 @@ namespace Vodovoz.ViewModel
 					new CallTaskRepository(),
 					new OrderRepository(),
 					new EmployeeRepository(),
-					new BaseParametersProvider(),
+					new BaseParametersProvider(_parametersProvider),
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);
 
@@ -360,7 +360,7 @@ namespace Vodovoz.ViewModel
 
 							foreach (var routeList in routeLists)
 							{
-								var routeListParametersProvider = new RouteListParametersProvider(SingletonParametersProvider.Instance);
+								var routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 								int warehouseId = 0;
 								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
 									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
@@ -597,12 +597,12 @@ namespace Vodovoz.ViewModel
 									() => new FuelDocumentViewModel(
 														RouteList, 
 														ServicesConfig.CommonServices, 
-														new SubdivisionRepository(), 
+														new SubdivisionRepository(_parametersProvider), 
 														new EmployeeRepository(), 
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager,
 														new TrackRepository(),
-														new CategoryRepository()
+														new CategoryRepository(_parametersProvider)
 									)
 								);
 						}

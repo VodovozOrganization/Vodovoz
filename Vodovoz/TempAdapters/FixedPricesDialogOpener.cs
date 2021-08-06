@@ -29,7 +29,7 @@ namespace Vodovoz.TempAdapters
 		        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
 		        new NomenclatureSelectorFactory(),
 		        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-			        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+			        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 		        EntityUoWBuilder.ForOpen(deliveryPointId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
             TDIMain.MainNotebook.AddTab(dpViewModel);
             dpViewModel.OpenFixedPrices();

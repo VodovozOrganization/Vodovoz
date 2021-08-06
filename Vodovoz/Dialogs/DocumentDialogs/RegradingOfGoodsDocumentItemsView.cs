@@ -24,6 +24,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz
@@ -32,6 +33,9 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		
 		RegradingOfGoodsDocumentItem newRow;
 		RegradingOfGoodsDocumentItem FineEditItem;
 
@@ -186,8 +190,6 @@ namespace Vodovoz
 
 				var nomenclatureFilter = new NomenclatureFilterViewModel();
 
-				var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
-
 				var userRepository = new UserRepository();
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
@@ -201,7 +203,7 @@ namespace Vodovoz
 						ServicesConfig.CommonServices,
 						nomenclatureFilter,
 						counterpartySelectorFactory,
-						nomenclatureRepository,
+						_nomenclatureRepository,
 						userRepository
 						);
 
@@ -213,7 +215,7 @@ namespace Vodovoz
 					employeeService,
 					nomenclatureAutoCompleteSelectorFactory,
 					counterpartySelectorFactory,
-					nomenclatureRepository,
+					_nomenclatureRepository,
 					userRepository
 					);
 
@@ -287,8 +289,6 @@ namespace Vodovoz
 		{
 			var filter = new NomenclatureFilterViewModel();
 
-			var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
-
 			var userRepository = new UserRepository();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
@@ -302,7 +302,7 @@ namespace Vodovoz
 					ServicesConfig.CommonServices,
 					filter,
 					counterpartySelectorFactory,
-					nomenclatureRepository,
+					_nomenclatureRepository,
 					userRepository
 					);
 
@@ -314,7 +314,7 @@ namespace Vodovoz
 					employeeService,
 					nomenclatureAutoCompleteSelectorFactory,
 					counterpartySelectorFactory,
-					nomenclatureRepository,
+					_nomenclatureRepository,
 					userRepository
 					);
 

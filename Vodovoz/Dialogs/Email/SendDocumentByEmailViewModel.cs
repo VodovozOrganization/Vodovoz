@@ -53,6 +53,7 @@ namespace Vodovoz.Dialogs.Email
 
 		private readonly IEmailRepository emailRepository;
 		private readonly IInteractiveService interactiveService;
+		private readonly IParametersProvider _parametersProvider;
 		private readonly Employee _currentEmployee;
 		private IDocument Document { get; set; }
 
@@ -66,11 +67,13 @@ namespace Vodovoz.Dialogs.Email
 			IEmailRepository emailRepository,
 			Employee currentEmployee,
 			IInteractiveService interactiveService,
+			IParametersProvider parametersProvider,
 			IUnitOfWork uow = null)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_currentEmployee = currentEmployee;
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
             StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
 
@@ -247,7 +250,7 @@ namespace Vodovoz.Dialogs.Email
 				return;
 			}
 
-			if(!SingletonParametersProvider.Instance.ContainsParameter("email_for_email_delivery")) {
+			if(!_parametersProvider.ContainsParameter("email_for_email_delivery")) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning,"В параметрах базы не определена почта для рассылки");
 				return;
 			}
@@ -328,7 +331,7 @@ namespace Vodovoz.Dialogs.Email
 					}
 
 					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
+					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
 					email.Order = document.Order.Id;
 					email.OrderDocumentType = document.Type;
 
@@ -355,7 +358,7 @@ namespace Vodovoz.Dialogs.Email
 					}
 
 					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
+					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
 					email.Order = document.Id;
 					email.OrderDocumentType = document.Type;
 
@@ -382,7 +385,7 @@ namespace Vodovoz.Dialogs.Email
 					}
 
 					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
+					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
 					email.Order = document.Id;
 					email.OrderDocumentType = document.Type;
 
@@ -409,7 +412,7 @@ namespace Vodovoz.Dialogs.Email
 					}
 
 					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
+					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
 					email.Order = document.Id;
 					email.OrderDocumentType = document.Type;
 

@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -23,6 +24,7 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
@@ -37,7 +39,7 @@ namespace Vodovoz.Dialogs
 						new CallTaskRepository(),
 						_orderRepository,
 						_employeeRepository,
-						new BaseParametersProvider(),
+						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -108,7 +110,7 @@ namespace Vodovoz.Dialogs
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 			if(UndeliveredOrder.Id == 0) {
-				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, new BaseParametersProvider(), CallTaskWorker);
+				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
 			undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
@@ -156,7 +158,7 @@ namespace Vodovoz.Dialogs
 	
 		private void ProcessSmsNotification()
 		{
-			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
 		}
 

@@ -33,7 +33,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private readonly IStockRepository _stockRepository = new StockRepository();
 
 		private SelectableParametersReportFilter filter;

@@ -30,7 +30,7 @@ namespace Vodovoz.TempAdapters
             nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
             nomenclatureFilter.RestrictArchive = false;
 			
-            var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+            var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
             var userRepository = new UserRepository();
 
             var counterpartySelectorFactory =

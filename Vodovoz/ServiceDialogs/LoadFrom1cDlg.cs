@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -79,7 +80,7 @@ namespace Vodovoz
 						new CallTaskRepository(),
 						_orderRepository,
 						new EmployeeRepository(),
-						new BaseParametersProvider(),
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}

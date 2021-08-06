@@ -51,28 +51,26 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
+		private static readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
+				_commonOrganisationProvider,
 				new RouteListItemCashDistributionDocumentRepository(),
 				new OrderRepository());
 		
 		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
 			new ExpenseCashOrganisationDistributor();
-
-		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 		
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
-		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository =
-			new CarLoadDocumentRepository(new RouteListRepository(new StockRepository()));
-
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		#region Свойства
@@ -707,7 +705,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool ShipIfCan(IUnitOfWork uow, CallTaskWorker callTaskWorker)
 		{
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 
 			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(uow, this);
 
@@ -779,7 +777,7 @@ namespace Vodovoz.Domain.Logistic
 			#endregion
 
 			//Терминал для оплаты
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
@@ -883,7 +881,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
-			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
+			var returnedBottlesNom = int.Parse(_parametersProvider.GetParameterValue("returned_bottle_nomenclature_id"));
 			var bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Id,
@@ -1511,7 +1509,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
-				Organisation = commonOrganisationProvider.GetCommonOrganisation(UoW),
+				Organisation = _commonOrganisationProvider.GetCommonOrganisation(UoW),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
@@ -1573,7 +1571,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument() 
-				&& new PermissionRepository().HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), _employeeRepository, ServicesConfig.UserService)) {
+				&& new PermissionRepository().HasAccessToClosingRoutelist(
+					UoW, new SubdivisionRepository(_parametersProvider), _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
@@ -1664,9 +1663,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
-			var parametersProvider = new BaseParametersProvider();
 			var controller =
-				new RouteListClosingDocumentsController(parametersProvider, _employeeRepository, _routeListRepository, parametersProvider);
+				new RouteListClosingDocumentsController(
+					_baseParametersProvider, _employeeRepository, _routeListRepository, _baseParametersProvider);
 			controller.UpdateDocuments(this, uow);
 		}
 
@@ -1774,14 +1773,14 @@ namespace Vodovoz.Domain.Logistic
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			UpdateBottlesMovementOperation(new BaseParametersProvider());
+			UpdateBottlesMovementOperation(_baseParametersProvider);
 			depositsOperations.ForEach(op => UoW.Save(op));
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
 
-			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, new BaseParametersProvider(),
-				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, _baseParametersProvider,
+				new PremiumRaskatGAZelleParametersProvider(_parametersProvider), this);
 			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 

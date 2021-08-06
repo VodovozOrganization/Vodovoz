@@ -305,7 +305,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 				EntityUoWBuilder.ForOpen(id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			TabParent.AddSlaveTab(this, dpViewModel);
 		}

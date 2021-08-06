@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalFilters.Cash;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Representations
 {
@@ -25,6 +26,7 @@ namespace Vodovoz.Representations
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICashRepository _cashRepository;
+		private readonly IParametersProvider _parametersProvider;
 
 		private CashTransferDocumentVMNode resultAlias = null;
 
@@ -37,10 +39,12 @@ namespace Vodovoz.Representations
         public CashTransferDocumentVM(
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        CashTransferDocumentsFilter cashTransferDocumentsFilter,
-	        ICashRepository cashRepository)
+	        ICashRepository cashRepository,
+	        IParametersProvider parametersProvider)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Filter = cashTransferDocumentsFilter;
@@ -151,9 +155,9 @@ namespace Vodovoz.Representations
 					var viewModel = new IncomeCashTransferDocumentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						_unitOfWorkFactory,
-						new CategoryRepository(),
+						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository());
+						new SubdivisionRepository(_parametersProvider));
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -161,9 +165,9 @@ namespace Vodovoz.Representations
 					var viewModel = new IncomeCashTransferDocumentViewModel(
 						EntityUoWBuilder.ForOpen(node.DocumentId),
 						_unitOfWorkFactory,
-						new CategoryRepository(),
+						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository());
+						new SubdivisionRepository(_parametersProvider));
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -242,9 +246,9 @@ namespace Vodovoz.Representations
 					var viewModel = new CommonCashTransferDocumentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						_unitOfWorkFactory,
-						new CategoryRepository(),
+						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository());
+						new SubdivisionRepository(_parametersProvider));
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -252,9 +256,9 @@ namespace Vodovoz.Representations
 					var viewModel = new CommonCashTransferDocumentViewModel(
 						EntityUoWBuilder.ForOpen(node.DocumentId),
 						_unitOfWorkFactory,
-						new CategoryRepository(),
+						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository());
+						new SubdivisionRepository(_parametersProvider));
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

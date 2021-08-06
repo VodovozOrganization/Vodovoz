@@ -12,6 +12,7 @@ using QSProjectsLib;
 using SmsRuSendService;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
+using Vodovoz.Parameters;
 
 namespace VodovozSmsInformerService
 {
@@ -113,13 +114,13 @@ namespace VodovozSmsInformerService
 				newClientInformer = new NewClientSmsInformer(smsSender, smsNotificationRepository);
 				newClientInformer.Start();
 
-				BaseParametersProvider parametersProvider = new BaseParametersProvider();
+				BaseParametersProvider parametersProvider = new BaseParametersProvider(new ParametersProvider());
 				LowBalanceNotifier lowBalanceNotifier = new LowBalanceNotifier(smsSender, smsSender, parametersProvider);
 				lowBalanceNotifier.Start();
 
 				SmsInformerInstanceProvider serviceStatusInstanceProvider = new SmsInformerInstanceProvider(
 					smsNotificationRepository, 
-					new BaseParametersProvider()
+					new BaseParametersProvider(new ParametersProvider())
 				);
 				WebServiceHost smsInformerStatus = new SmsInformerServiceHost(serviceStatusInstanceProvider);
 				smsInformerStatus.AddServiceEndpoint(

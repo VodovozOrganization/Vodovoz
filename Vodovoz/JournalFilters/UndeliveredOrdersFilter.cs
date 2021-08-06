@@ -13,6 +13,7 @@ using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
@@ -29,7 +30,7 @@ namespace Vodovoz.JournalFilters
 			enumCMBUndeliveryStatus.SelectedItem = UndeliveryStatus.InProcess;
 			yEnumCMBActionWithInvoice.ItemsEnum = typeof(ActionsWithInvoice);
 			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList =
-				new SubdivisionRepository().GetAllDepartmentsOrderedByName(UoW);
+				new SubdivisionRepository(new ParametersProvider()).GetAllDepartmentsOrderedByName(UoW);
 
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 			refOldOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");

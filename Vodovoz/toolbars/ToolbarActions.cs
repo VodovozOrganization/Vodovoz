@@ -371,7 +371,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
@@ -399,7 +399,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e) {
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
@@ -454,9 +454,11 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(debtorsJournal);
 	}
 
-	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e) {
+	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
+	{
+		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		var terminalNomenclatureProvider = new BaseParametersProvider();
+		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
 		var employeeService = new EmployeeService();
 		
 		tdiMain.OpenTab(
@@ -466,7 +468,7 @@ public partial class MainWindow : Window
 				terminalNomenclatureProvider,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository()
+				new CategoryRepository(parametersProvider)
 			)
 		);
 	}

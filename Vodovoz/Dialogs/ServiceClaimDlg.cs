@@ -30,7 +30,8 @@ namespace Vodovoz
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{

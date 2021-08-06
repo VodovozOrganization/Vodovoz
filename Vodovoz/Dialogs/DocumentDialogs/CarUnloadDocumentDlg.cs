@@ -28,7 +28,6 @@ using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
@@ -37,17 +36,20 @@ namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
+		private readonly IRouteListRepository
+			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
-		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 		IList<Equipment> alreadyUnloadedEquipment;
 		private WageParameterService wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private CallTaskWorker callTaskWorker;
 
 		#region Конструкторы
@@ -106,7 +108,7 @@ namespace Vodovoz
 				new CallTaskRepository(),
 				new OrderRepository(),
 				_employeeRepository,
-				new BaseParametersProvider(),
+				_baseParametersProvider,
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance);
 
@@ -122,7 +124,7 @@ namespace Vodovoz
 			
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()));
+			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
 				hbxTareToReturn.Sensitive =
@@ -192,7 +194,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			if(!UpdateReceivedItemsOnEntity(terminalNomenclatureProvider.GetNomenclatureIdForTerminal))
+			if(!UpdateReceivedItemsOnEntity(_baseParametersProvider.GetNomenclatureIdForTerminal))
 				return false;
 
 			var valid = new QS.Validation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
@@ -518,7 +520,7 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 			FillOtherReturnsTable();
-			Entity.ReturnedEmptyBottlesBefore(UoW, new RouteListRepository(new StockRepository()));
+			Entity.ReturnedEmptyBottlesBefore(UoW, _routeListRepository);
 		}
 		#endregion
 

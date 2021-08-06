@@ -27,8 +27,9 @@ namespace Vodovoz
 {
 	public partial class CashIncomeDlg : QS.Dialog.Gtk.EntityDialogBase<Income>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static IParametersProvider _parametersProvider = new ParametersProvider();
+
 		//Блокируем возможность выбора категории приходаЖ самовывоз - старый
 		private const int excludeIncomeCategoryId = 3;
 		private bool canEdit = true;
@@ -38,21 +39,21 @@ namespace Vodovoz
 			= ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
+					new OrganizationParametersProvider(_parametersProvider)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				new OrderRepository());
 		
 		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
 			new IncomeCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)));
+					new OrganizationParametersProvider(_parametersProvider)));
 		
 		List<Selectable<Expense>> selectableAdvances;
 

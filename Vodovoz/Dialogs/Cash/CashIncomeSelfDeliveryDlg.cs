@@ -24,6 +24,7 @@ using Vodovoz.Tools;
 using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -35,7 +36,7 @@ namespace Vodovoz.Dialogs.Cash
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private SelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor = 
 			new SelfDeliveryCashOrganisationDistributor(new SelfDeliveryCashDistributionDocumentRepository());
@@ -49,7 +50,7 @@ namespace Vodovoz.Dialogs.Cash
 						new CallTaskRepository(),
 						new OrderRepository(),
 						_employeeRepository,
-						new BaseParametersProvider(),
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}

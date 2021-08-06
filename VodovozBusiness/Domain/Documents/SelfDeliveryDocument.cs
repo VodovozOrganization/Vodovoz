@@ -217,7 +217,7 @@ namespace Vodovoz.Domain.Documents
 			if(nomenclatureRepository == null)
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
 
-			defBottleId = nomenclatureRepository.GetDefaultBottle(uow).Id;
+			defBottleId = nomenclatureRepository.GetDefaultBottleNomenclature(uow).Id;
 		}
 
 		public virtual void UpdateAlreadyUnloaded(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)

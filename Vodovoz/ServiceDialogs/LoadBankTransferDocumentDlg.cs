@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 
 namespace Vodovoz
@@ -23,7 +24,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class LoadBankTransferDocumentDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IAccountExpenseRepository _accountExpenseRepository = new AccountExpenseRepository();
 		private readonly IAccountIncomeRepository _accountIncomeRepository = new AccountIncomeRepository();

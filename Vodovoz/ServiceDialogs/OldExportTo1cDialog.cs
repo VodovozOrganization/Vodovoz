@@ -36,7 +36,7 @@ namespace Vodovoz
 			var dateStart = dateperiodpicker1.StartDate;
 			var dateEnd = dateperiodpicker1.EndDate;
 
-			using(var exportOperation = new ExportOperation(new OrderParametersProvider(SingletonParametersProvider.Instance), mode, dateStart, dateEnd)) {
+			using(var exportOperation = new ExportOperation(new OrderParametersProvider(new ParametersProvider()), mode, dateStart, dateEnd)) {
 				this.exportInProgress = true;
 				UpdateExportButtonSensitivity();
 				LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);

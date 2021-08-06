@@ -16,6 +16,7 @@ namespace Vodovoz
     public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
     {
         bool exportInProgress;
+        private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
         public ExportTo1cDialog(IUnitOfWorkFactory unitOfWorkFactory)
         {
@@ -49,12 +50,12 @@ namespace Vodovoz
                 organizationId = (comboOrganization.SelectedItem as Organization)?.Id;
             }
             else if(mode == Export1cMode.BuhgalteriaOOO) {
-                organizationId = new OrganizationParametersProvider(SingletonParametersProvider.Instance).VodovozOrganizationId;
+                organizationId = new OrganizationParametersProvider(_parametersProvider).VodovozOrganizationId;
             }
 
             using(var exportOperation = new ExportOperation(
                 mode,
-                new OrderParametersProvider(SingletonParametersProvider.Instance),
+                new OrderParametersProvider(_parametersProvider),
                 dateStart,
                 dateEnd,
                 organizationId

@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.RepresentationModel.GtkUI;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -16,6 +17,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModel
 {
@@ -32,8 +34,9 @@ namespace Vodovoz.ViewModel
 			this.UoW = uow;
 		}
 		
-		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-		private readonly IRouteListRepository routeListRepository = new RouteListRepository(new StockRepository());
+		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly IRouteListRepository routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 
 		public ReadyForShipmentFilter Filter {
 			get => RepresentationFilter as ReadyForShipmentFilter;
