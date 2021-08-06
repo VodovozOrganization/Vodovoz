@@ -61,8 +61,7 @@ namespace VodovozAndroidDriverService
 				string.Format("http://{0}:{1}/SmsPaymentService", smsPaymentServiceHostName, smsPaymentServicePort)
 			);
 
-			WageParameterService wageParameterService =
-				new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+			var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 			
 			var employeeRepository = new EmployeeRepository();
 			var routeListRepository = new RouteListRepository(new StockRepository());

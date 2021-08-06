@@ -8,18 +8,8 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.EntityRepositories.WageCalculation
 {
-	public class WageSingletonRepository : IWageCalculationRepository
+	public class WageCalculationRepository : IWageCalculationRepository
 	{
-		static WageSingletonRepository instance;
-
-		[Obsolete("Необходимо избавляться от синглтонов")]
-		public static WageSingletonRepository GetInstance()
-		{
-			if(instance == null)
-				instance = new WageSingletonRepository();
-			return instance;
-		}
-
 		public IEnumerable<WageDistrict> AllWageDistricts(IUnitOfWork uow, bool hideArchive = true)
 		{
 			var baseQuery = uow.Session.QueryOver<WageDistrict>();

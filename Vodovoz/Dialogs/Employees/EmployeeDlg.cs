@@ -56,6 +56,7 @@ namespace Vodovoz
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
 
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
@@ -349,7 +350,8 @@ namespace Vodovoz
 				_userRepository,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager,
-				_employeeRepository
+				_employeeRepository,
+				_wageCalculationRepository
 			);
 			
 			ConfigureValidationContext();
@@ -852,9 +854,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), 
-				new BaseParametersProvider(),
-				ServicesConfig.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
 			UoWGeneric.Save(Entity);

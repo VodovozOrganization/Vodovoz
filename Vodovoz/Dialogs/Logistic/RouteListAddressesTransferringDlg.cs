@@ -37,7 +37,8 @@ namespace Vodovoz
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly WageParameterService _wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IEmployeeService _employeeService;

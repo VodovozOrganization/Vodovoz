@@ -6,6 +6,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.WageCalculation;
 
@@ -18,13 +19,14 @@ namespace Vodovoz.Factories
 			//TODO уточнить, может лучше создавать новые объекты
 			var employeeRepository = new EmployeeRepository();
 			var userRepository = new UserRepository();
+			var wageCalculationRepository = new WageCalculationRepository();
 			
 			var validator = new HierarchicalPresetPermissionValidator(
 				employeeRepository,
 				new PermissionRepository());
 
 			return new EmployeeWageParametersViewModel(employee, tab, uow, validator, userRepository, ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager, employeeRepository);
+				NavigationManagerProvider.NavigationManager, employeeRepository, wageCalculationRepository);
 		}
 	}
 }

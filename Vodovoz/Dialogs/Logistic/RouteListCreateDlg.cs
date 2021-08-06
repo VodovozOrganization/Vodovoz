@@ -53,7 +53,7 @@ namespace Vodovoz
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 
 		bool isEditable;
 

@@ -807,7 +807,7 @@
     <Compile Include="Domain\Subdivisions\Subdivision.cs" />
     <Compile Include="HibernateMapping\Subdivisions\SubdivisionMap.cs" />
     <Compile Include="EntityRepositories\WageCalculation\IWageCalculationRepository.cs" />
-    <Compile Include="EntityRepositories\WageCalculation\WageSingletonRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\WageCalculationRepository.cs" />
     <Compile Include="Domain\WageCalculation\WageRateTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageRate.cs" />
     <Compile Include="Domain\WageCalculation\WageDistrictLevelRate.cs" />

@@ -71,7 +71,7 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		//TODO вернуться к текущему сотруднику
 		//private Employee _currentEmployee;
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 

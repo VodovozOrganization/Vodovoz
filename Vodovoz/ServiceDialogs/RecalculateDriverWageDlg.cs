@@ -20,6 +20,7 @@ namespace Vodovoz.ServiceDialogs
     [System.ComponentModel.ToolboxItem(true)]
     public partial class RecalculateDriverWageDlg : QS.Dialog.Gtk.TdiTabBase
     {
+	    private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
         public RecalculateDriverWageDlg()
         {
             this.Build();
@@ -129,10 +130,8 @@ namespace Vodovoz.ServiceDialogs
 
         private void RecalculateDriverWages(IUnitOfWork uow, IList<RouteList> rls)
         {
-            WageParameterService wageParameterService = new WageParameterService(
-                WageSingletonRepository.GetInstance(), 
-                new BaseParametersProvider()
-            );
+            var wageParameterService = new WageParameterService(_wageCalculationRepository, new BaseParametersProvider());
+            
             foreach (var rl in rls)
             {
                 foreach (var address in rl.Addresses)
@@ -148,10 +147,8 @@ namespace Vodovoz.ServiceDialogs
 
         private void RecalculateForwarderWages(IUnitOfWork uow, IList<RouteList> rls)
         {
-            WageParameterService wageParameterService = new WageParameterService(
-                WageSingletonRepository.GetInstance(),
-                new BaseParametersProvider()
-            );
+            var wageParameterService = new WageParameterService(_wageCalculationRepository, new BaseParametersProvider());
+            
             foreach (var rl in rls)
             {
                 foreach (var address in rl.Addresses)

@@ -49,7 +49,8 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance));
 
-		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 
 		#endregion
 

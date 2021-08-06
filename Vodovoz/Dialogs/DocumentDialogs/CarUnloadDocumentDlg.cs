@@ -46,7 +46,8 @@ namespace Vodovoz
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 		IList<Equipment> alreadyUnloadedEquipment;
-		private WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private WageParameterService wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 		private CallTaskWorker callTaskWorker;
 
 		#region Конструкторы

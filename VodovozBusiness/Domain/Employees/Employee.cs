@@ -468,7 +468,7 @@ namespace Vodovoz.Domain.Employees
 
 		#region Функции
 
-		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = WageSingletonRepository.GetInstance();
+		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = new WageCalculationRepository();
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 

@@ -34,7 +34,8 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -324,6 +325,6 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public void CalculateWages() =>
-			Entity.CalculateWages(wageParameterService);
+			Entity.CalculateWages(_wageParameterService);
 	}
 }

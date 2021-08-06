@@ -99,7 +99,7 @@ namespace Vodovoz
 		}
 		OrderNode orderNode;
 		RouteListItem routeListItem;
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 
 		public event PropertyChangedEventHandler PropertyChanged;
 

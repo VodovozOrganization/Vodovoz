@@ -46,7 +46,7 @@ namespace Vodovoz
 		private bool logisticanEditing = true;
 		private bool isUserLogist = true;
 		private Employee previousForwarder = null;
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
 
 		public event RowActivatedHandler OnClosingItemActivated;
 

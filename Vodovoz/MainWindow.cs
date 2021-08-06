@@ -2232,7 +2232,7 @@ public partial class MainWindow : Gtk.Window
     
     protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
     {
-        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
         tdiMain.AddTab(
             new DriversInfoExportViewModel(
                 wageParameterService,
