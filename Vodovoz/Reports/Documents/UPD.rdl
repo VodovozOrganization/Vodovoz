@@ -1210,10 +1210,10 @@ WHERE o.id = @order_id
             <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>20.5pt</Width>
+            <Width>21.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.5pt</Width>
+            <Width>41pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.8pt</Width>
