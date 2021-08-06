@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Logistic
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>
 	{
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -103,28 +102,9 @@ namespace Vodovoz.ViewModels.Logistic
 				             "диалог разбора МЛ, так как некого указывать в качестве логиста.", "Невозможно открыть разбор МЛ");
 			}
 			
-			employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(commonServices);
-			
-			LogisticanSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
-
-			DriverSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.driver };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
-
-			ForwarderSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.forwarder };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
+			LogisticanSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 
 			TabName = $"Диалог разбора {Entity.Title}";
 		}
@@ -163,9 +143,7 @@ namespace Vodovoz.ViewModels.Logistic
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryPointJournalFactory,
-						_subdivisionJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory)
+						_subdivisionJournalFactory)
 					{
 						HidenByDefault = true,
 						RestrictOldOrder = SelectedItem.Order,
@@ -200,7 +178,7 @@ namespace Vodovoz.ViewModels.Logistic
 					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 					undeliveryViewOpener,
 					employeeService,
-					employeeSelectorFactory,
+					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					CommonServices
 				);
 
@@ -236,7 +214,7 @@ namespace Vodovoz.ViewModels.Logistic
 					fineFilter,
 					undeliveryViewOpener,
 					employeeService,
-					employeeSelectorFactory,
+					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					UnitOfWorkFactory,
 					CommonServices
 				);
@@ -288,7 +266,7 @@ namespace Vodovoz.ViewModels.Logistic
 					fineFilter,
 					undeliveryViewOpener,
 					employeeService,
-					employeeSelectorFactory,
+					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					UnitOfWorkFactory,
 					CommonServices
 				);

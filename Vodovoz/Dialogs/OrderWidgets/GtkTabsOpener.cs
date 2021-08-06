@@ -1,6 +1,8 @@
 ﻿using QS.Dialog.Gtk;
 using QS.Tdi;
 using System;
+using FluentNHibernate.Data;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
@@ -40,6 +42,13 @@ namespace Vodovoz.Dialogs.OrderWidgets
 					nameof(UndeliveriesWithCommentsPrintDlg),
 					() => new UndeliveriesWithCommentsPrintDlg(filter)
 					);
+		}
+
+		public ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId)
+		{
+			return master.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
+				() => new CounterpartyDlg(counterpartyId));
 		}
 	}
 }

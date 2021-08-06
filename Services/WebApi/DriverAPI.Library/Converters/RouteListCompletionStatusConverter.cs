@@ -20,7 +20,7 @@ namespace DriverAPI.Library.Converters
 				case RouteListStatus.Closed:
 					return RouteListDtoCompletionStatus.Completed;
 				default:
-					throw new ConverterException(nameof(routeListStatus), routeListStatus, $"Значение {routeListStatus} не поддерживается");
+					throw new ConverterException(nameof(routeListStatus), routeListStatus, $"Значение { routeListStatus } не поддерживается");
 			}
 		}
 	}

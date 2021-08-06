@@ -16,13 +16,14 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Dialogs.Phones;
 using Vodovoz.Parameters;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Employees;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Repositories.Client;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -143,27 +144,15 @@ namespace Vodovoz.ViewModels.BusinessTasks
 																						CounterpartyJournalViewModel, 
 																						CounterpartyJournalFilterViewModel>(CommonServices);
 
-			EmployeeSelectorFactory = 
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), 
-					() => { 
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
+			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			DeliveryPointFactory = CreateDeliveryPointFactory();
 		}
 
 		private IEntityAutocompleteSelectorFactory CreateDeliveryPointFactory()
 		{
-			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-					() => {
-						var filter = new DeliveryPointJournalFilterViewModel();
-
-						if(Entity.Counterparty != null)
-							filter.Counterparty = Entity.Counterparty;
-
-						return new DeliveryPointJournalViewModel(filter, UnitOfWorkFactory, CommonServices);
-					});
+			var dpFilter = new DeliveryPointJournalFilterViewModel{Counterparty = Entity.Counterparty, HidenByDefault = true};
+			return new DeliveryPointJournalFactory(dpFilter).CreateDeliveryPointByClientAutocompleteSelectorFactory();
 		}
 
 		private PhonesViewModel CreatePhonesViewModel()

@@ -9,7 +9,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
@@ -37,17 +36,15 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
@@ -55,6 +52,7 @@ using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz
 {
+	[Obsolete("Используйте EmployeeViewModel")]
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>, INotifyPropertyChanged
 	{
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
@@ -234,7 +232,7 @@ namespace Vodovoz
 			dataentryAndroidPassword.Binding
 				.AddBinding(Entity, e => e.AndroidPassword, w => w.Text).InitializeFromSource();
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel();
+			var filterDefaultForwarder = new EmployeeRepresentationFilterViewModel();
 			filterDefaultForwarder.SetAndRefilterAtOnce(
 				x => x.Category = EmployeeCategory.forwarder,
 				x => x.Status = EmployeeStatus.IsWorking
@@ -242,11 +240,10 @@ namespace Vodovoz
 			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			repEntDefaultForwarder.Binding
 				.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
-
-            var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
-            var commonServices = ServicesConfig.CommonServices;
-            var employeePostJournalFactory = new EmployeePostsJournalFactory(unitOfWorkFactory, commonServices);
-            entryEmployeePost.SetEntityAutocompleteSelectorFactory(employeePostJournalFactory);
+			
+            var employeePostsJournalFactory = new EmployeePostsJournalFactory();
+            entryEmployeePost.SetEntityAutocompleteSelectorFactory(
+	            employeePostsJournalFactory.CreateEmployeePostsAutocompleteSelectorFactory());
             entryEmployeePost.Binding.AddBinding(Entity, e => e.Post, w => w.Subject).InitializeFromSource();
 
             referenceNationality.SubjectType = typeof(Nationality);
@@ -763,25 +760,8 @@ namespace Vodovoz
 			if(canManageDriversAndForwarders && !canManageOfficeWorkers) {
 				var entityentrySubdivision = new EntityViewModelEntry();
 				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
-					new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
-						typeof(Subdivision), () => {
-							var filter = new SubdivisionFilterViewModel();
-							filter.SubdivisionType = SubdivisionType.Logistic;
-							IEntityAutocompleteSelectorFactory employeeSelectorFactory =
-								new DefaultEntityAutocompleteSelectorFactory
-								<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
-
-							return new SubdivisionsJournalViewModel(
-								filter,
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices,
-								employeeSelectorFactory,
-								new SalesPlanJournalFactory(),
-								new NomenclatureSelectorFactory()
-							);
-						}
-					)
-				);
+					new SubdivisionJournalFactory().CreateLogisticSubdivisionAutocompleteSelectorFactory(
+						new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory()));
 				entityentrySubdivision.Binding
 					.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
 				hboxSubdivision.Add(entityentrySubdivision);

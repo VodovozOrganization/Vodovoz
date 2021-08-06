@@ -12,5 +12,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0);
 
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);
+
+		ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId);
 	}
 }

@@ -17,23 +17,52 @@ using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Filters.ViewModels;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		public AtWorksDlg(IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings)
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
+		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
+		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory = new EmployeePostsJournalFactory();
+		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
+		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
+		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
+		private readonly IWageCalculationRepository _wageCalculationRepository  = WageSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
+		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		
+		public AtWorksDlg(
+			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
-			if(defaultDeliveryDayScheduleSettings == null) 
+			if(defaultDeliveryDayScheduleSettings == null)
+			{
 				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			}
+
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			
 			this.Build();
 
@@ -197,27 +226,15 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
-			var drvFilter = new EmployeeFilterViewModel();
-			drvFilter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking 
-			);
-
-			var selectDrivers = new EmployeesJournalViewModel(
-				drvFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			) {
-				SelectionMode = JournalSelectionMode.Multiple,
-				TabName = "Водители"
-			};
-			var list = selectDrivers.Items;
+			var selectDrivers = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
+			selectDrivers.SelectionMode = JournalSelectionMode.Multiple;
+			selectDrivers.TabName = "Водители";
+			
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
             SetButtonClearDriverScreenSensitive();
         }
 
-		
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
 		{
 			var toDel = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
@@ -340,10 +357,30 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonOpenDriverClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
-			foreach(var one in selected) {
+			
+			foreach(var one in selected) 
+			{
+				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Id);
+				
+				var employeeViewModel = new EmployeeViewModel(
+					_authorizationService,
+					_employeeWageParametersFactory,
+					_employeeJournalFactory,
+					_subdivisionJournalFactory,
+					_employeePostsJournalFactory,
+					_cashDistributionCommonOrganisationProvider,
+					_subdivisionService,
+					_emailServiceSettingAdapter,
+					_wageCalculationRepository,
+					_employeeRepository,
+					employeeUow,
+					ServicesConfig.CommonServices,
+					_validationContextFactory,
+					_phonesViewModelFactory);
+				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),
-					() => new EmployeeDlg(one.Employee.Id)
+					() => employeeViewModel
 				);
 			}
 		}

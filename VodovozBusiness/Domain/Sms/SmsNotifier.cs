@@ -83,6 +83,88 @@ namespace Vodovoz.Domain.Sms
 				uow.Save();
 			}
 		}
+		
+		/// <summary>
+		/// Создает новое смс-уведомление для недовоза, если до клиента не дозвонились.
+		/// Все равно происходит перенос заказа на следующий день.
+		/// </summary>
+		/// <param name="undeliveredOrder"></param>
+		public void NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder undeliveredOrder)
+		{
+			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled) 
+			{
+				return;
+			}
+
+			//необходимые проверки именно НОВОГО заказа
+			if(undeliveredOrder.NewOrder == null || undeliveredOrder.NewOrder.Id == 0 
+			                                     || undeliveredOrder.NewOrder.OrderStatus == OrderStatus.NewOrder 
+			                                     || !undeliveredOrder.NewOrder.DeliveryDate.HasValue) 
+			{
+				return;
+			}
+			if(undeliveredOrder.NewOrder.Client.FirstOrder == null 
+			   || undeliveredOrder.OrderTransferType != TransferType.AutoTransferNotApproved) 
+			{
+				return;
+			}
+			
+			//проверка уже существующих ранее уведомлений по недовозу
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
+			{
+				var existsNotifications = uow.Session.QueryOver<UndeliveryNotApprovedSmsNotification>()
+					.Where(x => x.UndeliveredOrder.Id == undeliveredOrder.Id) //
+					.List();
+				if(existsNotifications.Any()) 
+				{
+					return;
+				}
+			}
+			
+			//формирование номера мобильного телефона
+			string mobilePhoneNumber = GetMobilePhoneNumberForUndeliveryOrderId(undeliveredOrder.Id);
+			if(string.IsNullOrWhiteSpace(mobilePhoneNumber)) 
+			{
+				return;
+			}
+			
+			//получение текста сообщения
+			var msgToSend = smsNotifierParametersProvider.GetUndeliveryAutoTransferNotApprovedTextTemplate();
+
+			//формирование текста сообщения
+			//метки для замены в тексте сообщения из базы
+			const string deliveryDateVariable = "$delivery_date$";
+			const string deliveryTimeVariable = "$delivery_time$";
+			//формирование времени доставки и проверка на Null exception
+			string orderScheduleTimeString = undeliveredOrder.NewOrder.DeliverySchedule 
+			                                 != null ? $"c {undeliveredOrder.NewOrder.DeliverySchedule.From.Hours}" +
+			                                           $":{undeliveredOrder.NewOrder.DeliverySchedule.From.Minutes:D2} " +
+			                                           $"по {undeliveredOrder.NewOrder.DeliverySchedule.To.Hours}" +
+			                                           $":{undeliveredOrder.NewOrder.DeliverySchedule.To.Minutes:D2}" : "";
+			if(string.IsNullOrWhiteSpace(orderScheduleTimeString))
+			{
+				return;
+			}
+			//замена метки на дату доставки
+			msgToSend = msgToSend.Replace(deliveryDateVariable, $"{undeliveredOrder.NewOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")}");
+			//замена метки на время доставки
+			msgToSend = msgToSend.Replace(deliveryTimeVariable, $"{orderScheduleTimeString}");
+
+			//создание нового уведомления для отправки
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<UndeliveryNotApprovedSmsNotification>()) 
+			{
+				uow.Root.UndeliveredOrder = undeliveredOrder;
+				uow.Root.Counterparty = undeliveredOrder.NewOrder.Client;
+				uow.Root.NotifyTime = DateTime.Now;
+				uow.Root.MobilePhone = mobilePhoneNumber;
+				uow.Root.Status = SmsNotificationStatus.New;
+				uow.Root.MessageText = msgToSend;
+				uow.Root.ExpiredTime = DateTime.Now.AddMinutes(30);
+				
+				uow.Save();
+			}
+
+		}
 
 		private string GetMobilePhoneNumberForOrder(Order order)
 		{
@@ -98,6 +180,33 @@ namespace Vodovoz.Domain.Sms
 
 			string stringPhoneNumber = phone.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
 			if(stringPhoneNumber.Length == 0 || stringPhoneNumber.First() != '9' || stringPhoneNumber.Length != 10) {
+				return null;
+			}
+			return $"+7{stringPhoneNumber}";
+		}
+		
+		private string GetMobilePhoneNumberForUndeliveryOrderId(int id)
+		{
+			var uow = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
+			var order = uow.Root.OldOrder;
+			Phone phone = null;
+			if(order.DeliveryPoint != null && order.DeliveryPoint.Phones.Count > 0) 
+			{
+				phone = order.DeliveryPoint.Phones.FirstOrDefault(); 
+			} 
+			else 
+			{
+				phone = order.Client.Phones.FirstOrDefault();
+			}
+			if(phone == null) 
+			{
+				return null;
+			}
+
+			//федеральный мобильный номер
+			string stringPhoneNumber = phone.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
+			if(stringPhoneNumber.Length == 0 || stringPhoneNumber.First() != '9' || stringPhoneNumber.Length != 10) 
+			{
 				return null;
 			}
 			return $"+7{stringPhoneNumber}";

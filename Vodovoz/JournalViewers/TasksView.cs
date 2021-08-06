@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.JournalViewers
 {
@@ -56,7 +57,7 @@ namespace Vodovoz.JournalViewers
 			callTasksVM = new CallTasksVM(new BaseParametersProvider());
 			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
-			callTasksVM.Filter = new CallTaskFilterViewModel();
+			callTasksVM.Filter = new CallTaskFilterViewModel(new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());
 			callTasksVM.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = callTasksVM;
 			CreateCallTaskFilterView(callTasksVM.Filter, EventArgs.Empty);

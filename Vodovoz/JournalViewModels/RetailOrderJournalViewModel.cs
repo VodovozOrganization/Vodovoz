@@ -726,10 +726,7 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
 							_deliveryPointJournalFactory,
-							_subdivisionJournalFactory,
-							_salesPlanJournalFactory,
-							_nomenclatureSelector
-							)
+							_subdivisionJournalFactory)
 						{
 							HidenByDefault = true,
 							RestrictOldOrder = order,

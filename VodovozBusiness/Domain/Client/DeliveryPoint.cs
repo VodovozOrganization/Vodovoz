@@ -309,7 +309,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get => counterparty;
-			protected set => SetField(ref counterparty, value, () => Counterparty);
+			set => SetField(ref counterparty, value, () => Counterparty);
 		}
 
 		private string kpp;

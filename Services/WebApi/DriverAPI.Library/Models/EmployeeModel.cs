@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.Models;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
@@ -34,7 +33,7 @@ namespace DriverAPI.Library.Models
 		public Employee GetByAPILogin(string login)
 		{
 			return _employeeRepository.GetDriverByAndroidLogin(_unitOfWork, login)
-				?? throw new DataNotFoundException(nameof(login), $"Не найден сотрудник для логина {login}");
+				?? throw new DataNotFoundException(nameof(login), $"Не найден сотрудник для логина { login }");
 		}
 	}
 }

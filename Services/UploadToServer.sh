@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 echo "Какие службы необходимо обновить?"
 echo "1) Driver"
@@ -10,8 +10,7 @@ echo "6) ModulKassa (SalesReceipts)"
 echo "7) InstantSms"
 echo "8) DeliveryRules"
 echo "9) SmsPayment"
-echo "10) OnlineStoreImport"
-echo "11) Mango"
+echo "10) Mango"
 
 echo "Можно вызывать вместе, перечислив номера через запятую, например Driver+Email=1,2"
 read service;
@@ -48,9 +47,6 @@ deliveryRulesServiceName="vodovoz-delivery-rules.service"
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
 
-onlineStoreImportServiceFolder="VodovozOnlineStoreImportService"
-onlineStoreImportServiceName="vodovoz-online-store-import.service"
-
 mangoServiceFolder="VodovozMangoService"
 mangoServiceName="vodovoz-mango.service"
 
@@ -86,8 +82,8 @@ function CopyFilesPublished {
 }
 
 function PublishProject {
-    dotnet build "Application/$1" --configuration $buildFolderName
-    dotnet publish "Application/$1" --configuration $buildFolderName
+    dotnet build "WebApi/$1" --configuration $buildFolderName
+    dotnet publish "WebApi/$1" --configuration $buildFolderName
 }
 
 function UpdateDriverService {
@@ -216,20 +212,6 @@ function UpdateSmsPaymentService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsPaymentServiceName
 }
 
-function UpdateOnlineStoreImportService {
-	printf "\nОбновление службы импорта из интернет магазина\n"
-
-	echo "-- Stoping $onlineStoreImportServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $onlineStoreImportServiceName
-
-	echo "-- Copying $onlineStoreImportServiceName files"
-	DeleteHttpDll $onlineStoreImportServiceFolder
-	CopyFiles $onlineStoreImportServiceFolder
-	echo "-- Starting $onlineStoreImportServiceName"
-
-	ssh $serverAddress -p$serverPort sudo systemctl start $onlineStoreImportServiceName
-}
-
 function UpdateMangoService {
 	printf "\nОбновление службы работы с Mango\n"
 
@@ -276,9 +258,6 @@ case $service2 in
 		UpdateSmsPaymentService
 	;;&
 	*,10,*)
-		UpdateOnlineStoreImportService
-	;;&
-	*,11,*)
 		UpdateMangoService
 	;;
 esac
