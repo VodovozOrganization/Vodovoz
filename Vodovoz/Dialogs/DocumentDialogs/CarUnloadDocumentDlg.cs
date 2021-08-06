@@ -42,8 +42,8 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
+		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
-		private ICarUnloadRepository CarUnloadRepository => CarUnloadSingletonRepository.GetInstance();
 		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 		IList<Equipment> alreadyUnloadedEquipment;
 		private WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
@@ -198,7 +198,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			if(!CarUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
+			if(!_carUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
 				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
 			}
@@ -249,7 +249,7 @@ namespace Vodovoz
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
 				return;
-			Dictionary<int, decimal> returns = CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
+			Dictionary<int, decimal> returns = _carUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)

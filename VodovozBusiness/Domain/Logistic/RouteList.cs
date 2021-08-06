@@ -66,7 +66,7 @@ namespace Vodovoz.Domain.Logistic
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 		
-		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
+		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository());
@@ -781,7 +781,7 @@ namespace Vodovoz.Domain.Logistic
 			//Терминал для оплаты
 			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
-			var unloadedTerminalAmount = carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
 			if (loadedTerminalAmount > 0) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);

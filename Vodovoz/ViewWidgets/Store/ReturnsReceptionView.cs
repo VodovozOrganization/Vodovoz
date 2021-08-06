@@ -45,7 +45,7 @@ namespace Vodovoz
 			_terminalNomenclatureProvider = new BaseParametersProvider();
 			_routeListRepository = new RouteListRepository(new StockRepository());
 			_carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
-			_carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
+			_carUnloadRepository = new CarUnloadRepository();
 
 			Build();
 

@@ -10,18 +10,8 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Repository.Store
 {
-	public class CarUnloadSingletonRepository : ICarUnloadRepository
+	public class CarUnloadRepository : ICarUnloadRepository
 	{
-		private static CarUnloadSingletonRepository instance;
-
-		[Obsolete("Необходимо избавляться от синглтонов")]
-		public static CarUnloadSingletonRepository GetInstance()
-		{
-			if(instance == null)
-				instance = new CarUnloadSingletonRepository();
-			return instance;
-		}
-
 		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse, CarUnloadDocument excludeDoc)
 		{
 			CarUnloadDocument docAlias = null;

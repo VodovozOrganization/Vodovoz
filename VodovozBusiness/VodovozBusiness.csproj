@@ -868,7 +868,7 @@
     <Compile Include="Domain\Orders\CashReceipt.cs" />
     <Compile Include="HibernateMapping\Order\CashReceiptMap.cs" />
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
-    <Compile Include="EntityRepositories\Store\CarUnloadSingletonRepository.cs" />
+    <Compile Include="EntityRepositories\Store\CarUnloadRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
     <Compile Include="EntityRepositories\Store\CarLoadDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarLoadDocumentRepository.cs" />
