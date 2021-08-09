@@ -150,11 +150,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					TabName = "Выбор склада для списания терминала",
 					SelectionMode = JournalSelectionMode.Single
 				};
-			writeoffWarehouseJournal.OnEntitySelectedResult += WriteoffWarehouseJournalOnOnEntitySelectedResult;
+			writeoffWarehouseJournal.OnEntitySelectedResult += OnWriteoffWarehouseSelected;
 			_parentTab.TabParent.AddSlaveTab(_parentTab, writeoffWarehouseJournal);
 		}
 
-		private void WriteoffWarehouseJournalOnOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnWriteoffWarehouseSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
 			if(e.SelectedNodes.FirstOrDefault() is NomenclatureBalanceByStockJournalNode node)
 			{

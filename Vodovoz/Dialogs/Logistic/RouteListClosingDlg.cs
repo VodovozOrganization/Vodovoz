@@ -787,7 +787,7 @@ namespace Vodovoz
 
 			var validationContext = new Dictionary<object, object> {
 				{"NewStatus", RouteListStatus.MileageCheck},
-                {"cash_order_close", true},
+				{"cash_order_close", true},
 				{nameof(IRouteListItemRepository), new RouteListItemRepository()},
 				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
 			};
