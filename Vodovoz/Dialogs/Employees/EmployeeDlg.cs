@@ -117,7 +117,7 @@ namespace Vodovoz
 				hiddenCategory.Add(EmployeeCategory.driver);
 				hiddenCategory.Add(EmployeeCategory.forwarder);
 			}
-//FIXME объединить в метод
+
 			mySQLUserRepository = new MySQLUserRepository(
 				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
 				new GtkInteractiveService());
@@ -871,10 +871,7 @@ namespace Vodovoz
 			}
 			#endregion
 
-			if(_terminalManagementViewModel?.HasChanges ?? false)
-			{
-				_terminalManagementViewModel.SaveChanges();
-			}
+			_terminalManagementViewModel.SaveChanges();
 
 			logger.Info("Сохраняем сотрудника...");
 			try {

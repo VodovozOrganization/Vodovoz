@@ -212,7 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				                                                                  _employeeRepository,
 				                                                                  _warehouseRepository,
 				                                                                  _routeListRepository,
-				                                                                  ServicesConfig.CommonServices, UoW));
+				                                                                  _commonServices, UoW));
 
 		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }
@@ -524,26 +524,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 
-		/*public DelegateCommand CreateTerminalManagementViewModel =>
-			_createTerminalManagementViewModel ?? (_createTerminalManagementViewModel = new DelegateCommand(
-					() =>
-					{
-						_terminalManagementViewModel = _terminalManagementViewModel ?? new TerminalManagementViewModel
-						(
-							CurrentUserSettings.Settings.DefaultWarehouse,
-							Entity,
-							this as ITdiTab,
-							employeeRepository,
-							new WarehouseRepository(),
-							new RouteListRepository(),
-							ServicesConfig.CommonServices,
-							UoW
-						);
-					},
-					() => true
-				)
-			);*/
-		
 		private void SetPermissions()
 		{
 			CanManageUsers = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
@@ -700,10 +680,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			#endregion
 
-			if(_terminalManagementViewModel?.HasChanges ?? false)
-			{
-				_terminalManagementViewModel.SaveChanges();
-			}
+			_terminalManagementViewModel.SaveChanges();
 
 			_logger.Info("Сохраняем сотрудника...");
 			try
