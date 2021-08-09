@@ -991,6 +991,7 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null
+					                 && DeliveryDate.HasValue
 					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
 					                 && validationContext.Items.ContainsKey("uowFactory")
 					                 && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") 
@@ -1006,7 +1007,6 @@ namespace Vodovoz.Domain.Orders
 							            && !o.IsService).ToList();
 
 						if(!hasMaster
-						   && DeliveryDate.HasValue
 						   && orderCheckedOutsideSession.Any())
 						{
 							yield return new ValidationResult(
