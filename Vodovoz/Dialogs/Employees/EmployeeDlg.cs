@@ -922,17 +922,21 @@ namespace Vodovoz
 
 		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
 		{
-			terminalManagementView.ViewModel = _terminalManagementViewModel = _terminalManagementViewModel ?? new TerminalManagementViewModel
-			(
-				CurrentUserSettings.Settings.DefaultWarehouse,
-				Entity,
-				this as ITdiTab,
-				employeeRepository,
-				new WarehouseRepository(),
-				new RouteListRepository(),
-				ServicesConfig.CommonServices,
-				UoW
-			);
+			if(terminalManagementView.ViewModel != null)
+			{
+				terminalManagementView.ViewModel = _terminalManagementViewModel
+					= _terminalManagementViewModel ??
+					  new TerminalManagementViewModel
+					  (
+						  CurrentUserSettings.Settings.DefaultWarehouse,
+						  Entity,
+						  this as ITdiTab,
+						  employeeRepository,
+						  new WarehouseRepository(),
+						  new RouteListRepository(),
+						  ServicesConfig.CommonServices,
+						  UoW);
+			}
 
 			if(radioTabLogistic.Active)
 				notebookMain.CurrentPage = 1;
