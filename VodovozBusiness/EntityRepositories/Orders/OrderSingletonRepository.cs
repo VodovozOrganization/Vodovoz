@@ -438,7 +438,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			{
 				OrderStatus.NewOrder,
 				OrderStatus.Canceled,
-				OrderStatus.NotDelivered
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
 			};
 
 			return uow.Session.QueryOver<VodovozOrder>()

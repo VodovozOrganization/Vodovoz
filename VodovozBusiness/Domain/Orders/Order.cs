@@ -1001,12 +1001,11 @@ namespace Vodovoz.Domain.Orders
 						var orderCheckedOutsideSession = _orderRepository
 							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"], DeliveryDate.Value,
 								DeliveryPoint)
-							.Where(o => o.Id != Id
-							            && !o.IsService).ToList();
+							.Where(o => o.Id != Id && !o.IsService).ToList();
 
 						if(!hasMaster
 						   && DeliveryDate.HasValue
-						   && orderCheckedOutsideSession.Count>0)
+						   && orderCheckedOutsideSession.Any())
 						{
 							yield return new ValidationResult(
 								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
