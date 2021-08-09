@@ -434,16 +434,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			var uow = uowFactory.CreateWithoutRoot();
 			
-			var notSupportedStatuses = new OrderStatus[] 
-			{
-				OrderStatus.NewOrder,
-				OrderStatus.Canceled,
-				OrderStatus.NotDelivered,
-				OrderStatus.DeliveryCanceled,
-			};
-
 			return uow.Session.QueryOver<VodovozOrder>()
-				.WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
 				.Where(x => x.DeliveryDate == date)
 				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 				.List();
