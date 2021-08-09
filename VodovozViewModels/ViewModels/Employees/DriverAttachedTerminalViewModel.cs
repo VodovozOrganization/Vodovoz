@@ -9,11 +9,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 {
 	public class DriverAttachedTerminalViewModel : EntityTabViewModelBase<DriverAttachedTerminalDocumentBase>
 	{
-		public string DriverName => PersonHelper.PersonFullName(Entity.Driver.LastName, Entity.Driver.Name, Entity.Driver.Patronymic);
-		public string WarehouseTitle => Entity.WarehouseMovementOperation.WriteoffWarehouse?.Name
-		                                ?? Entity.WarehouseMovementOperation.IncomingWarehouse?.Name;
-		public string AuthorName => PersonHelper.PersonFullName(Entity.Author.LastName, Entity.Author.Name, Entity.Author.Patronymic);
-		public string Date => $"{Entity.CreationDate.ToShortDateString()} {Entity.CreationDate.ToShortTimeString()}";
+		public string DriverName => PersonHelper.PersonFullName(Entity?.Driver?.LastName, Entity?.Driver?.Name, Entity?.Driver?.Patronymic);
+		public string WarehouseTitle => Entity.WarehouseMovementOperation?.WriteoffWarehouse?.Name
+		                                ?? Entity.WarehouseMovementOperation?.IncomingWarehouse?.Name;
+		public string AuthorName => PersonHelper.PersonFullName(Entity?.Author?.LastName, Entity?.Author?.Name, Entity?.Author?.Patronymic);
+		public string Date => $"{Entity?.CreationDate.ToShortDateString()} {Entity?.CreationDate.ToShortTimeString()}";
 		public string DocType => Entity is DriverAttachedTerminalGiveoutDocument ? "Документ выдачи" : "Документ возврата";
 
 		public DriverAttachedTerminalViewModel(
