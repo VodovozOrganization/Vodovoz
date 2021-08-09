@@ -96,24 +96,6 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HBox hbox11;
 
-		private global::Gtk.VBox vbox11;
-
-		private global::Gtk.HBox hbox13;
-
-		private global::Gamma.GtkWidgets.yButton btnAddGraphicDelivery;
-
-		private global::Gamma.GtkWidgets.yButton btnRemoveGraphicDelivery;
-
-		private global::Gamma.GtkWidgets.yButton btnCopyGraphicDelivery;
-
-		private global::QSWidgetLib.DatePeriodPicker GraphicDeliveryPeriod;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
-		private global::Gamma.GtkWidgets.yTreeView treeViewGraphicDelivery;
-
-		private global::Gtk.HBox hbox18;
-
 		private global::Gtk.VBox vboxWeeks;
 
 		private global::Gamma.GtkWidgets.yRadioButton btnToday;
@@ -132,6 +114,38 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yRadioButton btnWednesday;
 
+		private global::Gtk.HBox hbox18;
+
+		private global::Gtk.VBox vbox2;
+
+		private global::Gtk.HBox hbox13;
+
+		private global::Gamma.GtkWidgets.yButton AddDayScheduleBtn;
+
+		private global::Gamma.GtkWidgets.yButton RemoveDayScheduleBtn;
+
+		private global::Gamma.GtkWidgets.yButton CopyDayScheduleBtn;
+
+		private global::QSWidgetLib.DatePeriodPicker WeekDayPeriodPicker;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+
+		private global::Gtk.HBox hbox16;
+
+		private global::Gamma.GtkWidgets.yButton AddDayDeliveryRuleBtn;
+
+		private global::Gamma.GtkWidgets.yButton RemoveDayDeliveryRuleBtn;
+
+		private global::Gamma.GtkWidgets.yButton CopyDayDeliveryRuleBtn;
+
+		private global::QSWidgetLib.DatePeriodPicker DayDeliveryRulePeriodPicker;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow7;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeview2;
+
 		private global::Gtk.VBox vbox16;
 
 		private global::Gtk.HBox hbox20;
@@ -139,6 +153,10 @@ namespace Vodovoz.Views.Logistic
 		private global::Gamma.GtkWidgets.yButton btnAddGraphic;
 
 		private global::Gamma.GtkWidgets.yButton btnRemoveGraphic;
+
+		private global::Gamma.GtkWidgets.yButton btnRemoveRestriction;
+
+		private global::Gamma.GtkWidgets.yButton btnAddRestriction;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
@@ -149,6 +167,10 @@ namespace Vodovoz.Views.Logistic
 		private global::Gamma.GtkWidgets.yButton btnAddSpecialRules;
 
 		private global::Gamma.GtkWidgets.yButton btnRemoveSpecial;
+
+		private global::Gamma.GtkWidgets.yButton btnRemoveRule;
+
+		private global::Gamma.GtkWidgets.yButton btnAddRule;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
@@ -597,87 +619,6 @@ namespace Vodovoz.Views.Logistic
 			this.hbox11.Name = "hbox11";
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.vbox11 = new global::Gtk.VBox();
-			this.vbox11.Name = "vbox11";
-			this.vbox11.Spacing = 6;
-			// Container child vbox11.Gtk.Box+BoxChild
-			this.hbox13 = new global::Gtk.HBox();
-			this.hbox13.Name = "hbox13";
-			this.hbox13.Spacing = 6;
-			// Container child hbox13.Gtk.Box+BoxChild
-			this.btnAddGraphicDelivery = new global::Gamma.GtkWidgets.yButton();
-			this.btnAddGraphicDelivery.CanFocus = true;
-			this.btnAddGraphicDelivery.Name = "btnAddGraphicDelivery";
-			this.btnAddGraphicDelivery.UseUnderline = true;
-			global::Gtk.Image w54 = new global::Gtk.Image();
-			w54.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.btnAddGraphicDelivery.Image = w54;
-			this.hbox13.Add(this.btnAddGraphicDelivery);
-			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.btnAddGraphicDelivery]));
-			w55.Position = 0;
-			w55.Expand = false;
-			w55.Fill = false;
-			// Container child hbox13.Gtk.Box+BoxChild
-			this.btnRemoveGraphicDelivery = new global::Gamma.GtkWidgets.yButton();
-			this.btnRemoveGraphicDelivery.CanFocus = true;
-			this.btnRemoveGraphicDelivery.Name = "btnRemoveGraphicDelivery";
-			this.btnRemoveGraphicDelivery.UseUnderline = true;
-			global::Gtk.Image w56 = new global::Gtk.Image();
-			w56.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.btnRemoveGraphicDelivery.Image = w56;
-			this.hbox13.Add(this.btnRemoveGraphicDelivery);
-			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.btnRemoveGraphicDelivery]));
-			w57.Position = 1;
-			w57.Expand = false;
-			w57.Fill = false;
-			// Container child hbox13.Gtk.Box+BoxChild
-			this.btnCopyGraphicDelivery = new global::Gamma.GtkWidgets.yButton();
-			this.btnCopyGraphicDelivery.CanFocus = true;
-			this.btnCopyGraphicDelivery.Name = "btnCopyGraphicDelivery";
-			this.btnCopyGraphicDelivery.UseUnderline = true;
-			global::Gtk.Image w58 = new global::Gtk.Image();
-			w58.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
-			this.btnCopyGraphicDelivery.Image = w58;
-			this.hbox13.Add(this.btnCopyGraphicDelivery);
-			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.btnCopyGraphicDelivery]));
-			w59.Position = 2;
-			w59.Expand = false;
-			w59.Fill = false;
-			// Container child hbox13.Gtk.Box+BoxChild
-			this.GraphicDeliveryPeriod = new global::QSWidgetLib.DatePeriodPicker();
-			this.GraphicDeliveryPeriod.Events = ((global::Gdk.EventMask)(256));
-			this.GraphicDeliveryPeriod.Name = "GraphicDeliveryPeriod";
-			this.GraphicDeliveryPeriod.StartDate = new global::System.DateTime(0);
-			this.GraphicDeliveryPeriod.EndDate = new global::System.DateTime(0);
-			this.hbox13.Add(this.GraphicDeliveryPeriod);
-			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.GraphicDeliveryPeriod]));
-			w60.Position = 3;
-			this.vbox11.Add(this.hbox13);
-			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vbox11[this.hbox13]));
-			w61.Position = 0;
-			w61.Expand = false;
-			w61.Fill = false;
-			// Container child vbox11.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.treeViewGraphicDelivery = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewGraphicDelivery.CanFocus = true;
-			this.treeViewGraphicDelivery.Name = "treeViewGraphicDelivery";
-			this.GtkScrolledWindow1.Add(this.treeViewGraphicDelivery);
-			this.vbox11.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.vbox11[this.GtkScrolledWindow1]));
-			w63.Position = 1;
-			this.hbox11.Add(this.vbox11);
-			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox11]));
-			w64.Position = 0;
-			w64.Expand = false;
-			// Container child hbox11.Gtk.Box+BoxChild
-			this.hbox18 = new global::Gtk.HBox();
-			this.hbox18.Name = "hbox18";
-			this.hbox18.Spacing = 6;
-			// Container child hbox18.Gtk.Box+BoxChild
 			this.vboxWeeks = new global::Gtk.VBox();
 			this.vboxWeeks.Name = "vboxWeeks";
 			this.vboxWeeks.Spacing = 6;
@@ -689,10 +630,10 @@ namespace Vodovoz.Views.Logistic
 			this.btnToday.DrawIndicator = false;
 			this.btnToday.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.vboxWeeks.Add(this.btnToday);
-			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnToday]));
-			w65.Position = 0;
-			w65.Expand = false;
-			w65.Fill = false;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnToday]));
+			w54.Position = 0;
+			w54.Expand = false;
+			w54.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnMonday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnMonday.CanFocus = true;
@@ -701,10 +642,10 @@ namespace Vodovoz.Views.Logistic
 			this.btnMonday.DrawIndicator = false;
 			this.btnMonday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnMonday);
-			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnMonday]));
-			w66.Position = 1;
-			w66.Expand = false;
-			w66.Fill = false;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnMonday]));
+			w55.Position = 1;
+			w55.Expand = false;
+			w55.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnTuesday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnTuesday.CanFocus = true;
@@ -713,10 +654,10 @@ namespace Vodovoz.Views.Logistic
 			this.btnTuesday.DrawIndicator = false;
 			this.btnTuesday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnTuesday);
-			global::Gtk.Box.BoxChild w67 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnTuesday]));
-			w67.Position = 2;
-			w67.Expand = false;
-			w67.Fill = false;
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnTuesday]));
+			w56.Position = 2;
+			w56.Expand = false;
+			w56.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnSunday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnSunday.CanFocus = true;
@@ -725,11 +666,11 @@ namespace Vodovoz.Views.Logistic
 			this.btnSunday.DrawIndicator = false;
 			this.btnSunday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnSunday);
-			global::Gtk.Box.BoxChild w68 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnSunday]));
-			w68.PackType = ((global::Gtk.PackType)(1));
-			w68.Position = 3;
-			w68.Expand = false;
-			w68.Fill = false;
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnSunday]));
+			w57.PackType = ((global::Gtk.PackType)(1));
+			w57.Position = 3;
+			w57.Expand = false;
+			w57.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnSaturday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnSaturday.CanFocus = true;
@@ -738,11 +679,11 @@ namespace Vodovoz.Views.Logistic
 			this.btnSaturday.DrawIndicator = false;
 			this.btnSaturday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnSaturday);
-			global::Gtk.Box.BoxChild w69 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnSaturday]));
-			w69.PackType = ((global::Gtk.PackType)(1));
-			w69.Position = 4;
-			w69.Expand = false;
-			w69.Fill = false;
+			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnSaturday]));
+			w58.PackType = ((global::Gtk.PackType)(1));
+			w58.Position = 4;
+			w58.Expand = false;
+			w58.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnFriday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnFriday.CanFocus = true;
@@ -751,11 +692,11 @@ namespace Vodovoz.Views.Logistic
 			this.btnFriday.DrawIndicator = false;
 			this.btnFriday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnFriday);
-			global::Gtk.Box.BoxChild w70 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnFriday]));
-			w70.PackType = ((global::Gtk.PackType)(1));
-			w70.Position = 5;
-			w70.Expand = false;
-			w70.Fill = false;
+			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnFriday]));
+			w59.PackType = ((global::Gtk.PackType)(1));
+			w59.Position = 5;
+			w59.Expand = false;
+			w59.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnThursday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnThursday.CanFocus = true;
@@ -764,11 +705,11 @@ namespace Vodovoz.Views.Logistic
 			this.btnThursday.DrawIndicator = false;
 			this.btnThursday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnThursday);
-			global::Gtk.Box.BoxChild w71 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnThursday]));
-			w71.PackType = ((global::Gtk.PackType)(1));
-			w71.Position = 6;
-			w71.Expand = false;
-			w71.Fill = false;
+			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnThursday]));
+			w60.PackType = ((global::Gtk.PackType)(1));
+			w60.Position = 6;
+			w60.Expand = false;
+			w60.Fill = false;
 			// Container child vboxWeeks.Gtk.Box+BoxChild
 			this.btnWednesday = new global::Gamma.GtkWidgets.yRadioButton();
 			this.btnWednesday.CanFocus = true;
@@ -777,16 +718,166 @@ namespace Vodovoz.Views.Logistic
 			this.btnWednesday.DrawIndicator = false;
 			this.btnWednesday.Group = this.btnToday.Group;
 			this.vboxWeeks.Add(this.btnWednesday);
-			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnWednesday]));
-			w72.PackType = ((global::Gtk.PackType)(1));
-			w72.Position = 7;
-			w72.Expand = false;
-			w72.Fill = false;
-			this.hbox18.Add(this.vboxWeeks);
-			global::Gtk.Box.BoxChild w73 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.vboxWeeks]));
-			w73.Position = 0;
-			w73.Expand = false;
-			w73.Fill = false;
+			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vboxWeeks[this.btnWednesday]));
+			w61.PackType = ((global::Gtk.PackType)(1));
+			w61.Position = 7;
+			w61.Expand = false;
+			w61.Fill = false;
+			this.hbox11.Add(this.vboxWeeks);
+			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vboxWeeks]));
+			w62.Position = 0;
+			w62.Expand = false;
+			w62.Fill = false;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.hbox18 = new global::Gtk.HBox();
+			this.hbox18.Name = "hbox18";
+			this.hbox18.Spacing = 6;
+			// Container child hbox18.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox13 = new global::Gtk.HBox();
+			this.hbox13.Name = "hbox13";
+			this.hbox13.Spacing = 6;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.AddDayScheduleBtn = new global::Gamma.GtkWidgets.yButton();
+			this.AddDayScheduleBtn.CanFocus = true;
+			this.AddDayScheduleBtn.Name = "AddDayScheduleBtn";
+			this.AddDayScheduleBtn.UseUnderline = true;
+			global::Gtk.Image w63 = new global::Gtk.Image();
+			w63.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.AddDayScheduleBtn.Image = w63;
+			this.hbox13.Add(this.AddDayScheduleBtn);
+			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.AddDayScheduleBtn]));
+			w64.Position = 0;
+			w64.Expand = false;
+			w64.Fill = false;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.RemoveDayScheduleBtn = new global::Gamma.GtkWidgets.yButton();
+			this.RemoveDayScheduleBtn.CanFocus = true;
+			this.RemoveDayScheduleBtn.Name = "RemoveDayScheduleBtn";
+			this.RemoveDayScheduleBtn.UseUnderline = true;
+			global::Gtk.Image w65 = new global::Gtk.Image();
+			w65.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.RemoveDayScheduleBtn.Image = w65;
+			this.hbox13.Add(this.RemoveDayScheduleBtn);
+			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.RemoveDayScheduleBtn]));
+			w66.Position = 1;
+			w66.Expand = false;
+			w66.Fill = false;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.CopyDayScheduleBtn = new global::Gamma.GtkWidgets.yButton();
+			this.CopyDayScheduleBtn.CanFocus = true;
+			this.CopyDayScheduleBtn.Name = "CopyDayScheduleBtn";
+			this.CopyDayScheduleBtn.UseUnderline = true;
+			global::Gtk.Image w67 = new global::Gtk.Image();
+			w67.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
+			this.CopyDayScheduleBtn.Image = w67;
+			this.hbox13.Add(this.CopyDayScheduleBtn);
+			global::Gtk.Box.BoxChild w68 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.CopyDayScheduleBtn]));
+			w68.Position = 2;
+			w68.Expand = false;
+			w68.Fill = false;
+			// Container child hbox13.Gtk.Box+BoxChild
+			this.WeekDayPeriodPicker = new global::QSWidgetLib.DatePeriodPicker();
+			this.WeekDayPeriodPicker.Events = ((global::Gdk.EventMask)(256));
+			this.WeekDayPeriodPicker.Name = "WeekDayPeriodPicker";
+			this.WeekDayPeriodPicker.StartDate = new global::System.DateTime(0);
+			this.WeekDayPeriodPicker.EndDate = new global::System.DateTime(0);
+			this.hbox13.Add(this.WeekDayPeriodPicker);
+			global::Gtk.Box.BoxChild w69 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.WeekDayPeriodPicker]));
+			w69.Position = 3;
+			this.vbox2.Add(this.hbox13);
+			global::Gtk.Box.BoxChild w70 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox13]));
+			w70.Position = 0;
+			w70.Expand = false;
+			w70.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeview1.CanFocus = true;
+			this.ytreeview1.Name = "ytreeview1";
+			this.GtkScrolledWindow1.Add(this.ytreeview1);
+			this.vbox2.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow1]));
+			w72.Position = 1;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox16 = new global::Gtk.HBox();
+			this.hbox16.Name = "hbox16";
+			this.hbox16.Spacing = 6;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.AddDayDeliveryRuleBtn = new global::Gamma.GtkWidgets.yButton();
+			this.AddDayDeliveryRuleBtn.CanFocus = true;
+			this.AddDayDeliveryRuleBtn.Name = "AddDayDeliveryRuleBtn";
+			this.AddDayDeliveryRuleBtn.UseUnderline = true;
+			global::Gtk.Image w73 = new global::Gtk.Image();
+			w73.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.AddDayDeliveryRuleBtn.Image = w73;
+			this.hbox16.Add(this.AddDayDeliveryRuleBtn);
+			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.AddDayDeliveryRuleBtn]));
+			w74.Position = 0;
+			w74.Expand = false;
+			w74.Fill = false;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.RemoveDayDeliveryRuleBtn = new global::Gamma.GtkWidgets.yButton();
+			this.RemoveDayDeliveryRuleBtn.CanFocus = true;
+			this.RemoveDayDeliveryRuleBtn.Name = "RemoveDayDeliveryRuleBtn";
+			this.RemoveDayDeliveryRuleBtn.UseUnderline = true;
+			global::Gtk.Image w75 = new global::Gtk.Image();
+			w75.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.RemoveDayDeliveryRuleBtn.Image = w75;
+			this.hbox16.Add(this.RemoveDayDeliveryRuleBtn);
+			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.RemoveDayDeliveryRuleBtn]));
+			w76.Position = 1;
+			w76.Expand = false;
+			w76.Fill = false;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.CopyDayDeliveryRuleBtn = new global::Gamma.GtkWidgets.yButton();
+			this.CopyDayDeliveryRuleBtn.CanFocus = true;
+			this.CopyDayDeliveryRuleBtn.Name = "CopyDayDeliveryRuleBtn";
+			this.CopyDayDeliveryRuleBtn.UseUnderline = true;
+			global::Gtk.Image w77 = new global::Gtk.Image();
+			w77.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
+			this.CopyDayDeliveryRuleBtn.Image = w77;
+			this.hbox16.Add(this.CopyDayDeliveryRuleBtn);
+			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.CopyDayDeliveryRuleBtn]));
+			w78.Position = 2;
+			w78.Expand = false;
+			w78.Fill = false;
+			// Container child hbox16.Gtk.Box+BoxChild
+			this.DayDeliveryRulePeriodPicker = new global::QSWidgetLib.DatePeriodPicker();
+			this.DayDeliveryRulePeriodPicker.Events = ((global::Gdk.EventMask)(256));
+			this.DayDeliveryRulePeriodPicker.Name = "DayDeliveryRulePeriodPicker";
+			this.DayDeliveryRulePeriodPicker.StartDate = new global::System.DateTime(0);
+			this.DayDeliveryRulePeriodPicker.EndDate = new global::System.DateTime(0);
+			this.hbox16.Add(this.DayDeliveryRulePeriodPicker);
+			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.DayDeliveryRulePeriodPicker]));
+			w79.Position = 3;
+			this.vbox2.Add(this.hbox16);
+			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox16]));
+			w80.Position = 2;
+			w80.Expand = false;
+			w80.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.GtkScrolledWindow7 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow7.Name = "GtkScrolledWindow7";
+			this.GtkScrolledWindow7.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow7.Gtk.Container+ContainerChild
+			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeview2.CanFocus = true;
+			this.ytreeview2.Name = "ytreeview2";
+			this.GtkScrolledWindow7.Add(this.ytreeview2);
+			this.vbox2.Add(this.GtkScrolledWindow7);
+			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow7]));
+			w82.Position = 3;
+			this.hbox18.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.vbox2]));
+			w83.Position = 0;
+			w83.Expand = false;
 			// Container child hbox18.Gtk.Box+BoxChild
 			this.vbox16 = new global::Gtk.VBox();
 			this.vbox16.Name = "vbox16";
@@ -800,32 +891,60 @@ namespace Vodovoz.Views.Logistic
 			this.btnAddGraphic.CanFocus = true;
 			this.btnAddGraphic.Name = "btnAddGraphic";
 			this.btnAddGraphic.UseUnderline = true;
-			global::Gtk.Image w74 = new global::Gtk.Image();
-			w74.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.btnAddGraphic.Image = w74;
+			global::Gtk.Image w84 = new global::Gtk.Image();
+			w84.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.btnAddGraphic.Image = w84;
 			this.hbox20.Add(this.btnAddGraphic);
-			global::Gtk.Box.BoxChild w75 = ((global::Gtk.Box.BoxChild)(this.hbox20[this.btnAddGraphic]));
-			w75.Position = 0;
-			w75.Expand = false;
-			w75.Fill = false;
+			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.hbox20[this.btnAddGraphic]));
+			w85.Position = 0;
+			w85.Expand = false;
+			w85.Fill = false;
 			// Container child hbox20.Gtk.Box+BoxChild
 			this.btnRemoveGraphic = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemoveGraphic.CanFocus = true;
 			this.btnRemoveGraphic.Name = "btnRemoveGraphic";
 			this.btnRemoveGraphic.UseUnderline = true;
-			global::Gtk.Image w76 = new global::Gtk.Image();
-			w76.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.btnRemoveGraphic.Image = w76;
+			global::Gtk.Image w86 = new global::Gtk.Image();
+			w86.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.btnRemoveGraphic.Image = w86;
 			this.hbox20.Add(this.btnRemoveGraphic);
-			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.hbox20[this.btnRemoveGraphic]));
-			w77.Position = 1;
-			w77.Expand = false;
-			w77.Fill = false;
+			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.hbox20[this.btnRemoveGraphic]));
+			w87.Position = 1;
+			w87.Expand = false;
+			w87.Fill = false;
+			// Container child hbox20.Gtk.Box+BoxChild
+			this.btnRemoveRestriction = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveRestriction.CanFocus = true;
+			this.btnRemoveRestriction.Name = "btnRemoveRestriction";
+			this.btnRemoveRestriction.UseUnderline = true;
+			global::Gtk.Image w88 = new global::Gtk.Image();
+			w88.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.btnRemoveRestriction.Image = w88;
+			this.hbox20.Add(this.btnRemoveRestriction);
+			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.hbox20[this.btnRemoveRestriction]));
+			w89.PackType = ((global::Gtk.PackType)(1));
+			w89.Position = 3;
+			w89.Expand = false;
+			w89.Fill = false;
+			// Container child hbox20.Gtk.Box+BoxChild
+			this.btnAddRestriction = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddRestriction.CanFocus = true;
+			this.btnAddRestriction.Name = "btnAddRestriction";
+			this.btnAddRestriction.UseUnderline = true;
+			global::Gtk.Image w90 = new global::Gtk.Image();
+			w90.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.btnAddRestriction.Image = w90;
+			this.hbox20.Add(this.btnAddRestriction);
+			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbox20[this.btnAddRestriction]));
+			w91.PackType = ((global::Gtk.PackType)(1));
+			w91.Position = 4;
+			w91.Expand = false;
+			w91.Fill = false;
 			this.vbox16.Add(this.hbox20);
-			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.hbox20]));
-			w78.Position = 0;
-			w78.Expand = false;
-			w78.Fill = false;
+			global::Gtk.Box.BoxChild w92 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.hbox20]));
+			w92.Position = 0;
+			w92.Expand = false;
+			w92.Fill = false;
 			// Container child vbox16.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
@@ -836,8 +955,8 @@ namespace Vodovoz.Views.Logistic
 			this.treeViewGraphic.Name = "treeViewGraphic";
 			this.GtkScrolledWindow3.Add(this.treeViewGraphic);
 			this.vbox16.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.GtkScrolledWindow3]));
-			w80.Position = 1;
+			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.GtkScrolledWindow3]));
+			w94.Position = 1;
 			// Container child vbox16.Gtk.Box+BoxChild
 			this.hbox21 = new global::Gtk.HBox();
 			this.hbox21.Name = "hbox21";
@@ -847,32 +966,60 @@ namespace Vodovoz.Views.Logistic
 			this.btnAddSpecialRules.CanFocus = true;
 			this.btnAddSpecialRules.Name = "btnAddSpecialRules";
 			this.btnAddSpecialRules.UseUnderline = true;
-			global::Gtk.Image w81 = new global::Gtk.Image();
-			w81.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.btnAddSpecialRules.Image = w81;
+			global::Gtk.Image w95 = new global::Gtk.Image();
+			w95.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.btnAddSpecialRules.Image = w95;
 			this.hbox21.Add(this.btnAddSpecialRules);
-			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.hbox21[this.btnAddSpecialRules]));
-			w82.Position = 0;
-			w82.Expand = false;
-			w82.Fill = false;
+			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.hbox21[this.btnAddSpecialRules]));
+			w96.Position = 0;
+			w96.Expand = false;
+			w96.Fill = false;
 			// Container child hbox21.Gtk.Box+BoxChild
 			this.btnRemoveSpecial = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemoveSpecial.CanFocus = true;
 			this.btnRemoveSpecial.Name = "btnRemoveSpecial";
 			this.btnRemoveSpecial.UseUnderline = true;
-			global::Gtk.Image w83 = new global::Gtk.Image();
-			w83.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.btnRemoveSpecial.Image = w83;
+			global::Gtk.Image w97 = new global::Gtk.Image();
+			w97.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.btnRemoveSpecial.Image = w97;
 			this.hbox21.Add(this.btnRemoveSpecial);
-			global::Gtk.Box.BoxChild w84 = ((global::Gtk.Box.BoxChild)(this.hbox21[this.btnRemoveSpecial]));
-			w84.Position = 1;
-			w84.Expand = false;
-			w84.Fill = false;
+			global::Gtk.Box.BoxChild w98 = ((global::Gtk.Box.BoxChild)(this.hbox21[this.btnRemoveSpecial]));
+			w98.Position = 1;
+			w98.Expand = false;
+			w98.Fill = false;
+			// Container child hbox21.Gtk.Box+BoxChild
+			this.btnRemoveRule = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveRule.CanFocus = true;
+			this.btnRemoveRule.Name = "btnRemoveRule";
+			this.btnRemoveRule.UseUnderline = true;
+			global::Gtk.Image w99 = new global::Gtk.Image();
+			w99.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.btnRemoveRule.Image = w99;
+			this.hbox21.Add(this.btnRemoveRule);
+			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.hbox21[this.btnRemoveRule]));
+			w100.PackType = ((global::Gtk.PackType)(1));
+			w100.Position = 3;
+			w100.Expand = false;
+			w100.Fill = false;
+			// Container child hbox21.Gtk.Box+BoxChild
+			this.btnAddRule = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddRule.CanFocus = true;
+			this.btnAddRule.Name = "btnAddRule";
+			this.btnAddRule.UseUnderline = true;
+			global::Gtk.Image w101 = new global::Gtk.Image();
+			w101.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.btnAddRule.Image = w101;
+			this.hbox21.Add(this.btnAddRule);
+			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.hbox21[this.btnAddRule]));
+			w102.PackType = ((global::Gtk.PackType)(1));
+			w102.Position = 4;
+			w102.Expand = false;
+			w102.Fill = false;
 			this.vbox16.Add(this.hbox21);
-			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.hbox21]));
-			w85.Position = 2;
-			w85.Expand = false;
-			w85.Fill = false;
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.hbox21]));
+			w103.Position = 2;
+			w103.Expand = false;
+			w103.Fill = false;
 			// Container child vbox16.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
@@ -883,22 +1030,22 @@ namespace Vodovoz.Views.Logistic
 			this.treeViewSpecialRules.Name = "treeViewSpecialRules";
 			this.GtkScrolledWindow2.Add(this.treeViewSpecialRules);
 			this.vbox16.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.GtkScrolledWindow2]));
-			w87.Position = 3;
+			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.GtkScrolledWindow2]));
+			w105.Position = 3;
 			this.hbox18.Add(this.vbox16);
-			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.vbox16]));
-			w88.Position = 1;
+			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.vbox16]));
+			w106.Position = 1;
 			this.hbox11.Add(this.hbox18);
-			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.hbox18]));
-			w89.Position = 1;
+			global::Gtk.Box.BoxChild w107 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.hbox18]));
+			w107.Position = 1;
 			this.vbox3.Add(this.hbox11);
-			global::Gtk.Box.BoxChild w90 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox11]));
-			w90.Position = 2;
-			w90.Expand = false;
-			w90.Fill = false;
+			global::Gtk.Box.BoxChild w108 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox11]));
+			w108.Position = 2;
+			w108.Expand = false;
+			w108.Fill = false;
 			this.hbox3.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
-			w91.Position = 2;
+			global::Gtk.Box.BoxChild w109 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox3]));
+			w109.Position = 1;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.vbox5 = new global::Gtk.VBox();
 			this.vbox5.Name = "vbox5";
@@ -915,83 +1062,83 @@ namespace Vodovoz.Views.Logistic
 			this.enumProviderMap.UseShortTitle = false;
 			this.enumProviderMap.DefaultFirst = false;
 			this.hbox19.Add(this.enumProviderMap);
-			global::Gtk.Box.BoxChild w92 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.enumProviderMap]));
-			w92.Position = 0;
-			w92.Expand = false;
-			w92.Fill = false;
+			global::Gtk.Box.BoxChild w110 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.enumProviderMap]));
+			w110.Position = 0;
+			w110.Expand = false;
+			w110.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
 			this.AddBorderBtn = new global::Gamma.GtkWidgets.yButton();
 			this.AddBorderBtn.CanFocus = true;
 			this.AddBorderBtn.Name = "AddBorderBtn";
 			this.AddBorderBtn.UseUnderline = true;
-			global::Gtk.Image w93 = new global::Gtk.Image();
-			w93.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.AddBorderBtn.Image = w93;
+			global::Gtk.Image w111 = new global::Gtk.Image();
+			w111.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.AddBorderBtn.Image = w111;
 			this.hbox19.Add(this.AddBorderBtn);
-			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.AddBorderBtn]));
-			w94.Position = 1;
-			w94.Expand = false;
-			w94.Fill = false;
+			global::Gtk.Box.BoxChild w112 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.AddBorderBtn]));
+			w112.Position = 1;
+			w112.Expand = false;
+			w112.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
 			this.RemoveBorderBtn = new global::Gamma.GtkWidgets.yButton();
 			this.RemoveBorderBtn.CanFocus = true;
 			this.RemoveBorderBtn.Name = "RemoveBorderBtn";
 			this.RemoveBorderBtn.UseUnderline = true;
-			global::Gtk.Image w95 = new global::Gtk.Image();
-			w95.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.RemoveBorderBtn.Image = w95;
+			global::Gtk.Image w113 = new global::Gtk.Image();
+			w113.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.RemoveBorderBtn.Image = w113;
 			this.hbox19.Add(this.RemoveBorderBtn);
-			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.RemoveBorderBtn]));
-			w96.Position = 2;
-			w96.Expand = false;
-			w96.Fill = false;
+			global::Gtk.Box.BoxChild w114 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.RemoveBorderBtn]));
+			w114.Position = 2;
+			w114.Expand = false;
+			w114.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
 			this.CancelBorderBtn = new global::Gamma.GtkWidgets.yButton();
 			this.CancelBorderBtn.CanFocus = true;
 			this.CancelBorderBtn.Name = "CancelBorderBtn";
 			this.CancelBorderBtn.UseUnderline = true;
-			global::Gtk.Image w97 = new global::Gtk.Image();
-			w97.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.CancelBorderBtn.Image = w97;
+			global::Gtk.Image w115 = new global::Gtk.Image();
+			w115.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.CancelBorderBtn.Image = w115;
 			this.hbox19.Add(this.CancelBorderBtn);
-			global::Gtk.Box.BoxChild w98 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.CancelBorderBtn]));
-			w98.PackType = ((global::Gtk.PackType)(1));
-			w98.Position = 3;
-			w98.Expand = false;
-			w98.Fill = false;
+			global::Gtk.Box.BoxChild w116 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.CancelBorderBtn]));
+			w116.PackType = ((global::Gtk.PackType)(1));
+			w116.Position = 3;
+			w116.Expand = false;
+			w116.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
 			this.ApplyBorderBtn = new global::Gamma.GtkWidgets.yButton();
 			this.ApplyBorderBtn.CanFocus = true;
 			this.ApplyBorderBtn.Name = "ApplyBorderBtn";
 			this.ApplyBorderBtn.UseUnderline = true;
-			global::Gtk.Image w99 = new global::Gtk.Image();
-			w99.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.ApplyBorderBtn.Image = w99;
+			global::Gtk.Image w117 = new global::Gtk.Image();
+			w117.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.ApplyBorderBtn.Image = w117;
 			this.hbox19.Add(this.ApplyBorderBtn);
-			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.ApplyBorderBtn]));
-			w100.PackType = ((global::Gtk.PackType)(1));
-			w100.Position = 4;
-			w100.Expand = false;
-			w100.Fill = false;
+			global::Gtk.Box.BoxChild w118 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.ApplyBorderBtn]));
+			w118.PackType = ((global::Gtk.PackType)(1));
+			w118.Position = 4;
+			w118.Expand = false;
+			w118.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
 			this.previewMapBtn = new global::Gamma.GtkWidgets.yButton();
 			this.previewMapBtn.CanFocus = true;
 			this.previewMapBtn.Name = "previewMapBtn";
 			this.previewMapBtn.UseUnderline = true;
-			global::Gtk.Image w101 = new global::Gtk.Image();
-			w101.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
-			this.previewMapBtn.Image = w101;
+			global::Gtk.Image w119 = new global::Gtk.Image();
+			w119.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
+			this.previewMapBtn.Image = w119;
 			this.hbox19.Add(this.previewMapBtn);
-			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.previewMapBtn]));
-			w102.PackType = ((global::Gtk.PackType)(1));
-			w102.Position = 5;
-			w102.Expand = false;
-			w102.Fill = false;
+			global::Gtk.Box.BoxChild w120 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.previewMapBtn]));
+			w120.PackType = ((global::Gtk.PackType)(1));
+			w120.Position = 5;
+			w120.Expand = false;
+			w120.Fill = false;
 			this.vbox5.Add(this.hbox19);
-			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox19]));
-			w103.Position = 0;
-			w103.Expand = false;
-			w103.Fill = false;
+			global::Gtk.Box.BoxChild w121 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox19]));
+			w121.Position = 0;
+			w121.Expand = false;
+			w121.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.gmapwidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.gmapwidget.Name = "gmapwidget";
@@ -1009,16 +1156,16 @@ namespace Vodovoz.Views.Logistic
 			this.gmapwidget.MarkersEnabled = true;
 			this.gmapwidget.CanDragMap = true;
 			this.vbox5.Add(this.gmapwidget);
-			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.gmapwidget]));
-			w104.Position = 1;
+			global::Gtk.Box.BoxChild w122 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.gmapwidget]));
+			w122.Position = 1;
 			this.hbox3.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox5]));
-			w105.Position = 4;
+			global::Gtk.Box.BoxChild w123 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vbox5]));
+			w123.Position = 2;
 			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w106.Position = 2;
-			w106.Expand = false;
-			w106.Fill = false;
+			global::Gtk.Box.BoxChild w124 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w124.Position = 2;
+			w124.Expand = false;
+			w124.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

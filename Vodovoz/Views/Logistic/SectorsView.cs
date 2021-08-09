@@ -148,19 +148,19 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.SelectedCommonDistrictRuleItem = treeViewRules.GetSelectedObject<CommonDistrictRuleItem>();
 
 			
-			treeViewGraphicDelivery.ColumnsConfig = FluentColumnsConfig<SectorWeekDayRulesVersion>
-				.Create()
-				.AddColumn("Начало").AddTextRenderer(x => x.StartDate.ToShortDateString())
-				.AddColumn("Окончание").AddTextRenderer(x => x.EndDate.ToShortDateString())
-				.AddColumn("Статус")
-					.AddComboRenderer(x => x.Status)
-					.SetDisplayFunc(x => x.GetEnumTitle())
-					.FillItems(((SectorsSetStatus[]) Enum.GetValues(typeof(SectorsSetStatus))).ToList())
-					.Editing()
-				.Finish();
-			treeViewGraphicDelivery.Binding.AddBinding(ViewModel, s => s.SectorWeekDeliveryRuleVersions, t => t.ItemsDataSource);
-			treeViewGraphicDelivery.Selection.Changed += (sender, args) =>
-				ViewModel.SelectedWeekDayRulesVersion = treeViewGraphicDelivery.GetSelectedObject<SectorWeekDayRulesVersion>();
+			//treeViewGraphicDelivery.ColumnsConfig = FluentColumnsConfig<SectorWeekDayRulesVersion>
+			//	.Create()
+			//	.AddColumn("Начало").AddTextRenderer(x => x.StartDate.ToShortDateString())
+			//	.AddColumn("Окончание").AddTextRenderer(x => x.EndDate.ToShortDateString())
+			//	.AddColumn("Статус")
+			//		.AddComboRenderer(x => x.Status)
+			//		.SetDisplayFunc(x => x.GetEnumTitle())
+			//		.FillItems(((SectorsSetStatus[]) Enum.GetValues(typeof(SectorsSetStatus))).ToList())
+			//		.Editing()
+			//	.Finish();
+			//treeViewGraphicDelivery.Binding.AddBinding(ViewModel, s => s.SectorWeekDeliveryRuleVersions, t => t.ItemsDataSource);
+			//treeViewGraphicDelivery.Selection.Changed += (sender, args) =>
+				//ViewModel.SelectedWeekDayRulesVersion = treeViewGraphicDelivery.GetSelectedObject<SectorWeekDayRulesVersion>();
 
 
 			treeViewGraphic.ColumnsConfig = FluentColumnsConfig<SectorWeekDaySchedule>
@@ -224,14 +224,14 @@ namespace Vodovoz.Views.Logistic
 			btnCopyRulesDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDeliveryRuleVersion != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
 			btnCopyRulesDelivery.Clicked += (sender, args) => ViewModel.CopyRulesDelivery.Execute();
 
-			btnAddGraphicDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSector != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
-			btnAddGraphicDelivery.Clicked += (sender, args) => ViewModel.AddWeekRuleDelivery.Execute();
+			//btnAddGraphicDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSector != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
+			//btnAddGraphicDelivery.Clicked += (sender, args) => ViewModel.AddWeekRuleDelivery.Execute();
 			
-			btnRemoveGraphicDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedWeekDayRulesVersion != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
-			btnRemoveGraphicDelivery.Clicked += (sender, args) => ViewModel.RemoveWeekRuleDelivery.Execute();
+			//btnRemoveGraphicDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedWeekDayRulesVersion != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
+			//btnRemoveGraphicDelivery.Clicked += (sender, args) => ViewModel.RemoveWeekRuleDelivery.Execute();
 			
-			btnCopyGraphicDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedWeekDayRulesVersion != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
-			btnCopyGraphicDelivery.Clicked += (sender, args) => ViewModel.CopyWeekRuleDelivery.Execute();
+			//btnCopyGraphicDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedWeekDayRulesVersion != null && vm.CanEditSector, t => t.Sensitive).InitializeFromSource();
+			//btnCopyGraphicDelivery.Clicked += (sender, args) => ViewModel.CopyWeekRuleDelivery.Execute();
 
 			btnOnActive.Clicked += (sender, args) => ViewModel.ActivateSector.Execute();
 			#endregion
