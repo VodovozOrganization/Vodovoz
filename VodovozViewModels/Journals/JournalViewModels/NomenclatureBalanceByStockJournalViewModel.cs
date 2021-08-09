@@ -55,13 +55,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 			if(FilterViewModel?.Warehouse != null)
 			{
 				query.Where(() => warehouseAlias.Id == FilterViewModel.Warehouse.Id);
-				incomeSubQuery.Where(() => incomeAlias.IncomingWarehouse == FilterViewModel.Warehouse);
-				writeoffSubQuery.Where(() => writeoffAlias.WriteoffWarehouse == FilterViewModel.Warehouse);
-			}
-			else
-			{
-				incomeSubQuery.Where(() => incomeAlias.IncomingWarehouse != null);
-				writeoffSubQuery.Where(() => writeoffAlias.WriteoffWarehouse != null);
 			}
 
 			incomeSubQuery.Select(Projections.Sum(Projections.Property(() => incomeAlias.Amount)));
@@ -92,20 +85,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 		{
 			NodeActionsList.Clear();
 			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any() && selected.All(x => ((NomenclatureBalanceByStockJournalNode) x).NomenclatureAmount > 0),
+				(selected) => selected.Any() && selected.All(x => ((NomenclatureBalanceByStockJournalNode)x).NomenclatureAmount > 0),
 				(selected) => SelectionMode != JournalSelectionMode.None,
 				(selected) =>
 				{
-					if(selected.All(x => ((NomenclatureBalanceByStockJournalNode) x).NomenclatureAmount > 0))
+					if(selected.All(x => ((NomenclatureBalanceByStockJournalNode)x).NomenclatureAmount > 0))
 					{
 						OnItemsSelected(selected);
 					}
 				}
 			);
-			if (SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
+			if(SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
 			{
 				RowActivatedAction = selectAction;
 			}
+
 			NodeActionsList.Add(selectAction);
 		}
 	}
