@@ -100,6 +100,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		/// </summary>
 		public void SaveChanges()
 		{
+			if(!HasChanges)
+			{
+				return;
+			}
 			UoW.Save(_entity);
 			if(!(_entity is DriverAttachedTerminalGiveoutDocument))
 			{

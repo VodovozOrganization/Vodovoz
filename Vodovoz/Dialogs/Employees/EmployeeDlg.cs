@@ -871,7 +871,7 @@ namespace Vodovoz
 			}
 			#endregion
 
-			_terminalManagementViewModel.SaveChanges();
+			_terminalManagementViewModel?.SaveChanges();
 
 			logger.Info("Сохраняем сотрудника...");
 			try {

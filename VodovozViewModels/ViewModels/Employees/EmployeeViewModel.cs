@@ -680,7 +680,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			#endregion
 
-			_terminalManagementViewModel.SaveChanges();
+			_terminalManagementViewModel?.SaveChanges();
 
 			_logger.Info("Сохраняем сотрудника...");
 			try
