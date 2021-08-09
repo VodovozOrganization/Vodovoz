@@ -30,16 +30,16 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)
 				.InitializeFromSource();
 
-			hboxDriversAndTerminals.Binding.AddBinding(ViewModel, vm => vm.HasAccessToDriverTerminal, w => w.Visible).InitializeFromSource();
-			if(ViewModel.HasAccessToDriverTerminal)
-			{
-				comboDriverType.ItemsEnum = typeof(DriverTerminalRelation);
-				comboDriverType.Binding.AddBinding(ViewModel, vm => vm.DriverTerminalRelation, w => w.SelectedItemOrNull).InitializeFromSource();
+			hboxDriversAndTerminals.Visible = ViewModel.HasAccessToDriverTerminal;
+			hboxDriversAndTerminals.NoShowAll = true;
 
-				checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.CanSortByPriority, w => w.Visible).InitializeFromSource();
-				checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active).InitializeFromSource();
-				checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
-			}
+			comboDriverType.ItemsEnum = typeof(DriverTerminalRelation);
+			comboDriverType.Binding.AddBinding(ViewModel, vm => vm.DriverTerminalRelation, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.CanSortByPriority, w => w.Visible).InitializeFromSource();
+			checkSortByPriority.Binding.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active).InitializeFromSource();
+			checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
 		}
 	}
 }
