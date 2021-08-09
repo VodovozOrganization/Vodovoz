@@ -90,8 +90,20 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		public virtual DriverTerminalRelation? DriverTerminalRelation
 		{
 			get => _driverTerminalRelation;
-			set => UpdateFilterField(ref _driverTerminalRelation, value, () => DriverTerminalRelation);
+			set
+			{
+				UpdateFilterField(ref _driverTerminalRelation, value, () => DriverTerminalRelation);
+				if(value != null)
+				{
+					Category = EmployeeCategory.driver;
+				}
+				else
+				{
+					Category = null;
+				}
+			}
 		}
+
 		#endregion
 
 		public EmployeeFilterViewModel()
