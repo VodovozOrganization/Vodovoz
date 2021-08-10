@@ -41,7 +41,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
-using CounterpartyContractFactory = Vodovoz.Repositories.Client.CounterpartyContractFactory;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz.Domain.Orders

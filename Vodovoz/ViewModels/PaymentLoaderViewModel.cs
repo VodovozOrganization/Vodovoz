@@ -10,7 +10,6 @@ using Vodovoz.Services;
 using Vodovoz.Domain.Payments;
 using NLog;
 using QS.Commands;
-using Vodovoz.Repositories;
 using Vodovoz.Domain.Orders;
 using System.Threading.Tasks;
 using QS.Dialog;

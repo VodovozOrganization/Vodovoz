@@ -27,7 +27,7 @@ using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
-using CounterpartyContractFactory = Vodovoz.Repositories.Client.CounterpartyContractFactory;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.JournalViewModels
 {

@@ -24,7 +24,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.JournalFilters;
-using CounterpartyContractFactory = Vodovoz.Repositories.Client.CounterpartyContractFactory;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
 {

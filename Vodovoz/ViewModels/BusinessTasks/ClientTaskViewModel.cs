@@ -24,7 +24,7 @@ using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels;
-using CounterpartyContractFactory = Vodovoz.Repositories.Client.CounterpartyContractFactory;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {

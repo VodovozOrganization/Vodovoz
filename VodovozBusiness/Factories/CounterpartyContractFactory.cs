@@ -5,7 +5,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
 
-namespace Vodovoz.Repositories.Client
+namespace Vodovoz.Factories
 {
 	public class CounterpartyContractFactory
 	{

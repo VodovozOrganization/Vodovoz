@@ -17,7 +17,6 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories;
 
 namespace Vodovoz
 {

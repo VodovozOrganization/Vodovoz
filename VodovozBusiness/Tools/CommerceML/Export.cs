@@ -10,7 +10,6 @@ using RestSharp;
 using RestSharp.Authenticators;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories;
 using Vodovoz.Tools.CommerceML.Nodes;
 
 namespace Vodovoz.Tools.CommerceML
