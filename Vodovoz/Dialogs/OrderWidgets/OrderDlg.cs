@@ -34,6 +34,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Autofac;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -1153,14 +1154,20 @@ namespace Vodovoz
 		private bool ValidateAndFormOrder()
 		{
 			Entity.CheckAndSetOrderIsService();
-
-			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>{
+			
+			ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+			
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+			{
 				{ "NewStatus", OrderStatus.Accepted },
-				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				{ "IsCopiedFromUndelivery", templateOrder != null },//индикатор того, что заказ - копия, созданная из недовозов
+				{ "uowFactory", uowFactory }
 			});
 
 			if(!Validate(validationContext))
 			{
+				autofacScope.Dispose();
 				return false;
 			}
 
@@ -1170,6 +1177,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 
 			OnFormOrderActions();
+			autofacScope.Dispose();
 			return true;
 		}
 
