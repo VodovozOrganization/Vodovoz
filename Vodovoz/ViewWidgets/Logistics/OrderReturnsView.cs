@@ -39,12 +39,7 @@ namespace Vodovoz
 {
     public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
     {
-	    private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
-	    private readonly IOrderRepository _orderRepository = new OrderRepository();
-	    private readonly WageParameterService _wageParameterService =
-		    new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
-
-	    class OrderNode : PropertyChangedBase
+	    private class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -104,11 +99,16 @@ namespace Vodovoz
 
 		#region Поля и свойства
 		
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private readonly RouteListItem _routeListItem;
+		
 		private IUnitOfWork _uow;
 		private bool _canEditPrices;
 		private OrderNode _orderNode;
 		private CallTaskWorker _callTaskWorker;
-		private readonly RouteListItem _routeListItem;
 		private List<OrderItemReturnsNode> _itemsToClient;
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -135,6 +135,7 @@ namespace Vodovoz
 					SingletonErrorReporter.Instance));
 			set => _callTaskWorker = value;
 		}
+		
 		#endregion
 
 		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
@@ -146,10 +147,8 @@ namespace Vodovoz
 			UoW = uow;
 
 			UpdateListsSentivity();
-			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive =
-				routeListItem.Status != RouteListItemStatus.Transfered;
-
-
+			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive = routeListItem.Status != RouteListItemStatus.Transfered;
+			
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 			Configure();
 			UpdateItemsList();
