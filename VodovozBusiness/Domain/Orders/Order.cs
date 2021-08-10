@@ -211,10 +211,21 @@ namespace Vodovoz.Domain.Orders
 			get => deliveryDate;
 			set
 			{
+				var lastDate = deliveryDate;
 				if(SetField(ref deliveryDate, value) && 
 				   Contract != null && Contract.Id == 0)
 				{
 					UpdateContract();
+				}
+				if(Contract != null && Contract.Id != 0 && DeliveryDate.HasValue 
+				   && lastDate == Contract.IssueDate 
+				   && Contract.IssueDate != DeliveryDate.Value
+				   && _orderRepository.CanChangeContractDate(UoW, Client, DeliveryDate.Value, Id)
+				   && OrderStatus != OrderStatus.Closed)
+				{
+					Contract.IssueDate = DeliveryDate.Value.Date;
+					InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Дата договора будет изменена при сохранении текущего заказа!");
 				}
 			}
 		}
@@ -984,23 +995,27 @@ namespace Vodovoz.Domain.Orders
 					// Конец проверки цен
 
 					//создание нескольких заказов на одну дату и точку доставки
-					if(!SelfDelivery && DeliveryPoint != null) {
-						var ordersForDeliveryPoints = _orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
-																	 .Where(
-																		 o => o.Id != Id
-																		 && o.DeliveryDate == DeliveryDate
-																		 && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-																		 && !o.IsService
-																		);
-
+					if(!SelfDelivery && DeliveryPoint != null
+					                 && DeliveryDate.HasValue
+					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
+					                 && validationContext.Items.ContainsKey("uowFactory")
+					                 && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") 
+					                 && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) 
+					{
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
+						var orderCheckedOutsideSession = _orderRepository
+							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"], 
+								DeliveryDate.Value, DeliveryPoint)
+							.Where(o => o.Id != Id 
+							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus) 
+							            && !o.IsService).ToList();
+
 						if(!hasMaster
-						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-						   && ordersForDeliveryPoints.Any()
-						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
+						   && orderCheckedOutsideSession.Any())
+						{
 							yield return new ValidationResult(
-								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
+								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}

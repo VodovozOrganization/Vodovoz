@@ -469,12 +469,6 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnRadioCommentsToggled(object sender, EventArgs e)
-		{
-			if(radioComments.Active)
-				notebook1.CurrentPage = 1;
-		}
-
 		private void OnRadioFixedPricesToggled(object sender, EventArgs e)
 		{
 			if (radioFixedPrices.Active)
@@ -483,7 +477,7 @@ namespace Vodovoz
 		
 		public void OpenFixedPrices()
 		{
-			notebook1.CurrentPage = 2;
+			notebook1.CurrentPage = 1;
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)

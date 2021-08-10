@@ -32,7 +32,7 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<DriverComplaintReasonDto> GetPinnedComplaintReasons()
 		{
 			return _complaintsRepository.GetDriverComplaintPopularReasons(_unitOfWork)
-				.Select(x => _driverComplaintReasonConverter.convertToAPIDriverComplaintReason(x));
+				.Select(x => _driverComplaintReasonConverter.ConvertToAPIDriverComplaintReason(x));
 		}
 	}
 }

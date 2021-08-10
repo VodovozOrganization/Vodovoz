@@ -2711,7 +2711,7 @@ FROM
 WHERE
     old_order.delivery_date &gt;= @start_date
     and old_order.delivery_date &lt;= @end_date
-    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26));</CommandText>
+    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46));</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

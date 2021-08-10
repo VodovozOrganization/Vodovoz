@@ -34,6 +34,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Autofac;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -523,8 +524,6 @@ namespace Vodovoz
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
-			commentsview4.UoW = UoWGeneric;
-			
 			enumAddRentButton.ItemsEnum = typeof(RentType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
@@ -1167,14 +1166,20 @@ namespace Vodovoz
 		private bool ValidateAndFormOrder()
 		{
 			Entity.CheckAndSetOrderIsService();
-
-			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>{
+			
+			ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+			
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+			{
 				{ "NewStatus", OrderStatus.Accepted },
-				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				{ "IsCopiedFromUndelivery", templateOrder != null },//индикатор того, что заказ - копия, созданная из недовозов
+				{ "uowFactory", uowFactory }
 			});
 
 			if(!Validate(validationContext))
 			{
+				autofacScope.Dispose();
 				return false;
 			}
 
@@ -1182,6 +1187,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 
 			OnFormOrderActions();
+			autofacScope.Dispose();
 			return true;
 		}
 
@@ -1414,40 +1420,34 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnToggleCommentsToggled(object sender, EventArgs e)
-		{
-			if(toggleComments.Active)
-				notebook1.CurrentPage = 1;
-		}
-
 		protected void OnToggleTareControlToggled(object sender, EventArgs e)
 		{
 			if(toggleTareControl.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 1;
 		}
 
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
-				notebook1.CurrentPage = 4;
+				notebook1.CurrentPage = 3;
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
-				notebook1.CurrentPage = 5;
+				notebook1.CurrentPage = 4;
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
-				notebook1.CurrentPage = 6;
+				notebook1.CurrentPage = 5;
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);

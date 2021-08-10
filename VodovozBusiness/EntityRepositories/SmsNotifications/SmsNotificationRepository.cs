@@ -12,5 +12,12 @@ namespace Vodovoz.EntityRepositories.SmsNotifications
 						.Where(x => x.Status == SmsNotificationStatus.New)
 						.List();
 		}
+
+		public IEnumerable<UndeliveryNotApprovedSmsNotification> GetUnsendedUndeliveryNotApprovedSmsNotifications(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<UndeliveryNotApprovedSmsNotification>()
+				.Where(x => x.Status == SmsNotificationStatus.New)
+				.List();
+		}
 	}
 }
