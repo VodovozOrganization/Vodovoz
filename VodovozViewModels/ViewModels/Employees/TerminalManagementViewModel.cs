@@ -217,6 +217,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				return false;
 			}
 
+			if(HasChanges && _entity is DriverAttachedTerminalReturnDocument)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Имеется несохраненная операция возврата терминала. " +
+					"Необходимо сохранить сотрудника перед проведением следующей операции.");
+				return false;
+			}
+
 			return true;
 		}
 		#endregion
