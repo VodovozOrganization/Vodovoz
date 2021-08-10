@@ -791,30 +791,32 @@ namespace Vodovoz.Domain.Client
         #endregion
 
         #region CloseDelivery
-
-        //TODO пробросить зависимостью EmployeeRepository
-        public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
+        
+        public virtual void AddCloseDeliveryComment(string newComment, Employee currentEmployee)
 		{
-			var employee = new EmployeeRepository().GetEmployeeForCurrentUser(UoW);
-			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;
+			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
-
-        //TODO пробросить зависимостью EmployeeRepository
-		protected virtual bool CloseDelivery(IUnitOfWork UoW)
+        
+		protected virtual bool CloseDelivery(Employee currentEmployee)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			{
 				return false;
+			}
+
 			IsDeliveriesClosed = true;
 			CloseDeliveryDate = DateTime.Now;
-			CloseDeliveryPerson = new EmployeeRepository().GetEmployeeForCurrentUser(UoW);
+			CloseDeliveryPerson = currentEmployee;
 			return true;
 		}
 
 
-		protected virtual bool OperDelivery(IUnitOfWork UoW)
+		protected virtual bool OpenDelivery()
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			{
 				return false;
+			}
 
 			IsDeliveriesClosed = false;
 			CloseDeliveryDate = null;
@@ -824,9 +826,9 @@ namespace Vodovoz.Domain.Client
 			return true;
 		}
 
-		public virtual bool ToogleDeliveryOption(IUnitOfWork UoW)
+		public virtual bool ToggleDeliveryOption(Employee currentEmployee)
 		{
-			return IsDeliveriesClosed ? OperDelivery(UoW) : CloseDelivery(UoW);
+			return IsDeliveriesClosed ? OpenDelivery() : CloseDelivery(currentEmployee);
 		}
 
 		public virtual string GetCloseDeliveryInfo()

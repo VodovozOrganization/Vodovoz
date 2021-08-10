@@ -16,7 +16,6 @@ namespace Vodovoz.Factories
 	{
 		public EmployeeWageParametersViewModel CreateEmployeeWageParametersViewModel(Employee employee, ITdiTab tab, IUnitOfWork uow)
 		{
-			//TODO уточнить, может лучше создавать новые объекты
 			var employeeRepository = new EmployeeRepository();
 			var userRepository = new UserRepository();
 			var wageCalculationRepository = new WageCalculationRepository();

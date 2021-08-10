@@ -26,6 +26,8 @@ namespace Vodovoz.Parameters
 
         public int CurrentOnlineStoreId => _parametersProvider.GetIntValue("current_online_store_id");
 
+        public decimal GetWaterPriceIncrement => _parametersProvider.GetDecimalValue("water_price_increment");
+
         public string OnlineStoreExportFileUrl => _parametersProvider.GetStringValue("online_store_export_file_url");
 
         #region Получение номенклатур воды
@@ -66,8 +68,6 @@ namespace Vodovoz.Parameters
 			return uow.GetById<Nomenclature>(id);
 		}
 		
-		public decimal GetWaterPriceIncrement => _parametersProvider.GetDecimalValue("water_price_increment");
-
 		#endregion
 		
 		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow)

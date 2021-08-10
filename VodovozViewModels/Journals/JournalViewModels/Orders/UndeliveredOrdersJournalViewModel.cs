@@ -39,6 +39,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 
+		private Employee _currentEmployee;
+
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
@@ -69,6 +71,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			FinishJournalConfiguration();
 		}
+
+		private Employee CurrentEmployee => _currentEmployee ??
+		    (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
 
 		private void RegisterUndeliveredOrders()
 		{
@@ -511,7 +516,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						}
 
 						UndeliveredOrder undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);
-						undeliveredOrder.Close();
+						undeliveredOrder.Close(CurrentEmployee);
 						UoW.Save(undeliveredOrder);
 						UoW.Commit();
 					}

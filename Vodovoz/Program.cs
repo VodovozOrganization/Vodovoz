@@ -34,7 +34,6 @@ using QS.Project.Versioning;
 using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Configuration;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
@@ -103,11 +102,12 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
-			//TODO подумать над этой частью
-			//SingletonParametersProvider.Instance.RefreshParameters();
+			
+			var parametersProvider = new ParametersProvider();
+			parametersProvider.RefreshParameters();
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
-			var baseParameters = new BaseParametersProvider(new ParametersProvider());
+			var baseParameters = new BaseParametersProvider(parametersProvider);
 			SingletonErrorReporter.Initialize(
 				ReportWorker.GetReportService(),
 				applicationInfo,
@@ -166,7 +166,9 @@ namespace Vodovoz
 
 			AutofacClassConfig();
 			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
-			if(QSMain.User.Login == "root") {
+			
+			if(QSMain.User.Login == "root")
+			{
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
 				MessageDialog md = new MessageDialog(null, DialogFlags.Modal,
 									   MessageType.Info,
@@ -179,13 +181,15 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-			} else {
-                if (ChangePassword(applicationConfigurator) && CanLogin())
-                {
-					StartMainWindow(LoginDialog.BaseName, applicationConfigurator);
-				}
-				else
-					return;
+			} 
+			
+			if(ChangePassword(applicationConfigurator) && CanLogin())
+			{
+				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, parametersProvider);
+			}
+			else
+			{
+				return;
 			}
 
 			PerformanceHelper.EndPointsGroup ();
@@ -261,15 +265,16 @@ namespace Vodovoz
 			return false;
 		}
 
-		private static void StartMainWindow(string loginDialogName, IApplicationConfigurator applicationConfigurator)
+		private static void StartMainWindow(
+			string loginDialogName,
+			IApplicationConfigurator applicationConfigurator,
+			IParametersProvider parametersProvider)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
-			//Настройка сервисов
-
-			var parametersProvider = new ParametersProvider();
 			
+			//Настройка сервисов
 			if(parametersProvider.ContainsParameter("email_send_enabled_database") && parametersProvider.ContainsParameter("email_service_address")) {
 				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName) {
 					EmailServiceSetting.Init(parametersProvider.GetParameterValue("email_service_address"));
@@ -297,7 +302,7 @@ namespace Vodovoz
 		}
 
 		private static bool CanLogin()
-        {
+		{
 			using (var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
 			{
 				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;

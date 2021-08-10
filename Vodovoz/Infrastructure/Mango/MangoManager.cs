@@ -37,22 +37,21 @@ namespace Vodovoz.Infrastructure.Mango
 		private CancellationTokenSource notificationCancellation;
 		private IPage CurrentPage;
 		private uint timer;
-		private MangoService.MangoController mangoController;
+		private MangoController mangoController;
 
 		public MangoManager(Gtk.Action toolbarIcon,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IUserService userService,
 			INavigationManager navigation,
-			BaseParametersProvider parametrs,
-			PhoneRepository phoneRepository)
+			BaseParametersProvider parametrs)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
-			this.mangoController = new MangoService.MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
+			mangoController = new MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;

@@ -63,7 +63,7 @@ namespace Vodovoz
     public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        
+
         private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
         private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
         private readonly IUserRepository _userRepository = new UserRepository();
@@ -75,8 +75,9 @@ namespace Vodovoz
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
-        private  INomenclatureRepository nomenclatureRepository;
+        private INomenclatureRepository nomenclatureRepository;
         private ValidationContext _validationContext;
+        private Employee _currentEmployee;
 
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
@@ -281,6 +282,9 @@ namespace Vodovoz
             ConfigureDlg();
         }
 
+        private Employee CurrentEmployee => _currentEmployee ??
+			(_currentEmployee = _employeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId));
+       
         void ConfigureDlg()
         {
             notebook1.CurrentPage = 0;
@@ -1077,7 +1081,7 @@ namespace Vodovoz
                 return;
             }
 
-            Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, UoW);
+            Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, CurrentEmployee);
             SetVisibilityForCloseDeliveryComments();
         }
 
@@ -1096,7 +1100,8 @@ namespace Vodovoz
 
         protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
         {
-            if(!Entity.ToogleDeliveryOption(UoW)) {
+            if(!Entity.ToggleDeliveryOption(CurrentEmployee))
+            {
                 MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
                 return;
             }

@@ -210,9 +210,8 @@ namespace Vodovoz.Domain.Service
 				TotalPrice += sci.Total;
 			}
 		}
-
-		//TODO пробросить EmployeeRepository
-		public void AddHistoryRecord (ServiceClaimStatus status, string comment)
+		
+		public void AddHistoryRecord (ServiceClaimStatus status, string comment, IEmployeeRepository employeeRepository)
 		{
 			if(Status != status)
 			{
@@ -223,7 +222,7 @@ namespace Vodovoz.Domain.Service
 			ObservableServiceClaimHistory.Add (new ServiceClaimHistory { 
 				Date = DateTime.Now,
 				Status = status,
-				Employee = new EmployeeRepository().GetEmployeeForCurrentUser (UoW),
+				Employee = employeeRepository.GetEmployeeForCurrentUser(UoW),
 				Comment = comment,
 				ServiceClaim = this
 			});

@@ -117,7 +117,6 @@ namespace Vodovoz
 
 		private void LoadAddressesTypesDefaults()
 		{
-			//TODO проверить работоспособность
 			var currentUserSettings = CurrentUserSettings.Settings;
 			
 			foreach(var addressTypeNode in AddressTypes) {

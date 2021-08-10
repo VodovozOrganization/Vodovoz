@@ -249,8 +249,10 @@ namespace Vodovoz
 				UoWGeneric.Root.InitialOrder.AddServiceClaimAsInitial (UoWGeneric.Root);
 
 			if (UoWGeneric.IsNew)
-				UoWGeneric.Root.AddHistoryRecord (UoWGeneric.Root.Status, 
-					String.IsNullOrWhiteSpace (textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text);
+				UoWGeneric.Root.AddHistoryRecord(
+					UoWGeneric.Root.Status, 
+					string.IsNullOrWhiteSpace(textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text,
+					_employeeRepository);
 
 			logger.Info ("Сохраняем заявку на обслуживание...");
 			UoWGeneric.Save ();
@@ -379,7 +381,7 @@ namespace Vodovoz
 		{
 			if (!String.IsNullOrWhiteSpace (textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog ("Вы не заполнили комментарий. Продолжить?")) {
 				ServiceClaimStatus newStatus = (ServiceClaimStatus)(enumStatusEditable.SelectedItem ?? UoWGeneric.Root.Status);
-				UoWGeneric.Root.AddHistoryRecord (newStatus, textComment.Buffer.Text);
+				UoWGeneric.Root.AddHistoryRecord (newStatus, textComment.Buffer.Text, _employeeRepository);
 			}
 		}
 

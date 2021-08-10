@@ -278,12 +278,11 @@ namespace Vodovoz.Domain.Orders
 			}
 			return sb.ToString();
 		}
-
-		//TODO пробросить зависимостью EmployeeRepository
-		public virtual void Close()
+		
+		public virtual void Close(Employee currentEmployee)
 		{
 			SetUndeliveryStatus(UndeliveryStatus.Closed);
-			LastEditor = new EmployeeRepository().GetEmployeeForCurrentUser(UoW);
+			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 		}
 
