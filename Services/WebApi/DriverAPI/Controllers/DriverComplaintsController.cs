@@ -12,11 +12,11 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class DriverComplaintsController : ControllerBase
 	{
-		private readonly IDriverComplaintModel iAPIDriverComplaintData;
+		private readonly IDriverComplaintModel _iAPIDriverComplaintData;
 
 		public DriverComplaintsController(IDriverComplaintModel iAPIDriverComplaintData)
 		{
-			this.iAPIDriverComplaintData = iAPIDriverComplaintData ?? throw new ArgumentNullException(nameof(iAPIDriverComplaintData));
+			_iAPIDriverComplaintData = iAPIDriverComplaintData ?? throw new ArgumentNullException(nameof(iAPIDriverComplaintData));
 		}
 
 		/// <summary>
@@ -27,7 +27,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetDriverComplaintReasons")]
 		public IEnumerable<DriverComplaintReasonDto> GetDriverComplaintReasons()
 		{
-			return iAPIDriverComplaintData.GetPinnedComplaintReasons();
+			return _iAPIDriverComplaintData.GetPinnedComplaintReasons();
 		}
 	}
 }

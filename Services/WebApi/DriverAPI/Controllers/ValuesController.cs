@@ -11,11 +11,11 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class ValuesController : ControllerBase
 	{
-		private readonly IDriverApiParametersProvider webApiParametersProvider;
+		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 
 		public ValuesController(IDriverApiParametersProvider webApiParametersProvider)
 		{
-			this.webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 		}
 
 		// GET: GetRouteList 
@@ -26,7 +26,7 @@ namespace DriverAPI.Controllers
 		{
 			return new CompanyNumberResponseDto()
 			{
-				Number = webApiParametersProvider.CompanyPhoneNumber
+				Number = _webApiParametersProvider.CompanyPhoneNumber
 			};
 		}
 	}
