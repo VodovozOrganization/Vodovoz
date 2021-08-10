@@ -633,7 +633,7 @@ namespace Vodovoz.Dialogs.Logistic
 			});
 			activeSectors.ForEach(sectorVersion =>
 			{
-				if(DialogAtDate.Date >= sectorVersion.StartDate.Date)
+				if(DialogAtDate.Date >= sectorVersion.StartDate.Value.Date)
 				{
 					var outDatedPriorities = DriversAtDay
 						.SelectMany(atWorkDriver => atWorkDriver.DistrictsPriorities.Where(atWorkDriverDistrictPriority =>

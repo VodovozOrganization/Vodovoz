@@ -14,26 +14,31 @@ namespace Vodovoz.Domain.Sectors
 		public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}";
 		
 		public int Id { get; set; }
+
+		private DateTime _startDate;
 		
-		private Employee _author;
-		[Display(Name = "Автор")]
-		public virtual Employee Author {
-			get => _author;
-			set => SetField(ref _author, value);
-		}
-
-		private Employee _lastEditor;
-		public virtual Employee LastEditor {
-			get => _lastEditor;
-			set => SetField(ref _lastEditor, value);
-		}
-
-		private SectorWeekDayRulesVersion _sectorWeekDayRulesVersion;
-
-		public SectorWeekDayRulesVersion SectorWeekDayRulesVersion
+		[Display(Name = "Время создания")]
+		public virtual DateTime StartDate
 		{
-			get => _sectorWeekDayRulesVersion;
-			set => SetField(ref _sectorWeekDayRulesVersion, value);
+			get => _startDate;
+			set => SetField(ref _startDate, value);
+		}
+
+		private DateTime _endDate;
+
+		[Display(Name = "Время закрытия")]
+		public virtual DateTime EndDate
+		{
+			get => _endDate;
+			set => SetField(ref _endDate, value);
+		}
+
+		private SectorWeekDayDeliveryRuleVersion _sectorWeekDayDeliveryRuleVersion;
+
+		public SectorWeekDayDeliveryRuleVersion SectorWeekDayDeliveryRuleVersion
+		{
+			get => _sectorWeekDayDeliveryRuleVersion;
+			set => SetField(ref _sectorWeekDayDeliveryRuleVersion, value);
 		}
 
 		private WeekDayName _deliveryWeekDay;
@@ -60,12 +65,14 @@ namespace Vodovoz.Domain.Sectors
 
 		public object Clone()
 		{
-			var sectorWeekDayRulesVersionClone = SectorWeekDayRulesVersion.Clone() as SectorWeekDayRulesVersion;
+			var sectorWeekDayDeliveryRuleVersionClone = SectorWeekDayDeliveryRuleVersion.Clone() as SectorWeekDayDeliveryRuleVersion;
 			var deliveryPriceRuleClone = DeliveryPriceRule.Clone() as DeliveryPriceRule;
 			
 			return new SectorWeekDayDeliveryRule
 			{
-				SectorWeekDayRulesVersion = sectorWeekDayRulesVersionClone,
+				StartDate = StartDate,
+				EndDate = EndDate,
+				SectorWeekDayDeliveryRuleVersion = sectorWeekDayDeliveryRuleVersionClone,
 				DeliveryPriceRule = deliveryPriceRuleClone,
 				Price = Price,
 				DeliveryWeekDay = DeliveryWeekDay

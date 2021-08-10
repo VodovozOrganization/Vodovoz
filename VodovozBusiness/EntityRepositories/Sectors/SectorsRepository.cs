@@ -89,9 +89,9 @@ namespace Vodovoz.EntityRepositories.Sectors
 				.Where(x => x.Sector.Id == sector.Id).List();
 		}
 
-		public IList<SectorWeekDayRulesVersion> GetSectorWeekDayRules(IUnitOfWork uow, Sector sector)
+		public IList<SectorWeekDayScheduleVersion> GetSectorWeekDayRules(IUnitOfWork uow, Sector sector)
 		{
-			return uow.Session.QueryOver<SectorWeekDayRulesVersion>()
+			return uow.Session.QueryOver<SectorWeekDayScheduleVersion>()
 				.Where(x => x.Sector.Id == sector.Id).List();
 		}
 		

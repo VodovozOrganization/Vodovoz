@@ -22,43 +22,60 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class SectorsViewModel : EntityTabViewModelBase<SectorVersion>
 	{
+		#region Поля
+		
 		private readonly ICommonServices _commonServices;
 		private readonly IEntityDeleteWorker _entityDeleteWorker;
 		private readonly GeometryFactory _geometryFactory;
 		private readonly ISectorsRepository _sectorRepository;
 		
 		private int _personellId;
-		private Employee _employee;
-		
 		private bool _isCreatingNewBorder;
+
+		private DateTime? _startDateSector;
+		private DateTime? _endDateSector;
+		private DateTime? _startDateSectorVersion;
+		private DateTime? _endDateSectorVersion;
+		private DateTime? _startDateSectorDeliveryRule;
+		private DateTime? _endDateSectorDeliveryRule;
+		private DateTime? _startDateSectorDaySchedule;
+		private DateTime? _endDateSectorDaySchedule;
+		private DateTime? _startDateSectorDayDeliveryRule;
+		private DateTime? _endDateSectorDayDeliveryRule;
+		private Employee _employee;
 		
 		private GenericObservableList<Sector> _sectors;
 		private GenericObservableList<SectorVersion> _sectorVersions;
 		private List<SectorDeliveryRuleVersion> _sectorDeliveryRuleVersions = new List<SectorDeliveryRuleVersion>();
-		private List<SectorWeekDayRulesVersion> _sectorWeekDeliveryRuleVersions = new List<SectorWeekDayRulesVersion>();
+		private List<SectorWeekDayScheduleVersion> _sectorWeekDeliveryRuleVersions = new List<SectorWeekDayScheduleVersion>();
 		private List<DeliveryPointSectorVersion> _deliveryPointSectorVersions = new List<DeliveryPointSectorVersion>();
 		
 		private GenericObservableList<Sector> _observableSectorsInSession;
 		private GenericObservableList<SectorVersion> _observableSectorVersionsInSession;
 		private GenericObservableList<SectorDeliveryRuleVersion> _observableSectorDeliveryRuleVersionsInSession;
-		private GenericObservableList<SectorWeekDayRulesVersion> _observableSectorWeekDeliveryRuleVersionsInSession;
+		private GenericObservableList<SectorWeekDayScheduleVersion> _observableSectorWeekDayScheduleVersionsInSession;
+		private GenericObservableList<DeliveryScheduleRestriction> _observableSectorDayDeliveryRestrictions;
+		private GenericObservableList<SectorWeekDayDeliveryRuleVersion> _observableSectorWeekDayDeliveryRuleVersionsInSession;
 		private GenericObservableList<PointLatLng> _selectedDistrictBorderVertices;
 		private GenericObservableList<PointLatLng> _newBorderVertices;
 		
 		private SectorVersion _selectedSectorVersion;
 		private Sector _selectedSector;
 		private SectorDeliveryRuleVersion _selectedDeliveryRuleVersion;
-		private SectorWeekDayRulesVersion _selectedWeekDayRulesVersion;
-		private SectorWeekDaySchedule _selectedWeekDaySchedule;
 		private SectorWeekDayDeliveryRule _selectedWeekDayDeliveryRule;
+		private SectorWeekDayScheduleVersion _selectedWeekDayScheduleVersion;
+		private SectorWeekDayDeliveryRuleVersion _selectedWeekDayDeliveryRuleVersion;
 		private CommonDistrictRuleItem _selectedCommonDistrictRuleItem;
+		private WeekDayDistrictRuleItem _selectedWeekDayDistrictRuleItem;
+		private DeliveryScheduleRestriction _selectedScheduleRestriction;
 		
 		public readonly bool CanChangeDistrictWageTypePermissionResult;
 		public readonly bool CanEditSector;
 		public readonly bool CanDeleteDistrict;
 		public readonly bool CanCreateDistrict;
 		public readonly bool CanEdit;
-		
+
+		#endregion
 		public SectorsViewModel(IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
@@ -99,18 +116,86 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			NewBorderVertices = new GenericObservableList<PointLatLng>();
 		}
 
-		#region Свойства
-		
-		public GenericObservableList<PointLatLng> SelectedDistrictBorderVertices {
-			get => _selectedDistrictBorderVertices;
-			set => SetField(ref _selectedDistrictBorderVertices, value);
-		}
-		
-		public GenericObservableList<PointLatLng> NewBorderVertices {
-			get => _newBorderVertices;
-			set => SetField(ref _newBorderVertices, value);
+		#region Даты
+
+		public DateTime? StartDateSector
+		{
+			get => _startDateSector;
+			set => _startDateSector = value;
 		}
 
+		public DateTime? EndDateSector
+		{
+			get => _endDateSector;
+			set => _endDateSector = value;
+		}
+
+		public DateTime? StartDateSectorVersion
+		{
+			get => _startDateSectorVersion;
+			set => _startDateSectorVersion = value;
+		}
+
+		public DateTime? EndDateSectorVersion
+		{
+			get => _endDateSectorVersion;
+			set => _endDateSectorVersion = value;
+		}
+
+		public DateTime? StartDateSectorDeliveryRule
+		{
+			get => _startDateSectorDeliveryRule;
+			set => _startDateSectorDeliveryRule = value;
+		}
+
+		public DateTime? EndDateSectorDeliveryRule
+		{
+			get => _endDateSectorDeliveryRule;
+			set => _endDateSectorDeliveryRule = value;
+		}
+
+		public DateTime? StartDateSectorDayDeliveryRule
+		{
+			get => _startDateSectorDayDeliveryRule;
+			set => _startDateSectorDayDeliveryRule = value;
+		}
+
+		public DateTime? EndDateSectorDayDeliveryRule
+		{
+			get => _endDateSectorDayDeliveryRule;
+			set => _endDateSectorDayDeliveryRule = value;
+		}
+
+		public DateTime? StartDateSectorDaySchedule
+		{
+			get => _startDateSectorDaySchedule;
+			set => _startDateSectorDaySchedule = value;
+		}
+
+		public DateTime? EndDateSectorDaySchedule
+		{
+			get => _endDateSectorDaySchedule;
+			set => _endDateSectorDaySchedule = value;
+		}
+		
+		#endregion
+
+		private WeekDayName? selectedWeekDayName;
+		public WeekDayName? SelectedWeekDayName {
+			get => selectedWeekDayName;
+			set {
+				if(SetField(ref selectedWeekDayName, value)) {
+					if(SelectedWeekDayName != null) {
+						if(SelectedWeekDayScheduleVersion != null)
+							OnPropertyChanged(nameof(ObservableSectorDayDeliveryRestrictions));
+						if(SelectedWeekDayDeliveryRuleVersion != null)
+							OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
+					}
+				}
+			}
+		}
+
+		#region Операции над секторами
 		public GenericObservableList<Sector> Sectors
 		{
 			get => _sectors;
@@ -119,56 +204,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public GenericObservableList<Sector> ObservableSectorsInSession =>
 			_observableSectorsInSession ?? (_observableSectorsInSession = new GenericObservableList<Sector>());
-
-		public GenericObservableList<SectorVersion> SectorVersions => SelectedSector.ObservableSectorVersions ?? (_sectorVersions = new GenericObservableList<SectorVersion>());
 		
-
-		public GenericObservableList<SectorVersion> ObservableSectorVersionsInSession =>
-			_observableSectorVersionsInSession ?? (_observableSectorVersionsInSession = new GenericObservableList<SectorVersion>());
-
-		public GenericObservableList<SectorDeliveryRuleVersion> SectorDeliveryRuleVersions => SelectedSector.ObservableSectorDeliveryRuleVersions;
-
-		public GenericObservableList<SectorDeliveryRuleVersion> ObservableSectorDeliveryRuleVersionsInSession =>
-			_observableSectorDeliveryRuleVersionsInSession ?? (_observableSectorDeliveryRuleVersionsInSession =
-				new GenericObservableList<SectorDeliveryRuleVersion>());
-
-		public GenericObservableList<SectorWeekDayRulesVersion> SectorWeekDeliveryRuleVersions => SelectedSector.ObservableSectorWeekDayRulesVersions;
-		
-		public GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems => SelectedDeliveryRuleVersion.ObservableCommonDistrictRuleItems;
-
-		public GenericObservableList<SectorWeekDaySchedule> ObservableSectorSchedules =>
-			SelectedWeekDayRulesVersion.ObservableSectorSchedules;
-
-		public GenericObservableList<SectorWeekDayDeliveryRule> ObservableSectorDeliveryRules =>
-			SelectedWeekDayRulesVersion.ObservableSectorDeliveryRules;
-
-
-		public GenericObservableList<SectorWeekDayRulesVersion> ObservableSectorWeekDeliveryRuleVersionsInSession =>
-			_observableSectorWeekDeliveryRuleVersionsInSession ?? (_observableSectorWeekDeliveryRuleVersionsInSession =
-				new GenericObservableList<SectorWeekDayRulesVersion>());
-
-		public List<DeliveryPointSectorVersion> DeliveryPointSectorVersions => SelectedSector.DeliveryPointSectorVersions;
-		
-		public bool IsCreatingNewBorder {
-			get => _isCreatingNewBorder;
-			private set {
-				if(value && SelectedSectorVersion == null)
-					throw new ArgumentNullException(nameof(SelectedSectorVersion));
-				SetField(ref _isCreatingNewBorder, value);
-			}
-		}
-
-		public SectorVersion SelectedSectorVersion
-		{
-			get => _selectedSectorVersion;
-			set
-			{
-				if(!SetField(ref _selectedSectorVersion, value))
-					return;
-				
-			}
-		}
-
 		public Sector SelectedSector
 		{
 			get => _selectedSector;
@@ -179,83 +215,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(_selectedSector != null)
 				{
 					OnPropertyChanged(nameof(SectorVersions));
-					OnPropertyChanged(nameof(SectorDeliveryRuleVersions));
-					OnPropertyChanged(nameof(SectorWeekDeliveryRuleVersions));
+					OnPropertyChanged(nameof(ObservableSectorDeliveryRuleVersions));
+					OnPropertyChanged(nameof(ObservableSectorWeekDayScheduleVersions));
+					OnPropertyChanged(nameof(ObservableSectorWeekDeliveryRuleVersions));
 				}
 			}
 		}
-
-		public SectorDeliveryRuleVersion SelectedDeliveryRuleVersion
-		{
-			get => _selectedDeliveryRuleVersion;
-			set
-			{
-				if(!SetField(ref _selectedDeliveryRuleVersion, value))
-					return;
-				
-			}
-		}
-
-		public SectorWeekDayRulesVersion SelectedWeekDayRulesVersion
-		{
-			get => _selectedWeekDayRulesVersion;
-			set
-			{
-				if(!SetField(ref _selectedWeekDayRulesVersion, value))
-					return;
-			}
-		}
-
-		public CommonDistrictRuleItem SelectedCommonDistrictRuleItem
-		{
-			get => _selectedCommonDistrictRuleItem;
-			set
-			{
-				if(!SetField(ref _selectedCommonDistrictRuleItem, value))
-					return;
-				
-				OnPropertyChanged(nameof(ObservableCommonDistrictRuleItems));
-			}
-		}
-
-		public SectorWeekDaySchedule SelectedWeekDaySchedule
-		{
-			get => _selectedWeekDaySchedule;
-			set
-			{
-				if(!SetField(ref _selectedWeekDaySchedule, value))
-					return;
-				
-				OnPropertyChanged(nameof(ObservableSectorSchedules));
-			}
-		}
-
-		public SectorWeekDayDeliveryRule SelectedWeekDayDeliveryRule
-		{
-			get => _selectedWeekDayDeliveryRule;
-			set
-			{
-				if(!SetField(ref _selectedWeekDayDeliveryRule, value))
-					return;
-				OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
-			}
-		}
-		
-		private WeekDayName? selectedWeekDayName;
-		public WeekDayName? SelectedWeekDayName {
-			get => selectedWeekDayName;
-			set {
-				if(SetField(ref selectedWeekDayName, value, () => SelectedWeekDayName)) {
-					if(SelectedWeekDayName != null) {
-						OnPropertyChanged(nameof(SectorDeliveryRuleVersions));
-						OnPropertyChanged(nameof(SectorWeekDeliveryRuleVersions));
-					}
-				}
-			}
-		}
-		#endregion
-
-		#region Операции над секторами
 
 		private DelegateCommand _addSector;
 
@@ -284,6 +249,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#endregion
 
 		#region Операции над версиями секторов(основные характеристики)
+		
+		public GenericObservableList<SectorVersion> SectorVersions => SelectedSector.ObservableSectorVersions ?? (_sectorVersions = new GenericObservableList<SectorVersion>());
+		
+		public GenericObservableList<SectorVersion> ObservableSectorVersionsInSession =>
+			_observableSectorVersionsInSession ?? (_observableSectorVersionsInSession = new GenericObservableList<SectorVersion>());
+		
+		public SectorVersion SelectedSectorVersion
+		{
+			get => _selectedSectorVersion;
+			set => SetField(ref _selectedSectorVersion, value);
+		}
 
 		private DelegateCommand _addSectorVersion;
 
@@ -292,14 +268,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var sectorVersion = SelectedSector.ActiveSectorVersion;
 			SectorVersion newVersion;
 			if(sectorVersion != null)
-			{
 				newVersion = sectorVersion.Clone() as SectorVersion;
-			}
 			else
-			{
 				newVersion = new SectorVersion {Sector = SelectedSector};
-			}
 
+			if(StartDateSectorVersion.HasValue)
+				newVersion.StartDate = StartDateSectorVersion.Value;
+			if(EndDateSectorVersion.HasValue)
+				newVersion.EndDate = EndDateSectorVersion.Value;
+			
 			SelectedSectorVersion = newVersion;
 			ObservableSectorVersionsInSession.Add(newVersion);
 			SectorVersions.Add(newVersion);
@@ -322,7 +299,39 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#endregion
 
-		#region Операции над дополнительными характеристиками версии сектора
+		#region Операции над обычными графиками доставки районов
+
+		public GenericObservableList<SectorDeliveryRuleVersion> ObservableSectorDeliveryRuleVersions => SelectedSector.ObservableSectorDeliveryRuleVersions;
+
+		public GenericObservableList<SectorDeliveryRuleVersion> ObservableSectorDeliveryRuleVersionsInSession =>
+			_observableSectorDeliveryRuleVersionsInSession ?? (_observableSectorDeliveryRuleVersionsInSession =
+				new GenericObservableList<SectorDeliveryRuleVersion>());
+		
+		public SectorDeliveryRuleVersion SelectedDeliveryRuleVersion
+		{
+			get => _selectedDeliveryRuleVersion;
+			set
+			{
+				if(!SetField(ref _selectedDeliveryRuleVersion, value))
+					return;
+				if(value != null)
+					OnPropertyChanged(nameof(ObservableCommonDistrictRuleItems));
+			}
+		}
+
+		public GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems => SelectedDeliveryRuleVersion.ObservableCommonDistrictRuleItems;
+
+		public CommonDistrictRuleItem SelectedCommonDistrictRuleItem
+		{
+			get => _selectedCommonDistrictRuleItem;
+			set
+			{
+				if(!SetField(ref _selectedCommonDistrictRuleItem, value))
+					return;
+				
+				OnPropertyChanged(nameof(ObservableCommonDistrictRuleItems));
+			}
+		}
 
 		private DelegateCommand _addRulesDelivery;
 
@@ -331,17 +340,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var deliveryRuleVersion = new SectorDeliveryRuleVersion{Sector = SelectedSector};
 			SelectedDeliveryRuleVersion = deliveryRuleVersion;
 			ObservableSectorDeliveryRuleVersionsInSession.Add(deliveryRuleVersion);
-			SectorDeliveryRuleVersions.Add(deliveryRuleVersion);
-		}));
-
-		private DelegateCommand _copyRulesDelivery;
-
-		public DelegateCommand CopyRulesDelivery => _copyRulesDelivery ?? (_copyRulesDelivery = new DelegateCommand(() =>
-		{
-			var deliveryRuleVersionClone = SelectedDeliveryRuleVersion.Clone() as SectorDeliveryRuleVersion;
-			SelectedDeliveryRuleVersion = deliveryRuleVersionClone;
-			ObservableSectorDeliveryRuleVersionsInSession.Add(deliveryRuleVersionClone);
-			SectorDeliveryRuleVersions.Add(deliveryRuleVersionClone);
+			ObservableSectorDeliveryRuleVersions.Add(deliveryRuleVersion);
 		}));
 
 		private DelegateCommand _removeRulesDelivery;
@@ -351,82 +350,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(CheckRemoveRulesDelivery(SelectedDeliveryRuleVersion))
 			{
 				ObservableSectorDeliveryRuleVersionsInSession.Remove(SelectedDeliveryRuleVersion);
-				SectorDeliveryRuleVersions.Remove(SelectedDeliveryRuleVersion);
+				ObservableSectorDeliveryRuleVersions.Remove(SelectedDeliveryRuleVersion);
 				SelectedDeliveryRuleVersion = null;
 			}
+		}));
+		
+		private DelegateCommand _copyRulesDelivery;
+
+		public DelegateCommand CopyRulesDelivery => _copyRulesDelivery ?? (_copyRulesDelivery = new DelegateCommand(() =>
+		{
+			var deliveryRuleVersionClone = SelectedDeliveryRuleVersion.Clone() as SectorDeliveryRuleVersion;
+			SelectedDeliveryRuleVersion = deliveryRuleVersionClone;
+			ObservableSectorDeliveryRuleVersionsInSession.Add(deliveryRuleVersionClone);
+			ObservableSectorDeliveryRuleVersions.Add(deliveryRuleVersionClone);
 		}));
 
 		private bool CheckRemoveRulesDelivery(SectorDeliveryRuleVersion sectorDeliveryRuleVersion) =>
 			ObservableSectorDeliveryRuleVersionsInSession.Contains(sectorDeliveryRuleVersion);
-
-		private DelegateCommand _addWeekRuleDelivery;
-
-		public DelegateCommand AddWeekRuleDelivery => _addWeekRuleDelivery ?? (_addWeekRuleDelivery = new DelegateCommand(() =>
-			{
-				var weekRuleDelivery = new SectorWeekDayRulesVersion{Sector = SelectedSector};
-				SelectedWeekDayRulesVersion = weekRuleDelivery;
-				ObservableSectorWeekDeliveryRuleVersionsInSession.Add(weekRuleDelivery);
-				SectorWeekDeliveryRuleVersions.Add(weekRuleDelivery);
-			}));
-
-		private DelegateCommand _copyWeekRuleDelivery;
-
-		public DelegateCommand CopyWeekRuleDelivery => _copyWeekRuleDelivery ?? (_copyWeekRuleDelivery = new DelegateCommand(() =>
-		{
-			var weekRuleDelivery = SelectedWeekDayRulesVersion.Clone() as SectorWeekDayRulesVersion;
-			SelectedWeekDayRulesVersion = weekRuleDelivery;
-			ObservableSectorWeekDeliveryRuleVersionsInSession.Add(weekRuleDelivery);
-			SectorWeekDeliveryRuleVersions.Add(weekRuleDelivery);
-		}));
-
-		private DelegateCommand _removeWeekRuleDelivery;
-
-		public DelegateCommand RemoveWeekRuleDelivery => _removeWeekRuleDelivery ?? (_removeWeekRuleDelivery = new DelegateCommand(() =>
-		{
-			if(CheckRemoveWeekRuleDelivery(SelectedWeekDayRulesVersion))
-			{
-				ObservableSectorWeekDeliveryRuleVersionsInSession.Remove(SelectedWeekDayRulesVersion);
-				SectorWeekDeliveryRuleVersions.Remove(SelectedWeekDayRulesVersion);
-				SelectedWeekDayRulesVersion = null;
-			}
-		}));
-
-		private bool CheckRemoveWeekRuleDelivery(SectorWeekDayRulesVersion sectorWeekDayRulesVersion) =>
-			ObservableSectorWeekDeliveryRuleVersionsInSession.Contains(sectorWeekDayRulesVersion);
-
-		private DelegateCommand _addSectorWeekDaySchedule;
-
-		public DelegateCommand AddSectorWeekDaySchedule => _addSectorWeekDaySchedule ?? (_addSectorWeekDaySchedule = new DelegateCommand(
-			() =>
-			{
-				var sectorWeekDaySchedule = new SectorWeekDaySchedule
-					{DeliveryWeekDay = SelectedWeekDayName.Value, SectorWeekDayRulesVersion = SelectedWeekDayRulesVersion};
-				SelectedWeekDaySchedule = sectorWeekDaySchedule;
-				SelectedWeekDayRulesVersion.SectorSchedules.Add(sectorWeekDaySchedule);
-				ObservableSectorSchedules.Add(sectorWeekDaySchedule);
-			}));
-
-		private DelegateCommand _removeSectorWeekDaySchedule;
-
-		public DelegateCommand RemoveSectorWeekDaySchedule => _removeSectorWeekDaySchedule ?? (_removeSectorWeekDaySchedule = new DelegateCommand(
-			() =>
-			{
-				ObservableSectorSchedules.Remove(SelectedWeekDaySchedule);
-				SelectedWeekDaySchedule = null;
-			}));
-		
-		private DelegateCommand<IEnumerable<DeliverySchedule>> addScheduleRestrictionCommand;
-		public DelegateCommand<IEnumerable<DeliverySchedule>> AddScheduleRestrictionCommand => addScheduleRestrictionCommand ?? (addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliverySchedule>>(
-			schedules => {
-				foreach (var schedule in schedules) {
-					if(SelectedWeekDayName.HasValue && ObservableSectorSchedules.All(x => x.DeliverySchedule.Id != schedule.Id))
-						ObservableSectorSchedules.Add(new SectorWeekDaySchedule {
-							SectorWeekDayRulesVersion = SelectedWeekDayRulesVersion, DeliveryWeekDay = SelectedWeekDayName.Value, DeliverySchedule = schedule,
-						});
-				}
-			},
-			schedules => schedules.Any()
-		));
 		
 		private DelegateCommand _addCommonDistrictRule;
 
@@ -434,9 +374,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			() =>
 			{
 				var commonDistrictRule = new CommonDistrictRuleItem{ Sector = SelectedDeliveryRuleVersion.Sector};
-				SelectedCommonDistrictRuleItem = commonDistrictRule;
 				ObservableCommonDistrictRuleItems.Add(commonDistrictRule);
-				SelectedDeliveryRuleVersion.CommonDistrictRuleItems.Add(commonDistrictRule);
+				SelectedCommonDistrictRuleItem = commonDistrictRule;
 			}));
 
 		private DelegateCommand _removeCommonDistrictRule;
@@ -447,16 +386,203 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				ObservableCommonDistrictRuleItems.Remove(SelectedCommonDistrictRuleItem);
 				SelectedCommonDistrictRuleItem = null;
 			}));
+		
+		#endregion
+
+		#region Операции над графиками доставки района по дням
+
+		public GenericObservableList<SectorWeekDayScheduleVersion> ObservableSectorWeekDayScheduleVersions =>
+			SelectedSector.ObservableSectorWeekDaySchedulesVersions;
+
+		public GenericObservableList<SectorWeekDayScheduleVersion> ObservableSectorWeekDayScheduleVersionsInSession =>
+			_observableSectorWeekDayScheduleVersionsInSession ?? (_observableSectorWeekDayScheduleVersionsInSession =
+				new GenericObservableList<SectorWeekDayScheduleVersion>());
+		
+		public SectorWeekDayScheduleVersion SelectedWeekDayScheduleVersion
+		{
+			get => _selectedWeekDayScheduleVersion;
+			set
+			{
+				if(!SetField(ref _selectedWeekDayScheduleVersion, value))
+					return;
+
+				if(value != null)
+					OnPropertyChanged(nameof(ObservableSectorDayDeliveryRestrictions));
+			}
+		}
+
+		public GenericObservableList<DeliveryScheduleRestriction> ObservableSectorDayDeliveryRestrictions
+		{
+			get
+			{
+				if(SelectedWeekDayScheduleVersion.ObservableSectorSchedules.Where(x => x.WeekDay == SelectedWeekDayName.Value).Any())
+					return new GenericObservableList<DeliveryScheduleRestriction>(SelectedWeekDayScheduleVersion.ObservableSectorSchedules
+						.Where(x => x.WeekDay == SelectedWeekDayName.Value).ToList());
+				return new GenericObservableList<DeliveryScheduleRestriction>();
+			}
+		}
+
+		public GenericObservableList<DeliveryScheduleRestriction> ObservableSectorDayDeliveryRestrictionsInSession =>
+			_observableSectorDayDeliveryRestrictions ?? ( _observableSectorDayDeliveryRestrictions = new GenericObservableList<DeliveryScheduleRestriction>());
+		
+		public DeliveryScheduleRestriction SelectedScheduleRestriction {
+			get => _selectedScheduleRestriction;
+			set => SetField(ref _selectedScheduleRestriction, value);
+		}
+
+		private DelegateCommand _addSectorWeekDayScheduleVersion;
+
+		public DelegateCommand AddSectorWeekDayScheduleVersion => _addSectorWeekDayScheduleVersion ?? (_addSectorWeekDayScheduleVersion =
+			new DelegateCommand(() =>
+			{
+				var dayScheduleVersion = new SectorWeekDayScheduleVersion {Sector = SelectedSector, Status = SectorsSetStatus.Draft};
+				SelectedWeekDayScheduleVersion = dayScheduleVersion;
+				ObservableSectorWeekDayScheduleVersionsInSession.Add(dayScheduleVersion);
+				ObservableSectorWeekDayScheduleVersions.Add(dayScheduleVersion);
+			}));
+		
+		private DelegateCommand _removeSectorWeekDaySchedule;
+
+		public DelegateCommand RemoveSectorWeekDayScheduleVersion => _removeSectorWeekDaySchedule ?? (_removeSectorWeekDaySchedule = new DelegateCommand(
+			() =>
+			{
+				if(CheckRemoveSectorWeekDaySchedule(SelectedWeekDayScheduleVersion))
+				{
+					ObservableSectorWeekDayScheduleVersionsInSession.Remove(SelectedWeekDayScheduleVersion);
+					ObservableSectorWeekDayScheduleVersions.Remove(SelectedWeekDayScheduleVersion);
+					SelectedWeekDayScheduleVersion = null;
+				}
+			}));
+
+		private bool CheckRemoveSectorWeekDaySchedule(SectorWeekDayScheduleVersion sectorWeekDayScheduleVersion) =>
+			ObservableSectorWeekDayScheduleVersionsInSession.Contains(sectorWeekDayScheduleVersion);
+
+		private DelegateCommand _copySectorWeekDaySchedule;
+
+		public DelegateCommand CopySectorWeekDaySchedule => _copySectorWeekDaySchedule ?? (_copySectorWeekDaySchedule = new DelegateCommand(
+			() =>
+			{
+				var dayScheduleVersionClone = SelectedWeekDayScheduleVersion.Clone() as SectorWeekDayScheduleVersion;
+				SelectedWeekDayScheduleVersion = dayScheduleVersionClone;
+				ObservableSectorWeekDayScheduleVersionsInSession.Add(dayScheduleVersionClone);
+				ObservableSectorWeekDayScheduleVersions.Add(dayScheduleVersionClone);
+			}));
+		
+		private DelegateCommand<IEnumerable<DeliverySchedule>> addScheduleRestrictionCommand;
+		public DelegateCommand<IEnumerable<DeliverySchedule>> AddScheduleRestrictionCommand => addScheduleRestrictionCommand ?? (addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliverySchedule>>(
+			schedules => {
+				foreach(var schedule in schedules)
+				{
+					if(SelectedWeekDayName.HasValue &&
+					   ObservableSectorDayDeliveryRestrictions.All(x => x.DeliverySchedule.Id != schedule.Id))
+					{
+						var restriction = new DeliveryScheduleRestriction
+							{WeekDay = SelectedWeekDayName.Value, DeliverySchedule = schedule};
+						SelectedWeekDayScheduleVersion.ObservableSectorSchedules.Add(restriction);
+						ObservableSectorDayDeliveryRestrictionsInSession.Add(restriction);
+						OnPropertyChanged(nameof(ObservableSectorDayDeliveryRestrictions));
+					}
+				}
+			},
+			schedules => schedules.Any()
+		));
+		
+		private DelegateCommand removeScheduleRestrictionCommand;
+		public DelegateCommand RemoveScheduleRestrictionCommand => removeScheduleRestrictionCommand ?? (removeScheduleRestrictionCommand = new DelegateCommand(
+			() => {
+				ObservableSectorDayDeliveryRestrictions.Remove(SelectedScheduleRestriction);
+				OnPropertyChanged(nameof(ObservableSectorDayDeliveryRestrictions));
+			},
+			() => SelectedScheduleRestriction != null
+		));
+		
+		private DelegateCommand removeAcceptBeforeCommand;
+		public DelegateCommand RemoveAcceptBeforeCommand => removeAcceptBeforeCommand ?? (removeAcceptBeforeCommand = new DelegateCommand(
+			() => {
+				SelectedScheduleRestriction.AcceptBefore = null;
+			},
+			() => SelectedScheduleRestriction != null
+		));
+		
+		#endregion
+
+		#region WeekDayDistrictRuleItem 
+		
+		public GenericObservableList<WeekDayDistrictRuleItem> ObservableSectorDeliveryRules
+		{
+			get
+			{
+				if(SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Where(x=>x.WeekDay == SelectedWeekDayName.Value).Any())
+					return new GenericObservableList<WeekDayDistrictRuleItem>(SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Where(x=>x.WeekDay == SelectedWeekDayName.Value).ToList());
+				return new GenericObservableList<WeekDayDistrictRuleItem>();
+			}
+		}
+		
+		public WeekDayDistrictRuleItem SelectedWeekDayDistrictRuleItem
+		{
+			get => _selectedWeekDayDistrictRuleItem;
+			set
+			{
+				if(!SetField(ref _selectedWeekDayDistrictRuleItem, value))
+					return;
+				if(value != null)
+					OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
+			}
+		}
+		public GenericObservableList<SectorWeekDayDeliveryRuleVersion> ObservableSectorWeekDeliveryRuleVersions =>
+			SelectedSector.ObservableSectorWeekDayDeliveryRuleVersions;
+		
+		public GenericObservableList<SectorWeekDayDeliveryRuleVersion> ObservableSectorWeekDeliveryRuleVersionsInSession =>
+			_observableSectorWeekDayDeliveryRuleVersionsInSession ?? (_observableSectorWeekDayDeliveryRuleVersionsInSession =
+				new GenericObservableList<SectorWeekDayDeliveryRuleVersion>());
+
+		public SectorWeekDayDeliveryRuleVersion SelectedWeekDayDeliveryRuleVersion
+		{
+			get => _selectedWeekDayDeliveryRuleVersion;
+			set
+			{
+				if(!SetField(ref _selectedWeekDayDeliveryRuleVersion, value))
+					return;
+				if(value != null)
+					OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
+			}
+		}
+		
+		private DelegateCommand _addWeekDayDistrictRule;
+
+		public DelegateCommand AddWeekDayDistrictRule => _addWeekDayDistrictRule ?? (_addWeekDayDistrictRule = new DelegateCommand(
+			() =>
+			{
+				var weekDayDistrictRuleItem = new WeekDayDistrictRuleItem{ Sector = SelectedSector};
+				SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Add(weekDayDistrictRuleItem);
+				//ObservableSectorDeliveryRulesInSession.Add(weekDayDistrictRuleItem);
+				SelectedWeekDayDistrictRuleItem = weekDayDistrictRuleItem;
+			}));
+
+		private DelegateCommand _removeWeekDayDistrictRule;
+
+		public DelegateCommand RemoveWeekDayDistrictRule => _removeWeekDayDistrictRule ?? (_removeWeekDayDistrictRule = new DelegateCommand(
+			() =>
+			{
+				ObservableSectorDeliveryRules.Remove(SelectedWeekDayDistrictRuleItem);
+				SelectedWeekDayDistrictRuleItem = null;
+			}));
+
 		private DelegateCommand _addWeekDayDeliveryRule;
 
 		public DelegateCommand AddWeekDayDeliveryRule => _addWeekDayDeliveryRule ?? (_addWeekDayDeliveryRule = new DelegateCommand(
 			() =>
 			{
-				var sectorWeekDayDeliveryRule = new SectorWeekDayDeliveryRule
-					{DeliveryWeekDay = SelectedWeekDayName.Value, SectorWeekDayRulesVersion = _selectedWeekDayRulesVersion};
-				SelectedWeekDayDeliveryRule = sectorWeekDayDeliveryRule;
-				SelectedWeekDayRulesVersion.SectorDeliveryRules.Add(sectorWeekDayDeliveryRule);
-				ObservableSectorDeliveryRules.Add(sectorWeekDayDeliveryRule);
+				var sectorWeekDayDeliveryRuleVersion = new SectorWeekDayDeliveryRuleVersion
+					{ Sector = SelectedSector, Status = SectorsSetStatus.Draft};
+				if(StartDateSectorDayDeliveryRule.HasValue)
+					sectorWeekDayDeliveryRuleVersion.StartDate = StartDateSectorDayDeliveryRule.Value;
+				if(EndDateSectorDayDeliveryRule.HasValue)
+					sectorWeekDayDeliveryRuleVersion.EndDate = EndDateSectorDayDeliveryRule.Value;
+				
+				ObservableSectorWeekDeliveryRuleVersionsInSession.Add(sectorWeekDayDeliveryRuleVersion);
+				ObservableSectorWeekDeliveryRuleVersions.Add(sectorWeekDayDeliveryRuleVersion);
+				SelectedWeekDayDeliveryRuleVersion = sectorWeekDayDeliveryRuleVersion;
 			}));
 
 		private DelegateCommand _removeWeekDayDeliveryRule;
@@ -464,22 +590,41 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RemoveWeekDayDeliveryRule => _removeWeekDayDeliveryRule ?? (_removeWeekDayDeliveryRule = new DelegateCommand(
 			() =>
 			{
-				ObservableSectorDeliveryRules.Remove(SelectedWeekDayDeliveryRule);
-				SelectedWeekDayDeliveryRule = null;
+				ObservableSectorWeekDeliveryRuleVersions.Remove(SelectedWeekDayDeliveryRuleVersion);
+				SelectedWeekDayDeliveryRuleVersion = null;
 			}));
 
 		private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
 		public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
 			acceptBefore => {
-				SelectedWeekDaySchedule.DeliveryScheduleRestriction.AcceptBefore = acceptBefore;
-				AddSectorWeekDaySchedule.Execute();
+				SelectedScheduleRestriction.AcceptBefore = acceptBefore;
 			},
-			acceptBefore => acceptBefore != null && SelectedWeekDaySchedule != null
+			acceptBefore => acceptBefore != null && SelectedWeekDayScheduleVersion != null
 		));
 		
 		#endregion
 
 		#region Операции с картой
+		public GenericObservableList<PointLatLng> NewBorderVertices {
+			get => _newBorderVertices;
+			set => SetField(ref _newBorderVertices, value);
+		}
+		
+		public GenericObservableList<PointLatLng> SelectedDistrictBorderVertices {
+			get => _selectedDistrictBorderVertices;
+			set => SetField(ref _selectedDistrictBorderVertices, value);
+		}
+
+		public List<DeliveryPointSectorVersion> DeliveryPointSectorVersions => SelectedSector.DeliveryPointSectorVersions;
+		
+		public bool IsCreatingNewBorder {
+			get => _isCreatingNewBorder;
+			private set {
+				if(value && SelectedSectorVersion == null)
+					throw new ArgumentNullException(nameof(SelectedSectorVersion));
+				SetField(ref _isCreatingNewBorder, value);
+			}
+		}
 
 		private DelegateCommand _createBorderCommand;
 		public DelegateCommand CreateBorderCommand => _createBorderCommand ?? (_createBorderCommand = new DelegateCommand(
@@ -597,23 +742,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 			}
 
-			var activeSectorDeliveryRule = SectorDeliveryRuleVersions.Concat(ObservableSectorDeliveryRuleVersionsInSession)
+			var activeSectorDeliveryRule = ObservableSectorDeliveryRuleVersions.Concat(ObservableSectorDeliveryRuleVersionsInSession)
 				.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == SelectedDeliveryRuleVersion.Sector.Id);
 			if(activeSectorDeliveryRule != null)
 			{
 				activeSectorDeliveryRule.Status = SectorsSetStatus.Closed;
 			}
 
-			var activeSectorWeekDayRule = SectorWeekDeliveryRuleVersions.Concat(ObservableSectorWeekDeliveryRuleVersionsInSession)
-				.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == SelectedWeekDayRulesVersion.Sector.Id);
-			if(activeSectorWeekDayRule != null)
-			{
-				activeSectorWeekDayRule.Status = SectorsSetStatus.Closed;
-			}
-
-			SelectedWeekDayRulesVersion.Status = SectorsSetStatus.Active;
-			SelectedDeliveryRuleVersion.Status = SectorsSetStatus.Active;
-			SelectedSectorVersion.Status = SectorsSetStatus.Active;
+			// var activeSectorWeekDayRule = SectorWeekDeliveryRuleVersions.Concat(ObservableSectorWeekDeliveryRuleVersionsInSession)
+			// 	.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == SelectedWeekDayRulesVersion.Sector.Id);
+			// if(activeSectorWeekDayRule != null)
+			// {
+			// 	activeSectorWeekDayRule.Status = SectorsSetStatus.Closed;
+			// }
+			//
+			// SelectedWeekDayRulesVersion.Status = SectorsSetStatus.Active;
+			// SelectedDeliveryRuleVersion.Status = SectorsSetStatus.Active;
+			// SelectedSectorVersion.Status = SectorsSetStatus.Active;
 		}));
 
 		public void ActivateSectors(SectorVersion sectorVersion)

@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.Widgets.yEnumComboBox enumStatusDistrict;
 
-		private global::QSWidgetLib.DatePeriodPicker dateForFilter;
+		private global::QS.Widgets.GtkUI.DateRangePicker dateForFilter;
 
 		private global::Gtk.HBox hbox14;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton btnRemoveDistrict;
 
-		private global::QSWidgetLib.DatePeriodPicker createDateDistrict;
+		private global::QS.Widgets.GtkUI.DateRangePicker createDateSector;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -56,7 +56,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton btnRemoveMainProperty;
 
-		private global::QSWidgetLib.DatePeriodPicker VersionPeriod;
+		private global::QS.Widgets.GtkUI.DateRangePicker SectorVersionPeriod;
 
 		private global::Gtk.HBox hbox17;
 
@@ -76,7 +76,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton btnCopyRulesDelivery;
 
-		private global::QSWidgetLib.DatePeriodPicker RulesDeliveryPeriod;
+		private global::QS.Widgets.GtkUI.DateRangePicker RulesDeliveryPeriod;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
 
@@ -120,31 +120,31 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HBox hbox13;
 
-		private global::Gamma.GtkWidgets.yButton AddDayScheduleBtn;
+		private global::Gamma.GtkWidgets.yButton btnAddDaySchedule;
 
-		private global::Gamma.GtkWidgets.yButton RemoveDayScheduleBtn;
+		private global::Gamma.GtkWidgets.yButton btnRemoveDaySchedule;
 
-		private global::Gamma.GtkWidgets.yButton CopyDayScheduleBtn;
+		private global::Gamma.GtkWidgets.yButton btnCopyDaySchedule;
 
-		private global::QSWidgetLib.DatePeriodPicker WeekDayPeriodPicker;
+		private global::QS.Widgets.GtkUI.DateRangePicker WeekDayPeriodPicker;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+		private global::Gamma.GtkWidgets.yTreeView treeViewScheduleVersions;
 
 		private global::Gtk.HBox hbox16;
 
-		private global::Gamma.GtkWidgets.yButton AddDayDeliveryRuleBtn;
+		private global::Gamma.GtkWidgets.yButton btnAddDayDeliveryRule;
 
-		private global::Gamma.GtkWidgets.yButton RemoveDayDeliveryRuleBtn;
+		private global::Gamma.GtkWidgets.yButton btnRemoveDayDeliveryRule;
 
-		private global::Gamma.GtkWidgets.yButton CopyDayDeliveryRuleBtn;
+		private global::Gamma.GtkWidgets.yButton btnCopyDayDeliveryRule;
 
 		private global::QSWidgetLib.DatePeriodPicker DayDeliveryRulePeriodPicker;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow7;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview2;
+		private global::Gamma.GtkWidgets.yTreeView treeViewDeliveryRules;
 
 		private global::Gtk.VBox vbox16;
 
@@ -269,7 +269,7 @@ namespace Vodovoz.Views.Logistic
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox15.Gtk.Box+BoxChild
-			this.dateForFilter = new global::QSWidgetLib.DatePeriodPicker();
+			this.dateForFilter = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.dateForFilter.Events = ((global::Gdk.EventMask)(256));
 			this.dateForFilter.Name = "dateForFilter";
 			this.dateForFilter.StartDate = new global::System.DateTime(0);
@@ -367,13 +367,13 @@ namespace Vodovoz.Views.Logistic
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.createDateDistrict = new global::QSWidgetLib.DatePeriodPicker();
-			this.createDateDistrict.Events = ((global::Gdk.EventMask)(256));
-			this.createDateDistrict.Name = "createDateDistrict";
-			this.createDateDistrict.StartDate = new global::System.DateTime(0);
-			this.createDateDistrict.EndDate = new global::System.DateTime(0);
-			this.hbox4.Add(this.createDateDistrict);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.createDateDistrict]));
+			this.createDateSector = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.createDateSector.Events = ((global::Gdk.EventMask)(256));
+			this.createDateSector.Name = "createDateDistrict";
+			this.createDateSector.StartDate = new global::System.DateTime(0);
+			this.createDateSector.EndDate = new global::System.DateTime(0);
+			this.hbox4.Add(this.createDateSector);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.createDateSector]));
 			w19.Position = 2;
 			this.vbox4.Add(this.hbox4);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
@@ -435,13 +435,13 @@ namespace Vodovoz.Views.Logistic
 			w27.Expand = false;
 			w27.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.VersionPeriod = new global::QSWidgetLib.DatePeriodPicker();
-			this.VersionPeriod.Events = ((global::Gdk.EventMask)(256));
-			this.VersionPeriod.Name = "VersionPeriod";
-			this.VersionPeriod.StartDate = new global::System.DateTime(0);
-			this.VersionPeriod.EndDate = new global::System.DateTime(0);
-			this.hbox6.Add(this.VersionPeriod);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.VersionPeriod]));
+			this.SectorVersionPeriod = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.SectorVersionPeriod.Events = ((global::Gdk.EventMask)(256));
+			this.SectorVersionPeriod.Name = "VersionPeriod";
+			this.SectorVersionPeriod.StartDate = new global::System.DateTime(0);
+			this.SectorVersionPeriod.EndDate = new global::System.DateTime(0);
+			this.hbox6.Add(this.SectorVersionPeriod);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.SectorVersionPeriod]));
 			w28.Position = 2;
 			this.vbox6.Add(this.hbox6);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.hbox6]));
@@ -527,7 +527,7 @@ namespace Vodovoz.Views.Logistic
 			w39.Expand = false;
 			w39.Fill = false;
 			// Container child hbox10.Gtk.Box+BoxChild
-			this.RulesDeliveryPeriod = new global::QSWidgetLib.DatePeriodPicker();
+			this.RulesDeliveryPeriod = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.RulesDeliveryPeriod.Events = ((global::Gdk.EventMask)(256));
 			this.RulesDeliveryPeriod.Name = "RulesDeliveryPeriod";
 			this.RulesDeliveryPeriod.StartDate = new global::System.DateTime(0);
@@ -741,46 +741,46 @@ namespace Vodovoz.Views.Logistic
 			this.hbox13.Name = "hbox13";
 			this.hbox13.Spacing = 6;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.AddDayScheduleBtn = new global::Gamma.GtkWidgets.yButton();
-			this.AddDayScheduleBtn.CanFocus = true;
-			this.AddDayScheduleBtn.Name = "AddDayScheduleBtn";
-			this.AddDayScheduleBtn.UseUnderline = true;
+			this.btnAddDaySchedule = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddDaySchedule.CanFocus = true;
+			this.btnAddDaySchedule.Name = "AddDayScheduleBtn";
+			this.btnAddDaySchedule.UseUnderline = true;
 			global::Gtk.Image w63 = new global::Gtk.Image();
 			w63.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.AddDayScheduleBtn.Image = w63;
-			this.hbox13.Add(this.AddDayScheduleBtn);
-			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.AddDayScheduleBtn]));
+			this.btnAddDaySchedule.Image = w63;
+			this.hbox13.Add(this.btnAddDaySchedule);
+			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.btnAddDaySchedule]));
 			w64.Position = 0;
 			w64.Expand = false;
 			w64.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.RemoveDayScheduleBtn = new global::Gamma.GtkWidgets.yButton();
-			this.RemoveDayScheduleBtn.CanFocus = true;
-			this.RemoveDayScheduleBtn.Name = "RemoveDayScheduleBtn";
-			this.RemoveDayScheduleBtn.UseUnderline = true;
+			this.btnRemoveDaySchedule = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveDaySchedule.CanFocus = true;
+			this.btnRemoveDaySchedule.Name = "RemoveDayScheduleBtn";
+			this.btnRemoveDaySchedule.UseUnderline = true;
 			global::Gtk.Image w65 = new global::Gtk.Image();
 			w65.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.RemoveDayScheduleBtn.Image = w65;
-			this.hbox13.Add(this.RemoveDayScheduleBtn);
-			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.RemoveDayScheduleBtn]));
+			this.btnRemoveDaySchedule.Image = w65;
+			this.hbox13.Add(this.btnRemoveDaySchedule);
+			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.btnRemoveDaySchedule]));
 			w66.Position = 1;
 			w66.Expand = false;
 			w66.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.CopyDayScheduleBtn = new global::Gamma.GtkWidgets.yButton();
-			this.CopyDayScheduleBtn.CanFocus = true;
-			this.CopyDayScheduleBtn.Name = "CopyDayScheduleBtn";
-			this.CopyDayScheduleBtn.UseUnderline = true;
+			this.btnCopyDaySchedule = new global::Gamma.GtkWidgets.yButton();
+			this.btnCopyDaySchedule.CanFocus = true;
+			this.btnCopyDaySchedule.Name = "CopyDayScheduleBtn";
+			this.btnCopyDaySchedule.UseUnderline = true;
 			global::Gtk.Image w67 = new global::Gtk.Image();
 			w67.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
-			this.CopyDayScheduleBtn.Image = w67;
-			this.hbox13.Add(this.CopyDayScheduleBtn);
-			global::Gtk.Box.BoxChild w68 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.CopyDayScheduleBtn]));
+			this.btnCopyDaySchedule.Image = w67;
+			this.hbox13.Add(this.btnCopyDaySchedule);
+			global::Gtk.Box.BoxChild w68 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.btnCopyDaySchedule]));
 			w68.Position = 2;
 			w68.Expand = false;
 			w68.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.WeekDayPeriodPicker = new global::QSWidgetLib.DatePeriodPicker();
+			this.WeekDayPeriodPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.WeekDayPeriodPicker.Events = ((global::Gdk.EventMask)(256));
 			this.WeekDayPeriodPicker.Name = "WeekDayPeriodPicker";
 			this.WeekDayPeriodPicker.StartDate = new global::System.DateTime(0);
@@ -798,10 +798,10 @@ namespace Vodovoz.Views.Logistic
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview1.CanFocus = true;
-			this.ytreeview1.Name = "ytreeview1";
-			this.GtkScrolledWindow1.Add(this.ytreeview1);
+			this.treeViewScheduleVersions = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewScheduleVersions.CanFocus = true;
+			this.treeViewScheduleVersions.Name = "ytreeview1";
+			this.GtkScrolledWindow1.Add(this.treeViewScheduleVersions);
 			this.vbox2.Add(this.GtkScrolledWindow1);
 			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow1]));
 			w72.Position = 1;
@@ -810,41 +810,41 @@ namespace Vodovoz.Views.Logistic
 			this.hbox16.Name = "hbox16";
 			this.hbox16.Spacing = 6;
 			// Container child hbox16.Gtk.Box+BoxChild
-			this.AddDayDeliveryRuleBtn = new global::Gamma.GtkWidgets.yButton();
-			this.AddDayDeliveryRuleBtn.CanFocus = true;
-			this.AddDayDeliveryRuleBtn.Name = "AddDayDeliveryRuleBtn";
-			this.AddDayDeliveryRuleBtn.UseUnderline = true;
+			this.btnAddDayDeliveryRule = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddDayDeliveryRule.CanFocus = true;
+			this.btnAddDayDeliveryRule.Name = "AddDayDeliveryRuleBtn";
+			this.btnAddDayDeliveryRule.UseUnderline = true;
 			global::Gtk.Image w73 = new global::Gtk.Image();
 			w73.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.AddDayDeliveryRuleBtn.Image = w73;
-			this.hbox16.Add(this.AddDayDeliveryRuleBtn);
-			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.AddDayDeliveryRuleBtn]));
+			this.btnAddDayDeliveryRule.Image = w73;
+			this.hbox16.Add(this.btnAddDayDeliveryRule);
+			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.btnAddDayDeliveryRule]));
 			w74.Position = 0;
 			w74.Expand = false;
 			w74.Fill = false;
 			// Container child hbox16.Gtk.Box+BoxChild
-			this.RemoveDayDeliveryRuleBtn = new global::Gamma.GtkWidgets.yButton();
-			this.RemoveDayDeliveryRuleBtn.CanFocus = true;
-			this.RemoveDayDeliveryRuleBtn.Name = "RemoveDayDeliveryRuleBtn";
-			this.RemoveDayDeliveryRuleBtn.UseUnderline = true;
+			this.btnRemoveDayDeliveryRule = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveDayDeliveryRule.CanFocus = true;
+			this.btnRemoveDayDeliveryRule.Name = "RemoveDayDeliveryRuleBtn";
+			this.btnRemoveDayDeliveryRule.UseUnderline = true;
 			global::Gtk.Image w75 = new global::Gtk.Image();
 			w75.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.RemoveDayDeliveryRuleBtn.Image = w75;
-			this.hbox16.Add(this.RemoveDayDeliveryRuleBtn);
-			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.RemoveDayDeliveryRuleBtn]));
+			this.btnRemoveDayDeliveryRule.Image = w75;
+			this.hbox16.Add(this.btnRemoveDayDeliveryRule);
+			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.btnRemoveDayDeliveryRule]));
 			w76.Position = 1;
 			w76.Expand = false;
 			w76.Fill = false;
 			// Container child hbox16.Gtk.Box+BoxChild
-			this.CopyDayDeliveryRuleBtn = new global::Gamma.GtkWidgets.yButton();
-			this.CopyDayDeliveryRuleBtn.CanFocus = true;
-			this.CopyDayDeliveryRuleBtn.Name = "CopyDayDeliveryRuleBtn";
-			this.CopyDayDeliveryRuleBtn.UseUnderline = true;
+			this.btnCopyDayDeliveryRule = new global::Gamma.GtkWidgets.yButton();
+			this.btnCopyDayDeliveryRule.CanFocus = true;
+			this.btnCopyDayDeliveryRule.Name = "CopyDayDeliveryRuleBtn";
+			this.btnCopyDayDeliveryRule.UseUnderline = true;
 			global::Gtk.Image w77 = new global::Gtk.Image();
 			w77.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
-			this.CopyDayDeliveryRuleBtn.Image = w77;
-			this.hbox16.Add(this.CopyDayDeliveryRuleBtn);
-			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.CopyDayDeliveryRuleBtn]));
+			this.btnCopyDayDeliveryRule.Image = w77;
+			this.hbox16.Add(this.btnCopyDayDeliveryRule);
+			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.btnCopyDayDeliveryRule]));
 			w78.Position = 2;
 			w78.Expand = false;
 			w78.Fill = false;
@@ -867,10 +867,10 @@ namespace Vodovoz.Views.Logistic
 			this.GtkScrolledWindow7.Name = "GtkScrolledWindow7";
 			this.GtkScrolledWindow7.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow7.Gtk.Container+ContainerChild
-			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview2.CanFocus = true;
-			this.ytreeview2.Name = "ytreeview2";
-			this.GtkScrolledWindow7.Add(this.ytreeview2);
+			this.treeViewDeliveryRules = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewDeliveryRules.CanFocus = true;
+			this.treeViewDeliveryRules.Name = "ytreeview2";
+			this.GtkScrolledWindow7.Add(this.treeViewDeliveryRules);
 			this.vbox2.Add(this.GtkScrolledWindow7);
 			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow7]));
 			w82.Position = 3;
@@ -953,6 +953,7 @@ namespace Vodovoz.Views.Logistic
 			this.treeViewGraphic = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeViewGraphic.CanFocus = true;
 			this.treeViewGraphic.Name = "treeViewGraphic";
+			this.treeViewGraphic.EnableSearch = false;
 			this.GtkScrolledWindow3.Add(this.treeViewGraphic);
 			this.vbox16.Add(this.GtkScrolledWindow3);
 			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.GtkScrolledWindow3]));

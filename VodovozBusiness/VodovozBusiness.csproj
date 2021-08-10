@@ -133,7 +133,8 @@
     <Compile Include="Domain\Sectors\SectorDeliveryRuleVersion.cs" />
     <Compile Include="Domain\Sectors\SectorVersion.cs" />
     <Compile Include="Domain\Sectors\SectorWeekDayDeliveryRule.cs" />
-    <Compile Include="Domain\Sectors\SectorWeekDayRulesVersion.cs" />
+    <Compile Include="Domain\Sectors\SectorWeekDayDeliveryRuleVersion.cs" />
+    <Compile Include="Domain\Sectors\SectorWeekDayScheduleVersion.cs" />
     <Compile Include="Domain\Sectors\SectorWeekDaySchedule.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
@@ -220,9 +221,10 @@
     <Compile Include="HibernateMapping\Sectors\SectorMap.cs" />
     <Compile Include="HibernateMapping\Sectors\SectorDeliveryRuleVersionMap.cs" />
     <Compile Include="HibernateMapping\Sectors\SectorVersionMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorWeekDayDeliveryRuleVersionMap.cs" />
     <Compile Include="HibernateMapping\Sectors\SectorWeekDayScheduleMap.cs" />
-    <Compile Include="HibernateMapping\Sectors\SectorWeekDaysDeliveryRuleMap.cs" />
-    <Compile Include="HibernateMapping\Sectors\SectorWeekDayRulesVersionMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorWeekDayDeliveryRuleMap.cs" />
+    <Compile Include="HibernateMapping\Sectors\SectorWeekDayScheduleVersionMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />

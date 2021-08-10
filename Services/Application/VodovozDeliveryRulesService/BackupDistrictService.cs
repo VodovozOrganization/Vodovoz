@@ -46,10 +46,10 @@ namespace VodovozDeliveryRulesService
                     foreach (var district in districts) {
                         NHibernateUtil.Initialize(district.ActiveSectorVersion.GeographicGroup);
 
-                        foreach (var scheduleRestriction in district.ActiveWeekDayRulesVersion.SectorSchedules) {
+                        foreach (var scheduleRestriction in district.ActiveWeekDayScheduleVersion.SectorSchedules) {
                             NHibernateUtil.Initialize(scheduleRestriction.DeliverySchedule);
                         }
-                        foreach (var weekDayRuleItem in district.ActiveWeekDayRulesVersion.SectorDeliveryRules) {
+                        foreach (var weekDayRuleItem in district.ActiveWeekDayDeliveryRuleVersion.WeekDayDistrictRules) {
                             NHibernateUtil.Initialize(weekDayRuleItem.DeliveryPriceRule);
                         }
                         foreach (var commonRuleItem in district.ActiveDeliveryRuleVersion.CommonDistrictRuleItems) {

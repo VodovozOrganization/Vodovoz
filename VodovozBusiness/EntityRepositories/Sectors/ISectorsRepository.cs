@@ -18,7 +18,7 @@ namespace Vodovoz.EntityRepositories.Sectors
 
 		IList<SectorDeliveryRuleVersion> GetSectorDeliveryRules(IUnitOfWork uow, Sector sector);
 
-		IList<SectorWeekDayRulesVersion> GetSectorWeekDayRules(IUnitOfWork uow, Sector sector);
+		IList<SectorWeekDayScheduleVersion> GetSectorWeekDayRules(IUnitOfWork uow, Sector sector);
 		
 		IList<DeliveryPointSectorVersion> GetDeliveryPointSectorVersions(IUnitOfWork uow, Sector sector);
 	}

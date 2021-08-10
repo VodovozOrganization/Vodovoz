@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
@@ -11,12 +13,30 @@ namespace Vodovoz.Domain.Sectors
 	{
 		public int Id { get; set; }
 		
-		private SectorWeekDayRulesVersion _sectorWeekDayRulesVersion;
-
-		public SectorWeekDayRulesVersion SectorWeekDayRulesVersion
+		private DateTime _startDate;
+		
+		[Display(Name = "Время создания")]
+		public virtual DateTime StartDate
 		{
-			get => _sectorWeekDayRulesVersion;
-			set => SetField(ref _sectorWeekDayRulesVersion, value);
+			get => _startDate;
+			set => SetField(ref _startDate, value);
+		}
+
+		private DateTime _endDate;
+
+		[Display(Name = "Время закрытия")]
+		public virtual DateTime EndDate
+		{
+			get => _endDate;
+			set => SetField(ref _endDate, value);
+		}
+		
+		private SectorWeekDayScheduleVersion _sectorWeekDayScheduleVersion;
+
+		public SectorWeekDayScheduleVersion SectorWeekDayScheduleVersion
+		{
+			get => _sectorWeekDayScheduleVersion;
+			set => SetField(ref _sectorWeekDayScheduleVersion, value);
 		}
 
 		private WeekDayName _deliveryWeekDay;
@@ -52,13 +72,15 @@ namespace Vodovoz.Domain.Sectors
 		public object Clone()
 		{
 			#warning Пересмотреть логику клонирования
-			var sectorWeekDayRulesVersion = SectorWeekDayRulesVersion.Clone() as SectorWeekDayRulesVersion;
+			var sectorWeekDayScheduleVersionClone = SectorWeekDayScheduleVersion.Clone() as SectorWeekDayScheduleVersion;
 			var deliveryScheduleClone = DeliverySchedule.Clone() as DeliverySchedule;
 			var deliveryScheduleRestrictionClone = DeliveryScheduleRestriction.Clone() as DeliveryScheduleRestriction;
 			
 			return new SectorWeekDaySchedule
 			{
-				SectorWeekDayRulesVersion = sectorWeekDayRulesVersion,
+				StartDate = StartDate,
+				EndDate = EndDate,
+				SectorWeekDayScheduleVersion = sectorWeekDayScheduleVersionClone,
 				DeliverySchedule = deliveryScheduleClone,
 				DeliveryWeekDay = DeliveryWeekDay,
 				DeliveryScheduleRestriction = deliveryScheduleRestrictionClone

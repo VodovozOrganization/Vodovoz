@@ -69,7 +69,7 @@ namespace VodovozDeliveryRulesService
 						{
 							//Берём все правила дня недели
 							var rulesToAdd = 
-								sector.ActiveWeekDayRulesVersion.SectorDeliveryRules.Single(x=>x.DeliveryWeekDay == weekDay).Title; 
+								sector.ActiveWeekDayDeliveryRuleVersion.WeekDayDistrictRules.Single(x=>x.WeekDay == weekDay).Title; 
 							
 							IList<string> commonRules = null;
 							//Если правил дня недели нет берем общие правила района
@@ -85,8 +85,8 @@ namespace VodovozDeliveryRulesService
 							}
 							else
 							{
-								scheduleRestrictions = sector.ActiveWeekDayRulesVersion.SectorSchedules
-									.Where(x=>x.DeliveryWeekDay == weekDay)
+								scheduleRestrictions = sector.ActiveWeekDayScheduleVersion.SectorSchedules
+									.Where(x=>x.WeekDay == weekDay)
 									.Select(x => x.DeliverySchedule)
 									.ToList();
 							}
@@ -195,7 +195,7 @@ namespace VodovozDeliveryRulesService
 			
 			foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) 
 			{
-				var rules = sector.ActiveWeekDayRulesVersion.SectorDeliveryRules.Where(x=>x.DeliveryWeekDay == weekDay).ToList();
+				var rules = sector.ActiveWeekDayDeliveryRuleVersion.WeekDayDistrictRules.Where(x=>x.WeekDay == weekDay).ToList();
 
 				List<DeliverySchedule> scheduleRestrictions;
 				if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
@@ -204,8 +204,8 @@ namespace VodovozDeliveryRulesService
 				}
 				else
 				{
-					scheduleRestrictions = sector.ActiveWeekDayRulesVersion.SectorSchedules
-						.Where(x=>x.DeliveryWeekDay == weekDay)
+					scheduleRestrictions = sector.ActiveWeekDayScheduleVersion.SectorSchedules
+						.Where(x=>x.WeekDay == weekDay)
 						.Select(x => x.DeliverySchedule)
 						.ToList();
 				}
