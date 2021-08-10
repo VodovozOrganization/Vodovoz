@@ -15,12 +15,13 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			//FIXME использовать журнал?
 			comboWarehouse.SetRenderTextFunc<Warehouse>(x => x.Name);
-			comboWarehouse.Binding.AddBinding(ViewModel, vm => vm.AvailableWarehouses, w => w.ItemsList).InitializeFromSource();
-			comboWarehouse.Binding.AddBinding(ViewModel, vm => vm.Warehouse, w => w.SelectedItem).InitializeFromSource();
-			comboWarehouse.Binding.AddBinding(ViewModel, vm => vm.CanChangeWarehouse, w => w.Sensitive).InitializeFromSource();
-//FIXME возможно, стоит менять visible, а не sens, уточнить
+			comboWarehouse.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.AvailableWarehouses, w => w.ItemsList)
+				.AddBinding(vm => vm.Warehouse, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanChangeWarehouse, w => w.Sensitive).InitializeFromSource();
+
 			entryNomenclature.Subject = ViewModel.Nomenclature;
 			entryNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanChangeNomenclature, w => w.Sensitive).InitializeFromSource();
 		}
