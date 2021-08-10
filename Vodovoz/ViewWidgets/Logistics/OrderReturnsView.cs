@@ -39,8 +39,10 @@ namespace Vodovoz
 {
     public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
     {
+	    private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 	    private readonly IOrderRepository _orderRepository = new OrderRepository();
-		class OrderNode : PropertyChangedBase
+
+	    class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -99,7 +101,8 @@ namespace Vodovoz
 		}
 		OrderNode orderNode;
 		RouteListItem routeListItem;
-		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider());
+		WageParameterService wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -112,7 +115,7 @@ namespace Vodovoz
 						new CallTaskRepository(),
 						_orderRepository,
 						new EmployeeRepository(),
-						new BaseParametersProvider(),
+						new BaseParametersProvider(_parametersProvider),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -424,7 +427,8 @@ namespace Vodovoz
 				//доставки будет пустая
 				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
 				routeListItem.Order.Client = orderNode.Client;
-				routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(), routeListItem.BottlesReturned);
+				routeListItem.Order.UpdateBottleMovementOperation(
+					UoW, new BaseParametersProvider(_parametersProvider), routeListItem.BottlesReturned);
 			}
 		}
 
@@ -501,7 +505,7 @@ namespace Vodovoz
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
-			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider(_parametersProvider);
 			routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
 		}
 

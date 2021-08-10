@@ -4,13 +4,14 @@ using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GuiltyInUndeliveryView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 
 		private IUnitOfWork _uow;
 		private UndeliveredOrder _undeliveredOrder;

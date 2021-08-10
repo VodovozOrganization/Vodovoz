@@ -30,8 +30,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly ITrackRepository _trackRepository;
 
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor;
 

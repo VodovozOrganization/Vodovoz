@@ -507,7 +507,8 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		INomenclatureRepository nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		INomenclatureRepository nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		tdiMain.OpenTab(
 			"ExportImportNomenclatureCatalog",
@@ -527,14 +528,17 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
 			() => new AtWorksDlg(
-				new BaseParametersProvider(),
+				new BaseParametersProvider(new ParametersProvider()),
 				employeeJournalFactory)
 		);
 	}
 
 	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
 	{
-		if(new BaseParametersProvider().UseOldAutorouting())
+		var parametersProvider = new ParametersProvider();
+		var baseParametersProvider = new BaseParametersProvider(parametersProvider);
+		
+		if(new BaseParametersProvider(parametersProvider).UseOldAutorouting())
 			tdiMain.OpenTab(
 				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
 				() => new RoutesAtDayDlg()
@@ -544,16 +548,16 @@ public partial class MainWindow : Window
 				"AutoRouting",
 				() => new RouteListsOnDayViewModel(
 					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(SingletonParametersProvider.Instance),
+					new DeliveryScheduleParametersProvider(parametersProvider),
 					new GtkTabsOpener(),
-					new RouteListRepository(new StockRepository()),
-					new SubdivisionRepository(),
+					new RouteListRepository(new StockRepository(), baseParametersProvider),
+					new SubdivisionRepository(parametersProvider),
 					new OrderRepository(),
 					new AtWorkRepository(),
 					new CarRepository(),
 					NavigationManagerProvider.NavigationManager,
 					new UserRepository(),
-					new BaseParametersProvider(),
+					baseParametersProvider,
 					new EmployeeJournalFactory(),
 					new GeographicGroupRepository(),
 					new ScheduleRestrictionRepository()
@@ -589,6 +593,7 @@ public partial class MainWindow : Window
 	{
 		var filter = new PaymentsJournalFilterViewModel();
 		var paymentsRepository = new PaymentsRepository();
+		var parametersProvider = new ParametersProvider();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
 			filter,
@@ -596,8 +601,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			NavigationManagerProvider.NavigationManager,
 			new OrderRepository(),
-			new OrganizationParametersProvider(SingletonParametersProvider.Instance),
-			new BaseParametersProvider(),
+			new OrganizationParametersProvider(parametersProvider),
+			new BaseParametersProvider(parametersProvider),
 			paymentsRepository
 		);
 
@@ -624,15 +629,19 @@ public partial class MainWindow : Window
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
+		var parametersProvider = new ParametersProvider();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(
-				new SubdivisionRepository(), ServicesConfig.CommonServices, new CategoryRepository()))
+				new SubdivisionRepository(parametersProvider), ServicesConfig.CommonServices, new CategoryRepository(parametersProvider)))
 		);
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
+		var parametersProvider = new ParametersProvider();
+
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
@@ -651,10 +660,10 @@ public partial class MainWindow : Window
 				new CallTaskRepository(),
 				new OrderRepository(),
 				new EmployeeRepository(),
-				new BaseParametersProvider(),
+				new BaseParametersProvider(parametersProvider),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance),
-            new OrderPaymentSettings(),
+            new OrderPaymentSettings(parametersProvider),
 			new OrderParametersProvider(new ParametersProvider()),
 			VodovozGtkServicesConfig.EmployeeService
 		);
@@ -672,7 +681,9 @@ public partial class MainWindow : Window
 				var vm = new CashTransferDocumentVM(
 					UnitOfWorkFactory.GetDefaultFactory,
                     new CashTransferDocumentsFilter(),
-					cashRepository);
+					cashRepository,
+					new ParametersProvider());
+				
 				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
 			}
 		);
@@ -680,7 +691,7 @@ public partial class MainWindow : Window
 
 	void ActionFuelTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IFuelRepository fuelRepository = new FuelRepository();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
 		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
@@ -798,7 +809,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.AccountFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(new CategoryRepository()))
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(new CategoryRepository(new ParametersProvider())))
 		);
 	}
 
@@ -857,6 +868,8 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
+		var parametersProvider = new ParametersProvider();
+		
         tdiMain.OpenTab(
             () => {
                 var routeListFilter = new RouteListJournalFilterViewModel();
@@ -865,11 +878,11 @@ public partial class MainWindow : Window
                      routeListFilter,
                      UnitOfWorkFactory.GetDefaultFactory,
                      ServicesConfig.CommonServices,
-                     new RouteListRepository(new StockRepository()),
+                     new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)),
                      new FuelRepository(),
                      new CallTaskRepository(),
-                     new BaseParametersProvider(),
-                     new SubdivisionRepository()
+                     new BaseParametersProvider(parametersProvider),
+                     new SubdivisionRepository(parametersProvider)
                      );
             }
         );
@@ -987,7 +1000,7 @@ public partial class MainWindow : Window
 	{
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =

@@ -17,7 +17,8 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DepositRefundItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }

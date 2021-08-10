@@ -22,6 +22,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
 
 		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
@@ -91,7 +92,7 @@ namespace Vodovoz
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)))),
 				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
@@ -106,7 +107,7 @@ namespace Vodovoz
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)))),
 				EntityUoWBuilder.ForOpen(dpId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 		}

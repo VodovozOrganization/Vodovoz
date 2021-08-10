@@ -10,12 +10,14 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -220,7 +222,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			commonServices,
 			_validationContextFactory,
 			_phonesViewModelFactory,
-			new UserRepository());
+			new UserRepository(),
+			new BaseParametersProvider(new ParametersProvider()));
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
@@ -238,6 +241,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				commonServices,
 				_validationContextFactory,
 				_phonesViewModelFactory,
-				new UserRepository());
+				new UserRepository(),
+				new BaseParametersProvider(new ParametersProvider()));
 	}
 }

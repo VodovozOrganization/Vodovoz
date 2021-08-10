@@ -95,6 +95,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
@@ -424,7 +425,8 @@ namespace Vodovoz
 			builder.RegisterType<UserRepository>().As<IUserRepository>();
 			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();
 			builder.RegisterType<UndeliveredOrdersRepository>().As<IUndeliveredOrdersRepository>();
-			
+			builder.RegisterType<OrderRepository>().As<IOrderRepository>();
+
 			#endregion
 			
 			#region Mango

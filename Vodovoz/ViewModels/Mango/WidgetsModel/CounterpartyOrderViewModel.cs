@@ -24,6 +24,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -45,6 +46,7 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IParametersProvider _parametersProvider;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
@@ -68,6 +70,7 @@ namespace Vodovoz.ViewModels.Mango
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
+			IParametersProvider parametersProvider,
 			int count = 5)
 		{
 			Client = client;
@@ -78,6 +81,7 @@ namespace Vodovoz.ViewModels.Mango
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -161,7 +165,7 @@ namespace Vodovoz.ViewModels.Mango
 							new CallTaskRepository(),
 							_orderRepository,
 							_employeeRepository,
-							new BaseParametersProvider(),
+							new BaseParametersProvider(_parametersProvider),
 							ServicesConfig.CommonServices.UserService,
 							SingletonErrorReporter.Instance);
 
@@ -179,7 +183,7 @@ namespace Vodovoz.ViewModels.Mango
 
 				ITdiPage page = tdiNavigation.OpenTdiTab<UndeliveryOnOrderCloseDlg, Order, IUnitOfWork>(null, order, UoW);
 				page.PageClosed += (sender, e) => {
-					order.SetUndeliveredStatus(UoW, new BaseParametersProvider(), callTaskWorker);
+					order.SetUndeliveredStatus(UoW, new BaseParametersProvider(_parametersProvider), callTaskWorker);
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {

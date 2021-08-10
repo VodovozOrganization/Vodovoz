@@ -12,6 +12,7 @@ using QS.Project.DB;
 using QS.Project.Services;
 using QSOrmProject;
 using QS.Validation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
@@ -47,6 +48,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		public TraineeDlg()
 		{
@@ -201,6 +203,7 @@ namespace Vodovoz.Dialogs.Employees
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				_userRepository,
+				_baseParametersProvider,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),

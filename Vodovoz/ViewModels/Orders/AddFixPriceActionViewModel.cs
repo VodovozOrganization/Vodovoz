@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModels.Orders
 					if(!CommonServices.ValidationService.Validate(validatableAction))
 						return;
 
-					var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureParametersProvider);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
 					foreach(var fixedPrice in fixedPrices) {

@@ -18,6 +18,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
             var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
-                ExcludedIds = new CategoryRepository().ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+                ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
                 HidenByDefault = true
             };
 

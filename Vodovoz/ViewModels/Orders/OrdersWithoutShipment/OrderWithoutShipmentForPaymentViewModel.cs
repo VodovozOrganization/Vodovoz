@@ -22,12 +22,14 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForPaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForPayment>, ITdiTabAddedNotifier
 	{
+		private readonly IParametersProvider _parametersProvider;
 		private DateTime? startDate = DateTime.Now.AddMonths(-1);
 		public DateTime? StartDate {
 			get => startDate;
@@ -53,8 +55,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IEmployeeService employeeService) : base(uowBuilder, uowFactory, commonServices)
+			IEmployeeService employeeService,
+			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
@@ -80,7 +84,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на постоплату";
 			
 			EntityUoWBuilder = uowBuilder;
-			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), currentEmployee, commonServices.InteractiveService, UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(
+				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
 			
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}

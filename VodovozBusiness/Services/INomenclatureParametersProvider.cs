@@ -23,5 +23,7 @@ namespace Vodovoz.Services
         Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
         Nomenclature GetSanitisationNomenclature(IUnitOfWork uow);
         Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
+
+        int GetIdentifierOfOnlineShopGroup();
     }
 }

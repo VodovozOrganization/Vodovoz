@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
 		private readonly IUserRepository _userRepository;
+		private readonly BaseParametersProvider _baseParametersProvider;
 
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -84,6 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
 			IUserRepository userRepository,
+			BaseParametersProvider baseParametersProvider,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null
 			) : base(commonServices?.InteractiveService, navigationManager)
@@ -107,6 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 
 			if(validationContextFactory == null)
 			{
@@ -295,7 +298,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							UnitOfWorkFactory.GetDefaultFactory,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -320,7 +323,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							UnitOfWorkFactory.GetDefaultFactory,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -378,7 +381,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							UnitOfWorkFactory.GetDefaultFactory,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -452,7 +455,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							newDriverWorkScheduleSet,
 							UoW,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 			
@@ -474,7 +477,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							SelectedDriverScheduleSet,
 							UoW,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 						TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
@@ -645,10 +648,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(
-				_wageCalculationRepository,
-				new BaseParametersProvider(),
-				_commonServices.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _baseParametersProvider, _commonServices.InteractiveService);
 
 			UoWGeneric.Save(Entity);
 

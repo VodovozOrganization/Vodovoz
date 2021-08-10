@@ -18,7 +18,8 @@ namespace Vodovoz
 	public partial class ProductSpecificationMaterialsView : Gtk.Bin
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		GenericObservableList<ProductSpecificationMaterial> items;
 

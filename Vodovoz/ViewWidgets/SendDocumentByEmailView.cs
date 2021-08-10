@@ -107,7 +107,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			if(!SingletonParametersProvider.Instance.ContainsParameter("email_for_email_delivery")) {
+			if(!new ParametersProvider().ContainsParameter("email_for_email_delivery")) {
 				MessageDialogHelper.RunErrorDialog("В параметрах базы не определена почта для рассылки");
 				return;
 			}
@@ -164,7 +164,7 @@ namespace Vodovoz.ViewWidgets
 				}
 
 				email.Recipient = new EmailContact(clientName, yvalidatedentryEmail.Text);
-				email.Sender = new EmailContact(organizationName, SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
+				email.Sender = new EmailContact(organizationName, new ParametersProvider().GetParameterValue("email_for_email_delivery"));
 				email.Order = document.Order.Id;
 				email.OrderDocumentType = document.Type;
 				using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {

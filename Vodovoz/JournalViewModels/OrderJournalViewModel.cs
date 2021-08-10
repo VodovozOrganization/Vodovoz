@@ -33,6 +33,7 @@ using QS.Tdi;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -467,14 +468,16 @@ namespace Vodovoz.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
 						commonServices,
-						employeeService
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						commonServices,
-						employeeService
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
@@ -596,14 +599,16 @@ namespace Vodovoz.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
 						commonServices,
-						employeeService
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						commonServices,
-						employeeService
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
@@ -720,7 +725,8 @@ namespace Vodovoz.JournalViewModels
 						counterpartySelectorFactory,
 						nomenclatureRepository,
 						userRepository,
-						new OrderRepository()
+						new OrderRepository(),
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -732,7 +738,8 @@ namespace Vodovoz.JournalViewModels
 						counterpartySelectorFactory,
 						nomenclatureRepository,
 						userRepository,
-						new OrderRepository()
+						new OrderRepository(),
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),

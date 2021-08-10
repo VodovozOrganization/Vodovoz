@@ -14,6 +14,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Service.BaseParametersServices;
@@ -53,6 +54,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -378,7 +380,8 @@ namespace Vodovoz.Dialogs.Logistic
 					ServicesConfig.CommonServices,
 					_validationContextFactory,
 					_phonesViewModelFactory,
-					_userRepository);
+					_userRepository,
+					_baseParametersProvider);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),

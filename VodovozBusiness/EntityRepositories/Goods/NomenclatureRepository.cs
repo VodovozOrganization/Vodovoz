@@ -208,34 +208,22 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		#region Получение номенклатур воды
 
-		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterSemiozerie(uow);
+		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSemiozerie(uow);
 
-		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
+		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
 
-		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
+		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
 
-		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
+		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
 
-		public Nomenclature GetWaterStroika(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterStroika(uow);
+		public Nomenclature GetWaterStroika(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterStroika(uow);
 
-		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterRuchki(uow);
+		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterRuchki(uow);
 
 		#endregion
 
 		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
 
-		public int GetIdentifierOfOnlineShopGroup()
-		{
-			string parameterName = "код_группы_товаров_для_интерент-магазина";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(parameterName) || !int.TryParse(SingletonParametersProvider.Instance.GetParameterValue(parameterName), out int res))
-				return 0;
-			return res;
-		}
+		public int GetIdentifierOfOnlineShopGroup() => nomenclatureParametersProvider.GetIdentifierOfOnlineShopGroup();
 	}
 }

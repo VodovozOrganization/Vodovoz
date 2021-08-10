@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -35,7 +36,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		
+		private readonly IParametersProvider _parametersProvider;
+
 		private object selectedItem;
 		public object SelectedItem {
 			get => selectedItem;
@@ -58,11 +60,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			IOrderRepository orderRepository) : base(uowBuilder, uowFactory, commonServices)
+			IOrderRepository orderRepository,
+			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -93,7 +97,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 			
-			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), currentEmployee, commonServices.InteractiveService, UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(
+				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
 		}
 		
 		public IOrderRepository OrderRepository { get; }

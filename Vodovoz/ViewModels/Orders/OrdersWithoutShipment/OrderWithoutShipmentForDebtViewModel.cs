@@ -13,11 +13,13 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForDebtViewModel : EntityTabViewModelBase<OrderWithoutShipmentForDebt>, ITdiTabAddedNotifier
 	{
+		private readonly IParametersProvider _parametersProvider;
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
@@ -28,13 +30,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IEmployeeService employeeService) : base(uowBuilder, uowFactory, commonServices)
+			IEmployeeService employeeService,
+			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(employeeService == null)
 			{
 				throw new ArgumentNullException(nameof(employeeService));
 			}
-			
+
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+
 			bool canCreateBillsWithoutShipment = 
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -61,7 +66,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
-			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), currentEmployee, commonServices.InteractiveService, UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(
+				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
 		}
 
 		

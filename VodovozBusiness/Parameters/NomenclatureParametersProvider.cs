@@ -93,6 +93,19 @@ namespace Vodovoz.Parameters
 			var id = _parametersProvider.GetIntValue("forfeit_nomenclature_id");
 			return uow.GetById<Nomenclature>(id);
 		}
+		
+		public int GetIdentifierOfOnlineShopGroup()
+		{
+			string parameterName = "код_группы_товаров_для_интерент-магазина";
+			
+			if(!_parametersProvider.ContainsParameter(parameterName)
+			   || !int.TryParse(_parametersProvider.GetParameterValue(parameterName), out int res))
+			{
+				return 0;
+			}
+
+			return res;
+		}
 
         #endregion INomenclatureParametersProvider implementation
     }

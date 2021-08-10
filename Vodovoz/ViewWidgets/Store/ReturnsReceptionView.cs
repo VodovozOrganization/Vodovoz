@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 
@@ -32,7 +33,7 @@ namespace Vodovoz
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
-		private readonly IRouteListRepository _routeListRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly ICarUnloadRepository _carUnloadRepository;
 
@@ -42,10 +43,12 @@ namespace Vodovoz
 
 		public ReturnsReceptionView()
 		{
-			_terminalNomenclatureProvider = new BaseParametersProvider();
-			_routeListRepository = new RouteListRepository(new StockRepository());
-			_carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
+			var baseParameters = new BaseParametersProvider(new ParametersProvider());
+			_terminalNomenclatureProvider = baseParameters;
+			var routeListRepository = new RouteListRepository(new StockRepository(), baseParameters);
+			_carLoadDocumentRepository = new CarLoadDocumentRepository(routeListRepository);
 			_carUnloadRepository = new CarUnloadRepository();
+			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 
 			Build();
 
@@ -134,7 +137,7 @@ namespace Vodovoz
 			ReceptionItemNode returnableTerminal = null;
 			int loadedTerminalAmount = default(int);
 
-			var cashSubdivision = new SubdivisionRepository().GetCashSubdivisions(uow);
+			var cashSubdivision = _subdivisionRepository.GetCashSubdivisions(uow);
 			if(cashSubdivision.Contains(Warehouse.OwningSubdivision)) {
 				
 				loadedTerminalAmount = (int)_carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);

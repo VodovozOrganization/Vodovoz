@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -28,7 +29,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
