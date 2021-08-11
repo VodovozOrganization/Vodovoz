@@ -305,11 +305,10 @@ namespace Vodovoz
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			_needToSelectTerminalCondition = baseDoc is DriverAttachedTerminalGiveoutDocument && baseDoc.CreationDate.Date <= Entity?.Date;
 			hboxTerminalCondition.Visible = _hasAccessToDriverTerminal && _needToSelectTerminalCondition;
-			if(_hasAccessToDriverTerminal && _needToSelectTerminalCondition)
-			{
-				enumTerminalCondition.ItemsEnum = typeof(DriverTerminalCondition);
-				enumTerminalCondition.Binding.AddBinding(Entity, e => e.DriverTerminalCondition, w => w.SelectedItemOrNull);
-			}
+
+			enumTerminalCondition.ItemsEnum = typeof(DriverTerminalCondition);
+			enumTerminalCondition.Binding
+				.AddBinding(Entity, e => e.DriverTerminalCondition, w => w.SelectedItemOrNull).InitializeFromSource();
 		}
 
 		private void UpdateSensitivity()
@@ -720,7 +719,11 @@ namespace Vodovoz
 		public override bool Save() {
 			
 			var valid = new QSValidator<RouteList>(Entity,
-				new Dictionary<object, object>{{nameof(IRouteListItemRepository), new RouteListItemRepository()}});
+				new Dictionary<object, object>
+				{
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
+				});
 			
 			permissioncommentview.Save();
 
