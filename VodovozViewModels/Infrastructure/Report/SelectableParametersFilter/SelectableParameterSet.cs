@@ -142,8 +142,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		}
 
 		/// <summary>
-		/// Возвращает выбранные параметры. Если фильтр установлен в Include, при отсутствии выбора вернет все возможные параметры.
-		/// Если фильтр в Exclude - вернет все, кроме выбранных параметров
+		/// Возвращает выбранные параметры. Если фильтр в Exclude - вернет все, кроме выбранных параметров
 		/// </summary>
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -154,7 +153,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			switch (FilterType)
 			{
 				case SelectableFilterType.Include:
-					includedValues = selectedValues.Any() ? selectedValues : OutputParameters.ToList();
+					includedValues = selectedValues;
 					break;
 				case SelectableFilterType.Exclude:
 					includedValues = OutputParameters.Where(x => !selectedValues.Contains(x));
