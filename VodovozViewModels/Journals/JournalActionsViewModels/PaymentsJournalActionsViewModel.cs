@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;

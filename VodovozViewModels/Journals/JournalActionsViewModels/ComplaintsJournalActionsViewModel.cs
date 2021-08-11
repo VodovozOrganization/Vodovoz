@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Commands;
+using QS.Dialog;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;

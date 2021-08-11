@@ -113,6 +113,7 @@ using QS.BaseParameters;
 using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
+using QS.Dialog;
 using QS.Project.Repositories;
 using QS.ViewModels;
 using Vodovoz.ReportsParameters.Employees;
