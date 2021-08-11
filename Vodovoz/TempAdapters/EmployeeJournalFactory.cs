@@ -5,6 +5,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -32,7 +34,9 @@ namespace Vodovoz.TempAdapters
 		private IEmployeeRepository _employeeRepository;
 		private IValidationContextFactory _validationContextFactory;
 		private IPhonesViewModelFactory _phonesViewModelFactory;
-		
+		private IWarehouseRepository _warehouseRepository;
+		private IRouteListRepository _routeListRepository;
+
 		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
 			_employeeJournalFilter = employeeJournalFilter;
@@ -55,6 +59,9 @@ namespace Vodovoz.TempAdapters
 			_employeeRepository = new EmployeeRepository();
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			_warehouseRepository = new WarehouseRepository();
+			_routeListRepository = new RouteListRepository();
+
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
@@ -83,6 +90,9 @@ namespace Vodovoz.TempAdapters
 				_emailServiceSettingAdapter,
 				_wageCalculationRepository,
 				_employeeRepository,
+				_warehouseRepository,
+				_routeListRepository,
+				CurrentUserSettings.Settings,
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,
@@ -121,6 +131,9 @@ namespace Vodovoz.TempAdapters
 				_emailServiceSettingAdapter,
 				_wageCalculationRepository,
 				_employeeRepository,
+				_warehouseRepository,
+				_routeListRepository,
+				CurrentUserSettings.Settings,
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,
@@ -155,6 +168,9 @@ namespace Vodovoz.TempAdapters
 						_emailServiceSettingAdapter,
 						_wageCalculationRepository,
 						_employeeRepository,
+						_warehouseRepository,
+						_routeListRepository,
+						CurrentUserSettings.Settings,
 						_validationContextFactory,
 						_phonesViewModelFactory,
 						ServicesConfig.CommonServices,
@@ -197,6 +213,9 @@ namespace Vodovoz.TempAdapters
 				_emailServiceSettingAdapter,
 				_wageCalculationRepository,
 				_employeeRepository,
+				_warehouseRepository,
+				_routeListRepository,
+				CurrentUserSettings.Settings,
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				ServicesConfig.CommonServices,

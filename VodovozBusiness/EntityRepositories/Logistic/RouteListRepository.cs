@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -348,7 +349,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 			                        .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
 			                        .And(x => x.RouteList.Id == routeList.Id)
 			                        .List();
-			
+
+			if(GetLastTerminalDocumentForEmployee(uow, routeList.Driver) is DriverAttachedTerminalGiveoutDocument)
+			{
+				return null;
+			}
+
 			if (needTerminal || loadedTerminal.Any()) {
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
@@ -371,13 +377,25 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
+		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
+		{
+			DriverAttachedTerminalDocumentBase docAlias = null;
+
+			return uow.Session.QueryOver(() => docAlias)
+				.Where(doc => doc.Driver == employee)
+				.OrderBy(doc => doc.CreationDate).Desc.Take(1)
+				.SingleOrDefault();
+		}
+
         public bool IsTerminalRequired(IUnitOfWork uow, int routeListId)
         {
             CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
             var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
             var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
-            var anyAddressesRequireTermanal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+            var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+            var giveoutDoc = GetLastTerminalDocumentForEmployee(uow, routeList.Driver) as DriverAttachedTerminalGiveoutDocument;
 
             var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
                                     .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
@@ -386,12 +404,17 @@ namespace Vodovoz.EntityRepositories.Logistic
                                     .And(x => x.RouteList.Id == routeList.Id)
                                     .List();
 
-            return anyAddressesRequireTermanal && !loadedTerminal.Any();
+            return anyAddressesRequireTerminal && !loadedTerminal.Any() && giveoutDoc == null;
         }
 
 		public GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
+
+			if(GetLastTerminalDocumentForEmployee(uow, routeList.Driver) is DriverAttachedTerminalGiveoutDocument giveoutDoc)
+			{//если водителю был привязан терминал, то ему не надо его грузить
+				return null;
+			}
 
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 

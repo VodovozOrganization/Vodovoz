@@ -624,6 +624,10 @@ namespace Vodovoz.Views.Employees
 
 		private void OnRadioTabLogisticToggled(object sender, EventArgs e)
 		{
+			if(terminalmanagementview1.ViewModel == null)
+			{
+				terminalmanagementview1.ViewModel = ViewModel.TerminalManagementViewModel;
+			}
 			if(radioTabLogistic.Active)
 			{
 				notebookMain.CurrentPage = 1;

@@ -1644,6 +1644,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.DeliveryPointView.cs" />
     <Compile Include="Views\Flyers\FlyerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
+    <Compile Include="Views\Employees\TerminalManagementView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.TerminalManagementView.cs" />
+    <Compile Include="Filters\GtkViews\NomenclatureBalanceByStockFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureBalanceByStockFilterView.cs" />
+    <Compile Include="Views\Employees\DriverAttachedTerminalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.DriverAttachedTerminalView.cs" />
     <Compile Include="Views\Goods\EquipmentKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />

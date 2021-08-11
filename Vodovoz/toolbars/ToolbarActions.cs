@@ -459,6 +459,7 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
+		var routeListRepository = new RouteListRepository();
 		var employeeService = new EmployeeService();
 		
 		tdiMain.OpenTab(
@@ -466,6 +467,7 @@ public partial class MainWindow : Window
 			() => new RouteListAddressesTransferringDlg(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
+				routeListRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
 				new CategoryRepository(parametersProvider)
