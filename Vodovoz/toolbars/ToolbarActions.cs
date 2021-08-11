@@ -459,7 +459,7 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var routeListRepository = new RouteListRepository();
+		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var employeeService = new EmployeeService();
 		
 		tdiMain.OpenTab(

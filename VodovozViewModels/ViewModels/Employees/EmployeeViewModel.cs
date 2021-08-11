@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
 		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
 		private ValidationContext _validationContext;
+		private TerminalManagementViewModel _terminalManagementViewModel;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
 		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
@@ -223,7 +224,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				                                                                  _employeeRepository,
 				                                                                  _warehouseRepository,
 				                                                                  _routeListRepository,
-				                                                                  _commonServices, UoW));
+				                                                                  _commonServices,
+				                                                                  UoW,
+				                                                                  _baseParametersProvider));
 
 		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }

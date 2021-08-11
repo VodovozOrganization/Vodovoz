@@ -1,11 +1,13 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -60,8 +62,7 @@ namespace Vodovoz.TempAdapters
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_warehouseRepository = new WarehouseRepository();
-			_routeListRepository = new RouteListRepository();
-
+			_routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()

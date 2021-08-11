@@ -22,6 +22,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -32,12 +34,13 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using CarRepository = Vodovoz.Repository.Logistics.CarRepository;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
@@ -55,10 +58,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-        private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+        private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -386,7 +387,7 @@ namespace Vodovoz.Dialogs.Logistic
 					_phonesViewModelFactory,
 					_warehouseRepository,
 					_routeListRepository,
-					CurrentUserSettings.Settings);
+					CurrentUserSettings.Settings,
 					_userRepository,
 					_baseParametersProvider);
 				

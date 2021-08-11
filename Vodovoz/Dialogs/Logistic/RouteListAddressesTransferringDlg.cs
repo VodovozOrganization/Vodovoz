@@ -63,8 +63,8 @@ namespace Vodovoz
 		public RouteListAddressesTransferringDlg(
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
-			IEmployeeService employeeService,
 			IRouteListRepository routeListRepository,
+			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			ICategoryRepository categoryRepository)
 		{
@@ -94,6 +94,7 @@ namespace Vodovoz
 			: this(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
+				routeListRepository,
 				employeeService,
 				commonServices,
 				categoryRepository)

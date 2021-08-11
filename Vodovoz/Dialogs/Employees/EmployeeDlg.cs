@@ -36,6 +36,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure;
@@ -944,11 +945,12 @@ namespace Vodovoz
 						                                   CurrentUserSettings.Settings.DefaultWarehouse,
 						                                   Entity,
 						                                   this as ITdiTab,
-						                                   employeeRepository,
+						                                   _employeeRepository,
 						                                   new WarehouseRepository(),
-						                                   new RouteListRepository(),
+						                                   new RouteListRepository(new StockRepository(), _baseParametersProvider),
 						                                   ServicesConfig.CommonServices,
-						                                   UoW));
+						                                   UoW,
+						                                   _baseParametersProvider));
 			}
 
 			if(radioTabLogistic.Active)

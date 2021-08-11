@@ -25,6 +25,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
 {

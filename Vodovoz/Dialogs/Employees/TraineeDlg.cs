@@ -18,6 +18,7 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -36,6 +37,8 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class TraineeDlg : QS.Dialog.Gtk.EntityDialogBase<Trainee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
@@ -50,9 +53,8 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		public TraineeDlg()
 		{
