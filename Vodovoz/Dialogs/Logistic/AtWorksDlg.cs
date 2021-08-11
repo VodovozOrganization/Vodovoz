@@ -19,12 +19,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -32,6 +33,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using CarRepository = Vodovoz.Repository.Logistics.CarRepository;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -50,6 +52,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
+        private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
 		
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -359,7 +363,7 @@ namespace Vodovoz.Dialogs.Logistic
 			foreach(var one in selected) 
 			{
 				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Id);
-				
+
 				var employeeViewModel = new EmployeeViewModel(
 					_authorizationService,
 					_employeeWageParametersFactory,
@@ -374,7 +378,10 @@ namespace Vodovoz.Dialogs.Logistic
 					employeeUow,
 					ServicesConfig.CommonServices,
 					_validationContextFactory,
-					_phonesViewModelFactory);
+					_phonesViewModelFactory,
+					_warehouseRepository,
+					_routeListRepository,
+					CurrentUserSettings.Settings);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),

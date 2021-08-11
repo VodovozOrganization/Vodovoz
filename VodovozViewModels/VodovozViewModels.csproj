@@ -117,6 +117,7 @@
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
     <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\UndeliveredOrderJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\NomenclatureBalanceByStockJournalNode.cs" />
     <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
@@ -321,6 +323,9 @@
     <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
+    <Compile Include="ViewModels\Employees\TerminalManagementViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
+    <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

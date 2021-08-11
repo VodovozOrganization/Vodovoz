@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -66,7 +67,15 @@ namespace Vodovoz.JournalColumnsConfigs
                     .AddColumn("")
                     .Finish()
             );
-            
+
+            TreeViewColumnsConfigFactory.Register<NomenclatureBalanceByStockJournalViewModel>(
+                () => FluentColumnsConfig<NomenclatureBalanceByStockJournalNode>.Create()
+                    .AddColumn("Склад").AddTextRenderer(node => node.WarehouseName)
+                    .AddColumn("Кол-во").AddTextRenderer(node => $"{node.NomenclatureAmount:N0}")
+                    .AddColumn("")
+                    .Finish()
+            );
+
             TreeViewColumnsConfigFactory.Register<DiscountReasonJournalViewModel>(
 	            () => FluentColumnsConfig<DiscountReasonJournalNode>.Create()
 		            .AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
