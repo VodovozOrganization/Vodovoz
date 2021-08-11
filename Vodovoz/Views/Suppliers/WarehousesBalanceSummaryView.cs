@@ -16,7 +16,6 @@ namespace Vodovoz.Views.Suppliers
 	public partial class WarehousesBalanceSummaryView : TabViewBase<WarehousesBalanceSummaryViewModel>
 	{
 		private Task _generationTask;
-		private double _totalTime;
 
 		public WarehousesBalanceSummaryView(WarehousesBalanceSummaryViewModel viewModel) : base(viewModel)
 		{
@@ -39,9 +38,10 @@ namespace Vodovoz.Views.Suppliers
 				.InitializeFromSource();
 			buttonAbort.Clicked += (sender, args) => { ViewModel.ReportGenerationCancelationTokenSource.Cancel(); };
 
-			/*buttonExport.Binding.AddSource(ViewModel)
+			buttonExport.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanSave, w => w.Sensitive)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
+			buttonExport.Clicked += OnButtonExportClicked;
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -74,6 +74,62 @@ namespace Vodovoz.Views.Suppliers
 			treeData.EnableGridLines = TreeViewGridLines.Both;
 		}
 
+		private async void OnButtonExportClicked(object sender, EventArgs e)
+		{
+			var extension = ".xlsx";
+
+			var filechooser = new FileChooserDialog("Сохранить отчет...",
+				null,
+				FileChooserAction.Save,
+				"Отменить", ResponseType.Cancel,
+				"Сохранить", ResponseType.Accept)
+			{
+				CurrentName = $"{Tab.TabName} {ViewModel.Report.CreationDate:yyyy-MM-dd-HH-mm}{extension}"
+			};
+
+			var excelFilter = new FileFilter
+			{
+				Name = $"Документ Microsoft Excel ({extension})"
+			};
+
+			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			excelFilter.AddPattern($"*{extension}");
+			filechooser.AddFilter(excelFilter);
+
+			if(filechooser.Run() == (int)ResponseType.Accept)
+			{
+				var path = filechooser.Filename;
+
+				if(!path.Contains(extension))
+				{
+					path += extension;
+				}
+
+				filechooser.Hide();
+
+				ViewModel.CanSave = false;
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						buttonExport.Label = "Отчет сохраняется...";
+						ViewModel.ExportReport(path);
+					}
+					finally
+					{
+						Application.Invoke((s, eventArgs) =>
+						{
+							ViewModel.CanSave = true;
+							buttonExport.Label = "Сохранить";
+						});
+					}
+				});
+			}
+
+			filechooser.Destroy();
+		}
+
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
@@ -91,8 +147,6 @@ namespace Vodovoz.Views.Suppliers
 			}
 
 			treeData.ColumnsConfig = columnsConfig.AddColumn("").Finish();
-			ViewModel.ShowWarning($"Отчет остатков по складам сформирован за {_totalTime}с." +
-			                      $"\r\nАлгоритм {ViewModel.AlgoTime}с. Запрос ~{_totalTime - ViewModel.AlgoTime}с.");
 		}
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -101,7 +155,6 @@ namespace Vodovoz.Views.Suppliers
 			{
 				ConfigureTreeView();
 				treeData.ItemsDataSource = ViewModel.Report.SummaryRows;
-				treeData.YTreeModel.EmitModelChanged();
 			}
 		}
 
@@ -109,7 +162,6 @@ namespace Vodovoz.Views.Suppliers
 		{
 			ViewModel.ReportGenerationCancelationTokenSource = new CancellationTokenSource();
 			ViewModel.IsGenerating = true;
-			var start = DateTime.Now;
 
 			_generationTask = Task.Run(async () =>
 			{
@@ -135,7 +187,6 @@ namespace Vodovoz.Views.Suppliers
 				}
 				finally
 				{
-					_totalTime = (DateTime.Now - start).TotalSeconds;
 					Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.IsGenerating = false;
