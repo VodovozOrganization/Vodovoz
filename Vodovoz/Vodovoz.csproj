@@ -987,8 +987,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
-    <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DriverTerminal.DriverTerminalWindow.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
     <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
@@ -1868,7 +1866,6 @@
     <Folder Include="ReportsParameters\Bottles\" />
     <Folder Include="Reports\Bottles\" />
     <Folder Include="Dialogs\OnlineStore\" />
-    <Folder Include="DriverTerminal\" />
     <Folder Include="icons\map\points\" />
     <Folder Include="ReportsParameters\Payments\" />
     <Folder Include="Core\Journal\" />
@@ -1906,9 +1903,7 @@
     <Folder Include="ViewModels\FuelDocuments\" />
     <Folder Include="icons\buttons\NullableCheckBox\" />
     <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
-    <Folder Include="Views\Warehouses\" />
     <Folder Include="TempAdapters\" />
-    <Folder Include="Views\ForAdministrators\" />
     <Folder Include="Views\Orders\" />
     <Folder Include="ViewModels\Orders\" />
     <Folder Include="ViewWidgets\PromoSetAction\" />
@@ -1948,7 +1943,6 @@
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
     <Folder Include="Views\Security\" />
-    <Folder Include="JournalViewers\Retail\" />
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
