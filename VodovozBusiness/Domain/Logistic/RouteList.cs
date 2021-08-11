@@ -503,6 +503,14 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _printsHistory, value);
 		}
 
+		private DriverTerminalCondition? _driverTerminalCondition;
+		[Display(Name = "Состояние терминала")]
+		public virtual DriverTerminalCondition? DriverTerminalCondition
+		{
+			get => _driverTerminalCondition;
+			set => SetField(ref _driverTerminalCondition, value);
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -1266,7 +1274,6 @@ namespace Vodovoz.Domain.Logistic
 				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");
 			}
 
-
 			if(!GeographicGroups.Any())
 				yield return new ValidationResult(
 						"Необходимо указать район",
@@ -1289,6 +1296,12 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"Превышена длина комментария к километражу ({MileageComment.Length}/500)",
 					new[] { nameof(MileageComment) });
+			}
+
+			if(validationContext.Items.ContainsKey(nameof(DriverTerminalCondition)) &&
+			   (bool) validationContext.Items[nameof(DriverTerminalCondition)] && DriverTerminalCondition == null)
+			{
+				yield return new ValidationResult("Не указано состояние терминала водителя", new []{nameof(DriverTerminalCondition)});
 			}
 		}
 
@@ -2369,6 +2382,19 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public RouteListStatusStringType() : base(typeof(RouteListStatus)) { }
+	}
+
+	public enum DriverTerminalCondition
+	{
+		[Display(Name = "Исправен")]
+		Workable,
+		[Display(Name = "Неисправен")]
+		Broken
+	}
+
+	public class DriverTerminalConditionStringType : NHibernate.Type.EnumStringType
+	{
+		public DriverTerminalConditionStringType() : base(typeof(DriverTerminalCondition)) { }
 	}
 
 	public class RouteListControlNotLoadedNode

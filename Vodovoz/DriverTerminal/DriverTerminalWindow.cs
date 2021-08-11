@@ -12,7 +12,7 @@ using Vodovoz.Domain.Logistic;
 namespace Vodovoz.DriverTerminal
 {
 	public partial class DriverTerminalWindow : Gtk.Window
-	{
+	{//FIXME похоже, что этот диалог нигде не используется, надо поставить вопрос об удалении
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private ReportViewer reportViewer = null;

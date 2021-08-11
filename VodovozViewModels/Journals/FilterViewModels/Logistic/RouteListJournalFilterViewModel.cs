@@ -14,7 +14,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
     public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>
     {
-        public RouteListJournalFilterViewModel()
+	    private bool _showDriversWithTerminal;
+	    private bool _hasAccessToDriverTerminal;
+
+	    public RouteListJournalFilterViewModel()
         {
             statusNodes.AddRange(Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().Select(x => new RouteListStatusNode(x)));
 
@@ -44,8 +47,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
                 }
             }
 
+            var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+            var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+            HasAccessToDriverTerminal = cashier || logistician;
+
             SubscribeOnCheckChanged();
         }
+
+	    public bool ShowDriversWithTerminal
+	    {
+		    get => _showDriversWithTerminal;
+		    set => UpdateFilterField(ref _showDriversWithTerminal, value);
+	    }
+
+	    public bool HasAccessToDriverTerminal
+	    {
+		    get => _hasAccessToDriverTerminal;
+		    set => UpdateFilterField(ref _hasAccessToDriverTerminal, value);
+	    }
 
         private DeliveryShift deliveryShift;
         /// <summary>

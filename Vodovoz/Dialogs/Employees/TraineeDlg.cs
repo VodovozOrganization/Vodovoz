@@ -16,6 +16,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -46,6 +48,8 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		public TraineeDlg()
 		{
@@ -199,6 +203,9 @@ namespace Vodovoz.Dialogs.Employees
 				ServicesConfig.CommonServices,
 				_validationContextFactory,
 				_phonesViewModelFactory,
+				_warehouseRepository,
+				_routeListRepository,
+				CurrentUserSettings.Settings,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
