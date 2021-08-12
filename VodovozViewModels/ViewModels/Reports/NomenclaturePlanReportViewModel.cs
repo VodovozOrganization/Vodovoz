@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -10,6 +11,7 @@ using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Journal.Search;
 using QS.Project.Search;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using System;
@@ -26,6 +28,7 @@ using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Reports.NomenclaturePlanReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports
@@ -36,15 +39,22 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INomenclaturePlanParametersProvider _nomenclaturePlanParametersProvider;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IFilePickerService _filePicker;
 
 		private List<SelectedNomenclature> _savedNomenclatures;
 		private List<SelectedEquipmentKind> _savedEquipmentKinds;
 		private List<SelectedEquipmentType> _savedEquipmentTypes;
 		private SearchHelper _nomenclatureSearchHelper, _employeeSearchHelper, _equipmentKindSearchHelper;
+
 		private bool IsOneDay => StartDate == EndDate;
-		private IList<ReportNode> _selectedReportColumns;
+		private IList<NomenclaturePlanReportColumn> _selectedReportColumns;
 		private int? _callCenterEmployeesCount;
 		private IList<Nomenclature> _nomenclaturePlans;
+		private DelegateCommand _nomenclaturePlanCommand;
+		private DelegateCommand _showInfoWindowCommand;
+		private DelegateCommand _saveProceedsCommand;
+		private DelegateCommand _saveReportCommand;
+		private DelegateCommand<ScrollPositionNode> _loadNextCommand;
 		private const string _templatePath = @".\Reports\Orders\NomenclaturePlanReport.xlsx";
 
 		private ICriterion GetNomenclatureSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
@@ -58,7 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public NomenclaturePlanReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
 			INavigationManager navigation, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider) : base(unitOfWorkFactory, interactiveService,
+			INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider, IFilePickerService filePicker) : base(unitOfWorkFactory, interactiveService,
 			navigation)
 		{
 			Title = "Отчёт по мотивации КЦ";
@@ -67,6 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			_nomenclaturePlanParametersProvider = nomenclaturePlanParametersProvider ??
 												  throw new ArgumentNullException(nameof(nomenclaturePlanParametersProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 
 			ProductGroupSelectorFactory =
 				(productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory)))
@@ -77,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Configure();
 		}
 
-		public int CallCenterSubdivisionId { get; }
+		#region Configure
 
 		private void Configure()
 		{
@@ -109,7 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private void NomenclaturesConfigure()
 		{
 			NomenclatureSearchVM = new SearchViewModel();
-			NomenclatureSearchVM.OnSearch += NomenclatureSearchOnSearch;
+			NomenclatureSearchVM.OnSearch += (sender, args) => NomenclatureSearchCommand.Execute();
 			_nomenclatureSearchHelper = new SearchHelper(NomenclatureSearchVM);
 
 			//Предзагрузка. Для избежания ленивой загрузки
@@ -120,8 +131,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.OrderBy(x => x.Nomenclature.Name)
 				.ToList();
 
-			SelectedNomenclatures = new GenericObservableList<NomenclatureReportNode>(_savedNomenclatures
-				.Select(x => new NomenclatureReportNode()
+			SelectedNomenclatures = new GenericObservableList<NomenclatureReportColumn>(_savedNomenclatures
+				.Select(x => new NomenclatureReportColumn()
 				{
 					Id = x.Nomenclature.Id,
 					Name = x.Nomenclature.Name,
@@ -130,20 +141,91 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				})
 				.ToList());
 
-			NomenclatureDataLoader = new ThreadDataLoader<NomenclatureReportNode>(_unitOfWorkFactory) { PageSize = PageSize };
+			NomenclatureDataLoader = new ThreadDataLoader<NomenclatureReportColumn>(_unitOfWorkFactory) { PageSize = PageSize };
 			NomenclatureDataLoader.AddQuery(NomenclatureItemsSourceQueryFunction);
 		}
 
-		public void NomenclatureSearchOnSearch(object sender, EventArgs e)
+		private void EmployeesConfigure()
 		{
-			NomenclatureLastScrollPosition = 0;
-			NomenclatureDataLoader.LoadData(IsNomenclatureNextPage = false);
+			EmployeeSearchVM = new SearchViewModel();
+			EmployeeSearchVM.OnSearch += (sender, args) => EmployeeSearchCommand.Execute();
+			_employeeSearchHelper = new SearchHelper(EmployeeSearchVM);
+
+			SubdivisionReportColumn subdivisionResultAlias = null;
+			Subdivisions = UoW.Session.QueryOver<Subdivision>()
+				.SelectList(list => list
+					.Select(x => x.Id).WithAlias(() => subdivisionResultAlias.Id)
+					.Select(x => x.Name).WithAlias(() => subdivisionResultAlias.Name)
+				)
+				.TransformUsing(Transformers.AliasToBean<SubdivisionReportColumn>())
+				.List<SubdivisionReportColumn>()
+				.OrderBy(x => x.Name);
+
+			Subdivision = Subdivisions.FirstOrDefault(s => s.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId);
+
+			SelectedEmployees = new GenericObservableList<EmployeeReportColumn>();
+
+			EmployeeDataLoader = new ThreadDataLoader<EmployeeReportColumn>(_unitOfWorkFactory) { PageSize = PageSize };
+			EmployeeDataLoader.AddQuery(EmployeeItemsSourceQueryFunction);
 		}
+
+		private void EquipmentKindsConfigure()
+		{
+			EquipmentKindSearchVM = new SearchViewModel();
+			EquipmentKindSearchVM.OnSearch += (sender, args) => EquipmentKindSearchCommand.Execute();
+			_equipmentKindSearchHelper = new SearchHelper(EquipmentKindSearchVM);
+
+			_savedEquipmentKinds = UoW.Session.QueryOver<SelectedEquipmentKind>()
+				.List()
+				.OrderBy(x => x.EquipmentKind.Name)
+				.ToList();
+
+			SelectedEquipmentKinds = new GenericObservableList<EquipmentKindReportColumn>(_savedEquipmentKinds
+				.Select(x => new EquipmentKindReportColumn()
+				{
+					Id = x.EquipmentKind.Id,
+					Name = x.EquipmentKind.Name,
+				})
+				.ToList());
+
+			EquipmentKindDataLoader = new ThreadDataLoader<EquipmentKindReportColumn>(_unitOfWorkFactory) { PageSize = PageSize };
+			EquipmentKindDataLoader.AddQuery(EquipmentKindItemsSourceQueryFunction);
+		}
+
+		private void EquipmentTypesConfigure()
+		{
+			EquipmentTypeSearchVM = new SearchViewModel();
+			EquipmentTypeSearchVM.OnSearch += (sender, args) => EquipmentTypeSearchCommand.Execute();
+
+			_savedEquipmentTypes = UoW.Session.QueryOver<SelectedEquipmentType>()
+				.List<SelectedEquipmentType>()
+				.ToList();
+
+			EquipmentTypes = new GenericObservableList<EquipmentTypeReportColumn>();
+			foreach(EquipmentType equipmentType in Enum.GetValues(typeof(EquipmentType)))
+			{
+				if(!_savedEquipmentTypes.Any(x => x.EquipmentType == equipmentType))
+				{
+					EquipmentTypes.Add(new EquipmentTypeReportColumn() { EquipmentType = equipmentType });
+				}
+			}
+
+			SelectedEquipmentTypes = new GenericObservableList<EquipmentTypeReportColumn>(_savedEquipmentTypes
+				.Select(x => new EquipmentTypeReportColumn()
+				{
+					EquipmentType = x.EquipmentType
+				})
+				.ToList());
+		}
+
+		#endregion
+
+		#region ItemsSourceQuery
 
 		private Func<IUnitOfWork, IQueryOver<Nomenclature>> NomenclatureItemsSourceQueryFunction => (uow) =>
 		{
 			Nomenclature nomenclatureAlias = null;
-			NomenclatureReportNode nomenclatureResultAlias = null;
+			NomenclatureReportColumn nomenclatureResultAlias = null;
 
 			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias);
 
@@ -178,46 +260,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(x => x.PlanMonth).WithAlias(() => nomenclatureResultAlias.PlanMonth)
 				)
 				.OrderBy(x => x.Name).Asc
-				.TransformUsing(Transformers.AliasToBean<NomenclatureReportNode>());
+				.TransformUsing(Transformers.AliasToBean<NomenclatureReportColumn>());
 
 			return itemsQuery;
 		};
 
-		private void EmployeesConfigure()
-		{
-			EmployeeSearchVM = new SearchViewModel();
-			EmployeeSearchVM.OnSearch += EmployeeSearchOnSearch;
-			_employeeSearchHelper = new SearchHelper(EmployeeSearchVM);
-
-			SubdivisionReportNode subdivisionResultAlias = null;
-			Subdivisions = UoW.Session.QueryOver<Subdivision>()
-				.SelectList(list => list
-					.Select(x => x.Id).WithAlias(() => subdivisionResultAlias.Id)
-					.Select(x => x.Name).WithAlias(() => subdivisionResultAlias.Name)
-				)
-				.TransformUsing(Transformers.AliasToBean<SubdivisionReportNode>())
-				.List<SubdivisionReportNode>()
-				.OrderBy(x => x.Name);
-
-			Subdivision = Subdivisions.FirstOrDefault(s => s.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId);
-
-			SelectedEmployees = new GenericObservableList<EmployeeReportNode>();
-
-			EmployeeDataLoader = new ThreadDataLoader<EmployeeReportNode>(_unitOfWorkFactory) { PageSize = PageSize };
-			EmployeeDataLoader.AddQuery(EmployeeItemsSourceQueryFunction);
-		}
-
-
-		public void EmployeeSearchOnSearch(object sender, EventArgs e)
-		{
-			EmployeeLastScrollPosition = 0;
-			EmployeeDataLoader.LoadData(IsEmployeeNextPage = false);
-		}
-
 		private Func<IUnitOfWork, IQueryOver<Employee>> EmployeeItemsSourceQueryFunction => (uow) =>
 		{
 			Employee employeeAlias = null;
-			EmployeeReportNode employeeResultAlias = null;
+			EmployeeReportColumn employeeResultAlias = null;
 
 			var itemsQuery = UoW.Session.QueryOver(() => employeeAlias);
 
@@ -254,97 +305,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.OrderBy(x => x.LastName).Asc
 				.ThenBy(x => x.Name).Asc
 				.ThenBy(x => x.Patronymic).Asc
-				.TransformUsing(Transformers.AliasToBean<EmployeeReportNode>());
+				.TransformUsing(Transformers.AliasToBean<EmployeeReportColumn>());
 
 			return itemsQuery;
 		};
 
-		private void EquipmentKindsConfigure()
-		{
-			EquipmentKindSearchVM = new SearchViewModel();
-			EquipmentKindSearchVM.OnSearch += EquipmentKindSearchOnSearch;
-			_equipmentKindSearchHelper = new SearchHelper(EquipmentKindSearchVM);
-
-			_savedEquipmentKinds = UoW.Session.QueryOver<SelectedEquipmentKind>()
-				.List()
-				.OrderBy(x => x.EquipmentKind.Name)
-				.ToList();
-
-			SelectedEquipmentKinds = new GenericObservableList<EquipmentKindReportNode>(_savedEquipmentKinds
-				.Select(x => new EquipmentKindReportNode()
-				{
-					Id = x.EquipmentKind.Id,
-					Name = x.EquipmentKind.Name,
-				})
-				.ToList());
-
-			EquipmentKindDataLoader = new ThreadDataLoader<EquipmentKindReportNode>(_unitOfWorkFactory) { PageSize = PageSize };
-			EquipmentKindDataLoader.AddQuery(EquipmentKindItemsSourceQueryFunction);
-		}
-
-		public void EquipmentKindSearchOnSearch(object sender, EventArgs e)
-		{
-			EquipmentKindLastScrollPosition = 0;
-			EquipmentKindDataLoader.LoadData(IsEquipmentKindNextPage = false);
-		}
-
-		private void EquipmentTypesConfigure()
-		{
-			EquipmentTypeSearchVM = new SearchViewModel();
-			EquipmentTypeSearchVM.OnSearch += EquipmentTypeSearchOnSearch;
-
-			_savedEquipmentTypes = UoW.Session.QueryOver<SelectedEquipmentType>()
-				.List<SelectedEquipmentType>()
-				.ToList();
-
-			EquipmentTypes = new GenericObservableList<EquipmentTypeReportNode>();
-			foreach(EquipmentType equipmentType in Enum.GetValues(typeof(EquipmentType)))
-			{
-				if(!_savedEquipmentTypes.Any(x => x.EquipmentType == equipmentType))
-				{
-					EquipmentTypes.Add(new EquipmentTypeReportNode() { EquipmentType = equipmentType });
-				}
-			}
-
-			SelectedEquipmentTypes = new GenericObservableList<EquipmentTypeReportNode>(_savedEquipmentTypes
-				.Select(x => new EquipmentTypeReportNode()
-				{
-					EquipmentType = x.EquipmentType
-				})
-				.ToList());
-		}
-
-		public void EquipmentTypeSearchOnSearch(object sender, EventArgs e)
-		{
-			var searchStr = EquipmentTypeSearchVM.SearchValues?.FirstOrDefault();
-
-			foreach(EquipmentType equipmentType in Enum.GetValues(typeof(EquipmentType)))
-			{
-				if(!string.IsNullOrWhiteSpace(searchStr) && EquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
-				   !equipmentType.GetEnumTitle().ToLower().Contains(searchStr.ToLower()))
-				{
-					EquipmentTypes.Remove(EquipmentTypes.FirstOrDefault(x => x.EquipmentType == equipmentType));
-				}
-
-				if(string.IsNullOrWhiteSpace(searchStr) && !EquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
-				   !SelectedEquipmentTypes.Any(x => x.EquipmentType == equipmentType))
-				{
-					EquipmentTypes.Add(new EquipmentTypeReportNode() { EquipmentType = equipmentType });
-				}
-
-				if(!string.IsNullOrWhiteSpace(searchStr) && !EquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
-				   !SelectedEquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
-				   equipmentType.GetEnumTitle().ToLower().Contains(searchStr.ToLower()))
-				{
-					EquipmentTypes.Add(new EquipmentTypeReportNode() { EquipmentType = equipmentType });
-				}
-			}
-		}
-
 		private Func<IUnitOfWork, IQueryOver<EquipmentKind>> EquipmentKindItemsSourceQueryFunction => (uow) =>
 		{
 			EquipmentKind equipmentKindAlias = null;
-			EquipmentKindReportNode equipmentKindResultAlias = null;
+			EquipmentKindReportColumn equipmentKindResultAlias = null;
 
 			var itemsQuery = UoW.Session.QueryOver(() => equipmentKindAlias);
 
@@ -364,292 +333,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					.Select(x => x.Id).WithAlias(() => equipmentKindResultAlias.Id)
 					.Select(x => x.Name).WithAlias(() => equipmentKindResultAlias.Name)
 				)
-				.TransformUsing(Transformers.AliasToBean<EquipmentKindReportNode>());
+				.TransformUsing(Transformers.AliasToBean<EquipmentKindReportColumn>());
 
 			return itemsQuery;
 		};
 
-		public void ShowInfoWindow()
-		{
-			var info =
-				"Кнопками со стрелками влево/вправо, либо двойным щелчком мыши выберите необходимые фильтры для отчёта.\n" +
-				"Строками отчёта являются выбранные сотрудники. Колонками отчёта являются выбранные ТМЦ, виды и типы оборудования,\n" +
-				"а также выручка.\n" +
-				"Подсчёт происходит по заказам, кроме заказов со статусами \"Доставка отменена\", \"Отменён\", \"Недовоз\" \n" +
-				"и кроме заказов-закрывашек по контракту.\n\n" +
-				"Фильтр периода дат применяется для даты создания заказа. Если указан 1 день, то сравнивается с планом на день.\n" +
-				"Если указан период, то сравнивается с планом на месяц.\n" +
-				"Все данные по плану продаж берутся из плана, указанного в сотруднике. А для ТМЦ, если у сотрудника нет такого плана с выбранной\n" +
-				"ТМЦ, то план берётся из Журнала плана продаж для КЦ (для настройки данного плана продаж нажмите на соответствующую кнопку сверху).\n" +
-				"А если и в Журнале плана продаж для КЦ также не заданы плановые показатели за день или месяц, то рассчитывается \n" +
-				"среднее значение в подразделении КЦ проданных сотрудниками выбранных ТМЦ.";
+		#endregion
 
-			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
-		}
-
-		public void ButtonNomenclaturePlanClicked()
-		{
-			TabParent.OpenTab(() => new NomenclaturesPlanJournalViewModel(
-				new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
-				_unitOfWorkFactory,
-				_commonServices)
-			);
-		}
-
-		public void ButtonNomenclaturesSaveClicked()
-		{
-			foreach(var savedNomenclature in _savedNomenclatures.ToList())
-			{
-				if(!SelectedNomenclatures.Any(x => x.Id == savedNomenclature.Nomenclature.Id))
-				{
-					_savedNomenclatures.Remove(savedNomenclature);
-
-					UoW.Delete(savedNomenclature);
-				}
-			}
-
-			foreach(NomenclatureReportNode selectedNode in SelectedNomenclatures)
-			{
-				if(!_savedNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
-				{
-					SelectedNomenclature selectedNomenclature = new SelectedNomenclature()
-					{
-						Nomenclature = new Nomenclature()
-						{
-							Id = selectedNode.Id
-						}
-					};
-
-					UoW.Save(selectedNomenclature);
-
-					_savedNomenclatures.Add(selectedNomenclature);
-				}
-			}
-
-			UoW.Commit();
-		}
-
-		public void ButtonEquipmentKindsSaveClicked()
-		{
-			foreach(var savedEquipmentKind in _savedEquipmentKinds.ToList())
-			{
-				if(!SelectedEquipmentKinds.Any(x => x.Id == savedEquipmentKind.EquipmentKind.Id))
-				{
-					_savedEquipmentKinds.Remove(savedEquipmentKind);
-
-					UoW.Delete(savedEquipmentKind);
-				}
-			}
-
-			foreach(EquipmentKindReportNode selectedNode in SelectedEquipmentKinds)
-			{
-				if(!_savedEquipmentKinds.Any(x => x.EquipmentKind.Id == selectedNode.Id))
-				{
-					SelectedEquipmentKind selectedEquipmentKindPlan = new SelectedEquipmentKind()
-					{
-						EquipmentKind = new EquipmentKind()
-						{
-							Id = selectedNode.Id
-						}
-					};
-
-					UoW.Save(selectedEquipmentKindPlan);
-
-					_savedEquipmentKinds.Add(selectedEquipmentKindPlan);
-				}
-			}
-
-			UoW.Commit();
-		}
-
-		public void ButtonEquipmentTypesSaveClicked()
-		{
-			foreach(var savedEquipmentType in _savedEquipmentTypes.ToList())
-			{
-				if(!SelectedEquipmentTypes.Any(x => x.EquipmentType == savedEquipmentType.EquipmentType))
-				{
-					_savedEquipmentTypes.Remove(savedEquipmentType);
-
-					UoW.Delete(savedEquipmentType);
-				}
-			}
-
-			foreach(EquipmentTypeReportNode selectedNode in SelectedEquipmentTypes)
-			{
-				if(!_savedEquipmentTypes.Any(x => x.EquipmentType == selectedNode.EquipmentType))
-				{
-					SelectedEquipmentType selectedEquipmentTypePlan = new SelectedEquipmentType()
-					{
-						EquipmentType = selectedNode.EquipmentType
-					};
-
-					UoW.Save(selectedEquipmentTypePlan);
-
-					_savedEquipmentTypes.Add(selectedEquipmentTypePlan);
-				}
-			}
-
-			UoW.Commit();
-		}
-
-		public void ButtonSaveProceedsClicked()
-		{
-			UoW.Save(SelectedProceeds);
-			UoW.Commit();
-		}
-
-		public void SelectNomenclature(NomenclatureReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedNomenclatures.Add(node);
-			}
-		}
-
-		public void DeselectNomenclature(NomenclatureReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedNomenclatures.Remove(node);
-			}
-		}
-
-		public void SelectEmployee(EmployeeReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedEmployees.Add(node);
-			}
-		}
-
-		public void DeselectEmployee(EmployeeReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedEmployees.Remove(node);
-			}
-		}
-
-		public void SelectEquipmentKind(EquipmentKindReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedEquipmentKinds.Add(node);
-			}
-		}
-
-		public void DeselectEquipmentKind(EquipmentKindReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedEquipmentKinds.Remove(node);
-			}
-		}
-
-		public void SelectEquipmentType(EquipmentTypeReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedEquipmentTypes.Add(node);
-				EquipmentTypes.Remove(node);
-			}
-
-			EquipmentTypeSearchVM.Update();
-		}
-
-		public void DeselectEquipmentType(EquipmentTypeReportNode[] nodes)
-		{
-			if(nodes.Length == 0)
-			{
-				return;
-			}
-
-			foreach(var node in nodes)
-			{
-				SelectedEquipmentTypes.Remove(node);
-				EquipmentTypes.Add(node);
-			}
-
-			EquipmentTypeSearchVM.Update();
-		}
-
-
-		public override void Dispose()
-		{
-			IsDestroyed = true;
-			NomenclatureDataLoader.CancelLoading();
-			EmployeeDataLoader.CancelLoading();
-			EquipmentKindDataLoader.CancelLoading();
-			base.Dispose();
-		}
-
-		public class NomenclatureReportNode : ReportNode
-		{
-			public int? PlanDay { get; set; }
-			public int? PlanMonth { get; set; }
-			public override ReportColumnType ColumnType => ReportColumnType.Nomenclature;
-		}
-
-		public class EmployeeReportNode : ReportNode
-		{
-			public string LastName { get; set; }
-			public string Patronymic { get; set; }
-			public string FullName => $"{LastName} {Name} {Patronymic}";
-		}
-
-		public class SubdivisionReportNode : ReportNode { }
-
-		public class EquipmentKindReportNode : ReportNode
-		{
-			public override ReportColumnType ColumnType => ReportColumnType.EquipmentKind;
-		}
-
-		public class EquipmentTypeReportNode : ReportNode
-		{
-			public EquipmentType EquipmentType { get; set; }
-			public override string Name => EquipmentType.GetEnumTitle();
-			public override ReportColumnType ColumnType => ReportColumnType.EquipmentType;
-		}
-
-		public class ProceedsReportNode : ReportNode
+		private class ProceedsReportColumn : NomenclaturePlanReportColumn
 		{
 			public override string Name => "Выручка";
-			public override ReportColumnType ColumnType => ReportColumnType.Proceeds;
+			public override NomenclaturePlanReportColumnType ColumnType => NomenclaturePlanReportColumnType.Proceeds;
 		}
 
 		private List<ProductGroup> GetProductGroupsRecursive(ProductGroup parentProductGroup)
@@ -664,42 +358,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			return productGroups;
 		}
 
-		public void LoadNextNomenclatures(double scrollPosition)
-		{
-			if(NomenclatureDataLoader.HasUnloadedItems)
-			{
-				NomenclatureLastScrollPosition = scrollPosition;
-				NomenclatureDataLoader.LoadData(true);
-			}
-		}
-
-		public void LoadNextEmployees(double scrollPosition)
-		{
-			if(EmployeeDataLoader.HasUnloadedItems)
-			{
-				EmployeeLastScrollPosition = scrollPosition;
-				EmployeeDataLoader.LoadData(true);
-			}
-		}
-
-		public void LoadNextEquipmentKinds(double scrollPosition)
-		{
-			if(EquipmentKindDataLoader.HasUnloadedItems)
-			{
-				EquipmentKindLastScrollPosition = scrollPosition;
-				EquipmentKindDataLoader.LoadData(true);
-			}
-		}
-
-		public void ExportReport(string path)
-		{
-			var template = new XLTemplate(_templatePath);
-
-			template.AddVariable(Report);
-			template.Generate();
-
-			template.SaveAs(path);
-		}
+		#region GenerateReport
 
 		public void GenerateReport()
 		{
@@ -708,7 +367,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Не выбрана дата");
 			}
 
-			Report = new NomenclaturePlanReport()
+			Report = new NomenclaturePlanReportMain()
 			{
 				FilterStartDate = StartDate,
 				FilterEndDate = EndDate,
@@ -719,14 +378,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			var titles = new List<string>();
 
-			_selectedReportColumns = SelectedNomenclatures.Cast<ReportNode>().Concat(SelectedEquipmentKinds).Concat(SelectedEquipmentTypes).ToList();
+			_selectedReportColumns = SelectedNomenclatures.Cast<NomenclaturePlanReportColumn>().Concat(SelectedEquipmentKinds).Concat(SelectedEquipmentTypes).ToList();
 
 			if(SelectedProceeds.InludeProceeds)
 			{
-				_selectedReportColumns.Add(new ProceedsReportNode());
+				_selectedReportColumns.Add(new ProceedsReportColumn());
 			}
 
-			foreach(ReportNode node in _selectedReportColumns)
+			foreach(NomenclaturePlanReportColumn node in _selectedReportColumns)
 			{
 				titles.Add($"{node.Name}\n(факт)");
 				titles.Add($"{node.Name}\n(план)");
@@ -758,7 +417,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Nomenclature nomenclatureAlias = null;
 			EquipmentKind equipmentKindAlias = null;
 
-			StorageList = UoW.Session.QueryOver<Order>(() => orderAlias)
+			_storageList = UoW.Session.QueryOver<Order>(() => orderAlias)
 				.Left.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(o => o.Author, () => employeeAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -778,7 +437,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				).TransformUsing(Transformers.AliasToBean<StorageNode>())
 				.List<StorageNode>();
 
-			EmployeeWageParameterNode employeeWageParameterNode = null;
+			EmployeeSalesPlanNode employeeWageParameterNode = null;
 			EmployeeWageParameter employeeWageParameterAlias = null;
 			SalesPlanWageParameterItem salesPlanWageParameterItemAlias = null;
 			EmployeeWageParameter subQueryEmployeeWageParameter = null;
@@ -801,8 +460,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.SelectList(list => list
 					.SelectGroup(x => x.Employee.Id).WithAlias(() => employeeWageParameterNode.EmployeeId)
 					.SelectSubQuery(salesPlanSubQuery).WithAlias(() => employeeWageParameterNode.SalesPlanId)
-				).TransformUsing(Transformers.AliasToBean<EmployeeWageParameterNode>())
-				.List<EmployeeWageParameterNode>();
+				).TransformUsing(Transformers.AliasToBean<EmployeeSalesPlanNode>())
+				.List<EmployeeSalesPlanNode>();
 
 			var employees = UoW.Session.Query<Employee>()
 				.Where(e => employeesIds.Contains(e.Id))
@@ -817,7 +476,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			foreach(var employee in employees)
 			{
-				NomenclaturePlanReportRow row = new NomenclaturePlanReportRow { Employee = employee, Items = new List<decimal>() };
+				NomenclaturePlanReportRow row = new NomenclaturePlanReportRow { Employee = employee, Columns = new List<decimal>() };
 
 				var employeeSalesPlan = employeeWageParameterNodeList.SingleOrDefault(x => x.EmployeeId == employee.Id);
 				var salesPlan = salesPlans.SingleOrDefault(x => employeeSalesPlan != null && x.Id == employeeSalesPlan.SalesPlanId);
@@ -827,7 +486,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					decimal plan = GetSalesPlan(column, salesPlan);
 					decimal fact = GetSalesFact(column, employee);
 					decimal percent = plan > 0 ? fact * 100 / plan : 100;
-					row.Items.AddRange(new List<decimal> { decimal.Round(fact, 2), decimal.Round(plan, 2), decimal.Round(percent, 2) });
+					row.Columns.AddRange(new List<decimal> { decimal.Round(fact, 2), decimal.Round(plan, 2), decimal.Round(percent, 2) });
 				}
 
 				rows.Add(row);
@@ -835,23 +494,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			return rows;
 		}
 
-		private decimal GetSalesFact(ReportNode node, Employee employee)
+		private decimal GetSalesFact(NomenclaturePlanReportColumn column, Employee employee)
 		{
-			switch(node.ColumnType)
+			switch(column.ColumnType)
 			{
-				case ReportColumnType.Nomenclature:
+				case NomenclaturePlanReportColumnType.Nomenclature:
 					{
-						return GetNomenclatureSalesFact(node, employee);
+						return GetNomenclatureSalesFact(column, employee);
 					}
-				case ReportColumnType.EquipmentKind:
+				case NomenclaturePlanReportColumnType.EquipmentKind:
 					{
-						return GetEquipmentKindSalesFact(node, employee);
+						return GetEquipmentKindSalesFact(column, employee);
 					}
-				case ReportColumnType.EquipmentType:
+				case NomenclaturePlanReportColumnType.EquipmentType:
 					{
-						return GetEquipmentTypeSalesFact(node, employee);
+						return GetEquipmentTypeSalesFact(column, employee);
 					}
-				case ReportColumnType.Proceeds:
+				case NomenclaturePlanReportColumnType.Proceeds:
 					{
 						return GetProceedsSalesFact(employee);
 					}
@@ -862,63 +521,63 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		private decimal GetProceedsSalesFact(Employee employee)
 		{
-			return StorageList
+			return _storageList
 				.Where(sl => sl.AuthorId == employee.Id)
 				.Sum(i => i.Price * i.Count);
 		}
 
-		private decimal GetEquipmentTypeSalesFact(ReportNode node, Employee employee)
+		private decimal GetEquipmentTypeSalesFact(NomenclaturePlanReportColumn column, Employee employee)
 		{
-			var equipmentType = ((EquipmentTypeReportNode)node).EquipmentType;
+			var equipmentType = ((EquipmentTypeReportColumn)column).EquipmentType;
 
-			return StorageList
+			return _storageList
 				.Where(sl => sl.EquipmentType == equipmentType &&
 							sl.AuthorId == employee.Id)
 				.Sum(i => i.Count);
 		}
 
-		private decimal GetEquipmentKindSalesFact(ReportNode node, Employee employee)
+		private decimal GetEquipmentKindSalesFact(NomenclaturePlanReportColumn column, Employee employee)
 		{
-			return StorageList
-				.Where(sl => sl.EquipmentKindId == node.Id &&
+			return _storageList
+				.Where(sl => sl.EquipmentKindId == column.Id &&
 							sl.AuthorId == employee.Id)
 				.Sum(i => i.Count);
 		}
 
-		private decimal GetNomenclatureSalesFact(ReportNode node, Employee employee)
+		private decimal GetNomenclatureSalesFact(NomenclaturePlanReportColumn column, Employee employee)
 		{
-			return StorageList
-				.Where(sl => sl.NomenclatureId == node.Id &&
+			return _storageList
+				.Where(sl => sl.NomenclatureId == column.Id &&
 							sl.AuthorId == employee.Id)
 				.Sum(i => i.Count);
 		}
 
-		private decimal GetSalesPlan(ReportNode node, SalesPlan salesPlan)
+		private decimal GetSalesPlan(NomenclaturePlanReportColumn column, SalesPlan salesPlan)
 		{
-			switch(node.ColumnType)
+			switch(column.ColumnType)
 			{
-				case ReportColumnType.Nomenclature:
+				case NomenclaturePlanReportColumnType.Nomenclature:
 					{
 						var salesPlanItem = salesPlan?.NomenclatureItemSalesPlans
-							.SingleOrDefault(x => x.Nomenclature.Id == node.Id);
+							.SingleOrDefault(x => x.Nomenclature.Id == column.Id);
 
-						return GetNomenclatureSalesPlan(node, salesPlanItem);
+						return GetNomenclatureSalesPlan(column, salesPlanItem);
 					}
-				case ReportColumnType.EquipmentKind:
+				case NomenclaturePlanReportColumnType.EquipmentKind:
 					{
 						var salesPlanItem = salesPlan?.EquipmentKindItemSalesPlans
-							.SingleOrDefault(x => x.EquipmentKind.Id == node.Id);
+							.SingleOrDefault(x => x.EquipmentKind.Id == column.Id);
 
 						return IsOneDay ? salesPlanItem?.PlanDay ?? 0 : salesPlanItem?.PlanMonth ?? 0;
 					}
-				case ReportColumnType.EquipmentType:
+				case NomenclaturePlanReportColumnType.EquipmentType:
 					{
 						var salesPlanItem = salesPlan?.EquipmentTypeItemSalesPlans
-								.SingleOrDefault(x => x.EquipmentType == ((EquipmentTypeReportNode)node).EquipmentType);
+								.SingleOrDefault(x => x.EquipmentType == ((EquipmentTypeReportColumn)column).EquipmentType);
 
 						return IsOneDay ? salesPlanItem?.PlanDay ?? 0 : salesPlanItem?.PlanMonth ?? 0;
 					}
-				case ReportColumnType.Proceeds:
+				case NomenclaturePlanReportColumnType.Proceeds:
 					{
 						if(salesPlan != null)
 						{
@@ -932,9 +591,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			return 0;
 		}
 
-		private decimal GetNomenclatureSalesPlan(ReportNode node, SalesPlanItem salesPlanItem)
+		private decimal GetNomenclatureSalesPlan(NomenclaturePlanReportColumn column, SalesPlanItem salesPlanItem)
 		{
-			var nomenclature = NomenclaturePlans.SingleOrDefault(x => x.Id == node.Id);
+			var nomenclature = NomenclaturePlans.SingleOrDefault(x => x.Id == column.Id);
 
 			if(salesPlanItem != null)
 			{
@@ -948,7 +607,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				}
 				else
 				{
-					var soldBySubdivision = StorageList
+					var soldBySubdivision = _storageList
 						.Where(o => o.NomenclatureId == nomenclature.Id &&
 									o.SubdivisionId == CallCenterSubdivisionId)
 						.Sum(i => i.Count);
@@ -958,63 +617,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			}
 		}
 
-		public class EmployeeWageParameterNode
+		private void ExportReport(string path)
 		{
-			public int EmployeeId { get; set; }
-			public int SalesPlanId { get; set; }
+			var template = new XLTemplate(_templatePath);
+
+			template.AddVariable(Report);
+			template.Generate();
+
+			template.SaveAs(path);
 		}
 
-		public class ReportNode
-		{
-			public int Id { get; set; }
-			public virtual string Name { get; set; }
-			public virtual ReportColumnType ColumnType { get; set; }
-		}
+		#endregion
 
-		public enum ReportColumnType
-		{
-			Nomenclature,
-			EquipmentKind,
-			EquipmentType,
-			Proceeds
-		}
-
-		public class NomenclaturePlanReport
-		{
-			public IEnumerable<NomenclaturePlanReportRow> Rows { get; set; }
-			public List<string> Titles { get; set; }
-			public DateTime? FilterStartDate, FilterEndDate;
-			public DateTime CreationDate { get; set; }
-			public string ReportDates => FilterStartDate == FilterEndDate ? $"{FilterStartDate.Value.ToShortDateString()}"
-				: $"период {FilterStartDate.Value.ToShortDateString()} - {FilterEndDate.Value.ToShortDateString()}";
-		}
-
-		public class NomenclaturePlanReportRow
-		{
-			public string Name => Employee.FullName;
-			public Employee Employee { get; set; }
-			public List<decimal> Items { get; set; }
-		}
-
-		public int? CallCenterEmployeesCount
-		{
-			get => _callCenterEmployeesCount ?? (_callCenterEmployeesCount = UoW.Session.QueryOver<Employee>()
-				.Where(e => e.Subdivision.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId)
-				.And(e => e.Status == Domain.Employees.EmployeeStatus.IsWorking)
-				.Select(Projections.Count<Employee>(e => e.Id))
-				.SingleOrDefault<int>());
-			private set {; }
-		}
-
-		public IList<Nomenclature> NomenclaturePlans
-		{
-			get => _nomenclaturePlans ?? (_nomenclaturePlans = UoW.Session.QueryOver<Nomenclature>()
-				.Where(x => x.Id.IsIn(SelectedNomenclatures.Select(n => n.Id).ToArray()))
-				.List());
-			private set {; }
-		}
-
-		public class StorageNode
+		private class StorageNode
 		{
 			public decimal Price { get; set; }
 			public decimal Count { get; set; }
@@ -1025,25 +640,410 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			public EquipmentType? EquipmentType { get; set; }
 		}
 
+		private int? CallCenterEmployeesCount
+		{
+			get => _callCenterEmployeesCount ?? (_callCenterEmployeesCount = UoW.Session.QueryOver<Employee>()
+				.Where(e => e.Subdivision.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId)
+				.And(e => e.Status == Domain.Employees.EmployeeStatus.IsWorking)
+				.Select(Projections.Count<Employee>(e => e.Id))
+				.SingleOrDefault<int>());
+			set {; }
+		}
+
+		private IList<Nomenclature> NomenclaturePlans
+		{
+			get => _nomenclaturePlans ?? (_nomenclaturePlans = UoW.Session.QueryOver<Nomenclature>()
+				.Where(x => x.Id.IsIn(SelectedNomenclatures.Select(n => n.Id).ToArray()))
+				.List());
+			set {; }
+		}
+
+		#region Commands
+
+		public DelegateCommand NomenclaturePlanCommand =>
+			_nomenclaturePlanCommand ?? (_nomenclaturePlanCommand = new DelegateCommand(() =>
+			{
+				TabParent.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+					new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
+					_unitOfWorkFactory,
+					_commonServices)
+				);
+			},
+				() => true
+			));
+
+		public DelegateCommand ShowInfoWindowCommand =>
+			_showInfoWindowCommand ?? (_showInfoWindowCommand = new DelegateCommand(() =>
+			{
+				var info =
+					"Кнопками со стрелками влево/вправо, либо двойным щелчком мыши выберите необходимые фильтры для отчёта.\n" +
+					"Строками отчёта являются выбранные сотрудники. Колонками отчёта являются выбранные ТМЦ, виды и типы оборудования,\n" +
+					"а также выручка.\n" +
+					"Подсчёт происходит по заказам, кроме заказов со статусами \"Доставка отменена\", \"Отменён\", \"Недовоз\" \n" +
+					"и кроме заказов-закрывашек по контракту.\n\n" +
+					"Фильтр периода дат применяется для даты создания заказа. Если указан 1 день, то сравнивается с планом на день.\n" +
+					"Если указан период, то сравнивается с планом на месяц.\n" +
+					"Все данные по плану продаж берутся из плана, указанного в сотруднике. А для ТМЦ, если у сотрудника нет такого плана с выбранной\n" +
+					"ТМЦ, то план берётся из Журнала плана продаж для КЦ (для настройки данного плана продаж нажмите на соответствующую кнопку сверху).\n" +
+					"А если и в Журнале плана продаж для КЦ также не заданы плановые показатели за день или месяц, то рассчитывается \n" +
+					"среднее значение в подразделении КЦ проданных сотрудниками выбранных ТМЦ.";
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
+			},
+				() => true
+			));
+
+		public DelegateCommand SaveReportCommand =>
+			_saveReportCommand ?? (_saveReportCommand = new DelegateCommand(() =>
+			{
+				var extension = ".xlsx";
+				if(Report != null && _filePicker.OpenSaveFilePicker($"{TabName} {Report.CreationDate:yyyy-MM-dd-HH-mm}{extension}", out string filePath))
+				{
+					ExportReport(filePath.Contains(extension) ? filePath : filePath += extension);
+				}
+			},
+				() => true
+			));
+
+		public DelegateCommand<ScrollPositionNode> LoadNextCommand =>
+			_loadNextCommand ?? (_loadNextCommand = new DelegateCommand<ScrollPositionNode>((loadNode) =>
+			{
+				switch(loadNode.ReportNodeType)
+				{
+					case NomenclaturePlanReportColumnType.Nomenclature:
+						{
+							if(NomenclatureDataLoader.HasUnloadedItems)
+							{
+								NomenclatureLastScrollPosition = loadNode.ScrollPosition;
+								NomenclatureDataLoader.LoadData(true);
+							}
+
+							break;
+						}
+					case NomenclaturePlanReportColumnType.Employee:
+						{
+							if(EmployeeDataLoader.HasUnloadedItems)
+							{
+								EmployeeLastScrollPosition = loadNode.ScrollPosition;
+								EmployeeDataLoader.LoadData(true);
+							}
+
+							break;
+						}
+					case NomenclaturePlanReportColumnType.EquipmentKind:
+						{
+							if(EquipmentKindDataLoader.HasUnloadedItems)
+							{
+								EquipmentKindLastScrollPosition = loadNode.ScrollPosition;
+								EquipmentKindDataLoader.LoadData(true);
+							}
+
+							break;
+						}
+				}
+			},
+				(loadNode) => true
+			));
+
+		public DelegateCommand<NomenclaturePlanFilterRowSelectNode> SelectNodeCommand =>
+			_selectNodeCommand ?? (_selectNodeCommand = new DelegateCommand<NomenclaturePlanFilterRowSelectNode>((nodes) =>
+			{
+				foreach(var node in nodes.NomenclaturePlanReportColumns)
+				{
+					switch(node.ColumnType)
+					{
+						case NomenclaturePlanReportColumnType.Nomenclature:
+							{
+								if(nodes.FilterRowSelectType == FilterRowSelectType.Select)
+								{
+									SelectedNomenclatures.Add((NomenclatureReportColumn)node);
+								}
+								else
+								{
+									SelectedNomenclatures.Remove((NomenclatureReportColumn)node);
+								}
+
+								NomenclatureDataLoader.PageSize = NomenclatureDataLoader.Items.Count + nodes.NomenclaturePlanReportColumns.Length;
+								NomenclatureLastScrollPosition = nodes.ScrollPosition;
+								NomenclatureDataLoader.LoadData(IsNomenclatureNextPage = false);
+
+								break;
+							}
+						case NomenclaturePlanReportColumnType.Employee:
+							{
+								if(nodes.FilterRowSelectType == FilterRowSelectType.Select)
+								{
+									SelectedEmployees.Add((EmployeeReportColumn)node);
+								}
+								else
+								{
+									SelectedEmployees.Remove((EmployeeReportColumn)node);
+								}
+
+								EmployeeDataLoader.PageSize = EmployeeDataLoader.Items.Count + nodes.NomenclaturePlanReportColumns.Length;
+								EmployeeLastScrollPosition = nodes.ScrollPosition;
+								EmployeeDataLoader.LoadData(IsEmployeeNextPage = false);
+
+								break;
+							}
+						case NomenclaturePlanReportColumnType.EquipmentKind:
+							{
+								if(nodes.FilterRowSelectType == FilterRowSelectType.Select)
+								{
+									SelectedEquipmentKinds.Add((EquipmentKindReportColumn)node);
+								}
+								else
+								{
+									SelectedEquipmentKinds.Remove((EquipmentKindReportColumn)node);
+								}
+
+								EquipmentKindDataLoader.PageSize = EquipmentKindDataLoader.Items.Count + nodes.NomenclaturePlanReportColumns.Length;
+								EquipmentKindLastScrollPosition = nodes.ScrollPosition;
+								EquipmentKindDataLoader.LoadData(IsEquipmentKindNextPage = false);
+
+								break;
+							}
+						case NomenclaturePlanReportColumnType.EquipmentType:
+							{
+								if(nodes.FilterRowSelectType == FilterRowSelectType.Select)
+								{
+									SelectedEquipmentTypes.Add((EquipmentTypeReportColumn)node);
+									EquipmentTypes.Remove((EquipmentTypeReportColumn)node);
+								}
+								else
+								{
+									EquipmentTypes.Add((EquipmentTypeReportColumn)node);
+									SelectedEquipmentTypes.Remove((EquipmentTypeReportColumn)node);
+								}
+
+								EquipmentTypeSearchVM.Update();
+
+								break;
+							}
+					}
+				}
+			},
+				(nodes) => true
+			));
+
+		#region Save defaults commands
+
+		public DelegateCommand SaveProceedsCommand =>
+			_saveProceedsCommand ?? (_saveProceedsCommand = new DelegateCommand(() =>
+				{
+					UoW.Save(SelectedProceeds);
+					UoW.Commit();
+				},
+				() => true
+			));
+
+		public DelegateCommand NomenclaturesSaveCommand =>
+			_nomenclaturesSaveCommand ?? (_nomenclaturesSaveCommand = new DelegateCommand(() =>
+			{
+				foreach(var savedNomenclature in _savedNomenclatures.ToList())
+				{
+					if(!SelectedNomenclatures.Any(x => x.Id == savedNomenclature.Nomenclature.Id))
+					{
+						_savedNomenclatures.Remove(savedNomenclature);
+
+						UoW.Delete(savedNomenclature);
+					}
+				}
+
+				foreach(NomenclatureReportColumn selectedNode in SelectedNomenclatures)
+				{
+					if(!_savedNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
+					{
+						SelectedNomenclature selectedNomenclature = new SelectedNomenclature()
+						{
+							Nomenclature = new Nomenclature()
+							{
+								Id = selectedNode.Id
+							}
+						};
+
+						UoW.Save(selectedNomenclature);
+
+						_savedNomenclatures.Add(selectedNomenclature);
+					}
+				}
+
+				UoW.Commit();
+			},
+				() => true
+			));
+
+		public DelegateCommand EquipmentKindsSaveCommand =>
+			_equipmentKindsSaveCommand ?? (_equipmentKindsSaveCommand = new DelegateCommand(() =>
+			{
+				foreach(var savedEquipmentKind in _savedEquipmentKinds.ToList())
+				{
+					if(!SelectedEquipmentKinds.Any(x => x.Id == savedEquipmentKind.EquipmentKind.Id))
+					{
+						_savedEquipmentKinds.Remove(savedEquipmentKind);
+
+						UoW.Delete(savedEquipmentKind);
+					}
+				}
+
+				foreach(EquipmentKindReportColumn selectedNode in SelectedEquipmentKinds)
+				{
+					if(!_savedEquipmentKinds.Any(x => x.EquipmentKind.Id == selectedNode.Id))
+					{
+						SelectedEquipmentKind selectedEquipmentKindPlan = new SelectedEquipmentKind()
+						{
+							EquipmentKind = new EquipmentKind()
+							{
+								Id = selectedNode.Id
+							}
+						};
+
+						UoW.Save(selectedEquipmentKindPlan);
+
+						_savedEquipmentKinds.Add(selectedEquipmentKindPlan);
+					}
+				}
+
+				UoW.Commit();
+			},
+				() => true
+			));
+
+		public DelegateCommand EquipmentTypesSaveCommand =>
+			_equipmentTypesSaveCommand ?? (_equipmentTypesSaveCommand = new DelegateCommand(() =>
+			{
+				foreach(var savedEquipmentType in _savedEquipmentTypes.ToList())
+				{
+					if(!SelectedEquipmentTypes.Any(x => x.EquipmentType == savedEquipmentType.EquipmentType))
+					{
+						_savedEquipmentTypes.Remove(savedEquipmentType);
+
+						UoW.Delete(savedEquipmentType);
+					}
+				}
+
+				foreach(EquipmentTypeReportColumn selectedNode in SelectedEquipmentTypes)
+				{
+					if(!_savedEquipmentTypes.Any(x => x.EquipmentType == selectedNode.EquipmentType))
+					{
+						SelectedEquipmentType selectedEquipmentTypePlan = new SelectedEquipmentType()
+						{
+							EquipmentType = selectedNode.EquipmentType
+						};
+
+						UoW.Save(selectedEquipmentTypePlan);
+
+						_savedEquipmentTypes.Add(selectedEquipmentTypePlan);
+					}
+				}
+
+				UoW.Commit();
+			},
+				() => true
+			));
+
+		#endregion
+
+		#region Search commands
+
+		public DelegateCommand NomenclatureSearchCommand =>
+			_nomenclatureSearchCommand ?? (_nomenclatureSearchCommand = new DelegateCommand(() =>
+				{
+					if(NomenclatureSearchVM.SearchValues?.Length == 0)
+					{
+						NomenclatureDataLoader.PageSize = PageSize;
+					}
+					NomenclatureLastScrollPosition = 0;
+					NomenclatureDataLoader.LoadData(IsNomenclatureNextPage = false);
+				},
+				() => true
+			));
+
+		public DelegateCommand EmployeeSearchCommand =>
+			_employeeSearchCommand ?? (_employeeSearchCommand = new DelegateCommand(() =>
+				{
+					if(EmployeeSearchVM.SearchValues?.Length == 0)
+					{
+						EmployeeDataLoader.PageSize = PageSize;
+					}
+					EmployeeLastScrollPosition = 0;
+					EmployeeDataLoader.LoadData(IsEmployeeNextPage = false);
+				},
+				() => true
+			));
+
+		public DelegateCommand EquipmentKindSearchCommand =>
+			_equipmentKindSearchCommand ?? (_equipmentKindSearchCommand = new DelegateCommand(() =>
+				{
+					if(EquipmentKindSearchVM.SearchValues?.Length == 0)
+					{
+						EquipmentKindDataLoader.PageSize = PageSize;
+					}
+					EquipmentKindLastScrollPosition = 0;
+					EquipmentKindDataLoader.LoadData(IsEquipmentKindNextPage = false);
+				},
+				() => true
+			));
+
+		public DelegateCommand EquipmentTypeSearchCommand =>
+			_equipmentTypeSearchCommand ?? (_equipmentTypeSearchCommand = new DelegateCommand(() =>
+				{
+					var searchStr = EquipmentTypeSearchVM.SearchValues?.FirstOrDefault();
+
+					foreach(EquipmentType equipmentType in Enum.GetValues(typeof(EquipmentType)))
+					{
+						if(!string.IsNullOrWhiteSpace(searchStr) && EquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
+						   !equipmentType.GetEnumTitle().ToLower().Contains(searchStr.ToLower()))
+						{
+							EquipmentTypes.Remove(EquipmentTypes.FirstOrDefault(x => x.EquipmentType == equipmentType));
+						}
+
+						if(string.IsNullOrWhiteSpace(searchStr) && !EquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
+						   !SelectedEquipmentTypes.Any(x => x.EquipmentType == equipmentType))
+						{
+							EquipmentTypes.Add(new EquipmentTypeReportColumn() { EquipmentType = equipmentType });
+						}
+
+						if(!string.IsNullOrWhiteSpace(searchStr) && !EquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
+						   !SelectedEquipmentTypes.Any(x => x.EquipmentType == equipmentType) &&
+						   equipmentType.GetEnumTitle().ToLower().Contains(searchStr.ToLower()))
+						{
+							EquipmentTypes.Add(new EquipmentTypeReportColumn() { EquipmentType = equipmentType });
+						}
+					}
+				},
+				() => true
+			));
+		#endregion
+
+		#endregion
+
 		public SearchViewModel NomenclatureSearchVM { get; private set; }
 		public SearchViewModel EmployeeSearchVM { get; private set; }
 		public SearchViewModel EquipmentKindSearchVM { get; private set; }
 		public SearchViewModel EquipmentTypeSearchVM { get; private set; }
-		public GenericObservableList<NomenclatureReportNode> SelectedNomenclatures { get; private set; }
-		public GenericObservableList<EmployeeReportNode> SelectedEmployees { get; private set; }
-		public GenericObservableList<EquipmentKindReportNode> SelectedEquipmentKinds { get; private set; }
-		public GenericObservableList<EquipmentTypeReportNode> SelectedEquipmentTypes { get; private set; }
-		public GenericObservableList<EquipmentTypeReportNode> EquipmentTypes { get; private set; }
-		public IList<StorageNode> StorageList { get; set; }
+		public GenericObservableList<NomenclatureReportColumn> SelectedNomenclatures { get; private set; }
+		public GenericObservableList<EmployeeReportColumn> SelectedEmployees { get; private set; }
+		public GenericObservableList<EquipmentKindReportColumn> SelectedEquipmentKinds { get; private set; }
+		public GenericObservableList<EquipmentTypeReportColumn> SelectedEquipmentTypes { get; private set; }
+		public GenericObservableList<EquipmentTypeReportColumn> EquipmentTypes { get; private set; }
+		private IList<StorageNode> _storageList;
+		private DelegateCommand<NomenclaturePlanFilterRowSelectNode> _selectNodeCommand;
+		private DelegateCommand _nomenclaturesSaveCommand;
+		private DelegateCommand _equipmentKindsSaveCommand;
+		private DelegateCommand _equipmentTypesSaveCommand;
+		private DelegateCommand _nomenclatureSearchCommand;
+		private DelegateCommand _employeeSearchCommand;
+		private DelegateCommand _equipmentKindSearchCommand;
+		private DelegateCommand _equipmentTypeSearchCommand;
 		public SelectedProceeds SelectedProceeds { get; set; }
 		public bool CanSaveCallCenterMotivationReportFilter { get; private set; }
 		public bool IsNomenclatureNextPage { get; set; }
 		public bool IsEmployeeNextPage { get; set; }
 		public bool IsEquipmentKindNextPage { get; set; }
-		public ThreadDataLoader<NomenclatureReportNode> NomenclatureDataLoader { get; private set; }
-		public ThreadDataLoader<EmployeeReportNode> EmployeeDataLoader { get; private set; }
-		public ThreadDataLoader<EquipmentKindReportNode> EquipmentKindDataLoader { get; private set; }
-		public bool IsDestroyed { get; private set; }
+		public ThreadDataLoader<NomenclatureReportColumn> NomenclatureDataLoader { get; private set; }
+		public ThreadDataLoader<EmployeeReportColumn> EmployeeDataLoader { get; private set; }
+		public ThreadDataLoader<EquipmentKindReportColumn> EquipmentKindDataLoader { get; private set; }
 		public double NomenclatureLastScrollPosition { get; set; }
 		public double EmployeeLastScrollPosition { get; set; }
 		public double EquipmentKindLastScrollPosition { get; set; }
@@ -1051,10 +1051,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public ProductGroup ProductGroup { get; set; }
 		public NomenclatureCategory? NomenclatureCategory { get; set; }
 		public EmployeeStatus? EmployeeStatus { get; set; } = Domain.Employees.EmployeeStatus.IsWorking;
-		public IEnumerable<SubdivisionReportNode> Subdivisions { get; private set; }
-		public SubdivisionReportNode Subdivision { get; set; }
+		public IEnumerable<SubdivisionReportColumn> Subdivisions { get; private set; }
+		public SubdivisionReportColumn Subdivision { get; private set; }
 		public int PageSize => 100;
-		public NomenclaturePlanReport Report { get; private set; }
+		public NomenclaturePlanReportMain Report { get; private set; }
+		public int CallCenterSubdivisionId { get; }
 		public DateTime? EndDate { get; set; }
 		public DateTime? StartDate { get; set; }
 	}

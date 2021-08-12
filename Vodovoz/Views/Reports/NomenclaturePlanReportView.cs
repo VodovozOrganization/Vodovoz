@@ -8,16 +8,20 @@ using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Reports.NomenclaturePlanReport;
 
 namespace Vodovoz.Views.Reports
 {
 	public partial class NomenclaturePlanReportView : TabViewBase<NomenclaturePlanReportViewModel>
 	{
+		private bool _isDestroyed = false;
 		public NomenclaturePlanReportView(NomenclaturePlanReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
 		}
+
+		#region Configure
 
 		private void Configure()
 		{
@@ -26,11 +30,11 @@ namespace Vodovoz.Views.Reports
 
 			ycheckbuttonIncludeProceed.Binding.AddBinding(ViewModel.SelectedProceeds, p => p.InludeProceeds, w => w.Active).InitializeFromSource();
 
-			buttonNomenclaturePlan.Clicked += (sender, args) => ViewModel.ButtonNomenclaturePlanClicked();
-			buttonHelp.Clicked += (sender, args) => ViewModel.ShowInfoWindow();
+			buttonNomenclaturePlan.Clicked += (sender, args) => ViewModel.NomenclaturePlanCommand.Execute();
+			buttonHelp.Clicked += (sender, args) => ViewModel.ShowInfoWindowCommand.Execute();
 
-			ybuttonSaveProceeds.Clicked += (sender, args) => ViewModel.ButtonSaveProceedsClicked();
-			ybuttonSaveProceeds.Sensitive = ViewModel.CanSaveCallCenterMotivationReportFilter;
+			ybuttonSaveProceeds.Clicked += (sender, args) => ViewModel.SaveProceedsCommand.Execute();
+			ybuttonSaveProceeds.Binding.AddBinding(ViewModel, vm => vm.CanSaveCallCenterMotivationReportFilter, w => w.Sensitive).InitializeFromSource();
 
 			ConfigureNomenclatures();
 			ConfigureEmployees();
@@ -49,54 +53,16 @@ namespace Vodovoz.Views.Reports
 				ynotebookMain.NextPage();
 			};
 
-			buttonSaveReport.Clicked += (sender, args) =>
-			{
-				if(ViewModel.Report == null)
-				{
-					return;
-				}
+			ybuttonSaveEquipmentKinds.Binding.AddBinding(ViewModel,vm=> vm.CanSaveCallCenterMotivationReportFilter, w=>w.Sensitive).InitializeFromSource();
+			ybuttonSaveEquipmentTypes.Binding.AddBinding(ViewModel, vm => vm.CanSaveCallCenterMotivationReportFilter, w => w.Sensitive).InitializeFromSource();
+			ybuttonSaveNomenclatures.Binding.AddBinding(ViewModel, vm => vm.CanSaveCallCenterMotivationReportFilter, w => w.Sensitive).InitializeFromSource();
 
-				var extension = ".xlsx";
-
-				var filechooser = new FileChooserDialog("Сохранить отчет...",
-					null,
-					FileChooserAction.Save,
-					"Отменить", ResponseType.Cancel,
-					"Сохранить", ResponseType.Accept)
-				{
-					CurrentName = $"{Tab.TabName} {ViewModel.Report.CreationDate:yyyy-MM-dd-HH-mm}{extension}"
-				};
-
-				var excelFilter = new FileFilter
-				{
-					Name = $"Документ Microsoft Excel ({extension})"
-				};
-
-				excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-				excelFilter.AddPattern($"*{extension}");
-				filechooser.AddFilter(excelFilter);
-
-				if(filechooser.Run() == (int) ResponseType.Accept)
-				{
-					var path = filechooser.Filename;
-
-					if(!path.Contains(extension))
-					{
-						path += extension;
-					}
-
-					filechooser.Hide();
-
-					ViewModel.ExportReport(path);
-				}
-
-				filechooser.Destroy();
-			};
+			buttonSaveReport.Clicked += (sender, args) => ViewModel.SaveReportCommand.Execute();
 		}
 
 		private void ConfigureTreeView()
 		{
-			var columnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<NomenclaturePlanReportViewModel.NomenclaturePlanReportRow>.Create()
+			var columnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<NomenclaturePlanReportRow>.Create()
 				.AddColumn("ФИО")
 				.HeaderAlignment(.5f)
 				.AddTextRenderer(row => row.Name);
@@ -107,7 +73,7 @@ namespace Vodovoz.Views.Reports
 
 				columnsConfig.AddColumn($"{  ViewModel.Report.Titles[index] }")
 					.MinWidth(70)
-					.AddTextRenderer(row => row.Items[index].ToString())
+					.AddTextRenderer(row => row.Columns[index].ToString())
 					.WrapWidth(70)
 					.WrapMode(Pango.WrapMode.WordChar);
 			}
@@ -126,7 +92,7 @@ namespace Vodovoz.Views.Reports
 			yenumStatus.ShowSpecialStateAll = true;
 			yenumStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumStatus.Binding.AddBinding(ViewModel, vm => vm.EmployeeStatus, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumStatus.Changed += ViewModel.EmployeeSearchOnSearch;
+			yenumStatus.Changed += (sender, args) => ViewModel.EmployeeSearchCommand.Execute();
 
 			btnEmployeeAdd.Clicked += EmployeeAdded;
 			btnEmployeeDelete.Clicked += EmployeeDeleted;
@@ -137,19 +103,22 @@ namespace Vodovoz.Views.Reports
 			ytreeviewSelectedEmployees.RowActivated += EmployeeDeleted;
 			ytreeviewSelectedEmployees.Selection.Mode = SelectionMode.Multiple;
 
+			ytreeviewEmployees.Binding.AddFuncBinding(ViewModel, vm => vm.EmployeeDataLoader.Items, w => w.ItemsDataSource).InitializeFromSource();
+
 			ycomboboxSubdivision.ShowSpecialStateNot = true;
 			ycomboboxSubdivision.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
-			 .AddBinding(vm => vm.Subdivision, w => w.SelectedItem)
+				.AddBinding(vm => vm.Subdivision, w => w.SelectedItem)
 				.InitializeFromSource();
-			ycomboboxSubdivision.Changed += ViewModel.EmployeeSearchOnSearch;
+			ycomboboxSubdivision.Changed += (sender, args) => ViewModel.EmployeeSearchCommand.Execute();
 
-			ytreeviewEmployees.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.EmployeeReportNode>.Create()
+
+			ytreeviewEmployees.ColumnsConfig = FluentColumnsConfig<EmployeeReportColumn>.Create()
 				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("ФИО").AddTextRenderer(x => x.FullName)
 				.Finish();
 
-			ytreeviewSelectedEmployees.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.EmployeeReportNode>.Create()
+			ytreeviewSelectedEmployees.ColumnsConfig = FluentColumnsConfig<EmployeeReportColumn>.Create()
 				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("ФИО").AddTextRenderer(x => x.FullName)
 				.Finish();
@@ -159,21 +128,26 @@ namespace Vodovoz.Views.Reports
 			ytreeviewEmployees.Vadjustment.ValueChanged += (sender, args) =>
 			{
 				if(ytreeviewEmployees.Vadjustment.Value + ytreeviewEmployees.Vadjustment.PageSize < ytreeviewEmployees.Vadjustment.Upper ||
-				   !ViewModel.IsNomenclatureNextPage)
+				   !ViewModel.IsEmployeeNextPage)
 				{
 					return;
 				}
 
-				ViewModel.LoadNextEmployees(ytreeviewEmployees.Vadjustment.Value);
+				ViewModel.LoadNextCommand.Execute(
+					new ScrollPositionNode
+					{
+						ReportNodeType = NomenclaturePlanReportColumnType.Employee,
+						ScrollPosition = ytreeviewEmployees.Vadjustment.Value
+					});
 			};
 
 			ViewModel.EmployeeDataLoader.ItemsListUpdated += (sender, args) =>
 			{
 				Application.Invoke((s, arg) =>
 				{
-					if(!ViewModel.IsDestroyed)
+					if(!_isDestroyed)
 					{
-						ytreeviewEmployees.ItemsDataSource = ViewModel.EmployeeDataLoader.Items;
+						ytreeviewEmployees.Binding.RefreshFromSource();
 						GtkHelper.WaitRedraw();
 						ytreeviewEmployees.Vadjustment.Value = ViewModel.EmployeeLastScrollPosition;
 						ViewModel.IsEmployeeNextPage = true;
@@ -197,12 +171,14 @@ namespace Vodovoz.Views.Reports
 			ytreeviewSelectedEquipmentKinds.RowActivated += EquipmentKindDeleted;
 			ytreeviewSelectedEquipmentKinds.Selection.Mode = SelectionMode.Multiple;
 
-			ytreeviewEquipmentKinds.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.EquipmentKindReportNode>.Create()
+			ytreeviewEquipmentKinds.Binding.AddFuncBinding(ViewModel, vm => vm.EquipmentKindDataLoader.Items, w => w.ItemsDataSource).InitializeFromSource();
+
+			ytreeviewEquipmentKinds.ColumnsConfig = FluentColumnsConfig<EquipmentKindReportColumn>.Create()
 				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("Вид оборудования").AddTextRenderer(x => x.Name)
 				.Finish();
 
-			ytreeviewSelectedEquipmentKinds.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.EquipmentKindReportNode>.Create()
+			ytreeviewSelectedEquipmentKinds.ColumnsConfig = FluentColumnsConfig<EquipmentKindReportColumn>.Create()
 				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("Вид оборудования").AddTextRenderer(x => x.Name)
 				.Finish();
@@ -212,21 +188,26 @@ namespace Vodovoz.Views.Reports
 			ytreeviewEquipmentKinds.Vadjustment.ValueChanged += (sender, args) =>
 			{
 				if(ytreeviewEquipmentKinds.Vadjustment.Value + ytreeviewEquipmentKinds.Vadjustment.PageSize < ytreeviewEquipmentKinds.Vadjustment.Upper ||
-				   !ViewModel.IsNomenclatureNextPage)
+				   !ViewModel.IsEquipmentKindNextPage)
 				{
 					return;
 				}
 
-				ViewModel.LoadNextEquipmentKinds(ytreeviewEquipmentKinds.Vadjustment.Value);
+				ViewModel.LoadNextCommand.Execute(
+					new ScrollPositionNode
+					{
+						ReportNodeType = NomenclaturePlanReportColumnType.EquipmentKind,
+						ScrollPosition = ytreeviewEquipmentKinds.Vadjustment.Value
+					});
 			};
 
 			ViewModel.EquipmentKindDataLoader.ItemsListUpdated += (sender, args) =>
 			{
 				Application.Invoke((s, arg) =>
 				{
-					if(!ViewModel.IsDestroyed)
+					if(!_isDestroyed)
 					{
-						ytreeviewEquipmentKinds.ItemsDataSource = ViewModel.EquipmentKindDataLoader.Items;
+						ytreeviewEquipmentKinds.Binding.RefreshFromSource();
 						GtkHelper.WaitRedraw();
 						ytreeviewEquipmentKinds.Vadjustment.Value = ViewModel.EquipmentKindLastScrollPosition;
 						ViewModel.IsEquipmentKindNextPage = true;
@@ -234,8 +215,7 @@ namespace Vodovoz.Views.Reports
 				});
 			};
 
-			ybuttonSaveEquipmentKinds.Clicked += (sender, args) => { ViewModel.ButtonEquipmentKindsSaveClicked(); };
-			ybuttonSaveEquipmentKinds.Sensitive = ViewModel.CanSaveCallCenterMotivationReportFilter;
+			ybuttonSaveEquipmentKinds.Clicked += (sender, args) => ViewModel.EquipmentKindsSaveCommand.Execute();
 		}
 
 		private void ConfigureEquipmentTypes()
@@ -253,20 +233,19 @@ namespace Vodovoz.Views.Reports
 			ytreeviewSelectedEquipmentTypes.RowActivated += EquipmentTypeDeleted;
 			ytreeviewSelectedEquipmentTypes.Selection.Mode = SelectionMode.Multiple;
 
-			ytreeviewEquipmentTypes.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.EquipmentTypeReportNode>.Create()
+			ytreeviewEquipmentTypes.ColumnsConfig = FluentColumnsConfig<EquipmentTypeReportColumn>.Create()
 				.AddColumn("Тип оборудования").AddTextRenderer(x => x.EquipmentType.GetEnumTitle())
 				.Finish();
 
 			ytreeviewEquipmentTypes.ItemsDataSource = ViewModel.EquipmentTypes;
 
-			ytreeviewSelectedEquipmentTypes.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.EquipmentTypeReportNode>.Create()
+			ytreeviewSelectedEquipmentTypes.ColumnsConfig = FluentColumnsConfig<EquipmentTypeReportColumn>.Create()
 				.AddColumn("Тип оборудования").AddTextRenderer(x => x.EquipmentType.GetEnumTitle())
 				.Finish();
 
 			ytreeviewSelectedEquipmentTypes.ItemsDataSource = ViewModel.SelectedEquipmentTypes;
 
-			ybuttonSaveEquipmentTypes.Clicked += (sender, args) => { ViewModel.ButtonEquipmentTypesSaveClicked(); };
-			ybuttonSaveEquipmentTypes.Sensitive = ViewModel.CanSaveCallCenterMotivationReportFilter;
+			ybuttonSaveEquipmentTypes.Clicked += (sender, args) => ViewModel.EquipmentTypesSaveCommand.Execute();
 		}
 
 		private void ConfigureNomenclatures()
@@ -278,7 +257,7 @@ namespace Vodovoz.Views.Reports
 			yenumKind.ShowSpecialStateAll = true;
 			yenumKind.ItemsEnum = typeof(NomenclatureCategory);
 			yenumKind.Binding.AddBinding(ViewModel, vm => vm.NomenclatureCategory, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumKind.Changed += ViewModel.NomenclatureSearchOnSearch;
+			yenumKind.Changed += (sender, args) => ViewModel.NomenclatureSearchCommand.Execute();
 
 			btnNomenclatureAdd.Clicked += NomenclatureAdded;
 			btnNomenclatureDelete.Clicked += NomenclatureDeleted;
@@ -290,17 +269,19 @@ namespace Vodovoz.Views.Reports
 			ytreeviewSelectedNomenclatures.Selection.Mode = SelectionMode.Multiple;
 
 			yentryProductGroup.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
-			yentryProductGroup.Binding.AddBinding(ViewModel, vm => vm.ProductGroup, w => w.Subject);//.InitializeFromSource();
-			yentryProductGroup.Changed += ViewModel.NomenclatureSearchOnSearch;
+			yentryProductGroup.Binding.AddBinding(ViewModel, vm => vm.ProductGroup, w => w.Subject).InitializeFromSource();
+			yentryProductGroup.Changed += (sender, args) => ViewModel.NomenclatureSearchCommand.Execute();
 
-			ytreeviewNomenclatures.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.NomenclatureReportNode>.Create()
+			ytreeviewNomenclatures.Binding.AddFuncBinding(ViewModel, vm => vm.NomenclatureDataLoader.Items, w => w.ItemsDataSource).InitializeFromSource();
+
+			ytreeviewNomenclatures.ColumnsConfig = FluentColumnsConfig<NomenclatureReportColumn>.Create()
 				.AddColumn("ТМЦ").AddTextRenderer(x => x.Name)
 				.WrapWidth(200).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("План день\nпо умол-\nчанию").AddTextRenderer(x => x.PlanDay.ToString())
 				.AddColumn("План месяц\nпо умол-\nчанию").AddTextRenderer(x => x.PlanMonth.ToString())
 				.Finish();
 
-			ytreeviewSelectedNomenclatures.ColumnsConfig = FluentColumnsConfig<NomenclaturePlanReportViewModel.NomenclatureReportNode>.Create()
+			ytreeviewSelectedNomenclatures.ColumnsConfig = FluentColumnsConfig<NomenclatureReportColumn>.Create()
 				.AddColumn("ТМЦ").AddTextRenderer(x => x.Name)
 				.WrapWidth(200).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("План день\nпо умол-\nчанию").AddTextRenderer(x => x.PlanDay.ToString())
@@ -309,26 +290,31 @@ namespace Vodovoz.Views.Reports
 
 			ytreeviewSelectedNomenclatures.ItemsDataSource = ViewModel.SelectedNomenclatures;
 
-			ybuttonSaveNomenclatures.Clicked += (sender, args) => { ViewModel.ButtonNomenclaturesSaveClicked(); };
-			ybuttonSaveNomenclatures.Sensitive = ViewModel.CanSaveCallCenterMotivationReportFilter;
+			ybuttonSaveNomenclatures.Clicked += (sender, args) => ViewModel.NomenclaturesSaveCommand.Execute();
 
 			ytreeviewNomenclatures.Vadjustment.ValueChanged += (sender, args) =>
 			{
-				if(ytreeviewNomenclatures.Vadjustment.Value + ytreeviewNomenclatures.Vadjustment.PageSize < ytreeviewNomenclatures.Vadjustment.Upper || !ViewModel.IsNomenclatureNextPage)
+				if(ytreeviewNomenclatures.Vadjustment.Value + ytreeviewNomenclatures.Vadjustment.PageSize < ytreeviewNomenclatures.Vadjustment.Upper ||
+				   !ViewModel.IsNomenclatureNextPage)
 				{
 					return;
 				}
 
-				ViewModel.LoadNextNomenclatures(ytreeviewNomenclatures.Vadjustment.Value);
+				ViewModel.LoadNextCommand.Execute(
+					new ScrollPositionNode
+					{
+						ReportNodeType = NomenclaturePlanReportColumnType.Nomenclature,
+						ScrollPosition = ytreeviewNomenclatures.Vadjustment.Value
+					});
 			};
 
 			ViewModel.NomenclatureDataLoader.ItemsListUpdated += (sender, args) =>
 			{
 				Application.Invoke((s, arg) =>
 				{
-					if(!ViewModel.IsDestroyed)
+					if(!_isDestroyed)
 					{
-						ytreeviewNomenclatures.ItemsDataSource = ViewModel.NomenclatureDataLoader.Items;
+						ytreeviewNomenclatures.Binding.RefreshFromSource();
 						GtkHelper.WaitRedraw();
 						ytreeviewNomenclatures.Vadjustment.Value = ViewModel.NomenclatureLastScrollPosition;
 						ViewModel.IsNomenclatureNextPage = true;
@@ -339,105 +325,121 @@ namespace Vodovoz.Views.Reports
 			ViewModel.NomenclatureDataLoader.LoadData(false);
 		}
 
-		public void NomenclatureDeleted(object sender, EventArgs e)
-		{
-			var nodes = ytreeviewSelectedNomenclatures.GetSelectedObjects<NomenclaturePlanReportViewModel.NomenclatureReportNode>();
-			ViewModel.DeselectNomenclature(nodes);
-			ViewModel.NomenclatureDataLoader.PageSize = ViewModel.NomenclatureDataLoader.Items.Count + nodes.Length;
-			ViewModel.NomenclatureLastScrollPosition = ytreeviewNomenclatures.Vadjustment.Value;
+		#endregion
 
-			ViewModel.NomenclatureDataLoader.LoadData(ViewModel.IsNomenclatureNextPage = false);
-
-			GtkHelper.WaitRedraw();
-			ytreeviewNomenclatures.Vadjustment.Value = ViewModel.NomenclatureLastScrollPosition;
-			ViewModel.NomenclatureDataLoader.PageSize = ViewModel.PageSize;
-		}
+		#region Select and deselect filter rows
 
 		private void NomenclatureAdded(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewNomenclatures.GetSelectedObjects<NomenclaturePlanReportViewModel.NomenclatureReportNode>();
-			ViewModel.SelectNomenclature(nodes);
-			ViewModel.NomenclatureDataLoader.PageSize = ViewModel.NomenclatureDataLoader.Items.Count + nodes.Length;
-			ViewModel.NomenclatureLastScrollPosition = ytreeviewNomenclatures.Vadjustment.Value;
+			var nodes = ytreeviewNomenclatures.GetSelectedObjects<NomenclatureReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Select,
+				NomenclaturePlanReportColumns = nodes,
+				ScrollPosition = ytreeviewNomenclatures.Vadjustment.Value
+			};
 
-			ViewModel.NomenclatureDataLoader.LoadData(ViewModel.IsNomenclatureNextPage = false);
-
-			GtkHelper.WaitRedraw();
-			ytreeviewNomenclatures.Vadjustment.Value = ViewModel.NomenclatureLastScrollPosition;
-			ytreeviewSelectedNomenclatures.Vadjustment.Value = ytreeviewSelectedNomenclatures.Vadjustment.Upper - ytreeviewSelectedNomenclatures.Vadjustment.PageSize;
-			ViewModel.NomenclatureDataLoader.PageSize = ViewModel.PageSize;
+			ViewModel.SelectNodeCommand.Execute(filterRow);
 		}
 
-		private void EmployeeDeleted(object sender, EventArgs e)
+		public void NomenclatureDeleted(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewSelectedEmployees.GetSelectedObjects<NomenclaturePlanReportViewModel.EmployeeReportNode>();
-			ViewModel.DeselectEmployee(nodes);
+			var nodes = ytreeviewSelectedNomenclatures.GetSelectedObjects<NomenclatureReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Deselect,
+				NomenclaturePlanReportColumns = nodes,
+				ScrollPosition = ytreeviewNomenclatures.Vadjustment.Value
+			};
 
-			ViewModel.EmployeeDataLoader.PageSize = ViewModel.EmployeeDataLoader.Items.Count + nodes.Length;
-			ViewModel.EmployeeLastScrollPosition = ytreeviewEmployees.Vadjustment.Value;
-
-			ViewModel.EmployeeDataLoader.LoadData(ViewModel.IsEmployeeNextPage = false);
-
-			GtkHelper.WaitRedraw();
-			ytreeviewEmployees.Vadjustment.Value = ViewModel.EmployeeLastScrollPosition;
-			ViewModel.EmployeeDataLoader.PageSize = ViewModel.PageSize;
+			ViewModel.SelectNodeCommand.Execute(filterRow);
 		}
 
 		private void EmployeeAdded(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewEmployees.GetSelectedObjects<NomenclaturePlanReportViewModel.EmployeeReportNode>();
-			ViewModel.SelectEmployee(nodes);
-			ViewModel.EmployeeDataLoader.PageSize = ViewModel.EmployeeDataLoader.Items.Count + nodes.Length;
-			ViewModel.EmployeeLastScrollPosition = ytreeviewEmployees.Vadjustment.Value;
+			var nodes = ytreeviewEmployees.GetSelectedObjects<EmployeeReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Select,
+				NomenclaturePlanReportColumns = nodes,
+				ScrollPosition = ytreeviewEmployees.Vadjustment.Value
+			};
 
-			ViewModel.EmployeeDataLoader.LoadData(ViewModel.IsEmployeeNextPage = false);
-
-			GtkHelper.WaitRedraw();
-			ytreeviewEmployees.Vadjustment.Value = ViewModel.EmployeeLastScrollPosition;
-			ytreeviewSelectedEmployees.Vadjustment.Value = ytreeviewSelectedEmployees.Vadjustment.Upper - ytreeviewSelectedEmployees.Vadjustment.PageSize;
-			ViewModel.EmployeeDataLoader.PageSize = ViewModel.PageSize;
+			ViewModel.SelectNodeCommand.Execute(filterRow);
 		}
-
-		private void EquipmentKindDeleted(object sender, EventArgs e)
+		private void EmployeeDeleted(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewSelectedEquipmentKinds.GetSelectedObjects<NomenclaturePlanReportViewModel.EquipmentKindReportNode>();
-			ViewModel.DeselectEquipmentKind(nodes);
+			var nodes = ytreeviewSelectedEmployees.GetSelectedObjects<EmployeeReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Deselect,
+				NomenclaturePlanReportColumns = nodes,
+				ScrollPosition = ytreeviewEmployees.Vadjustment.Value
+			};
 
-			ViewModel.EquipmentKindDataLoader.PageSize = ViewModel.EquipmentKindDataLoader.Items.Count + nodes.Length;
-			ViewModel.EquipmentKindLastScrollPosition = ytreeviewEquipmentKinds.Vadjustment.Value;
-
-			ViewModel.EquipmentKindDataLoader.LoadData(ViewModel.IsEquipmentKindNextPage = false);
-
-			GtkHelper.WaitRedraw();
-			ytreeviewEquipmentKinds.Vadjustment.Value = ViewModel.EquipmentKindLastScrollPosition;
-			ViewModel.EquipmentKindDataLoader.PageSize = ViewModel.PageSize;
+			ViewModel.SelectNodeCommand.Execute(filterRow);
 		}
 
 		private void EquipmentKindAdded(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewEquipmentKinds.GetSelectedObjects<NomenclaturePlanReportViewModel.EquipmentKindReportNode>();
-			ViewModel.SelectEquipmentKind(nodes);
-			ViewModel.EquipmentKindDataLoader.PageSize = ViewModel.EquipmentKindDataLoader.Items.Count + nodes.Length;
-			ViewModel.EquipmentKindLastScrollPosition = ytreeviewEquipmentKinds.Vadjustment.Value;
+			var nodes = ytreeviewEquipmentKinds.GetSelectedObjects<EquipmentKindReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Select,
+				NomenclaturePlanReportColumns = nodes,
+				ScrollPosition = ytreeviewEquipmentKinds.Vadjustment.Value
+			};
 
-			ViewModel.EquipmentKindDataLoader.LoadData(ViewModel.IsEquipmentKindNextPage = false);
-
-			GtkHelper.WaitRedraw();
-			ytreeviewEquipmentKinds.Vadjustment.Value = ViewModel.EquipmentKindLastScrollPosition;
-			ytreeviewSelectedEquipmentKinds.Vadjustment.Value = ytreeviewSelectedEquipmentKinds.Vadjustment.Upper - ytreeviewSelectedEquipmentKinds.Vadjustment.PageSize;
-			ViewModel.EquipmentKindDataLoader.PageSize = ViewModel.PageSize;
+			ViewModel.SelectNodeCommand.Execute(filterRow);
 		}
 
-		private void EquipmentTypeDeleted(object sender, EventArgs e)
+		private void EquipmentKindDeleted(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewSelectedEquipmentTypes.GetSelectedObjects<NomenclaturePlanReportViewModel.EquipmentTypeReportNode>();
-			ViewModel.DeselectEquipmentType(nodes);
+			var nodes = ytreeviewSelectedEquipmentKinds.GetSelectedObjects<EquipmentKindReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Deselect,
+				NomenclaturePlanReportColumns = nodes,
+				ScrollPosition = ytreeviewEquipmentKinds.Vadjustment.Value
+			};
+
+			ViewModel.SelectNodeCommand.Execute(filterRow);
 		}
 
 		private void EquipmentTypeAdded(object sender, EventArgs e)
 		{
-			var nodes = ytreeviewEquipmentTypes.GetSelectedObjects<NomenclaturePlanReportViewModel.EquipmentTypeReportNode>();
-			ViewModel.SelectEquipmentType(nodes);
+			var nodes = ytreeviewEquipmentTypes.GetSelectedObjects<EquipmentTypeReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Select,
+				NomenclaturePlanReportColumns = nodes
+			};
+
+			ViewModel.SelectNodeCommand.Execute(filterRow);
+		}
+
+		private void EquipmentTypeDeleted(object sender, EventArgs e)
+		{
+			var nodes = ytreeviewSelectedEquipmentTypes.GetSelectedObjects<EquipmentTypeReportColumn>();
+			var filterRow = new NomenclaturePlanFilterRowSelectNode
+			{
+				FilterRowSelectType = FilterRowSelectType.Deselect,
+				NomenclaturePlanReportColumns = nodes
+			};
+
+			ViewModel.SelectNodeCommand.Execute(filterRow);
+		}
+
+		#endregion
+
+		public override void Dispose()
+		{
+			_isDestroyed = true;
+			ViewModel.NomenclatureDataLoader.CancelLoading();
+			ViewModel.EmployeeDataLoader.CancelLoading();
+			ViewModel.EquipmentKindDataLoader.CancelLoading();
+			base.Destroy();
+			ViewModel.Dispose();
 		}
 	}
 }

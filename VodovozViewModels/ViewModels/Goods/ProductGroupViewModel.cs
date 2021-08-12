@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class ProductGroupViewModel : EntityTabViewModelBase<ProductGroup>
 	{
-		private DelegateCommand<bool> _setAtchive;
+		private DelegateCommand<bool> _setArchiveCommand;
 		public ProductGroupViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
 			IProductGroupJournalFactory productGroupJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -25,8 +25,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			}
 		}
 
-		public DelegateCommand<bool> SetArchive =>
-			_setAtchive ?? (_setAtchive = new DelegateCommand<bool>((isActive) =>
+		public DelegateCommand<bool> SetArchiveCommand =>
+			_setArchiveCommand ?? (_setArchiveCommand = new DelegateCommand<bool>((isActive) =>
 				{
 					Entity.FetchChilds(UoW);
 					Entity.SetIsArchiveRecursively(isActive);
