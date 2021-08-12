@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -37,6 +38,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
@@ -65,6 +67,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -100,11 +103,6 @@ public partial class MainWindow : Window
 
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
-	Action ActionCashDocuments;
-	Action ActionAccountableDebt;
-	Action ActionUnclosedAdvances;
-	Action ActionCashFlow;
-	Action ActionSelfdeliveryOrders;
 	Action ActionFinesJournal;
 	Action ActionPremiumJournal;
 	Action ActionCarProxiesJournal;
@@ -126,9 +124,17 @@ public partial class MainWindow : Window
 	Action ActionRouteListAddressesTransferring;
 	Action ActionTransferOperationJournal;
 	Action ActionDistricts;
+
+	//Касса
+	Action ActionCashDocuments;
+	Action ActionAccountableDebt;
+	Action ActionUnclosedAdvances;
+	Action ActionCashFlow;
+	Action ActionSelfdeliveryOrders;
 	Action ActionCashTransferDocuments;
 	Action ActionFuelTransferDocuments;
 	Action ActionOrganizationCashTransferDocuments;
+	Action ActionSalariesJournal;
 
 	//Suppliers
 	Action ActionNewRequestToSupplier;
@@ -182,6 +188,7 @@ public partial class MainWindow : Window
 		ActionCashTransferDocuments = new Action("ActionCashTransferDocuments", "Журнал перемещения д/с", null, "table");
 		ActionFuelTransferDocuments = new Action("ActionFuelTransferDocuments", "Журнал учета топлива", null, "table");
 		ActionOrganizationCashTransferDocuments = new Action("ActionOrganizationCashTransferDocuments", "Журнал перемещения д/с для юр.лиц", null, "table");
+		ActionSalariesJournal = new Action(nameof(ActionSalariesJournal), "Журнал выдач З/П", null, "table");
 
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
@@ -249,14 +256,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListTracking, null);
 		w1.Add(ActionRouteListMileageCheck, null);
 
-		w1.Add(ActionCashDocuments, null);
-		w1.Add(ActionAccountableDebt, null);
-		w1.Add(ActionUnclosedAdvances, null);
-		w1.Add(ActionCashFlow, null);
-		w1.Add(ActionSelfdeliveryOrders, null);
-		w1.Add(ActionCashTransferDocuments, null);
-		w1.Add(ActionFuelTransferDocuments, null);
-		w1.Add(ActionOrganizationCashTransferDocuments, null);
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
@@ -277,6 +276,17 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionDistricts, null);
+
+		//Касса
+		w1.Add(ActionCashDocuments, null);
+		w1.Add(ActionAccountableDebt, null);
+		w1.Add(ActionUnclosedAdvances, null);
+		w1.Add(ActionCashFlow, null);
+		w1.Add(ActionSelfdeliveryOrders, null);
+		w1.Add(ActionCashTransferDocuments, null);
+		w1.Add(ActionFuelTransferDocuments, null);
+		w1.Add(ActionOrganizationCashTransferDocuments, null);
+		w1.Add(ActionSalariesJournal, null);
 
 		//Suppliers
 		w1.Add(ActionNewRequestToSupplier, null);
@@ -324,14 +334,6 @@ public partial class MainWindow : Window
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 
-		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
-		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
-		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
-		ActionCashFlow.Activated += ActionCashFlow_Activated;
-		ActionSelfdeliveryOrders.Activated += ActionSelfdeliveryOrders_Activated;
-		ActionCashTransferDocuments.Activated += ActionCashTransferDocuments_Activated;
-		ActionFuelTransferDocuments.Activated += ActionFuelTransferDocuments_Activated;
-		ActionOrganizationCashTransferDocuments.Activated += ActionOrganizationCashTransferDocuments_Activated;
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
@@ -353,6 +355,17 @@ public partial class MainWindow : Window
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionDistricts.Activated += ActionDistrictsActivated;
 
+		//Касса
+		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
+		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
+		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
+		ActionCashFlow.Activated += ActionCashFlow_Activated;
+		ActionSelfdeliveryOrders.Activated += ActionSelfdeliveryOrders_Activated;
+		ActionCashTransferDocuments.Activated += ActionCashTransferDocuments_Activated;
+		ActionFuelTransferDocuments.Activated += ActionFuelTransferDocuments_Activated;
+		ActionOrganizationCashTransferDocuments.Activated += ActionOrganizationCashTransferDocuments_Activated;
+		ActionSalariesJournal.Activated += ActionSalariesJournal_Activated;
+
 		//Suppliers
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
@@ -362,6 +375,20 @@ public partial class MainWindow : Window
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 		
 		#endregion
+	}
+
+	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
+	{
+		var subdivisionRepository = autofacScope.Resolve<ISubdivisionRepository>();
+		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
+
+		var gtkTabsOpener = autofacScope.Resolve<IGtkTabsOpener>();
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var commonServices = autofacScope.Resolve<ICommonServices>();
+		var permissionService = autofacScope.Resolve<IPermissionService>();
+		var journal = new SalaryByEmployeeJournalViewModel(filter, gtkTabsOpener, permissionService, uowFactory, commonServices);
+		journal.SelectionMode = JournalSelectionMode.Single;
+		tdiMain.AddTab(journal);
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {

@@ -129,6 +129,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -299,6 +300,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ComplaintObjectJournalFilterViewModel, ComplaintObjectJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<SalaryByEmployeeJournalFilterViewModel, SalaryByEmployeeFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -400,6 +402,7 @@ namespace Vodovoz
 			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
 			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
+			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 
 			#endregion
 			

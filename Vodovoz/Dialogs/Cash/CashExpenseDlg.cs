@@ -206,10 +206,7 @@ namespace Vodovoz
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
 
-			ExpenseType type = (ExpenseType)enumcomboOperation.SelectedItem;
-			ylabelEmployeeWageBalance.Visible = type == ExpenseType.EmployeeAdvance
-											 || type == ExpenseType.Salary
-											 || (type == ExpenseType.Advance && (new EmployeeCategory[] { EmployeeCategory.office }).All(x => x != Entity?.Employee?.Category));
+			UpdateEmployeeBalanceVisibility();
 			UpdateEmployeeBalaceInfo();
 			UpdateSubdivision();
 
@@ -219,6 +216,15 @@ namespace Vodovoz
 				buttonSave.Sensitive = false;
 				ytextviewDescription.Editable = false;
 			}
+		}
+
+		public void ConfigureForSalaryGiveout(int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
+		{
+			yentryEmployee.Subject = UoW.GetById<Employee>(employeeId);
+			yentryEmployee.Sensitive = canChangeEmployee;
+			Entity.TypeOperation = expenseType;
+			yspinMoney.ValueAsDecimal = balance;
+			UpdateEmployeeBalanceVisibility();
 		}
 
 		public void CopyExpenseFrom(Expense doc)

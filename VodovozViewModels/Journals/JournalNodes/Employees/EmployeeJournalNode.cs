@@ -21,5 +21,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 		/// Средняя з/п за три месяца
 		/// </summary>
 		public decimal AvgSalary { get; set; }
+		public string SubdivisionTitle { get; set; }
+		public decimal Balance { get; set; }
 	}
 }
