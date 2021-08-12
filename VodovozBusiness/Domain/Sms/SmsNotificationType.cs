@@ -7,6 +7,8 @@ namespace Vodovoz.Domain.Sms
 		[Display(Name = "При новом контрагенте")]
 		NewClient,
 		[Display(Name = "При низком балансе")]
-		LowBalance
+		LowBalance,
+		[Display(Name = "При недовозе в переносе 'автоперенос н/согл' ")]
+		UndeliveryNotApproved
 	}
 }

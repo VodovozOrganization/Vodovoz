@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public TalkViewModelBase(INavigationManager navigation, MangoManager manager) : base(navigation)
 		{
-			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
+			MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 			ActiveCall = MangoManager.CurrentTalk ?? MangoManager.CurrentHold;
 			manager.PropertyChanged += Manager_PropertyChanged;
 			SetTitle();

@@ -108,6 +108,39 @@ namespace Vodovoz.TempAdapters
 		{
 			return new WaterJournalFactory();
 		}
+
+		public IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory()
+		{
+			var nomenclatureFilter = new NomenclatureFilterViewModel {HidenByDefault = true};
+			nomenclatureFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = NomenclatureCategory.water,
+				x => x.RestrictDilers = true
+			);
+
+			var counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices);
+			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider());
+
+			var nomenclatureSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomRep,
+					UserSingletonRepository.GetInstance());
+
+			var journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeService(),
+				nomenclatureSelectorFactory,
+				counterpartySelectorFactory,
+				nomRep,
+				UserSingletonRepository.GetInstance()
+			) {
+				SelectionMode = JournalSelectionMode.Single,
+			};
+			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(typeof(Nomenclature), () => journalViewModel);
+		}
 		
 		public IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory() =>
 			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(

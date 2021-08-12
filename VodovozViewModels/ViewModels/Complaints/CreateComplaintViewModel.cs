@@ -41,7 +41,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -62,8 +61,7 @@ namespace Vodovoz.ViewModels.Complaints
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
             this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-            this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -72,6 +70,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
@@ -94,7 +93,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -111,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
-			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, employeeSelectorFactory, counterpartySelectorFactory,
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, counterpartySelectorFactory,
 			subdivisionRepository, commonServices, nomenclatureSelectorFactory, nomenclatureRepository, userRepository, filePickerService,
 			orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,
 			gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
@@ -125,7 +123,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -143,7 +140,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
 			string phone = null) : this
-		(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,
+		(uowBuilder,unitOfWorkFactory,employeeService,counterpartySelectorFactory,subdivisionRepository,commonServices,
 			nomenclatureSelectorFactory,nomenclatureRepository,userRepository,filePickerService, orderSelectorFactory, employeeJournalFactory,
 			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,  gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, phone)
 		{

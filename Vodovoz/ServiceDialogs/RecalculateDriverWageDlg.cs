@@ -12,6 +12,8 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 using NHibernate.Criterion;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -27,7 +29,7 @@ namespace Vodovoz.ServiceDialogs
 
         private void ConfigureDlg()
         {
-            var filterDriver = new EmployeeFilterViewModel();
+            var filterDriver = new EmployeeRepresentationFilterViewModel();
             filterDriver.SetAndRefilterAtOnce(
                 x => x.Status = EmployeeStatus.IsWorking
             );

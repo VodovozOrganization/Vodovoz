@@ -65,6 +65,9 @@
     <Compile Include="Domain\Documents\DocumentPrintHistory.cs" />
     <Compile Include="Domain\Client\DeliveryPointEstimatedCoordinate.cs" />
     <Compile Include="Domain\Complaints\DriverComplaintReason.cs" />
+    <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalDocumentBase.cs" />
+    <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalGiveoutDocument.cs" />
+    <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalReturnDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
@@ -131,6 +134,7 @@
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
+    <Compile Include="Domain\Sms\UndeliveryNotApprovedSmsNotification.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -181,6 +185,7 @@
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverTerminal\DriverAttachedTerminalDocumentsMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
@@ -1103,10 +1108,6 @@
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
-      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
-      <Name>QS.Banks</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>

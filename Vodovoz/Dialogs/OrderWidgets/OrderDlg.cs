@@ -22,8 +22,6 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
-using QS.Validation;
-using QS.Services;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
@@ -36,10 +34,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Autofac;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -79,6 +79,8 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
@@ -86,7 +88,7 @@ namespace Vodovoz
 {
     public partial class OrderDlg : EntityDialogBase<Order>,
 		ICounterpartyInfoProvider,
-		IDeliveryPointInfoProvider,
+		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
 		IEmailsInfoProvider,
@@ -478,17 +480,18 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilterViewModel {
+			var filterAuthor = new EmployeeRepresentationFilterViewModel
+			{
 				Status = EmployeeStatus.IsWorking
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
 			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			referenceAuthor.Sensitive = false;
 
-			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPoint.CanEditReference = true;
+			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			evmeDeliveryPoint.CanEditReference = true;
 
-			referenceDeliveryPoint.ChangedByUser += (s, e) => {
+			evmeDeliveryPoint.ChangedByUser += (s, e) => {
 				if(Entity?.DeliveryPoint == null) {
 					return;
 				}
@@ -509,14 +512,12 @@ namespace Vodovoz
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
-			commentsview4.UoW = UoWGeneric;
-			
 			enumAddRentButton.ItemsEnum = typeof(RentType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
 			checkSelfDelivery.Toggled += (sender, e) => {
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
-				lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
+				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
 				Enum[] hideEnums = { PaymentType.Terminal };
@@ -1153,14 +1154,20 @@ namespace Vodovoz
 		private bool ValidateAndFormOrder()
 		{
 			Entity.CheckAndSetOrderIsService();
-
-			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>{
+			
+			ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+			
+			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+			{
 				{ "NewStatus", OrderStatus.Accepted },
-				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				{ "IsCopiedFromUndelivery", templateOrder != null },//индикатор того, что заказ - копия, созданная из недовозов
+				{ "uowFactory", uowFactory }
 			});
 
 			if(!Validate(validationContext))
 			{
+				autofacScope.Dispose();
 				return false;
 			}
 
@@ -1168,6 +1175,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 
 			OnFormOrderActions();
+			autofacScope.Dispose();
 			return true;
 		}
 
@@ -1399,40 +1407,34 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnToggleCommentsToggled(object sender, EventArgs e)
-		{
-			if(toggleComments.Active)
-				notebook1.CurrentPage = 1;
-		}
-
 		protected void OnToggleTareControlToggled(object sender, EventArgs e)
 		{
 			if(toggleTareControl.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 1;
 		}
 
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
-				notebook1.CurrentPage = 4;
+				notebook1.CurrentPage = 3;
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
-				notebook1.CurrentPage = 5;
+				notebook1.CurrentPage = 4;
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
-				notebook1.CurrentPage = 6;
+				notebook1.CurrentPage = 5;
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
@@ -1878,9 +1880,12 @@ namespace Vodovoz
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
-			if(Entity.Client != null) {
-				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
-				referenceDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
+			if(Entity.Client != null)
+			{
+				var filter = new DeliveryPointJournalFilterViewModel() {Counterparty = Entity.Client, HidenByDefault = true};
+				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(filter)
+					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+				evmeDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
 
@@ -1912,7 +1917,7 @@ namespace Vodovoz
 				enumTax.SelectedItem = Entity.Client.TaxType;
 				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
 			} else {
-				referenceDeliveryPoint.Sensitive = false;
+				evmeDeliveryPoint.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -1958,7 +1963,7 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
-			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(evmeDeliveryPoint.Subject));
 			
 			if(Entity.DeliveryPoint != null) 
 			{
@@ -2522,10 +2527,10 @@ namespace Vodovoz
 		{
 			bool val = Entity.CanEditOrder;
 			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
-			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
+			referenceDeliverySchedule.Sensitive = evmeDeliveryPoint.IsEditable =
 				entityVMEntryClient.IsEditable = val;
 			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
-			lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
+			lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;

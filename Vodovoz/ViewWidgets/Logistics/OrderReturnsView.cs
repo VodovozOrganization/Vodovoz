@@ -39,6 +39,7 @@ using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -394,13 +395,8 @@ namespace Vodovoz
 			{
 				Counterparty = client
 			};
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-					() => new DeliveryPointJournalViewModel(deliveryPointFilter,
-						UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-					{
-						SelectionMode = JournalSelectionMode.Single
-					}));
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
+				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 

@@ -1,10 +1,20 @@
-﻿using QS.DomainModel.UoW;
-using QS.Project.Journal;
+﻿using System;
+using QS.DomainModel.UoW;
+using QS.Osm;
+using QS.Osm.Loaders;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
@@ -20,10 +30,33 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory()
 		{
-			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint), () =>
-			{
-				return new DeliveryPointJournalViewModel(_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-			});
+			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
+				() => new DeliveryPointJournalViewModel(
+					UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+					ContactParametersProvider.Instance,
+					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
+					new HousesDataLoader(OsmWorker.GetOsmService()),
+					new NomenclatureSelectorFactory(),
+					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+						new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+					_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
+					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateDeliveryPointByClientAutocompleteSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<DeliveryPointByClientJournalViewModel>(typeof(DeliveryPoint),
+				() => new DeliveryPointByClientJournalViewModel(
+					UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+					ContactParametersProvider.Instance,
+					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
+					new HousesDataLoader(OsmWorker.GetOsmService()),
+					new NomenclatureSelectorFactory(),
+					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+						new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+					_deliveryPointJournalFilter
+					?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
+					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 		}
 	}
 }

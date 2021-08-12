@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -46,6 +47,9 @@ namespace Vodovoz.EntityRepositories.Logistic
         IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
         IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds);
 		RouteList GetRouteListById(IUnitOfWork uow, int routeListsId);
+		GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList,
+			Warehouse warehouse = null);
+		DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee);
 		IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId);
 	}
 }

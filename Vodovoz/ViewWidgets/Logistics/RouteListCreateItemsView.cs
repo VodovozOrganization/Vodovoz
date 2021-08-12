@@ -261,12 +261,10 @@ namespace Vodovoz
 				x => x.RestrictHideService = true
 			);
 
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
-				new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(),
-				new SubdivisionJournalFactory(new SubdivisionFilterViewModel(){ SubdivisionType = SubdivisionType.Default }), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(),
-				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory())
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
+				new UndeliveredOrdersJournalOpener(), new EmployeeService())
 			{
 				SelectionMode = JournalSelectionMode.Multiple
 			};

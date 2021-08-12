@@ -11,6 +11,7 @@ using QS.Project.Services;
 using System.Linq;
 using QS.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels
 {
@@ -49,16 +50,11 @@ namespace Vodovoz.ViewModels
 		public Action<object[], BusinessTaskStatus> ChangeTasksStateAction { get; set; }
 		public Action<object[], DateTime> ChangeDeadlineDateAction { get; set; }
 
-		public BusinessTasksJournalActionsViewModel()
+		public BusinessTasksJournalActionsViewModel(IEmployeeJournalFactory employeeJournalFactory)
 		{
 			CreateCommands();
 
-			EmployeeSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
-						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-					});
+			EmployeeSelectorFactory = employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 		}
 
 		private void CreateCommands()

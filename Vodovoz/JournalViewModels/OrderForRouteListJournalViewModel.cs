@@ -43,8 +43,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -57,9 +55,7 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			IEmployeeService employeeService,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory
+			IEmployeeService employeeService
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -70,8 +66,6 @@ namespace Vodovoz.JournalViewModels
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			TabName = "Журнал заказов";
 
@@ -299,9 +293,7 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
 							_deliveryPointJournalFactory,
-							_subdivisionJournalFactory,
-							_salesPlanJournalFactory,
-							_nomenclatureSelectorFactory)
+							_subdivisionJournalFactory)
 						{
 							HidenByDefault = true,
 							RestrictOldOrder = order,

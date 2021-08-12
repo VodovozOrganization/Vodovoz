@@ -8,6 +8,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Filters;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.JournalFilters.QueryFilterViews
 {
@@ -26,8 +27,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			ydateperiodPicker.Binding.AddBinding(Filter, x => x.EndDate, w => w.EndDate).InitializeFromSource();
 			ydateperiodPicker.PeriodChanged += (sender, e) => Refilter();
 
-			var employeeFilter = new EmployeeFilterViewModel();
-			employeeFilter.Status = Domain.Employees.EmployeeStatus.IsWorking;
+			var employeeFilter = new EmployeeRepresentationFilterViewModel
+			{
+				Status = Domain.Employees.EmployeeStatus.IsWorking
+			};
 			entryEmployee.RepresentationModel = new EmployeesVM(employeeFilter);
 			entryEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();
 			entryEmployee.ChangedByUser += (sender, e) => Refilter();

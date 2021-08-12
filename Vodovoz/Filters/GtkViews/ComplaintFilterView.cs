@@ -5,8 +5,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -21,7 +23,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void ConfigureDlg()
 		{
-			entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilterViewModel());
+			entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeRepresentationFilterViewModel());
 			entryreferencevmEmployee.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
 			
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);

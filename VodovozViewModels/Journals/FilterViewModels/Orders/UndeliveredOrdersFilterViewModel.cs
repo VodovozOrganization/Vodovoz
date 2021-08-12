@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 		public UndeliveredOrdersFilterViewModel(ICommonServices commonServices, IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory, ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory, ISalesPlanJournalFactory salesPlanJournalFactory, INomenclatureSelectorFactory nomenclatureSelectorFactory)
+			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory)
 		{
 			OrderSelectorFactory = (orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
 				.CreateOrderAutocompleteSelectorFactory();
@@ -45,8 +45,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			DriverEmployeeSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
-			OfficeEmployeeSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			OfficeEmployeeSelectorFactory = employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			CounterpartySelectorFactory = (counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
@@ -55,7 +54,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 				.CreateDeliveryPointAutocompleteSelectorFactory();
 
 			AuthorSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), salesPlanJournalFactory, nomenclatureSelectorFactory);
+				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
 			Subdivisions = UoW.GetAll<Subdivision>();
 			RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1);

@@ -19,10 +19,12 @@ using Vodovoz.Services.Permissions;
 using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -201,6 +203,28 @@ namespace Vodovoz
 									ServicesConfig.CommonServices
 								);
 							},
+							this
+						);
+						break;
+					case DocumentType.DriverTerminalGiveout:
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalGiveoutDocument>(id),
+							() => new DriverAttachedTerminalViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices
+							),
+							this
+						);
+						break;
+					case DocumentType.DriverTerminalReturn:
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalReturnDocument>(id),
+							() => new DriverAttachedTerminalViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices
+							),
 							this
 						);
 						break;

@@ -1,6 +1,7 @@
 ﻿using Vodovoz.Domain.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools.Logistic;
+using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
 {

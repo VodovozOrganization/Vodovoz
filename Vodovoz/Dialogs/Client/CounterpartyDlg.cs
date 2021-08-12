@@ -47,14 +47,14 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.JournalFilters;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
-using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 
 namespace Vodovoz
 {
@@ -95,9 +95,7 @@ namespace Vodovoz
 	        {
 		        if (employeeSelectorFactory is null)
 		        {
-			        employeeSelectorFactory =
-				        new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					        ServicesConfig.CommonServices);
+			        employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory();
 		        }
 		        return employeeSelectorFactory;
 	        }
@@ -294,7 +292,6 @@ namespace Vodovoz
             }
 
             ConfigureTabInfo();
-            ConfigureTabComments();
             ConfigureTabContacts();
             ConfigureTabProxies();
             ConfigureTabContracts();
@@ -478,11 +475,6 @@ namespace Vodovoz
             SetVisibilityForCloseDeliveryComments();
         }
 
-        private void ConfigureTabComments()
-        {
-            commentsview4.UoW = UoW;
-        }
-
         private void ConfigureTabContacts()
         {
             phonesView.UoW = UoWGeneric;
@@ -495,7 +487,7 @@ namespace Vodovoz
                 UoWGeneric.Root.Emails = new List<Email>();
             emailsView.Emails = UoWGeneric.Root.Emails;
 
-            var filterSalesManager = new EmployeeFilterViewModel();
+            var filterSalesManager = new EmployeeRepresentationFilterViewModel();
             filterSalesManager.SetAndRefilterAtOnce(
                 x => x.RestrictCategory = EmployeeCategory.office,
                 x => x.Status = EmployeeStatus.IsWorking
@@ -504,7 +496,7 @@ namespace Vodovoz
             referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
             referenceSalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 
-            var filterAccountant = new EmployeeFilterViewModel();
+            var filterAccountant = new EmployeeRepresentationFilterViewModel();
             filterAccountant.SetAndRefilterAtOnce(
                 x => x.RestrictCategory = EmployeeCategory.office,
                 x => x.Status = EmployeeStatus.IsWorking
@@ -516,7 +508,7 @@ namespace Vodovoz
             dataentryMainContact.RepresentationModel = new ContactsVM(UoW, Entity);
             dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
 
-            var filterBottleManager = new EmployeeFilterViewModel();
+            var filterBottleManager = new EmployeeRepresentationFilterViewModel();
             filterBottleManager.SetAndRefilterAtOnce(
                 x => x.RestrictCategory = EmployeeCategory.office,
                 x => x.Status = EmployeeStatus.IsWorking
@@ -627,7 +619,7 @@ namespace Vodovoz
 
         private void ConfigureTabDeliveryPoints()
         {
-            deliveryPointView.DeliveryPointUoW = UoWGeneric;
+            deliveryPointsManagementView.DeliveryPointUoW = UoWGeneric;
         }
 
         private void ConfigureTabDocuments()
@@ -704,11 +696,7 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	        {
-		        SubdivisionType = SubdivisionType.Default
-	        };
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
 	        var orderJournalViewModel = new OrderJournalViewModel(
@@ -736,13 +724,10 @@ namespace Vodovoz
         
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
-	        SubdivisionFilterViewModel subdivisionJournalFilter = new SubdivisionFilterViewModel()
-	        {
-		        SubdivisionType = SubdivisionType.Default
-	        };
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory(subdivisionJournalFilter);
+	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-	        var filter = new ComplaintFilterViewModel(ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+	        var filter = new ComplaintFilterViewModel(
+		        ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
 	        
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
@@ -750,7 +735,6 @@ namespace Vodovoz
 		        ServicesConfig.CommonServices,
 		        UndeliveredOrdersJournalOpener,
 		        employeeService,
-		        EmployeeSelectorFactory,
 		        CounterpartySelectorFactory,
 		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
@@ -826,35 +810,29 @@ namespace Vodovoz
             if(radioInfo.Active)
                 notebook1.CurrentPage = 0;
         }
-
-        protected void OnRadioCommentsToggled(object sender, EventArgs e)
-        {
-            if(radioComments.Active)
-                notebook1.CurrentPage = 1;
-        }
-
+        
         protected void OnRadioContactsToggled(object sender, EventArgs e)
         {
             if(radioContacts.Active)
-                notebook1.CurrentPage = 2;
+                notebook1.CurrentPage = 1;
         }
 
         protected void OnRadioDetailsToggled(object sender, EventArgs e)
         {
             if(radioDetails.Active)
-                notebook1.CurrentPage = 3;
+                notebook1.CurrentPage = 2;
         }
 
         protected void OnRadiobuttonProxiesToggled(object sender, EventArgs e)
         {
             if(radiobuttonProxies.Active)
-                notebook1.CurrentPage = 4;
+                notebook1.CurrentPage = 3;
         }
 
         protected void OnRadioContractsToggled(object sender, EventArgs e)
         {
             if(radioContracts.Active)
-                notebook1.CurrentPage = 5;
+                notebook1.CurrentPage = 4;
         }
 
         protected void OnRadioDocumentsToggled(object sender, EventArgs e)
@@ -865,7 +843,7 @@ namespace Vodovoz
                 documentsConfigured = true;
             }
             if (radioDocuments.Active)
-                notebook1.CurrentPage = 6;
+                notebook1.CurrentPage = 5;
         }
 
         protected void OnRadioDeliveryPointToggled(object sender, EventArgs e)
@@ -876,30 +854,30 @@ namespace Vodovoz
                 deliveryPointsConfigured = true;
             }
             if(radioDeliveryPoint.Active)
-                notebook1.CurrentPage = 7;
+                notebook1.CurrentPage = 6;
         }
 
         protected void OnRadioTagsToggled(object sender, EventArgs e)
         {
             if(radioTags.Active)
-                notebook1.CurrentPage = 8;
+                notebook1.CurrentPage = 7;
         }
 
         protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
         {
             if(radioSpecialDocFields.Active)
-                notebook1.CurrentPage = 9;
+                notebook1.CurrentPage = 8;
         }
 
         protected void OnRbnPricesToggled(object sender, EventArgs e)
         {
             if(rbnPrices.Active)
-                notebook1.CurrentPage = 10;
+                notebook1.CurrentPage = 9;
         }
 
         public void OpenFixedPrices()
         {
-            notebook1.CurrentPage = 11;
+            notebook1.CurrentPage = 10;
         }
 
         void YEnumCounterpartyType_Changed(object sender, EventArgs e)
