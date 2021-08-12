@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModel
 			#region RouteListAddressTypeFilter
 			
 			//WithDeliveryAddresses(Доставка) означает МЛ без WithChainStoreAddresses(Сетевой магазин) и WithServiceAddresses(Сервисное обслуживание)
-			if(      Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			if( Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
 				query.Where(() => !driverAlias.VisitingMaster);
 			}
 			else if( Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
