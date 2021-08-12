@@ -21,6 +21,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -97,7 +98,8 @@ namespace Vodovoz
 		{
 			var subdivisions = subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!subdivisions.Any()) {
-				MessageDialogHelper.RunErrorDialog("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
+				MessageDialogHelper.RunErrorDialog(
+					"Неправильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
 				FailInitialize = true;
 				return false;
 			}
@@ -183,7 +185,8 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 
-			IsEditable = Entity.Status == RouteListStatus.New && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			IsEditable = Entity.Status == RouteListStatus.New && logistician;
 
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
@@ -205,6 +208,17 @@ namespace Vodovoz
 			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
+
+			var hasAccessToDriverTerminal = logistician ||
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
+			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
+			                                 baseDoc is DriverAttachedTerminalGiveoutDocument &&
+			                                 baseDoc.CreationDate.Date <= Entity?.Date;
+			if(labelTerminalCondition.Visible)
+			{
+				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";
+			}
 		}
 
 		void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)

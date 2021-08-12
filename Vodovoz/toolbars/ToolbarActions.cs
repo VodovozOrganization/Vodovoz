@@ -479,6 +479,7 @@ public partial class MainWindow : Window
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e) {
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider();
+		var routeListRepository = new RouteListRepository();
 		var employeeService = new EmployeeService();
 		
 		tdiMain.OpenTab(
@@ -486,6 +487,7 @@ public partial class MainWindow : Window
 			() => new RouteListAddressesTransferringDlg(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
+				routeListRepository,
 				employeeService,
 				ServicesConfig.CommonServices
 			)

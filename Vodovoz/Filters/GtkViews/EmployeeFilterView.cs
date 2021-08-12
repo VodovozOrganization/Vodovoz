@@ -22,7 +22,7 @@ namespace Vodovoz.Filters.GtkViews
 
 			enumcomboCategory.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Category, w => w.SelectedItemOrNull)
-				.AddBinding(vm => vm.IsCategoryNotRestricted, w => w.Sensitive)
+				.AddBinding(vm => vm.CanChangeCategory, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
@@ -30,6 +30,20 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.Status, w => w.SelectedItemOrNull)
 				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)
 				.InitializeFromSource();
+
+			hboxDriversAndTerminals.Binding.AddBinding(ViewModel, vm => vm.HasAccessToDriverTerminal, w => w.Visible)
+				.InitializeFromSource();
+
+			comboDriverType.ItemsEnum = typeof(DriverTerminalRelation);
+			comboDriverType.Binding.AddBinding(ViewModel, vm => vm.DriverTerminalRelation, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			checkSortByPriority.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanSortByPriority, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active)
+				.InitializeFromSource();
+			checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
 		}
 	}
 }

@@ -14,6 +14,16 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
 
+		private global::Gamma.GtkWidgets.yHBox hboxDriversAndTerminals;
+
+		private global::Gtk.VSeparator vseparator1;
+
+		private global::Gamma.GtkWidgets.yLabel labelDriversAndTerminals;
+
+		private global::Gamma.Widgets.yEnumComboBox comboDriverType;
+
+		private global::Gamma.GtkWidgets.yCheckButton checkSortByPriority;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -66,6 +76,56 @@ namespace Vodovoz.Filters.GtkViews
 			w4.Position = 3;
 			w4.Expand = false;
 			w4.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.hboxDriversAndTerminals = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxDriversAndTerminals.Name = "hboxDriversAndTerminals";
+			this.hboxDriversAndTerminals.Spacing = 6;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hboxDriversAndTerminals.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.vseparator1]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.labelDriversAndTerminals = new global::Gamma.GtkWidgets.yLabel();
+			this.labelDriversAndTerminals.Name = "labelDriversAndTerminals";
+			this.labelDriversAndTerminals.LabelProp = global::Mono.Unix.Catalog.GetString("Водители и терминалы:");
+			this.hboxDriversAndTerminals.Add(this.labelDriversAndTerminals);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.labelDriversAndTerminals]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.comboDriverType = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboDriverType.Name = "comboDriverType";
+			this.comboDriverType.ShowSpecialStateAll = true;
+			this.comboDriverType.ShowSpecialStateNot = false;
+			this.comboDriverType.UseShortTitle = false;
+			this.comboDriverType.DefaultFirst = false;
+			this.hboxDriversAndTerminals.Add(this.comboDriverType);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.comboDriverType]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.checkSortByPriority = new global::Gamma.GtkWidgets.yCheckButton();
+			this.checkSortByPriority.CanFocus = true;
+			this.checkSortByPriority.Name = "checkSortByPriority";
+			this.checkSortByPriority.Label = global::Mono.Unix.Catalog.GetString("Сортировать сотрудников по приоритету для выдачи терминалов");
+			this.checkSortByPriority.DrawIndicator = true;
+			this.checkSortByPriority.UseUnderline = true;
+			this.hboxDriversAndTerminals.Add(this.checkSortByPriority);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.checkSortByPriority]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.hbox1.Add(this.hboxDriversAndTerminals);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxDriversAndTerminals]));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
