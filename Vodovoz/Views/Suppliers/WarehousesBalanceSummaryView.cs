@@ -38,10 +38,7 @@ namespace Vodovoz.Views.Suppliers
 				.InitializeFromSource();
 			buttonAbort.Clicked += (sender, args) => { ViewModel.ReportGenerationCancelationTokenSource.Cancel(); };
 
-			buttonExport.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanSave, w => w.Sensitive)
-				.InitializeFromSource();
-			buttonExport.Clicked += OnButtonExportClicked;
+			buttonExport.Visible = false;
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -72,62 +69,6 @@ namespace Vodovoz.Views.Suppliers
 			};
 
 			treeData.EnableGridLines = TreeViewGridLines.Both;
-		}
-
-		private async void OnButtonExportClicked(object sender, EventArgs e)
-		{
-			var extension = ".xlsx";
-
-			var filechooser = new FileChooserDialog("Сохранить отчет...",
-				null,
-				FileChooserAction.Save,
-				"Отменить", ResponseType.Cancel,
-				"Сохранить", ResponseType.Accept)
-			{
-				CurrentName = $"{Tab.TabName} {ViewModel.Report.CreationDate:yyyy-MM-dd-HH-mm}{extension}"
-			};
-
-			var excelFilter = new FileFilter
-			{
-				Name = $"Документ Microsoft Excel ({extension})"
-			};
-
-			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			excelFilter.AddPattern($"*{extension}");
-			filechooser.AddFilter(excelFilter);
-
-			if(filechooser.Run() == (int)ResponseType.Accept)
-			{
-				var path = filechooser.Filename;
-
-				if(!path.Contains(extension))
-				{
-					path += extension;
-				}
-
-				filechooser.Hide();
-
-				ViewModel.CanSave = false;
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						buttonExport.Label = "Отчет сохраняется...";
-						ViewModel.ExportReport(path);
-					}
-					finally
-					{
-						Application.Invoke((s, eventArgs) =>
-						{
-							ViewModel.CanSave = true;
-							buttonExport.Label = "Сохранить";
-						});
-					}
-				});
-			}
-
-			filechooser.Destroy();
 		}
 
 		private void ConfigureTreeView()

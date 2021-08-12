@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ClosedXML.Report;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Multi;
@@ -34,9 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 	public class BalanceSummaryReport
 	{
-		public DateTime CreationDate { get; set; }
 		public DateTime EndDate { get; set; }
-		public string SelectedFilters { get; set; }
 		public List<string> WarehousesTitles { get; set; }
 		public List<BalanceSummaryRow> SummaryRows { get; set; }
 	}
@@ -54,11 +50,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private SelectableParameterReportFilterViewModel _warsViewModel;
 		private SelectableParametersReportFilter _nomsFilter;
 		private SelectableParametersReportFilter _warsFilter;
-		private readonly string _templatePath = @".\Reports\Suppliers\WarehousesBalanceSummary.xlsx";
-		private readonly string _templatePathUnix = "Reports/Suppliers/WarehousesBalanceSummary.xlsx";
 
 		private bool _isGenerating = false;
-		private bool _canSave = false;
 		private BalanceSummaryReport _report;
 
 		public WarehousesBalanceSummaryViewModel(
@@ -69,8 +62,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		}
 
 		#region Свойства
-
-		public double AlgoTime { get; set; }
 
 		public DateTime? EndDate { get; set; } = DateTime.Today;
 
@@ -90,12 +81,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		public SelectableParameterReportFilterViewModel WarsViewModel => _warsViewModel ?? (_warsViewModel = CreateWarsViewModel());
 
-		public bool CanSave
-		{
-			get => _canSave;
-			set => SetField(ref _canSave, value);
-		}
-
 		public bool IsGenerating
 		{
 			get => _isGenerating;
@@ -107,11 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public BalanceSummaryReport Report
 		{
 			get => _report;
-			set
-			{
-				SetField(ref _report, value);
-				CanSave = _report != null;
-			}
+			set => SetField(ref _report, value);
 		}
 
 		#endregion
@@ -119,18 +100,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public void ShowWarning(string message)
 		{
 			ShowWarningMessage(message);
-		}
-
-		public void ExportReport(string path)
-		{
-			var template = Environment.OSVersion.Platform == PlatformID.Unix
-				? new XLTemplate(_templatePathUnix)
-				: new XLTemplate(_templatePath);
-
-			template.AddVariable(Report);
-			template.Generate();
-
-			template.SaveAs(path);
 		}
 
 		public async Task<BalanceSummaryReport> ActionGenerateReport(CancellationToken cancellationToken)
@@ -196,12 +165,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var report = new BalanceSummaryReport
 			{
-				CreationDate = DateTime.Now,
 				EndDate = endDate,
-				SelectedFilters = GetSelectedFilters(wars?.Count ?? 0, noms?.Count ?? 0, types?.Count ?? 0, groups?.Count ?? 0),
 				WarehousesTitles = wars?.Select(x => x.Title).ToList(),
 				SummaryRows = new List<BalanceSummaryRow>()
 			};
+
+			#region Запросы
 
 			var inQuery = UoW.Session.QueryOver(() => inAlias)
 				.Where(() => inAlias.OperationTime <= endDate)
@@ -229,7 +198,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.ThenBy(() => woAlias.WriteoffWarehouse.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
-			var minStockQuery = UoW.Session.QueryOver(() => nomAlias)
+			var msQuery = UoW.Session.QueryOver(() => nomAlias)
 				.Select(n => n.MinStockCount);
 
 			if(typesSelected)
@@ -237,24 +206,28 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds))
+					.AndNot(() => nomAlias.IsArchive);
 			}
 
 			if(nomsSelected && !allNomsSelected)
 			{
 				inQuery.Where(Restrictions.In(Projections.Property(() => inAlias.Nomenclature.Id), nomsIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => woAlias.Nomenclature.Id), nomsIds));
-				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
-			var batch = UoW.Session.CreateQueryBatch()
-				.Add<BalanceBean>("in", inQuery)
-				.Add<BalanceBean>("wo", woQuery)
-				.Add<decimal>("ms", minStockQuery);
+			#endregion
 
-			var inResult = await batch.GetResultAsync<BalanceBean>("in", cancellationToken);
-			var woResult = batch.GetResult<BalanceBean>("wo");
-			var minStockCounts = batch.GetResult<decimal>("ms");
+			var batch = UoW.Session.CreateQueryBatch();
+			var inFuture = batch.AddAsFuture<BalanceBean>(inQuery);
+			var woFuture = batch.AddAsFuture<BalanceBean>(woQuery);
+			var msFuture = batch.AddAsFuture<decimal>(msQuery);
+
+			cancellationToken.ThrowIfCancellationRequested();
+			var inResult = inFuture.ToArray();
+			var woResult = woFuture.ToArray();
+			var msResult = msFuture.ToArray();
 
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
@@ -267,16 +240,16 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					NomId = (int)noms[nomsCounter].Value,
 					NomTitle = noms[nomsCounter].Title,
 					Separate = new List<decimal>(),
-					Min = minStockCounts[nomsCounter]
+					Min = msResult[nomsCounter]
 				};
 
 				for(var warsCounter = 0; warsCounter < wars?.Count; warsCounter++)
 				{
 					row.Separate.Add(0);
 					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
-					if(addedCounter == inResult.Count || removedCounter == woResult.Count)
+					if(addedCounter == inResult.Length || removedCounter == woResult.Length)
 					{
-						/*Кол-во данных в запросе может не совпадать с кол-вом выбранных номенклатур. Несмотря на то, что счетчики
+						/*Кол-во данных в запросе может не совпадать с кол-вом выбранных номенклатур и складов. Несмотря на то, что счетчики
 						 * увеличиваются лишь при совпадении, иногда кидается OutOfBounds, так что пришлось вставить continue.
 						 * На итоговые данные это не влияет */
 						continue;
@@ -301,12 +274,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				AddRow(ref report, row);
 			}
 
-			RemoveWarehousesByFilterCondition(ref report);
+			RemoveWarehousesByFilterCondition(ref report, cancellationToken);
 
 			return await new ValueTask<BalanceSummaryReport>(report);
 		}
 
-		private void RemoveWarehousesByFilterCondition(ref BalanceSummaryReport report)
+		private void RemoveWarehousesByFilterCondition(ref BalanceSummaryReport report, CancellationToken cancellationToken)
 		{
 			if(AllWars)
 			{
@@ -315,35 +288,19 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			for(var warCounter = 0; warCounter < report.WarehousesTitles.Count; warCounter++)
 			{
-				var totalByWar = report.SummaryRows.Sum(row => row.Separate[warCounter]);
-
-				if(GtZWars && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] > 0) == null)
+				if(GtZWars && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] > 0) == null
+				|| LeZWars && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] <= 0) == null
+				|| LtMinWars && report.SummaryRows.FirstOrDefault(row => row.Min < row.Separate[warCounter]) == null
+				|| GeMinWars && report.SummaryRows.FirstOrDefault(row => row.Min >= row.Separate[warCounter]) == null)
 				{
-					RemoveWarehouseByIndex(ref report, ref warCounter);
-					continue;
-				}
-
-				if(LeZWars && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] <= 0) == null)
-				{
-					RemoveWarehouseByIndex(ref report, ref warCounter);
-					continue;
-				}
-
-				if(LtMinWars && report.SummaryRows.FirstOrDefault(row => row.Min < row.Separate[warCounter]) == null)
-				{
-					RemoveWarehouseByIndex(ref report, ref warCounter);
-					continue;
-				}
-
-				if(GeMinWars && report.SummaryRows.FirstOrDefault(row => row.Min >= row.Separate[warCounter]) == null)
-				{
-					RemoveWarehouseByIndex(ref report, ref warCounter);
+					RemoveWarehouseByIndex(ref report, ref warCounter, cancellationToken);
 				}
 			}
 		}
 
-		private void RemoveWarehouseByIndex(ref BalanceSummaryReport report, ref int warCounter)
+		private void RemoveWarehouseByIndex(ref BalanceSummaryReport report, ref int warCounter, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
 			report.WarehousesTitles.RemoveAt(warCounter);
 			var i = warCounter;
 			report.SummaryRows.ForEach(row => row.Separate.RemoveAt(i));
@@ -352,86 +309,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void AddRow(ref BalanceSummaryReport report, BalanceSummaryRow row)
 		{
-			if(AllNoms)
-			{
-				report.SummaryRows.Add(row);
-				return;
-			}
-
-			if(GtZNoms && row.Common > 0)
-			{
-				report.SummaryRows.Add(row);
-				return;
-			}
-
-			if(LeZNoms && row.Common <= 0)
-			{
-				report.SummaryRows.Add(row);
-				return;
-			}
-
-			if(LtMinNoms && row.Common < row.Min)
-			{
-				report.SummaryRows.Add(row);
-				return;
-			}
-
-			if(GeMinNoms && row.Common >= row.Min)
+			if(AllNoms
+			|| GtZNoms && row.Separate.FirstOrDefault(war => war > 0) > 0
+			|| LeZNoms && row.Separate.FirstOrDefault(war => war <= 0) <= 0
+			|| LtMinNoms && row.Separate.FirstOrDefault(war => war < row.Min) < row.Min
+			|| GeMinNoms && row.Separate.FirstOrDefault(war => war >= row.Min) >= row.Min)
 			{
 				report.SummaryRows.Add(row);
 			}
-		}
-
-		private string GetSelectedFilters(int warsCount, int nomsCount, int typesCount, int groupsCount)
-		{
-			var result = "\r\nНоменклатуры: ";
-			if(AllNoms)
-			{
-				result += "все выбранные";
-			}
-			else if(GtZNoms)
-			{
-				result += "с общим остатком больше 0";
-			}
-			else if(LeZNoms)
-			{
-				result += "с общим остатком меньше либо равным 0";
-			}
-			else if(LtMinNoms)
-			{
-				result += "с общим остатком меньше минимального на складе";
-			}
-			else if(GeMinNoms)
-			{
-				result += "с общим остатком больше либо равным минимальному на складе";
-			}
-
-			result += "\r\nСклады: остаток хотя бы по одной ТМЦ ";
-			if(AllWars)
-			{
-				result += "все выбранные";
-			}
-			else if(GtZWars)
-			{
-				result += "больше 0";
-			}
-			else if(LeZWars)
-			{
-				result += "меньше либо равен 0";
-			}
-			else if(LtMinWars)
-			{
-				result += "меньше минимального остатка на складе для этой ТМЦ";
-			}
-			else if(GeMinWars)
-			{
-				result += "равен или больше минимального остатка на складе для этой ТМЦ";
-			}
-
-			result += $"\r\nСкладов выбрано: {warsCount}\r\nНоменклатур выбрано: {nomsCount}" +
-			          $"\r\nКатегорий выбрано: {typesCount}\r\nГрупп выбрано: {groupsCount}";
-
-			return result;
 		}
 
 		#region Настройка фильтров
