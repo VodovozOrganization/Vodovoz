@@ -2759,11 +2759,6 @@
     <EmbeddedResource Include="icons\map\points\overduetriangle\white.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Reports\Suppliers\WarehousesBalanceSummary.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
