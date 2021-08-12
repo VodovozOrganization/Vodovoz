@@ -12,7 +12,9 @@ namespace Vodovoz.ViewModels.Logistic
 		[Display(Name = "Сервисное обслуживание")]
 		Service,
 		[Display(Name = "Сетевой магазин")]
-		ChainStore
+		ChainStore,
+		[Display(Name = "Складская логика")]
+		StorageLogic
 	}
 
 	public class AddressTypeNode : PropertyChangedBase
