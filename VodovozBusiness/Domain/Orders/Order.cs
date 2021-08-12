@@ -121,6 +121,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderPaymentStatus, value);
 		}
 
+		private OrderAddressType orderAddressType;
+		[Display(Name = "Тип доставки заказа")]
+		public virtual OrderAddressType OrderAddressType
+		{
+			get => orderAddressType;
+			set => SetField(ref orderAddressType, value);
+		}
+
 		Employee author;
 
 		[Display(Name = "Создатель заказа")]
@@ -299,6 +307,44 @@ namespace Vodovoz.Domain.Orders
 		public virtual string OPComment {
 			get => opComment;
 			set => SetField(ref opComment, value);
+		}
+		
+		bool isStorageLogic;
+
+		/// <summary>
+		/// Отвечает только за отображения в чекбоксе, само значение хранится в OrderAddressType 
+		/// </summary>
+		[Display(Name = "Складская логистика")]
+		public virtual bool IsStorageLogic
+		{
+			get => isStorageLogic;
+			set
+			{
+				if(Client.IsChainStore && value)
+				{
+					SetField(ref isStorageLogic, false);
+					InteractiveService.ShowMessage(ImportanceLevel.Info,
+						"Невозможно сделать складской логистикой заказ сетевого контрагента!");
+				} 
+				else if(OrderAddressType == OrderAddressType.StorageLogic && value)
+				{
+					SetField(ref isStorageLogic, true);
+				} 
+				else if(OrderAddressType != OrderAddressType.Service && OrderAddressType != OrderAddressType.ChainStore && value)
+				{
+					SetField(ref isStorageLogic, value);
+					OrderAddressType = OrderAddressType.StorageLogic;
+				}
+				else if(OrderAddressType == OrderAddressType.StorageLogic && !value)
+				{
+					SetField(ref isStorageLogic, false);
+					OrderAddressType = OrderAddressType.Delivery;
+				}
+				else
+				{
+					SetField(ref isStorageLogic, false);
+				}
+			}
 		}
 
 		int? bottlesReturn;
@@ -930,7 +976,7 @@ namespace Vodovoz.Domain.Orders
 					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
-
+					
 					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
@@ -1004,7 +1050,8 @@ namespace Vodovoz.Domain.Orders
 								DeliveryDate.Value, DeliveryPoint)
 							.Where(o => o.Id != Id 
 							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus) 
-							            && !o.IsService).ToList();
+							            && !o.IsService
+							            && o.OrderAddressType != OrderAddressType.Service).ToList();
 
 						if(!hasMaster
 						   && orderCheckedOutsideSession.Any())
@@ -1039,7 +1086,7 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 
-				if(IsService && PaymentType == PaymentType.cashless
+				if(IsService && OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.cashless
 				   && newStatus == OrderStatus.Accepted
 				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
 					yield return new ValidationResult(
@@ -1054,7 +1101,23 @@ namespace Vodovoz.Domain.Orders
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
-			}           
+			}
+
+			if(IsStorageLogic && OrderAddressType == OrderAddressType.Service)
+			{
+				yield return new ValidationResult(
+					"Невозможно создать заказ складской логики с сервисной номенклатурой.",
+					new[] { this.GetPropertyName(o => o.IsStorageLogic) }
+				);
+			}
+			
+			if(IsStorageLogic && Client.IsChainStore)
+			{
+				yield return new ValidationResult(
+					"Невозможно создать заказ со складской логикой для сетевого контрагента.",
+					new[] { this.GetPropertyName(o => o.IsStorageLogic) }
+				);
+			}
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
@@ -1515,6 +1578,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual void CheckAndSetOrderIsService()
 		{
 			IsService = OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master);
+			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master))
+			{
+				OrderAddressType = OrderAddressType.Service;
+			}
 		}
 
 		public virtual void SetFirstOrder()
@@ -1824,6 +1891,9 @@ namespace Vodovoz.Domain.Orders
 			#region перенести всё это в OrderStateKey
 			bool IsDeliveryForFree = SelfDelivery
 												  || IsService
+												  || OrderAddressType == OrderAddressType.Service
+												  || OrderAddressType == OrderAddressType.StorageLogic
+												  || IsStorageLogic
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
 												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
