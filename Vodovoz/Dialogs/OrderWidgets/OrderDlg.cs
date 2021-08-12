@@ -238,7 +238,9 @@ namespace Vodovoz
 			Entity.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ";
 			ConfigureDlg();
-        }
+			//по стандарту тип - доставка
+			Entity.OrderAddressType = OrderAddressType.Delivery;
+		}
 
 		public OrderDlg(Counterparty client) :this()
 		{
@@ -253,6 +255,10 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			ConfigureDlg();
+			if(Entity.OrderAddressType == OrderAddressType.StorageLogic)
+			{
+				Entity.IsStorageLogic = true;
+			}
 		}
 
 		public OrderDlg(Order sub) : this(sub.Id)
@@ -616,6 +622,14 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+			ycheckStorageLogic.Binding.AddBinding(Entity, e => e.IsStorageLogic, w => w.Active).InitializeFromSource();
+
+			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
+
+			if(Entity.OrderAddressType == OrderAddressType.StorageLogic)
+			{
+				Entity.IsStorageLogic = true;
+			}
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 
@@ -654,6 +668,15 @@ namespace Vodovoz
 			if(Entity != null && Entity.Id != 0) {
 				Entity.CheckDocumentExportPermissions();
 			}
+		}
+
+		private bool ChecksForVisibilityOfStorageLogic()
+		{
+			if(Entity.OrderAddressType == OrderAddressType.Service || Entity.OrderAddressType == OrderAddressType.ChainStore)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
@@ -1032,6 +1055,11 @@ namespace Vodovoz
 				SetSensetivity(false);
 				Entity.CheckAndSetOrderIsService();
 
+				if(Entity.Client.IsChainStore)
+				{
+					Entity.OrderAddressType = OrderAddressType.ChainStore;
+				}
+
 				ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 				});
@@ -1115,6 +1143,11 @@ namespace Vodovoz
 			if(canContinue.HasValue && !canContinue.Value) {
 				toggleGoods.Activate();
 				return;
+			}
+
+			if(Entity.Client.IsChainStore)
+			{
+				Entity.OrderAddressType = OrderAddressType.ChainStore;
 			}
 
 			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true)) {
@@ -1656,6 +1689,7 @@ namespace Vodovoz
 			}
 			
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
+			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
 		}
 
 		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -2541,6 +2575,7 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
 			ycheckPaymentBySms.Sensitive = val;
+			ycheckStorageLogic.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
@@ -2550,6 +2585,7 @@ namespace Vodovoz
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
 			lblTax.Visible = enumTax.Visible = val && IsEnumTaxVisible();
+			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
 
 			if(Entity != null)
 				yCmbPromoSets.Sensitive = val;
