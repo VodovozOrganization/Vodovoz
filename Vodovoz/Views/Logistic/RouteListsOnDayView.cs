@@ -829,7 +829,8 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
-			var ordersOnDay = ViewModel.OrdersOnDay.Select(x => x).Where(x => !x.IsService).ToList();
+			var ordersOnDay = ViewModel.OrdersOnDay.Select(x => x)
+				.Where(x => x.OrderAddressType != OrderAddressType.Service).ToList();
 			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 
 			//добавляем маркеры нераспределенных заказов из районов водителя
