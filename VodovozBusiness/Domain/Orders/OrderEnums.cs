@@ -91,8 +91,8 @@ namespace Vodovoz.Domain.Orders
 		Service,
 		[Display(Name = "Сетевой магазин")]
 		ChainStore,
-		[Display(Name = "Складская логика")]
-		StorageLogic
+		[Display(Name = "Складская логистика")]
+		StorageLogistics
 	}
 	
 	public class OrderAddressTypeStringType : NHibernate.Type.EnumStringType
