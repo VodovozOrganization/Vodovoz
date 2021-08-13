@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private bool _isGenerating = false;
 		private BalanceSummaryReport _report;
-		private IUnitOfWork _localUow;
 
 		public WarehousesBalanceSummaryViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation)
@@ -81,23 +80,24 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		public async Task<BalanceSummaryReport> ActionGenerateReportAsync(CancellationToken cancellationToken)
 		{
+			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 			try
 			{
-				return await GenerateAsync(EndDate ?? DateTime.Today, cancellationToken);
+				return await GenerateAsync(EndDate ?? DateTime.Today, uow, cancellationToken);
 			}
 			finally
 			{
-				_localUow.Dispose();
+				uow.Dispose();
 			}
 		}
 
 		private async Task<BalanceSummaryReport> GenerateAsync(
 			DateTime endDate,
+			IUnitOfWork localUow,
 			CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
-			_localUow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 
 			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "nomenclatures");
 			var noms = nomsSet?.GetIncludedParameters()?.ToList();
@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var allNomsSelected = noms?.Count == nomsSet?.Parameters.Count;
 			if(groupsSelected)
 			{
-				var nomsInGroupsIds = (List<int>)await _localUow.Session.QueryOver(() => nomAlias)
+				var nomsInGroupsIds = (List<int>)await localUow.Session.QueryOver(() => nomAlias)
 					.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds))
 					.AndNot(() => nomAlias.IsArchive)
 					.Select(n => n.Id).ListAsync<int>(cancellationToken);
@@ -152,7 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			WarehouseMovementOperation woAlias = null;
 			BalanceBean resultAlias = null;
 
-			var inQuery = _localUow.Session.QueryOver(() => inAlias)
+			var inQuery = localUow.Session.QueryOver(() => inAlias)
 				.Where(() => inAlias.OperationTime <= endDate)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => inAlias.IncomingWarehouse.Id), warsIds))
@@ -165,7 +165,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.ThenBy(() => inAlias.IncomingWarehouse.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
-			var woQuery = _localUow.Session.QueryOver(() => woAlias)
+			var woQuery = localUow.Session.QueryOver(() => woAlias)
 				.Where(() => woAlias.OperationTime <= endDate)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteoffWarehouse.Id), warsIds))
@@ -178,7 +178,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.ThenBy(() => woAlias.WriteoffWarehouse.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
-			var msQuery = _localUow.Session.QueryOver(() => nomAlias)
+			var msQuery = localUow.Session.QueryOver(() => nomAlias)
 				.Select(n => n.MinStockCount);
 
 			if(typesSelected)
@@ -199,7 +199,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			#endregion
 
-			var batch = _localUow.Session.CreateQueryBatch()
+			var batch = localUow.Session.CreateQueryBatch()
 				.Add<BalanceBean>("in", inQuery)
 				.Add<BalanceBean>("wo", woQuery)
 				.Add<decimal>("ms", msQuery);
