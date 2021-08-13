@@ -124,6 +124,7 @@ using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
@@ -2304,15 +2305,21 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
-    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
-            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport(ServicesConfig.InteractiveService))
-        );
-    }
+	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+	{
+		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
+		IParametersProvider parametersProvider = new ParametersProvider();
+		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
+		IFilePickerService filePickerService = new GtkFilePicker();
 
-    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
+			filePickerService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
     {
         var employeeJournalFactory = new EmployeeJournalFactory();
         
