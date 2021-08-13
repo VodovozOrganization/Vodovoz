@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FluentNHibernate.Utils;
 using Gamma.Utilities;
 using MoreLinq;
 using NHibernate;
@@ -578,25 +579,25 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#endregion
 
-		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
-			new AddressTypeNode(AddressType.Delivery),
-			new AddressTypeNode(AddressType.Service),
-			new AddressTypeNode(AddressType.ChainStore),
-			new AddressTypeNode(AddressType.StorageLogic)
+		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
+			new OrderAddressTypeNode(OrderAddressType.Delivery),
+			new OrderAddressTypeNode(OrderAddressType.Service),
+			new OrderAddressTypeNode(OrderAddressType.ChainStore),
+			new OrderAddressTypeNode(OrderAddressType.StorageLogistics)
 		};
 
 		private void LoadAddressesTypesDefaults()
 		{
 			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
-			foreach(var addressTypeNode in AddressTypes) {
-				switch(addressTypeNode.AddressType) {
-					case AddressType.Delivery:
+			foreach(var addressTypeNode in OrderAddressTypes) {
+				switch(addressTypeNode.OrderAddressType) {
+					case OrderAddressType.Delivery:
 						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
 						break;
-					case AddressType.Service:
+					case OrderAddressType.Service:
 						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
 						break;
-					case AddressType.ChainStore:
+					case OrderAddressType.ChainStore:
 						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
 						break;
 				}
@@ -1128,7 +1129,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
-			if(AddressTypes.Any(x => x.Selected))
+			if(OrderAddressTypes.Any(x => x.Selected))
 			{
 				var query = QueryOver.Of<Order>()
 					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
@@ -1147,32 +1148,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 				#region AddressTypeFilter
 
-				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
-				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
-				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
-				bool storageLogicSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.StorageLogic);
-
-				if(deliverySelected || chainStoreSelected || serviceSelected || storageLogicSelected)
+				foreach(var elem in OrderAddressTypes)
 				{
-					//фильтрация от обратного: если не выбрано - удаляется 
-					if(!deliverySelected)
+					if(!elem.Selected)
 					{
-						baseOrderQuery = baseOrderQuery.Where(x => x.OrderAddressType != OrderAddressType.Delivery);
-					}
-				
-					if(!chainStoreSelected)
-					{
-						baseOrderQuery = baseOrderQuery.Where(x => x.OrderAddressType != OrderAddressType.ChainStore);;
-					}
-				
-					if(!serviceSelected)
-					{
-						baseOrderQuery = baseOrderQuery.Where(x => x.OrderAddressType != OrderAddressType.Service);;
-					}
-
-					if(!storageLogicSelected)
-					{
-						baseOrderQuery = baseOrderQuery.Where(x => x.OrderAddressType != OrderAddressType.StorageLogic);;
+						baseOrderQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
 					}
 				}
 
@@ -1399,34 +1379,13 @@ namespace Vodovoz.ViewModels.Logistic
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
-			if(AddressTypes.Any(x => x.Selected))
+			if(OrderAddressTypes.Any(x => x.Selected))
 			{
-				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
-				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
-				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
-				bool storageLogicSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.StorageLogic);
-
-				if(deliverySelected || chainStoreSelected || serviceSelected || storageLogicSelected)
+				foreach(var elem in OrderAddressTypes)
 				{
-					//фильтрация от обратного: если не выбрано - удаляется 
-					if(!deliverySelected)
+					if(!elem.Selected)
 					{
-						baseQuery = baseQuery.Where(x => x.OrderAddressType != OrderAddressType.Delivery);
-					}
-				
-					if(!chainStoreSelected)
-					{
-						baseQuery = baseQuery.Where(x => x.OrderAddressType != OrderAddressType.ChainStore);;
-					}
-				
-					if(!serviceSelected)
-					{
-						baseQuery = baseQuery.Where(x => x.OrderAddressType != OrderAddressType.Service);;
-					}
-
-					if(!storageLogicSelected)
-					{
-						baseQuery = baseQuery.Where(x => x.OrderAddressType != OrderAddressType.StorageLogic);;
+						baseQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
 					}
 				}
 
