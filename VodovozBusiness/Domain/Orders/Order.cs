@@ -121,12 +121,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderPaymentStatus, value);
 		}
 
-		private OrderAddressType orderAddressType;
+		private OrderAddressType _orderAddressType;
 		[Display(Name = "Тип доставки заказа")]
 		public virtual OrderAddressType OrderAddressType
 		{
-			get => orderAddressType;
-			set => SetField(ref orderAddressType, value);
+			get => _orderAddressType;
+			set => SetField(ref _orderAddressType, value);
 		}
 
 		Employee author;
@@ -309,40 +309,41 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref opComment, value);
 		}
 		
-		bool isStorageLogic;
+		private bool _isStorageLogistics;
 
 		/// <summary>
 		/// Отвечает только за отображения в чекбоксе, само значение хранится в OrderAddressType 
 		/// </summary>
 		[Display(Name = "Складская логистика")]
-		public virtual bool IsStorageLogic
+		public virtual bool IsStorageLogistics
 		{
-			get => isStorageLogic;
+			get => _isStorageLogistics;
 			set
 			{
 				if(Client.IsChainStore && value)
 				{
-					SetField(ref isStorageLogic, false);
+					OrderAddressType = OrderAddressType.ChainStore;
+					SetField(ref _isStorageLogistics, false);
 					InteractiveService.ShowMessage(ImportanceLevel.Info,
 						"Невозможно сделать складской логистикой заказ сетевого контрагента!");
 				} 
-				else if(OrderAddressType == OrderAddressType.StorageLogic && value)
+				else if(OrderAddressType == OrderAddressType.StorageLogistics && value)
 				{
-					SetField(ref isStorageLogic, true);
+					SetField(ref _isStorageLogistics, true);
 				} 
-				else if(OrderAddressType != OrderAddressType.Service && OrderAddressType != OrderAddressType.ChainStore && value)
+				else if(OrderAddressType != OrderAddressType.Service && OrderAddressType != OrderAddressType.ChainStore && !Client.IsChainStore && value)
 				{
-					SetField(ref isStorageLogic, value);
-					OrderAddressType = OrderAddressType.StorageLogic;
+					SetField(ref _isStorageLogistics, value);
+					OrderAddressType = OrderAddressType.StorageLogistics;
 				}
-				else if(OrderAddressType == OrderAddressType.StorageLogic && !value)
+				else if(OrderAddressType == OrderAddressType.StorageLogistics && !value)
 				{
-					SetField(ref isStorageLogic, false);
+					SetField(ref _isStorageLogistics, false);
 					OrderAddressType = OrderAddressType.Delivery;
 				}
 				else
 				{
-					SetField(ref isStorageLogic, false);
+					SetField(ref _isStorageLogistics, false);
 				}
 			}
 		}
@@ -1103,21 +1104,28 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if(IsStorageLogic && OrderAddressType == OrderAddressType.Service)
+			if(IsStorageLogistics && OrderAddressType == OrderAddressType.Service)
 			{
 				yield return new ValidationResult(
 					"Невозможно создать заказ складской логики с сервисной номенклатурой.",
-					new[] { this.GetPropertyName(o => o.IsStorageLogic) }
+					new[] { this.GetPropertyName(o => o.IsStorageLogistics) }
 				);
 			}
 			
-			if(IsStorageLogic && Client.IsChainStore)
+			if(IsStorageLogistics && Client.IsChainStore)
 			{
 				yield return new ValidationResult(
 					"Невозможно создать заказ со складской логикой для сетевого контрагента.",
-					new[] { this.GetPropertyName(o => o.IsStorageLogic) }
+					new[] { this.GetPropertyName(o => o.IsStorageLogistics) }
 				);
 			}
+
+			if(Client.IsChainStore && OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				yield return new ValidationResult($"Невозможно создать заказ для сетевого магазина, содержащий сервисную номенклатуру!");
+			}
+			
+			
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
@@ -1473,6 +1481,13 @@ namespace Vodovoz.Domain.Orders
 			} else
             {
 				ObservableOrderItems.Remove(orderItem);
+			}
+
+			//Если была удалена последняя номенклатура "мастер" - переходит в стандартный тип адреса
+			if(!OrderItems.Any(x => x.IsMasterNomenclature) && orderItem.IsMasterNomenclature)
+			{
+				OrderAddressType = OrderAddressType.Delivery;
+				IsService = false;
 			}
 
 			UpdateContract();
@@ -1892,8 +1907,8 @@ namespace Vodovoz.Domain.Orders
 			bool IsDeliveryForFree = SelfDelivery
 												  || IsService
 												  || OrderAddressType == OrderAddressType.Service
-												  || OrderAddressType == OrderAddressType.StorageLogic
-												  || IsStorageLogic
+												  || OrderAddressType == OrderAddressType.StorageLogistics
+												  || IsStorageLogistics
 												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
 												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
