@@ -957,9 +957,10 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-			new WarehouseRepository()
-		) {ShowArchive = true};
+		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
+		{
+			ShowArchive = true
+		};
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 			filter,

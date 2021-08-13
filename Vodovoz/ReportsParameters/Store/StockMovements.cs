@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSOrmProject;
 using QSReport;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -30,7 +31,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 			filter = new SelectableParametersReportFilter(UoW);
 			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;

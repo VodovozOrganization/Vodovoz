@@ -25,6 +25,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -102,9 +103,7 @@ namespace Vodovoz
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository()
-			);
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(

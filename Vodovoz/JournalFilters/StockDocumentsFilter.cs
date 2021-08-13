@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
@@ -23,8 +24,21 @@ namespace Vodovoz
 			enumcomboDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
 
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			{
+				yentryrefWarehouse.Sensitive = yentryrefWarehouse.CanEditReference = false;
+				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(6); //Склад Вартемяги
+			}
+			else
+			{
+				if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+				{
+					yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+				}
+			}
+
 			var filter = new EmployeeRepresentationFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
