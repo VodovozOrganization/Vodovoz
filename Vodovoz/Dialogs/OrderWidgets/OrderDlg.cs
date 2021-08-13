@@ -255,9 +255,9 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			ConfigureDlg();
-			if(Entity.OrderAddressType == OrderAddressType.StorageLogic)
+			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
-				Entity.IsStorageLogic = true;
+				Entity.IsStorageLogistics = true;
 			}
 		}
 
@@ -313,6 +313,7 @@ namespace Vodovoz
 			Entity.SumDifferenceReason = templateOrder.SumDifferenceReason;
 			Entity.Trifle = templateOrder.Trifle;
 			Entity.IsService = templateOrder.IsService;
+			Entity.OrderAddressType = templateOrder.OrderAddressType;
 			Entity.Contract = templateOrder.Contract;
 			Entity.ReturnTareReasonCategory = templateOrder.ReturnTareReasonCategory;
 			Entity.ReturnTareReason = templateOrder.ReturnTareReason;
@@ -344,6 +345,7 @@ namespace Vodovoz
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.ClientPhone = templateOrder.ClientPhone;
 			Entity.IsService = templateOrder.IsService;
+			Entity.OrderAddressType = templateOrder.OrderAddressType;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
 			Entity.CopyDocumentsFrom(templateOrder);
@@ -622,13 +624,13 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
-			ycheckStorageLogic.Binding.AddBinding(Entity, e => e.IsStorageLogic, w => w.Active).InitializeFromSource();
+			ycheckStorageLogic.Binding.AddBinding(Entity, e => e.IsStorageLogistics, w => w.Active).InitializeFromSource();
 
 			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
 
-			if(Entity.OrderAddressType == OrderAddressType.StorageLogic)
+			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
-				Entity.IsStorageLogic = true;
+				Entity.IsStorageLogistics = true;
 			}
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
@@ -1840,6 +1842,7 @@ namespace Vodovoz
 			if(treeItems.GetSelectedObject() is OrderItem orderItem) {
 				RemoveOrderItem(orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
+				if(orderItem.IsMasterNomenclature )
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
 				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObject() != null;
