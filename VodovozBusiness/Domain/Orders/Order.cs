@@ -1542,8 +1542,9 @@ namespace Vodovoz.Domain.Orders
 			if(Client == null) {
 				return;
 			}
-			
-			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this, SingletonErrorReporter.Instance);
+
+			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this,
+				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
 			if(counterpartyContract == null) {
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
