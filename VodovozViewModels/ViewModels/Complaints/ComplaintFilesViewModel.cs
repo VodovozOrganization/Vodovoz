@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Complaints
 								$"Слишком длинное имя файла: {complaintFile.FileStorageId} " +
 								$"({complaintFile.FileStorageId.Length} символов).\n" +
 								"Оно не должно превышать 45 символов, включая расширение (.txt, .png и т.д.).");
-							return;
+							continue;
 						}
 
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
