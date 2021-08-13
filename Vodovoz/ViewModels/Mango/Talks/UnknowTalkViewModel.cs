@@ -24,7 +24,7 @@ using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public class UnknownTalkViewModel : TalkViewModelBase
+	public class UnknowTalkViewModel : TalkViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IInteractiveQuestion _interactive;
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
 		
-		public UnknownTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
+		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
 			MangoManager manager,
