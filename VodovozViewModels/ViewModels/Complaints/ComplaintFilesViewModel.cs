@@ -46,20 +46,29 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateAddItemCommand()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
+					if(!filePicker.OpenSelectFilePicker(out string[] filePaths))
+					{
+						return;
+					}
 
-					if(filePicker.OpenSelectFilePicker(out string filePath)) {
-						var complaintFile = new ComplaintFile();
-						complaintFile.FileStorageId = Path.GetFileName(filePath);
+					foreach(var filePath in filePaths)
+					{
+						var complaintFile = new ComplaintFile
+						{
+							FileStorageId = Path.GetFileName(filePath)
+						};
 
 						if (complaintFile.FileStorageId.Length > 45) {
 							CommonServices.InteractiveService.ShowMessage(
-								ImportanceLevel.Warning, 
-								"Слишком длинное имя файла.\n" +
+								ImportanceLevel.Warning,
+								$"Слишком длинное имя файла: {complaintFile.FileStorageId} " +
+								$"({complaintFile.FileStorageId.Length} символов).\n" +
 								"Оно не должно превышать 45 символов, включая расширение (.txt, .png и т.д.).");
 							return;
 						}
-						
+
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
 						Entity.AddFile(complaintFile);
 					}
