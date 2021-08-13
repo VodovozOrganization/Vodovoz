@@ -372,9 +372,7 @@ public partial class MainWindow : Window
 
 	private void ActionWarehousesBalanceSummary_Activated(object sender, EventArgs e)
 	{
-		var viewModel = new WarehousesBalanceSummaryViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService,
-			NavigationManager);
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
