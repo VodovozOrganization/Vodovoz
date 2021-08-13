@@ -55,6 +55,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			bool canChangeEmployee, ExpenseType expenseType)
 		{
 			var dlg = new CashExpenseDlg(permissionService);
+			if(dlg.FailInitialize)
+			{
+				return;
+			}
+
 			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
 			master.TabParent.AddTab(dlg, master);
 		}

@@ -5,6 +5,7 @@ using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -382,13 +383,8 @@ public partial class MainWindow : Window
 		var subdivisionRepository = autofacScope.Resolve<ISubdivisionRepository>();
 		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
 
-		var gtkTabsOpener = autofacScope.Resolve<IGtkTabsOpener>();
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var commonServices = autofacScope.Resolve<ICommonServices>();
-		var permissionService = autofacScope.Resolve<IPermissionService>();
-		var journal = new SalaryByEmployeeJournalViewModel(filter, gtkTabsOpener, permissionService, uowFactory, commonServices);
-		journal.SelectionMode = JournalSelectionMode.Single;
-		tdiMain.AddTab(journal);
+		var page = NavigationManager.OpenViewModel<SalaryByEmployeeJournalViewModel, SalaryByEmployeeJournalFilterViewModel>(null, filter);
+		page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
