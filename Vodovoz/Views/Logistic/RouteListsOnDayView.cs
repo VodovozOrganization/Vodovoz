@@ -141,11 +141,11 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDrivers = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().ToArray();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
-			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<AddressTypeNode>.Create()
+			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<OrderAddressTypeNode>.Create()
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.AddColumn("Тип адресов").AddTextRenderer(x => x.Title)
 				.Finish();
-			ytreeviewAddressesTypes.ItemsDataSource = ViewModel.AddressTypes;
+			ytreeviewAddressesTypes.ItemsDataSource = ViewModel.OrderAddressTypes;
 
 
 			buttonAddDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
