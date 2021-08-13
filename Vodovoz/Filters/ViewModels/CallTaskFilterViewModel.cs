@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.Commands;
 using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -10,12 +11,16 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class CallTaskFilterViewModel : FilterViewModelBase<CallTaskFilterViewModel>
 	{
-		public CallTaskFilterViewModel()
+		public CallTaskFilterViewModel(IEntityAutocompleteSelectorFactory employeeAutocompleteSelectorFactory)
 		{
+			EmployeeAutocompleteSelectorFactory =
+				employeeAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(employeeAutocompleteSelectorFactory));
 			StartDate = DateTime.Today.AddDays(-14);
 			EndDate = DateTime.Today.AddDays(14);
 			CreateCommands();
 		}
+		
+		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
 
 		private DateTime startDate;
 		public DateTime StartDate {

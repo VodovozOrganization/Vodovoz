@@ -8,7 +8,9 @@ using QSReport;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -23,9 +25,10 @@ namespace Vodovoz.ReportsParameters.Store
 			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
 			yEnumCmbSource.AddEnumToHideList(new Enum[] { DefectSource.None });
 
-			var driversFilter = new EmployeeFilterViewModel();
-			driversFilter.RestrictCategory = EmployeeCategory.driver;
-			driversFilter.Status = EmployeeStatus.IsWorking;
+			var driversFilter = new EmployeeRepresentationFilterViewModel
+			{
+				RestrictCategory = EmployeeCategory.driver, Status = EmployeeStatus.IsWorking
+			};
 			yEntryRefDriver.RepresentationModel = new EmployeesVM(driversFilter);
 
 			datePeriod.StartDate = datePeriod.EndDate = DateTime.Today;

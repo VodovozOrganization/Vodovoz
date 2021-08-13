@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -13,11 +12,8 @@ using QS.DomainModel.UoW;
 using QS.Osm;
 using QS.Osm.DTO;
 using QS.Osm.Loaders;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QSProjectsLib;
 using QS.Validation;
-using Vodovoz.Dialogs.Phones;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -26,7 +22,6 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using QS.Tdi;
-using QSOsm;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
@@ -37,9 +32,13 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
+using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz
 {
+	[Obsolete("Есть новый диалог на MVVM DeliveryPointViewModel, этот диалог пока используется для открытия в representationEntry")]
 	public partial class DeliveryPointDlg : EntityDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
@@ -470,12 +469,6 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnRadioCommentsToggled(object sender, EventArgs e)
-		{
-			if(radioComments.Active)
-				notebook1.CurrentPage = 1;
-		}
-
 		private void OnRadioFixedPricesToggled(object sender, EventArgs e)
 		{
 			if (radioFixedPrices.Active)
@@ -484,7 +477,7 @@ namespace Vodovoz
 		
 		public void OpenFixedPrices()
 		{
-			notebook1.CurrentPage = 2;
+			notebook1.CurrentPage = 1;
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)

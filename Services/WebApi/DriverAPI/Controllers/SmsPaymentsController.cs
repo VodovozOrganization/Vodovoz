@@ -14,11 +14,11 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class SmsPaymentsController : ControllerBase
 	{
-		private readonly ILogger<SmsPaymentsController> logger;
-		private readonly ISmsPaymentModel aPISmsPaymentData;
-		private readonly SmsPaymentStatusConverter smsPaymentConverter;
-		private readonly ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper;
-		private readonly IOrderModel aPIOrderData;
+		private readonly ILogger<SmsPaymentsController> _logger;
+		private readonly ISmsPaymentModel _aPISmsPaymentData;
+		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
+		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
+		private readonly IOrderModel _aPIOrderData;
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
 			ISmsPaymentModel aPISmsPaymentData,
@@ -26,11 +26,11 @@ namespace DriverAPI.Controllers
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
 			IOrderModel aPIOrderData)
 		{
-			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this.aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
-			this.smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
-			this.smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
-			this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
+			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
+			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
+			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 		}
 
 		/// <summary>
@@ -42,15 +42,15 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrderSmsPaymentStatus")]
 		public OrderPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
-			var additionalInfo = aPIOrderData.GetAdditionalInfo(orderId)
+			var additionalInfo = _aPIOrderData.GetAdditionalInfo(orderId)
 				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
 
 			var response = new OrderPaymentStatusResponseDto()
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
-				SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
-					aPISmsPaymentData.GetOrderPaymentStatus(orderId)
+				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(
+					_aPISmsPaymentData.GetOrderPaymentStatus(orderId)
 				)
 			};
 
@@ -65,7 +65,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
-			smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
+			_smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
 		}
 	}
 }
