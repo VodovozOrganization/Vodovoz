@@ -17,7 +17,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFilePickerService _filePicker;
 		private bool _readOnly;
 
-		public virtual bool ReadOnly {
+		public virtual bool ReadOnly
+		{
 			get => _readOnly;
 			set => SetField(ref _readOnly, value, () => ReadOnly);
 		}
@@ -61,7 +62,8 @@ namespace Vodovoz.ViewModels.Complaints
 							FileStorageId = Path.GetFileName(filePath)
 						};
 
-						if (complaintFile.FileStorageId.Length > 45) {
+						if(complaintFile.FileStorageId.Length > 45)
+						{
 							CommonServices.InteractiveService.ShowMessage(
 								ImportanceLevel.Warning,
 								$"Слишком длинное имя файла: {complaintFile.FileStorageId} " +
@@ -131,7 +133,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateLoadItemCommand()
 		{
 			LoadItemCommand = new DelegateCommand<ComplaintFile>(
-				(file) => {
+				(file) =>
+				{
 					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
 					{
 						File.WriteAllBytes(filePath, file.ByteFile);
