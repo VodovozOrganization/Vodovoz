@@ -1274,6 +1274,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Гарантийный талон").AddTextRenderer(node => node.WarrantyCardType.GetEnumTitle())
 					.Finish()
 			);
+
+			//ProductGroupJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ProductGroupJournalViewModel>(
+				() => FluentColumnsConfig<ProductGroupJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsArchive ? "grey" : "black")
+					.Finish()
+			);
 		}
 	}
 }
