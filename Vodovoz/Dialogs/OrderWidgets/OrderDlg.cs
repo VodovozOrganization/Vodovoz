@@ -312,7 +312,6 @@ namespace Vodovoz
 			Entity.SignatureType = templateOrder.SignatureType;
 			Entity.SumDifferenceReason = templateOrder.SumDifferenceReason;
 			Entity.Trifle = templateOrder.Trifle;
-			Entity.IsService = templateOrder.IsService;
 			Entity.OrderAddressType = templateOrder.OrderAddressType;
 			Entity.Contract = templateOrder.Contract;
 			Entity.ReturnTareReasonCategory = templateOrder.ReturnTareReasonCategory;
@@ -344,7 +343,6 @@ namespace Vodovoz
 			Entity.Client = templateOrder.Client;
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.IsService = templateOrder.IsService;
 			Entity.OrderAddressType = templateOrder.OrderAddressType;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
@@ -624,9 +622,8 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
-			ycheckStorageLogic.Binding.AddBinding(Entity, e => e.IsStorageLogistics, w => w.Active).InitializeFromSource();
 
-			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
+			//FEDOS
 
 			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
@@ -635,6 +632,7 @@ namespace Vodovoz
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 
+			//FEDOS суда логику по отображению кнопок, подписаться на изменение свойства OrderAddressType
 			Entity.PropertyChanged += (sender, args) =>
 			{
 				switch(args.PropertyName)
@@ -662,6 +660,9 @@ namespace Vodovoz
 								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
 							}
 						}
+						break;
+					case nameof(Order.OrderAddressType):
+						
 						break;
 				}
 			};
@@ -1691,7 +1692,6 @@ namespace Vodovoz
 			}
 			
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
-			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
 		}
 
 		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -2578,7 +2578,6 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
 			ycheckPaymentBySms.Sensitive = val;
-			ycheckStorageLogic.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
@@ -2588,7 +2587,6 @@ namespace Vodovoz
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
 			lblTax.Visible = enumTax.Visible = val && IsEnumTaxVisible();
-			ycheckStorageLogic.Visible = ChecksForVisibilityOfStorageLogic();
 
 			if(Entity != null)
 				yCmbPromoSets.Sensitive = val;
@@ -2895,7 +2893,7 @@ namespace Vodovoz
 
 		private void AddRent(RentType rentType)
 		{
-			if (Entity.IsService) {
+			if (Entity.OrderAddressType == OrderAddressType.Service) {
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Error, 
 					"Нельзя добавлять аренду в сервисный заказ", 
