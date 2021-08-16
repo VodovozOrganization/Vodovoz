@@ -195,8 +195,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			if(nomsSelected && !allNomsSelected)
 			{
-				inQuery.Where(Restrictions.In(Projections.Property(() => inAlias.Nomenclature.Id), nomsIds));
-				woQuery.Where(Restrictions.In(Projections.Property(() => woAlias.Nomenclature.Id), nomsIds));
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
