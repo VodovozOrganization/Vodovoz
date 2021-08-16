@@ -41,7 +41,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.InformationOnTara)                 .Column("information_on_tara");
 			Map(x => x.OnRouteEditReason)                 .Column("on_route_edit_reason");
 			Map(x => x.DriverCallId)                      .Column("driver_call_id");
-			Map(x => x.IsService)                         .Column("service");
 			Map(x => x.Trifle)                            .Column("trifle");
 			Map(x => x.OnlineOrder)                       .Column("online_order");
 			Map(x => x.ToClientText)                      .Column("to_client_text");

@@ -141,11 +141,6 @@ namespace ServiceDialogs.LoadFrom1c
 				oldOrder.ClientPhone = newOrder.ClientPhone;
 			}
 
-			if(oldOrder.IsService != newOrder.IsService) {
-				result.Add(new FieldChange("Изменено поле 'Сервисное обслуживание'", oldOrder.IsService ? "Да" : "Нет", newOrder.IsService ? "Да" : "Нет"));
-				oldOrder.IsService = newOrder.IsService;
-			}
-			
 			if (oldOrder.OrderAddressType != newOrder.OrderAddressType)
 			{
 				result.Add(new FieldChange("Изменен тип адреса доставки", oldOrder.OrderAddressType.ToString(), newOrder.OrderAddressType.ToString()));
