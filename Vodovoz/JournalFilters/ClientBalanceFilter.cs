@@ -1,6 +1,5 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QSOrmProject;
@@ -8,8 +7,13 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.JournalSelector;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz
 {
@@ -21,18 +25,12 @@ namespace Vodovoz
 		
 		protected override void ConfigureWithUow()
 		{
-			userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
-			
-			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-			entryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(),
+					new NomenclatureRepository(new NomenclatureParametersProvider()), UserSingletonRepository.GetInstance()));
 
-			if(userHasOnlyAccessToWarehouseAndComplaints)
-			{
-				entryreferenceNomenclature.CanEditReference = entryreferencePoint.CanEditReference = false;
-			}
+			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 		}
 
 		public ClientBalanceFilter(IUnitOfWork uow) : this()
@@ -54,10 +52,10 @@ namespace Vodovoz
 		}
 
 		public Nomenclature RestrictNomenclature {
-			get { return entryreferenceNomenclature.Subject as Nomenclature; }
+			get { return nomenclatureEntry.Subject as Nomenclature; }
 			set {
-				entryreferenceNomenclature.Subject = value;
-				entryreferenceNomenclature.Sensitive = false;
+				nomenclatureEntry.Subject = value;
+				nomenclatureEntry.Sensitive = false;
 			}
 		}
 
