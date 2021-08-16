@@ -248,6 +248,7 @@ namespace Vodovoz
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			IsForRetail = Entity.Client.IsForRetail;
 			CheckForStopDelivery();
+			OrderAddressTypeChanged();
 		}
 
 		public OrderDlg(int id)
@@ -256,10 +257,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			ConfigureDlg();
-			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
-			{
-				Entity.IsStorageLogistics = true;
-			}
+			OrderAddressTypeChanged();
 		}
 
 		public OrderDlg(Order sub) : this(sub.Id)
@@ -288,6 +286,7 @@ namespace Vodovoz
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
 			}
+			OrderAddressTypeChanged();
 		}
 
 		public void CopyOrderFrom(int id)
@@ -335,6 +334,7 @@ namespace Vodovoz
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
+			OrderAddressTypeChanged();
 		}
 		
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -352,6 +352,7 @@ namespace Vodovoz
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
+			OrderAddressTypeChanged();
 		}
 
 		public void ConfigureDlg()
@@ -624,16 +625,10 @@ namespace Vodovoz
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 
-			//FEDOS
-
-			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
-			{
-				Entity.IsStorageLogistics = true;
-			}
+			OrderAddressTypeChanged();
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 
-			//FEDOS суда логику по отображению кнопок, подписаться на изменение свойства OrderAddressType
 			Entity.PropertyChanged += (sender, args) =>
 			{
 				switch(args.PropertyName)
@@ -661,9 +656,14 @@ namespace Vodovoz
 								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
 							}
 						}
+						if(Entity.Client != null && Entity.Client.IsChainStore)
+						{
+							Entity.OrderAddressType = OrderAddressType.ChainStore;
+						}
+						OrderAddressTypeChanged();
 						break;
-					case nameof(Order.OrderAddressType):
-						
+					case nameof(Entity.OrderAddressType):
+						OrderAddressTypeChanged();
 						break;
 				}
 			};
@@ -1843,7 +1843,10 @@ namespace Vodovoz
 			if(treeItems.GetSelectedObject() is OrderItem orderItem) {
 				RemoveOrderItem(orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
-				if(orderItem.IsMasterNomenclature )
+				if(orderItem.IsMasterNomenclature && Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+				{
+					Entity.OrderAddressType = OrderAddressType.Delivery;
+				}
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
 				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObject() != null;
@@ -3067,10 +3070,52 @@ namespace Vodovoz
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
+			if(Entity.OrderAddressType == OrderAddressType.Delivery 
+			   && !Entity.Client.IsChainStore 
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+			}
 		}
 
 		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
 		{
+			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics 
+			   && !Entity.Client.IsChainStore 
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				Entity.OrderAddressType = OrderAddressType.Delivery;
+			}
+		}
+
+		private void OrderAddressTypeChanged()
+		{
+			if(Entity.Client != null && !Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature) && Entity.OrderAddressType != OrderAddressType.StorageLogistics)
+			{
+				Entity.OrderAddressType = OrderAddressType.Delivery;
+				ybuttonToDeliveryAddressType.Visible = true;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			if(Entity.OrderAddressType == OrderAddressType.Delivery)
+			{
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = true;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
+			{
+				ybuttonToDeliveryAddressType.Visible = true;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.Service)
+			{
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			} 
+			else if(Entity.OrderAddressType == OrderAddressType.ChainStore)
+			{
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
 		}
 
 		#endregion FreeRent
