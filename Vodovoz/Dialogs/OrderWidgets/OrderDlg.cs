@@ -230,7 +230,8 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			if(Entity.Author == null)
+			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
@@ -242,7 +243,7 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
-		public OrderDlg(Counterparty client) :this()
+		public OrderDlg(Counterparty client) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			IsForRetail = Entity.Client.IsForRetail;
@@ -2961,7 +2962,8 @@ namespace Vodovoz
 		
 		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
-			if (rentType == RentType.FreeRent) {
+			if(rentType == RentType.FreeRent)
+			{
 				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
 			}
 			var interactiveService = ServicesConfig.InteractiveService;
@@ -2977,7 +2979,8 @@ namespace Vodovoz
 				}
 			}
 
-			switch (rentType) {
+			switch(rentType)
+			{
 				case RentType.NonfreeRent:
 					Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
 					break;
@@ -2993,11 +2996,14 @@ namespace Vodovoz
 
 		private void SelectFreeRentPackage()
 		{
-			var ormReference = new OrmReference(typeof(FreeRentPackage)) {
+			var ormReference = new OrmReference(typeof(FreeRentPackage))
+			{
 				Mode = OrmReferenceMode.Select
 			};
-			ormReference.ObjectSelected += (sender, e) => {
-				if (!(e.Subject is FreeRentPackage selectedRentPackage)) {
+			ormReference.ObjectSelected += (sender, e) =>
+			{
+				if(!(e.Subject is FreeRentPackage selectedRentPackage))
+				{
 					return;
 				}
 				var rentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
@@ -3008,23 +3014,27 @@ namespace Vodovoz
 
 		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
 		{
-			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+			if(ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?"))
+			{
 				var existingItems = Entity.OrderEquipments
 					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
 					.Select(x => x.Nomenclature.Id)
 					.Distinct()
 					.ToArray();
-				
+
 				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
 				AddFreeRent(freeRentPackage, anyNomenclature);
 			}
-			else {
+			else
+			{
 				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentKind));
 				selectDialog.Mode = JournalSelectMode.Single;
 				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) => {
+				selectDialog.ObjectSelected += (sender, e) =>
+				{
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null) {
+					if(selectedNode == null)
+					{
 						return;
 					}
 					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
@@ -3033,23 +3043,34 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
 		}
-		
+
 		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
 		{
 			var interactiveService = ServicesConfig.InteractiveService;
-			if(equipmentNomenclature == null) {
+			if(equipmentNomenclature == null)
+			{
 				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
 			}
 
 			var stock = StockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
-			if(stock <= 0) {
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+			if(stock <= 0)
+			{
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+				{
 					return;
 				}
 			}
 
 			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
+		}
+
+		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
+		{
 		}
 
 		#endregion FreeRent
