@@ -214,7 +214,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Add<BalanceBean>("wo", woQuery)
 				.Add<decimal>("ms", msQuery);
 
-			await batch.ExecuteAsync(cancellationToken);
 			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
 			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
