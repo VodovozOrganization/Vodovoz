@@ -725,6 +725,8 @@ namespace Vodovoz
 						.AddClearDependence<Order>(x => x.PaymentByCardFrom)
 						;
 
+			DeleteConfig.AddHibernateDeleteInfo<UndeliveryTransferAbsenceReason>();
+
 			#endregion
 
 			#region Недовозы

@@ -30,6 +30,7 @@ namespace Vodovoz.HibernateMapping.Order
 			References(x => x.Author).Column("author_employee_id");
 			References(x => x.LastEditor).Column("editor_employee_id");
 			References(x => x.ProblemSource).Column("undelivery_problem_source_id");
+			References(x => x.UndeliveryTransferAbsenceReason).Column("undelivery_transfer_absence_reason_id");
 
 			HasMany(x => x.Fines).Inverse().KeyColumn("undelivery_id");
 			HasMany(x => x.GuiltyInUndelivery).Cascade.AllDeleteOrphan().Inverse().KeyColumn("undelivery_id");
