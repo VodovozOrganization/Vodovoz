@@ -132,7 +132,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				}
 			}
 
-			if(typesSelected && !nomsSelected)
+			if(!nomsSelected && !groupsSelected)
 			{
 				noms?.AddRange(nomsSet.Parameters);
 			}
@@ -154,6 +154,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var inQuery = localUow.Session.QueryOver(() => inAlias)
 				.Where(() => inAlias.OperationTime <= endDate)
+				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => inAlias.IncomingWarehouse.Id), warsIds))
 				.SelectList(list => list
@@ -167,6 +168,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var woQuery = localUow.Session.QueryOver(() => woAlias)
 				.Where(() => woAlias.OperationTime <= endDate)
+				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteoffWarehouse.Id), warsIds))
 				.SelectList(list => list
@@ -179,15 +181,16 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
 			var msQuery = localUow.Session.QueryOver(() => nomAlias)
-				.Select(n => n.MinStockCount);
+				.WhereNot(() => nomAlias.IsArchive)
+				.Select(n => n.MinStockCount)
+				.OrderBy(n => n.Id).Asc;
 
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
-				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds))
-					.AndNot(() => nomAlias.IsArchive);
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
@@ -195,6 +198,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				inQuery.Where(Restrictions.In(Projections.Property(() => inAlias.Nomenclature.Id), nomsIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => woAlias.Nomenclature.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+			}
+
+			if(groupsSelected)
+			{
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			#endregion
