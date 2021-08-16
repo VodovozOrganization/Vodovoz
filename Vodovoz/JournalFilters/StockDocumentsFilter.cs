@@ -29,14 +29,11 @@ namespace Vodovoz
 			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
 			{
 				yentryrefWarehouse.Sensitive = yentryrefWarehouse.CanEditReference = false;
-				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(6); //Склад Вартемяги
 			}
-			else
+			
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 			{
-				if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				{
-					yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-				}
+				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			}
 
 			var filter = new EmployeeRepresentationFilterViewModel();

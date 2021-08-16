@@ -12,10 +12,6 @@ namespace Vodovoz.FilterViewModels.Goods
 	{
 		public NomenclatureStockFilterViewModel(IEntityAutocompleteSelectorFactory warehouseSelectorFactory)
 		{
-			/*if(warehouseRepository == null) {
-				throw new ArgumentNullException(nameof(warehouseRepository));
-			}*/
-			//AvailableWarehouses = warehouseRepository.GetActiveWarehouse(UoW);
 			WarehouseSelectorFactory = warehouseSelectorFactory ?? throw new ArgumentNullException(nameof(warehouseSelectorFactory));
 		}
 

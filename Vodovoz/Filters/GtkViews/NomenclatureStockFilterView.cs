@@ -23,10 +23,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.Warehouse, w => w.Subject)
 				.AddBinding(vm => vm.CanChangeWarehouse, w => w.Sensitive)
 				.InitializeFromSource();
-			//comboWarehouse.SetRenderTextFunc<Warehouse>(x => x.Name);
-			//comboWarehouse.Binding.AddBinding(ViewModel, vm => vm.AvailableWarehouses, w => w.ItemsList).InitializeFromSource();
-			//comboWarehouse.Binding.AddBinding(ViewModel, vm => vm.Warehouse, w => w.SelectedItem).InitializeFromSource();
-			//comboWarehouse.Binding.AddBinding(ViewModel, vm => vm.CanChangeWarehouse, w => w.Sensitive).InitializeFromSource();
 
 			checkShowArchive.Binding.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active).InitializeFromSource();
 			checkShowArchive.Binding.AddBinding(ViewModel, vm => vm.CanChangeShowArchive, w => w.Sensitive).InitializeFromSource();

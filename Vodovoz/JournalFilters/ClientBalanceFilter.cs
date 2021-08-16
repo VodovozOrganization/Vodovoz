@@ -1,6 +1,8 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
@@ -15,10 +17,22 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
+		private bool userHasOnlyAccessToWarehouseAndComplaints;
+		
 		protected override void ConfigureWithUow()
 		{
+			userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			
 			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			entryClient.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+
+			if(userHasOnlyAccessToWarehouseAndComplaints)
+			{
+				entryreferenceNomenclature.CanEditReference = entryreferencePoint.CanEditReference = false;
+			}
 		}
 
 		public ClientBalanceFilter(IUnitOfWork uow) : this()
