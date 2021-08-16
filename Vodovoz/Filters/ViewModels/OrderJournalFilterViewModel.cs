@@ -2,17 +2,23 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Project.Filter;
-using QS.Project.Services;
+using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
 	{
+		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+
 		public OrderJournalFilterViewModel()
 		{
 			DaysToBack = -CurrentUserSettings.Settings.JournalDaysToAft;
@@ -140,9 +146,13 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual Counterparty RestrictCounterparty {
 			get => restrictCounterparty;
 			set {
-				if(SetField(ref restrictCounterparty, value, () => RestrictCounterparty)) {
+				if(UpdateFilterField(ref restrictCounterparty, value, () => RestrictCounterparty)) {
 					UpdateDeliveryPointRepresentationModel();
-					Update();
+					_deliveryPointJournalFilterViewModel.Counterparty = value;
+					if(value == null)
+					{
+						RestrictDeliveryPoint = null;
+					}
 					CanChangeCounterparty = false;
 				}
 			}
@@ -222,6 +232,16 @@ namespace Vodovoz.Filters.ViewModels
 			get => isForRetail;
 			set => SetField(ref isForRetail, value);
 		}
+
+		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory =>
+			_deliveryPointSelectorFactory ?? (_deliveryPointSelectorFactory =
+				new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel)
+					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+
+		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
+			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
+				new CounterpartyJournalFactory()
+					.CreateCounterpartyAutocompleteSelectorFactory());
 
 		#region Selfdelivery
 

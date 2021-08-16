@@ -8,6 +8,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -29,11 +30,18 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboPaymentType.ItemsEnum = typeof(PaymentType);
 			enumcomboPaymentType.Binding.AddBinding(ViewModel, vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
-			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject).InitializeFromSource();
+			entryCounterparty.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CounterpartySelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject)
+				.InitializeFromSource();
 
-			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.RepresentationModel).InitializeFromSource();
-			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.Sensitive, new NullToBooleanConverter()).InitializeFromSource();
+			entryDeliveryPoint.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.RestrictDeliveryPoint, w => w.Subject)
+				.AddFuncBinding(vm => vm.CanChangeDeliveryPoint && vm.RestrictCounterparty != null, w => w.Sensitive)
+				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.InitializeFromSource();
 
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
@@ -66,7 +74,6 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboStatus.Sensitive = ViewModel.CanChangeStatus;
 			enumcomboPaymentType.Sensitive = ViewModel.CanChangePaymentType;
 			entryCounterparty.Sensitive = ViewModel.CanChangeCounterparty;
-			representationentryDeliveryPoint.Sensitive = ViewModel.CanChangeDeliveryPoint && ViewModel.RestrictCounterparty != null;
 			dateperiodOrders.Sensitive = ViewModel.CanChangeStartDate && ViewModel.CanChangeEndDate;
 			ycheckOnlySelfdelivery.Sensitive = ViewModel.CanChangeOnlySelfDelivery;
 			ycheckWithoutSelfdelivery.Sensitive = ViewModel.CanChangeWithoutSelfDelivery;
