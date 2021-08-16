@@ -1152,7 +1152,7 @@ namespace Vodovoz
 			w66.LeftAttach = ((uint)(2));
 			w66.RightAttach = ((uint)(3));
 			w66.XOptions = ((global::Gtk.AttachOptions)(4));
-			w66.YOptions = ((global::Gtk.AttachOptions)(4));
+			w66.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.ybuttonToStorageLogicAddressType = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonToStorageLogicAddressType.CanFocus = true;
@@ -1166,7 +1166,7 @@ namespace Vodovoz
 			w67.LeftAttach = ((uint)(2));
 			w67.RightAttach = ((uint)(3));
 			w67.XOptions = ((global::Gtk.AttachOptions)(4));
-			w67.YOptions = ((global::Gtk.AttachOptions)(4));
+			w67.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckContactlessDelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckContactlessDelivery.CanFocus = true;
@@ -2401,7 +2401,6 @@ namespace Vodovoz
 			this.toggleEquipment.Hide();
 			this.toggleService.Hide();
 			this.labelProxyInfo.Hide();
-			this.ycheckPaymentBySms.Hide();
 			this.lblTareReturned.Hide();
 			this.entryTareReturned.Hide();
 			this.hboxReasons.Hide();
