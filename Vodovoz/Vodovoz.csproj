@@ -1661,7 +1661,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\GammaBinding\Gamma.Utilities\Gamma.Utilities.csproj">
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>
     </ProjectReference>
@@ -1713,9 +1713,9 @@
       <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
       <Name>QSReport</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
-      <Name>GammaBinding</Name>
+      <Name>Gamma.Binding</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
       <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
