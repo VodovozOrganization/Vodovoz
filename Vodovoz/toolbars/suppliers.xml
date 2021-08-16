@@ -3,5 +3,6 @@
         <toolitem name='ActionNewRequestToSupplier' action='ActionNewRequestToSupplier'/>
         <toolitem name='ActionJournalOfRequestsToSuppliers' action='ActionJournalOfRequestsToSuppliers'/>
         <toolitem name='ActionExportImportNomenclatureCatalog' action='ActionExportImportNomenclatureCatalog'/>
+        <toolitem name='ActionWarehousesBalanceSummary' action='ActionWarehousesBalanceSummary'/>
     </toolbar>
 </ui>

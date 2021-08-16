@@ -987,8 +987,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
-    <Compile Include="DriverTerminal\DriverTerminalWindow.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DriverTerminal.DriverTerminalWindow.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
     <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
@@ -1476,7 +1474,7 @@
     <Compile Include="Views\Mango\IncomingCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
-    <Compile Include="ViewModels\Mango\Talks\UnknownTalkViewModel.cs" />
+    <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
     <Compile Include="Views\Mango\Talks\UnknowTalkView.cs" />
     <Compile Include="ViewModels\Mango\Talks\TalkViewModelBase.cs" />
@@ -1598,8 +1596,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
     <Compile Include="Filters\GtkViews\NomenclaturePlanFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturePlanFilterView.cs" />
-    <Compile Include="ReportsParameters\Orders\NomenclaturePlanReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.NomenclaturePlanReport.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.cs" />
     <Compile Include="Views\Reports\OrderAnalyticsReportView.cs" />
@@ -1644,10 +1640,24 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.DeliveryPointView.cs" />
     <Compile Include="Views\Flyers\FlyerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Flyers.FlyerView.cs" />
+    <Compile Include="Views\Employees\TerminalManagementView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.TerminalManagementView.cs" />
+    <Compile Include="Filters\GtkViews\NomenclatureBalanceByStockFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureBalanceByStockFilterView.cs" />
+    <Compile Include="Views\Employees\DriverAttachedTerminalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.DriverAttachedTerminalView.cs" />
     <Compile Include="Views\Goods\EquipmentKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
+    <Compile Include="Views\Suppliers\WarehousesBalanceSummaryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
+    <Compile Include="Views\Goods\ProductGroupView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.ProductGroupView.cs" />
+    <Compile Include="Filters\GtkViews\ProductGroupJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupJournalFilterView.cs" />
+    <Compile Include="Views\Reports\NomenclaturePlanReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.NomenclaturePlanReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1862,7 +1872,6 @@
     <Folder Include="ReportsParameters\Bottles\" />
     <Folder Include="Reports\Bottles\" />
     <Folder Include="Dialogs\OnlineStore\" />
-    <Folder Include="DriverTerminal\" />
     <Folder Include="icons\map\points\" />
     <Folder Include="ReportsParameters\Payments\" />
     <Folder Include="Core\Journal\" />
@@ -1900,9 +1909,7 @@
     <Folder Include="ViewModels\FuelDocuments\" />
     <Folder Include="icons\buttons\NullableCheckBox\" />
     <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
-    <Folder Include="Views\Warehouses\" />
     <Folder Include="TempAdapters\" />
-    <Folder Include="Views\ForAdministrators\" />
     <Folder Include="Views\Orders\" />
     <Folder Include="ViewModels\Orders\" />
     <Folder Include="ViewWidgets\PromoSetAction\" />
@@ -1942,7 +1949,6 @@
     <Folder Include="Views\Proposal\" />
     <Folder Include="JournalFilters\Proposal\" />
     <Folder Include="Views\Security\" />
-    <Folder Include="JournalViewers\Retail\" />
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
@@ -2063,8 +2069,8 @@
     <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Orders\NomenclaturePlanReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="Reports\Orders\NomenclaturePlanReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\OrderChangesReport.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
