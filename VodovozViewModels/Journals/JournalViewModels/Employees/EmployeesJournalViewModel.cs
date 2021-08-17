@@ -27,6 +27,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
@@ -45,6 +46,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory;
+		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly UserSettings _userSettings;
@@ -66,6 +68,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			UserSettings userSettings,
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -89,6 +92,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
+			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
@@ -315,6 +319,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_phonesViewModelFactory,
 			_warehouseRepository,
 			_routeListRepository,
+			_driverApiUserRegisterEndpoint,
 			_userSettings);
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
@@ -335,6 +340,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_phonesViewModelFactory,
 				_warehouseRepository,
 				_routeListRepository,
+				_driverApiUserRegisterEndpoint,
 				_userSettings);
 	}
 }

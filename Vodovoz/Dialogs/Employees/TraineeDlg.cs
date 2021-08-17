@@ -28,6 +28,8 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using VodovozInfrastructure.Endpoints;
+using Microsoft.Extensions.Configuration;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -188,6 +190,14 @@ namespace Vodovoz.Dialogs.Employees
 			var employeeUow = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			Personnel.ChangeTraineeToEmployee(employeeUow, Entity);
 
+			var cs = new ConfigurationSection(null, "");
+
+			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
+
+			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+
+			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
+
 			var employeeViewModel = new EmployeeViewModel(
 				_authorizationService,
 				_employeeWageParametersFactory,
@@ -205,6 +215,7 @@ namespace Vodovoz.Dialogs.Employees
 				_phonesViewModelFactory,
 				_warehouseRepository,
 				_routeListRepository,
+				driverApiRegisterEndpoint,
 				CurrentUserSettings.Settings,
 				true);
 			
