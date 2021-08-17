@@ -55,7 +55,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Название должно быть указано.", new[] { nameof(Name) });
 			}
 
-			if(Name.Length > 50)
+			if(Name?.Length > 50)
 			{
 				yield return new ValidationResult($"Превышена максимально допустимая длина названия ({Name.Length}/50).",
 					new[] { nameof(Name) });
