@@ -17,6 +17,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -79,6 +80,16 @@ namespace Vodovoz
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
+			
+			var userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+			if(userHasOnlyAccessToWarehouseAndComplaints)
+			{
+				repEntryEmployee.CanEditReference = false;
+			}
+			
 			repEntryEmployee.RepresentationModel = new EmployeesVM();
 			repEntryEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.ItemsEnum = typeof(WriteoffType);

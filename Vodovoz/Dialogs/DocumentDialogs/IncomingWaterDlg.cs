@@ -74,6 +74,16 @@ namespace Vodovoz
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
 			referenceSrcWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
+			
+			var userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+			if(userHasOnlyAccessToWarehouseAndComplaints)
+			{
+				referenceSrcWarehouse.CanEditReference = referenceDstWarehouse.CanEditReference = false;
+			}
+			
 			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
 			referenceDstWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
 			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();

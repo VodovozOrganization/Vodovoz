@@ -2,10 +2,10 @@
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
@@ -57,6 +57,16 @@ namespace Vodovoz
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.RegradingOfGoodsEdit);
+			
+			var userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+			if(userHasOnlyAccessToWarehouseAndComplaints)
+			{
+				yentryrefWarehouse.CanEditReference = false;
+			}
+			
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
