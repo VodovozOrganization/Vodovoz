@@ -21,16 +21,25 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
-		private bool userHasOnlyAccessToWarehouseAndComplaints;
-		
 		protected override void ConfigureWithUow()
 		{
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(),
 					new NomenclatureRepository(new NomenclatureParametersProvider()), UserSingletonRepository.GetInstance()));
+			
+			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
-			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			
+			var userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+			if(userHasOnlyAccessToWarehouseAndComplaints)
+			{
+				entryreferencePoint.CanEditReference = false;
+			}
 		}
 
 		public ClientBalanceFilter(IUnitOfWork uow) : this()
@@ -74,6 +83,11 @@ namespace Vodovoz
 				checkIncludeSold.Sensitive = false;
 			}
 		}
+		
+		private void NomenclatureEntryOnChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
 
 		protected void OnSpeccomboStockItemSelected(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
@@ -98,11 +112,6 @@ namespace Vodovoz
 		}
 
 		protected void OnCheckIncludeSoldToggled(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnEntryreferenceNomenclatureChangedByUser(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}
