@@ -704,8 +704,6 @@ namespace Vodovoz
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        new EmployeeService(),
-		        nomenclatureSelectorFactory,
-		        counterpartySelectorFactory,
 		        nomenclatureRepository,
 		        userRepository,
 		        new OrderSelectorFactory(),
@@ -715,7 +713,6 @@ namespace Vodovoz
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
 		        new UndeliveredOrdersJournalOpener(),
-				new SalesPlanJournalFactory(),
 				new NomenclatureSelectorFactory()
 			);
 
@@ -736,7 +733,6 @@ namespace Vodovoz
 		        UndeliveredOrdersJournalOpener,
 		        employeeService,
 		        CounterpartySelectorFactory,
-		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
 		        SubdivisionParametersProvider.Instance,
 		        filter,

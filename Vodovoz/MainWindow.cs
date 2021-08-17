@@ -904,11 +904,6 @@ public partial class MainWindow : Gtk.Window
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
-
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
         IFilePickerService filePickerService = new GtkFilePicker();
@@ -922,7 +917,6 @@ public partial class MainWindow : Gtk.Window
                     undeliveredOrdersJournalOpener,
                     VodovozGtkServicesConfig.EmployeeService,
                     counterpartySelectorFactory,
-                    nomenclatureSelectorFactory,
                     routeListItemRepository,
                     SubdivisionParametersProvider.Instance,
                     new ComplaintFilterViewModel(
@@ -2053,11 +2047,6 @@ public partial class MainWindow : Gtk.Window
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
-
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
         IFilePickerService filePickerService = new GtkFilePicker();
@@ -2071,7 +2060,6 @@ public partial class MainWindow : Gtk.Window
                     undeliveredOrdersJournalOpener,
                     VodovozGtkServicesConfig.EmployeeService,
                     counterpartySelectorFactory,
-                    nomenclatureSelectorFactory,
                     routeListItemRepository,
                     SubdivisionParametersProvider.Instance,
                     new ComplaintFilterViewModel(

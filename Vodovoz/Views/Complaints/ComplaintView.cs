@@ -69,8 +69,6 @@ namespace Vodovoz.Views.Complaints
 												UnitOfWorkFactory.GetDefaultFactory, 
 												ServicesConfig.CommonServices,
 												ViewModel.EmployeeService,
-												ViewModel.NomenclatureSelectorFactory,
-												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
 												ViewModel.UserRepository,
 												ViewModel.OrderSelectorFactory,
@@ -80,7 +78,6 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.SubdivisionJournalFactory,
 												ViewModel.GtkDialogsOpener,
 												ViewModel.UndeliveredOrdersJournalOpener,
-												ViewModel.SalesPlanJournalFactory,
 												ViewModel.NomenclatureSelector
 												);
 			});

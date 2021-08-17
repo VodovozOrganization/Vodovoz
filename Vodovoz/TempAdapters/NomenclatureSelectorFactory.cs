@@ -180,5 +180,18 @@ namespace Vodovoz.TempAdapters
 					return journal;
 				}
 			);
+
+		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository)
+		{
+			var filter = new NomenclatureFilterViewModel();
+
+			var counterpartySelectorFactory = new CounterpartyJournalFactory();
+
+			return new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+				filter, counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				nomenclatureRepository, userRepository);
+		}
 	}
 }

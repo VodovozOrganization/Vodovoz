@@ -40,7 +40,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private DelegateCommand _changeDeliveryPointCommand;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
@@ -54,7 +53,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
@@ -71,7 +69,6 @@ namespace Vodovoz.ViewModels.Complaints
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));

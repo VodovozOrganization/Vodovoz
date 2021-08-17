@@ -217,18 +217,12 @@ namespace Vodovoz.ViewModels.Mango
 
 				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
-				var nomenclatureSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository,
-						UserSingletonRepository.GetInstance());
-
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
 					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
 					{"employeeSelectorFactory", employeeSelectorFactory},
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
-					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
