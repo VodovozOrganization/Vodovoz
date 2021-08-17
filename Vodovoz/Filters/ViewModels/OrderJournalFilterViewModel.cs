@@ -3,21 +3,39 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
-using QS.RepresentationModel.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
 	{
-		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
-		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+		#region Поля
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private PaymentType[] _allowPaymentTypes;
+		private OrderStatus[] _allowStatuses;
+		private object[] _hideStatuses;
+		private bool? _isForRetail;
+		private OrderPaymentStatus? _orderPaymentStatus;
+		private Organization _organisation;
+		private PaymentFrom _paymentByCardFrom;
+		private PaymentOrder? _paymentOrder;
+		private bool _paymentsFromVisibility;
+		private Counterparty _restrictCounterparty;
+		private DeliveryPoint _restrictDeliveryPoint;
+		private DateTime? _restrictEndDate;
+		private bool? _restrictHideService;
+		private bool? _restrictLessThreeHours;
+		private bool? _restrictOnlySelfDelivery;
+		private bool? _restrictOnlyService;
+		private PaymentType? _restrictPaymentType;
+		private DateTime? _restrictStartDate;
+		private OrderStatus? _restrictStatus;
+		private bool? _restrictWithoutSelfDelivery;
+		private ViewTypes _viewTypes;
+		#endregion
 
 		public OrderJournalFilterViewModel()
 		{
@@ -25,316 +43,290 @@ namespace Vodovoz.Filters.ViewModels
 			DaysToForward = CurrentUserSettings.Settings.JournalDaysToFwd;
 			Organisations = UoW.GetAll<Organization>();
 			PaymentsFrom = UoW.GetAll<PaymentFrom>();
+			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			DeliveryPointSelectorFactory =
+				new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel)
+					.CreateDeliveryPointByClientAutocompleteSelectorFactory();
+			CounterpartySelectorFactory =
+				new CounterpartyJournalFactory()
+					.CreateCounterpartyAutocompleteSelectorFactory();
 		}
+
+		#region Автосвойства
 
 		public int DaysToBack { get; }
 		public int DaysToForward { get; }
 		public int[] IncludeDistrictsIds { get; set; }
 		public int[] ExceptIds { get; set; }
-
 		public IEnumerable<Organization> Organisations { get; }
 		public IEnumerable<PaymentFrom> PaymentsFrom { get; }
+		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
+		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
-		IRepresentationModel counterpartyRepresentationModel;
-		public IRepresentationModel CounterpartyRepresentationModel {
-			get {
-				if(counterpartyRepresentationModel == null) {
-					var filter = new CounterpartyFilter(UoW);
-					counterpartyRepresentationModel = new CounterpartyVM(filter);
-				}
-				return counterpartyRepresentationModel;
-			}
-		}
+		#endregion
 
-		private IRepresentationModel deliveryPointRepresentationModel;
-		public virtual IRepresentationModel DeliveryPointRepresentationModel {
-			get => deliveryPointRepresentationModel;
-			private set => SetField(ref deliveryPointRepresentationModel, value, () => DeliveryPointRepresentationModel);
-		}
-		
-		private Organization organisation;
-		public virtual Organization Organisation {
-			get => organisation;
-			set {
-				if(SetField(ref organisation, value)) {
-					Update();
+		public virtual Organization Organisation
+		{
+			get => _organisation;
+			set
+			{
+				if(UpdateFilterField(ref _organisation, value))
+				{
 					CanChangeOrganisation = false;
 				}
 			}
 		}
+
 		public bool CanChangeOrganisation { get; private set; } = true;
-		
-		private PaymentFrom paymentByCardFrom;
-		public virtual PaymentFrom PaymentByCardFrom {
-			get => paymentByCardFrom;
-			set {
-				if(SetField(ref paymentByCardFrom, value)) {
-					Update();
+
+		public virtual PaymentFrom PaymentByCardFrom
+		{
+			get => _paymentByCardFrom;
+			set
+			{
+				if(UpdateFilterField(ref _paymentByCardFrom, value))
+				{
 					CanChangePaymentFrom = false;
 				}
 			}
 		}
+
 		public bool CanChangePaymentFrom { get; private set; } = true;
 
-		private bool paymentsFromVisibility;
 		public bool PaymentsFromVisibility
 		{
-			get => paymentsFromVisibility;
-			set => SetField(ref paymentsFromVisibility, value);
+			get => _paymentsFromVisibility;
+			set => UpdateFilterField(ref _paymentsFromVisibility, value);
 		}
-		
-		private OrderStatus? restrictStatus;
-		public virtual OrderStatus? RestrictStatus {
-			get => restrictStatus;
-			set {
-				if(SetField(ref restrictStatus, value, () => RestrictStatus)) {
-					Update();
+
+		public virtual OrderStatus? RestrictStatus
+		{
+			get => _restrictStatus;
+			set
+			{
+				if(UpdateFilterField(ref _restrictStatus, value))
+				{
 					CanChangeStatus = false;
 				}
 			}
 		}
+
 		public bool CanChangeStatus { get; private set; } = true;
 
-		private object[] hideStatuses;
-		public virtual object[] HideStatuses {
-			get => hideStatuses;
-			set {
-				if(SetField(ref hideStatuses, value, () => HideStatuses)) {
-					Update();
-				}
-			}
+		public virtual object[] HideStatuses
+		{
+			get => _hideStatuses;
+			set => UpdateFilterField(ref _hideStatuses, value);
 		}
 
-		private OrderStatus[] allowStatuses;
-		public virtual OrderStatus[] AllowStatuses {
-			get => allowStatuses;
-			set {
-				if(SetField(ref allowStatuses, value, () => AllowStatuses)) {
-					Update();
-				}
-			}
+		public virtual OrderStatus[] AllowStatuses
+		{
+			get => _allowStatuses;
+			set => UpdateFilterField(ref _allowStatuses, value);
 		}
 
-		private PaymentType? restrictPaymentType;
-		public virtual PaymentType? RestrictPaymentType {
-			get => restrictPaymentType;
-			set {
-				if(SetField(ref restrictPaymentType, value, () => RestrictPaymentType)) {
-					if (restrictPaymentType != PaymentType.ByCard && PaymentByCardFrom != null) {
+		public virtual PaymentType? RestrictPaymentType
+		{
+			get => _restrictPaymentType;
+			set
+			{
+				if(UpdateFilterField(ref _restrictPaymentType, value))
+				{
+					CanChangePaymentType = false;
+					PaymentsFromVisibility = _restrictPaymentType == PaymentType.ByCard;
+					if(_restrictPaymentType != PaymentType.ByCard && PaymentByCardFrom != null)
+					{
 						PaymentByCardFrom = null;
 					}
-					
-					Update();
-					CanChangePaymentType = false;
-					PaymentsFromVisibility = restrictPaymentType == PaymentType.ByCard;
 				}
 			}
 		}
+
 		public bool CanChangePaymentType { get; private set; } = true;
 
-		private PaymentType[] allowPaymentTypes;
-		public virtual PaymentType[] AllowPaymentTypes {
-			get => allowPaymentTypes;
-			set {
-				if(SetField(ref allowPaymentTypes, value, () => AllowPaymentTypes)) {
-					Update();
-				}
-			}
+		public virtual PaymentType[] AllowPaymentTypes
+		{
+			get => _allowPaymentTypes;
+			set => UpdateFilterField(ref _allowPaymentTypes, value);
 		}
 
-		private Counterparty restrictCounterparty;
-		public virtual Counterparty RestrictCounterparty {
-			get => restrictCounterparty;
-			set {
-				if(UpdateFilterField(ref restrictCounterparty, value, () => RestrictCounterparty)) {
-					UpdateDeliveryPointRepresentationModel();
+		public virtual Counterparty RestrictCounterparty
+		{
+			get => _restrictCounterparty;
+			set
+			{
+				if(UpdateFilterField(ref _restrictCounterparty, value))
+				{
+					CanChangeCounterparty = false;
 					_deliveryPointJournalFilterViewModel.Counterparty = value;
 					if(value == null)
 					{
 						RestrictDeliveryPoint = null;
 					}
-					CanChangeCounterparty = false;
 				}
 			}
 		}
+
 		public bool CanChangeCounterparty { get; private set; } = true;
 
-		private DeliveryPoint restrictDeliveryPoint;
-		public virtual DeliveryPoint RestrictDeliveryPoint {
-			get => restrictDeliveryPoint;
-			set {
-				if(SetField(ref restrictDeliveryPoint, value, () => RestrictDeliveryPoint)) {
-					Update();
+		public virtual DeliveryPoint RestrictDeliveryPoint
+		{
+			get => _restrictDeliveryPoint;
+			set
+			{
+				if(UpdateFilterField(ref _restrictDeliveryPoint, value))
+				{
 					CanChangeDeliveryPoint = false;
 				}
 			}
 		}
+
 		public bool CanChangeDeliveryPoint { get; private set; } = true;
 
-		private DateTime? restrictStartDate;
-		public virtual DateTime? RestrictStartDate {
-			get => restrictStartDate;
-			set {
-				if(SetField(ref restrictStartDate, value, () => RestrictStartDate)) {
-					Update();
+		public virtual DateTime? RestrictStartDate
+		{
+			get => _restrictStartDate;
+			set
+			{
+				if(UpdateFilterField(ref _restrictStartDate, value))
+				{
 					CanChangeStartDate = false;
 				}
 			}
 		}
+
 		public bool CanChangeStartDate { get; private set; } = true;
 
-		private DateTime? restrictEndDate;
-		public virtual DateTime? RestrictEndDate {
-			get => restrictEndDate;
-			set {
-				if(SetField(ref restrictEndDate, value, () => RestrictEndDate)) {
-					Update();
+		public virtual DateTime? RestrictEndDate
+		{
+			get => _restrictEndDate;
+			set
+			{
+				if(UpdateFilterField(ref _restrictEndDate, value))
+				{
 					CanChangeEndDate = false;
 				}
 			}
 		}
+
 		public bool CanChangeEndDate { get; private set; } = true;
 
-		private bool? restrictLessThreeHours;
-		public virtual bool? RestrictLessThreeHours {
-			get => restrictLessThreeHours;
-			set {
-				if(SetField(ref restrictLessThreeHours, value, () => RestrictLessThreeHours)) {
-					Update();
+		public virtual bool? RestrictLessThreeHours
+		{
+			get => _restrictLessThreeHours;
+			set
+			{
+				if(UpdateFilterField(ref _restrictLessThreeHours, value))
+				{
 					CanChangeLessThreeHours = false;
 				}
 			}
 		}
+
 		public bool CanChangeLessThreeHours { get; private set; } = true;
 
-		private ViewTypes viewTypes;
-		public virtual ViewTypes ViewTypes {
-			get => viewTypes;
-			set {
-				if(SetField(ref viewTypes, value)) {
-					Update();
-				}
-			}
+		public virtual ViewTypes ViewTypes
+		{
+			get => _viewTypes;
+			set => UpdateFilterField(ref _viewTypes, value);
 		}
 
-		private OrderPaymentStatus? orderPaymentStatus;
-		public OrderPaymentStatus? OrderPaymentStatus {
-			get => orderPaymentStatus;
-			set {
-				SetField(ref orderPaymentStatus, value);
-				Update();
-			}
+		public OrderPaymentStatus? OrderPaymentStatus
+		{
+			get => _orderPaymentStatus;
+			set => UpdateFilterField(ref _orderPaymentStatus, value);
 		}
 
-		private bool? isForRetail;
 		public bool? IsForRetail
 		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value);
+			get => _isForRetail;
+			set => UpdateFilterField(ref _isForRetail, value);
 		}
-
-		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory =>
-			_deliveryPointSelectorFactory ?? (_deliveryPointSelectorFactory =
-				new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel)
-					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
-
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
-			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
-				new CounterpartyJournalFactory()
-					.CreateCounterpartyAutocompleteSelectorFactory());
 
 		#region Selfdelivery
 
-		private bool? restrictOnlySelfDelivery;
-		public virtual bool? RestrictOnlySelfDelivery {
-			get => restrictOnlySelfDelivery;
-			set {
-				if(SetField(ref restrictOnlySelfDelivery, value, () => RestrictOnlySelfDelivery)) {
-					if(restrictOnlySelfDelivery.HasValue && restrictOnlySelfDelivery.Value && RestrictWithoutSelfDelivery.HasValue) {
+		public virtual bool? RestrictOnlySelfDelivery
+		{
+			get => _restrictOnlySelfDelivery;
+			set
+			{
+				if(UpdateFilterField(ref _restrictOnlySelfDelivery, value))
+				{
+					CanChangeOnlySelfDelivery = false;
+					if(_restrictOnlySelfDelivery.HasValue && _restrictOnlySelfDelivery.Value && RestrictWithoutSelfDelivery.HasValue)
+					{
 						RestrictWithoutSelfDelivery = false;
 					}
-					Update();
-					CanChangeOnlySelfDelivery = false;
 				}
 			}
 		}
+
 		public bool CanChangeOnlySelfDelivery { get; private set; } = true;
 
-		private bool? restrictWithoutSelfDelivery;
-		public virtual bool? RestrictWithoutSelfDelivery {
-			get => restrictWithoutSelfDelivery;
-			set {
-				if(SetField(ref restrictWithoutSelfDelivery, value, () => RestrictWithoutSelfDelivery)) {
-					if(restrictWithoutSelfDelivery.HasValue && restrictWithoutSelfDelivery.Value && RestrictOnlySelfDelivery.HasValue) {
+		public virtual bool? RestrictWithoutSelfDelivery
+		{
+			get => _restrictWithoutSelfDelivery;
+			set
+			{
+				if(UpdateFilterField(ref _restrictWithoutSelfDelivery, value))
+				{
+					CanChangeWithoutSelfDelivery = false;
+					if(_restrictWithoutSelfDelivery.HasValue && _restrictWithoutSelfDelivery.Value && RestrictOnlySelfDelivery.HasValue)
+					{
 						RestrictOnlySelfDelivery = false;
 					}
-					Update();
-					CanChangeWithoutSelfDelivery = false;
 				}
 			}
 		}
+
 		public bool CanChangeWithoutSelfDelivery { get; private set; } = true;
 
-
-		private PaymentOrder? paymentOrder;
-		public PaymentOrder? PaymentOrder{
-			get => paymentOrder;
-			set { 
-				SetField(ref paymentOrder, value, () => PaymentOrder); 
-				Update(); 
-			}
+		public PaymentOrder? PaymentOrder
+		{
+			get => _paymentOrder;
+			set => UpdateFilterField(ref _paymentOrder, value);
 		}
-
 
 		#endregion
 
 		#region Services
 
-		private bool? restrictHideService;
-		public virtual bool? RestrictHideService {
-			get => restrictHideService;
-			set {
-				if(SetField(ref restrictHideService, value, () => RestrictHideService)) {
-					if(restrictHideService.HasValue && restrictHideService.Value && RestrictOnlyService.HasValue) {
+		public virtual bool? RestrictHideService
+		{
+			get => _restrictHideService;
+			set
+			{
+				if(UpdateFilterField(ref _restrictHideService, value))
+				{
+					if(_restrictHideService.HasValue && _restrictHideService.Value && RestrictOnlyService.HasValue)
+					{
 						RestrictOnlyService = false;
 					}
-					Update();
 				}
 			}
 		}
+
 		public bool CanChangeHideService { get; private set; } = true;
 
-		private bool? restrictOnlyService;
-		public virtual bool? RestrictOnlyService {
-			get => restrictOnlyService;
-			set {
-				if(SetField(ref restrictOnlyService, value, () => RestrictOnlyService)) {
-					if(restrictOnlyService.HasValue && restrictOnlyService.Value && RestrictHideService.HasValue) {
+		public virtual bool? RestrictOnlyService
+		{
+			get => _restrictOnlyService;
+			set
+			{
+				if(UpdateFilterField(ref _restrictOnlyService, value))
+				{
+					CanChangeOnlyService = false;
+					if(_restrictOnlyService.HasValue && _restrictOnlyService.Value && RestrictHideService.HasValue)
+					{
 						RestrictHideService = false;
 					}
-					Update();
-					CanChangeOnlyService = false;
 				}
 			}
 		}
+
 		public bool CanChangeOnlyService { get; private set; } = true;
 
 		#endregion
-
-		private void SetDefaultValues()
-		{
-			RestrictHideService = true;
-		}
-
-
-		private void UpdateDeliveryPointRepresentationModel()
-		{
-			if(RestrictCounterparty == null) {
-				DeliveryPointRepresentationModel = null;
-				return;
-			}
-			DeliveryPointRepresentationModel = new ClientDeliveryPointsVM(UoW, RestrictCounterparty);
-		}
 	}
 
 	public enum PaymentOrder
