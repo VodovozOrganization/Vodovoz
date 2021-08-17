@@ -20,30 +20,6 @@ using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {
-	public class BalanceSummaryRow
-	{
-		public int NomId { get; set; }
-		public string NomTitle { get; set; }
-		public decimal Min { get; set; }
-		public decimal Common => Separate.Sum();
-		public decimal Diff => Common - Min;
-		public List<decimal> Separate { get; set; }
-	}
-
-	public class BalanceSummaryReport
-	{
-		public DateTime EndDate { get; set; }
-		public List<string> WarehousesTitles { get; set; }
-		public List<BalanceSummaryRow> SummaryRows { get; set; }
-	}
-
-	public class BalanceBean
-	{
-		public int NomId { get; set; }
-		public int WarehouseId { get; set; }
-		public decimal Amount { get; set; }
-	}
-
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
 		private SelectableParameterReportFilterViewModel _nomsViewModel;
@@ -65,17 +41,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		public DateTime? EndDate { get; set; } = DateTime.Today;
 
-		public bool AllNoms { get; set; } = true;
-		public bool GtZNoms { get; set; }
-		public bool LeZNoms { get; set; }
-		public bool LtMinNoms { get; set; }
-		public bool GeMinNoms { get; set; }
+		public bool AllNomenclatures { get; set; } = true;
+		public bool IsGreaterThanZeroByNomenclature { get; set; }
+		public bool IsLessOrEqualZeroByNomenclature { get; set; }
+		public bool IsLessThanMinByNomenclature { get; set; }
+		public bool IsGreaterOrEqualThanMinByNomenclature { get; set; }
 
-		public bool AllWars { get; set; } = true;
-		public bool GtZWars { get; set; }
-		public bool LeZWars { get; set; }
-		public bool LtMinWars { get; set; }
-		public bool GeMinWars { get; set; }
+		public bool AllWarehouses { get; set; } = true;
+		public bool IsGreaterThanZeroByWarehouse { get; set; }
+		public bool IsLessOrEqualZeroByWarehouse { get; set; }
+		public bool IsLessThanMinByWarehouse { get; set; }
+		public bool IsGreaterOrEqualThanMinByWarehouse { get; set; }
 
 		public SelectableParameterReportFilterViewModel NomsViewModel => _nomsViewModel ?? (_nomsViewModel = CreateNomsViewModel());
 
@@ -102,20 +78,22 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			ShowWarningMessage(message);
 		}
 
-		public async Task<BalanceSummaryReport> ActionGenerateReport(CancellationToken cancellationToken)
+		public async Task<BalanceSummaryReport> ActionGenerateReportAsync(CancellationToken cancellationToken)
 		{
+			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 			try
 			{
-				return await Generate(EndDate ?? DateTime.Today, cancellationToken);
+				return await GenerateAsync(EndDate ?? DateTime.Today, uow, cancellationToken);
 			}
 			finally
 			{
-				UoW.Session.Clear();
+				uow.Dispose();
 			}
 		}
 
-		private async Task<BalanceSummaryReport> Generate(
+		private async Task<BalanceSummaryReport> GenerateAsync(
 			DateTime endDate,
+			IUnitOfWork localUow,
 			CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
@@ -131,9 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.FirstOrDefault(ps => ps.ParameterName == "warehouses")?.GetIncludedParameters()?.ToList();
 
 			Nomenclature nomAlias = null;
-			WarehouseMovementOperation inAlias = null;
-			WarehouseMovementOperation woAlias = null;
-			BalanceBean resultAlias = null;
+
 			var warsIds = wars?.Select(x => (int)x.Value).ToArray();
 			var groupsIds = groups?.Select(x => (int)x.Value).ToArray();
 			var groupsSelected = groups?.Any() ?? false;
@@ -142,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var allNomsSelected = noms?.Count == nomsSet?.Parameters.Count;
 			if(groupsSelected)
 			{
-				var nomsInGroupsIds = (List<int>)await UoW.Session.QueryOver(() => nomAlias)
+				var nomsInGroupsIds = (List<int>)await localUow.Session.QueryOver(() => nomAlias)
 					.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds))
 					.AndNot(() => nomAlias.IsArchive)
 					.Select(n => n.Id).ListAsync<int>(cancellationToken);
@@ -156,7 +132,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				}
 			}
 
-			if(typesSelected && !nomsSelected)
+			if(!nomsSelected && !groupsSelected)
 			{
 				noms?.AddRange(nomsSet.Parameters);
 			}
@@ -172,8 +148,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			#region Запросы
 
-			var inQuery = UoW.Session.QueryOver(() => inAlias)
+			WarehouseMovementOperation inAlias = null;
+			WarehouseMovementOperation woAlias = null;
+			BalanceBean resultAlias = null;
+
+			var inQuery = localUow.Session.QueryOver(() => inAlias)
 				.Where(() => inAlias.OperationTime <= endDate)
+				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => inAlias.IncomingWarehouse.Id), warsIds))
 				.SelectList(list => list
@@ -185,8 +166,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.ThenBy(() => inAlias.IncomingWarehouse.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
-			var woQuery = UoW.Session.QueryOver(() => woAlias)
+			var woQuery = localUow.Session.QueryOver(() => woAlias)
 				.Where(() => woAlias.OperationTime <= endDate)
+				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteoffWarehouse.Id), warsIds))
 				.SelectList(list => list
@@ -198,36 +180,43 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.ThenBy(() => woAlias.WriteoffWarehouse.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
-			var msQuery = UoW.Session.QueryOver(() => nomAlias)
-				.Select(n => n.MinStockCount);
+			var msQuery = localUow.Session.QueryOver(() => nomAlias)
+				.WhereNot(() => nomAlias.IsArchive)
+				.Select(n => n.MinStockCount)
+				.OrderBy(n => n.Id).Asc;
 
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
-				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds))
-					.AndNot(() => nomAlias.IsArchive);
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
 			{
-				inQuery.Where(Restrictions.In(Projections.Property(() => inAlias.Nomenclature.Id), nomsIds));
-				woQuery.Where(Restrictions.In(Projections.Property(() => woAlias.Nomenclature.Id), nomsIds));
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+			}
+
+			if(groupsSelected)
+			{
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			#endregion
 
-			var batch = UoW.Session.CreateQueryBatch();
-			var inFuture = batch.AddAsFuture<BalanceBean>(inQuery);
-			var woFuture = batch.AddAsFuture<BalanceBean>(woQuery);
-			var msFuture = batch.AddAsFuture<decimal>(msQuery);
+			var batch = localUow.Session.CreateQueryBatch()
+				.Add<BalanceBean>("in", inQuery)
+				.Add<BalanceBean>("wo", woQuery)
+				.Add<decimal>("ms", msQuery);
 
-			cancellationToken.ThrowIfCancellationRequested();
-			var inResult = inFuture.ToArray();
-			var woResult = woFuture.ToArray();
-			var msResult = msFuture.ToArray();
+			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
+			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
+			var msResult = batch.GetResult<decimal>("ms").ToArray();
 
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
@@ -276,22 +265,23 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			RemoveWarehousesByFilterCondition(ref report, cancellationToken);
 
+			cancellationToken.ThrowIfCancellationRequested();
 			return await new ValueTask<BalanceSummaryReport>(report);
 		}
 
 		private void RemoveWarehousesByFilterCondition(ref BalanceSummaryReport report, CancellationToken cancellationToken)
 		{
-			if(AllWars)
+			if(AllWarehouses)
 			{
 				return;
 			}
 
 			for(var warCounter = 0; warCounter < report.WarehousesTitles.Count; warCounter++)
 			{
-				if(GtZWars && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] > 0) == null
-				|| LeZWars && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] <= 0) == null
-				|| LtMinWars && report.SummaryRows.FirstOrDefault(row => row.Min < row.Separate[warCounter]) == null
-				|| GeMinWars && report.SummaryRows.FirstOrDefault(row => row.Min >= row.Separate[warCounter]) == null)
+				if(IsGreaterThanZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] > 0) == null
+				|| IsLessOrEqualZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] <= 0) == null
+				|| IsLessThanMinByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Min < row.Separate[warCounter]) == null
+				|| IsGreaterOrEqualThanMinByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Min >= row.Separate[warCounter]) == null)
 				{
 					RemoveWarehouseByIndex(ref report, ref warCounter, cancellationToken);
 				}
@@ -309,11 +299,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void AddRow(ref BalanceSummaryReport report, BalanceSummaryRow row)
 		{
-			if(AllNoms
-			|| GtZNoms && row.Separate.FirstOrDefault(war => war > 0) > 0
-			|| LeZNoms && row.Separate.FirstOrDefault(war => war <= 0) <= 0
-			|| LtMinNoms && row.Separate.FirstOrDefault(war => war < row.Min) < row.Min
-			|| GeMinNoms && row.Separate.FirstOrDefault(war => war >= row.Min) >= row.Min)
+			if(AllNomenclatures
+			|| IsGreaterThanZeroByNomenclature && row.Separate.FirstOrDefault(war => war > 0) > 0
+			|| IsLessOrEqualZeroByNomenclature && row.Separate.FirstOrDefault(war => war <= 0) <= 0
+			|| IsLessThanMinByNomenclature && row.Separate.FirstOrDefault(war => war < row.Min) < row.Min
+			|| IsGreaterOrEqualThanMinByNomenclature && row.Separate.FirstOrDefault(war => war >= row.Min) >= row.Min)
 			{
 				report.SummaryRows.Add(row);
 			}
@@ -358,7 +348,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
 					return !EnumerableExtensions.Any(selectedValues)
 						? null
-						: Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
+						: nomenclatureTypeParam.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray())
+							: Restrictions.On<Nomenclature>(x => x.Category).Not.IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
 				}
 			);
 
@@ -416,5 +408,29 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		}
 
 		#endregion
+	}
+
+	public class BalanceSummaryRow
+	{
+		public int NomId { get; set; }
+		public string NomTitle { get; set; }
+		public decimal Min { get; set; }
+		public decimal Common => Separate.Sum();
+		public decimal Diff => Common - Min;
+		public List<decimal> Separate { get; set; }
+	}
+
+	public class BalanceSummaryReport
+	{
+		public DateTime EndDate { get; set; }
+		public List<string> WarehousesTitles { get; set; }
+		public List<BalanceSummaryRow> SummaryRows { get; set; }
+	}
+
+	public class BalanceBean
+	{
+		public int NomId { get; set; }
+		public int WarehouseId { get; set; }
+		public decimal Amount { get; set; }
 	}
 }

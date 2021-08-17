@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Gamma.ColumnConfig;
-using Google.OrTools.ConstraintSolver;
 using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.ReportsParameters;
@@ -42,17 +40,17 @@ namespace Vodovoz.Views.Suppliers
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
 
-			radioAllNoms.Binding.AddBinding(ViewModel, vm => vm.AllNoms, w => w.Active).InitializeFromSource();
-			radioGtZNoms.Binding.AddBinding(ViewModel, vm => vm.GtZNoms, w => w.Active).InitializeFromSource();
-			radioLeZNoms.Binding.AddBinding(ViewModel, vm => vm.LeZNoms, w => w.Active).InitializeFromSource();
-			radioLtMinNoms.Binding.AddBinding(ViewModel, vm => vm.LtMinNoms, w => w.Active).InitializeFromSource();
-			radioGeMinNoms.Binding.AddBinding(ViewModel, vm => vm.GeMinNoms, w => w.Active).InitializeFromSource();
+			radioAllNoms.Binding.AddBinding(ViewModel, vm => vm.AllNomenclatures, w => w.Active).InitializeFromSource();
+			radioGtZNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByNomenclature, w => w.Active).InitializeFromSource();
+			radioLeZNoms.Binding.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByNomenclature, w => w.Active).InitializeFromSource();
+			radioLtMinNoms.Binding.AddBinding(ViewModel, vm => vm.IsLessThanMinByNomenclature, w => w.Active).InitializeFromSource();
+			radioGeMinNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterOrEqualThanMinByNomenclature, w => w.Active).InitializeFromSource();
 
-			radioAllWars.Binding.AddBinding(ViewModel, vm => vm.AllWars, w => w.Active).InitializeFromSource();
-			radioGtZWars.Binding.AddBinding(ViewModel, vm => vm.GtZWars, w => w.Active).InitializeFromSource();
-			radioLeZWars.Binding.AddBinding(ViewModel, vm => vm.LeZWars, w => w.Active).InitializeFromSource();
-			radioLtMinWars.Binding.AddBinding(ViewModel, vm => vm.LtMinWars, w => w.Active).InitializeFromSource();
-			radioGeMinWars.Binding.AddBinding(ViewModel, vm => vm.GeMinWars, w => w.Active).InitializeFromSource();
+			radioAllWars.Binding.AddBinding(ViewModel, vm => vm.AllWarehouses, w => w.Active).InitializeFromSource();
+			radioGtZWars.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByWarehouse, w => w.Active).InitializeFromSource();
+			radioLeZWars.Binding.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByWarehouse, w => w.Active).InitializeFromSource();
+			radioLtMinWars.Binding.AddBinding(ViewModel, vm => vm.IsLessThanMinByWarehouse, w => w.Active).InitializeFromSource();
+			radioGeMinWars.Binding.AddBinding(ViewModel, vm => vm.IsGreaterOrEqualThanMinByWarehouse, w => w.Active).InitializeFromSource();
 
 			var nomsWidget = new SelectableParameterReportFilterView(ViewModel.NomsViewModel);
 			vboxNomsFilter.Add(nomsWidget);
@@ -108,7 +106,7 @@ namespace Vodovoz.Views.Suppliers
 			{
 				try
 				{
-					var report = await ViewModel.ActionGenerateReport(ViewModel.ReportGenerationCancelationTokenSource.Token);
+					var report = await ViewModel.ActionGenerateReportAsync(ViewModel.ReportGenerationCancelationTokenSource.Token);
 
 					Application.Invoke((s, eventArgs) =>
 					{
