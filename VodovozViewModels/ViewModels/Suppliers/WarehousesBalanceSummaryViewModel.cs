@@ -348,7 +348,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
 					return !EnumerableExtensions.Any(selectedValues)
 						? null
-						: Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
+						: nomenclatureTypeParam.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray())
+							: Restrictions.On<Nomenclature>(x => x.Category).Not.IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
 				}
 			);
 
