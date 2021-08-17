@@ -366,6 +366,7 @@ namespace Vodovoz
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(OnClientChanged);
 			ConfigureTrees();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
@@ -665,6 +666,9 @@ namespace Vodovoz
 					case nameof(Entity.OrderAddressType):
 						OrderAddressTypeChanged();
 						break;
+					case nameof(Entity.Client.IsChainStore):
+						OrderAddressTypeChanged();
+						break;
 				}
 			};
 			OnContractChanged();
@@ -672,15 +676,6 @@ namespace Vodovoz
 			if(Entity != null && Entity.Id != 0) {
 				Entity.CheckDocumentExportPermissions();
 			}
-		}
-
-		private bool ChecksForVisibilityOfStorageLogic()
-		{
-			if(Entity.OrderAddressType == OrderAddressType.Service || Entity.OrderAddressType == OrderAddressType.ChainStore)
-			{
-				return false;
-			}
-			return true;
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
@@ -735,6 +730,14 @@ namespace Vodovoz
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<DeliveryPoint>();
 			if (changedEntities.Any(x => DeliveryPoint != null && x.Id == DeliveryPoint.Id)) {
 				UoW.Session.Refresh(DeliveryPoint);
+				return;
+			}
+		}
+		private void OnClientChanged(EntityChangeEvent[] changeevents)
+		{
+			var changedEntities = changeevents.Select(x => x.Entity).OfType<Counterparty>();
+			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) {
+				UoW.Session.Refresh(Entity.Client);
 				return;
 			}
 		}
@@ -1059,11 +1062,6 @@ namespace Vodovoz
 				SetSensetivity(false);
 				Entity.CheckAndSetOrderIsService();
 
-				if(Entity.Client.IsChainStore)
-				{
-					Entity.OrderAddressType = OrderAddressType.ChainStore;
-				}
-
 				ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
 				});
@@ -1147,11 +1145,6 @@ namespace Vodovoz
 			if(canContinue.HasValue && !canContinue.Value) {
 				toggleGoods.Activate();
 				return;
-			}
-
-			if(Entity.Client.IsChainStore)
-			{
-				Entity.OrderAddressType = OrderAddressType.ChainStore;
 			}
 
 			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true)) {
@@ -1843,10 +1836,6 @@ namespace Vodovoz
 			if(treeItems.GetSelectedObject() is OrderItem orderItem) {
 				RemoveOrderItem(orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
-				if(orderItem.IsMasterNomenclature && Entity.OrderItems.Any(x => x.IsMasterNomenclature))
-				{
-					Entity.OrderAddressType = OrderAddressType.Delivery;
-				}
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
 				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObject() != null;
@@ -3090,6 +3079,10 @@ namespace Vodovoz
 
 		private void OrderAddressTypeChanged()
 		{
+			if(Entity.Client.IsChainStore)
+			{
+				Entity.OrderAddressType = OrderAddressType.ChainStore;
+			}
 			if(Entity.Client != null && !Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature) && Entity.OrderAddressType != OrderAddressType.StorageLogistics)
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
