@@ -499,7 +499,6 @@
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
-    <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\OrganizationJournalFactory.cs" />
     <Compile Include="TempAdapters\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IncomeCategorySelectorFactory.cs" />
@@ -965,8 +964,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderCommentsView.cs" />
     <Compile Include="ViewWidgets\GuiltyInUndeliveryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GuiltyInUndeliveryView.cs" />
-    <Compile Include="ViewWidgets\SendDocumentByEmailView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SendDocumentByEmailView.cs" />
     <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EmailsPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\IEmailsInfoProvider.cs" />
@@ -1750,6 +1747,18 @@
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
+      <Project>{3577DB0C-38BF-4CC8-80EB-06C767905B4D}</Project>
+      <Name>Mailjet.Api.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+      <Project>{57A169A7-24A1-4FF3-9FD6-F7882F85463E}</Project>
+      <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
+      <Project>{40259BF2-A07C-403F-8513-080F868BE30B}</Project>
+      <Name>RabbitMQ.EmailSending</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
       <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
       <Name>ApiClientProvider</Name>
@@ -1833,10 +1842,6 @@
     <ProjectReference Include="..\Services\Library\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\Library\EmailService\EmailService.csproj">
-      <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
-      <Name>EmailService</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\Library\Chat\Chat.csproj">
       <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
@@ -2591,6 +2596,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration">
       <Version>5.0.0</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
+      <Version>5.0.0</Version>
+    </PackageReference>
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
@@ -2599,7 +2607,13 @@
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="NLog.Extensions.Logging">
+      <Version>1.7.3</Version>
+    </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
+    <PackageReference Include="RabbitMQ.Client">
+      <Version>6.2.2</Version>
+    </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />

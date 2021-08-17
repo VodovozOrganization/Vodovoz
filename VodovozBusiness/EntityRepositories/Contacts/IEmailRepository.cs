@@ -17,6 +17,7 @@ namespace Vodovoz.EntityRepositories
 
 		IList<EmailType> GetEmailTypes(IUnitOfWork uow);
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
+		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
 
 		#endregion
 	}

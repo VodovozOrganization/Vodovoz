@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>36f5cbbd-0ac6-47ab-9b21-aabf6d5588ca</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.90" />
+    <PackageReference Include="MySql.Data" Version="8.0.26" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+  </ItemGroup>
+
+</Project>

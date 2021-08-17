@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -15,6 +13,8 @@ using QS.Tdi;
 using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
+using System;
+using System.Linq;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			EntityUoWBuilder = uowBuilder;
 			
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
+				new EmailRepository(), new EmailParametersProvider(new ParametersProvider()), currentEmployee, commonServices.InteractiveService, UoW);
 		}
 		
 		public IOrderRepository OrderRepository { get; }

@@ -89,7 +89,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
 			ISubdivisionService subdivisionService,
-			IEmailServiceSettingAdapter emailServiceSettingAdapter,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			IUnitOfWorkGeneric<Employee> uowGeneric,
@@ -114,7 +113,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
 			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));

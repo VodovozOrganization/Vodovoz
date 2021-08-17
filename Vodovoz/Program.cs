@@ -4,7 +4,6 @@ using Gtk;
 using NLog;
 using QSProjectsLib;
 using Vodovoz.Parameters;
-using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Utilities.Text;
 using QS.Widgets.GtkUI;
@@ -280,11 +279,6 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			
 			//Настройка сервисов
-			if(parametersProvider.ContainsParameter("email_send_enabled_database") && parametersProvider.ContainsParameter("email_service_address")) {
-				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(parametersProvider.GetParameterValue("email_service_address"));
-				}
-			}
 			if(parametersProvider.ContainsParameter("instant_sms_enabled_database") && parametersProvider.ContainsParameter("sms_service_address")) {
 				if(parametersProvider.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
 					InstantSmsServiceSetting.Init(parametersProvider.GetParameterValue("sms_service_address"));

@@ -12,6 +12,11 @@ namespace Vodovoz.EntityRepositories
 {
 	public class EmailRepository : IEmailRepository
 	{
+		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
+		{
+			return unitOfWork.GetById<StoredEmail>(id);
+		}
+
 		public List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<StoredEmail>()

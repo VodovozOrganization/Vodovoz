@@ -37,7 +37,6 @@ namespace Vodovoz.TempAdapters
 		private IEmployeePostsJournalFactory _employeePostsJournalFactory;
 		private ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
 		private ISubdivisionService _subdivisionService;
-		private IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private IWageCalculationRepository _wageCalculationRepository;
 		private IEmployeeRepository _employeeRepository;
 		private IValidationContextFactory _validationContextFactory;
@@ -76,7 +75,6 @@ namespace Vodovoz.TempAdapters
 				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 		
 			_subdivisionService = SubdivisionParametersProvider.Instance;
-			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 			_wageCalculationRepository = new WageCalculationRepository();
 			_employeeRepository = new EmployeeRepository();
 			_warehouseRepository = new WarehouseRepository();
@@ -96,7 +94,6 @@ namespace Vodovoz.TempAdapters
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
 				_subdivisionService,
-				_emailServiceSettingAdapter,
 				_wageCalculationRepository,
 				_employeeRepository,
 				_warehouseRepository,
@@ -195,7 +192,6 @@ namespace Vodovoz.TempAdapters
 						_employeePostsJournalFactory,
 						_cashDistributionCommonOrganisationProvider,
 						_subdivisionService,
-						_emailServiceSettingAdapter,
 						_wageCalculationRepository,
 						_employeeRepository,
 						_warehouseRepository,

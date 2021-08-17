@@ -114,6 +114,7 @@
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
+    <Compile Include="Domain\InstanceMailingConfiguration.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\CarEvent.cs" />
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
@@ -131,6 +132,8 @@
     <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\IDocument.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\IEmailableDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
@@ -284,6 +287,7 @@
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
+    <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\CarEventMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
@@ -331,6 +335,8 @@
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
+    <Compile Include="Parameters\EmailParametersProvider.cs" />
+    <Compile Include="Parameters\IEmailParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />

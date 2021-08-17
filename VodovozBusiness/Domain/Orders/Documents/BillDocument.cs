@@ -4,11 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-    public class BillDocument : PrintableOrderDocument, IPrintableRDLDocument, ISignableDocument
+    public class BillDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Bill;

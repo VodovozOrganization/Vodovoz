@@ -1,12 +1,12 @@
 ﻿using Autofac;
-using EmailService;
-using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using NLog;
+using NLog.Extensions.Logging;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -26,13 +26,15 @@ using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using RdlEngine;
+using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -46,6 +48,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
@@ -82,6 +85,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozInfrastructure.Configuration;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
@@ -140,6 +144,8 @@ namespace Vodovoz
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
+
+		private readonly string _mailPrepareQueueId = "MailPrepareQueue"; // Заменить на что-то другое
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -1055,8 +1061,8 @@ namespace Vodovoz
 		
 		private void ConfigureSendDocumentByEmailWidget()
 		{
-			SendDocumentByEmailViewModel = 
-				new SendDocumentByEmailViewModel(_emailRepository, _currentEmployee, ServicesConfig.InteractiveService, _parametersProvider);
+			SendDocumentByEmailViewModel =
+				new SendDocumentByEmailViewModel(_emailRepository,  new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox19.Add(sendEmailView);
 			sendEmailView.Show();
@@ -1149,7 +1155,9 @@ namespace Vodovoz
 
 				if(Entity.OrderStatus == OrderStatus.NewOrder) {
 					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+					{
 						return false;
+					}
 				}
 				
 				if (Entity.Id == 0 && 
@@ -1163,7 +1171,7 @@ namespace Vodovoz
 
 				logger.Info("Сохраняем заказ...");
 				
-				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(_emailRepository)) {
+				if(Entity.NeedSendBill(_emailRepository)) {
 					bool sendEmail = true;
 					var emailAddressForBill = Entity.GetEmailAddressForBill();
 					if(emailAddressForBill == null) {
@@ -1174,7 +1182,9 @@ namespace Vodovoz
 					}
 					Entity.SaveEntity(UoWGeneric, _currentEmployee);
 					if(sendEmail)
+					{
 						SendBillByEmail(emailAddressForBill);
+					}
 				} else {
 					Entity.SaveEntity(UoWGeneric, _currentEmployee);
 				}
@@ -2868,63 +2878,80 @@ namespace Vodovoz
 
 		private bool HaveEmailForBill()
 		{
-			Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+			Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
-		private void SendBillByEmail(Vodovoz.Domain.Contacts.Email emailAddressForBill)
+		private void SendBillByEmail(Email emailAddressForBill)
 		{
-			if(emailAddressForBill == null) {
+			if(emailAddressForBill == null)
+			{
 				throw new ArgumentNullException(nameof(emailAddressForBill));
 			}
 
-			if(!EmailServiceSetting.SendingAllowed || _emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
+			if(_emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill))
+			{
 				return;
 			}
 
-			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument)) {
+			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument))
+			{
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-			
-			var wasHideSignature = billDocument.HideSignature;
-			billDocument.HideSignature = false;
-			ReportInfo ri = billDocument.GetReportInfo();
-			billDocument.HideSignature = wasHideSignature;
 
-			var billTemplate = billDocument.GetEmailTemplate();
-			EmailService.OrderEmail email = new EmailService.OrderEmail {
-				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
-				Text = billTemplate.Text,
-				HtmlText = billTemplate.TextHtml,
-				Recipient = new EmailContact("", emailAddressForBill.Address),
-				Sender = new EmailContact("vodovoz-spb.ru", _parametersProvider.GetParameterValue("email_for_email_delivery")),
-				Order = Entity.Id,
-				OrderDocumentType = OrderDocumentType.Bill
-			};
-			foreach(var item in billTemplate.Attachments) {
-				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
-			}
-			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-				string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-				email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
-			}
-			
-			email.AuthorId = _currentEmployee?.Id ?? 0;
-			email.ManualSending = false;
-			
-			IEmailService service = EmailServiceSetting.GetEmailService();
-			if(service == null) {
-				return;
-			}
-			var result = service.SendOrderEmail(email);
+			int storedEmailId;
 
-			//Если произошла ошибка и письмо не отправлено
-			string resultMessage = "";
-			if(!result.Item1) {
-				resultMessage = "Письмо не было отправлено! Причина:\n";
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"Добавление записи о письме со счетом"))
+			{
+				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
+
+				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+
+				uow.Root.Order = Order;
+
+				uow.Root.DocumentType = OrderDocumentType.Bill;
+				uow.Root.SendDate = DateTime.Now;
+				uow.Root.StateChangeDate = DateTime.Now;
+				uow.Root.State = StoredEmailStates.WaitingToSend;
+				uow.Root.RecipientAddress = clientEmail.Address;
+				uow.Root.ManualSending = false;
+				uow.Root.Author = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				try
+				{
+					uow.Save();
+					storedEmailId = uow.Root.Id;
+				}
+				catch(Exception ex)
+				{
+					logger.Debug($"Ошибка при сохранении. Ошибка: { ex.Message }");
+					throw ex;
+				}
+
+				var prepareMailMessage = new PrepareEmailMessage
+				{
+					StoredEmailId = storedEmailId,
+					SendAttemptsCount = 5
+				};
+
+				try
+				{
+					var serializedMessage = JsonSerializer.Serialize(prepareMailMessage);
+					var preparingBody = Encoding.UTF8.GetBytes(serializedMessage);
+
+					var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
+
+					var connectionFactory = new RabbitMQConnectionFactory(Logger);
+					var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
+					var channel = connection.CreateModel();
+
+					channel.BasicPublish(configuration.EmailPrepareExchange, configuration.EmailPrepareKey, false, null, preparingBody);
+				}
+				catch(Exception e)
+				{
+					MessageDialogHelper.RunErrorDialog($"Ошибка отправки: { e.Message }");
+				}
 			}
-			MessageDialogHelper.RunInfoDialog(resultMessage + result.Item2);
 		}
 
 		void Selection_Changed(object sender, EventArgs e)
@@ -2939,13 +2966,14 @@ namespace Vodovoz
 			if(!Entity.Client.Emails.Any()) {
 				email = "";
 			} else {
-				Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 				if(clientEmail == null) {
 					clientEmail = Entity.Client.Emails.FirstOrDefault();
 				}
 				email = clientEmail.Address;
 			}
-			SendDocumentByEmailViewModel.Update(selectedDoc, email);
+
+			SendDocumentByEmailViewModel.Update(selectedDoc as IEmailableDocument, email);
 		}
 
 		protected void OnCheckSelfDeliveryToggled(object sender, EventArgs e)
