@@ -156,6 +156,11 @@ namespace Vodovoz.ViewWidgets
 			comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.SelectedItem).InitializeFromSource();
 			comboProblemSource.Sensitive = CanChangeProblemSource;
 
+			comboTransferAbsenceReason.SetRenderTextFunc<UndeliveryTransferAbsenceReason>(u => u.Name);
+			comboTransferAbsenceReason.Binding.AddBinding(undelivery, u => u.UndeliveryTransferAbsenceReasonItems, w => w.ItemsList).InitializeFromSource();
+			comboTransferAbsenceReason.Binding.AddBinding(undelivery, u => u.UndeliveryTransferAbsenceReason, w => w.SelectedItem).InitializeFromSource();
+			comboTransferAbsenceReason.Sensitive = CanChangeProblemSource;
+
 			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FineItem>()
 				.AddColumn("Номер").AddTextRenderer(node => node.Fine.Id.ToString())
 				.AddColumn("Сотудники").AddTextRenderer(node => node.Employee.ShortName)
