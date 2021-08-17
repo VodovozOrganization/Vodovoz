@@ -681,5 +681,9 @@ namespace Vodovoz.Views.Employees
 			
 			base.Destroy();
 		}
+
+		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
+		{
+		}
 	}
 }
