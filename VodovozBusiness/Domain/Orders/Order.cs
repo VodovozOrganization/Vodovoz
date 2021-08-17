@@ -309,45 +309,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref opComment, value);
 		}
 		
-		private bool _isStorageLogistics;
-
-		/// <summary>
-		/// Отвечает только за отображения в чекбоксе, само значение хранится в OrderAddressType 
-		/// </summary>
-		[Display(Name = "Складская логистика")]
-		public virtual bool IsStorageLogistics
-		{
-			get => _isStorageLogistics;
-			set
-			{
-				if(Client.IsChainStore && value)
-				{
-					OrderAddressType = OrderAddressType.ChainStore;
-					SetField(ref _isStorageLogistics, false);
-					InteractiveService.ShowMessage(ImportanceLevel.Info,
-						"Невозможно сделать складской логистикой заказ сетевого контрагента!");
-				} 
-				else if(OrderAddressType == OrderAddressType.StorageLogistics && value)
-				{
-					SetField(ref _isStorageLogistics, true);
-				} 
-				else if(OrderAddressType != OrderAddressType.Service && OrderAddressType != OrderAddressType.ChainStore && !Client.IsChainStore && value)
-				{
-					SetField(ref _isStorageLogistics, value);
-					OrderAddressType = OrderAddressType.StorageLogistics;
-				}
-				else if(OrderAddressType == OrderAddressType.StorageLogistics && !value)
-				{
-					SetField(ref _isStorageLogistics, false);
-					OrderAddressType = OrderAddressType.Delivery;
-				}
-				else
-				{
-					SetField(ref _isStorageLogistics, false);
-				}
-			}
-		}
-
 		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
@@ -1101,8 +1062,6 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult($"Невозможно создать заказ для сетевого магазина, содержащий сервисную номенклатуру!");
 			}
-			
-			
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
@@ -1882,7 +1841,6 @@ namespace Vodovoz.Domain.Orders
 			#region перенести всё это в OrderStateKey
 			bool IsDeliveryForFree = SelfDelivery 
 											      || OrderAddressType == OrderAddressType.Service
-			                                      || OrderAddressType == OrderAddressType.StorageLogistics
 											      || DeliveryPoint.AlwaysFreeDelivery
 			                                      || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
 			                                      || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
