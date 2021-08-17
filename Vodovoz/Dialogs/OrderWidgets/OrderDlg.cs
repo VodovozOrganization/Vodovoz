@@ -736,7 +736,8 @@ namespace Vodovoz
 		private void OnClientChanged(EntityChangeEvent[] changeevents)
 		{
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<Counterparty>();
-			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) {
+			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
+			{
 				UoW.Session.Refresh(Entity.Client);
 				return;
 			}
