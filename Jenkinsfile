@@ -5,7 +5,7 @@ node('Vod6'){
 		echo "checkout Gtk.DataBindings"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/master']],
+			branches: [[name: '*/vodovoz']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions: 
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
