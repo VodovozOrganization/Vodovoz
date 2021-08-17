@@ -236,27 +236,25 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				{
 					row.Separate.Add(0);
 					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
-					if(addedCounter == inResult.Length || removedCounter == woResult.Length)
-					{
-						/*Кол-во данных в запросе может не совпадать с кол-вом выбранных номенклатур и складов. Несмотря на то, что счетчики
-						 * увеличиваются лишь при совпадении, иногда кидается OutOfBounds, так что пришлось вставить continue.
-						 * На итоговые данные это не влияет */
-						continue;
-					}
-
 					var warId = (int)wars[warsCounter].Value;
-					var tempIn = inResult[addedCounter];
-					if(tempIn.WarehouseId == warId && tempIn.NomId == row.NomId)
+					if(addedCounter != inResult.Length)
 					{
-						row.Separate[warsCounter] = tempIn.Amount;
-						addedCounter++;
+						var tempIn = inResult[addedCounter];
+						if(tempIn.WarehouseId == warId && tempIn.NomId == row.NomId)
+						{
+							row.Separate[warsCounter] += tempIn.Amount;
+							addedCounter++;
+						}
 					}
 
-					var tempWo = woResult[removedCounter];
-					if(tempWo.WarehouseId == warId && tempWo.NomId == row.NomId)
+					if(removedCounter != woResult.Length)
 					{
-						row.Separate[warsCounter] -= tempWo.Amount;
-						removedCounter++;
+						var tempWo = woResult[removedCounter];
+						if(tempWo.WarehouseId == warId && tempWo.NomId == row.NomId)
+						{
+							row.Separate[warsCounter] -= tempWo.Amount;
+							removedCounter++;
+						}
 					}
 				}
 
