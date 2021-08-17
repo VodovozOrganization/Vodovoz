@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
+		private List<bool?> _beforeIntervalDeliveryItems;
 
 		#region Свойства
 
@@ -181,10 +183,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			try
 			{
 				IsNotSaving = false;
-				if(!HasChanges)
-				{
-					return true;
-				}
+				//if(!HasChanges)
+				//{
+				//	return true;
+				//}
 
 				if(!Entity.CoordinatesExist &&
 				   !CommonServices.InteractiveService.Question(
@@ -315,6 +317,31 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			() => TabParent is ITdiSliderTab
 		));
 
+
+
 		#endregion
+
+
+		public List<bool?> BeforeIntervalDeliveryItems => _beforeIntervalDeliveryItems ?? (_beforeIntervalDeliveryItems
+			= new List<bool?>
+			{
+				//null,
+				false,
+				true
+			});
+
+		//public virtual List<BeforeIntervalDeliveryNode> BeforeIntervalDeliveryItems => _beforeIntervalDeliveryItems ?? (_beforeIntervalDeliveryItems
+		//	= new List<BeforeIntervalDeliveryNode>
+		//	{
+		//		new BeforeIntervalDeliveryNode{IsBefore = null, Name = "_"},
+		//		new BeforeIntervalDeliveryNode{IsBefore = false, Name = "Da"},
+		//		new BeforeIntervalDeliveryNode{IsBefore = true, Name = "net"}
+		//	});
+
+		//public class BeforeIntervalDeliveryNode
+		//{
+		//	public string Name { get; set; }
+		//	public bool? IsBefore { get; set; }
+		//}
 	}
 }

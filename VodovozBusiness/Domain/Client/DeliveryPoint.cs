@@ -32,6 +32,10 @@ namespace Vodovoz.Domain.Client
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+		private TimeSpan _lunchTimeFrom;
+		private TimeSpan _lunchTimeTo;
+		private bool? _isBeforeIntervalDelivery;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -563,6 +567,27 @@ namespace Vodovoz.Domain.Client
 					value = null;
 				SetField(ref category, value, () => Category);
 			}
+		}
+
+		[Display(Name = "Обед с часа")]
+		public virtual TimeSpan LunchTimeFrom
+		{
+			get => _lunchTimeFrom;
+			set => SetField(ref _lunchTimeFrom, value);
+		}
+
+		[Display(Name = "Обед до часа")]
+		public virtual TimeSpan LunchTimeTo
+		{
+			get => _lunchTimeTo;
+			set => SetField(ref _lunchTimeTo, value);
+		}
+
+		[Display(Name = "Доставка раньше интервала")]
+		public virtual bool? IsBeforeIntervalDelivery
+		{
+			get => _isBeforeIntervalDelivery;
+			set => SetField(ref _isBeforeIntervalDelivery, value);
 		}
 
 		#endregion
