@@ -10,6 +10,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -52,11 +53,10 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse);
-			yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
+			ytextviewCommnet.Editable = editing;
 			regradingofgoodsitemsview.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.RegradingOfGoodsEdit);
 			
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
@@ -64,21 +64,26 @@ namespace Vodovoz
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)
 			{
-				yentryrefWarehouse.CanEditReference = false;
+				warehouseEntry.CanEditReference = false;
 			}
-			
-			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			else
+			{
+				warehouseEntry.CanEditReference = false;
+			}
+
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
+			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			regradingofgoodsitemsview.DocumentUoW = UoWGeneric;
 			if (Entity.Items.Count > 0)
-				yentryrefWarehouse.Sensitive = false;
+				warehouseEntry.Sensitive = false;
 
 			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
 			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				warehouseEntry.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				regradingofgoodsitemsview.Sensitive = false;
 
 				buttonSave.Sensitive = false;
