@@ -74,6 +74,7 @@
     <Compile Include="Journals\FilterViewModels\Logistic\DriverCarKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\RouteListJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryTransferAbsenceReasonJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\NomenclaturePlanFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveredOrdersFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\OrganizationCashTransferDocumentFilterViewModel.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Journals\JournalNodes\Logistic\CarEventJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\NomenclaturePlanJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryTransferAbsenceReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\OrganizationCashTransferDocumentJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PremiumJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PremiumTemplateJournalNode.cs" />
@@ -151,6 +153,7 @@
     <Compile Include="Journals\JournalViewModels\Logistic\CarEventTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\CarEventJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
@@ -217,6 +220,7 @@
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DriverCarKindViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryTransferAbsenceReasonViewModel.cs" />
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
