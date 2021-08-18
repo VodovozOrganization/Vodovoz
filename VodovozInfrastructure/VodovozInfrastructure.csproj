@@ -32,6 +32,8 @@
   <ItemGroup>
     <Compile Include="Attributes\RestrictedHistoryProperty.cs" />
     <Compile Include="Configuration\IApplicationConfigurator.cs" />
+    <Compile Include="Endpoints\DriverApiUserRegisterEndpoint.cs" />
+    <Compile Include="Endpoints\RegisterPayload.cs" />
     <Compile Include="Interfaces\IFileChooserProvider.cs" />
     <Compile Include="Passwords\MysqlChangePasswordModelExtended.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -46,8 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client">
+      <Version>5.2.7</Version>
+    </PackageReference>
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
+    <PackageReference Include="System.Text.Json">
+      <Version>5.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
@@ -57,6 +65,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
+      <Project>{9A2014AB-CC9A-4F28-A678-F2EFF3AB927A}</Project>
+      <Name>ApiClientProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
