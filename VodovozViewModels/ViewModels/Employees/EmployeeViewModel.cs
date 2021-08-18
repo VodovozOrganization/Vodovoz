@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using FluentNHibernate.Data;
+using NLog;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -573,18 +574,22 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						{
 							if(_commonServices.InteractiveService.Question("Сотрудник будет сохранен при регистрации пользователя", "Вы уверены?"))
 							{
-								UoW.Save();
+								CanRegisterMobileUser = false;
+								Save();
 								UoW.Commit();
 								_driverApiUserRegisterEndpoint.Register(Entity.AndroidLogin, Entity.AndroidPassword).GetAwaiter().GetResult();
-								CanRegisterMobileUser = false;
 							}
 						}
 						catch(Exception e)
 						{
+							var login = Entity.AndroidLogin;
+							var password = Entity.AndroidPassword;
 							Entity.AndroidLogin = null;
 							Entity.AndroidPassword = null;
-							UoW.Save();
+							Save();
 							UoW.Commit();
+							Entity.AndroidLogin = login;
+							Entity.AndroidPassword = password;
 							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, e.Message);
 							CanRegisterMobileUser = true;
 						}
