@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			&& !SelectedDistrictPrioritySet.IsActive
 			&& SelectedDistrictPrioritySet.DateActivated == null
 			&& SelectedDistrictPrioritySet.ObservableDriverDistrictPriorities
-				.All(x => x.Sector.ActiveSectorVersion.Status == SectorsSetStatus.Active)
+				.All(x => x.Sector.GetActiveSectorVersion().Status == SectorsSetStatus.Active)
 			&& _canActivateDriverDistrictPrioritySetPermission;
 		
 		public bool CanCopyDistrictPrioritySet => SelectedDistrictPrioritySet != null && DriverDistrictPrioritySetPermission.CanCreate;
@@ -360,7 +360,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							{
 								messageBuilder.AppendLine(
 									$"Район: ({driverDistrictPriority.Sector.Id}) " +
-									$"{driverDistrictPriority.Sector.SectorName}. " +
+									$"{driverDistrictPriority.Sector.GetActiveSectorVersion().SectorName}. " +
 									$"Приоритет: {driverDistrictPriority.Priority + 1}"
 								);
 							}

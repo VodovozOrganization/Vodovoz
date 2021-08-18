@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -200,7 +201,7 @@ namespace Vodovoz.JournalViewModels
 				 .Left.JoinAlias(o => o.Author, () => authorAlias)
 				 .Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 				 .Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
-				 .Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias);
+				 .JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector, JoinType.LeftOuterJoin);
 
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
@@ -231,7 +232,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-				   .Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+				   .Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 				   .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)

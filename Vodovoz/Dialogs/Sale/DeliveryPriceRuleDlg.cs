@@ -40,7 +40,7 @@ namespace Vodovoz.Dialogs.Sale
 			ylabel500mlBottles.Binding.AddBinding(Entity, e => e.Water500mlCount, w => w.LabelProp).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
-				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<Sector>()
+				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<SectorVersion>()
 					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.SectorName)
 					.Finish();
 

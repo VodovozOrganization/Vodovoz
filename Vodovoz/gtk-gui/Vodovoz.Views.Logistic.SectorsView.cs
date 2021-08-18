@@ -140,7 +140,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton btnCopyDayDeliveryRule;
 
-		private global::QSWidgetLib.DatePeriodPicker DayDeliveryRulePeriodPicker;
+		private global::QS.Widgets.GtkUI.DateRangePicker DayDeliveryRulePeriodPicker;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow7;
 
@@ -190,7 +190,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ApplyBorderBtn;
 
-		private global::Gamma.GtkWidgets.yButton previewMapBtn;
+		private global::Gamma.GtkWidgets.yToggleButton previewMapBtn;
 
 		private global::GMap.NET.GtkSharp.GMapControl gmapwidget;
 
@@ -849,7 +849,7 @@ namespace Vodovoz.Views.Logistic
 			w78.Expand = false;
 			w78.Fill = false;
 			// Container child hbox16.Gtk.Box+BoxChild
-			this.DayDeliveryRulePeriodPicker = new global::QSWidgetLib.DatePeriodPicker();
+			this.DayDeliveryRulePeriodPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.DayDeliveryRulePeriodPicker.Events = ((global::Gdk.EventMask)(256));
 			this.DayDeliveryRulePeriodPicker.Name = "DayDeliveryRulePeriodPicker";
 			this.DayDeliveryRulePeriodPicker.StartDate = new global::System.DateTime(0);
@@ -1122,7 +1122,7 @@ namespace Vodovoz.Views.Logistic
 			w118.Expand = false;
 			w118.Fill = false;
 			// Container child hbox19.Gtk.Box+BoxChild
-			this.previewMapBtn = new global::Gamma.GtkWidgets.yButton();
+			this.previewMapBtn = new global::Gamma.GtkWidgets.yToggleButton();
 			this.previewMapBtn.CanFocus = true;
 			this.previewMapBtn.Name = "previewMapBtn";
 			this.previewMapBtn.UseUnderline = true;

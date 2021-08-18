@@ -13,7 +13,6 @@ namespace Vodovoz.HibernateMapping.Sectors
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.SectorName).Column("sector_name");
 			Map(x => x.DateCreated).Column("create_date");
 		}
 	}

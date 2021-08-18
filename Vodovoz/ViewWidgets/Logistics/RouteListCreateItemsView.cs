@@ -5,7 +5,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -238,8 +240,11 @@ namespace Vodovoz
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
 				SectorVersion sectorVersionAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<Sector>()
-					.Left.JoinAlias(x => x.ActiveSectorVersion, () => sectorVersionAlias)
+				Sector sectorAlias = null;
+				var districtIds = RouteListUoW.Session.QueryOver(() => sectorAlias)
+					.JoinEntityAlias(() => sectorVersionAlias,
+						() => sectorVersionAlias.Sector == sectorAlias && sectorVersionAlias.Status == SectorsSetStatus.Active,
+						JoinType.LeftOuterJoin)
 					.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
 					.Select

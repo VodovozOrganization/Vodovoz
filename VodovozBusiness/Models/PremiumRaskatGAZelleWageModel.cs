@@ -1,6 +1,8 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -104,7 +106,9 @@ namespace Vodovoz.Models
 					.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersionAlias.DeliveryPoint)
 					.Where(() => deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active)
 					.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-					.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+					.JoinEntityAlias(() => sectorVersionAlias,
+						() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+						      sectorVersionAlias.Status == SectorsSetStatus.Active, JoinType.InnerJoin)
 					.Where(() => sectorVersionAlias.WageSector.Id == wageParametersProvider.GetSuburbWageDistrictId &&
 					             routeListAdressesAlias.RouteList.Id == routeList.Id)
 					.Take(1).SingleOrDefault();

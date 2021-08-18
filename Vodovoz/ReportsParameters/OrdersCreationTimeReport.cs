@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using NHibernate;
 using NHibernate.Transform;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sectors;
 
@@ -102,7 +104,9 @@ namespace Vodovoz.ReportsParameters
 					SelectableEntityParameter<Sector> resultAlias = null;
 
 					var query = UoW.Session.QueryOver(() => sectorAlias)
-						.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+						.JoinEntityAlias(() => sectorVersionAlias,
+							() => sectorVersionAlias.Sector == sectorAlias && sectorVersionAlias.Status == SectorsSetStatus.Active,
+							JoinType.LeftOuterJoin)
 						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geoGroupAlias)
 						.Where(() => sectorVersionAlias.Status == SectorsSetStatus.Active);
 
@@ -117,7 +121,7 @@ namespace Vodovoz.ReportsParameters
 
 					query.SelectList(list => list
 							.Select(() => sectorAlias.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.EntityTitle)
+							.Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.EntityTitle)
 						);
 					var result = query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Sector>>())
 						.List<SelectableEntityParameter<Sector>>();

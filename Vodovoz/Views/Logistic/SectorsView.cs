@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -51,15 +52,15 @@ namespace Vodovoz.Views.Logistic
 			var colorRed = new Gdk.Color(255, 0, 0);
 			var colorWhite = new Gdk.Color(255, 255, 255);
 
-			treeViewMainDistricts.ColumnsConfig = FluentColumnsConfig<Sector>
+			treeViewMainDistricts.ColumnsConfig = FluentColumnsConfig<SectorNodeViewModel>
 				.Create()
 				.AddColumn("Код").AddTextRenderer(x=>x.Id.ToString())
-				.AddColumn("Название").AddTextRenderer(x=>x.SectorName).Editable()
-				.AddColumn("Дата создания").AddTextRenderer(x=>x.DateCreated.ToShortDateString())
+				.AddColumn("Название").AddTextRenderer(x=>x.Name).Editable()
+				.AddColumn("Дата создания").AddTextRenderer(x=>x.CreateDate.ToShortDateString())
 				.Finish();
-			treeViewMainDistricts.Binding.AddBinding(ViewModel, s => s.Sectors, t => t.ItemsDataSource).InitializeFromSource();
+			treeViewMainDistricts.Binding.AddBinding(ViewModel, s => s.ObservableSectorNodeViewModels, t => t.ItemsDataSource).InitializeFromSource();
 			treeViewMainDistricts.Selection.Changed += (sender, args) =>
-				ViewModel.SelectedSector = treeViewMainDistricts.GetSelectedObject<Sector>();
+				ViewModel.SelectedSectorNodeViewModel = treeViewMainDistricts.GetSelectedObject<SectorNodeViewModel>();
 
 			treeViewMainProperty.ColumnsConfig = FluentColumnsConfig<SectorVersion>
 				.Create()
@@ -77,10 +78,16 @@ namespace Vodovoz.Views.Logistic
 				{
 					if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 						c.Editable = false;
-					else
+					else if(n.Status == SectorsSetStatus.Draft)
 					{
 						c.Editable = true;
 						c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft, SectorsSetStatus.OnActivation};
+						c.UpdateComboList(default);
+					}
+					if(ViewModel.SectorVersions.Count(x => x.Status == SectorsSetStatus.OnActivation) == 1)
+					{
+						c.Editable = true;
+						c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
 						c.UpdateComboList(default);
 					}
 				})
@@ -88,8 +95,6 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Название")
 					.AddTextRenderer(x => x.SectorName)
 					.Editable()
-				.AddColumn("Архивный?")
-					.AddToggleRenderer(x=>x.IsArchive)
 				.AddColumn("Тарифная зона")
 					.AddComboRenderer(x => x.TariffZone)
 					.SetDisplayFunc(x => x.Name)
@@ -106,17 +111,31 @@ namespace Vodovoz.Views.Logistic
 					.AddComboRenderer(x => x.WageSector)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<WageSector>().ToList(), "Нет")
+					.AddSetter((combo, version) =>
+					{
+						combo.Editable = ViewModel.CanEditSector && ViewModel.CanChangeSectorWageTypePermissionResult;
+					})
 					.Editing()
 				.Finish();
 			treeViewMainProperty.Binding.AddBinding(ViewModel, s => s.SectorVersions, t => t.ItemsDataSource);
 			treeViewMainProperty.Selection.Changed += (sender, args) =>
-				ViewModel.SelectedSectorVersion = treeViewMainProperty.GetSelectedObject<SectorVersion>();
+				{
+					if(ViewModel.IsCreatingNewBorder)
+					{
+						ViewModel.CancelNewBorderCommand.Execute();
+						previewMapBtn.Active = false;
+					}
 
+					ViewModel.SelectedSectorVersion = treeViewMainProperty.GetSelectedObject<SectorVersion>();
+					RefreshVerticeBorders();
+					RefreshBorders();
+				};
+			
 			treeViewRulesDelivery.ColumnsConfig = FluentColumnsConfig<SectorDeliveryRuleVersion>
 				.Create()
 				.AddColumn("Начало")
 					.AddTextRenderer(x => x.StartDate.HasValue ? x.StartDate.Value.ToShortDateString() : "")
-					.Editable()
+				.Editable()
 				.AddColumn("Окончание")
 					.AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToShortDateString() : "")
 					.Editable()
@@ -128,6 +147,12 @@ namespace Vodovoz.Views.Logistic
 					{
 						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
+						if(ViewModel.ObservableSectorDeliveryRuleVersions.Count(x => x.Status == SectorsSetStatus.OnActivation) == 1)
+						{
+							c.Editable = true;
+							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
+							c.UpdateComboList(default);
+						}
 						else
 						{
 							c.Editable = true;
@@ -180,6 +205,12 @@ namespace Vodovoz.Views.Logistic
 					{
 						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
+						if(ViewModel.ObservableSectorWeekDayScheduleVersions.Count(x => x.Status == SectorsSetStatus.OnActivation) == 1)
+						{
+							c.Editable = true;
+							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
+							c.UpdateComboList(default);
+						}
 						else
 						{
 							c.Editable = true;
@@ -222,6 +253,12 @@ namespace Vodovoz.Views.Logistic
 					{
 						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
+						if(ViewModel.ObservableSectorWeekDeliveryRuleVersions.Count(x => x.Status == SectorsSetStatus.OnActivation) == 1)
+						{
+							c.Editable = true;
+							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
+							c.UpdateComboList(default);
+						}
 						else
 						{
 							c.Editable = true;
@@ -234,24 +271,24 @@ namespace Vodovoz.Views.Logistic
 			treeViewDeliveryRules.Binding.AddBinding(ViewModel, s => s.ObservableSectorWeekDeliveryRuleVersions, t => t.ItemsDataSource);
 			treeViewDeliveryRules.Selection.Changed += (sender, args) =>
 				ViewModel.SelectedWeekDayDeliveryRuleVersion = treeViewDeliveryRules.GetSelectedObject<SectorWeekDayDeliveryRuleVersion>();
-			
+
 			treeViewSpecialRules.ColumnsConfig = FluentColumnsConfig<WeekDayDistrictRuleItem>
 				.Create()
 				.AddColumn("Цена")
-					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(p => p.Price)
-					.Digits(2)
-					.WidthChars(10)
-					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.Editing()
-					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? colorRed : colorWhite)
-					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.HeaderAlignment(0.5f)
+				.AddNumericRenderer(p => p.Price)
+				.Digits(2)
+				.WidthChars(10)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+				.Editing()
+				.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? colorRed : colorWhite)
+				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
-					.HeaderAlignment(0.5f)
-					.AddComboRenderer(p => p.DeliveryPriceRule)
-					.SetDisplayFunc(x=>x.Title)
-					.FillItems(ViewModel.UoW.GetAll<DeliveryPriceRule>().ToList(), "Нет")
-					.Editing()
+				.HeaderAlignment(0.5f)
+				.AddComboRenderer(p => p.DeliveryPriceRule)
+				.SetDisplayFunc(x=>x.Title)
+				.FillItems(ViewModel.UoW.GetAll<DeliveryPriceRule>().ToList(), "Нет")
+				.Editing()
 				.Finish();
 			treeViewSpecialRules.Binding.AddBinding(ViewModel, s => s.ObservableSectorDeliveryRules, t => t.ItemsDataSource);
 			treeViewSpecialRules.Selection.Changed += (sender, args) =>
@@ -267,18 +304,29 @@ namespace Vodovoz.Views.Logistic
 			SectorVersionPeriod.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorVersion, t => t.StartDateOrNull)
 				.InitializeFromSource();
 			SectorVersionPeriod.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorVersion, t => t.EndDateOrNull).InitializeFromSource();
-
+			RulesDeliveryPeriod.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDeliveryRule, t => t.StartDateOrNull)
+				.InitializeFromSource();
+			RulesDeliveryPeriod.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorDeliveryRule, t => t.EndDateOrNull)
+				.InitializeFromSource();
+			WeekDayPeriodPicker.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDaySchedule, t => t.StartDateOrNull)
+				.InitializeFromSource();
+			WeekDayPeriodPicker.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorDaySchedule, t => t.EndDateOrNull)
+				.InitializeFromSource();
+			DayDeliveryRulePeriodPicker.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDayDeliveryRule, t => t.StartDateOrNull)
+				.InitializeFromSource();
+			DayDeliveryRulePeriodPicker.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorDayDeliveryRule, t => t.EndDateOrNull)
+				.InitializeFromSource();
 			#endregion
 
 			#region Binding of the button for sector and sectorVersion
 
-			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict, t => t.Sensitive).InitializeFromSource();
+			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateSector, t => t.Sensitive).InitializeFromSource();
 			btnAddDistrict.Clicked += (sender, args) => ViewModel.AddSector.Execute();
 			
-			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanDeleteDistrict, t => t.Sensitive).InitializeFromSource();
+			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanDeleteSector, t => t.Sensitive).InitializeFromSource();
 			btnRemoveDistrict.Clicked += (sender, args) => ViewModel.RemoveSector.Execute();
 
-			btnAddMainProperty.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSector != null && vm.CanEditSector, t => t.Sensitive)
+			btnAddMainProperty.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSectorNodeViewModel != null && vm.CanEditSector, t => t.Sensitive)
 				.InitializeFromSource();
 			btnAddMainProperty.Clicked += (sender, args) => ViewModel.AddSectorVersion.Execute();
 
@@ -291,7 +339,7 @@ namespace Vodovoz.Views.Logistic
 
 			#region Binding of the button for common rules
 
-			btnAddRulesDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSector != null && vm.CanEditSector, t => t.Sensitive)
+			btnAddRulesDelivery.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSectorNodeViewModel != null && vm.CanEditSector, t => t.Sensitive)
 				.InitializeFromSource();
 			btnAddRulesDelivery.Clicked += (sender, args) => ViewModel.AddRulesDelivery.Execute();
 
@@ -317,7 +365,7 @@ namespace Vodovoz.Views.Logistic
 			
 			#endregion
 
-			btnOnActive.Clicked += (sender, args) => ViewModel.ActivateSector.Execute();
+			btnOnActive.Clicked += (sender, args) => ViewModel.Activate.Execute();
 
 			#region Binding todayBtns
 
@@ -335,7 +383,7 @@ namespace Vodovoz.Views.Logistic
 			#region Binding on the button for schedule of days
 
 			btnAddDaySchedule.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedSector != null && vm.CanEditSector, t => t.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.SelectedSectorNodeViewModel != null && vm.CanEditSector, t => t.Sensitive)
 				.InitializeFromSource();
 			btnAddDaySchedule.Clicked += (sender, args) => ViewModel.AddSectorWeekDayScheduleVersion.Execute();
 
@@ -415,7 +463,7 @@ namespace Vodovoz.Views.Logistic
 			#region Binding of the button for delivery rule on days
 
 			btnAddDayDeliveryRule.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedSector != null && vm.CanEditSector, t => t.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.SelectedSectorNodeViewModel != null && vm.CanEditSector, t => t.Sensitive)
 				.InitializeFromSource();
 			btnAddDayDeliveryRule.Clicked += (sender, args) => ViewModel.AddWeekDayDeliveryRule.Execute();
 
@@ -427,7 +475,7 @@ namespace Vodovoz.Views.Logistic
 			btnCopyDayDeliveryRule.Binding
 				.AddFuncBinding(ViewModel, vm => vm.SelectedWeekDayDeliveryRuleVersion != null && vm.CanEditSector, t => t.Sensitive)
 				.InitializeFromSource();
-			//btnCopyDayDeliveryRule.Clicked += (sender, args) => ViewModel.CopyDayDeliveryRule.Execute();
+			btnCopyDayDeliveryRule.Clicked += (sender, args) => ViewModel.CopyDayDeliveryRule.Execute();
 			
 			btnAddSpecialRules.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedWeekDayDeliveryRuleVersion != null && vm.CanEditSector && vm.SelectedWeekDayName != null, t => t.Sensitive).InitializeFromSource();
 			btnAddSpecialRules.Clicked += (sender, args) => ViewModel.AddWeekDayDistrictRule.Execute();
@@ -437,6 +485,15 @@ namespace Vodovoz.Views.Logistic
 
 			#endregion
 
+			#region Фильтр
+
+			filterBtn.Clicked += (sender, args) => ViewModel.FilterableSectors.Execute();
+			enumStatusDistrict.Binding.AddBinding(ViewModel, vm => vm.Status, t => t.SelectedItemOrNull).InitializeFromSource();
+			enumStatusDistrict.ItemsEnum = typeof(SectorsSetStatus);
+			enumStatusDistrict.EnumItemSelected += (sender, args) => ViewModel.Status = ((SectorsSetStatus) args.SelectedItem);
+			
+			#endregion
+			
 			#region GMap
 
 			AddBorderBtn.Binding.AddFuncBinding(ViewModel, vm => !vm.IsCreatingNewBorder, w => w.Visible).InitializeFromSource();
@@ -460,7 +517,7 @@ namespace Vodovoz.Views.Logistic
 						MessageDialogHelper.RunInfoDialog("Нельзя создать границу района меньше чем за 3 точки");
 						return;
 					}
-					previewMapBtn.Sensitive = false;
+					previewMapBtn.Active = false;
 					ViewModel.ConfirmNewBorderCommand.Execute();
 					RefreshBorders();
 				}
@@ -471,14 +528,14 @@ namespace Vodovoz.Views.Logistic
 			CancelBorderBtn.Clicked += (sender, args) => {
 				if(MessageDialogHelper.RunQuestionDialog("Отменить создание границы района?")) {
 					ViewModel.CancelNewBorderCommand.Execute();
-					previewMapBtn.Sensitive = false;
+					previewMapBtn.Active = false;
 				}
 			};
 
 			previewMapBtn.Binding.AddFuncBinding(ViewModel, vm => vm.IsCreatingNewBorder, w => w.Visible).InitializeFromSource();
 			previewMapBtn.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedSectorVersion != null && vm.IsCreatingNewBorder, w => w.Sensitive).InitializeFromSource();
 			previewMapBtn.Clicked += (sender, args) => {
-				if(previewMapBtn.Sensitive && ViewModel.NewBorderVertices.Any()) {
+				if(previewMapBtn.Active && ViewModel.NewBorderVertices.Any()) {
 					var previewBorder = new GMapPolygon(ViewModel.NewBorderVertices.ToList(), "Предпросмотр новых границ");
 					newBordersPreviewOverlay.Polygons.Add(previewBorder);
 				}
@@ -489,7 +546,7 @@ namespace Vodovoz.Views.Logistic
 
 			enumProviderMap.ItemsEnum = typeof(MapProviders);
 			enumProviderMap.EnumItemSelected += (sender, args) => gmapwidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders) args.SelectedItem);
-			enumProviderMap.SelectedItem = MapProviders.YandexMap;
+			enumProviderMap.SelectedItem = MapProviders.GoogleMap;
 
 			gmapwidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapwidget.HeightRequest = 150;
@@ -534,6 +591,79 @@ namespace Vodovoz.Views.Logistic
 					}
 				}
 			}
+
+			void RefreshVerticeBorders()
+			{
+				verticeOverlay.Clear();
+				if(ViewModel.SelectedSectorVersion != null)
+				{
+					var sectorVersion = ViewModel.SelectedSectorVersion;
+					if(sectorVersion.Polygon != null)
+					{
+						verticeOverlay.Polygons.Add(new GMapPolygon(
+							sectorVersion.Polygon.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(), sectorVersion.SectorName)
+						);
+					}
+				}
+			}
+			
+			ViewModel.PropertyChanged += (sender, args) => {
+				Application.Invoke((o, eventArgs) => {
+					switch (args.PropertyName) {
+						case nameof(ViewModel.SelectedWeekDayName):
+							var column = treeViewGraphic.ColumnsConfig.GetColumnsByTag(acceptBeforeColumnTag).First();
+							column.Visible = ViewModel.SelectedWeekDayName == WeekDayName.Today;
+							break;
+						case nameof(ViewModel.SelectedSectorNodeViewModel):
+							if(ViewModel.SelectedSectorNodeViewModel != null)
+								treeViewMainDistricts.SelectObject(ViewModel.SelectedSectorNodeViewModel);
+							break;
+						case nameof(ViewModel.SelectedScheduleRestriction):
+							if(ViewModel.SelectedScheduleRestriction != null)
+								treeViewGraphic.SelectObject(ViewModel.SelectedScheduleRestriction);
+							break;
+						case nameof(ViewModel.SelectedCommonDistrictRuleItem):
+							if(ViewModel.SelectedCommonDistrictRuleItem != null)
+								treeViewRules.SelectObject(ViewModel.SelectedCommonDistrictRuleItem);
+							break;
+						case nameof(ViewModel.SelectedWeekDayDistrictRuleItem):
+							if(ViewModel.SelectedWeekDayDistrictRuleItem != null)
+								treeViewSpecialRules.SelectObject(ViewModel.SelectedWeekDayDistrictRuleItem);
+							break;
+						case nameof(ViewModel.SelectedDistrictBorderVertices):
+							verticeOverlay.Clear();
+							if(ViewModel.SelectedDistrictBorderVertices != null){
+                                GMapPolygon polygon = new GMapPolygon(ViewModel.SelectedDistrictBorderVertices.ToList(), "polygon");
+                                polygon.Stroke = selectedDistrictBorderPen;
+                                verticeOverlay.Polygons.Add(polygon);
+                            }
+							break;
+						case nameof(ViewModel.NewBorderVertices):
+							verticeOverlay.Clear();
+							if(ViewModel.NewBorderVertices != null && ViewModel.NewBorderVertices.Any()) {
+								for (int i = 0; i < ViewModel.NewBorderVertices.Count; i++) {
+									var color = GMarkerGoogleType.red;
+									if(i == 0)
+										color = GMarkerGoogleType.yellow;
+									else if(i == ViewModel.NewBorderVertices.Count - 1)
+										color = GMarkerGoogleType.green;
+									GMapMarker point = new GMarkerGoogle(ViewModel.NewBorderVertices[i], color);
+									verticeOverlay.Markers.Add(point);
+								}
+								if(previewMapBtn.Active) {
+									previewMapBtn.Active = false;
+									previewMapBtn.Active = true;
+								}
+							}
+							break;
+					}
+				});
+			};
+			#endregion
+
+			#region SaveAndCancelButton
+
+			btnSave.Clicked += (sender, args) => ViewModel.Save();
 
 			#endregion
 		}

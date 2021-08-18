@@ -28,6 +28,8 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _sector, value, () => Sector);
 		}
 
+		public virtual SectorVersion SectorVersion => Sector.GetActiveSectorVersion();
+		
 		int priority;
 		[Display(Name = "Приоритет")]
 		public virtual int Priority {

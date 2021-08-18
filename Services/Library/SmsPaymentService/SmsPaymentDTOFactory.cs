@@ -31,7 +31,7 @@ namespace SmsPaymentService
 				RecepientType = smsPayment.Recepient.PersonType,
 				Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems),
 				OrganizationId = _organizationProvider.GetOrganization(uow, PaymentType.ByCard, order.SelfDelivery, order.OrderItems,
-					paymentFrom, order.DeliveryPoint?.ActiveVersion?.Sector?.ActiveSectorVersion?.GeographicGroup).Id
+					paymentFrom, order.DeliveryPoint?.ActiveVersion?.Sector?.GetActiveSectorVersion()?.GeographicGroup).Id
 			};
 
 			return newSmsPaymentDTO;

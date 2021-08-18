@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
@@ -9,22 +10,9 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Sectors
 {
-	public class SectorDeliveryRuleVersion : PropertyChangedBase, IDomainObject, ICloneable
+	public class SectorDeliveryRuleVersion : PropertyChangedBase, IDomainObject, ICloneable, IValidatableObject
 	{
 		public int Id { get; set; }
-		
-		private Employee _author;
-		[Display(Name = "Автор")]
-		public virtual Employee Author {
-			get => _author;
-			set => SetField(ref _author, value);
-		}
-
-		private Employee _lastEditor;
-		public virtual Employee LastEditor {
-			get => _lastEditor;
-			set => SetField(ref _lastEditor, value);
-		}
 
 		private DateTime? _startDate;
 
@@ -79,18 +67,30 @@ namespace Vodovoz.Domain.Sectors
 
 		public object Clone()
 		{
-			var sectorClone = Sector.Clone() as Sector;
-
 			var commonDistrictRuleItemsClone = new List<CommonDistrictRuleItem>();
 			CommonDistrictRuleItems.ForEach(x => commonDistrictRuleItemsClone.Add(x.Clone() as CommonDistrictRuleItem));
 			return new SectorDeliveryRuleVersion
 			{
 				StartDate = StartDate,
 				EndDate = EndDate,
-				Sector = sectorClone,
+				Sector = Sector,
 				Status = Status,
 				CommonDistrictRuleItems = commonDistrictRuleItemsClone
 			};
+		}
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(StartDate.HasValue == false)
+			{
+				yield return new ValidationResult($"Необходимо поставить дату активации", new[] {nameof(StartDate)});
+			}
+			if(ObservableCommonDistrictRuleItems.Any(i => i.Price <= 0))
+			{
+				yield return new ValidationResult(
+					$"Для всех правил доставки для района \"{Sector.Id}\" должны быть указаны цены",
+					new[] {nameof(CommonDistrictRuleItems)});
+			}
 		}
 	}
 }

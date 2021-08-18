@@ -435,7 +435,7 @@ namespace Vodovoz
 					&& !selectedDistrictPrioritySet.IsActive 
 					&& selectedDistrictPrioritySet.DateActivated == null
 					&& selectedDistrictPrioritySet.ObservableDriverDistrictPriorities
-						.All(x => x.Sector.ActiveSectorVersion.Status == SectorsSetStatus.Active)
+						.All(x => x.Sector.GetActiveSectorVersion().Status == SectorsSetStatus.Active)
 					&& canActivateDriverDistrictPrioritySetPermission;
 			};
 
@@ -486,7 +486,7 @@ namespace Vodovoz
 				foreach(var driverDistrictPriority in notCopiedPriorities) {
 					messageBuilder.AppendLine(
 						$"Район: ({driverDistrictPriority.Sector.Id}) " +
-						$"{driverDistrictPriority.Sector.SectorName}. " +
+						$"{driverDistrictPriority.Sector.GetActiveSectorVersion().SectorName}. " +
 						$"Приоритет: {driverDistrictPriority.Priority + 1}"
 					);
 				}

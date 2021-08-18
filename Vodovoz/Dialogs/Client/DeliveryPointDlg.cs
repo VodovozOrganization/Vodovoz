@@ -32,6 +32,7 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 using Vodovoz.ViewModels.ViewModels;
@@ -509,12 +510,25 @@ namespace Vodovoz
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(EqualCoords(Entity.ActiveVersion.Latitude, latitude) && EqualCoords(Entity.ActiveVersion.Longitude, longitude))
-				return;
+			if(Entity.ActiveVersion != null)
+				if(EqualCoords(Entity.ActiveVersion.Latitude, latitude) && EqualCoords(Entity.ActiveVersion.Longitude, longitude))
+					return;
 
-			ISectorsRepository sectorsRepository = new SectorsRepository();
+			ISectorsRepository _sectorsRepository = new SectorsRepository();
 			
-			Entity.ActiveVersion.SetСoordinates(latitude, longitude, sectorsRepository, UoW);
+			var newDeliveryPointSectorVersion = new DeliveryPointSectorVersion {DeliveryPoint = Entity};
+			if(Entity.ActiveVersion != null)
+			{
+				Entity.ActiveVersion.EndDate = DateTime.Now;
+				Entity.ActiveVersion.Status = SectorsSetStatus.Closed;
+			}
+
+			newDeliveryPointSectorVersion.SetСoordinates(latitude, longitude, _sectorsRepository, UoW);
+			newDeliveryPointSectorVersion.Status = SectorsSetStatus.Active;
+			newDeliveryPointSectorVersion.StartDate = DateTime.Now;
+			
+			Entity?.ObservableDeliveryPointSectorVersions.Add(newDeliveryPointSectorVersion);
+			
 			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
 		}
 

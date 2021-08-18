@@ -40,19 +40,18 @@ namespace VodovozDeliveryRulesService
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 
 	                SectorVersion sectorVersion = null;
-                    var districts = uow.Session.QueryOver<Sector>()
-                        .JoinAlias(x => x.ActiveSectorVersion, () => sectorVersion).List();
+	                var districts = uow.Session.QueryOver<Sector>().List();
 
                     foreach (var district in districts) {
-                        NHibernateUtil.Initialize(district.ActiveSectorVersion.GeographicGroup);
+                        NHibernateUtil.Initialize(district.GetActiveSectorVersion().GeographicGroup);
 
-                        foreach (var scheduleRestriction in district.ActiveWeekDayScheduleVersion.SectorSchedules) {
+                        foreach (var scheduleRestriction in district.GetActiveWeekDayScheduleVersion().SectorSchedules) {
                             NHibernateUtil.Initialize(scheduleRestriction.DeliverySchedule);
                         }
-                        foreach (var weekDayRuleItem in district.ActiveWeekDayDeliveryRuleVersion.WeekDayDistrictRules) {
+                        foreach (var weekDayRuleItem in district.GetActiveWeekDayDeliveryRuleVersion().WeekDayDistrictRules) {
                             NHibernateUtil.Initialize(weekDayRuleItem.DeliveryPriceRule);
                         }
-                        foreach (var commonRuleItem in district.ActiveDeliveryRuleVersion.CommonDistrictRuleItems) {
+                        foreach (var commonRuleItem in district.GetActiveDeliveryRuleVersion().CommonDistrictRuleItems) {
                             NHibernateUtil.Initialize(commonRuleItem.DeliveryPriceRule);
                         }
                         

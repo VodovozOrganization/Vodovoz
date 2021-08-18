@@ -160,6 +160,7 @@
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\SectorNodeViewModel.cs" />
     <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\SectorsViewModel.cs" />
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />

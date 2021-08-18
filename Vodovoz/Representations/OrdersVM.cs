@@ -8,6 +8,7 @@ using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using NHibernate.Util;
 using QS.Dialog.Gtk;
@@ -58,7 +59,7 @@ namespace Vodovoz.ViewModel
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			Sector sectorAlias = null;
+			SectorVersion sectorVersionAlias = null;
 			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
 
 			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias);
@@ -151,15 +152,18 @@ namespace Vodovoz.ViewModel
 											   );
 
 			query.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.Client, () => counterpartyAlias)
-				 .JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
-				 .Left.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias);
+				.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+				.JoinEntityAlias(() => sectorVersionAlias,
+					() => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector &&
+					      sectorVersionAlias.Status == SectorsSetStatus.Active,
+					JoinType.LeftOuterJoin);
 
 			if(Filter.IncludeSectorsIds != null && Filter.IncludeSectorsIds.Any())
-				query = query.Where(() => sectorAlias.Id.IsIn(Filter.IncludeSectorsIds));
+				query = query.Where(() => sectorVersionAlias.Sector.Id.IsIn(Filter.IncludeSectorsIds));
 
 			var result = query
 				.SelectList(list => list
@@ -179,7 +183,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-				   .Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+				   .Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
 				   .Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)

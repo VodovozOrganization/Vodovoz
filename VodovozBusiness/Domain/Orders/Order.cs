@@ -1839,7 +1839,7 @@ namespace Vodovoz.Domain.Orders
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = 
-				sector?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
+				sector?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m ), DeliveryDate) ?? 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {

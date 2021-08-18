@@ -1,5 +1,6 @@
 using System;
 using NHibernate;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -37,9 +38,10 @@ namespace Vodovoz.Journals.JournalViewModels
             SectorVersion sectorVersion = null;
             WageSector wageSectorAlias = null;
 
-            var query = uow.Session.QueryOver<Sector>(() => sectorAlias)
-                .Inner.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
-                .Inner.JoinAlias(() => sectorVersion.WageSector, () => wageSectorAlias);
+            var query = uow.Session.QueryOver(() => sectorAlias)
+	            .JoinEntityAlias(() => sectorVersion,
+		            () => sectorAlias.Id == sectorVersion.Sector.Id && sectorVersion.Status == SectorsSetStatus.Active, JoinType.InnerJoin)
+	            .Inner.JoinAlias(() => sectorVersion.WageSector, () => wageSectorAlias);
 
             if(FilterViewModel != null) {
                 if(FilterViewModel.Status.HasValue)
@@ -50,14 +52,14 @@ namespace Vodovoz.Journals.JournalViewModels
 
             query.Where(GetSearchCriterion(
                 () => sectorAlias.Id,
-                () => sectorAlias.SectorName,
+                () => sectorVersion.SectorName,
                 () => wageSectorAlias.Name
             ));
 
             var result = query
                 .SelectList(list => list
                     .Select(c => c.Id).WithAlias(() => districtJournalNode.Id)
-                    .Select(c => c.SectorName).WithAlias(() => districtJournalNode.Name)
+                    .Select(() => sectorVersion.SectorName).WithAlias(() => districtJournalNode.Name)
                     .Select(() => wageSectorAlias.Name).WithAlias(() => districtJournalNode.WageDistrict)
                     .Select(() => sectorVersion.Status).WithAlias(() => districtJournalNode.SectorsSetStatus)
                     .Select(() => sectorVersion.Id).WithAlias(() => districtJournalNode.DistrictsSetId))

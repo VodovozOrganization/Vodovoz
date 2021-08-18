@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
+using MoreLinq;
 using NetTopologySuite.Geometries;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -46,9 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		private GenericObservableList<Sector> _sectors;
 		private GenericObservableList<SectorVersion> _sectorVersions;
-		private List<SectorDeliveryRuleVersion> _sectorDeliveryRuleVersions = new List<SectorDeliveryRuleVersion>();
-		private List<SectorWeekDayScheduleVersion> _sectorWeekDeliveryRuleVersions = new List<SectorWeekDayScheduleVersion>();
-		private List<DeliveryPointSectorVersion> _deliveryPointSectorVersions = new List<DeliveryPointSectorVersion>();
+		private GenericObservableList<SectorNodeViewModel> _sectorNodeViewModels;
 		
 		private GenericObservableList<Sector> _observableSectorsInSession;
 		private GenericObservableList<SectorVersion> _observableSectorVersionsInSession;
@@ -60,7 +61,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private GenericObservableList<PointLatLng> _newBorderVertices;
 		
 		private SectorVersion _selectedSectorVersion;
-		private Sector _selectedSector;
+		private SectorNodeViewModel _selectedSectorNodeViewModel;
 		private SectorDeliveryRuleVersion _selectedDeliveryRuleVersion;
 		private SectorWeekDayDeliveryRule _selectedWeekDayDeliveryRule;
 		private SectorWeekDayScheduleVersion _selectedWeekDayScheduleVersion;
@@ -69,10 +70,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private WeekDayDistrictRuleItem _selectedWeekDayDistrictRuleItem;
 		private DeliveryScheduleRestriction _selectedScheduleRestriction;
 		
-		public readonly bool CanChangeDistrictWageTypePermissionResult;
+		public readonly bool CanChangeSectorWageTypePermissionResult;
 		public readonly bool CanEditSector;
-		public readonly bool CanDeleteDistrict;
-		public readonly bool CanCreateDistrict;
+		public readonly bool CanDeleteSector;
+		public readonly bool CanCreateSector;
 		public readonly bool CanEdit;
 
 		#endregion
@@ -88,6 +89,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_sectorRepository = sectorRepository ?? throw new ArgumentNullException(nameof(sectorRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			
+			CanChangeSectorWageTypePermissionResult = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
+
 			_employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_personellId = _employee.Id;
 			TabName = "Районы с графиками доставки";
@@ -102,8 +105,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Sector));
 			
 			CanEditSector = permissionResult.CanUpdate && Entity.Status != SectorsSetStatus.Active;
-			CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != SectorsSetStatus.Active;
-			CanCreateDistrict = permissionResult.CanCreate && Entity.Status != SectorsSetStatus.Active;
+			CanDeleteSector = permissionResult.CanDelete && Entity.Status != SectorsSetStatus.Active;
+			CanCreateSector = permissionResult.CanCreate && Entity.Status != SectorsSetStatus.Active;
 			
 			var permissionRes = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(SectorVersion));
 			
@@ -111,6 +114,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
 
 			Sectors = new GenericObservableList<Sector>(UoW.GetAll<Sector>().ToList());
+			
+			Sectors.ForEach(x =>
+			{
+				var sectorVersionForNode = x.GetActiveSectorVersion() ??
+				                   x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
+				                   x.SectorVersions.FindLast(z => z.Status == SectorsSetStatus.Draft);
+				ObservableSectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated, sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
+			});
 			
 			SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>();
 			NewBorderVertices = new GenericObservableList<PointLatLng>();
@@ -202,25 +213,41 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => _sectors = value;
 		}
 
+		public GenericObservableList<SectorNodeViewModel> ObservableSectorNodeViewModels => _sectorNodeViewModels ?? (_sectorNodeViewModels = new GenericObservableList<SectorNodeViewModel>());
+
 		public GenericObservableList<Sector> ObservableSectorsInSession =>
 			_observableSectorsInSession ?? (_observableSectorsInSession = new GenericObservableList<Sector>());
 		
-		public Sector SelectedSector
+		public SectorNodeViewModel SelectedSectorNodeViewModel
 		{
-			get => _selectedSector;
+			get => _selectedSectorNodeViewModel;
 			set
 			{
-				if(!SetField(ref _selectedSector,value))
+				if(!SetField(ref _selectedSectorNodeViewModel,value))
 					return;
-				if(_selectedSector != null)
+				if(_selectedSectorNodeViewModel != null)
 				{
 					OnPropertyChanged(nameof(SectorVersions));
 					OnPropertyChanged(nameof(ObservableSectorDeliveryRuleVersions));
 					OnPropertyChanged(nameof(ObservableSectorWeekDayScheduleVersions));
 					OnPropertyChanged(nameof(ObservableSectorWeekDeliveryRuleVersions));
+					OnPropertyChanged(nameof(ObservableCommonDistrictRuleItems));
+					OnPropertyChanged(nameof(ObservableSectorDayDeliveryRestrictions));
+					OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
 				}
 			}
 		}
+
+		public Sector SelectedSector
+		{
+			get
+			{
+				if(Sectors.Any())
+					return Sectors.SingleOrDefault(x => x.Id == SelectedSectorNodeViewModel.Id);
+				return null;
+			}
+		}
+
 
 		private DelegateCommand _addSector;
 
@@ -228,9 +255,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			() =>
 			{
 				var sector = new Sector{DateCreated = DateTime.Today};
+				var sectorNodeViewModel = new SectorNodeViewModel(sector);
+				ObservableSectorNodeViewModels.Add(sectorNodeViewModel);
 				ObservableSectorsInSession.Add(sector);
 				Sectors.Add(sector);
-				SelectedSector = sector;
 			}));
 
 		private DelegateCommand _removeSector;
@@ -258,14 +286,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public SectorVersion SelectedSectorVersion
 		{
 			get => _selectedSectorVersion;
-			set => SetField(ref _selectedSectorVersion, value);
+			set
+			{
+				if(!SetField(ref _selectedSectorVersion, value))
+					return;
+
+				SelectedDistrictBorderVertices.Clear();
+				NewBorderVertices.Clear();
+				
+				if(SelectedSectorVersion?.Polygon != null)
+				{
+					SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>(SelectedSectorVersion.Polygon.Coordinates.Select(x => new PointLatLng(x.X, x.Y)).ToList());
+					IsCreatingNewBorder = false;
+				}
+			}
 		}
 
 		private DelegateCommand _addSectorVersion;
 
 		public DelegateCommand AddSectorVersion => _addSectorVersion ?? (_addSectorVersion = new DelegateCommand(() =>
 		{
-			var sectorVersion = SelectedSector.ActiveSectorVersion;
+			var sectorVersion = SelectedSector.GetActiveSectorVersion();
 			SectorVersion newVersion;
 			if(sectorVersion != null)
 				newVersion = sectorVersion.Clone() as SectorVersion;
@@ -276,7 +317,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				newVersion.StartDate = StartDateSectorVersion.Value;
 			if(EndDateSectorVersion.HasValue)
 				newVersion.EndDate = EndDateSectorVersion.Value;
-			
+
 			SelectedSectorVersion = newVersion;
 			ObservableSectorVersionsInSession.Add(newVersion);
 			SectorVersions.Add(newVersion);
@@ -319,7 +360,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		public GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems => SelectedDeliveryRuleVersion.ObservableCommonDistrictRuleItems;
+		public GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems
+		{
+			get
+			{
+				if(SelectedDeliveryRuleVersion != null)
+					return SelectedDeliveryRuleVersion.ObservableCommonDistrictRuleItems;
+				return new GenericObservableList<CommonDistrictRuleItem>();
+			}
+		}
 
 		public CommonDistrictRuleItem SelectedCommonDistrictRuleItem
 		{
@@ -338,6 +387,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddRulesDelivery => _addRulesDelivery ?? (_addRulesDelivery = new DelegateCommand(() =>
 		{
 			var deliveryRuleVersion = new SectorDeliveryRuleVersion{Sector = SelectedSector};
+			if(StartDateSectorDeliveryRule.HasValue)
+				deliveryRuleVersion.StartDate = StartDateSectorDeliveryRule.Value;
+			if(EndDateSectorDeliveryRule.HasValue)
+				deliveryRuleVersion.EndDate = EndDateSectorDeliveryRule.Value;
 			SelectedDeliveryRuleVersion = deliveryRuleVersion;
 			ObservableSectorDeliveryRuleVersionsInSession.Add(deliveryRuleVersion);
 			ObservableSectorDeliveryRuleVersions.Add(deliveryRuleVersion);
@@ -373,7 +426,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddCommonDistrictRule => _addCommonDistrictRule ?? (_addCommonDistrictRule = new DelegateCommand(
 			() =>
 			{
-				var commonDistrictRule = new CommonDistrictRuleItem{ Sector = SelectedDeliveryRuleVersion.Sector};
+				var commonDistrictRule = new CommonDistrictRuleItem{ SectorDeliveryRuleVersion = SelectedDeliveryRuleVersion};
 				ObservableCommonDistrictRuleItems.Add(commonDistrictRule);
 				SelectedCommonDistrictRuleItem = commonDistrictRule;
 			}));
@@ -415,7 +468,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get
 			{
-				if(SelectedWeekDayScheduleVersion.ObservableSectorSchedules.Where(x => x.WeekDay == SelectedWeekDayName.Value).Any())
+				if(SelectedWeekDayScheduleVersion != null && SelectedWeekDayScheduleVersion.ObservableSectorSchedules.Where(x => x.WeekDay == SelectedWeekDayName.Value).Any())
 					return new GenericObservableList<DeliveryScheduleRestriction>(SelectedWeekDayScheduleVersion.ObservableSectorSchedules
 						.Where(x => x.WeekDay == SelectedWeekDayName.Value).ToList());
 				return new GenericObservableList<DeliveryScheduleRestriction>();
@@ -436,6 +489,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			new DelegateCommand(() =>
 			{
 				var dayScheduleVersion = new SectorWeekDayScheduleVersion {Sector = SelectedSector, Status = SectorsSetStatus.Draft};
+				if(StartDateSectorDaySchedule.HasValue)
+					dayScheduleVersion.StartDate = StartDateSectorDaySchedule.Value;
+				if(EndDateSectorDaySchedule.HasValue)
+					dayScheduleVersion.EndDate = EndDateSectorDaySchedule.Value;
 				SelectedWeekDayScheduleVersion = dayScheduleVersion;
 				ObservableSectorWeekDayScheduleVersionsInSession.Add(dayScheduleVersion);
 				ObservableSectorWeekDayScheduleVersions.Add(dayScheduleVersion);
@@ -468,8 +525,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				ObservableSectorWeekDayScheduleVersions.Add(dayScheduleVersionClone);
 			}));
 		
-		private DelegateCommand<IEnumerable<DeliverySchedule>> addScheduleRestrictionCommand;
-		public DelegateCommand<IEnumerable<DeliverySchedule>> AddScheduleRestrictionCommand => addScheduleRestrictionCommand ?? (addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliverySchedule>>(
+		private DelegateCommand<IEnumerable<DeliverySchedule>> _addScheduleRestrictionCommand;
+		public DelegateCommand<IEnumerable<DeliverySchedule>> AddScheduleRestrictionCommand => _addScheduleRestrictionCommand ?? (_addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliverySchedule>>(
 			schedules => {
 				foreach(var schedule in schedules)
 				{
@@ -487,8 +544,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			schedules => schedules.Any()
 		));
 		
-		private DelegateCommand removeScheduleRestrictionCommand;
-		public DelegateCommand RemoveScheduleRestrictionCommand => removeScheduleRestrictionCommand ?? (removeScheduleRestrictionCommand = new DelegateCommand(
+		private DelegateCommand _removeScheduleRestrictionCommand;
+		public DelegateCommand RemoveScheduleRestrictionCommand => _removeScheduleRestrictionCommand ?? (_removeScheduleRestrictionCommand = new DelegateCommand(
 			() => {
 				ObservableSectorDayDeliveryRestrictions.Remove(SelectedScheduleRestriction);
 				OnPropertyChanged(nameof(ObservableSectorDayDeliveryRestrictions));
@@ -496,8 +553,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			() => SelectedScheduleRestriction != null
 		));
 		
-		private DelegateCommand removeAcceptBeforeCommand;
-		public DelegateCommand RemoveAcceptBeforeCommand => removeAcceptBeforeCommand ?? (removeAcceptBeforeCommand = new DelegateCommand(
+		private DelegateCommand _removeAcceptBeforeCommand;
+		public DelegateCommand RemoveAcceptBeforeCommand => _removeAcceptBeforeCommand ?? (_removeAcceptBeforeCommand = new DelegateCommand(
 			() => {
 				SelectedScheduleRestriction.AcceptBefore = null;
 			},
@@ -512,7 +569,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get
 			{
-				if(SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Where(x=>x.WeekDay == SelectedWeekDayName.Value).Any())
+				if(SelectedWeekDayDeliveryRuleVersion != null && SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Where(x=>x.WeekDay == SelectedWeekDayName.Value).Any())
 					return new GenericObservableList<WeekDayDistrictRuleItem>(SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Where(x=>x.WeekDay == SelectedWeekDayName.Value).ToList());
 				return new GenericObservableList<WeekDayDistrictRuleItem>();
 			}
@@ -521,13 +578,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public WeekDayDistrictRuleItem SelectedWeekDayDistrictRuleItem
 		{
 			get => _selectedWeekDayDistrictRuleItem;
-			set
-			{
-				if(!SetField(ref _selectedWeekDayDistrictRuleItem, value))
-					return;
-				if(value != null)
-					OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
-			}
+			set => SetField(ref _selectedWeekDayDistrictRuleItem, value);
 		}
 		public GenericObservableList<SectorWeekDayDeliveryRuleVersion> ObservableSectorWeekDeliveryRuleVersions =>
 			SelectedSector.ObservableSectorWeekDayDeliveryRuleVersions;
@@ -553,10 +604,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddWeekDayDistrictRule => _addWeekDayDistrictRule ?? (_addWeekDayDistrictRule = new DelegateCommand(
 			() =>
 			{
-				var weekDayDistrictRuleItem = new WeekDayDistrictRuleItem{ Sector = SelectedSector};
+				var weekDayDistrictRuleItem = new WeekDayDistrictRuleItem{ SectorWeekDayDeliveryRuleVersion = SelectedWeekDayDeliveryRuleVersion, WeekDay = SelectedWeekDayName.Value};
 				SelectedWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules.Add(weekDayDistrictRuleItem);
 				//ObservableSectorDeliveryRulesInSession.Add(weekDayDistrictRuleItem);
 				SelectedWeekDayDistrictRuleItem = weekDayDistrictRuleItem;
+				OnPropertyChanged(nameof(ObservableSectorDeliveryRules));
 			}));
 
 		private DelegateCommand _removeWeekDayDistrictRule;
@@ -593,9 +645,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				ObservableSectorWeekDeliveryRuleVersions.Remove(SelectedWeekDayDeliveryRuleVersion);
 				SelectedWeekDayDeliveryRuleVersion = null;
 			}));
+		
+		private DelegateCommand _copyDayDeliveryRule;
 
-		private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
-		public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
+		public DelegateCommand CopyDayDeliveryRule => _copyDayDeliveryRule ?? (_copyDayDeliveryRule = new DelegateCommand(
+			() =>
+			{
+				var sectorWeekDayDeliveryRuleVersionClone = SelectedWeekDayScheduleVersion.Clone() as SectorWeekDayDeliveryRuleVersion;
+				SelectedWeekDayDeliveryRuleVersion = sectorWeekDayDeliveryRuleVersionClone;
+				ObservableSectorWeekDeliveryRuleVersions.Add(sectorWeekDayDeliveryRuleVersionClone);
+				ObservableSectorWeekDeliveryRuleVersionsInSession.Add(sectorWeekDayDeliveryRuleVersionClone);
+			}));
+
+		private DelegateCommand<AcceptBefore> _addAcceptBeforeCommand;
+		public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => _addAcceptBeforeCommand ?? (_addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
 			acceptBefore => {
 				SelectedScheduleRestriction.AcceptBefore = acceptBefore;
 			},
@@ -691,105 +754,172 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		#endregion
 
+		#region Фильтрация
+
+		private DelegateCommand _filterableSectors;
+
+		public DelegateCommand FilterableSectors => _filterableSectors ?? (_filterableSectors = new DelegateCommand(() =>
+		{
+			var sectors = UoW.GetAll<Sector>().ToList();
+			sectors.ForEach(s =>
+			{
+				if(Status.HasValue)
+				{
+					sectors = s.SectorVersions.Where(x => x.Status == Status).Select(x=>x.Sector).ToList();
+					sectors = s.SectorDeliveryRuleVersions.Where(x => x.Status == Status).Select(x=>x.Sector).ToList();
+					sectors = s.SectorWeekDaySchedulesVersions.Where(x => x.Status == Status).Select(x=>x.Sector).ToList();
+					sectors = s.SectorWeekDayDeliveryRuleVersions.Where(x => x.Status == Status).Select(x=>x.Sector).ToList();
+				}
+				if(StartDateSector.HasValue)
+				{
+					sectors = s.SectorVersions.Where(x => x.StartDate >= StartDateSector).Select(x=>x.Sector).ToList();
+					sectors = s.SectorDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x=>x.Sector).ToList();
+					sectors = s.SectorWeekDaySchedulesVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x=>x.Sector).ToList();
+					sectors = s.SectorWeekDayDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x=>x.Sector).ToList();
+				}
+			});
+			Sectors = new GenericObservableList<Sector>(sectors);
+			OnPropertyChanged(nameof(Sectors));
+		}));
+
+		private SectorsSetStatus? _status;
+
+		public SectorsSetStatus? Status
+		{
+			get => _status;
+			set => _status = value;
+		}
+
+		#endregion
+
 		#region Сводка
 
 		
-
-		#endregion
-
-		#region На активацию
-
-		public void OnActivation(SectorVersion sectorVersion)
-		{
-			sectorVersion.Status = SectorsSetStatus.OnActivation;
-			var draftSectors = SectorVersions.Concat(ObservableSectorVersionsInSession).Where(x => x.Status == SectorsSetStatus.OnActivation
-			                                                                             && x.LastEditor.Id == _personellId && x.Sector.Id == sectorVersion.Sector.Id).ToList();
-			for(int i = 0; i < draftSectors.Count; i++)
-			{
-				draftSectors[i].Status = SectorsSetStatus.Draft;
-			}
-			
-			SaveUow();
-		}
-
-		#endregion
-
-		#region Вернуть в черновик
-
-		public void DraftSectors(SectorVersion sectorVersion)
-		{
-			sectorVersion.Status = SectorsSetStatus.Draft;
-			
-			SaveUow();
-		}
-
+		
 		#endregion
 
 		#region Активировать
 
-		private DelegateCommand _activateSector;
+		private DelegateCommand _activate;
 
-		public DelegateCommand ActivateSector => _activateSector ?? (_activateSector = new DelegateCommand(() =>
+		public DelegateCommand Activate => _activate ?? (_activate = new DelegateCommand(() =>
 		{
-			var activeSectorVersion = SectorVersions.Concat(ObservableSectorVersionsInSession)
-				.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == SelectedSectorVersion.Sector.Id);
-			if(activeSectorVersion != null)
+			Sectors.ForEach(sector => 
 			{
-				activeSectorVersion.Status = SectorsSetStatus.Closed;
-				if(!SelectedSectorVersion.Polygon.EqualsExact(activeSectorVersion.Polygon))
+				var onActiveSectorVersion = sector.SectorVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
+				if(onActiveSectorVersion != null)
 				{
-					DeliveryPointSectorVersions.ForEach(x => { x.FindAndAssociateDistrict(UoW, _sectorRepository); });
+					var activeSector = sector.GetActiveSectorVersion();
+					ValidationContext validationContext = new ValidationContext(Entity);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(_commonServices.ValidationService.Validate(Entity, validationContext))
+					{
+						if(activeSector != null)
+						{
+							activeSector.EndDate = onActiveSectorVersion?.StartDate?.Date.AddMilliseconds(-1);
+							activeSector.Status = SectorsSetStatus.Closed;
+							if(!onActiveSectorVersion.Polygon.EqualsExact(activeSector.Polygon))
+								DeliveryPointSectorVersions.ForEach(x => x.FindAndAssociateDistrict(UoW, _sectorRepository));
+						}
+
+						DeliveryPointSectorVersions.ForEach(x => x.FindAndAssociateDistrict(UoW, _sectorRepository));
+
+						onActiveSectorVersion.Status = SectorsSetStatus.Active;
+					}
 				}
-			}
 
-			var activeSectorDeliveryRule = ObservableSectorDeliveryRuleVersions.Concat(ObservableSectorDeliveryRuleVersionsInSession)
-				.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == SelectedDeliveryRuleVersion.Sector.Id);
-			if(activeSectorDeliveryRule != null)
-			{
-				activeSectorDeliveryRule.Status = SectorsSetStatus.Closed;
-			}
+				var onActiveDeliveryRule = sector.SectorDeliveryRuleVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
+				if(onActiveDeliveryRule != null)
+				{
+					var activeDeliveryRule = sector.GetActiveDeliveryRuleVersion();
+					ValidationContext validationContext = new ValidationContext(onActiveDeliveryRule);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(_commonServices.ValidationService.Validate(onActiveDeliveryRule, validationContext))
+					{
+						if(activeDeliveryRule != null)
+						{
+							activeDeliveryRule.EndDate = onActiveDeliveryRule?.StartDate?.Date.AddMilliseconds(-1);
+							activeDeliveryRule.Status = SectorsSetStatus.Closed;
+						}
 
-			// var activeSectorWeekDayRule = SectorWeekDeliveryRuleVersions.Concat(ObservableSectorWeekDeliveryRuleVersionsInSession)
-			// 	.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == SelectedWeekDayRulesVersion.Sector.Id);
-			// if(activeSectorWeekDayRule != null)
-			// {
-			// 	activeSectorWeekDayRule.Status = SectorsSetStatus.Closed;
-			// }
-			//
-			// SelectedWeekDayRulesVersion.Status = SectorsSetStatus.Active;
-			// SelectedDeliveryRuleVersion.Status = SectorsSetStatus.Active;
-			// SelectedSectorVersion.Status = SectorsSetStatus.Active;
+						onActiveDeliveryRule.Status = SectorsSetStatus.Active;
+					}
+				}
+
+				var onActiveWeekDayScheduleVersion =
+					sector.SectorWeekDaySchedulesVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
+				if(onActiveWeekDayScheduleVersion != null)
+				{
+					var activeWeekDaySchedule = sector.GetActiveWeekDayScheduleVersion();
+					ValidationContext validationContext = new ValidationContext(onActiveWeekDayScheduleVersion);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(!_commonServices.ValidationService.Validate(onActiveWeekDayScheduleVersion, validationContext))
+					{
+
+						if(activeWeekDaySchedule != null)
+						{
+							activeWeekDaySchedule.EndDate = onActiveWeekDayScheduleVersion?.StartDate?.Date.AddMilliseconds(-1);
+							activeWeekDaySchedule.Status = SectorsSetStatus.Closed;
+						}
+
+						onActiveWeekDayScheduleVersion.Status = SectorsSetStatus.Active;
+					}
+				}
+
+				var onActiveWeekDayDeliveryRuleVersion =
+					sector.SectorWeekDayDeliveryRuleVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
+				if(onActiveWeekDayDeliveryRuleVersion != null)
+				{
+					var activeWeekDayDeliveryRule = sector.GetActiveWeekDayDeliveryRuleVersion();
+					ValidationContext validationContext = new ValidationContext(onActiveWeekDayDeliveryRuleVersion);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(!_commonServices.ValidationService.Validate(onActiveWeekDayDeliveryRuleVersion, validationContext))
+					{
+						if(activeWeekDayDeliveryRule != null)
+						{
+							activeWeekDayDeliveryRule.EndDate = onActiveWeekDayDeliveryRuleVersion?.StartDate?.Date.AddMilliseconds(-1);
+							activeWeekDayDeliveryRule.Status = SectorsSetStatus.Closed;
+						}
+
+						onActiveWeekDayDeliveryRuleVersion.Status = SectorsSetStatus.Active;
+					}
+				}
+			});
 		}));
-
-		public void ActivateSectors(SectorVersion sectorVersion)
-		{
-			var activeSectorVersion = SectorVersions.Concat(ObservableSectorVersionsInSession)
-				.SingleOrDefault(x => x.Status == SectorsSetStatus.Active && x.Sector.Id == sectorVersion.Sector.Id);
-			if(activeSectorVersion != null)
-			{
-				activeSectorVersion.Status = SectorsSetStatus.Closed;
-				if(!sectorVersion.Polygon.EqualsExact(activeSectorVersion.Polygon))
-				{
-					DeliveryPointSectorVersions.ForEach(x => { x.FindAndAssociateDistrict(UoW, _sectorRepository); });
-				}
-			}
-			sectorVersion.Status = SectorsSetStatus.Active;
-			
-			SaveUow();
-		}
 
 		#endregion
 		
 		#region Сохранение
 
-		private void SaveUow()
+		public override bool Save(bool close)
 		{
-			UoW.Save();
-			ObservableSectorVersionsInSession.Clear();
-			ObservableSectorWeekDeliveryRuleVersionsInSession.Clear();
-			ObservableSectorDeliveryRuleVersionsInSession.Clear();
+			// if(base.Save(close)) {
+			// 	if(!_commonServices.InteractiveService.Question("Продолжить редактирование районов?", "Успешно сохранено"))
+			// 		Close(false, CloseSource.Save);
+			// 	return true;
+			// }
+			Sectors.ForEach(x => UoW.Save(x));
+			ObservableSectorDeliveryRules.ForEach(x => UoW.Save());
+			return false;
+		}
+		
+		public override void Close(bool askSave, CloseSource source)
+		{
+			if(askSave)
+				TabParent?.AskToCloseTab(this, source);
+			else
+				TabParent?.ForceCloseTab(this, source);
+		}        
+		public override bool HasChanges {
+			get => base.HasChanges && (CanEditSector || CanEdit);
+			set => base.HasChanges = value;
 		}
 
+		public override void Dispose()
+		{
+			UoW?.Dispose();
+			base.Dispose();
+		}
 		#endregion
 	}
 }

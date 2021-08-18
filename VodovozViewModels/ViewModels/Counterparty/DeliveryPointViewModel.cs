@@ -13,6 +13,7 @@ using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Models;
@@ -257,12 +258,23 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public void WriteCoordinates(decimal? latitude, decimal? longitude, bool isManual)
 		{
 			Entity.ManualCoordinates = isManual;
-			if(EqualCoords(Entity?.ActiveVersion.Latitude, latitude) && EqualCoords(Entity?.ActiveVersion.Longitude, longitude))
+			if(Entity.ActiveVersion != null)
+				if(EqualCoords(Entity?.ActiveVersion.Latitude, latitude) && EqualCoords(Entity?.ActiveVersion.Longitude, longitude))
+					return;
+
+			DeliveryPointSectorVersion newDeliveryPointSectorVersion;
+			newDeliveryPointSectorVersion = new DeliveryPointSectorVersion {DeliveryPoint = Entity};
+			if(Entity.ActiveVersion != null)
 			{
-				return;
+				Entity.ActiveVersion.EndDate = DateTime.Now;
+				Entity.ActiveVersion.Status = SectorsSetStatus.Closed;
 			}
 
-			Entity?.ActiveVersion.SetСoordinates(latitude, longitude, _sectorsRepository, UoW);
+			newDeliveryPointSectorVersion.SetСoordinates(latitude, longitude, _sectorsRepository, UoW);
+			newDeliveryPointSectorVersion.Status = SectorsSetStatus.Active;
+			newDeliveryPointSectorVersion.StartDate = DateTime.Now;
+			
+			Entity?.ObservableDeliveryPointSectorVersions.Add(newDeliveryPointSectorVersion);
 			Entity.СoordsLastChangeUser = _currentUser ?? (_currentUser = _userRepository.GetCurrentUser(UoW));
 		}
 

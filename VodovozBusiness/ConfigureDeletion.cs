@@ -635,8 +635,7 @@ namespace Vodovoz
 				.AddDeleteDependence<DriverDistrictPriority>(i => i.Sector)
 				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.Sector)
 				.AddClearDependence<DeliveryPointSectorVersion>(i => i.Sector)
-				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.Sector)
-				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.Sector)
+				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.SectorDeliveryRuleVersion)
 				.AddRemoveFromDependence<SectorVersion>(x => x.Sector);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();

@@ -903,11 +903,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersion.DeliveryPoint)
 				.Where(() => deliveryPointSectorVersion.Status == SectorsSetStatus.Active)
-				.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
-				.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
-				.Where(() => sectorVersion.Status == SectorsSetStatus.Active)
+				.JoinEntityAlias(() => sectorVersion,
+					() => sectorVersion.Sector == deliveryPointSectorVersion.Sector && sectorVersion.Status == SectorsSetStatus.Active &&
+					      sectorVersion.GeographicGroup.Id == geographicGroupId,
+					JoinType.InnerJoin)
 				.Where(() => orderEquipmentAlias.Nomenclature.Id == flyerId)
-				.Where(() => sectorVersion.Id == geographicGroupId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList
 				             || orderAlias.OrderStatus == OrderStatus.OnLoading)

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Sectors;
@@ -24,17 +26,25 @@ namespace Vodovoz.Repositories.Sale
 		public static IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, Sector _sector)
 		{
 			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
-						 .Where(i => i.Sector.Id == _sector.Id)
+						 .Where(i => i.SectorDeliveryRuleVersion.Id == _sector.Id)
 						 .List();
 			return res;
 		}
 
-		public static IList<Sector> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
+		public static IList<SectorVersion> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
-			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
-						 .Where(d => d.DeliveryPriceRule.Id == rule.Id)
+			SectorVersion sectorVersionAlias = null;
+			CommonDistrictRuleItem commonDistrictRuleItemAlias = null;
+			SectorDeliveryRuleVersion sectorDeliveryRuleVersionAlias = null;
+			var res = uow.Session.QueryOver(() => commonDistrictRuleItemAlias)
+				.JoinAlias(() => sectorDeliveryRuleVersionAlias, () => commonDistrictRuleItemAlias.SectorDeliveryRuleVersion)
+				.JoinEntityAlias(() => sectorVersionAlias,
+					() => sectorVersionAlias.Sector == sectorDeliveryRuleVersionAlias.Sector &&
+					      sectorVersionAlias.Status == SectorsSetStatus.Active,
+					JoinType.LeftOuterJoin)
+				.Where(d => d.DeliveryPriceRule.Id == rule.Id)
 						 .List()
-						 .Select(r => r.Sector)
+						 .Select(x => sectorVersionAlias)
 						 .ToList();
 
 			return res;

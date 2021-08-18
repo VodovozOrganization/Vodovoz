@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
@@ -11,7 +12,7 @@ using Vodovoz.Domain.WageCalculation;
 namespace Vodovoz.Domain.Sectors
 {
 	[HistoryTrace]
-	public class SectorVersion : PropertyChangedBase, IDomainObject, ICloneable
+	public class SectorVersion : PropertyChangedBase, IDomainObject, ICloneable, IValidatableObject
 	{
 		public SectorVersion()
 		{
@@ -121,14 +122,6 @@ namespace Vodovoz.Domain.Sectors
 					WaterPrice = 0;
 			}
 		}
-		
-		private bool _isArchive;
-		[Display(Name = "Архивный")]
-		public virtual bool IsArchive {
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
-			
-		}
 
 		public object Clone()
 		{
@@ -142,7 +135,6 @@ namespace Vodovoz.Domain.Sectors
 
 			var tariff = new TariffZone {Name = TariffZone.Name};
 
-			var sector = Sector.Clone() as Sector;
 			return new SectorVersion
 			{
 				Status = SectorsSetStatus.Draft,
@@ -153,8 +145,38 @@ namespace Vodovoz.Domain.Sectors
 				GeographicGroup = geographicGroup,
 				Polygon = copyPolygon,
 				TariffZone = tariff,
-				Sector = sector
+				Sector = Sector
 			};
+		}
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrWhiteSpace(SectorName))
+			{
+				yield return new ValidationResult(
+					$"Необходимо заполнить имя района",
+					new[] {nameof(SectorName)});
+			}
+			if(GeographicGroup == null)
+			{
+				yield return new ValidationResult(
+					$"Для района \"{SectorName}\" необходимо указать часть города, содержащую этот район доставки",
+					new[] {nameof(GeographicGroup)});
+			}
+			if(Polygon == null)
+			{
+				yield return new ValidationResult(
+					$"Для района \"{SectorName}\" необходимо нарисовать границы на карте", new[] {nameof(Polygon)});
+			}
+			if(WageSector == null)
+			{
+				yield return new ValidationResult(
+					$"Для района \"{SectorName}\" необходимо выбрать зарплатную группу", new[] {nameof(WageSector)});
+			}
+			if(StartDate.HasValue == false)
+			{
+				yield return new ValidationResult($"Необходимо поставить дату активации", new[] {nameof(StartDate)});
+			}
 		}
 	}
 }

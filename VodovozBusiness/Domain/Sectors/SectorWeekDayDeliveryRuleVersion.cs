@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
@@ -10,23 +11,10 @@ using Vodovoz.Domain.Sale;
 namespace Vodovoz.Domain.Sectors
 {
 	[HistoryTrace]
-	public class SectorWeekDayDeliveryRuleVersion: PropertyChangedBase, IDomainObject, ICloneable
+	public class SectorWeekDayDeliveryRuleVersion: PropertyChangedBase, IDomainObject, ICloneable, IValidatableObject
 	{
 		public int Id { get; set; }
 
-		private Employee _author;
-		[Display(Name = "Автор")]
-		public virtual Employee Author {
-			get => _author;
-			set => SetField(ref _author, value);
-		}
-
-		private Employee _lastEditor;
-		public virtual Employee LastEditor {
-			get => _lastEditor;
-			set => SetField(ref _lastEditor, value);
-		}
-		
 		private DateTime? _startDate;
 		
 		[Display(Name = "Время создания")]
@@ -81,19 +69,31 @@ namespace Vodovoz.Domain.Sectors
 
 		public object Clone()
 		{
-			var sectorClone = Sector.Clone() as Sector;
 			
 			var weekDayDeliveryRuleClone = new List<WeekDayDistrictRuleItem>();
 			WeekDayDistrictRules.ForEach(a => weekDayDeliveryRuleClone.Add(a.Clone() as WeekDayDistrictRuleItem));
 
 			return new SectorWeekDayDeliveryRuleVersion
 			{
-				Sector = sectorClone,
+				Sector = Sector,
 				WeekDayDistrictRules = weekDayDeliveryRuleClone,
 				StartDate = StartDate,
 				Status = Status,
 				EndDate = EndDate
 			};
+		}
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(StartDate.HasValue == false)
+			{
+				yield return new ValidationResult($"Необходимо поставить дату активации", new[] {nameof(StartDate)});
+			}
+			if(ObservableWeekDayDistrictRules.Any(i => i.Price <= 0))
+			{
+				yield return new ValidationResult(
+					$"Для всех особых правил доставки для района \"{Sector.Id}\" должны быть указаны цены");
+			}
 		}
 	}
 }

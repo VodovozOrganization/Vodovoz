@@ -5,6 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -37,15 +38,15 @@ namespace Vodovoz.Views.Logistic
                     .XAlign(0.5f)
             	.AddColumn("Район")
                     .HeaderAlignment(0.5f)
-                    .AddTextRenderer(x => x.Sector.SectorName)
+                    .AddTextRenderer(x => x.SectorVersion.SectorName)
                     .XAlign(0.5f)
-                .AddColumn("Архивный\nрайон")
+                .AddColumn("Активная\n версия района")
                     .HeaderAlignment(0.5f)
-                    .AddToggleRenderer(x => x.Sector.ActiveSectorVersion.IsArchive)
+                    .AddToggleRenderer(x => x.SectorVersion.Status == SectorsSetStatus.Active)
                     .XAlign(0.5f)
                 .AddColumn("Код версии")
                     .HeaderAlignment(0.5f)
-                    .AddNumericRenderer(x => x.Sector.ActiveSectorVersion.Id)
+                    .AddNumericRenderer(x => x.SectorVersion.Id)
                     .XAlign(0.5f)
                 .AddColumn("")
                 .Finish();

@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
@@ -1194,8 +1195,13 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 						.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
-						.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-						.Left.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+						.JoinEntityAlias(() => sectorVersionAlias,
+							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+							      sectorVersionAlias.Status == SectorsSetStatus.Active &&
+							      sectorVersionAlias.StartDate >= DateForRouting.Date && (sectorVersionAlias.EndDate != null ||
+							                                                              sectorVersionAlias.EndDate <=
+							                                                              DateForRouting.Date.AddDays(1)),
+							JoinType.LeftOuterJoin)
 						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));
@@ -1462,8 +1468,13 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 						.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
-						.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-						.Left.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+						.JoinEntityAlias(() => sectorVersionAlias,
+							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+							      sectorVersionAlias.Status == SectorsSetStatus.Active &&
+							      sectorVersionAlias.StartDate >= DateForRouting.Date && (sectorVersionAlias.EndDate != null ||
+							                                                              sectorVersionAlias.EndDate <=
+							                                                              DateForRouting.Date.AddDays(1)),
+							JoinType.LeftOuterJoin)
 						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));

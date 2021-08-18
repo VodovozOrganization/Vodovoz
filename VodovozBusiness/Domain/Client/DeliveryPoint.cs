@@ -480,13 +480,9 @@ namespace Vodovoz.Domain.Client
 			{
 				var active = ObservableDeliveryPointSectorVersions.Single(x => x.Status == SectorsSetStatus.Active);
 				if(active != null)
-				{
 					_activeVersion = active;
-				}
 				else
-				{
 					_activeVersion = null;
-				}
 			}
 		}
 

@@ -21,7 +21,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			this.Build();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<AtWorkDriverDistrictPriority>.Create()
-				.AddColumn("Район").AddTextRenderer(x => x.Sector.SectorName)
+				.AddColumn("Район").AddTextRenderer(x => x.SectorVersion.SectorName)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;

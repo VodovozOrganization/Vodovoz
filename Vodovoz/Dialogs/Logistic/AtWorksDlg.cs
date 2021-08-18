@@ -70,51 +70,57 @@ namespace Vodovoz.Dialogs.Logistic
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
 			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Приоритет")
-					.AddNumericRenderer(x => x.PriorityAtDay)
-					.Editing(new Gtk.Adjustment(6, 1, 10, 1, 1, 1))
+				.AddNumericRenderer(x => x.PriorityAtDay)
+				.Editing(new Gtk.Adjustment(6, 1, 10, 1, 1, 1))
 				.AddColumn("Статус")
-					.AddTextRenderer(x => x.Status.GetEnumTitle())
+				.AddTextRenderer(x => x.Status.GetEnumTitle())
 				.AddColumn("Причина")
-					.AddTextRenderer(x => x.Reason)
-						.AddSetter((cell, driver) => cell.Editable = driver.Status == AtWorkDriver.DriverStatus.NotWorking)
+				.AddTextRenderer(x => x.Reason)
+				.AddSetter((cell, driver) => cell.Editable = driver.Status == AtWorkDriver.DriverStatus.NotWorking)
 				.AddColumn("Водитель")
-					.AddTextRenderer(x => x.Employee.ShortName)
+				.AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Скор.")
-					.AddTextRenderer(x => x.Employee.DriverSpeed.ToString("P0"))
+				.AddTextRenderer(x => x.Employee.DriverSpeed.ToString("P0"))
 				.AddColumn("График работы")
-					.AddComboRenderer(x => x.DaySchedule)
-					.SetDisplayFunc(x => x.Name)
-					.FillItems(UoW.GetAll<DeliveryDaySchedule>().ToList())
-					.Editing()
+				.AddComboRenderer(x => x.DaySchedule)
+				.SetDisplayFunc(x => x.Name)
+				.FillItems(UoW.GetAll<DeliveryDaySchedule>().ToList())
+				.Editing()
 				.AddColumn("Оконч. работы")
-					.AddTextRenderer(x => x.EndOfDayText).Editable()
+				.AddTextRenderer(x => x.EndOfDayText).Editable()
 				.AddColumn("Экспедитор")
-					.AddComboRenderer(x => x.WithForwarder)
-					.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
+				.AddComboRenderer(x => x.WithForwarder)
+				.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
-					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+				.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
+				.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("База")
-					.AddComboRenderer(x => x.GeographicGroup)
-					.SetDisplayFunc(x => x.Name)
-					.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
-					.AddSetter(
-						(c, n) => {
-							c.Editable = true;
-							c.BackgroundGdk = n.GeographicGroup == null
-								? colorLightRed
-								: colorWhite;
-						}
-					)
+				.AddComboRenderer(x => x.GeographicGroup)
+				.SetDisplayFunc(x => x.Name)
+				.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+				.AddSetter(
+					(c, n) =>
+					{
+						c.Editable = true;
+						c.BackgroundGdk = n.GeographicGroup == null
+							? colorLightRed
+							: colorWhite;
+					}
+				)
 				.AddColumn("Грузоп.")
-					.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
+				.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
-					.AddTextRenderer(x => string.Join(", ", x.DistrictsPriorities.Select(d => d.Sector.SectorName)))
+				.AddTextRenderer(x => string.Join(", ",
+					x.DistrictsPriorities.Select(d =>
+						d.Sector.SectorVersions
+							.Where(s => s.Status == SectorsSetStatus.Active && DialogAtDate >= s.StartDate &&
+							            (s.EndDate != null || s.EndDate <= DialogAtDate.Date.AddDays(1))).Select(m => m.SectorName))))
 				.AddColumn("")
 				.AddColumn("Комментарий")
-					.AddTextRenderer(x => x.Comment)
-						.Editable(true)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
+				.AddTextRenderer(x => x.Comment)
+				.Editable(true)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+					c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking ? "gray" : "black")
 				.Finish();
 
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
@@ -637,13 +643,13 @@ namespace Vodovoz.Dialogs.Logistic
 				{
 					var outDatedPriorities = DriversAtDay
 						.SelectMany(atWorkDriver => atWorkDriver.DistrictsPriorities.Where(atWorkDriverDistrictPriority =>
-							atWorkDriverDistrictPriority.Sector.ActiveSectorVersion.Id != sectorVersion.Id));
+							atWorkDriverDistrictPriority.Sector.GetActiveSectorVersion().Id != sectorVersion.Id));
 					if(!outDatedPriorities.Any()) 
 						return;
 					int deletedCount = 0;
 					foreach(var priority in outDatedPriorities)
 					{
-						var newSector = sectorVersion.Sector.Clone() as Sector;
+						var newSector = sectorVersion.Sector;
 						if(newSector is null)
 						{
 							priority.Driver.ObservableDistrictsPriorities.Remove(priority);

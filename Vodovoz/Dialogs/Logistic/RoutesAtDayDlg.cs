@@ -13,6 +13,7 @@ using GMap.NET.MapProviders;
 using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -674,8 +675,10 @@ namespace Vodovoz
 				baseOrderQuery
 				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
-				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-				.Left.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersionAlias)
+				.JoinEntityAlias(() => sectorVersionAlias,
+					() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+					      sectorVersionAlias.Status == SectorsSetStatus.Active,
+					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}

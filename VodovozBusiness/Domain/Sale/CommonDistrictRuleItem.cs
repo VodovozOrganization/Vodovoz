@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -10,6 +12,12 @@ namespace Vodovoz.Domain.Sale
 	{
 		public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}";
 
+		SectorDeliveryRuleVersion _sectorDeliveryRuleVersion;
+		[Display(Name = "Район доставки")]
+		public virtual SectorDeliveryRuleVersion SectorDeliveryRuleVersion {
+			get => _sectorDeliveryRuleVersion;
+			set => SetField(ref _sectorDeliveryRuleVersion, value);
+		}
 		public override object Clone()
 		{
 			var newCommonDistrictRuleItem = new CommonDistrictRuleItem {

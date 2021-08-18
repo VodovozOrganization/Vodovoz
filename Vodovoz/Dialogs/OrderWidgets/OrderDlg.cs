@@ -679,7 +679,7 @@ namespace Vodovoz
 			{
 				return;
 			}
-			var geographicGroupId = Entity.DeliveryPoint.ActiveVersion.Sector.ActiveSectorVersion.GeographicGroup.Id;
+			var geographicGroupId = Entity.DeliveryPoint.ActiveVersion.Sector.GetActiveSectorVersion(Entity.DeliveryDate).GeographicGroup.Id;
 			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW);
 
 			if(activeFlyers.Any())

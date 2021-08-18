@@ -13,26 +13,34 @@ namespace Vodovoz.Domain.Sale
     public class DeliveryScheduleRestriction : PropertyChangedBase, IDomainObject, ICloneable
     {
         public virtual int Id { get; set; }
-        
+
+        private SectorWeekDayScheduleVersion _sectorWeekDayScheduleVersion;
+
+        public virtual SectorWeekDayScheduleVersion SectorWeekDayScheduleVersion
+        {
+	        get => _sectorWeekDayScheduleVersion;
+	        set => SetField(ref _sectorWeekDayScheduleVersion, value);
+        }
+
         private WeekDayName weekDay;
         [Display(Name = "День недели")]
         public virtual WeekDayName WeekDay {
             get => weekDay;
-            set => SetField(ref weekDay, value, () => WeekDay);
+            set => SetField(ref weekDay, value);
         }
 
         private DeliverySchedule deliverySchedule;
         [Display(Name = "График доставки")]
         public virtual DeliverySchedule DeliverySchedule {
             get => deliverySchedule;
-            set => SetField(ref deliverySchedule, value, () => DeliverySchedule);
+            set => SetField(ref deliverySchedule, value);
         }
         
         private AcceptBefore acceptBefore;
         [Display(Name = "Прием до")]
         public virtual AcceptBefore AcceptBefore {
             get => acceptBefore;
-            set => SetField(ref acceptBefore, value, () => AcceptBefore);
+            set => SetField(ref acceptBefore, value);
         }
 
         public DeliveryScheduleRestriction()

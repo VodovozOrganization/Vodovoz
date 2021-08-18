@@ -6,7 +6,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using ClosedXML.Report;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -170,15 +172,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Nomenclature nomenclatureAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
 			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
-			SectorVersion sectorVersion = null;
+			SectorVersion sectorVersionAlias = null;
 
 			var query = Uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 				.Inner.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
 				.Inner.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
-				.Inner.JoinAlias(() => sectorAlias.ActiveSectorVersion, () => sectorVersion)
-				.Left.JoinAlias(() => sectorVersion.GeographicGroup, () => geographicGroupAlias)
-				.Left.JoinAlias(() => sectorVersion.WageSector, () => wageSectorAlias)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
+				.Left.JoinAlias(() => sectorVersionAlias.WageSector, () => wageSectorAlias)
 				.Left.JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(x => x.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
@@ -339,7 +341,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
 						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneMorning)
@@ -356,7 +358,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
 						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneDay)
@@ -373,7 +375,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
 						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersOneEvening)
@@ -395,7 +397,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
 						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersTwoDay)
@@ -417,7 +419,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => geographicGroupAlias.Name).WithAlias(() => resultAlias.GeographicGroupName)
 						.Select(() => wageSectorAlias.Name).WithAlias(() => resultAlias.CityOrSuburb)
-						.Select(() => sectorAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
+						.Select(() => sectorVersionAlias.SectorName).WithAlias(() => resultAlias.DistrictName)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DayOfWeek)
 						.SelectSubQuery(nullSmallCountOrders).WithAlias(() => resultAlias.NullCountSmallOrdersThreeDay)
@@ -519,7 +521,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			var result = "";
 			if(Sector != null)
 			{
-				result += $"район - {Sector.SectorName}, ";
+				result += $"район - {Sector.GetActiveSectorVersion().SectorName}, ";
 			}
 			result += "часть -";
 			if(GeographicGroupNodes.Any(x => x.Selected) && GeographicGroupNodes.Count(x => x.Selected) < GeographicGroupNodes.Count)

@@ -15,7 +15,6 @@ namespace Vodovoz.HibernateMapping.Sale
 			Map(x => x.Price).Column("price");
 
 			References(x => x.DeliveryPriceRule).Column("delivery_price_rule_id");
-			References(x => x.Sector).Column("district_id");
 		}
 	}
 	
@@ -24,6 +23,8 @@ namespace Vodovoz.HibernateMapping.Sale
 		public CommonDistrictRuleItemMap()
 		{
 			DiscriminatorValue("Common");
+			
+			References(x => x.SectorDeliveryRuleVersion).Column("sector_delivery_rule_version_id");
 		}
 	}
 	
@@ -34,6 +35,8 @@ namespace Vodovoz.HibernateMapping.Sale
 			DiscriminatorValue("WeekDay");
 
 			Map(x => x.WeekDay).Column("week_day").CustomType<WeekDayNameStringType>();
+			
+			References(x => x.SectorWeekDayDeliveryRuleVersion).Column("sector_week_day_delivery_rule_version_id");
 		}
 	}
 }

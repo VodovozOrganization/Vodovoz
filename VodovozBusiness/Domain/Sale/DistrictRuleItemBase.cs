@@ -9,13 +9,6 @@ namespace Vodovoz.Domain.Sale
     {
         public virtual int Id { get; set; }
 
-        Sector _sector;
-        [Display(Name = "Район доставки")]
-        public virtual Sector Sector {
-            get => _sector;
-            set => SetField(ref _sector, value, () => Sector);
-        }
-
         DeliveryPriceRule deliveryPriceRule;
         [Display(Name = "Правило цены доставки")]
         public virtual DeliveryPriceRule DeliveryPriceRule {
