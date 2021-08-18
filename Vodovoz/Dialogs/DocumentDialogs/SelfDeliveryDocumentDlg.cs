@@ -337,11 +337,11 @@ namespace Vodovoz
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
 			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector();
-			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnOnEntitySelectedResult;
+			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
 			TabParent.AddTab(nomenclatureSelector, this);
 		}
 
-		private void NomenclatureSelectorOnOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
 			
