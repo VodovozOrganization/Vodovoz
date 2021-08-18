@@ -345,7 +345,8 @@ namespace Vodovoz
 		{
 			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
 			
-			if(nomenclatureNode == null) {
+			if(nomenclatureNode == null)
+			{
 				return;
 			}
 
@@ -358,7 +359,7 @@ namespace Vodovoz
 				Name = nomenclature.Name
 			};
 
-			if (node.Category == NomenclatureCategory.equipment)
+			if(node.Category == NomenclatureCategory.equipment)
 			{
 				node.Direction = Domain.Orders.Direction.PickUp;
 			}
@@ -367,27 +368,6 @@ namespace Vodovoz
 			{
 				GoodsReceptionList.Add(node);
 			}
-		}
-
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			Nomenclature nomenclature = (e.Subject as Nomenclature);
-			if(nomenclature == null) {
-				return;
-			}
-			var node = new GoodsReceptionVMNode {
-				Category = nomenclature.Category,
-				NomenclatureId = nomenclature.Id,
-				Name = nomenclature.Name
-			};
-
-			if (node.Category == NomenclatureCategory.equipment)
-            {
-				node.Direction = Domain.Orders.Direction.PickUp;
-            }
-
-			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))
-				GoodsReceptionList.Add(node);
 		}
 	}
 }

@@ -933,7 +933,8 @@ namespace Vodovoz.JournalViewModels
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
 						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
-			if(routeListItems.Any()  && !_userHasOnlyAccessToWarehouseAndComplaints) {
+			if(routeListItems.Any()  && !_userHasOnlyAccessToWarehouseAndComplaints)
+			{
 				var validStates = new RouteListStatus[] {
 											RouteListStatus.OnClosing,
 											RouteListStatus.MileageCheck,
@@ -950,7 +951,8 @@ namespace Vodovoz.JournalViewModels
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
 						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
-			if(routeListItems.Any()  && !_userHasOnlyAccessToWarehouseAndComplaints) {
+			if(routeListItems.Any()  && !_userHasOnlyAccessToWarehouseAndComplaints)
+			{
 				return true;
 			}
 			return false;
