@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace ApiHelper
+namespace ApiClientProvider
 {
 	public interface IApiClientProvider
 	{
