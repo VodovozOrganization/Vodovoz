@@ -82,8 +82,7 @@ namespace Vodovoz.JournalViewModels
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 
 			_counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-			_nomenclatureSelectorFactory = nomenclatureSelector?
-				.GetDefaultNomenclatureSelectorFactory(nomenclatureRepository, userRepository)
+			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
 				?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 
 			TabName = "Журнал заказов";
@@ -226,8 +225,8 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
 
-			if(FilterViewModel.RestrictDeliveryPoint != null) {
-				query.Where(o => o.DeliveryPoint == FilterViewModel.RestrictDeliveryPoint);
+			if(FilterViewModel.DeliveryPoint != null) {
+				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
 			if(FilterViewModel.RestrictStartDate != null) {
@@ -406,7 +405,7 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD && FilterViewModel.ViewTypes != ViewTypes.All
 				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 				|| FilterViewModel.RestrictPaymentType != null
-				|| FilterViewModel.RestrictDeliveryPoint != null
+				|| FilterViewModel.DeliveryPoint != null
 				|| FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 				|| FilterViewModel.RestrictLessThreeHours == true
@@ -510,7 +509,7 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
 			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 			    || FilterViewModel.RestrictPaymentType != null
-			    || FilterViewModel.RestrictDeliveryPoint != null
+			    || FilterViewModel.DeliveryPoint != null
 			    || FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
@@ -635,7 +634,7 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
 			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 			    || FilterViewModel.RestrictPaymentType != null
-			    || FilterViewModel.RestrictDeliveryPoint != null
+			    || FilterViewModel.DeliveryPoint != null
 			    || FilterViewModel.RestrictOnlyService != null
 			    || FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true

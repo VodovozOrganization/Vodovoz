@@ -181,11 +181,12 @@ namespace Vodovoz.TempAdapters
 				}
 			);
 
-		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository)
+		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory()
 		{
 			var filter = new NomenclatureFilterViewModel();
+
+			INomenclatureRepository nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			IUserRepository userRepository = UserSingletonRepository.GetInstance();
 
 			var counterpartySelectorFactory = new CounterpartyJournalFactory();
 

@@ -136,6 +136,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2104,40 +2105,14 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
     {
-	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+	    var counterpartyJournalFactory = new CounterpartyJournalFactory();
+	    var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 
-	    var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-
-        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-        IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
-
-        tdiMain.OpenTab(
-            () => new RetailOrderJournalViewModel(
-                    new OrderJournalFilterViewModel { IsForRetail = true },
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    VodovozGtkServicesConfig.EmployeeService,
-                    nomenclatureSelectorFactory,
-                    counterpartySelectorFactory,
-                    nomenclatureRepository,
-                    UserSingletonRepository.GetInstance(),
-                    new OrderSelectorFactory(),
-                    new EmployeeJournalFactory(),
-                    new CounterpartyJournalFactory(),
-                    new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory,
-                    new GtkTabsOpener(),
-                    new UndeliveredOrdersJournalOpener(),
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
-            )
-        );
+	    var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+	    {
+		    IsForRetail = true
+	    };
+	    NavigationManager.OpenViewModel<RetailOrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
     }
 
     protected void OnActionSalesChannelsJournalActivated(object sender, EventArgs e)

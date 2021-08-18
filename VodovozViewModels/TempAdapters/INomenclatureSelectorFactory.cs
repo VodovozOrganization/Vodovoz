@@ -14,8 +14,6 @@ namespace Vodovoz.TempAdapters
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
-		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository);
+		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory();
 	}
 }

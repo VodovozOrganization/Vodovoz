@@ -13,6 +13,7 @@ using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
@@ -40,8 +41,10 @@ namespace Vodovoz.TempAdapters
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 
-			var orderJournalFilterViewModel = new OrderJournalFilterViewModel();
+			var orderJournalFilterViewModel = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
 				() => new OrderJournalViewModel(
@@ -53,7 +56,7 @@ namespace Vodovoz.TempAdapters
 					UserSingletonRepository.GetInstance(),
 					new OrderSelectorFactory(),
 					new EmployeeJournalFactory(),
-					new CounterpartyJournalFactory(),
+					counterpartyJournalFactory,
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new GtkTabsOpener(),

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -24,7 +26,6 @@ namespace Vodovoz.Filters.ViewModels
 		private PaymentOrder? _paymentOrder;
 		private bool _paymentsFromVisibility;
 		private Counterparty _restrictCounterparty;
-		private DeliveryPoint _restrictDeliveryPoint;
 		private DateTime? _restrictEndDate;
 		private bool? _restrictHideService;
 		private bool? _restrictLessThreeHours;
@@ -35,21 +36,25 @@ namespace Vodovoz.Filters.ViewModels
 		private OrderStatus? _restrictStatus;
 		private bool? _restrictWithoutSelfDelivery;
 		private ViewTypes _viewTypes;
+		private bool _canChangeDeliveryPoint = true;
+		private DeliveryPoint _deliveryPoint;
+
 		#endregion
 
-		public OrderJournalFilterViewModel()
+		public OrderJournalFilterViewModel(
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
 			DaysToBack = -CurrentUserSettings.Settings.JournalDaysToAft;
 			DaysToForward = CurrentUserSettings.Settings.JournalDaysToFwd;
 			Organisations = UoW.GetAll<Organization>();
 			PaymentsFrom = UoW.GetAll<PaymentFrom>();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
-			DeliveryPointSelectorFactory =
-				new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel)
-					.CreateDeliveryPointByClientAutocompleteSelectorFactory();
-			CounterpartySelectorFactory =
-				new CounterpartyJournalFactory()
-					.CreateCounterpartyAutocompleteSelectorFactory();
+			deliveryPointJournalFactory?.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
+			DeliveryPointSelectorFactory = deliveryPointJournalFactory?.CreateDeliveryPointByClientAutocompleteSelectorFactory()
+			                               ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
+			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 		}
 
 		#region Автосвойства
@@ -161,7 +166,11 @@ namespace Vodovoz.Filters.ViewModels
 					_deliveryPointJournalFilterViewModel.Counterparty = value;
 					if(value == null)
 					{
-						RestrictDeliveryPoint = null;
+						DeliveryPoint = null;
+					}
+					else
+					{
+						CanChangeDeliveryPoint = true;
 					}
 				}
 			}
@@ -169,19 +178,17 @@ namespace Vodovoz.Filters.ViewModels
 
 		public bool CanChangeCounterparty { get; private set; } = true;
 
-		public virtual DeliveryPoint RestrictDeliveryPoint
+		public virtual DeliveryPoint DeliveryPoint
 		{
-			get => _restrictDeliveryPoint;
-			set
-			{
-				if(UpdateFilterField(ref _restrictDeliveryPoint, value))
-				{
-					CanChangeDeliveryPoint = false;
-				}
-			}
+			get => _deliveryPoint;
+			set => UpdateFilterField(ref _deliveryPoint, value);
 		}
 
-		public bool CanChangeDeliveryPoint { get; private set; } = true;
+		public bool CanChangeDeliveryPoint
+		{
+			get => _canChangeDeliveryPoint;
+			set => UpdateFilterField(ref _canChangeDeliveryPoint, value);
+		}
 
 		public virtual DateTime? RestrictStartDate
 		{

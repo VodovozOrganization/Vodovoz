@@ -21,11 +21,16 @@ namespace Vodovoz.TempAdapters
 {
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
-		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
+		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
 
 		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
 		{
 			_deliveryPointJournalFilter = deliveryPointJournalFilter;
+		}
+
+		public void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter)
+		{
+			_deliveryPointJournalFilter = filter;
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory()

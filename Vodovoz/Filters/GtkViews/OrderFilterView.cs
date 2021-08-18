@@ -39,7 +39,7 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			entryDeliveryPoint.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.RestrictDeliveryPoint, w => w.Subject)
+				.AddBinding(vm => vm.DeliveryPoint, w => w.Subject)
 				.AddFuncBinding(vm => vm.CanChangeDeliveryPoint && vm.RestrictCounterparty != null, w => w.Sensitive)
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
