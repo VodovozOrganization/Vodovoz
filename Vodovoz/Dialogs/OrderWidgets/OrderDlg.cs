@@ -3080,7 +3080,7 @@ namespace Vodovoz
 
 		private void OrderAddressTypeChanged()
 		{
-			if(Entity.Client.IsChainStore)
+			if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
 			}
