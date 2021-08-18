@@ -699,7 +699,7 @@ namespace Vodovoz.Views.Employees
 
 		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
 		{
-			ViewModel.RegisterDriverModileUserCommand?.Execute();
+			ViewModel.RegisterDriverModileUserCommand.Execute();
 		}
 	}
 }
