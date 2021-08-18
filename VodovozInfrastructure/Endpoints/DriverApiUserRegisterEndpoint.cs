@@ -1,6 +1,7 @@
 ﻿using ApiClientProvider;
 using System;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace VodovozInfrastructure.Endpoints
@@ -8,7 +9,7 @@ namespace VodovozInfrastructure.Endpoints
 	public class DriverApiUserRegisterEndpoint
 	{
 		private IApiClientProvider _apiHelper;
-		private readonly string _sendEndpointPath = "/Register";
+		private readonly string _sendEndpointPath = "Register";
 		private const int _minPasswordLength = 3;
 
 		public DriverApiUserRegisterEndpoint(IApiClientProvider apiHelper)
@@ -34,9 +35,28 @@ namespace VodovozInfrastructure.Endpoints
 			{
 				if(!response.IsSuccessStatusCode)
 				{
+					ErrorMessage error = null;
+
+					try
+					{
+						error = await response.Content.ReadAsAsync<ErrorMessage>();
+					}
+					catch {}
+
+					if(error != null)
+					{
+						throw new Exception(error.Error);
+					}
+
 					throw new Exception(response.ReasonPhrase);
 				}
 			}
 		}
+	}
+
+	internal class ErrorMessage
+	{
+		[JsonPropertyName("error")]
+		public string Error { get; set; }
 	}
 }

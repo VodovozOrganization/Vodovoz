@@ -164,8 +164,23 @@ namespace Vodovoz.Views.Employees
 			dataentryAndroidLogin.Binding
 				.AddBinding(ViewModel.Entity, e => e.AndroidLogin, w => w.Text)
 				.InitializeFromSource();
+			dataentryAndroidLogin.Binding
+				.AddBinding(ViewModel, vm => vm.CanRegisterMobileUser, w => w.Sensitive)
+				.InitializeFromSource();
+
 			dataentryAndroidPassword.Binding
 				.AddBinding(ViewModel.Entity, e => e.AndroidPassword, w => w.Text)
+				.InitializeFromSource();
+			dataentryAndroidPassword.Binding
+				.AddBinding(ViewModel, vm => vm.CanRegisterMobileUser, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yMobileLoginInfo.Binding
+				.AddBinding(ViewModel, vm => vm.AddMobileLoginInfo, w => w.LabelProp)
+				.InitializeFromSource();
+
+			yAddMobileLogin.Binding
+				.AddBinding(ViewModel, vm => vm.IsValidNewMobileUser, w => w.Sensitive)
 				.InitializeFromSource();
 
 			defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
@@ -684,6 +699,7 @@ namespace Vodovoz.Views.Employees
 
 		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
 		{
+			ViewModel.RegisterDriverModileUserCommand?.Execute();
 		}
 	}
 }
