@@ -301,20 +301,13 @@ namespace Vodovoz.Views.Logistic
 
 			dateForFilter.Binding.AddBinding(ViewModel, vm => vm.StartDateSector, t => t.StartDateOrNull).InitializeFromSource();
 			dateForFilter.Binding.AddBinding(ViewModel, vm => vm.EndDateSector, t => t.EndDateOrNull).InitializeFromSource();
-			SectorVersionPeriod.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorVersion, t => t.StartDateOrNull)
+			sectorVersionStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorVersion, t => t.DateOrNull)
 				.InitializeFromSource();
-			SectorVersionPeriod.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorVersion, t => t.EndDateOrNull).InitializeFromSource();
-			RulesDeliveryPeriod.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDeliveryRule, t => t.StartDateOrNull)
+			deliveryRuleStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDeliveryRule, t => t.DateOrNull)
 				.InitializeFromSource();
-			RulesDeliveryPeriod.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorDeliveryRule, t => t.EndDateOrNull)
+			weekDayScheduleStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDaySchedule, t => t.DateOrNull)
 				.InitializeFromSource();
-			WeekDayPeriodPicker.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDaySchedule, t => t.StartDateOrNull)
-				.InitializeFromSource();
-			WeekDayPeriodPicker.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorDaySchedule, t => t.EndDateOrNull)
-				.InitializeFromSource();
-			DayDeliveryRulePeriodPicker.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDayDeliveryRule, t => t.StartDateOrNull)
-				.InitializeFromSource();
-			DayDeliveryRulePeriodPicker.Binding.AddBinding(ViewModel, vm => vm.EndDateSectorDayDeliveryRule, t => t.EndDateOrNull)
+			weekDayDeliveryStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDayDeliveryRule, t => t.DateOrNull)
 				.InitializeFromSource();
 			#endregion
 
