@@ -2411,4 +2411,16 @@ public partial class MainWindow : Gtk.Window
 		
 		tdiMain.AddTab(journal);
 	}
+
+	protected void OnActionUndeliveryTransferAbsenceReasonActivated(object sender, EventArgs e)
+	{
+		var filterViewModel = new UndeliveryTransferAbsenceReasonJournalFilterViewModel();
+
+		var journal = new UndeliveryTransferAbsenceReasonJournalViewModel(
+			filterViewModel,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(journal);
+	}
 }

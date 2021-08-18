@@ -156,7 +156,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 					includedValues = selectedValues;
 					break;
 				case SelectableFilterType.Exclude:
-					includedValues = OutputParameters.Where(x => !selectedValues.Contains(x));
+					includedValues = OutputParameters.Where(x => !selectedValues.Select(sv => sv.Value).Contains(x.Value));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

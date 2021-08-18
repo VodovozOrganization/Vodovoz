@@ -132,7 +132,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				}
 			}
 
-			if(typesSelected && !nomsSelected)
+			if(!nomsSelected && !groupsSelected)
 			{
 				noms?.AddRange(nomsSet.Parameters);
 			}
@@ -154,6 +154,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var inQuery = localUow.Session.QueryOver(() => inAlias)
 				.Where(() => inAlias.OperationTime <= endDate)
+				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => inAlias.IncomingWarehouse.Id), warsIds))
 				.SelectList(list => list
@@ -167,6 +168,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var woQuery = localUow.Session.QueryOver(() => woAlias)
 				.Where(() => woAlias.OperationTime <= endDate)
+				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
 				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteoffWarehouse.Id), warsIds))
 				.SelectList(list => list
@@ -179,22 +181,30 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
 			var msQuery = localUow.Session.QueryOver(() => nomAlias)
-				.Select(n => n.MinStockCount);
+				.WhereNot(() => nomAlias.IsArchive)
+				.Select(n => n.MinStockCount)
+				.OrderBy(n => n.Id).Asc;
 
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
-				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds)).AndNot(() => nomAlias.IsArchive);
-				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds))
-					.AndNot(() => nomAlias.IsArchive);
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
 			{
-				inQuery.Where(Restrictions.In(Projections.Property(() => inAlias.Nomenclature.Id), nomsIds));
-				woQuery.Where(Restrictions.In(Projections.Property(() => woAlias.Nomenclature.Id), nomsIds));
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+			}
+
+			if(groupsSelected)
+			{
+				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			#endregion
@@ -204,7 +214,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Add<BalanceBean>("wo", woQuery)
 				.Add<decimal>("ms", msQuery);
 
-			await batch.ExecuteAsync(cancellationToken);
 			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
 			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
@@ -227,27 +236,25 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				{
 					row.Separate.Add(0);
 					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
-					if(addedCounter == inResult.Length || removedCounter == woResult.Length)
-					{
-						/*Кол-во данных в запросе может не совпадать с кол-вом выбранных номенклатур и складов. Несмотря на то, что счетчики
-						 * увеличиваются лишь при совпадении, иногда кидается OutOfBounds, так что пришлось вставить continue.
-						 * На итоговые данные это не влияет */
-						continue;
-					}
-
 					var warId = (int)wars[warsCounter].Value;
-					var tempIn = inResult[addedCounter];
-					if(tempIn.WarehouseId == warId && tempIn.NomId == row.NomId)
+					if(addedCounter != inResult.Length)
 					{
-						row.Separate[warsCounter] = tempIn.Amount;
-						addedCounter++;
+						var tempIn = inResult[addedCounter];
+						if(tempIn.WarehouseId == warId && tempIn.NomId == row.NomId)
+						{
+							row.Separate[warsCounter] += tempIn.Amount;
+							addedCounter++;
+						}
 					}
 
-					var tempWo = woResult[removedCounter];
-					if(tempWo.WarehouseId == warId && tempWo.NomId == row.NomId)
+					if(removedCounter != woResult.Length)
 					{
-						row.Separate[warsCounter] -= tempWo.Amount;
-						removedCounter++;
+						var tempWo = woResult[removedCounter];
+						if(tempWo.WarehouseId == warId && tempWo.NomId == row.NomId)
+						{
+							row.Separate[warsCounter] -= tempWo.Amount;
+							removedCounter++;
+						}
 					}
 				}
 
@@ -339,7 +346,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
 					return !EnumerableExtensions.Any(selectedValues)
 						? null
-						: Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
+						: nomenclatureTypeParam.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray())
+							: Restrictions.On<Nomenclature>(x => x.Category).Not.IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
 				}
 			);
 

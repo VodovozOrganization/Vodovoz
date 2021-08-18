@@ -118,6 +118,7 @@
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
+    <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
@@ -208,6 +209,7 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />

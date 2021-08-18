@@ -248,12 +248,28 @@ namespace Vodovoz.JournalViewModels
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if(FilterViewModel.RestrictHideService != null) {
-				query.Where(o => o.IsService != FilterViewModel.RestrictHideService);
+			if(FilterViewModel.RestrictHideService != null) 
+			{
+				if(FilterViewModel.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
 			}
 
-			if(FilterViewModel.RestrictOnlyService != null) {
-				query.Where(o => o.IsService == FilterViewModel.RestrictOnlyService);
+			if(FilterViewModel.RestrictOnlyService != null) 
+			{
+				if(FilterViewModel.RestrictOnlyService.Value)
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
 			}
 			
 			if(FilterViewModel.OrderPaymentStatus != null) {
