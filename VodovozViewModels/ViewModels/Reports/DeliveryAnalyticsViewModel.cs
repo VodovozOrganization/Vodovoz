@@ -187,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			query.Where(x => !x.SelfDelivery)
 				.Where(x => !x.IsContractCloser)
-				.Where(x => !x.IsService)
+				.Where(x => x.OrderAddressType != OrderAddressType.Service)
 				.WhereRestrictionOn(x => x.OrderStatus)
 				.Not.IsIn(new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.WaitForPayment });
 

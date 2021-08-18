@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -42,6 +41,12 @@ namespace Vodovoz.JournalViewers
 
             ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
             ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+
+            checkDriversWithAttachedTerminals.Binding
+	            .AddSource(ViewModel)
+	            .AddBinding(vm => vm.HasAccessToDriverTerminal, w => w.Sensitive)
+	            .AddBinding(vm => vm.ShowDriversWithTerminal, w => w.Active)
+	            .InitializeFromSource();
         }
 
         protected void OnButtonStatusAllActivated(object sender, System.EventArgs e)

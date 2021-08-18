@@ -21,6 +21,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Services;
@@ -44,6 +46,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
 		private readonly ValidationContext _validationContext;
+		private readonly IWarehouseRepository _warehouseRepository;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly UserSettings _userSettings;
 
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -52,6 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private Employee _employeeForCurrentUser;
 		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
 		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
+		private TerminalManagementViewModel _terminalManagementViewModel;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
 		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
@@ -83,6 +89,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ICommonServices commonServices,
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
+			IWarehouseRepository warehouseRepository,
+			IRouteListRepository routeListRepository,
+			UserSettings userSettings,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null
 			) : base(commonServices?.InteractiveService, navigationManager)
@@ -103,6 +112,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_validationContext = 
@@ -182,7 +194,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				
 				return UoWGeneric.HasChanges
 					   || attachmentFilesHasChanges
-					   || !string.IsNullOrEmpty(Entity.LoginForNewUser);
+					   || !string.IsNullOrEmpty(Entity.LoginForNewUser)
+					   || (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
 		
@@ -190,6 +203,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
 
 		public PhonesViewModel PhonesViewModel { get; }
+
+		public TerminalManagementViewModel TerminalManagementViewModel => _terminalManagementViewModel ??
+		                                                                  (_terminalManagementViewModel =
+			                                                                  new TerminalManagementViewModel(
+				                                                                  _userSettings.DefaultWarehouse,
+				                                                                  Entity,
+				                                                                  this as ITdiTab,
+				                                                                  _employeeRepository,
+				                                                                  _warehouseRepository,
+				                                                                  _routeListRepository,
+				                                                                  _commonServices, UoW));
+
 		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }
 		public bool CanManageOfficeWorkers { get; private set; }
@@ -499,7 +524,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
-		
+
 		private void SetPermissions()
 		{
 			CanManageUsers = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
@@ -655,6 +680,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 
 			#endregion
+
+			_terminalManagementViewModel?.SaveChanges();
 
 			_logger.Info("Сохраняем сотрудника...");
 			try

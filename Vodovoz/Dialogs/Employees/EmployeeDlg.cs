@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using QS.Tdi;
 using Vodovoz.Additions;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Employees;
@@ -34,7 +35,9 @@ using Vodovoz.Domain.Sectors;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalFilters;
@@ -48,6 +51,7 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz
@@ -60,6 +64,7 @@ namespace Vodovoz
 				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
 
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private TerminalManagementViewModel _terminalManagementViewModel;
 		private Employee _employeeForCurrentUser;
 
 		public EmployeeDlg()
@@ -785,7 +790,8 @@ namespace Vodovoz
 				phonesView.RemoveEmpty();
 				return UoWGeneric.HasChanges
 					|| attachmentFiles.HasChanges
-					|| !string.IsNullOrEmpty(yentryUserLogin.Text);
+					|| !string.IsNullOrEmpty(yentryUserLogin.Text)
+					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 			set => base.HasChanges = value;
 		}
@@ -866,6 +872,8 @@ namespace Vodovoz
 			}
 			#endregion
 
+			_terminalManagementViewModel?.SaveChanges();
+
 			logger.Info("Сохраняем сотрудника...");
 			try {
 				UoWGeneric.Save();
@@ -915,6 +923,21 @@ namespace Vodovoz
 
 		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
 		{
+			if(terminalManagementView.ViewModel == null)
+			{
+				terminalManagementView.ViewModel = _terminalManagementViewModel ??
+				                                   (_terminalManagementViewModel =
+					                                   new TerminalManagementViewModel(
+						                                   CurrentUserSettings.Settings.DefaultWarehouse,
+						                                   Entity,
+						                                   this as ITdiTab,
+						                                   employeeRepository,
+						                                   new WarehouseRepository(),
+						                                   new RouteListRepository(),
+						                                   ServicesConfig.CommonServices,
+						                                   UoW));
+			}
+
 			if(radioTabLogistic.Active)
 				notebookMain.CurrentPage = 1;
 		}

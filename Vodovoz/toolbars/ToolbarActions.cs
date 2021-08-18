@@ -70,6 +70,8 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.Views.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Window
@@ -135,6 +137,7 @@ public partial class MainWindow : Window
 	//Suppliers
 	Action ActionNewRequestToSupplier;
 	Action ActionJournalOfRequestsToSuppliers;
+	Action ActionWarehousesBalanceSummary;
 
 	//ТрО
 	private Action ActionCarEventsJournal;
@@ -214,6 +217,7 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
 		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
+		ActionWarehousesBalanceSummary = new Action(nameof(ActionWarehousesBalanceSummary), "Остатки по складам", null, "table");
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
@@ -284,6 +288,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		w1.Add(ActionExportImportNomenclatureCatalog, null);
+		w1.Add(ActionWarehousesBalanceSummary, null);
 
 		//ТрО
 		w1.Add(ActionCarEventsJournal, null);
@@ -359,11 +364,17 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
+		ActionWarehousesBalanceSummary.Activated += ActionWarehousesBalanceSummary_Activated;
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 		
 		#endregion
+	}
+
+	private void ActionWarehousesBalanceSummary_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
@@ -468,6 +479,7 @@ public partial class MainWindow : Window
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e) {
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider();
+		var routeListRepository = new RouteListRepository();
 		var employeeService = new EmployeeService();
 		
 		tdiMain.OpenTab(
@@ -475,6 +487,7 @@ public partial class MainWindow : Window
 			() => new RouteListAddressesTransferringDlg(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
+				routeListRepository,
 				employeeService,
 				ServicesConfig.CommonServices
 			)

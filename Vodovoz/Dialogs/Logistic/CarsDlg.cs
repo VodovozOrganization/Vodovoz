@@ -21,7 +21,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private ICarRepository carRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 
 		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 

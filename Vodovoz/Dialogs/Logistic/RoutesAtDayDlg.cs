@@ -780,7 +780,7 @@ namespace Vodovoz
 			}
 
 			//добавляем маркеры адресов заказов
-			foreach(var order in ordersAtDay.Select(x => x).Where(x => !x.IsService)) {
+			foreach(var order in ordersAtDay.Select(x => x).Where(x => x.OrderAddressType != OrderAddressType.Service)) {
 				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
 				var route = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 

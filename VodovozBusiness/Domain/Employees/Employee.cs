@@ -709,6 +709,14 @@ namespace Vodovoz.Domain.Employees
 		female
 	}
 
+	public enum DriverTerminalRelation
+	{
+		[Display(Name = "Водители с терминалами")]
+		WithTerminal,
+		[Display(Name = "Водители без терминалов")]
+		WithoutTerminal
+	}
+
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeCategoryStringType() : base(typeof(EmployeeCategory))

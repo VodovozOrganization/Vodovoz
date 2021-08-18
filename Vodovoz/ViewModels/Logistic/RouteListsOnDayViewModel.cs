@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FluentNHibernate.Utils;
 using Gamma.Utilities;
 using MoreLinq;
 using NHibernate;
@@ -580,24 +581,25 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#endregion
 
-		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
-			new AddressTypeNode(AddressType.Delivery),
-			new AddressTypeNode(AddressType.Service),
-			new AddressTypeNode(AddressType.ChainStore)
+		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
+			new OrderAddressTypeNode(OrderAddressType.Delivery),
+			new OrderAddressTypeNode(OrderAddressType.Service),
+			new OrderAddressTypeNode(OrderAddressType.ChainStore),
+			new OrderAddressTypeNode(OrderAddressType.StorageLogistics)
 		};
 
 		private void LoadAddressesTypesDefaults()
 		{
 			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
-			foreach(var addressTypeNode in AddressTypes) {
-				switch(addressTypeNode.AddressType) {
-					case AddressType.Delivery:
+			foreach(var addressTypeNode in OrderAddressTypes) {
+				switch(addressTypeNode.OrderAddressType) {
+					case OrderAddressType.Delivery:
 						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
 						break;
-					case AddressType.Service:
+					case OrderAddressType.Service:
 						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
 						break;
-					case AddressType.ChainStore:
+					case OrderAddressType.ChainStore:
 						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
 						break;
 				}
@@ -904,7 +906,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .GetExecutableQueryOver(UoW.Session)
 											 .Select(Projections.Count<Order>(x => x.Id))
 											 .Where(o => !o.IsContractCloser)
-											 .And(o => !o.IsService)
+											 .And(o => o.OrderAddressType != OrderAddressType.Service)
 											 .SingleOrDefault<int>();
 
 			decimal totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -914,7 +916,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
-											  .And(o => !o.IsService)
+											  .And(o => o.OrderAddressType != OrderAddressType.Service)
 											  .SingleOrDefault<decimal>();
 												
 			decimal total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -924,7 +926,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
-											  .And(o => !o.IsService)
+											  .And(o => o.OrderAddressType != OrderAddressType.Service)
 											  .SingleOrDefault<decimal>();
 
 			decimal total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -934,7 +936,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
-											  .And(o => !o.IsService)
+											  .And(o => o.OrderAddressType != OrderAddressType.Service)
 											  .SingleOrDefault<decimal>();
 
 			var text = new List<string> {
@@ -1131,7 +1133,7 @@ namespace Vodovoz.ViewModels.Logistic
 			
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
-			if(AddressTypes.Any(x => x.Selected))
+			if(OrderAddressTypes.Any(x => x.Selected))
 			{
 				var query = QueryOver.Of<Order>()
 					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
@@ -1150,43 +1152,12 @@ namespace Vodovoz.ViewModels.Logistic
 
 				#region AddressTypeFilter
 
-				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
-				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
-				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
-
-				//deliverySelected(Доставка) означает МЛ без chainStoreSelected(Сетевой магазин) и serviceSelected(Сервисное обслуживание)
-
-				if(deliverySelected && chainStoreSelected && !serviceSelected)
+				foreach(var elem in OrderAddressTypes)
 				{
-					baseOrderQuery.Where(x => !x.IsService);
-				}
-				else if(deliverySelected && !chainStoreSelected && serviceSelected)
-				{
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseOrderQuery.Where(() => !counterpartyAlias.IsChainStore);
-				}
-				else if(deliverySelected && !chainStoreSelected && !serviceSelected)
-				{
-					baseOrderQuery.Where(x => !x.IsService);
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseOrderQuery.Where(() => !counterpartyAlias.IsChainStore);
-				}
-				else if(!deliverySelected && chainStoreSelected && serviceSelected)
-				{
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseOrderQuery.Where(Restrictions.Or(
-						Restrictions.Where<Order>(x => x.IsService),
-						Restrictions.Where(() => counterpartyAlias.IsChainStore)
-					));
-				}
-				else if(!deliverySelected && chainStoreSelected && !serviceSelected)
-				{
-					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseOrderQuery.Where(() => counterpartyAlias.IsChainStore);
-				}
-				else if(!deliverySelected && !chainStoreSelected && serviceSelected)
-				{
-					baseOrderQuery.Where(x => x.IsService);
+					if(!elem.Selected)
+					{
+						baseOrderQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
+					}
 				}
 
 				#endregion
@@ -1420,46 +1391,15 @@ namespace Vodovoz.ViewModels.Logistic
 			var baseQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
-				.And(o => !o.IsService);
-			if(AddressTypes.Any(x => x.Selected))
+				.And(o => o.OrderAddressType != OrderAddressType.Service);
+			if(OrderAddressTypes.Any(x => x.Selected))
 			{
-				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
-				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
-				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
-
-				//deliverySelected(Доставка) означает МЛ без chainStoreSelected(Сетевой магазин) и serviceSelected(Сервисное обслуживание)
-
-				if(deliverySelected && chainStoreSelected && !serviceSelected)
+				foreach(var elem in OrderAddressTypes)
 				{
-					baseQuery.Where(x => !x.IsService);
-				}
-				else if(deliverySelected && !chainStoreSelected && serviceSelected)
-				{
-					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseQuery.Where(() => !counterpartyAlias.IsChainStore);
-				}
-				else if(deliverySelected && !chainStoreSelected && !serviceSelected)
-				{
-					baseQuery.Where(x => !x.IsService);
-					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseQuery.Where(() => !counterpartyAlias.IsChainStore);
-				}
-				else if(!deliverySelected && chainStoreSelected && serviceSelected)
-				{
-					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseQuery.Where(Restrictions.Or(
-						Restrictions.Where<Order>(x => x.IsService),
-						Restrictions.Where(() => counterpartyAlias.IsChainStore)
-					));
-				}
-				else if(!deliverySelected && chainStoreSelected && !serviceSelected)
-				{
-					baseQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
-					baseQuery.Where(() => counterpartyAlias.IsChainStore);
-				}
-				else if(!deliverySelected && !chainStoreSelected && serviceSelected)
-				{
-					baseQuery.Where(x => x.IsService);
+					if(!elem.Selected)
+					{
+						baseQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
+					}
 				}
 
 				var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);

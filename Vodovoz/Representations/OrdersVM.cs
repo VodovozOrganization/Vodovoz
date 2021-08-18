@@ -114,12 +114,28 @@ namespace Vodovoz.ViewModel
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if(Filter.RestrictHideService != null) {
-				query.Where(o => o.IsService != Filter.RestrictHideService);
+			if(Filter.RestrictHideService != null) 
+			{
+				if(Filter.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
 			}
 
-			if(Filter.RestrictOnlyService != null) {
-				query.Where(o => o.IsService == Filter.RestrictOnlyService);
+			if(Filter.RestrictOnlyService != null) 
+			{
+				if(Filter.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
 			}
 
 			if(Filter.ExceptIds != null && Filter.ExceptIds.Any())

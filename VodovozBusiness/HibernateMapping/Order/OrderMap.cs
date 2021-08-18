@@ -41,7 +41,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.InformationOnTara)                 .Column("information_on_tara");
 			Map(x => x.OnRouteEditReason)                 .Column("on_route_edit_reason");
 			Map(x => x.DriverCallId)                      .Column("driver_call_id");
-			Map(x => x.IsService)                         .Column("service");
 			Map(x => x.Trifle)                            .Column("trifle");
 			Map(x => x.OnlineOrder)                       .Column("online_order");
 			Map(x => x.ToClientText)                      .Column("to_client_text");
@@ -77,6 +76,8 @@ namespace Vodovoz.HibernateMapping
 				.CustomType<OrderSourceStringType>();
 			Map(x => x.OrderPaymentStatus)                .Column("order_payment_status")
 				.CustomType<OrderPaymentStatusStringType>();
+			Map(x => x.OrderAddressType)				  .Column("order_address_type")
+				.CustomType<OrderAddressTypeStringType>();
 
 			References(x => x.Client)                     .Column("client_id");
 			References(x => x.Contract)                   .Column("counterparty_contract_id").Cascade.SaveUpdate();
