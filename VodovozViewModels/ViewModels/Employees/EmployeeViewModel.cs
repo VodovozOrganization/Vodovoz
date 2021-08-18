@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using FluentNHibernate.Data;
-using NLog;
+﻿using NLog;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -15,6 +9,12 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -152,7 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			SetPermissions();
 
-			Entity.PropertyChanged += Entity_PropertyChanged;
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			organizations = UoW.GetAll<Organization>().ToList();
 			FillHiddenCategories(traineeToEmployee);
@@ -167,7 +167,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
-		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
 			{
