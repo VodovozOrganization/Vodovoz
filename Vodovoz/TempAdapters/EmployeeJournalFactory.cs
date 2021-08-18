@@ -1,6 +1,9 @@
-﻿using QS.DomainModel.UoW;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
@@ -16,11 +19,13 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.TempAdapters
 {
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
+		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly EmployeeFilterViewModel _employeeJournalFilter;
 		private IAuthorizationServiceFactory _authorizationServiceFactory;
 		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
@@ -37,8 +42,18 @@ namespace Vodovoz.TempAdapters
 		private IWarehouseRepository _warehouseRepository;
 		private IRouteListRepository _routeListRepository;
 
-		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
+		public EmployeeJournalFactory(
+			EmployeeFilterViewModel employeeJournalFilter = null)
 		{
+			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
+
+			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
+
+			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+
+			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
+
+			_driverApiUserRegisterEndpoint = driverApiRegisterEndpoint;
 			_employeeJournalFilter = employeeJournalFilter;
 		}
 
@@ -46,13 +61,13 @@ namespace Vodovoz.TempAdapters
 		{
 			_authorizationServiceFactory = new AuthorizationServiceFactory();
 			_employeeWageParametersFactory = new EmployeeWageParametersFactory();
-			_employeeJournalFactory = new EmployeeJournalFactory();
+			_employeeJournalFactory = this;
 			_subdivisionJournalFactory = new SubdivisionJournalFactory();
 			_employeePostsJournalFactory = new EmployeePostsJournalFactory();
-        
+		
 			_cashDistributionCommonOrganisationProvider =
 				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-        
+		
 			_subdivisionService = SubdivisionParametersProvider.Instance;
 			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 			_wageCalculationRepository = WageSingletonRepository.GetInstance();
@@ -95,6 +110,7 @@ namespace Vodovoz.TempAdapters
 				CurrentUserSettings.Settings,
 				_validationContextFactory,
 				_phonesViewModelFactory,
+				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory
 			);
@@ -136,6 +152,7 @@ namespace Vodovoz.TempAdapters
 				CurrentUserSettings.Settings,
 				_validationContextFactory,
 				_phonesViewModelFactory,
+				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory
 			);
@@ -173,6 +190,7 @@ namespace Vodovoz.TempAdapters
 						CurrentUserSettings.Settings,
 						_validationContextFactory,
 						_phonesViewModelFactory,
+						_driverApiUserRegisterEndpoint,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory
 					);
@@ -218,6 +236,7 @@ namespace Vodovoz.TempAdapters
 				CurrentUserSettings.Settings,
 				_validationContextFactory,
 				_phonesViewModelFactory,
+				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory
 			);
