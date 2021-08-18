@@ -22,8 +22,7 @@ namespace Vodovoz.TempAdapters
 	{
 		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
 		{
-			NomenclatureStockFilterViewModel nomenclatureStockFilter =
-			 new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			nomenclatureStockFilter.ExcludedNomenclatureIds = excludedNomenclatures;
 			nomenclatureStockFilter.RestrictWarehouse = warehouse;
 
