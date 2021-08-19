@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
+		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uowBuilder, 
@@ -78,6 +79,10 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.Phone = phone;
 
 			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
+			
+			UserHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+			    && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			TabName = "Новая клиентская рекламация";
 		}

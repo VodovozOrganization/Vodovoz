@@ -254,6 +254,24 @@ public partial class MainWindow : Gtk.Window
         MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
         MangoManager.Connect();
 
+		#region Пользователь с правом работы только со складом и рекламациями
+
+		bool accessToWarehouseAndComplaints;
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			accessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+		}
+
+		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
+			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
+				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
+					MangoAction.Visible = !accessToWarehouseAndComplaints;
+        
+        #endregion
+
         BanksUpdater.CheckBanksUpdate(false);
 
         // Блокировка отчетов для торговых представителей

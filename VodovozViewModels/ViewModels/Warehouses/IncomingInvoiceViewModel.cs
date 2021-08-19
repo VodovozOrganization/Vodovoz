@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Warehouses
         private readonly IWarehouseRepository warehouseRepository;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
         private readonly IWarehousePermissionValidator warehousePermissionValidator;
-        
+
         #region Конструктор
         public IncomingInvoiceViewModel(
             IEntityUoWBuilder uowBuilder, 
@@ -64,9 +64,12 @@ namespace Vodovoz.ViewModels.Warehouses
             ConfigureEntityChangingRelations();
             
             ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
+            UserHasOnlyAccessToWarehouseAndComplaints =
+	            CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+	            && !CurrentUser.IsAdmin;
         }
         #endregion
-
+        
         
         #region Functions
 
@@ -117,6 +120,8 @@ namespace Vodovoz.ViewModels.Warehouses
         
         
         #region Properties
+        
+        public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 
         public bool isNew => Entity.Id == 0;
 
