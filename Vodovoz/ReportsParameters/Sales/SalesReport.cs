@@ -19,6 +19,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.Dialog;
+using QS.Project.DB;
 using Vodovoz.Domain.Organizations;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
@@ -325,11 +326,10 @@ namespace Vodovoz.Reports
 							}
 						}
 
-						IProjection authorProjection = Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
-							NHibernateUtil.String,
-							Projections.Property<Employee>(x => x.Name),
+						var authorProjection = CustomProjections.Concat_WS(
+							" ",
 							Projections.Property<Employee>(x => x.LastName),
+							Projections.Property<Employee>(x => x.Name),
 							Projections.Property<Employee>(x => x.Patronymic)
 						);
 
