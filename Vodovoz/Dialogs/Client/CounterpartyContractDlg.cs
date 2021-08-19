@@ -1,16 +1,13 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QS.Dialog;
-using QS.Project.Repositories;
 using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.DocTemplates;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository.Client;
 using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
 
 namespace Vodovoz
@@ -18,6 +15,7 @@ namespace Vodovoz
 	public partial class CounterpartyContractDlg : QS.Dialog.Gtk.EntityDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 
 		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
@@ -38,7 +36,7 @@ namespace Vodovoz
 		{
 			UoWGeneric.Root.Organization = organization;
 			referenceOrganization.Sensitive = false;
-			Entity.UpdateContractTemplate(UoW);
+			Entity.UpdateContractTemplate(UoW, _docTemplateRepository);
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
@@ -77,10 +75,14 @@ namespace Vodovoz
 			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
 
 			if (Entity.DocumentTemplate == null && Entity.Organization != null)
-				Entity.UpdateContractTemplate(UoW);
+			{
+				Entity.UpdateContractTemplate(UoW, _docTemplateRepository);
+			}
 
 			if (Entity.DocumentTemplate != null)
+			{
 				(Entity.DocumentTemplate.DocParser as ContractParser).RootObject = Entity;
+			}
 
 			templatewidget1.CanRevertCommon = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_common_additionalagreement");
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using QS.Osm;
@@ -12,8 +11,8 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Sale;
-using Vodovoz.Repository.Logistics;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -41,6 +40,8 @@ namespace Vodovoz.Tools.Logistic
 		#endregion
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
@@ -86,7 +87,7 @@ namespace Vodovoz.Tools.Logistic
 			Provider = provider;
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
-			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
+			var basesHashes = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
 			hashes = points.Select(CachedDistance.GetHash)
 						   .Concat(basesHashes)
 						   .Distinct()
@@ -103,7 +104,7 @@ namespace Vodovoz.Tools.Logistic
 			matrix = new CachedDistance[hashes.Length, hashes.Length];
 			matrixcount = new int[hashes.Length, hashes.Length];
 #endif
-			var fromDB = CachedDistanceRepository.GetCache(UoW, hashes);
+			var fromDB = _cachedDistanceRepository.GetCache(UoW, hashes);
 			startCached = fromDB.Count;
 			foreach(var distance in fromDB) {
 #if DEBUG

@@ -4,13 +4,17 @@ using Android;
 using Chats;
 using Nini.Config;
 using NLog;
-using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using SmsPaymentService;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 
 namespace VodovozAndroidDriverService
 {
@@ -58,8 +62,19 @@ namespace VodovozAndroidDriverService
 				string.Format("http://{0}:{1}/SmsPaymentService", smsPaymentServiceHostName, smsPaymentServicePort)
 			);
 
-			WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator);
+			var wageParameterService = new WageParameterService(
+				new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+			
+			var employeeRepository = new EmployeeRepository();
+			var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+			var routeListItemRepository = new RouteListItemRepository();
+			var trackRepository = new TrackRepository();
+			var orderRepository = new OrderRepository();
+				
+			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider =
+				new AndroidDriverServiceInstanceProvider(
+					wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator, employeeRepository,
+					routeListRepository, routeListItemRepository, trackRepository, orderRepository);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

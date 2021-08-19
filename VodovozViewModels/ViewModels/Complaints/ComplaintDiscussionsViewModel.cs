@@ -12,6 +12,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Organization;
@@ -22,12 +23,13 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		private readonly ITdiTab dialogTab;
-		private readonly IFilePickerService filePickerService;
-		private readonly IEmployeeService employeeService;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly ITdiTab _dialogTab;
+		private readonly IFilePickerService _filePickerService;
+		private readonly IEmployeeService _employeeService;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly IUserRepository _userRepository;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
@@ -38,15 +40,17 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			IUserRepository userRepository
 		) : base(entity, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			UoW = uow;
 			CreateCommands();
@@ -87,10 +91,16 @@ namespace Vodovoz.ViewModels.Complaints
 		private ComplaintDiscussionViewModel GetDiscussionViewModel(ComplaintDiscussion complaintDiscussion)
 		{
 			int subdivisionId = complaintDiscussion.Subdivision.Id;
-			if(viewModelsCache.ContainsKey(subdivisionId)) {
+			
+			if(viewModelsCache.ContainsKey(subdivisionId))
+			{
 				return viewModelsCache[subdivisionId];
 			}
-			var viewModel = new ComplaintDiscussionViewModel(complaintDiscussion, filePickerService, employeeService, CommonServices, UoW);
+			
+			var viewModel =
+				new ComplaintDiscussionViewModel(
+					complaintDiscussion, _filePickerService, _employeeService, CommonServices, UoW, _userRepository);
+			
 			viewModelsCache.Add(subdivisionId, viewModel);
 			return viewModel;
 		}
@@ -127,7 +137,7 @@ namespace Vodovoz.ViewModels.Complaints
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						employeeSelectorFactory,
+						_employeeSelectorFactory,
 						_salesPlanJournalFactory,
 						_nomenclatureSelectorFactory
 					) {
@@ -141,7 +151,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Subdivision subdivision = UoW.GetById<Subdivision>(selectedNode.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
-					dialogTab.TabParent.AddSlaveTab(dialogTab, subdivisionSelector);
+					_dialogTab.TabParent.AddSlaveTab(_dialogTab, subdivisionSelector);
 				},
 				() => CanAttachSubdivision
 			);

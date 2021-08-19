@@ -15,7 +15,6 @@ using Vodovoz.Domain.Orders;
 using NHibernate.Dialect.Function;
 using NHibernate;
 using QS.Commands;
-using Vodovoz.Repositories.Payments;
 using System.Linq;
 using QS.Validation;
 using QS.Banks.Domain;
@@ -27,6 +26,7 @@ using QS.Project.Journal.Search;
 using System.Linq.Expressions;
 using QS.Navigation;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.ViewModels
 {
@@ -102,16 +102,19 @@ namespace Vodovoz.ViewModels
 		public IList<ManualPaymentMatchingViewModelAllocatedNode> ListAllocatedNodes { get; } = 
 			new GenericObservableList<ManualPaymentMatchingViewModelAllocatedNode>();
 		
-		private readonly SearchHelper searchHelper;
-		private readonly IOrderRepository orderRepository;
+		private readonly SearchHelper _searchHelper;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IPaymentsRepository _paymentsRepository;
 
 		public ManualPaymentMatchingViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IOrderRepository orderRepository) : base(uowBuilder, uowFactory, commonServices)
+			IOrderRepository orderRepository,
+			IPaymentsRepository paymentsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
-			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			if(uowBuilder.IsNewEntity) {
 				AbortOpening("Невозможно создать новую загрузку выписки из текущего диалога, необходимо использовать диалоги создания");
@@ -121,7 +124,7 @@ namespace Vodovoz.ViewModels
 
 			//Поиск
 			Search = new SearchViewModel();
-			searchHelper = new SearchHelper(Search);
+			_searchHelper = new SearchHelper(Search);
 			Search.OnSearch += (sender, args) => UpdateNodes();
 			
 			CanRevertPayFromOrder = CommonServices.PermissionService.ValidateUserPresetPermission("can_revert_pay_from_order", CurrentUser.Id);
@@ -144,7 +147,7 @@ namespace Vodovoz.ViewModels
 		public void GetLastBalance()
 		{
 			if(Entity.Counterparty != null)
-				LastBalance = PaymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
+				LastBalance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
 		}
 
 		private void FillSumToAllocate() {
@@ -414,7 +417,7 @@ namespace Vodovoz.ViewModels
 						if(item.Order.OrderPaymentStatus == OrderPaymentStatus.Paid)
 							continue;
 						
-						var otherPaymentsSum = orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
+						var otherPaymentsSum = _orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
 						                              .Sum(x => x.Sum);
 
 						var totalSum = otherPaymentsSum + item.Sum;
@@ -625,7 +628,7 @@ namespace Vodovoz.ViewModels
 		public void GetCounterpatyDebt()
 		{
 			if(Entity.Counterparty != null)
-				CounterpartyDebt = orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
+				CounterpartyDebt = _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
 		}
 
 		private string TryGetOrganizationType(string name)
@@ -647,10 +650,10 @@ namespace Vodovoz.ViewModels
 		}
 
 		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) => 
-			searchHelper.GetSearchCriterion(aliasPropertiesExpr);
+			_searchHelper.GetSearchCriterion(aliasPropertiesExpr);
 
 		private ICriterion GetSearchCriterion<TRootEntity>(params Expression<Func<TRootEntity, object>>[] propertiesExpr) => 
-			searchHelper.GetSearchCriterion(propertiesExpr);
+			_searchHelper.GetSearchCriterion(propertiesExpr);
 
 		public override bool Save(bool close)
 		{

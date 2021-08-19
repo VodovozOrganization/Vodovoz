@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.Print;
 using QS.Report;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -29,7 +28,9 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		string GetReportName()
 		{
-			var orderItemsQty = Order.OrderItems.Count(i => i.Nomenclature.IsFromOnlineShopGroup(new NomenclatureRepository(new NomenclatureParametersProvider()).GetIdentifierOfOnlineShopGroup()));
+			var orderItemsQty = Order.OrderItems.Count(i => i.Nomenclature.IsFromOnlineShopGroup(
+				new NomenclatureParametersProvider(new ParametersProvider()).GetIdentifierOfOnlineShopGroup()));
+			
 			return orderItemsQty <= 4 ? "Documents.AssemblyList" : "Documents.SeparateAssemblyList";
 		}
 

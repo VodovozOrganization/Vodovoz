@@ -3,26 +3,34 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using Vodovoz.Repositories.Orders;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstClientsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FirstClientsReport(IEntityAutocompleteSelectorFactory districtAutocompleteSelectorFactory)
+		public FirstClientsReport(
+			IEntityAutocompleteSelectorFactory districtAutocompleteSelectorFactory,
+			IOrderRepository orderRepository)
 		{
 			var districtSelector = districtAutocompleteSelectorFactory ??
 			                       throw new ArgumentNullException(nameof(districtAutocompleteSelectorFactory));
-			this.Build();
+			
+			if(orderRepository == null)
+			{
+				throw new ArgumentNullException(nameof(orderRepository));
+			}
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			var reasons = OrderRepository.GetDiscountReasons(UoW);
+			var reasons = orderRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;

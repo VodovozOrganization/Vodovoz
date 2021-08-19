@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain
 {
@@ -95,7 +96,7 @@ namespace Vodovoz.Domain
             {
                 Order.TryCloseSelfDeliveryOrder(
                     uow,
-                    new BaseParametersProvider(),
+                    new BaseParametersProvider(new ParametersProvider()),
                     new RouteListItemRepository(),
                     new SelfDeliveryRepository(),
                     new CashRepository());

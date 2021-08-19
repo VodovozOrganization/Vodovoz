@@ -5,6 +5,7 @@ using QS.DomainModel.NotifyChange;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
@@ -27,7 +28,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
-					return new CallTaskPanelView(new BaseParametersProvider(), EmployeeSingletonRepository.GetInstance());
+					return new CallTaskPanelView(new BaseParametersProvider(new ParametersProvider()), new EmployeeRepository());
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository());
 				case PanelViewType.SmsSendPanelView:

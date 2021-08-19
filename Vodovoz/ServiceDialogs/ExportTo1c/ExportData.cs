@@ -3,18 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Gamma.Utilities;
-using NHibernate.Mapping;
 using QS.DomainModel.UoW;
 using Vodovoz.Attributes;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c.Catalogs;
-using Vodovoz.HibernateMapping;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repositories;
 
 namespace Vodovoz.ExportTo1c
 {

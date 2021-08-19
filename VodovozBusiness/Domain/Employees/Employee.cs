@@ -12,7 +12,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Project.Services;
-using QS.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
@@ -337,30 +336,41 @@ namespace Vodovoz.Domain.Employees
 			AddressCurrent = String.Empty;
 		}
 
-		public virtual IDictionary<object, object> GetValidationContextItems(ISubdivisionService subdivisionService)
-		{
-			if(subdivisionService == null) {
-				throw new ArgumentNullException(nameof(subdivisionService));
-			}
-
-			return new Dictionary<object, object> {
-				{"Reason", subdivisionService} };
-		}
-
 		#region IValidatableObject implementation
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
+			}
+
+			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is ISubdivisionService subdivisionService))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(subdivisionService) }");
+			}
+			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(userRepository) }");
+			}
+			
 			foreach(var item in base.Validate(validationContext)) {
 				yield return item;
 			}
 
-			if(!string.IsNullOrEmpty(AndroidLogin)) {
-				Employee exist = EmployeeSingletonRepository.GetInstance().GetDriverByAndroidLogin(UoW, AndroidLogin);
+			if(!string.IsNullOrEmpty(AndroidLogin))
+			{
+				var exist = employeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+				
 				if(exist != null && exist.Id != Id)
-					yield return new ValidationResult(string.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
+				{
+					yield return new ValidationResult(
+						$"Другой водитель с логином { AndroidLogin } для Android уже есть в БД.",
 						new[] { nameof(AndroidLogin) });
+				}
 			}
+			
 			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null) {
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
 					new[] { nameof(LoginForNewUser) });
@@ -371,27 +381,39 @@ namespace Vodovoz.Domain.Employees
 					new[] { nameof(LoginForNewUser) });
 			}
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
-				User exist = UserSingletonRepository.GetInstance().GetUserByLogin(UoW, LoginForNewUser);
+				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
+				{
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
 						new[] { nameof(LoginForNewUser) });
+				}
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				string mes = null;
 				bool userExists = false;
 
-				try {
-					userExists = UserSingletonRepository.GetInstance().MySQLUserWithLoginExists(UoW, LoginForNewUser);
-				} catch(HibernateException ex) {
-					if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
-						mes = $"У вас недостаточно прав для создания нового пользователя";
-					else 
-						throw;
+				try
+				{
+					userExists = userRepository.MySQLUserWithLoginExists(UoW, LoginForNewUser);
 				}
-				if(!String.IsNullOrWhiteSpace(mes)) {
+				catch(HibernateException ex)
+				{
+					if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
+					{
+						mes = $"У вас недостаточно прав для создания нового пользователя";
+					}
+					else
+					{
+						throw;
+					}
+				}
+				if(!String.IsNullOrWhiteSpace(mes))
+				{
 					yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
-				} else if(userExists) {
+				}
+				else if(userExists)
+				{
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
 						new[] { nameof(LoginForNewUser) });
 				}
@@ -422,15 +444,11 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
 					new[] { nameof(DriverOf) });
 			}
-
-			if(validationContext.Items.ContainsKey("Reason") && validationContext.Items["Reason"] is ISubdivisionService subdivisionService) {
-
-				if(Subdivision == null || Subdivision.Id == subdivisionService.GetParentVodovozSubdivisionId()) {
-					yield return new ValidationResult($"Поле подразделение должно быть заполнено и не должно являться" +
-						" общим подразделением 'Веселый Водовоз'");
-				}
-			} else {
-				throw new ArgumentException("Неверно передан ValidationContext");
+			
+			if(Subdivision == null || Subdivision.Id == subdivisionService.GetParentVodovozSubdivisionId())
+			{
+				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
+					" общим подразделением 'Веселый Водовоз'");
 			}
 
 			List<EmployeeDocument> mainDocuments = GetMainDocuments();
@@ -451,7 +469,7 @@ namespace Vodovoz.Domain.Employees
 
 		#region Функции
 
-		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = WageSingletonRepository.GetInstance();
+		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = new WageCalculationRepository();
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 

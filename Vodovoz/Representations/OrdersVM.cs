@@ -9,12 +9,10 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
-using QS.Services;
 using QS.Utilities.Text;
 using QSProjectsLib;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -24,18 +22,21 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
-using Vodovoz.Repositories;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModel
 {
 	public class OrdersVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		public OrdersFilter Filter {
 			get => RepresentationFilter as OrdersFilter;
 			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
@@ -294,12 +295,14 @@ namespace Vodovoz.ViewModel
 							new EmployeeJournalFactory(),
 							VodovozGtkServicesConfig.EmployeeService,
 							new UndeliveredOrdersJournalOpener(),
-							new OrderSelectorFactory()
+							new OrderSelectorFactory(),
+							_undeliveredOrdersRepository
 						);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					},
-					(selectedItems) => selectedItems.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, ((OrdersVMNode)o).Id).Any())
+					(selectedItems) =>
+						selectedItems.Any(o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, ((OrdersVMNode)o).Id).Any())
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог закрытия",
@@ -421,7 +424,7 @@ namespace Vodovoz.ViewModel
 		public OrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
-			sanitizationNomenclature = NomenclatureRepository.GetSanitisationNomenclature(UoW);
+			sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(UoW);
 			ShowColumns(false);
 		}
 	}

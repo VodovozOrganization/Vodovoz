@@ -6,12 +6,14 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repositories.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
 	public class OrderAgreement : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
+		private readonly IWaterPricesRepository _waterPricesRepository = new WaterPricesRepository();
+		
 		#region implemented abstract members of OrderDocument
 
 		public override OrderDocumentType Type => OrderDocumentType.AdditionalAgreement;
@@ -30,10 +32,12 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DateTime? DocumentDate => AdditionalAgreement?.IssueDate;
 
-		public virtual void PrepareTemplate(IUnitOfWork uow)
+		public virtual void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(AdditionalAgreement.DocumentTemplate == null)
-				AdditionalAgreement.UpdateContractTemplate(uow);
+			{
+				AdditionalAgreement.UpdateContractTemplate(uow, docTemplateRepository);
+			}
 
 			if(AdditionalAgreement.DocumentTemplate != null) {
 				AdditionalAgreement.DocumentTemplate.DocParser.SetDocObject(AdditionalAgreement.Self);
@@ -53,7 +57,7 @@ namespace Vodovoz.Domain.Orders.Documents
 						break;
 					case AgreementType.WaterSales:
 						var waterAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as WaterAgreementParser);
-						waterAgreementParser.AddPricesTable(WaterPricesRepository.GetCompleteWaterPriceTable(uow));
+						waterAgreementParser.AddPricesTable(_waterPricesRepository.GetCompleteWaterPriceTable(uow));
 						break;
 					case AgreementType.EquipmentSales:
 						var equipmentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as EquipmentAgreementParser);

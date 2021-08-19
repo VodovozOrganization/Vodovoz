@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.RentPackages;
 
 namespace Vodovoz.Domain
 {
@@ -91,7 +92,13 @@ namespace Vodovoz.Domain
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var allready = Repositories.RentPackageRepository.GetPaidRentPackage(UoW, EquipmentKind);
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(IRentPackageRepository)) is IRentPackageRepository rentPackageRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(rentPackageRepository) }");
+			}
+			
+			var allready = rentPackageRepository.GetPaidRentPackage(UoW, EquipmentKind);
 			if(allready != null && allready.Id != Id)
 			{
 				yield return new ValidationResult (

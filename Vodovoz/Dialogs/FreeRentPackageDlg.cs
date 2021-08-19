@@ -1,16 +1,23 @@
-﻿using NHibernate.Criterion;
+﻿using System.ComponentModel.DataAnnotations;
+using NHibernate.Criterion;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Validation;
+using QS.Project.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.RentPackages;
+using Vodovoz.Factories;
 
 namespace Vodovoz
 {
 	public partial class FreeRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<FreeRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private readonly IRentPackageRepository _rentPackageRepository = new RentPackageRepository();
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 
+		private ValidationContext _validationContext;
+		
 		public FreeRentPackageDlg ()
 		{
 			this.Build ();
@@ -40,13 +47,24 @@ namespace Vodovoz
 			referenceDepositService.Binding.AddBinding (Entity, e => e.DepositService, w => w.Subject).InitializeFromSource ();
 			referenceEquipmentKind.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentKind.Binding.AddBinding (Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource ();
+			
+			ConfigureValidateContext();
 		}
 
-		public override bool Save ()
+		private void ConfigureValidateContext()
 		{
-			var valid = new QSValidator<FreeRentPackage> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
+			
+			_validationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
+		}
+
+		public override bool Save()
+		{
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
+			{
 				return false;
+			}
+
 			logger.Info ("Сохраняем пакет бесплатной аренды...");
 			UoWGeneric.Save();
 			return true;

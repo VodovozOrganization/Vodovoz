@@ -139,6 +139,6 @@ namespace Vodovoz.Filters.ViewModels
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-					new NomenclatureRepository(new NomenclatureParametersProvider()), UserSingletonRepository.GetInstance()));
+					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
 	}
 }
