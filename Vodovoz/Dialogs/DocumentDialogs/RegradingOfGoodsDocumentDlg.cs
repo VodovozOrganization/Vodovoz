@@ -9,7 +9,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz

@@ -5,11 +5,8 @@ using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -18,8 +15,6 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private RegradingOfGoodsTemplateItem _newRow;
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 
 		public RegradingOfGoodsTemplateItemsView()
@@ -86,7 +81,7 @@ namespace Vodovoz
 
 			var nomenclature = TemplateUoW.GetById<Nomenclature>(node.Id);
 			
-			newRow = new RegradingOfGoodsTemplateItem()
+			_newRow = new RegradingOfGoodsTemplateItem()
 			{
 				NomenclatureOld = nomenclature
 			};
@@ -102,13 +97,13 @@ namespace Vodovoz
 
 			if(node == null)
 			{
-				newRow = null;
+				_newRow = null;
 				return;
 			}
 
 			var nomenclature = TemplateUoW.GetById<Nomenclature>(node.Id);
-			newRow.NomenclatureNew = nomenclature;
-			TemplateUoW.Root.AddItem(newRow);
+			_newRow.NomenclatureNew = nomenclature;
+			TemplateUoW.Root.AddItem(_newRow);
 		}
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)

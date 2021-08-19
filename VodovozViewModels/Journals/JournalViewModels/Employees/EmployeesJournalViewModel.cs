@@ -322,6 +322,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_phonesViewModelFactory,
 			_warehouseRepository,
 			_routeListRepository,
+			_driverApiUserRegisterEndpoint,
 			_userSettings,
 			new UserRepository(),
 			new BaseParametersProvider(new ParametersProvider()));
@@ -344,6 +345,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_phonesViewModelFactory,
 				_warehouseRepository,
 				_routeListRepository,
+				_driverApiUserRegisterEndpoint,
 				_userSettings,
 				new UserRepository(),
 				new BaseParametersProvider(new ParametersProvider()));

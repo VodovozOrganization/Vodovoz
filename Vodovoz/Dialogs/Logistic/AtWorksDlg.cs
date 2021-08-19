@@ -390,6 +390,7 @@ namespace Vodovoz.Dialogs.Logistic
 					_phonesViewModelFactory,
 					_warehouseRepository,
 					_routeListRepository,
+					_driverApiRegistrationEndpoint,
 					CurrentUserSettings.Settings,
 					_userRepository,
 					_baseParametersProvider);

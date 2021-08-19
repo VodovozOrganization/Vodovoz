@@ -76,7 +76,8 @@ namespace Vodovoz.TempAdapters
 			nomenclatureFilter.RestrictArchive = true;
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
 			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
 			
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
@@ -85,7 +86,7 @@ namespace Vodovoz.TempAdapters
 			var nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
-					UserSingletonRepository.GetInstance());
+					userRepository);
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
@@ -95,7 +96,7 @@ namespace Vodovoz.TempAdapters
 				nomenclatureSelectorFactory,
 				counterpartySelectorFactory,
 				nomenclatureRepository,
-				UserSingletonRepository.GetInstance()
+				userRepository
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Single;
