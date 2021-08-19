@@ -975,7 +975,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository()))
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository(), ServicesConfig.InteractiveService))
         );
     }
 
