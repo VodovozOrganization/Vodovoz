@@ -12,11 +12,13 @@ using QS.Project.DB;
 using QS.Project.Services;
 using QSOrmProject;
 using QS.Validation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -38,6 +40,8 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class TraineeDlg : QS.Dialog.Gtk.EntityDialogBase<Trainee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
@@ -47,12 +51,13 @@ namespace Vodovoz.Dialogs.Employees
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-		private readonly IWageCalculationRepository _wageCalculationRepository  = WageSingletonRepository.GetInstance();
-		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private readonly IUserRepository _userRepository = new UserRepository();
 
 		public TraineeDlg()
 		{
@@ -218,6 +223,8 @@ namespace Vodovoz.Dialogs.Employees
 				_routeListRepository,
 				driverApiRegisterEndpoint,
 				CurrentUserSettings.Settings,
+				_userRepository,
+				_baseParametersProvider,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),

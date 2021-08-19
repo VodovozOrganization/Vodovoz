@@ -8,6 +8,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -40,9 +41,10 @@ namespace Vodovoz.TempAdapters
 		{
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
 
 			var orderJournalFilterViewModel = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
 
@@ -53,7 +55,7 @@ namespace Vodovoz.TempAdapters
 					ServicesConfig.CommonServices,
 					VodovozGtkServicesConfig.EmployeeService,
 					nomenclatureRepository,
-					UserSingletonRepository.GetInstance(),
+					userRepository,
 					new OrderSelectorFactory(),
 					new EmployeeJournalFactory(),
 					counterpartyJournalFactory,
@@ -61,8 +63,10 @@ namespace Vodovoz.TempAdapters
 					subdivisionJournalFactory,
 					new GtkTabsOpener(),
 					new UndeliveredOrdersJournalOpener(),
-					new NomenclatureSelectorFactory()
-				));
+					new NomenclatureSelectorFactory(),
+					new UndeliveredOrdersRepository()
+				)
+			);
 		}
 	}
 }

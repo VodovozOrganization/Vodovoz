@@ -7,9 +7,9 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Parameters;
-using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic
@@ -169,7 +169,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string Title => string.Format("{0} №{1}", this.GetType().GetSubjectName(), Id);
 
 		public virtual void CreateOperations(IFuelRepository fuelRepository, 
-			CashDistributionCommonOrganisationProvider commonOrganisationProvider)
+			CashDistributionCommonOrganisationProvider commonOrganisationProvider,
+			ICategoryRepository categoryRepository)
 		{
 			if(fuelRepository == null) {
 				throw new ArgumentNullException(nameof(fuelRepository));
@@ -179,7 +180,7 @@ namespace Vodovoz.Domain.Logistic
 				throw new ArgumentNullException(nameof(commonOrganisationProvider));
 			}
 
-			ExpenseCategory expenseCategory = CategoryRepository.FuelDocumentExpenseCategory(UoW);
+			ExpenseCategory expenseCategory = categoryRepository.FuelDocumentExpenseCategory(UoW);
 			if(expenseCategory == null) {
 				throw new InvalidProgramException("Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
 			}
@@ -207,17 +208,20 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void UpdateFuelOperation(IFuelRepository fuelRepository)
+		public virtual void UpdateFuelOperation(ICategoryRepository categoryRepository)
 		{
-			if(fuelRepository == null) 
-				throw new ArgumentNullException(nameof(fuelRepository));
-
-			ExpenseCategory expenseCategory = CategoryRepository.FuelDocumentExpenseCategory(UoW);
-			if(expenseCategory == null) 
-				throw new InvalidProgramException("Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
+			ExpenseCategory expenseCategory = categoryRepository.FuelDocumentExpenseCategory(UoW);
+			
+			if(expenseCategory == null)
+			{
+				throw new InvalidProgramException(
+					"Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
+			}
 
 			if(FuelOperation.PayedLiters <= 0m)
+			{
 				return;
+			}
 
 			FuelOperation.PayedLiters = Math.Round(PayedForFuel.Value / LiterCost, 2, MidpointRounding.AwayFromZero);
 			FuelOperation.LitersGived = FuelCoupons + FuelOperation.PayedLiters;

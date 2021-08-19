@@ -8,7 +8,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -32,6 +31,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="UoW">UoW</param>
 		/// <param name="order">Заказ</param>
 		IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, Domain.Orders.Order order);
+
+		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<Domain.Orders.Order> orders);
 
 		IList<Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 

@@ -4,16 +4,24 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		
 		public CarLoadDocumentView()
 		{
 			this.Build();
@@ -150,12 +158,12 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), new SubdivisionRepository(), true);
-			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, _routeListRepository, _subdivisionRepository, true);
+			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, _routeListRepository);
 
 			if(DocumentUoW.Root.Warehouse != null)
 			{
-				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
+				DocumentUoW.Root.UpdateStockAmount(DocumentUoW, _stockRepository);
 				UpdateAmounts();
 			}
 		}
@@ -167,7 +175,7 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), null, false);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, _routeListRepository, null, false);
 
 			var items = DocumentUoW.Root.Items;
 			string errorNomenclatures = string.Empty;
@@ -190,10 +198,10 @@ namespace Vodovoz
 				return;
 			}
 
-			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
+			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, _routeListRepository);
 			if(DocumentUoW.Root.Warehouse != null)
 			{
-				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
+				DocumentUoW.Root.UpdateStockAmount(DocumentUoW, _stockRepository);
 				UpdateAmounts();
 			}
 		}

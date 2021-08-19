@@ -18,41 +18,46 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
-using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
-		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
-		private IRouteListRepository _routeListRepository = new RouteListRepository();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
+		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(_parametersProvider);
+
+		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 
 		bool isEditable;
 
@@ -70,7 +75,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-			Entity.Logistician = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Logistician = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Logistician == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
@@ -157,7 +162,7 @@ namespace Vodovoz
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = Repository.Logistics.DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
@@ -228,7 +233,7 @@ namespace Vodovoz
 
 		void CheckCarLoadDocuments()
 		{
-			if(Entity.Id > 0 && new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any())
+			if(Entity.Id > 0 && _routeListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
 				IsEditable = false;
 		}
 
@@ -351,9 +356,9 @@ namespace Vodovoz
 				var callTaskWorker = new CallTaskWorker(
 					CallTaskSingletonFactory.GetInstance(),
 					new CallTaskRepository(),
-					OrderSingletonRepository.GetInstance(),
-					EmployeeSingletonRepository.GetInstance(),
-					new BaseParametersProvider(),
+					new OrderRepository(),
+					_employeeRepository,
+					_baseParametersProvider,
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);
 
@@ -418,7 +423,7 @@ namespace Vodovoz
 							"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
 							RouteListStatus.OnClosing.GetEnumTitle()))
 						{
-							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
+							Entity.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker, _trackRepository);
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
@@ -446,10 +451,14 @@ namespace Vodovoz
 
                     return;
 				}
-				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
-					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
+				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)
+				{
+					if(_routeListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
+					{
 						MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
-					} else {
+					}
+					else
+					{
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.New, callTaskWorker);
 					}
 					UpdateButtonStatus();

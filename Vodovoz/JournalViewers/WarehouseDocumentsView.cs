@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
@@ -95,13 +96,15 @@ namespace Vodovoz
 								UnitOfWorkFactory.GetDefaultFactory,
 								new WarehousePermissionService(),
 								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
-								UserSingletonRepository.GetInstance(),
+								new UserRepository(),
 								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices
+								ServicesConfig.CommonServices,
+								new StockRepository()
 							);
 						},
 						this
@@ -116,12 +119,14 @@ namespace Vodovoz
 								UnitOfWorkFactory.GetDefaultFactory,
 								new WarehousePermissionService(),
 								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices
+								ServicesConfig.CommonServices,
+								new StockRepository()
 							);
 						},
 						this
@@ -167,12 +172,14 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									new WarehousePermissionService(),
 									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new EntityExtendedPermissionValidator(
+										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new StockRepository()
 								);
 							},
 							this
@@ -194,13 +201,15 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									new WarehousePermissionService(),
 									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new EntityExtendedPermissionValidator(
+										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
-									UserSingletonRepository.GetInstance(),
+									new UserRepository(),
 									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new StockRepository()
 								);
 							},
 							this

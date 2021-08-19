@@ -17,26 +17,25 @@ using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Models;
-using Vodovoz.Repositories.Client;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using QS.Project.Services;
-using QS.Project.Journal;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.ViewModels;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CallTaskDlg : EntityDialogBase<CallTask>
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+
 		private string lastComment;
 		private Employee employee;
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IBottlesRepository bottleRepository { get; set; } = new BottlesRepository();
 		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
 		private IPhoneRepository phoneRepository { get; set; } = new PhoneRepository();
@@ -54,7 +53,7 @@ namespace Vodovoz.Dialogs
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
 			Entity.Source = TaskSource.Handmade;
-			Entity.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.TaskCreator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.EndActivePeriod = DateTime.Now.AddDays(1);
 			createTaskButton.Sensitive = false;
 			ConfigureDlg();
@@ -114,7 +113,7 @@ namespace Vodovoz.Dialogs
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			employee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			ClientPhonesView.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			ClientPhonesView.ViewModel.ReadOnly = true;
@@ -185,7 +184,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(String.IsNullOrEmpty(textviewLastComment.Buffer.Text))
 				return;
-			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment, employeeRepository);
+			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment, _employeeRepository);
 			textviewLastComment.Buffer.Text = String.Empty;
 		}
 		#endregion
@@ -207,7 +206,7 @@ namespace Vodovoz.Dialogs
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			CallTaskSingletonFactory.GetInstance().CopyTask(UoW, employeeRepository, Entity, newTask.Entity);
+			CallTaskSingletonFactory.GetInstance().CopyTask(UoW, _employeeRepository, Entity, newTask.Entity);
 			newTask.UpdateAddressFields();
 			TabParent.AddTab(newTask,this);
 		}

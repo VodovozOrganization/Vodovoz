@@ -136,7 +136,8 @@ namespace Vodovoz
 
 		private void LoadAddressesTypesDefaults()
 		{
-			var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+			var currentUserSettings = CurrentUserSettings.Settings;
+			
 			foreach(var addressTypeNode in AddressTypes) {
 				switch(addressTypeNode.AddressType) {
 					case AddressType.Delivery:

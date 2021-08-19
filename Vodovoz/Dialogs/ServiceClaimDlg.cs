@@ -15,8 +15,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Equipments;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -26,6 +28,11 @@ namespace Vodovoz
 {
 	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{
 			get{
@@ -97,7 +104,7 @@ namespace Vodovoz
 
 		void CreateOrder()
 		{
-			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+			var employee =_employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 			var order = Order.CreateFromServiceClaim(Entity, employee);
 			UoWGeneric.Save(order);
 			UoWGeneric.Commit();
@@ -135,7 +142,7 @@ namespace Vodovoz
 			referenceEngineer.RepresentationModel = new EmployeesVM();
 			referenceEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
-			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();
+			yentryEquipmentReplacement.ItemsQuery = _equipmentRepository.AvailableOnDutyEquipmentQuery();
 			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
 			yentryEquipmentReplacement.Binding
 				.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
@@ -144,7 +151,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			referenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
-			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
+			referenceNomenclature.ItemsQuery = _nomenclatureRepository.NomenclatureOfItemsForService();
 			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
 
 			referenceEquipment.SubjectType = typeof(Equipment);
@@ -242,8 +249,10 @@ namespace Vodovoz
 				UoWGeneric.Root.InitialOrder.AddServiceClaimAsInitial (UoWGeneric.Root);
 
 			if (UoWGeneric.IsNew)
-				UoWGeneric.Root.AddHistoryRecord (UoWGeneric.Root.Status, 
-					String.IsNullOrWhiteSpace (textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text);
+				UoWGeneric.Root.AddHistoryRecord(
+					UoWGeneric.Root.Status, 
+					string.IsNullOrWhiteSpace(textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text,
+					_employeeRepository);
 
 			logger.Info ("Сохраняем заявку на обслуживание...");
 			UoWGeneric.Save ();
@@ -316,12 +325,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddServiceClicked (object sender, EventArgs e)
 		{
-			OpenDialog (NomenclatureRepository.NomenclatureOfServices ());
+			OpenDialog (_nomenclatureRepository.NomenclatureOfServices());
 		}
 
 		protected void OnButtonAddPartClicked (object sender, EventArgs e)
 		{
-			OpenDialog (NomenclatureRepository.NomenclatureOfPartsForService ());
+			OpenDialog (_nomenclatureRepository.NomenclatureOfPartsForService());
 		}
 
 		void OpenDialog (NHibernate.Criterion.QueryOver<Nomenclature> nomenclatureType)
@@ -372,7 +381,7 @@ namespace Vodovoz
 		{
 			if (!String.IsNullOrWhiteSpace (textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog ("Вы не заполнили комментарий. Продолжить?")) {
 				ServiceClaimStatus newStatus = (ServiceClaimStatus)(enumStatusEditable.SelectedItem ?? UoWGeneric.Root.Status);
-				UoWGeneric.Root.AddHistoryRecord (newStatus, textComment.Buffer.Text);
+				UoWGeneric.Root.AddHistoryRecord (newStatus, textComment.Buffer.Text, _employeeRepository);
 			}
 		}
 
@@ -405,12 +414,15 @@ namespace Vodovoz
 
 			UpdateEquipmentState();
 			FixNomenclatureAndEquipmentSensitivity ();
-			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
+			referenceEquipment.ItemsQuery = _equipmentRepository.GetEquipmentAtDeliveryPointQuery(UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
 		}
 
 		void UpdateEquipmentState()
 		{
-			int equipmentsCounts = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
+			int equipmentsCounts =
+				_equipmentRepository.GetEquipmentAtDeliveryPointQuery(
+					Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
+			
 			if (equipmentsCounts == 0 && Entity.Equipment == null)
 			{
 				enumcomboWithSerial.SelectedItem = ServiceClaimEquipmentSerialType.WithoutSerial;

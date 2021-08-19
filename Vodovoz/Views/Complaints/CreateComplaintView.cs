@@ -8,6 +8,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
@@ -65,7 +66,8 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.SubdivisionJournalFactory,
 												ViewModel.GtkDialogsOpener,
 												ViewModel.UndeliveredOrdersJournalOpener,
-												new NomenclatureSelectorFactory());
+												ViewModel.NomenclatureSelector,
+												ViewModel.UndeliveredOrdersRepository);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

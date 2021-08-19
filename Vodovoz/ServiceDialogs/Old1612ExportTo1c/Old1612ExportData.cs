@@ -5,14 +5,11 @@ using System.Xml.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using Vodovoz.Attributes;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Old1612ExportTo1c.Catalogs;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repositories;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Old1612ExportTo1c
@@ -80,7 +77,7 @@ namespace Vodovoz.Old1612ExportTo1c
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
 			this.ExchangeRules = new RulesNode();
-			var orgProvider = new OrganizationParametersProvider(SingletonParametersProvider.Instance);
+			var orgProvider = new OrganizationParametersProvider(new ParametersProvider());
 			this.cashlessOrganization = UoW.GetById<Organization>(orgProvider.GetCashlessOrganisationId);
 
 		}

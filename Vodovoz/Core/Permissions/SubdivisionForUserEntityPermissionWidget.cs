@@ -10,8 +10,8 @@ using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Widgets.GtkUI;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Permissions;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Core.Permissions
@@ -19,6 +19,7 @@ namespace Vodovoz.Core.Permissions
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SubdivisionForUserEntityPermissionWidget : Gtk.Bin, IUserPermissionTab
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		public IUnitOfWork UoW { get; set; }
 		public string Title => "Особые права на подразделения";
 
@@ -34,7 +35,7 @@ namespace Vodovoz.Core.Permissions
 
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
 		{
-			var employee = EmployeeRepository.GetEmployeesForUser(uow, user.Id).FirstOrDefault();
+			var employee = _employeeRepository.GetEmployeesForUser(uow, user.Id).FirstOrDefault();
 			if(employee == null) {
 				MessageDialogHelper.RunWarningDialog($"К пользователю \"{user.Name}\" не привязан сотрудник, невозможно будет установить права на подразделение для документов.");
 				return;
@@ -119,6 +120,8 @@ namespace Vodovoz.Core.Permissions
 
 	public class EntitySubdivisionForUserPermissionModel
 	{
+		private readonly IPermissionRepository _permissionRepository = new PermissionRepository();
+
 		private IUnitOfWork uow;
 		private Subdivision subdivision;
 		private UserBase user;
@@ -136,7 +139,7 @@ namespace Vodovoz.Core.Permissions
 			this.uow = uow;
 			this.user = user;
 
-			originalPermissionList = PermissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
+			originalPermissionList = _permissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
 			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(originalPermissionList.ToList());
 
 			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);

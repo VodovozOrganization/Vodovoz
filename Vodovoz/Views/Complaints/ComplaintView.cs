@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
@@ -78,8 +79,8 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.SubdivisionJournalFactory,
 												ViewModel.GtkDialogsOpener,
 												ViewModel.UndeliveredOrdersJournalOpener,
-												ViewModel.NomenclatureSelector
-												);
+												ViewModel.NomenclatureSelector,
+												ViewModel.UndeliveredOrdersRepository);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);

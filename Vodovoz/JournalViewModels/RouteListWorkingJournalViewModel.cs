@@ -17,12 +17,14 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
@@ -290,8 +292,8 @@ namespace Vodovoz.JournalViewModels
             var callTaskWorker = new CallTaskWorker(
                     CallTaskSingletonFactory.GetInstance(),
                     callTaskRepository,
-                    OrderSingletonRepository.GetInstance(),
-                    EmployeeSingletonRepository.GetInstance(),
+                    new OrderRepository(),
+                    new EmployeeRepository(),
                     baseParametersProvider,
                     commonServices.UserService,
                     SingletonErrorReporter.Instance);
@@ -357,9 +359,11 @@ namespace Vodovoz.JournalViewModels
                                 RouteList,
                                 commonServices,
                                 subdivisionRepository,
-                                EmployeeSingletonRepository.GetInstance(),
+                                new EmployeeRepository(),
                                 fuelRepository,
-                                NavigationManagerProvider.NavigationManager
+                                NavigationManagerProvider.NavigationManager,
+                                new TrackRepository(),
+                                new CategoryRepository(new ParametersProvider())
                             )
                         );
                     }

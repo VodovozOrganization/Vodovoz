@@ -2,7 +2,7 @@
 using NLog;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using Vodovoz.Domain;
 
@@ -11,99 +11,101 @@ namespace Vodovoz.Parameters
 	public class ParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();
-		public static IParametersProvider Instance { get; private set; }
 
-		private readonly Dictionary<string, BaseParameter> parameters = new Dictionary<string, BaseParameter>();
+		private static readonly ConcurrentDictionary<string, BaseParameter> _parameters = new ConcurrentDictionary<string, BaseParameter>();
 
 		public bool ContainsParameter(string parameterName)
 		{
-			if (parameters.ContainsKey(parameterName))
+			if(_parameters.ContainsKey(parameterName))
 			{
 				return true;
 			}
+			
 			RefreshParameter(parameterName);
-			return parameters.ContainsKey(parameterName);
+			return _parameters.ContainsKey(parameterName);
 		}
 
 		public string GetParameterValue(string parameterName)
 		{
-			if (string.IsNullOrWhiteSpace(parameterName))
+			if(string.IsNullOrWhiteSpace(parameterName))
 			{
 				throw new ArgumentNullException(nameof(parameterName));
 			}
 
-			if (!ContainsParameter(parameterName))
+			if(!_parameters.TryGetValue(parameterName, out var parameter))
 			{
 				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
 			}
 
-			var parameter = parameters[parameterName];
-			if (parameter.IsExpired)
+			if(parameter.IsExpired)
 			{
 				RefreshParameter(parameterName);
-				parameter = parameters[parameterName];
+				parameter = _parameters[parameterName];
 			}
-			if (String.IsNullOrWhiteSpace(parameter.StrValue))
+			
+			if(String.IsNullOrWhiteSpace(parameter.StrValue))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterName})");
 			}
+			
 			return parameter.StrValue;
 		}
 
 		private void RefreshParameter(string parameterName)
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				BaseParameter parameter = uow.Session.QueryOver<BaseParameter>()
 					.Where(x => x.Name == parameterName)
 					.SingleOrDefault<BaseParameter>();
-				if (parameter == null)
+				
+				if(parameter == null)
 				{
 					return;
 				}
 
 				parameter.CachedTime = DateTime.Now;
-				if (parameters.ContainsKey(parameterName))
+				
+				if(_parameters.ContainsKey(parameterName))
 				{
-					parameters[parameterName] = parameter;
+					_parameters[parameterName] = parameter;
 					return;
 				}
-				if (!parameters.ContainsKey(parameterName))
-				{
-					parameters.Add(parameter.Name, parameter);
-					return;
-				}
+				
+				_parameters.TryAdd(parameter.Name, parameter);
 			}
 		}
 
 		public void RefreshParameters()
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var allParameters = uow.Session.QueryOver<BaseParameter>().List();
-				parameters.Clear();
-				foreach (var parameter in allParameters)
+				_parameters.Clear();
+				
+				foreach(var parameter in allParameters)
 				{
-					if (parameters.ContainsKey(parameter.Name))
+					if(_parameters.ContainsKey(parameter.Name))
 					{
 						continue;
 					}
+					
 					parameter.CachedTime = DateTime.Now;
-					parameters.Add(parameter.Name, parameter);
+					_parameters.TryAdd(parameter.Name, parameter);
 				}
 			}
 		}
 
 		public int GetIntValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
+			if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -113,14 +115,14 @@ namespace Vodovoz.Parameters
 
 		public char GetCharValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
+			if(string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -130,14 +132,14 @@ namespace Vodovoz.Parameters
 
 		public decimal GetDecimalValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
+			if(string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -147,14 +149,14 @@ namespace Vodovoz.Parameters
 
 		public string GetStringValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value))
+			if(string.IsNullOrWhiteSpace(value))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -165,9 +167,9 @@ namespace Vodovoz.Parameters
 		public void CreateOrUpdateParameter(string name, string value)
 		{
 			bool isInsert = false;
-			if (parameters.TryGetValue(name, out var oldParameter))
+			if(_parameters.TryGetValue(name, out var oldParameter))
 			{
-				if (oldParameter.StrValue == value)
+				if(oldParameter.StrValue == value)
 				{
 					return;
 				}
@@ -176,7 +178,7 @@ namespace Vodovoz.Parameters
 			{
 				isInsert = true;
 			}
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var bpPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(BaseParameter));
 				var tableName = bpPersister.TableName;
@@ -184,7 +186,7 @@ namespace Vodovoz.Parameters
 				var strValueColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.StrValue)).First();
 
 				string sql;
-				if (isInsert)
+				if(isInsert)
 				{
 					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
 					logger.Debug($"Добавляем новый параметр базы {name}='{value}'");

@@ -9,6 +9,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 
@@ -16,10 +17,11 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class CreateInnerComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly ISubdivisionRepository subdivisionRepository;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
-        private readonly IFilePickerService filePickerService;
+		private readonly IEmployeeService _employeeService;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+        private readonly IFilePickerService _filePickerService;
+        private readonly IUserRepository _userRepository;
         private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
         private readonly IList<ComplaintKind> _complaintKinds;
@@ -31,13 +33,15 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-            IFilePickerService filePickerService
+            IFilePickerService filePickerService,
+			IUserRepository userRepository
             ) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-            this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-            this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+            _filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 
@@ -53,7 +57,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -81,10 +85,14 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
 		private GuiltyItemsViewModel guiltyItemsViewModel;
-		public GuiltyItemsViewModel GuiltyItemsViewModel {
-			get {
-				if(guiltyItemsViewModel == null) {
-					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository, employeeSelectorFactory);
+		public GuiltyItemsViewModel GuiltyItemsViewModel
+		{
+			get
+			{
+				if(guiltyItemsViewModel == null)
+				{
+					guiltyItemsViewModel =
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory);
 				}
 
 				return guiltyItemsViewModel;
@@ -98,7 +106,7 @@ namespace Vodovoz.ViewModels.Complaints
             {
                 if (filesViewModel == null)
                 {
-                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, filePickerService, CommonServices);
+                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _filePickerService, CommonServices, _userRepository);
                 }
                 return filesViewModel;
             }

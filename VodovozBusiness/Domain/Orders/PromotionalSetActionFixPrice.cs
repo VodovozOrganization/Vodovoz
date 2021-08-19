@@ -13,6 +13,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -84,12 +85,12 @@ namespace Vodovoz.Domain.Orders
 		{
 		}
 
-		public override bool IsValidForOrder(Order order)
+		public override bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
 		{
 			if(!IsForZeroDebt)
 				return true;
 
-			var forfeitId = new BaseParametersProvider().GetForfeitId();
+			var forfeitId = standartNomenclatures.GetForfeitId();
 
 			BottlesRepository bottlesRepository = new BottlesRepository();
 

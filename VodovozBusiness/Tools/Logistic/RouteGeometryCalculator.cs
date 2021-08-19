@@ -10,7 +10,7 @@ using QS.Osm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repository.Logistics;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -23,6 +23,7 @@ namespace Vodovoz.Tools.Logistic
 	public class RouteGeometryCalculator : IDistanceCalculator, IDisposable
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 
@@ -187,7 +188,7 @@ namespace Vodovoz.Tools.Logistic
 				IList<CachedDistance> fromDB;
 				lock(uow)
 				{
-					fromDB = CachedDistanceRepository.GetCache(uow, prepared.ToArray());
+					fromDB = _cachedDistanceRepository.GetCache(uow, prepared.ToArray());
 				}
 				foreach (var loaded in fromDB)
 				{
@@ -252,7 +253,7 @@ namespace Vodovoz.Tools.Logistic
 				IList<CachedDistance> list;
 				lock(uow)
 				{
-					list = CachedDistanceRepository.GetCache(uow, new[] { new WayHash(fromP, toP) });
+					list = _cachedDistanceRepository.GetCache(uow, new[] { new WayHash(fromP, toP) });
 				}
 				distance = list.FirstOrDefault();
 			}
