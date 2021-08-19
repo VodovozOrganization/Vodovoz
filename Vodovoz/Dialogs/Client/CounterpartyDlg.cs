@@ -54,6 +54,7 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
@@ -502,36 +503,30 @@ namespace Vodovoz
                 UoWGeneric.Root.Emails = new List<Email>();
             emailsView.Emails = UoWGeneric.Root.Emails;
 
-            var filterSalesManager = new EmployeeRepresentationFilterViewModel();
-            filterSalesManager.SetAndRefilterAtOnce(
-                x => x.RestrictCategory = EmployeeCategory.office,
-                x => x.Status = EmployeeStatus.IsWorking
-            );
+            var employeeJournalFactory = new EmployeeJournalFactory();
+            if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
+            {
+	            entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
+            }
+            entrySalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
 
-            referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
-            referenceSalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
+            if(SetSensitivityByPermission("can_set_personal_accountant", entryAccountant))
+            {
+	            entryAccountant.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
+            }
+            entryAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
 
-            var filterAccountant = new EmployeeRepresentationFilterViewModel();
-            filterAccountant.SetAndRefilterAtOnce(
-                x => x.RestrictCategory = EmployeeCategory.office,
-                x => x.Status = EmployeeStatus.IsWorking
-            );
+            if(SetSensitivityByPermission("can_set_personal_bottles_manager", entryBottlesManager))
+            {
+	            entryBottlesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
+            }
+            entryBottlesManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
 
-            referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
-            referenceAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
-
+            //FIXME данный виджет создан с Visible = false и нигде не меняется
             dataentryMainContact.RepresentationModel = new ContactsVM(UoW, Entity);
             dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
 
-            var filterBottleManager = new EmployeeRepresentationFilterViewModel();
-            filterBottleManager.SetAndRefilterAtOnce(
-                x => x.RestrictCategory = EmployeeCategory.office,
-                x => x.Status = EmployeeStatus.IsWorking
-            );
-
-            referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
-            referenceBottleManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
-
+            //FIXME данный виджет создан с Visible = false и нигде не меняется
             dataentryFinancialContact.RepresentationModel = new ContactsVM(UoW, Entity);
             dataentryFinancialContact.Binding.AddBinding(Entity, e => e.FinancialContact, w => w.Subject).InitializeFromSource();
 
@@ -539,6 +534,23 @@ namespace Vodovoz
 
             contactsview1.CounterpartyUoW = UoWGeneric;
             contactsview1.Visible = true;
+        }
+
+        private bool SetSensitivityByPermission(string permission, Widget widget)
+        {
+	        return widget.Sensitive =
+		        ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(permission);
+        }
+
+        private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
+        {
+	        var filter = new EmployeeFilterViewModel
+	        {
+		        RestrictCategory = EmployeeCategory.office,
+		        Status = EmployeeStatus.IsWorking
+	        };
+	        employeeJournalFactory.SetEmployeeFilterViewModel(filter);
+	        return employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
         }
 
         private void ConfigureTabRequisites()
