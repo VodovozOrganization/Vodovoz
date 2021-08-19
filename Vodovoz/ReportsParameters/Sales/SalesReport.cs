@@ -181,8 +181,8 @@ namespace Vodovoz.Reports
 					return !selectedValues.Any()
 						? null
 						: nomenclatureTypeParam.FilterType == SelectableFilterType.Include
-							? Restrictions.On<Nomenclature>(x => x.Category).IsIn(selectedValues.ToArray())
-							: Restrictions.On<Nomenclature>(x => x.Category).Not.IsIn(selectedValues.ToArray());
+							? Restrictions.On<Nomenclature>(x => x.Category).IsIn(selectedValues)
+							: Restrictions.On<Nomenclature>(x => x.Category).Not.IsIn(selectedValues);
 				}
 			);
 
