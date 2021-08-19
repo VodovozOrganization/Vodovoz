@@ -64,6 +64,9 @@ namespace Vodovoz.ViewModels.Warehouses
             ConfigureEntityChangingRelations();
             
             ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
+            UserHasOnlyAccessToWarehouseAndComplaints =
+	            CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+	            && !CurrentUser.IsAdmin;
         }
         #endregion
 
@@ -115,6 +118,8 @@ namespace Vodovoz.ViewModels.Warehouses
         #endregion
 
         #region Properties
+        
+        public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 
         public bool isNew => Entity.Id == 0;
 

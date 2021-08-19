@@ -1,43 +1,44 @@
-﻿using System;
-using Dialogs.Employees;
+﻿using Dialogs.Employees;
 using Gtk;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
+using Microsoft.Extensions.Primitives;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using System;
+using System.Collections.Generic;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
-using Vodovoz.JournalViewers;
-using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.Representations;
-using Vodovoz.ServiceDialogs;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.Suppliers;
-using Vodovoz.EntityRepositories.Store;
-using QS.Project.Journal;
-using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
@@ -51,30 +52,40 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.Parameters;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.Representations;
+using Vodovoz.ServiceDialogs;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModel;
+using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewWidgets;
-using VodovozInfrastructure.Interfaces;
-using Action = Gtk.Action;
-using Vodovoz.Old1612ExportTo1c;
-using Vodovoz.JournalFilters.Cash;
-using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.ViewWidgets;
+using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
+using Action = Gtk.Action;
 
 public partial class MainWindow : Window
 {
@@ -139,6 +150,7 @@ public partial class MainWindow : Window
 	//Suppliers
 	Action ActionNewRequestToSupplier;
 	Action ActionJournalOfRequestsToSuppliers;
+	Action ActionWarehousesBalanceSummary;
 
 	//ТрО
 	private Action ActionCarEventsJournal;
@@ -218,6 +230,7 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
 		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
+		ActionWarehousesBalanceSummary = new Action(nameof(ActionWarehousesBalanceSummary), "Остатки по складам", null, "table");
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
@@ -288,6 +301,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		w1.Add(ActionExportImportNomenclatureCatalog, null);
+		w1.Add(ActionWarehousesBalanceSummary, null);
 
 		//ТрО
 		w1.Add(ActionCarEventsJournal, null);
@@ -363,11 +377,17 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
+		ActionWarehousesBalanceSummary.Activated += ActionWarehousesBalanceSummary_Activated;
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 		
 		#endregion
+	}
+
+	private void ActionWarehousesBalanceSummary_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
@@ -526,12 +546,22 @@ public partial class MainWindow : Window
 	void ActionAtWorks_Activated(object sender, EventArgs e)
 	{
 		var employeeJournalFactory = new EmployeeJournalFactory();
-		
+
+		var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
+
+		cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
+
+		var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+
+		var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
+
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
 			() => new AtWorksDlg(
 				new BaseParametersProvider(new ParametersProvider()),
-				employeeJournalFactory)
+				employeeJournalFactory,
+				driverApiRegisterEndpoint
+				)
 		);
 	}
 
@@ -732,9 +762,9 @@ public partial class MainWindow : Window
 			Status = EmployeeStatus.IsWorking,
 		};
 		
-        var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-        
-        tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
+		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+		
+		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
 			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory())
 			{
 				HidenByDefault = true
@@ -969,9 +999,25 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-			new WarehouseRepository()
-		) {ShowArchive = true};
+		bool userHasOnlyAccessToWarehouseAndComplaints;
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+		}
+		
+		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
+		{
+			ShowArchive = true
+		};
+
+		if(userHasOnlyAccessToWarehouseAndComplaints && defaultWarehouse != null)
+		{
+			filter.RestrictWarehouse = defaultWarehouse;
+		}
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 			filter,

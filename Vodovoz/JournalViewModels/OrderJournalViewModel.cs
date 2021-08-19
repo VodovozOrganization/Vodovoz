@@ -55,6 +55,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -94,6 +95,9 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Журнал заказов";
 
 			userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+			_userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
@@ -253,12 +257,28 @@ namespace Vodovoz.JournalViewModels
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if(FilterViewModel.RestrictHideService != null) {
-				query.Where(o => o.IsService != FilterViewModel.RestrictHideService);
+			if(FilterViewModel.RestrictHideService != null) 
+			{
+				if(FilterViewModel.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
 			}
 
-			if(FilterViewModel.RestrictOnlyService != null) {
-				query.Where(o => o.IsService == FilterViewModel.RestrictOnlyService);
+			if(FilterViewModel.RestrictOnlyService != null) 
+			{
+				if(FilterViewModel.RestrictOnlyService.Value)
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
 			}
 			
 			if(FilterViewModel.OrderPaymentStatus != null) {
@@ -786,8 +806,9 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
-						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(
-							UoW, (o as OrderJournalNode).Id).Any()) && IsOrder(selectedItems),
+						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()) 
+					        && IsOrder(selectedItems)
+							&& !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -915,7 +936,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Повторить заказ",
-					IsOrder,
+					selectedItems => IsOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -939,7 +960,8 @@ namespace Vodovoz.JournalViewModels
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
 						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
-			if(routeListItems.Any()) {
+			if(routeListItems.Any() && !_userHasOnlyAccessToWarehouseAndComplaints)
+			{
 				var validStates = new RouteListStatus[] {
 											RouteListStatus.OnClosing,
 											RouteListStatus.MileageCheck,
@@ -956,7 +978,8 @@ namespace Vodovoz.JournalViewModels
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
 						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
-			if(routeListItems.Any()) {
+			if(routeListItems.Any() && !_userHasOnlyAccessToWarehouseAndComplaints)
+			{
 				return true;
 			}
 			return false;

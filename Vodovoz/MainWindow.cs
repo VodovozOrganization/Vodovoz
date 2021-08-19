@@ -128,6 +128,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
@@ -256,6 +257,24 @@ public partial class MainWindow : Gtk.Window
         NavigationManager = autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
         MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
         MangoManager.Connect();
+
+		#region Пользователь с правом работы только со складом и рекламациями
+
+		bool accessToWarehouseAndComplaints;
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			accessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+		}
+
+		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
+			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
+				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
+					MangoAction.Visible = !accessToWarehouseAndComplaints;
+        
+        #endregion
 
         BanksUpdater.CheckBanksUpdate(false);
 
@@ -2317,15 +2336,21 @@ public partial class MainWindow : Gtk.Window
         );
     }
 
-    protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
-    {
-        tdiMain.OpenTab(
-            QSReport.ReportViewDlg.GenerateHashName<NomenclaturePlanReport>(),
-            () => new QSReport.ReportViewDlg(new NomenclaturePlanReport(ServicesConfig.InteractiveService))
-        );
-    }
+	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
+	{
+		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
+		IParametersProvider parametersProvider = new ParametersProvider();
+		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
+		IFilePickerService filePickerService = new GtkFilePicker();
 
-    protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
+			filePickerService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
     {
         var employeeJournalFactory = new EmployeeJournalFactory();
         
@@ -2427,6 +2452,18 @@ public partial class MainWindow : Gtk.Window
 			new NomenclatureSelectorFactory(),
 			new FlyerRepository());
 		
+		tdiMain.AddTab(journal);
+	}
+
+	protected void OnActionUndeliveryTransferAbsenceReasonActivated(object sender, EventArgs e)
+	{
+		var filterViewModel = new UndeliveryTransferAbsenceReasonJournalFilterViewModel();
+
+		var journal = new UndeliveryTransferAbsenceReasonJournalViewModel(
+			filterViewModel,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices);
+
 		tdiMain.AddTab(journal);
 	}
 }

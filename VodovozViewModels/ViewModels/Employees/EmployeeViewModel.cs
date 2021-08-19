@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+﻿using FluentNHibernate.Data;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -14,6 +10,12 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -33,6 +35,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -48,12 +51,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
+		private bool _canRegisterMobileUser;
 		private DriverWorkScheduleSet _selectedDriverScheduleSet;
 		private DriverDistrictPrioritySet _selectedDistrictPrioritySet;
 		private Employee _employeeForCurrentUser;
@@ -71,8 +76,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _copyDriverWorkScheduleSetCommand;
 		private DelegateCommand _removeEmployeeDocumentsCommand;
 		private DelegateCommand _removeEmployeeContractsCommand;
+		private DelegateCommand _registerDriverModileUserCommand;
 
 		public IReadOnlyList<Organization> organizations;
+
 		public event Action SaveAttachmentFilesChangesAction;
 		public event Func<bool> HasAttachmentFilesChangesFunc;
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
@@ -94,6 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IPhonesViewModelFactory phonesViewModelFactory,
 			IWarehouseRepository warehouseRepository,
 			IRouteListRepository routeListRepository,
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
@@ -119,6 +127,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -156,14 +165,26 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			SetPermissions();
 
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+
 			organizations = UoW.GetAll<Organization>().ToList();
 			FillHiddenCategories(traineeToEmployee);
+
+			CanRegisterMobileUser = string.IsNullOrWhiteSpace(Entity.AndroidLogin) && string.IsNullOrWhiteSpace(Entity.AndroidPassword);
 
 			var permissionResult = 
 				_commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
 			
 			if(!permissionResult.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
+			}
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
+			{
+				OnPropertyChanged(nameof(IsValidNewMobileUser));
 			}
 		}
 
@@ -235,6 +256,27 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 		public bool CanEditWage { get; private set; }
 		public bool CanEditOrganisationForSalary { get; private set; }
+
+		public bool CanRegisterMobileUser
+		{
+			get => _canRegisterMobileUser;
+			set
+			{
+				if(SetField(ref _canRegisterMobileUser, value))
+				{
+					OnPropertyChanged(nameof(IsValidNewMobileUser));
+				}
+			}
+		}
+
+		public bool IsValidNewMobileUser => !string.IsNullOrWhiteSpace(Entity.AndroidLogin)
+										 && Entity.AndroidPassword?.Length >= 3
+										 && CanRegisterMobileUser;
+
+		public string AddMobileLoginInfo => CanRegisterMobileUser
+			? "<span color=\"red\">Имя пользователя и пароль нельзя будет изменить!\n" +
+			"Не забудьте нажать кнопку 'Добавить пользователя'</span>"
+			: "";
 
 		public DriverDistrictPrioritySet SelectedDistrictPrioritySet
 		{
@@ -538,6 +580,37 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 
+		public DelegateCommand RegisterDriverModileUserCommand =>
+			_registerDriverModileUserCommand ?? (_registerDriverModileUserCommand = new DelegateCommand(
+					() =>
+					{
+						try
+						{
+							if(_commonServices.InteractiveService.Question("Сотрудник будет сохранен при регистрации пользователя", "Вы уверены?"))
+							{
+								CanRegisterMobileUser = false;
+								Save();
+								UoW.Commit();
+								_driverApiUserRegisterEndpoint.Register(Entity.AndroidLogin, Entity.AndroidPassword).GetAwaiter().GetResult();
+							}
+						}
+						catch(Exception e)
+						{
+							var login = Entity.AndroidLogin;
+							var password = Entity.AndroidPassword;
+							Entity.AndroidLogin = null;
+							Entity.AndroidPassword = null;
+							Save();
+							UoW.Commit();
+							Entity.AndroidLogin = login;
+							Entity.AndroidPassword = password;
+							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, e.Message);
+							CanRegisterMobileUser = true;
+						}
+					}
+				)
+			);
+
 		private void SetPermissions()
 		{
 			CanManageUsers = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
@@ -625,6 +698,17 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 			{
 				Entity.AndroidLogin = null;
+			}
+
+			if(CanRegisterMobileUser 
+			&& !string.IsNullOrWhiteSpace(Entity.AndroidLogin)
+			&& !string.IsNullOrWhiteSpace(Entity.AndroidPassword)
+			&& _commonServices.InteractiveService.Question("Данные пользовтеля водительского приложения были внесены,\n" +
+														   "но пользователь не был сохранен. Эти данные будут очищены,\n" +
+														   "а пользователь водительского приложения не будет сохранен", "Вы уверены?"))
+			{
+				Entity.AndroidLogin = null;
+				Entity.AndroidPassword = null;
 			}
 
 			if(!Validate())

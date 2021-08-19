@@ -25,17 +25,19 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Project.Services;
+using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private INomenclatureRepository nomenclatureRepository { get; } =
@@ -406,19 +408,26 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
-			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector();
+			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
+			TabParent.AddSlaveTab(this, nomenclatureSelector);
 		}
 
-		void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = e.Subject as Nomenclature;
-			if(Entity.Items.Any(x => x.Nomenclature.Id == nomenclature.Id))
-				return;
+			if(e.SelectedNodes.Any())
+			{
+				foreach(var node in e.SelectedNodes)
+				{
+					if(Entity.Items.Any(x => x.Nomenclature.Id == node.Id))
+					{
+						continue;
+					}
 
-			Entity.AddItem(nomenclature, 0, 0);
+					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
+					Entity.AddItem(nomenclature, 0, 0);
+				}
+			}
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)

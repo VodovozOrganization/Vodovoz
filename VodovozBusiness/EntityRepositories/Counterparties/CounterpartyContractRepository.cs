@@ -19,7 +19,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 		}
 		
-		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter)
+		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter = null)
 		{
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
 			if(order == null) throw new ArgumentNullException(nameof(order));

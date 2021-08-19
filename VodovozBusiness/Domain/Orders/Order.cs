@@ -126,6 +126,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderPaymentStatus, value);
 		}
 
+		private OrderAddressType _orderAddressType;
+		[Display(Name = "Тип доставки заказа")]
+		public virtual OrderAddressType OrderAddressType
+		{
+			get => _orderAddressType;
+			set => SetField(ref _orderAddressType, value);
+		}
+
 		Employee author;
 
 		[Display(Name = "Создатель заказа")]
@@ -305,7 +313,7 @@ namespace Vodovoz.Domain.Orders
 			get => opComment;
 			set => SetField(ref opComment, value);
 		}
-
+		
 		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
@@ -646,14 +654,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref driverCallId, value, () => DriverCallId);
 		}
 
-		bool isService;
-
-		[Display(Name = "Сервисное обслуживание")]
-		public virtual bool IsService {
-			get => isService;
-			set => SetField(ref isService, value, () => IsService);
-		}
-
 		int? trifle;
 
 		[Display(Name = "Сдача")]
@@ -935,7 +935,7 @@ namespace Vodovoz.Domain.Orders
 					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
-
+					
 					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
@@ -1008,8 +1008,8 @@ namespace Vodovoz.Domain.Orders
 							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"], 
 								DeliveryDate.Value, DeliveryPoint)
 							.Where(o => o.Id != Id 
-							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus) 
-							            && !o.IsService).ToList();
+							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+							            && o.OrderAddressType != OrderAddressType.Service).ToList();
 
 						if(!hasMaster
 						   && orderCheckedOutsideSession.Any())
@@ -1044,22 +1044,29 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 
-				if(IsService && PaymentType == PaymentType.cashless
+				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.cashless
 				   && newStatus == OrderStatus.Accepted
-				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
+				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders"))
+				   {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
 					);
 				}
 
-				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
+				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer"))
+				{
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
-			}           
+			}
+
+			if(Client.IsChainStore && OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				yield return new ValidationResult($"Невозможно создать заказ для сетевого магазина, содержащий сервисную номенклатуру!");
+			}
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
@@ -1417,6 +1424,12 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderItems.Remove(orderItem);
 			}
 
+			//Если была удалена последняя номенклатура "мастер" - переходит в стандартный тип адреса
+			if(!OrderItems.Any(x => x.IsMasterNomenclature) && orderItem.IsMasterNomenclature)
+			{
+				OrderAddressType = OrderAddressType.Delivery;
+			}
+
 			UpdateContract();
 		}
 
@@ -1519,7 +1532,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CheckAndSetOrderIsService()
 		{
-			IsService = OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master);
+			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master))
+			{
+				OrderAddressType = OrderAddressType.Service;
+			}
 		}
 
 		public virtual void SetFirstOrder()
@@ -1547,8 +1563,9 @@ namespace Vodovoz.Domain.Orders
 			if(Client == null) {
 				return;
 			}
-			
-			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this, SingletonErrorReporter.Instance);
+
+			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this,
+				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
 			if(counterpartyContract == null) {
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
@@ -1827,11 +1844,11 @@ namespace Vodovoz.Domain.Orders
 			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
 			#region перенести всё это в OrderStateKey
-			bool IsDeliveryForFree = SelfDelivery
-												  || IsService
-												  || DeliveryPoint.AlwaysFreeDelivery
-												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
+			bool IsDeliveryForFree = SelfDelivery 
+											      || OrderAddressType == OrderAddressType.Service
+											      || DeliveryPoint.AlwaysFreeDelivery
+			                                      || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+			                                      || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)

@@ -831,7 +831,7 @@ namespace Vodovoz
 			{
 				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))
 				{
-					order.IsService = true;
+					order.OrderAddressType = OrderAddressType.Service;
 				}
 			}
 

@@ -4,6 +4,8 @@ using System.Data.Bindings.Collections.Generic;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
+using QS.Project.Dialogs;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -19,6 +21,7 @@ namespace Vodovoz.ViewWidgets.Store
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private GenericObservableList<ReceptionNonSerialEquipmentItemNode> ReceptionNonSerialEquipmentList = new GenericObservableList<ReceptionNonSerialEquipmentItemNode>();
+		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 
 		public IList<ReceptionNonSerialEquipmentItemNode> Items {
 			get {
@@ -91,6 +94,20 @@ namespace Vodovoz.ViewWidgets.Store
 			OrmReference refWin = new OrmReference(_nomenclatureRepository.NomenclatureByCategory(NomenclatureCategory.equipment));
 			refWin.FilterClass = null;
 			refWin.Mode = OrmReferenceMode.Select;
+			
+			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
+			{
+				_userHasOnlyAccessToWarehouseAndComplaints =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"user_have_access_only_to_warehouse_and_complaints")
+					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			}
+
+			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
+			{
+				refWin.ButtonMode = ReferenceButtonMode.None;
+			}
+			
 			refWin.ObjectSelected += RefWin_ObjectSelected;
 			MyTab.TabParent.AddTab(refWin, MyTab);
 		}

@@ -245,13 +245,16 @@ namespace Vodovoz
 			Entity.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ";
 			ConfigureDlg();
-        }
+			//по стандарту тип - доставка
+			Entity.OrderAddressType = OrderAddressType.Delivery;
+		}
 
-		public OrderDlg(Counterparty client) :this()
+		public OrderDlg(Counterparty client) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			IsForRetail = Entity.Client.IsForRetail;
 			CheckForStopDelivery();
+			OrderAddressTypeChanged();
 		}
 
 		public OrderDlg(int id)
@@ -260,6 +263,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			ConfigureDlg();
+			OrderAddressTypeChanged();
 		}
 
 		public OrderDlg(Order sub) : this(sub.Id)
@@ -288,6 +292,7 @@ namespace Vodovoz
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
 			}
+			OrderAddressTypeChanged();
 		}
 
 		public void CopyOrderFrom(int id)
@@ -313,7 +318,7 @@ namespace Vodovoz
 			Entity.SignatureType = templateOrder.SignatureType;
 			Entity.SumDifferenceReason = templateOrder.SumDifferenceReason;
 			Entity.Trifle = templateOrder.Trifle;
-			Entity.IsService = templateOrder.IsService;
+			Entity.OrderAddressType = templateOrder.OrderAddressType;
 			Entity.Contract = templateOrder.Contract;
 			Entity.ReturnTareReasonCategory = templateOrder.ReturnTareReasonCategory;
 			Entity.ReturnTareReason = templateOrder.ReturnTareReason;
@@ -335,6 +340,7 @@ namespace Vodovoz
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
+			OrderAddressTypeChanged();
 		}
 		
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -344,7 +350,7 @@ namespace Vodovoz
 			Entity.Client = templateOrder.Client;
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.IsService = templateOrder.IsService;
+			Entity.OrderAddressType = templateOrder.OrderAddressType;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
 			Entity.CopyDocumentsFrom(templateOrder);
@@ -352,6 +358,7 @@ namespace Vodovoz
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
+			OrderAddressTypeChanged();
 		}
 
 		public void ConfigureDlg()
@@ -370,6 +377,7 @@ namespace Vodovoz
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(OnClientChanged);
 			ConfigureTrees();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
@@ -627,6 +635,8 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+
+			OrderAddressTypeChanged();
 			
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 
@@ -657,6 +667,17 @@ namespace Vodovoz
 								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
 							}
 						}
+						if(Entity.Client != null && Entity.Client.IsChainStore)
+						{
+							Entity.OrderAddressType = OrderAddressType.ChainStore;
+						}
+						OrderAddressTypeChanged();
+						break;
+					case nameof(Entity.OrderAddressType):
+						OrderAddressTypeChanged();
+						break;
+					case nameof(Entity.Client.IsChainStore):
+						OrderAddressTypeChanged();
 						break;
 				}
 			};
@@ -719,6 +740,15 @@ namespace Vodovoz
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<DeliveryPoint>();
 			if (changedEntities.Any(x => DeliveryPoint != null && x.Id == DeliveryPoint.Id)) {
 				UoW.Session.Refresh(DeliveryPoint);
+				return;
+			}
+		}
+		private void OnClientChanged(EntityChangeEvent[] changeevents)
+		{
+			var changedEntities = changeevents.Select(x => x.Entity).OfType<Counterparty>();
+			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
+			{
+				UoW.Session.Refresh(Entity.Client);
 				return;
 			}
 		}
@@ -2874,7 +2904,7 @@ namespace Vodovoz
 
 		private void AddRent(RentType rentType)
 		{
-			if (Entity.IsService) {
+			if (Entity.OrderAddressType == OrderAddressType.Service) {
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Error, 
 					"Нельзя добавлять аренду в сервисный заказ", 
@@ -2942,7 +2972,8 @@ namespace Vodovoz
 		
 		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
-			if (rentType == RentType.FreeRent) {
+			if(rentType == RentType.FreeRent)
+			{
 				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
 			}
 			var interactiveService = ServicesConfig.InteractiveService;
@@ -2958,7 +2989,8 @@ namespace Vodovoz
 				}
 			}
 
-			switch (rentType) {
+			switch(rentType)
+			{
 				case RentType.NonfreeRent:
 					Entity.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
 					break;
@@ -2974,11 +3006,14 @@ namespace Vodovoz
 
 		private void SelectFreeRentPackage()
 		{
-			var ormReference = new OrmReference(typeof(FreeRentPackage)) {
+			var ormReference = new OrmReference(typeof(FreeRentPackage))
+			{
 				Mode = OrmReferenceMode.Select
 			};
-			ormReference.ObjectSelected += (sender, e) => {
-				if (!(e.Subject is FreeRentPackage selectedRentPackage)) {
+			ormReference.ObjectSelected += (sender, e) =>
+			{
+				if(!(e.Subject is FreeRentPackage selectedRentPackage))
+				{
 					return;
 				}
 				var rentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
@@ -2989,23 +3024,27 @@ namespace Vodovoz
 
 		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
 		{
-			if (ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?")) {
+			if(ServicesConfig.InteractiveService.Question("Подобрать оборудование автоматически по типу?"))
+			{
 				var existingItems = Entity.OrderEquipments
 					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
 					.Select(x => x.Nomenclature.Id)
 					.Distinct()
 					.ToArray();
-				
+
 				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
 				AddFreeRent(freeRentPackage, anyNomenclature);
 			}
-			else {
+			else
+			{
 				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentKind));
 				selectDialog.Mode = JournalSelectMode.Single;
 				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) => {
+				selectDialog.ObjectSelected += (sender, e) =>
+				{
 					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null) {
+					if(selectedNode == null)
+					{
 						return;
 					}
 					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
@@ -3014,23 +3053,80 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
 		}
-		
+
 		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
 		{
 			var interactiveService = ServicesConfig.InteractiveService;
-			if(equipmentNomenclature == null) {
+			if(equipmentNomenclature == null)
+			{
 				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
 			}
 
 			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
-			if(stock <= 0) {
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?")) {
+			if(stock <= 0)
+			{
+				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+				{
 					return;
 				}
 			}
 
 			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
+		}
+
+		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
+		{
+			if(Entity.OrderAddressType == OrderAddressType.Delivery 
+			   && !Entity.Client.IsChainStore 
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+			}
+		}
+
+		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
+		{
+			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics 
+			   && !Entity.Client.IsChainStore 
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				Entity.OrderAddressType = OrderAddressType.Delivery;
+			}
+		}
+
+		private void OrderAddressTypeChanged()
+		{
+			if(Entity.Client != null && Entity.Client.IsChainStore)
+			{
+				Entity.OrderAddressType = OrderAddressType.ChainStore;
+			}
+			if(Entity.Client != null && !Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature) && Entity.OrderAddressType != OrderAddressType.StorageLogistics)
+			{
+				Entity.OrderAddressType = OrderAddressType.Delivery;
+				ybuttonToDeliveryAddressType.Visible = true;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			if(Entity.OrderAddressType == OrderAddressType.Delivery)
+			{
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = true;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
+			{
+				ybuttonToDeliveryAddressType.Visible = true;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.Service)
+			{
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			} 
+			else if(Entity.OrderAddressType == OrderAddressType.ChainStore)
+			{
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
 		}
 
 		#endregion FreeRent

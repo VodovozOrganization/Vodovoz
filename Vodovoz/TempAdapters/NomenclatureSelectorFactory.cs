@@ -22,7 +22,7 @@ namespace Vodovoz.TempAdapters
 	{
 		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
 		{
-			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseRepository());
+			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			nomenclatureStockFilter.ExcludedNomenclatureIds = excludedNomenclatures;
 			nomenclatureStockFilter.RestrictWarehouse = warehouse;
 
@@ -37,7 +37,7 @@ namespace Vodovoz.TempAdapters
 			return vm;
 		}
 		
-		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null)
+		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null, bool multipleSelect = true)
 		{
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.RestrictArchive = true;
@@ -65,7 +65,40 @@ namespace Vodovoz.TempAdapters
 				userRepository
 			);
 
-			vm.SelectionMode = JournalSelectionMode.Multiple;
+			vm.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
+
+			return vm;
+		}
+		
+		public IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(IEnumerable<int> excludedNomenclatures = null)
+		{
+			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
+			nomenclatureFilter.RestrictArchive = true;
+			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
+			
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+			
+			var counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices);
+			
+			var nomenclatureSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
+					UserSingletonRepository.GetInstance());
+
+			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeService(),
+				nomenclatureSelectorFactory,
+				counterpartySelectorFactory,
+				nomenclatureRepository,
+				UserSingletonRepository.GetInstance()
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Single;
 
 			return vm;
 		}

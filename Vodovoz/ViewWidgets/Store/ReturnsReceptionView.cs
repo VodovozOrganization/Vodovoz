@@ -9,6 +9,8 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
@@ -36,6 +38,8 @@ namespace Vodovoz
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly ICarUnloadRepository _carUnloadRepository;
+		
+		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 
 		public IList<ReceptionItemNode> Items => ReceptionReturnsList;
 
@@ -240,6 +244,20 @@ namespace Vodovoz
 				QueryOver.Of<Nomenclature>().Where(x => x.Category.IsIn(allowCategories))
 			);
 			SelectNomenclatureDlg.Mode = OrmReferenceMode.MultiSelect;
+
+			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
+			{
+				_userHasOnlyAccessToWarehouseAndComplaints =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"user_have_access_only_to_warehouse_and_complaints")
+					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			}
+
+			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
+			{
+				SelectNomenclatureDlg.ButtonMode = ReferenceButtonMode.None;
+			}
+
 			SelectNomenclatureDlg.ObjectSelected += SelectNomenclatureDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectNomenclatureDlg);
 		}

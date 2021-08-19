@@ -49,6 +49,7 @@ namespace Vodovoz.ViewModel
 	public class RouteListsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private bool _userHasOnlyAccessToWarehouseAndComplaints;
 		
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
@@ -109,29 +110,36 @@ namespace Vodovoz.ViewModel
 			#region RouteListAddressTypeFilter
 			
 			//WithDeliveryAddresses(Доставка) означает МЛ без WithChainStoreAddresses(Сетевой магазин) и WithServiceAddresses(Сервисное обслуживание)
-			if(      Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			if(Filter.WithDeliveryAddresses && Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				query.Where(() => !driverAlias.VisitingMaster);
 			}
-			else if( Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
+			else if(Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && Filter.WithServiceAddresses) 
+			{
 				query.Where(() => !driverAlias.IsChainStoreDriver);
 			}
-			else if( Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			else if(Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				query.Where(() => !driverAlias.VisitingMaster);
 				query.Where(() => !driverAlias.IsChainStoreDriver);
 			}
-			else if(!Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && Filter.WithChainStoreAddresses && Filter.WithServiceAddresses) 
+			{
 				query.Where(Restrictions.Or(
 					Restrictions.Where(() => driverAlias.VisitingMaster),
 					Restrictions.Where(() => driverAlias.IsChainStoreDriver)
 				));
 			}
-			else if(!Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				query.Where(() => driverAlias.IsChainStoreDriver);
 			}
-			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && Filter.WithServiceAddresses) 
+			{
 				query.Where(() => driverAlias.VisitingMaster);
 			}
-			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				SetItemsSource(new List<RouteListsVMNode>());
 				return;
 			}
@@ -229,6 +237,10 @@ namespace Vodovoz.ViewModel
 		{
 			NotifyConfiguration.Enable();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
+			
+			_userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			Filter.SelectedStatuses = new[]{
 					RouteListStatus.New,
@@ -320,6 +332,12 @@ namespace Vodovoz.ViewModel
 					SingletonErrorReporter.Instance);
 
 				var result = new List<IJournalPopupItem>();
+
+				if(_userHasOnlyAccessToWarehouseAndComplaints)
+				{
+					return result;
+				}
+				
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть трек",
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();

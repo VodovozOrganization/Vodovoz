@@ -94,7 +94,7 @@ namespace Vodovoz.Representations
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 								   .Where(() => orderAlias.SelfDelivery)
-								   .Where(() => !orderAlias.IsService);
+								   .Where(() => orderAlias.OrderAddressType != OrderAddressType.Service);
 
 			if(FilterViewModel.RestrictStatus != null)
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
