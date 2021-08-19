@@ -8,15 +8,10 @@ using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
-<<<<<<< HEAD
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Sectors;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.Sale;
-=======
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
->>>>>>> develop
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -55,13 +50,8 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
-<<<<<<< HEAD
-				sectorVersions = ScheduleRestrictionRepository.GetSectorVersion(uow);
+				sectorVersions = _scheduleRestrictionRepository.GetSectorVersion(uow, activationTime);
 				result.WageDistrict = deliveryPoint?.GetActiveVersion(activationTime)?.Sector?.GetActiveSectorVersion()?.WageSector?.Name ?? "Неизвестно";
-=======
-				districts = _scheduleRestrictionRepository.GetDistrictsWithBorder(uow);
-				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
->>>>>>> develop
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {
@@ -71,12 +61,8 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-<<<<<<< HEAD
-					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, sectorVersions);
-=======
 					var gg =
-						_geographicGroupRepository.GeographicGroupsWithCoordinatesQuery((double)latitude.Value, (double)longitude.Value, districts);
->>>>>>> develop
+						_geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, sectorVersions);
 					var route = new List<PointOnEarth>(2);
 					if(gg != null && gg.BaseCoordinatesExist)
 						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));

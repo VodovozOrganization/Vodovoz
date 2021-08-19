@@ -1151,13 +1151,9 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
 		tdiMain.AddTab(new SectorsViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			new EntityDeleteWorker(), EmployeeSingletonRepository.GetInstance(), new SectorsRepository()));
+			new EntityDeleteWorker(), new EmployeeRepository(), new SectorsRepository()));
 		
 		// var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
 		// tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,

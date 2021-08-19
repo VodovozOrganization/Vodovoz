@@ -591,7 +591,6 @@
     <Compile Include="Domain\Client\Comments.cs" />
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
-    <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Orders\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
     <Compile Include="Domain\Client\SalesEquipmentAgreement.cs" />

@@ -17,13 +17,8 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Sectors;
-using Vodovoz.EntityRepositories.Sectors;
-using Vodovoz.NhibernateExtensions;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
-using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders

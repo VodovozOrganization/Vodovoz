@@ -7,7 +7,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Factories;
 using Vodovoz.Domain.Sectors;
-using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Dialogs.Sale
 {

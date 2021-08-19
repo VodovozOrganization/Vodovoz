@@ -11,8 +11,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Domain.Sectors;
-using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
 {

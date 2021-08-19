@@ -7,9 +7,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Sectors;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Orders
