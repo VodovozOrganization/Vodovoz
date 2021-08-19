@@ -20,6 +20,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -91,9 +92,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository()
-			);
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				filter,

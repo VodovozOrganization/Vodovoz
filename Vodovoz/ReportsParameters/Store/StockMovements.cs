@@ -9,9 +9,10 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
+using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -30,10 +31,20 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 			filter = new SelectableParametersReportFilter(UoW);
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+			
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			{
 				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
+			}
+			
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			{
+				yentryrefWarehouse.Sensitive = false;
+			}
+
 			ConfigureDlg();
 		}
 
