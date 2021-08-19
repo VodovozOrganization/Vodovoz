@@ -73,103 +73,55 @@ namespace Vodovoz
         private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
         private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
         private readonly IOrderRepository _orderRepository = new OrderRepository();
-
-        private bool currentUserCanEditCounterpartyDetails = false;
-
-        private INomenclatureRepository nomenclatureRepository;
+        private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+        private IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+        private ISubdivisionRepository _subdivisionRepository;
+        private IRouteListItemRepository _routeListItemRepository;
+        private IFilePickerService _filePickerService;
+        private ICounterpartyJournalFactory _counterpartySelectorFactory;
+        private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
+        private INomenclatureRepository _nomenclatureRepository;
         private ValidationContext _validationContext;
         private Employee _currentEmployee;
 
-        private bool deliveryPointsConfigured = false;
-        private bool documentsConfigured = false;
-        
-        private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+        private bool _currentUserCanEditCounterpartyDetails = false;
+        private bool _deliveryPointsConfigured = false;
+        private bool _documentsConfigured = false;
 
-        public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener
-        {
-	        get
-	        {
-		        if (_undeliveredOrdersJournalOpener is null)
-		        {
-			        _undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
-		        }
+        public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
+	        _undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
 
-		        return _undeliveredOrdersJournalOpener;
-	        }
-        }
+        public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory =>
+	        _employeeSelectorFactory ?? (_employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());
 
-        private IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+        public virtual ISubdivisionRepository SubdivisionRepository =>
+	        _subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
 
-        public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory
-        {
-	        get
-	        {
-		        if (employeeSelectorFactory is null)
-		        {
-			        employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory();
-		        }
-		        return employeeSelectorFactory;
-	        }
-        }
+        public virtual IRouteListItemRepository RouteListItemRepository =>
+	        _routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
 
-        private ISubdivisionRepository subdivisionRepository;
+        public virtual IFilePickerService FilePickerService =>
+	        _filePickerService ?? (_filePickerService = new GtkFilePicker());
 
-        public virtual ISubdivisionRepository SubdivisionRepository
-        {
-	        get
-	        {
-		        if (subdivisionRepository is null)
-		        {
-			        subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		        }
-		        return subdivisionRepository;
-	        }
-        }
+        public virtual INomenclatureRepository NomenclatureRepository =>
+	        _nomenclatureRepository ?? (_nomenclatureRepository =
+		        new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())));
 
-        private IRouteListItemRepository routeListItemRepository;
-        
-        public virtual IRouteListItemRepository RouteListItemRepository
-        {
-	        get
-	        {
-		        if (routeListItemRepository is null)
-		        {
-			        routeListItemRepository = new RouteListItemRepository();
-		        }
+        public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
+	        _counterpartySelectorFactory ?? (_counterpartySelectorFactory = new CounterpartyJournalFactory());
 
-		        return routeListItemRepository;
-	        }
-        }
-
-        private IFilePickerService filePickerService = new GtkFilePicker();
-        
-        public virtual IFilePickerService FilePickerService
-        {
-	        get
-	        {
-		        if (filePickerService is null)
-		        {
-			        filePickerService = new GtkFilePicker();
-		        }
-
-		        return filePickerService;
-	        }
-        }
-        
-        public virtual INomenclatureRepository NomenclatureRepository {
-            get {
-                if(nomenclatureRepository == null) {
-                    nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-                };
-                return nomenclatureRepository;
-            }
-        }
+        public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
+	        _nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
+		        new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+			        ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
+			        CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+			        NomenclatureRepository, _userRepository));
 
         #region Список каналов сбыта
 
         private GenericObservableList<SalesChannelSelectableNode> salesChannels = new GenericObservableList<SalesChannelSelectableNode>();
         public GenericObservableList<SalesChannelSelectableNode> SalesChannels {
-            get => salesChannels; 
+            get => salesChannels;
             private set {
                 UnsubscribeOnCheckChanged();
                 salesChannels = value;
@@ -212,31 +164,6 @@ namespace Vodovoz
         }
 
         #endregion
-
-        private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-        public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-            get {
-                if(counterpartySelectorFactory == null) {
-                    counterpartySelectorFactory =
-                        new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-                            CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-                };
-                return counterpartySelectorFactory;
-            }
-        }
-
-        private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-        public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
-            get {
-                if(nomenclatureSelectorFactory == null) {
-                    nomenclatureSelectorFactory =
-                        new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                            ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-                            NomenclatureRepository, _userRepository);
-                }
-                return nomenclatureSelectorFactory;
-            }
-        }
 
         public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -293,7 +220,7 @@ namespace Vodovoz
             radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
             rbnPrices.Toggled += OnRbnPricesToggled;
 
-            currentUserCanEditCounterpartyDetails =
+            _currentUserCanEditCounterpartyDetails =
                 UoW.IsNew
                 || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
                     "can_edit_counterparty_details",
@@ -336,14 +263,14 @@ namespace Vodovoz
 
             menuActions.Sensitive = !UoWGeneric.IsNew;
 
-            datatable4.Sensitive = currentUserCanEditCounterpartyDetails;
+            datatable4.Sensitive = _currentUserCanEditCounterpartyDetails;
 
             UpdateCargoReceiver();
         }
 
         private void ConfigureTabInfo()
         {
-            enumPersonType.Sensitive = currentUserCanEditCounterpartyDetails;
+            enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails;
             enumPersonType.ItemsEnum = typeof(PersonType);
             enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
 
@@ -351,7 +278,7 @@ namespace Vodovoz
             yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
             yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
             yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
-            YEnumCounterpartyType_Changed(this, new EventArgs());
+            YEnumCounterpartyType_Changed(this, EventArgs.Empty);
 
             if (Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
                 "can_change_delay_days_for_buyers_and_chain_store")) {
@@ -363,7 +290,7 @@ namespace Vodovoz
             checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
 
             ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-            ycheckIsArchived.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_arc_counterparty_and_deliverypoint");
+            SetSensitivityByPermission("can_arc_counterparty_and_deliverypoint", ycheckIsArchived);
 
             lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 
@@ -382,7 +309,7 @@ namespace Vodovoz
             ycheckIsForRetail.Binding.AddBinding(Entity, e => e.IsForRetail, w => w.Active).InitializeFromSource();
 
             ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
-            ycheckNoPhoneCall.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_activate_no_phone_call_in_counterparty");
+            SetSensitivityByPermission("user_can_activate_no_phone_call_in_counterparty", ycheckNoPhoneCall);
             ycheckNoPhoneCall.Visible = Entity.IsForRetail;
 
             DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
@@ -392,22 +319,22 @@ namespace Vodovoz
 
             entryFIO.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-            datalegalname1.Sensitive = currentUserCanEditCounterpartyDetails;
+            datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails;
 
             datalegalname1.Binding.AddSource(Entity)
                 .AddBinding(s => s.Name, t => t.OwnName)
                 .AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
                 .InitializeFromSource();
 
-            entryFullName.Sensitive = currentUserCanEditCounterpartyDetails;
+            entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails;
             entryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
 
-            entryMainCounterparty.SetEntityAutocompleteSelectorFactory(
-                new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+            entryMainCounterparty
+	            .SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
             entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 
-            entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(
-                new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+            entryPreviousCounterparty
+	            .SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
             entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
             enumPayment.ItemsEnum = typeof(PaymentType);
@@ -426,11 +353,13 @@ namespace Vodovoz
                 enumTax.AddEnumToHideList(hideEnums);
             }
 
-            enumTax.Binding.AddBinding(Entity, e => e.TaxType, w => w.SelectedItem).InitializeFromSource();
-            enumTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+            enumTax.Binding.AddSource(Entity)
+	            .AddBinding(e => e.TaxType, w => w.SelectedItem)
+	            .AddFuncBinding(e => e.PersonType == PersonType.legal, w => w.Visible)
+	            .InitializeFromSource();
 
             spinMaxCredit.Binding.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal).InitializeFromSource();
-            spinMaxCredit.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("max_loan_amount");
+            SetSensitivityByPermission("max_loan_amount", spinMaxCredit);
 
             dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -449,12 +378,14 @@ namespace Vodovoz
                 ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
 
             ycheckExpirationDateControl.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active).InitializeFromSource();
-            yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Visible).InitializeFromSource();
-            yspinExpirationDatePercent.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal).InitializeFromSource();
+            yspinExpirationDatePercent.Binding.AddSource(Entity)
+	            .AddBinding(e => e.SpecialExpireDatePercentCheck, w => w.Visible)
+	            .AddBinding(e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal)
+	            .InitializeFromSource();
 
             // Настройка каналов сбыта
 
-            if(Entity.IsForRetail) { 
+            if(Entity.IsForRetail) {
                 ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
                     .AddColumn("Название").AddTextRenderer(node => node.Name)
                     .AddColumn("").AddToggleRenderer(x => x.Selected)
@@ -564,7 +495,7 @@ namespace Vodovoz
             entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
             yentrySignBaseOf.Binding.AddBinding(Entity, e => e.SignatoryBaseOf, w => w.Text).InitializeFromSource();
 
-            accountsView.CanEdit = currentUserCanEditCounterpartyDetails;
+            accountsView.CanEdit = _currentUserCanEditCounterpartyDetails;
 
             accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
         }
@@ -663,7 +594,7 @@ namespace Vodovoz
                     this,
                     ServicesConfig.CommonServices,
                     _employeeService,
-                    CounterpartySelectorFactory,
+                    CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
                     NomenclatureSelectorFactory,
                     NomenclatureRepository,
                     _userRepository);
@@ -684,7 +615,7 @@ namespace Vodovoz
         private void ConfigureValidationContext()
         {
 	        _validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
-	        
+
 	        _validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
 	        _validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
 	        _validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
@@ -741,9 +672,9 @@ namespace Vodovoz
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        new EmployeeService(),
-		        nomenclatureSelectorFactory,
-		        counterpartySelectorFactory,
-		        nomenclatureRepository,
+		        NomenclatureSelectorFactory,
+		        CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+		        NomenclatureRepository,
 		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
@@ -757,21 +688,22 @@ namespace Vodovoz
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
         }
-        
+
         private void ComplaintViewOnActivated(object sender, EventArgs e)
         {
 	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 	        var filter = new ComplaintFilterViewModel(
-		        ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
+		        ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory,
+		        CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
-	        
+
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        UndeliveredOrdersJournalOpener,
 		        _employeeService,
-		        CounterpartySelectorFactory,
+		        CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
 		        SubdivisionParametersProvider.Instance,
@@ -791,7 +723,7 @@ namespace Vodovoz
 				new NomenclatureSelectorFactory(),
 		        new UndeliveredOrdersRepository()
 	        );
-	        
+
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);
         }
 
@@ -857,7 +789,7 @@ namespace Vodovoz
             if(radioInfo.Active)
                 notebook1.CurrentPage = 0;
         }
-        
+
         protected void OnRadioContactsToggled(object sender, EventArgs e)
         {
             if(radioContacts.Active)
@@ -884,10 +816,10 @@ namespace Vodovoz
 
         protected void OnRadioDocumentsToggled(object sender, EventArgs e)
         {
-            if (!documentsConfigured)
+            if (!_documentsConfigured)
             {
                 ConfigureTabDocuments();
-                documentsConfigured = true;
+                _documentsConfigured = true;
             }
             if (radioDocuments.Active)
                 notebook1.CurrentPage = 5;
@@ -895,10 +827,10 @@ namespace Vodovoz
 
         protected void OnRadioDeliveryPointToggled(object sender, EventArgs e)
         {
-            if (!deliveryPointsConfigured)
+            if (!_deliveryPointsConfigured)
             {
                 ConfigureTabDeliveryPoints();
-                deliveryPointsConfigured = true;
+                _deliveryPointsConfigured = true;
             }
             if(radioDeliveryPoint.Active)
                 notebook1.CurrentPage = 6;
