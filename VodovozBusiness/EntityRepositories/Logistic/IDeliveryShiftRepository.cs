@@ -6,6 +6,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IDeliveryShiftRepository
 	{
-		IList<DeliveryShift> ActiveShifts (IUnitOfWork uow);
+		IList<DeliveryShift> ActiveShifts(IUnitOfWork uow);
 	}
 }

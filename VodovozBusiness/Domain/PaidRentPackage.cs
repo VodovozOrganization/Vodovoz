@@ -95,7 +95,7 @@ namespace Vodovoz.Domain
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IRentPackageRepository)) is IRentPackageRepository rentPackageRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(rentPackageRepository)}");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(rentPackageRepository) }");
 			}
 			
 			var allready = rentPackageRepository.GetPaidRentPackage(UoW, EquipmentKind);

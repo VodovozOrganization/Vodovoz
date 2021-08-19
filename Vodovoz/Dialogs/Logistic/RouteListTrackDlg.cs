@@ -30,7 +30,7 @@ namespace Vodovoz
 		private readonly ITrackRepository _trackRepository;
 
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-		private Employee currentEmployee;
+		private Employee _currentEmployee;
 		private uint timerId;
 		private const uint carRefreshInterval = 10000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay("cars");
@@ -53,9 +53,9 @@ namespace Vodovoz
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Visible = buttonSendMessage.Visible = false;
-			currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
+			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
 			
-			if (currentEmployee == null)
+			if (_currentEmployee == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
 			}

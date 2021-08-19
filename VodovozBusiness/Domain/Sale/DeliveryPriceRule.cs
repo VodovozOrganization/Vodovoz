@@ -92,7 +92,7 @@ namespace Vodovoz.Domain.Sale
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IDistrictRuleRepository)) is IDistrictRuleRepository districtRuleRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(districtRuleRepository)}");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(districtRuleRepository) }");
 			}
 			
 			if(districtRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))

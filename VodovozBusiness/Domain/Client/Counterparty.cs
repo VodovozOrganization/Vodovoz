@@ -976,7 +976,8 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
 			}
 
-			if(CheckForINNDuplicate(counterpartyRepository)) {
+			if(CheckForINNDuplicate(counterpartyRepository))
+			{
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 												  new[] { this.GetPropertyName(o => o.INN) });
 			}

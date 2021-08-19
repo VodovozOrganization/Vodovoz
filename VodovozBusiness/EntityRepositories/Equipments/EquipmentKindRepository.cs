@@ -7,12 +7,12 @@ namespace Vodovoz.EntityRepositories.Equipments
 {
 	public class EquipmentKindRepository : IEquipmentKindRepository
 	{
-		public List<EquipmentKind> GetPaidRentEquipmentKinds (IUnitOfWork uow)
+		public List<EquipmentKind> GetPaidRentEquipmentKinds(IUnitOfWork uow)
 		{
-			var availableTypes = uow.Session.CreateCriteria (typeof(PaidRentPackage))
-				.List<PaidRentPackage> ()
-				.Select (p => p.EquipmentKind)
-				.Distinct ().ToList ();
+			var availableTypes = uow.Session.CreateCriteria(typeof(PaidRentPackage))
+				.List<PaidRentPackage>()
+				.Select(p => p.EquipmentKind)
+				.Distinct().ToList();
 			return availableTypes;
 		}
 	}

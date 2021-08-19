@@ -8,7 +8,7 @@ namespace Vodovoz.EntityRepositories.Cash
 {
 	public class AccountableDebtsRepository : IAccountableDebtsRepository
 	{
-		public decimal EmployeeDebt (IUnitOfWork uow, Employee accountable)
+		public decimal EmployeeDebt(IUnitOfWork uow, Employee accountable)
 		{
 			decimal received = uow.Session.QueryOver<Expense>()
 				.Where(e => e.Employee == accountable && e.TypeOperation == ExpenseType.Advance)

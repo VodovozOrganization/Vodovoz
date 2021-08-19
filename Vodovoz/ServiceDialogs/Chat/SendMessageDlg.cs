@@ -37,7 +37,7 @@ namespace Vodovoz.ServiceDialogs.Chat
 
 		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
-			var currentEmployee =_employeeRepository.GetEmployeeForCurrentUser(UoW);
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			var service = new ChannelFactory<IChatService>(
 				new BasicHttpBinding(), 
 				ChatMain.ChatServiceUrl).CreateChannel();

@@ -22,7 +22,7 @@ namespace Dialogs.Logistic
 {
 	public partial class TrackOnMapWnd : Gtk.Window
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		#region Поля
@@ -329,7 +329,7 @@ namespace Dialogs.Logistic
 				
 				if(distance > 0.5)
 				{
-					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
+					_logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
 					message += string.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
 					                          distance,
 					                          lastPoint.TimeStamp,
@@ -354,7 +354,7 @@ namespace Dialogs.Logistic
 					if(afterIndex - beforeIndex > 1)
 					{
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
-						logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
+						_logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
 						routePoints.AddRange (
 							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
 							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));

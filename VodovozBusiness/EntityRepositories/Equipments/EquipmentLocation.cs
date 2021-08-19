@@ -19,9 +19,9 @@ namespace Vodovoz.EntityRepositories.Equipments
 					case LocationType.NoMovements:
 						return "Нет движений в БД";
 					case LocationType.Warehouse:
-						return $"На складе: {Warehouse.Name}";
+						return $"На складе: { Warehouse.Name }";
 					case LocationType.Couterparty:
-						return $"У {Counterparty.Name}{(DeliveryPoint != null ? " на адресе " + DeliveryPoint.Title : string.Empty)}";
+						return $"У { Counterparty.Name }{ (DeliveryPoint != null ? " на адресе " + DeliveryPoint.Title : string.Empty) }";
 					case LocationType.Superposition:
 						return "В состоянии суперпозиции (как кот Шрёдингера)";
 				}

@@ -7,7 +7,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IRouteColumnRepository
 	{
-		IList<RouteColumn> ActiveColumns (IUnitOfWork uow);
+		IList<RouteColumn> ActiveColumns(IUnitOfWork uow);
 		IList<Nomenclature> NomenclaturesForColumn(IUnitOfWork uow, RouteColumn column);
 	}
 }

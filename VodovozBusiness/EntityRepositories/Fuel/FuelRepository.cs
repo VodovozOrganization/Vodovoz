@@ -147,9 +147,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
 			
-			var queryResult = uow.Session.QueryOver<FuelOperation>(() => operationAlias)
-				//.Where(() => operationAlias.Fuel.Id == fuel.Id) - ибо хотят для чего то литры бензина суммировать с литрами дизеля о_О
-				;
+			var queryResult = uow.Session.QueryOver<FuelOperation>(() => operationAlias);
 			
 			if(driver != null)
 			{

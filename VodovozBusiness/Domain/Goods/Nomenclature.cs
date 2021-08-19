@@ -692,7 +692,7 @@ namespace Vodovoz.Domain.Goods
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(nomenclatureRepository)}");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(nomenclatureRepository) }");
 			}
 			
 			if(String.IsNullOrWhiteSpace(Name))

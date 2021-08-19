@@ -7,12 +7,12 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 {
 	public class DeliveryScheduleRepository : IDeliveryScheduleRepository
 	{
-		public QueryOver<DeliverySchedule> AllQuery ()
+		public QueryOver<DeliverySchedule> AllQuery()
 		{
-			return QueryOver.Of<DeliverySchedule> ();
+			return QueryOver.Of<DeliverySchedule>();
 		}
 		
-		public QueryOver<DeliverySchedule> NotArchiveQuery ()
+		public QueryOver<DeliverySchedule> NotArchiveQuery()
 		{
 			return QueryOver.Of<DeliverySchedule>().WhereNot(ds => ds.IsArchive);
 		}

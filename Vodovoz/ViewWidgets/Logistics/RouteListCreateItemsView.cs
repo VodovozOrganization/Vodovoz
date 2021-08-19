@@ -34,7 +34,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 

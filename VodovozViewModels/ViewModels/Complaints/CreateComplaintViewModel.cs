@@ -121,8 +121,8 @@ namespace Vodovoz.ViewModels.Complaints
 			gtkDialogsOpener, undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, undeliveredOrdersRepository,
 			phone)
 		{
-			var curClient = UoW.GetById<Counterparty>(client.Id);
-			Entity.Counterparty = curClient;
+			var currentClient = UoW.GetById<Counterparty>(client.Id);
+			Entity.Counterparty = currentClient;
 			Entity.Phone = phone;
 		}
 		
@@ -152,9 +152,9 @@ namespace Vodovoz.ViewModels.Complaints
 			employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, gtkDialogsOpener,
 			undeliveredOrdersJournalOpener, salesPlanJournalFactory, nomenclatureSelector, undeliveredOrdersRepository, phone)
 		{
-			var curOrder = UoW.GetById<Order>(order.Id);
-			Entity.Order = curOrder;
-			Entity.Counterparty = curOrder.Client;
+			var currentOrder = UoW.GetById<Order>(order.Id);
+			Entity.Order = currentOrder;
+			Entity.Counterparty = currentOrder.Client;
 			Entity.Phone = phone;
 		}
 

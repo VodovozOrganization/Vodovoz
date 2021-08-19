@@ -6,7 +6,7 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 {
 	public class CullingCategoryRepository : ICullingCategoryRepository
 	{
-		public IList<CullingCategory> All (IUnitOfWork uow)
+		public IList<CullingCategory> All(IUnitOfWork uow)
 		{
 			return uow.Session.CreateCriteria<CullingCategory>().List<CullingCategory> ();
 		}

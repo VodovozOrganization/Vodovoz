@@ -10,7 +10,7 @@ namespace Vodovoz
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private Nomenclature selectedNomenclature;
 
 		public WarehouseDlg()
@@ -63,7 +63,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			logger.Info("Сохраняем склад...");
+			_logger.Info("Сохраняем склад...");
 			UoWGeneric.Save();
 			return true;
 		}

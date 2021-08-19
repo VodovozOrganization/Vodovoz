@@ -15,11 +15,11 @@ namespace Vodovoz.Dialogs
 	public partial class NuanceDlg : QS.Dialog.Gtk.EntityDialogBase<Comments>
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private object UoWforeign;
+		private object _uowForeign;
 
 		public NuanceDlg(object uow)
 		{
-			UoWforeign = uow;
+			_uowForeign = uow;
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Comments>();
 
@@ -28,7 +28,7 @@ namespace Vodovoz.Dialogs
 
 		public NuanceDlg(object uow, int id)
 		{
-			UoWforeign = uow;
+			_uowForeign = uow;
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Comments>(id);
 
@@ -65,11 +65,11 @@ namespace Vodovoz.Dialogs
 			referenceOrder.SubjectType = typeof(Order);
 			referenceOrder.Binding.AddBinding(Entity, s => s.Order, w => w.Subject).InitializeFromSource();
 
-			var uowDeliveryPoint = UoWforeign as DeliveryPoint;
+			var uowDeliveryPoint = _uowForeign as DeliveryPoint;
 			if(uowDeliveryPoint != null)
 				Entity.DeliveryPoint = uowDeliveryPoint;
 
-			var uowCounterparty = UoWforeign as Counterparty;
+			var uowCounterparty = _uowForeign as Counterparty;
 			if(uowCounterparty != null)
 				Entity.Counterparty = uowCounterparty;
 

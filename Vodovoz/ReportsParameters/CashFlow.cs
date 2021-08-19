@@ -49,7 +49,7 @@ namespace Vodovoz.Reports
 			
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			comboPart.ItemsEnum = typeof(ReportParts);
-			comboIncomeCategory.ItemsList = categoryRepository.IncomeCategories (UoW);
+			comboIncomeCategory.ItemsList = categoryRepository.IncomeCategories(UoW);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
 			var now = DateTime.Now;
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);

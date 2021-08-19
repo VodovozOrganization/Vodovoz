@@ -50,7 +50,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance));
 
-		private readonly WageParameterService wageParameterService =
+		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
 		#endregion
@@ -170,7 +170,7 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 			}
-			Entity.CalculateWages(wageParameterService);
+			Entity.CalculateWages(_wageParameterService);
 
 			UoWGeneric.Save();
 

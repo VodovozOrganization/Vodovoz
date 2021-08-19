@@ -250,7 +250,8 @@ namespace Vodovoz.Dialogs.Email
 				return;
 			}
 
-			if(!_parametersProvider.ContainsParameter("email_for_email_delivery")) {
+			if(!_parametersProvider.ContainsParameter("email_for_email_delivery"))
+			{
 				interactiveService.ShowMessage(ImportanceLevel.Warning,"В параметрах базы не определена почта для рассылки");
 				return;
 			}

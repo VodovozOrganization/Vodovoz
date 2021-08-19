@@ -8,7 +8,7 @@ namespace Vodovoz.EntityRepositories.Organizations
 	{
 		public Organization GetOrganizationByInn(IUnitOfWork uow, string inn)
 		{
-			if (string.IsNullOrWhiteSpace(inn))
+			if(string.IsNullOrWhiteSpace(inn))
 			{
 				return null;
 			}
@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Organizations
 
 		public Organization GetOrganizationByAccountNumber(IUnitOfWork uow, string accountNumber)
 		{
-			if (string.IsNullOrWhiteSpace(accountNumber))
+			if(string.IsNullOrWhiteSpace(accountNumber))
 			{
 				return null;
 			}

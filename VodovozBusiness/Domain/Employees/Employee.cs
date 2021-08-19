@@ -342,17 +342,17 @@ namespace Vodovoz.Domain.Employees
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
 			}
 
 			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is ISubdivisionService subdivisionService))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(subdivisionService)}");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(subdivisionService) }");
 			}
 			
 			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(userRepository) }");
 			}
 			
 			foreach(var item in base.Validate(validationContext)) {
@@ -366,8 +366,8 @@ namespace Vodovoz.Domain.Employees
 				if(exist != null && exist.Id != Id)
 				{
 					yield return new ValidationResult(
-						string.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
-						new[] {nameof(AndroidLogin)});
+						$"Другой водитель с логином { AndroidLogin } для Android уже есть в БД.",
+						new[] { nameof(AndroidLogin) });
 				}
 			}
 			
@@ -445,8 +445,9 @@ namespace Vodovoz.Domain.Employees
 					new[] { nameof(DriverOf) });
 			}
 			
-			if(Subdivision == null || Subdivision.Id == subdivisionService.GetParentVodovozSubdivisionId()) {
-				yield return new ValidationResult($"Поле подразделение должно быть заполнено и не должно являться" +
+			if(Subdivision == null || Subdivision.Id == subdivisionService.GetParentVodovozSubdivisionId())
+			{
+				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
 					" общим подразделением 'Веселый Водовоз'");
 			}
 

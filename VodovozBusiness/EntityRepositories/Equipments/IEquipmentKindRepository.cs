@@ -6,6 +6,6 @@ namespace Vodovoz.EntityRepositories.Equipments
 {
 	public interface IEquipmentKindRepository
 	{
-		List<EquipmentKind> GetPaidRentEquipmentKinds (IUnitOfWork uow);
+		List<EquipmentKind> GetPaidRentEquipmentKinds(IUnitOfWork uow);
 	}
 }

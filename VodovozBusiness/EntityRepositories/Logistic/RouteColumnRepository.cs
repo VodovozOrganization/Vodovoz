@@ -7,14 +7,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class RouteColumnRepository : IRouteColumnRepository
 	{
-		public IList<RouteColumn> ActiveColumns (IUnitOfWork uow)
+		public IList<RouteColumn> ActiveColumns(IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<RouteColumn> ().List<RouteColumn> ();
+			return uow.Session.QueryOver<RouteColumn>().List<RouteColumn>();
 		}
 
 		public IList<Nomenclature> NomenclaturesForColumn(IUnitOfWork uow, RouteColumn column)
 		{
-			return uow.Session.QueryOver<Nomenclature> ()
+			return uow.Session.QueryOver<Nomenclature>()
 				.Where(x => x.RouteListColumn.Id == column.Id)
 				.List();
 		}

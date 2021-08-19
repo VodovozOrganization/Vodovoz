@@ -4,6 +4,6 @@ namespace Vodovoz.EntityRepositories.Operations
 {
 	public interface IWagesMovementRepository
 	{
-		decimal GetCurrentEmployeeWageBalance (IUnitOfWork uow, int employeeId);
+		decimal GetCurrentEmployeeWageBalance(IUnitOfWork uow, int employeeId);
 	}
 }

@@ -6,7 +6,7 @@ namespace Vodovoz.EntityRepositories.Accounting
 {
 	public class AccountExpenseRepository : IAccountExpenseRepository
 	{
-		public bool AccountExpenseExists (IUnitOfWork uow, int year, int number, string accountNumber)
+		public bool AccountExpenseExists(IUnitOfWork uow, int year, int number, string accountNumber)
 		{
 			Account accountAlias = null;
 

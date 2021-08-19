@@ -7,8 +7,8 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 {
 	public interface IDeliveryScheduleRepository
 	{
-		QueryOver<DeliverySchedule> AllQuery ();
-		QueryOver<DeliverySchedule> NotArchiveQuery ();
+		QueryOver<DeliverySchedule> AllQuery();
+		QueryOver<DeliverySchedule> NotArchiveQuery();
 		IList<DeliverySchedule> All(IUnitOfWork uow);
 	}
 }

@@ -6,7 +6,7 @@ namespace Vodovoz.EntityRepositories.Operations
 {
 	public class WagesMovementRepository : IWagesMovementRepository
 	{
-		public decimal GetCurrentEmployeeWageBalance (IUnitOfWork uow, int employeeId)
+		public decimal GetCurrentEmployeeWageBalance(IUnitOfWork uow, int employeeId)
 		{
 			return uow.Session.QueryOver<WagesMovementOperations>()
 				.Where(w => w.Employee.Id == employeeId)

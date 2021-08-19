@@ -7,7 +7,7 @@ namespace Vodovoz.EntityRepositories.RentPackages
 {
 	public class RentPackageRepository : IRentPackageRepository
 	{
-		public FreeRentPackage GetFreeRentPackage (IUnitOfWork uow, EquipmentKind equipmentKind)
+		public FreeRentPackage GetFreeRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind)
 		{
 			var package = uow.Session.QueryOver<FreeRentPackage>()
 				.Where(p => p.EquipmentKind == equipmentKind)
@@ -16,7 +16,7 @@ namespace Vodovoz.EntityRepositories.RentPackages
 			return package;
 		}
 		
-		public PaidRentPackage GetPaidRentPackage (IUnitOfWork uow, EquipmentKind equipmentKind)
+		public PaidRentPackage GetPaidRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind)
 		{
 			var package = uow.Session.QueryOver<PaidRentPackage>()
 				.Where(p => p.EquipmentKind == equipmentKind)

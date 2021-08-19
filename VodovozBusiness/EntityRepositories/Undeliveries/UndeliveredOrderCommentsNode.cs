@@ -7,18 +7,11 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 	{
 		public string Comment { get; set; }
 
-		public string MarkedupComment => String.Format(
-			"<span foreground=\"{0}\">{1}</span>",
-			Color,
-			Comment
-		);
+		public string MarkedupComment => $"<span foreground=\"{Color}\">{Comment}</span>";
 
-		public string UserDateAndName => String.Format(
-			"<span foreground=\"{0}\"><b>{1}\n{2}: </b></span>",
-			Color,
-			Date.ToString("d MMM, HH:mm:ss"),
-			PersonHelper.PersonNameWithInitials(LName, FName, MName)
-		);
+		public string UserDateAndName =>
+			$"<span foreground=\"{ Color }\"><b>{ Date.ToString("d MMM, HH:mm:ss") }\n" +
+			$"{ PersonHelper.PersonNameWithInitials(LName, FName, MName) }: </b></span>";
 		
 		public DateTime Date { get; set; }
 		public string FName { get; set; }

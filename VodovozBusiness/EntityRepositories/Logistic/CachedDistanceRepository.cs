@@ -8,7 +8,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class CachedDistanceRepository : ICachedDistanceRepository
 	{
-		public IList<CachedDistance> GetCache (IUnitOfWork uow, long[] hash)
+		public IList<CachedDistance> GetCache(IUnitOfWork uow, long[] hash)
 		{
 			return uow.Session.QueryOver<CachedDistance>()
 				      .Where(x => x.FromGeoHash.IsIn(hash) && x.ToGeoHash.IsIn(hash))

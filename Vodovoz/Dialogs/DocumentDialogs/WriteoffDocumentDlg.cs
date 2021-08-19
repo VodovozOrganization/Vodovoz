@@ -20,14 +20,14 @@ namespace Vodovoz
 {
 	public partial class WriteoffDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<WriteoffDocument>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public WriteoffDocumentDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument> ();
-			Entity.Author = Entity.ResponsibleEmployee = _employeeRepository.GetEmployeeForCurrentUser (UoW);
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument>();
+			Entity.Author = Entity.ResponsibleEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -126,11 +126,11 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var valid = new QSValidator<WriteoffDocument> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<WriteoffDocument>(UoWGeneric.Root);
+			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{

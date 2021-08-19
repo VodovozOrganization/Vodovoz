@@ -6,8 +6,8 @@ namespace Vodovoz.EntityRepositories.RentPackages
 {
 	public interface IRentPackageRepository
 	{
-		FreeRentPackage GetFreeRentPackage (IUnitOfWork uow, EquipmentKind equipmentKind);
-		PaidRentPackage GetPaidRentPackage (IUnitOfWork uow, EquipmentKind equipmentKind);
+		FreeRentPackage GetFreeRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind);
+		PaidRentPackage GetPaidRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind);
 		List<EquipmentKind> GetPaidRentEquipmentKinds(IUnitOfWork uow);
 	}
 }

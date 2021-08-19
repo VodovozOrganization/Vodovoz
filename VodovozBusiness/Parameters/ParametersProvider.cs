@@ -16,7 +16,7 @@ namespace Vodovoz.Parameters
 
 		public bool ContainsParameter(string parameterName)
 		{
-			if (_parameters.ContainsKey(parameterName))
+			if(_parameters.ContainsKey(parameterName))
 			{
 				return true;
 			}
@@ -27,23 +27,23 @@ namespace Vodovoz.Parameters
 
 		public string GetParameterValue(string parameterName)
 		{
-			if (string.IsNullOrWhiteSpace(parameterName))
+			if(string.IsNullOrWhiteSpace(parameterName))
 			{
 				throw new ArgumentNullException(nameof(parameterName));
 			}
 
-			if (!_parameters.TryGetValue(parameterName, out var parameter))
+			if(!_parameters.TryGetValue(parameterName, out var parameter))
 			{
 				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
 			}
 
-			if (parameter.IsExpired)
+			if(parameter.IsExpired)
 			{
 				RefreshParameter(parameterName);
 				parameter = _parameters[parameterName];
 			}
 			
-			if (String.IsNullOrWhiteSpace(parameter.StrValue))
+			if(String.IsNullOrWhiteSpace(parameter.StrValue))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterName})");
 			}
@@ -53,20 +53,20 @@ namespace Vodovoz.Parameters
 
 		private void RefreshParameter(string parameterName)
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				BaseParameter parameter = uow.Session.QueryOver<BaseParameter>()
 					.Where(x => x.Name == parameterName)
 					.SingleOrDefault<BaseParameter>();
 				
-				if (parameter == null)
+				if(parameter == null)
 				{
 					return;
 				}
 
 				parameter.CachedTime = DateTime.Now;
 				
-				if (_parameters.ContainsKey(parameterName))
+				if(_parameters.ContainsKey(parameterName))
 				{
 					_parameters[parameterName] = parameter;
 					return;
@@ -78,14 +78,14 @@ namespace Vodovoz.Parameters
 
 		public void RefreshParameters()
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var allParameters = uow.Session.QueryOver<BaseParameter>().List();
 				_parameters.Clear();
 				
-				foreach (var parameter in allParameters)
+				foreach(var parameter in allParameters)
 				{
-					if (_parameters.ContainsKey(parameter.Name))
+					if(_parameters.ContainsKey(parameter.Name))
 					{
 						continue;
 					}
@@ -98,14 +98,14 @@ namespace Vodovoz.Parameters
 
 		public int GetIntValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
+			if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -115,14 +115,14 @@ namespace Vodovoz.Parameters
 
 		public char GetCharValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
+			if(string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -132,14 +132,14 @@ namespace Vodovoz.Parameters
 
 		public decimal GetDecimalValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
+			if(string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -149,14 +149,14 @@ namespace Vodovoz.Parameters
 
 		public string GetStringValue(string parameterId)
 		{
-			if (!ContainsParameter(parameterId))
+			if(!ContainsParameter(parameterId))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
 			}
 
 			string value = GetParameterValue(parameterId);
 
-			if (string.IsNullOrWhiteSpace(value))
+			if(string.IsNullOrWhiteSpace(value))
 			{
 				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
 			}
@@ -167,9 +167,9 @@ namespace Vodovoz.Parameters
 		public void CreateOrUpdateParameter(string name, string value)
 		{
 			bool isInsert = false;
-			if (_parameters.TryGetValue(name, out var oldParameter))
+			if(_parameters.TryGetValue(name, out var oldParameter))
 			{
-				if (oldParameter.StrValue == value)
+				if(oldParameter.StrValue == value)
 				{
 					return;
 				}
@@ -178,7 +178,7 @@ namespace Vodovoz.Parameters
 			{
 				isInsert = true;
 			}
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var bpPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(BaseParameter));
 				var tableName = bpPersister.TableName;
@@ -186,7 +186,7 @@ namespace Vodovoz.Parameters
 				var strValueColumnName = bpPersister.GetPropertyColumnNames(nameof(BaseParameter.StrValue)).First();
 
 				string sql;
-				if (isInsert)
+				if(isInsert)
 				{
 					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
 					logger.Debug($"Добавляем новый параметр базы {name}='{value}'");

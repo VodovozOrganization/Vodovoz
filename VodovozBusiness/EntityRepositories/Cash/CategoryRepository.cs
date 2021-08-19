@@ -137,7 +137,8 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public ExpenseCategory EmployeeSalaryExpenseCategory(IUnitOfWork uow)
 		{
-			if(_parametersProvider.ContainsParameter(employeeSalaryExpenseCategory)) {
+			if(_parametersProvider.ContainsParameter(employeeSalaryExpenseCategory))
+			{
 				int id = -1;
 				id = int.Parse(_parametersProvider.GetParameterValue(employeeSalaryExpenseCategory));
 				
