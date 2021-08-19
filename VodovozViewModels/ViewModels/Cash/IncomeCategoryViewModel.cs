@@ -6,6 +6,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using VodovozInfrastructure.Interfaces;
 
@@ -18,22 +19,36 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider,
-            IncomeCategoryJournalFilterViewModel journalFilterViewModel
+            IncomeCategoryJournalFilterViewModel journalFilterViewModel,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory
         ) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
-	        var journalActionsViewModel = new IncomeCategoryJournalActionsViewModel(CommonServices.InteractiveService);
+	        if(employeeJournalFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        }
+			
+	        if(subdivisionJournalFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+	        }
+	        
             IncomeCategoryAutocompleteSelectorFactory = 
                 new IncomeCategoryAutoCompleteSelectorFactory(
-	                journalActionsViewModel,
-	                commonServices,
-	                journalFilterViewModel,
-	                fileChooserProvider);
+	                commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
+            
+            SubdivisionAutocompleteSelectorFactory =
+	            subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
+		            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
             
             if(uowBuilder.IsNewEntity)
                 TabName = "Создание новой категории дохода";
             else
                 TabName = $"{Entity.Title}";
         }
+        
+        public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
         
         public bool IsArchive
         {

@@ -13,10 +13,13 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Project.Journal;
+using QS.Project.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -24,16 +27,28 @@ using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>
 	{
-		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly WageParameterService wageParameterService = 
-			new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IGtkTabsOpener _gtkDialogsOpener;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+		private readonly ICommonServices _commonServices;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		#region Properties
 
@@ -54,11 +69,31 @@ namespace Vodovoz.ViewModels.Logistic
 		public RouteListAnalysisViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory, 
-			ICommonServices commonServices) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
-			undeliveryViewOpener = new UndeliveriesViewOpener();
+			undeliveryViewOpener = new UndeliveredOrdersJournalOpener();
 			employeeService = VodovozGtkServicesConfig.EmployeeService;
 			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
 			
@@ -67,59 +102,9 @@ namespace Vodovoz.ViewModels.Logistic
 				             "диалог разбора МЛ, так как некого указывать в качестве логиста.", "Невозможно открыть разбор МЛ");
 			}
 			
-			employeeSelectorFactory = new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-				() =>
-				{
-					var employeeFilter = new EmployeeFilterViewModel();
-						
-					var employeesJournalActions = 
-						new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
-						
-					return new EmployeesJournalViewModel(
-						employeesJournalActions,
-						employeeFilter,
-						UnitOfWorkFactory,
-						CommonServices);
-				});
-
-			LogisticanSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel
-						{
-							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office
-						};
-						var journalActions = 
-							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
-						
-						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
-					});
-
-			DriverSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel
-						{
-							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.driver
-						};
-						var journalActions = 
-							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
-						
-						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
-					});
-
-			ForwarderSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel
-						{
-							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.forwarder
-						};
-						var journalActions = 
-							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
-
-						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
-					});
+			LogisticanSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 
 			TabName = $"Диалог разбора {Entity.Title}";
 		}
@@ -151,16 +136,31 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand OpenUndeliveredOrderCommand => 
 			openUndeliveredOrderCommand ?? (openUndeliveredOrderCommand = new DelegateCommand(
 				() => {
-					
-					var dlg = new UndeliveriesView();
-					dlg.HideFilterAndControls();
-					dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-						x => x.ResetFilter(),
-						x => x.RestrictOldOrder = SelectedItem.Order,
-						x => x.RestrictOldOrderStartDate = SelectedItem.Order.DeliveryDate,
-						x => x.RestrictOldOrderEndDate = SelectedItem.Order.DeliveryDate
-					);
-					
+
+					var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+						_commonServices,
+						_orderSelectorFactory,
+						_employeeJournalFactory,
+						_counterpartyJournalFactory,
+						_deliveryPointJournalFactory,
+						_subdivisionJournalFactory)
+					{
+						HidenByDefault = true,
+						RestrictOldOrder = SelectedItem.Order,
+						RestrictOldOrderStartDate = SelectedItem.Order.DeliveryDate,
+						RestrictOldOrderEndDate = SelectedItem.Order.DeliveryDate
+					};
+
+					var dlg = new UndeliveredOrdersJournalViewModel(
+						undeliveredOrdersFilter,
+						UnitOfWorkFactory,
+						_commonServices,
+						_gtkDialogsOpener,
+						_employeeJournalFactory,
+						employeeService,
+						_undeliveredOrdersJournalOpener,
+						_orderSelectorFactory);
+
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();
 					
 					TabParent.AddTab(dlg, this);
@@ -178,7 +178,7 @@ namespace Vodovoz.ViewModels.Logistic
 					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 					undeliveryViewOpener,
 					employeeService,
-					employeeSelectorFactory,
+					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					CommonServices
 				);
 
@@ -216,7 +216,7 @@ namespace Vodovoz.ViewModels.Logistic
 					fineFilter,
 					undeliveryViewOpener,
 					employeeService,
-					employeeSelectorFactory,
+					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					UnitOfWorkFactory,
 					CommonServices
 				);
@@ -257,6 +257,7 @@ namespace Vodovoz.ViewModels.Logistic
 		));
 		
 		private DelegateCommand createDetachFineCommand;
+
 		public DelegateCommand DetachFineCommand => 
 			createDetachFineCommand ?? (createDetachFineCommand = new DelegateCommand(
 			() =>
@@ -269,7 +270,7 @@ namespace Vodovoz.ViewModels.Logistic
 					fineFilter,
 					undeliveryViewOpener,
 					employeeService,
-					employeeSelectorFactory,
+					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					UnitOfWorkFactory,
 					CommonServices
 				)

@@ -28,7 +28,11 @@ using VodovozInfrastructure.Interfaces;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.JournalFilters;
 using Vodovoz.Repository.Cash;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {
@@ -40,6 +44,8 @@ namespace Vodovoz
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -133,11 +139,17 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilterViewModel {Status = EmployeeStatus.IsWorking};
+			var filterCasher = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filterEmployee = new EmployeeFilterViewModel {Status = EmployeeStatus.IsWorking};
+			var filterEmployee = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 			yentryEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
@@ -162,14 +174,18 @@ namespace Vodovoz
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
 							fileChooserProvider,
-							filterViewModel
+							filterViewModel,
+							_employeeJournalFactory,
+							_subdivisionJournalFactory
 						),
 						node => new ExpenseCategoryViewModel(
 							EntityUoWBuilder.ForOpen(node.Id),
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
 							fileChooserProvider,
-							filterViewModel
+							filterViewModel,
+							_employeeJournalFactory,
+							_subdivisionJournalFactory
 						),
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices

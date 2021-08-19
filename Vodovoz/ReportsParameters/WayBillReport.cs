@@ -11,15 +11,20 @@ using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
 using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class WayBillReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public WayBillReport()
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		
+		public WayBillReport(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			this.Build();
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
@@ -30,17 +35,8 @@ namespace Vodovoz.ReportsParameters
 			timeHourEntry.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntry.Text = DateTime.Now.Minute.ToString("00.##");
 			
-			entryDriver.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () => {
-				var filter = new EmployeeFilterViewModel
-				{
-					Status = EmployeeStatus.IsWorking, Category = EmployeeCategory.driver
-				};
-				
-				var journalActions = 
-					new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
-				
-				return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-			}));
+			entryDriver.SetEntityAutocompleteSelectorFactory(
+				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			entryCar.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory
 				<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));

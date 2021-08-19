@@ -10,6 +10,7 @@ using QS.HistoryLog;
 using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
@@ -21,6 +22,8 @@ namespace Vodovoz
 	[HistoryTrace]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private SalesPlan _defaultSalesPlan;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -105,6 +108,12 @@ namespace Vodovoz
 		public virtual SubdivisionType SubdivisionType {
 			get => subdivisionType;
 			set => SetField(ref subdivisionType, value, () => SubdivisionType);
+		}
+
+		public virtual SalesPlan DefaultSalesPlan
+		{
+			get => _defaultSalesPlan;
+			set => SetField(ref _defaultSalesPlan, value);
 		}
 
 		#endregion

@@ -9,11 +9,25 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Services;
 using QSOrmProject;
 using QS.Validation;
-using Vodovoz.Additions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -21,6 +35,21 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class TraineeDlg : QS.Dialog.Gtk.EntityDialogBase<Trainee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
+		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
+		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
+		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory = new EmployeePostsJournalFactory();
+		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
+		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
+		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
+		private readonly IWageCalculationRepository _wageCalculationRepository  = WageSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
+		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
 
 		public TraineeDlg()
 		{
@@ -29,14 +58,14 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(int id, IAuthorizationService authorizationService)
+		public TraineeDlg(int id)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Trainee>(id);
 			ConfigureDlg();
 		}
 
-		public TraineeDlg(Trainee sub, IAuthorizationService authorizationService) : this(sub.Id, authorizationService)
+		public TraineeDlg(Trainee sub) : this(sub.Id)
 		{
 		}
 
@@ -158,9 +187,30 @@ namespace Vodovoz.Dialogs.Employees
 			}
 			var employeeUow = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			Personnel.ChangeTraineeToEmployee(employeeUow, Entity);
+
+			var employeeViewModel = new EmployeeViewModel(
+				_authorizationService,
+				_employeeWageParametersFactory,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory,
+				_employeePostsJournalFactory,
+				_cashDistributionCommonOrganisationProvider,
+				_subdivisionService,
+				_emailServiceSettingAdapter,
+				_wageCalculationRepository,
+				_employeeRepository,
+				employeeUow,
+				ServicesConfig.CommonServices,
+				_validationContextFactory,
+				_phonesViewModelFactory,
+				_warehouseRepository,
+				_routeListRepository,
+				CurrentUserSettings.Settings,
+				true);
+			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
-							  () => new EmployeeDlg(employeeUow));
-			this.OnCloseTab(false);
+							  () => employeeViewModel);
+			OnCloseTab(false);
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)

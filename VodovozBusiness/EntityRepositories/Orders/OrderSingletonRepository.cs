@@ -20,6 +20,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
+using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -333,6 +334,31 @@ namespace Vodovoz.EntityRepositories.Orders
 			else
 				return queryResult.List();
 		}
+		
+		/// <summary>
+		/// Проверка возможности изменения даты контракта при изменении даты доставки заказа.
+		/// Если дата первого заказа меньше newDeliveryDate и это - текущий изменяемый заказ - возвращает True.
+		/// Если первый заказ меньше newDeliveryDate и он не является текущим заказом - возвращает False.
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="client">Поиск заказов по этому контрагенту</param>
+		/// <param name="newDeliveryDate">Новая дата доставки заказа</param>
+		/// <param name="orderId">Текущий изменяемый заказ</param>
+		/// <returns>Возможность смены даты контракта</returns>
+		public bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId)
+		{
+			VodovozOrder orderAlias = null;
+			
+			var result = uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Client == client)
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.List().FirstOrDefault();
+			if(result.DeliveryDate < newDeliveryDate && result.Id != orderId)
+			{
+				return false;
+			}
+			return true;
+		}
 
 		/// <summary>
 		/// Список МЛ для заказа, отсортированный в порядке владения этим заказом, в случае переносов
@@ -402,6 +428,16 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .Where(x => x.DeliveryDate == date)
 					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 					  .List().FirstOrDefault();
+		}
+		
+		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uowFactory, DateTime date, DeliveryPoint deliveryPoint)
+		{
+			var uow = uowFactory.CreateWithoutRoot();
+			
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(x => x.DeliveryDate == date)
+				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
+				.List();
 		}
 
 		public bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)
@@ -822,12 +858,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
-		public bool CanAddVodovozCatalogToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroupId)
+		public bool CanAddFlyerToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
-			Nomenclature nomenclatureAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
@@ -838,14 +873,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				: routeListParametersProvider.WarehouseParnasId;
 
 			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == leafletId)
+				.Where(() => operationAddAlias.Nomenclature.Id == flyerId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
 				.Where(o => o.IncomingWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
 			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == leafletId)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == flyerId)
 				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
 				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
@@ -855,10 +890,10 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => orderEquipmentAlias.Nomenclature.Id == leafletId)
+				.Where(() => orderEquipmentAlias.Nomenclature.Id == flyerId)
 				.Where(() => districtAlias.GeographicGroup.Id == geographicGroupId)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+				.Where(() => orderAlias.OrderStatus == OrderStatus.NewOrder
+							 || orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList
 				             || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => orderEquipmentAlias.Count))

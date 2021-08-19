@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -53,18 +54,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 																						CounterpartyJournalViewModel,
 																						CounterpartyJournalFilterViewModel>(CommonServices);
 
-			EmployeeSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() => {
-						var filter = new EmployeeFilterViewModel
-						{
-							Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office
-						};
-						var journalActions = 
-							new EmployeesJournalActionsViewModel(CommonServices.InteractiveService, UnitOfWorkFactory);
-						
-						return new EmployeesJournalViewModel(journalActions, filter, UnitOfWorkFactory, CommonServices);
-					});
+			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
 																				OrderJournalViewModel,

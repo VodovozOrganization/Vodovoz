@@ -3,6 +3,7 @@ using QS.Project.Filter;
 using QS.Project.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
@@ -38,6 +39,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             get => state;
             set => UpdateFilterField(ref state, value);
         }
+
+        public CashRequestJournalFilterViewModel(IEmployeeJournalFactory employeeJournalFactory)
+        {
+	        EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+        }
+        
+        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 
         public CashRequestUserRole GetUserRole()
         {

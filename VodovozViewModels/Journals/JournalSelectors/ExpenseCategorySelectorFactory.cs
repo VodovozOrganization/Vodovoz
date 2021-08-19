@@ -4,8 +4,9 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Journals.JournalActionsViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -17,8 +18,9 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 	        ExpenseCategoryJournalActionsViewModel journalActionsViewModel,
 	        ICommonServices commonServices, 
             ExpenseCategoryJournalFilterViewModel filterViewModel,
-            IFileChooserProvider fileChooserProvider
-        )
+            IFileChooserProvider fileChooserProvider,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory)
         {
             JournalActionsViewModel = journalActionsViewModel ?? throw new ArgumentNullException(nameof(journalActionsViewModel));
             CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

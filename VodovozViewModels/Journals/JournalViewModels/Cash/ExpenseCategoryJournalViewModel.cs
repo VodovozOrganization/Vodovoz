@@ -10,9 +10,10 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Journals.JournalActionsViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -28,19 +29,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         >
     {
         private readonly IFileChooserProvider fileChooserProvider;
+        private readonly IEmployeeJournalFactory _employeeJournalFactory;
+        private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 
         public ExpenseCategoryJournalViewModel(
 	        ExpenseCategoryJournalActionsViewModel journalActionsViewModel,
             ExpenseCategoryJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider
-            ) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
+            IFileChooserProvider fileChooserProvider,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory
+            ) : base(filterViewModel, unitOfWorkFactory, commonServices)
+        {
         {
             this.fileChooserProvider =
                 fileChooserProvider ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            journalActionsViewModel?.SetExportDataAction(ExportData);
-
+            _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+            _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+            
+            
             TabName = "Категории расхода";
             
             UpdateOnChanges(
@@ -135,40 +143,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
         private void ExportData()
         {
-	        StringBuilder CSVbuilder = new StringBuilder();
-	        
-	        foreach (ExpenseCategoryJournalNode expenseCategoryJournalNode in Items)
-	        {
-		        CSVbuilder.Append(expenseCategoryJournalNode.Level1 + ", ");
-		        CSVbuilder.Append(expenseCategoryJournalNode.Level2 + ", ");
-		        CSVbuilder.Append(expenseCategoryJournalNode.Level3 + ", ");
-		        CSVbuilder.Append(expenseCategoryJournalNode.Level4 + ", ");
-		        CSVbuilder.Append(expenseCategoryJournalNode.Level5 + ", ");
-		        CSVbuilder.Append(expenseCategoryJournalNode.Subdivision + "\n");
-	        }
-
-	        var fileChooserPath = fileChooserProvider.GetExportFilePath();
-	        var res = CSVbuilder.ToString();
-
-	        if(fileChooserPath == "")
-	        {
-		        return;
-	        }
-	        
-	        Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
-	        
-	        using (StreamWriter writer = new StreamWriter(fileStream, Encoding.GetEncoding("Windows-1251")))  
-	        {  
-		        writer.Write("\"sep=,\"\n");
-		        writer.Write(res);
-	        }
-	        
-	        fileChooserProvider.CloseWindow();
-        }
-
-        protected override void CreatePopupActions()
-        {
             base.CreatePopupActions();
+            NodeActionsList.Add(new JournalAction("Экспорт", x => true, x => true, selectedItems => {
+                var selectedNodes = selectedItems.Cast<ExpenseCategoryJournalNode>();
+                StringBuilder CSVbuilder = new StringBuilder();
+                foreach (ExpenseCategoryJournalNode expenseCategoryJournalNode in Items)
+                {
+                    CSVbuilder.Append(expenseCategoryJournalNode.Level1 + ", ");
+                    CSVbuilder.Append(expenseCategoryJournalNode.Level2 + ", ");
+                    CSVbuilder.Append(expenseCategoryJournalNode.Level3 + ", ");
+                    CSVbuilder.Append(expenseCategoryJournalNode.Level4 + ", ");
+                    CSVbuilder.Append(expenseCategoryJournalNode.Level5 + ", ");
+                    CSVbuilder.Append(expenseCategoryJournalNode.Subdivision + "\n");
+                }
+
+                var fileChooserPath = fileChooserProvider.GetExportFilePath();
+                var res = CSVbuilder.ToString();
+
+                if (fileChooserPath == "") return;
+                Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
+                using (StreamWriter writer = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding("Windows-1251")))  
+                {  
+                    writer.Write("\"sep=,\"\n");
+                    writer.Write(res.ToString());
+                }                 
+                fileChooserProvider.CloseWindow();
+
+            }));
+
             PopupActionsList.Add(new JournalAction("Архивировать", x => true, x => true, selectedItems => {
                 var selectedNodes = selectedItems.Cast<ExpenseCategoryJournalNode>();
                 var selectedNode = selectedNodes.FirstOrDefault();

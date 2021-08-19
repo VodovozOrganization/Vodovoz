@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
@@ -42,7 +43,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IEmployeeJournalFactory employeeJournalFactory,
 			IReportViewOpener reportViewOpener,
 			IFileChooserProvider fileChooserProvider,
-			ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel
+			ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel,
+			ISubdivisionJournalFactory subdivisionJournalFactory
 		) 
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -53,6 +55,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
 			this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
+			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
 			CreateCommands();
 			UpdateCashSubdivisions();
@@ -95,10 +98,13 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void ConfigureEntries()
 		{
-			EmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			EmployeeAutocompleteSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}
 		
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; private set; }
+		
+		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
 		#endregion Entries
 

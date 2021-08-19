@@ -7,10 +7,8 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
 using QS.Validation;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
@@ -25,6 +23,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private ICarRepository carRepository;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
 
@@ -78,20 +77,8 @@ namespace Vodovoz
 			yentryPTSNum.Binding.AddBinding(Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 			
-			var employeeFilter = new EmployeeFilterViewModel {
-				RestrictCategory = EmployeeCategory.driver,
-				Status = EmployeeStatus.IsWorking
-			};
-			
 			entryDriver.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
-					typeof(Employee),
-					() => new EmployeesJournalViewModel(
-						new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory),
-						employeeFilter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices))
-				);
+				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 			entryDriver.Changed += OnEntryDriverChanged;
 			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 

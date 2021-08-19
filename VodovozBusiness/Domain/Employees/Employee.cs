@@ -564,10 +564,24 @@ namespace Vodovoz.Domain.Employees
 					break;
 				case EmployeeCategory.office:
 				default:
+					WageParameterItem wageParameterItem;
+					if(Subdivision?.DefaultSalesPlan != null)
+					{
+						wageParameterItem = new SalesPlanWageParameterItem()
+						{
+							SalesPlan = Subdivision.DefaultSalesPlan
+						};
+					}
+					else
+					{
+						wageParameterItem = new ManualWageParameterItem();
+					}
+
 					ChangeWageParameter(
-						new EmployeeWageParameter{
-							WageParameterItem = new ManualWageParameterItem()
-						}, 
+						new EmployeeWageParameter
+						{
+							WageParameterItem = wageParameterItem
+						},
 						DateTime.Today);
 					break;
 			}
@@ -693,6 +707,14 @@ namespace Vodovoz.Domain.Employees
 		male,
 		[Display(Name = "Ж")]
 		female
+	}
+
+	public enum DriverTerminalRelation
+	{
+		[Display(Name = "Водители с терминалами")]
+		WithTerminal,
+		[Display(Name = "Водители без терминалов")]
+		WithoutTerminal
 	}
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType

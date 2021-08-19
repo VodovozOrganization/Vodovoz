@@ -124,6 +124,15 @@ namespace Vodovoz.Views.Reports
                 .AddColumn("ФИО экспедитора")
                     .AddTextRenderer(n => 
                         string.IsNullOrEmpty(n.ForwarderLastName) ? "Без экспедитора" : n.ForwarderFIO)
+                .AddColumn("Общая сумма заказа")
+                    .AddNumericRenderer(n => n.OrderSum)
+                    .Digits(2)
+                .AddColumn("Сумма за 19л бутыли")
+                    .AddNumericRenderer(n => n.Bottles19LSum)
+                    .Digits(2)
+                .AddColumn("Cредняя стоимость 19л в заказе")
+                    .AddNumericRenderer(n => n.Bottles19LAvgPrice)
+                    .Digits(2)
                 .AddColumn("")
                 .Finish();
 

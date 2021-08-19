@@ -19,13 +19,13 @@ namespace DriverAPI.Library.Helpers
 
 		public async Task SendPushNotification(string pushNotificationClientToken, string title, string body)
 		{
-			var request = new FCMSendPushRequestDto()
+			var request = new
 			{
-				To = pushNotificationClientToken,
-				Notification = new FCMSendPushMessageDto()
+				to = pushNotificationClientToken,
+				notification = new
 				{
-					Title = title,
-					Body = body
+					title = title,
+					body = body
 				}
 			};
 

@@ -14,7 +14,7 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.ViewModels;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -22,9 +22,14 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -256,18 +261,14 @@ namespace Vodovoz
 				x => x.RestrictHideService = true
 			);
 
-			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-			
-			var orderSelectDialog = 
-				new OrderForRouteListJournalViewModel(
-					journalActions,
-					filter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices)
-				{
-					SelectionMode = JournalSelectionMode.Multiple
-				};
-			
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
+				new UndeliveredOrdersJournalOpener(), new EmployeeService())
+			{
+				SelectionMode = JournalSelectionMode.Multiple
+			};
+
 			//Selected Callback
 			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
 			{

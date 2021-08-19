@@ -35,6 +35,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -46,6 +47,8 @@ using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -57,13 +60,16 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private bool editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		private readonly bool _editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
-		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
-		
+		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+		private bool _needToSelectTerminalCondition = false;
+		private bool _hasAccessToDriverTerminal = false;
+
 		List<ReturnsNode> allReturnsToWarehouse;
 		private IEnumerable<DefectSource> defectiveReasons;
 		int bottlesReturnedToWarehouse;
@@ -159,7 +165,7 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
-			var filterDriver = new EmployeeFilterViewModel();
+			var filterDriver = new EmployeeRepresentationFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
@@ -168,7 +174,7 @@ namespace Vodovoz
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			previousForwarder = Entity.Forwarder;
-			var filterForwarder = new EmployeeFilterViewModel();
+			var filterForwarder = new EmployeeRepresentationFilterViewModel();
 			filterForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.Status = EmployeeStatus.IsWorking
@@ -177,7 +183,7 @@ namespace Vodovoz
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
-			var filterLogistican = new EmployeeFilterViewModel();
+			var filterLogistican = new EmployeeRepresentationFilterViewModel();
 			filterLogistican.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
@@ -294,12 +300,22 @@ namespace Vodovoz
 
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
+
+			_hasAccessToDriverTerminal = _editing;
+			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
+			_needToSelectTerminalCondition = baseDoc is DriverAttachedTerminalGiveoutDocument && baseDoc.CreationDate.Date <= Entity?.Date;
+			hboxTerminalCondition.Visible = _hasAccessToDriverTerminal && _needToSelectTerminalCondition;
+
+			enumTerminalCondition.ItemsEnum = typeof(DriverTerminalCondition);
+			enumTerminalCondition.Binding
+				.AddBinding(Entity, e => e.DriverTerminalCondition, w => w.SelectedItemOrNull).InitializeFromSource();
 		}
 
 		private void UpdateSensitivity()
 		{
-			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck
-			&& Entity.Status != RouteListStatus.Delivered) {
+			var sensStatuses = new[] { RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Delivered};
+			if(!sensStatuses.Contains(Entity.Status))
+			{
 				ytextviewFuelInfo.Sensitive = false;
 				ycheckHideCells.Sensitive = false;
 				vbxFuelTickets.Sensitive = false;
@@ -314,6 +330,7 @@ namespace Vodovoz
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
+				toggleWageDetails.Sensitive = _editing;
 
 				HasChanges = false;
 
@@ -322,24 +339,26 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			entityviewmodelentryCar.Sensitive = editing;
-			referenceDriver.Sensitive = editing;
-			referenceForwarder.Sensitive = editing;
-			referenceLogistican.Sensitive = editing;
-			datePickerDate.Sensitive = editing;
-			ycheckConfirmDifferences.Sensitive = editing &&
+			entityviewmodelentryCar.Sensitive = _editing;
+			referenceDriver.Sensitive = _editing;
+			referenceForwarder.Sensitive = _editing;
+			referenceLogistican.Sensitive = _editing;
+			datePickerDate.Sensitive = _editing;
+			ycheckConfirmDifferences.Sensitive = _editing &&
 				(Entity.Status == RouteListStatus.OnClosing || 
 				 Entity.Status == RouteListStatus.Delivered);
-			ytextClosingComment.Sensitive = editing;
-			routeListAddressesView.IsEditing = editing;
-			ycheckHideCells.Sensitive = editing;
-			routelistdiscrepancyview.Sensitive = editing;
-			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
-			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
-			enummenuRLActions.Sensitive = editing;
-			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = editing;
-			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = editing;
-			buttonCalculateCash.Sensitive = editing;
+			ytextClosingComment.Sensitive = _editing;
+			routeListAddressesView.IsEditing = _editing;
+			ycheckHideCells.Sensitive = _editing;
+			routelistdiscrepancyview.Sensitive = _editing;
+			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
+			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
+			enummenuRLActions.Sensitive = _editing;
+			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = _editing;
+			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _editing;
+			buttonCalculateCash.Sensitive = _editing;
+			labelWage1.Visible = _editing;
+			toggleWageDetails.Sensitive = _editing;
 			UpdateButtonState();
 		}
 
@@ -474,6 +493,7 @@ namespace Vodovoz
 							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
 							employeeNomenclatureMovementRepository,
 							terminalNomenclatureProvider,
+							_routeListRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices
 						)
@@ -493,6 +513,7 @@ namespace Vodovoz
 							RouteListAddressesTransferringDlg.OpenParameter.Sender,
 							employeeNomenclatureMovementRepository,
 							terminalNomenclatureProvider,
+							_routeListRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices
 						)
@@ -698,7 +719,11 @@ namespace Vodovoz
 		public override bool Save() {
 			
 			var valid = new QSValidator<RouteList>(Entity,
-				new Dictionary<object, object>{{nameof(IRouteListItemRepository), new RouteListItemRepository()}});
+				new Dictionary<object, object>
+				{
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
+				});
 			
 			permissioncommentview.Save();
 
@@ -727,9 +752,13 @@ namespace Vodovoz
 			bool isOrdersValid = true;
 			string orderIds = "";
 			byte ordersCounter = 0;
+			OrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			ValidationContext validationContext;
 			foreach(var item in Entity.Addresses) {
-				var orderValidator = new QSValidator<Order>(item.Order);
-				if(!orderValidator.IsValid) {
+				validationContext = new ValidationContext(item.Order);
+				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))
+				{
 					if(string.IsNullOrWhiteSpace(orderIds)) {
 						orderIds = string.Format("{0}", item.Order.Id);
 					} else {
@@ -760,9 +789,10 @@ namespace Vodovoz
 			}
 
 			var validationContext = new Dictionary<object, object> {
-				{ "NewStatus", RouteListStatus.MileageCheck},
-                { "cash_order_close", true},
-				{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+				{"NewStatus", RouteListStatus.MileageCheck},
+				{"cash_order_close", true},
+				{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
 			};
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {

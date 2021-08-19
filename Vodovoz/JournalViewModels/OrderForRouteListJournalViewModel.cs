@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using NHibernate;
@@ -23,20 +23,51 @@ using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepo
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
-using QS.ViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.JournalViewModels
 {
     public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
 	{
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IGtkTabsOpener _gtkDialogsOpener;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+		private readonly IEmployeeService _employeeService;
+
 		public OrderForRouteListJournalViewModel(
 			EntitiesJournalActionsViewModel journalActionsViewModel,
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
-			ICommonServices commonServices
-			) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGtkTabsOpener gtkDialogsOpener,
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			IEmployeeService employeeService
+		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+
 			TabName = "Журнал заказов";
 
 			var threadLoader = DataLoader as ThreadDataLoader<OrderForRouteListJournalNode>;
@@ -256,14 +287,32 @@ namespace Vodovoz.JournalViewModels
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderForRouteListJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-						UndeliveriesView dlg = new UndeliveriesView();
-						dlg.HideFilterAndControls();
-						dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-							x => x.ResetFilter(),
-							x => x.RestrictOldOrder = order,
-							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
-							x => x.RestrictOldOrderEndDate = order.DeliveryDate
-						);
+
+						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+							commonServices,
+							_orderSelectorFactory,
+							_employeeJournalFactory,
+							_counterpartyJournalFactory,
+							_deliveryPointJournalFactory,
+							_subdivisionJournalFactory)
+						{
+							HidenByDefault = true,
+							RestrictOldOrder = order,
+							RestrictOldOrderStartDate = order.DeliveryDate,
+							RestrictOldOrderEndDate = order.DeliveryDate
+						};
+
+						var dlg = new UndeliveredOrdersJournalViewModel(
+							undeliveredOrdersFilter,
+							UnitOfWorkFactory,
+							commonServices,
+							_gtkDialogsOpener,
+							_employeeJournalFactory,
+							_employeeService,
+							_undeliveredOrdersJournalOpener,
+							_orderSelectorFactory
+							);
+
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					}
 				)

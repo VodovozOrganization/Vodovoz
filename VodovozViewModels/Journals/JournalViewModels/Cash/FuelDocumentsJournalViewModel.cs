@@ -17,6 +17,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
 	    private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
 	    private readonly IEmployeeJournalFactory employeeJournalFactory;
+	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 	    private readonly ICarJournalFactory carJournalFactory;
 	    private readonly IReportViewOpener reportViewOpener;
 	    private readonly IFileChooserProvider fileChooserProvider;
@@ -45,6 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICounterpartyJournalFactory counterpartyJournalFactory,
             INomenclatureSelectorFactory nomenclatureSelectorFactory,
             IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
             IFileChooserProvider fileChooserProvider,
@@ -57,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	        this.counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 	        this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 	        this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 	        this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 	        this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 	        this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
@@ -318,7 +322,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    employeeJournalFactory,
 					    reportViewOpener,
 					    fileChooserProvider,
-					    expenseCategoryJournalFilterViewModel
+					    expenseCategoryJournalFilterViewModel,
+					    _subdivisionJournalFactory
 				    ),
 				    //функция диалога открытия документа
 				    node => new FuelWriteoffDocumentViewModel(
@@ -331,7 +336,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    employeeJournalFactory,
 					    reportViewOpener,
 					    fileChooserProvider,
-					    expenseCategoryJournalFilterViewModel
+					    expenseCategoryJournalFilterViewModel,
+					    _subdivisionJournalFactory
 				    ),
 				    //функция идентификации документа 
 				    node => node.EntityType == typeof(FuelWriteoffDocument),

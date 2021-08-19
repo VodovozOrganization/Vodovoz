@@ -5,11 +5,11 @@ using QS.ViewModels;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Cash
@@ -22,7 +22,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.Build();
 			ConfigureDlg();
 		}
-		
+
 		private void ConfigureDlg()
 		{
 			yentryName.Binding
@@ -39,45 +39,15 @@ namespace Vodovoz.Dialogs.Cash
 			ParentEntityviewmodelentry.CanEditReference = true;
 			#endregion
 			
-			
 			#region SubdivisionEntityviewmodelentry
-			//Это создается тут, а не в ExpenseCategoryViewModel потому что EmployeesJournalViewModel и EmployeeFilterViewModel нет в ViewModels
-			var employeeSelectorFactory =
-				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
-					() =>
-					{
-						var employeeFilter = new EmployeeFilterViewModel();
 
-						var employeesJournalActions =
-							new EmployeesJournalActionsViewModel(ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
-
-						return new EmployeesJournalViewModel(
-							employeesJournalActions,
-							employeeFilter,
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices);
-					});
-			
-			var filter = new SubdivisionFilterViewModel(){ SubdivisionType = SubdivisionType.Default };
-			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => {
-					return new SubdivisionsJournalViewModel(
-						journalActions,
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						employeeSelectorFactory
-					);
-				})
-			);
+			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
 			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
+			
 			#endregion
 
 			ycheckArchived.Binding.AddBinding(ViewModel, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			
-			
-
 			yenumTypeDocument.ItemsEnum = typeof(ExpenseInvoiceDocumentType);
 			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseDocumentType, w => w.SelectedItem).InitializeFromSource();
 

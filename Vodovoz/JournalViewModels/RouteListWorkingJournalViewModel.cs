@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.ViewModels;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -150,6 +151,19 @@ namespace Vodovoz.JournalViewModels
             }
 
             #endregion
+
+            if(FilterViewModel.ShowDriversWithTerminal)
+            {
+	            DriverAttachedTerminalDocumentBase baseAlias = null;
+	            DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
+	            var baseQuery = QueryOver.Of(() => baseAlias)
+		            .Where(doc => doc.Driver.Id == routeListAlias.Driver.Id)
+		            .And(doc => doc.CreationDate.Date <= routeListAlias.Date)
+		            .Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
+	            var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
+		            .Select(doc => doc.Driver.Id);
+	            query.WithSubquery.WhereProperty(rl => rl.Driver.Id).In(giveoutQuery);
+            }
 
             switch (FilterViewModel.TransportType)
             {

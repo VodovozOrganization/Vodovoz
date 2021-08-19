@@ -22,14 +22,14 @@ namespace Vodovoz.ViewModels.Employees
 	public class FineViewModel : EntityTabViewModelBase<Fine>
 	{
 		private readonly IUnitOfWorkFactory uowFactory;
-		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			IUndeliveriesViewOpener undeliveryViewOpener,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			ICommonServices commonServices

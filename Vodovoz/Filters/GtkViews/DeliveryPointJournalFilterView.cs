@@ -18,6 +18,7 @@ namespace Vodovoz.Filters.GtkViews
 			ycheckWithoutStreet.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyWithoutStreet, w => w.Active).InitializeFromSource();
 			ycheckOnlyNotFoundOsm.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyNotFoundOsm, w => w.Active).InitializeFromSource();
 			ycheckRestrictActive.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyActive, w => w.Active).InitializeFromSource();
+			entityVMentryCounterparty.Binding.AddBinding(ViewModel, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
 		}
 	}
 }

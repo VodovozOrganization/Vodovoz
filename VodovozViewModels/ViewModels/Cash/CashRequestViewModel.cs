@@ -19,7 +19,9 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Repository.Cash;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using VodovozInfrastructure.Interfaces;
 using CashRepository = Vodovoz.EntityRepositories.Cash.CashRepository;
 
@@ -46,13 +48,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
             CashRepository cashRepository,
-            ConsoleInteractiveService consoleInteractiveService
+            ConsoleInteractiveService consoleInteractiveService,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory
         ) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
             this.uowBuilder = uowBuilder ?? throw new ArgumentNullException(nameof(uowBuilder));
             this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.consoleInteractiveService = consoleInteractiveService ?? throw new ArgumentNullException(nameof(consoleInteractiveService));
+            EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+            SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
             var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
                 ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
                 HidenByDefault = true
@@ -71,14 +77,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                                     unitOfWorkFactory,
                                     ServicesConfig.CommonServices,
                                     fileChooserProvider,
-                                    filterViewModel
+                                    filterViewModel,
+                                    EmployeeJournalFactory,
+                                    SubdivisionJournalFactory
                                 ),
                                 node => new ExpenseCategoryViewModel(
                                     EntityUoWBuilder.ForOpen(node.Id),
                                     unitOfWorkFactory,
                                     ServicesConfig.CommonServices,
                                     fileChooserProvider,
-                                    filterViewModel
+                                    filterViewModel,
+                                    EmployeeJournalFactory,
+                                    SubdivisionJournalFactory
                                 ),
                                 unitOfWorkFactory,
                                 ServicesConfig.CommonServices
@@ -108,6 +118,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IsNewEntity = uowBuilder.IsNewEntity;
             ConfigureEntityChangingRelations();
         }
+        
+        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+        public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
         protected void ConfigureEntityChangingRelations()
         {
@@ -136,7 +149,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     UoW,
                     CommonServices.InteractiveService,
                     NavigationManager,
-                    UserRole
+                    UserRole,
+                    EmployeeJournalFactory
                 );
 
                 cashRequestItemViewModel.Entity = new CashRequestSumItem() { AccountableEmployee = CurrentEmployee };
@@ -164,7 +178,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     UoW,
                     CommonServices.InteractiveService,
                     NavigationManager,
-                    UserRole
+                    UserRole,
+                    EmployeeJournalFactory
                 );
 
                 cashRequestItemViewModel.Entity = SelectedItem;

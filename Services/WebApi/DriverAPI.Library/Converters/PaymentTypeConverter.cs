@@ -7,14 +7,14 @@ namespace DriverAPI.Library.Converters
 {
 	public class PaymentTypeConverter
 	{
-		private readonly IOrderParametersProvider orderParametersProvider;
+		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		public PaymentTypeConverter(IOrderParametersProvider orderParametersProvider)
 		{
-			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 		}
 
-		public PaymentDtoType convertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
 		{
 			switch (paymentType)
 			{
@@ -23,7 +23,7 @@ namespace DriverAPI.Library.Converters
 				case PaymentType.cashless:
 					return PaymentDtoType.Cashless;
 				case PaymentType.ByCard:
-					if (paymentByCardFrom.Id == orderParametersProvider.PaymentByCardFromSmsId)
+					if (paymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
 					{
 						return PaymentDtoType.ByCardFromSms;
 					}
@@ -34,11 +34,13 @@ namespace DriverAPI.Library.Converters
 				case PaymentType.Terminal:
 					return PaymentDtoType.Terminal;
 				case PaymentType.BeveragesWorld:
+					return PaymentDtoType.BeveragesWorld;
 				case PaymentType.barter:
+					return PaymentDtoType.Barter;
 				case PaymentType.ContractDoc:
-					return PaymentDtoType.Payed;
+					return PaymentDtoType.ContractDocumentation;
 				default:
-					throw new ConverterException(nameof(paymentType), paymentType, $"Значение {paymentType} не поддерживается");
+					throw new ConverterException(nameof(paymentType), paymentType, $"Значение { paymentType } не поддерживается");
 			}
 		}
 	}

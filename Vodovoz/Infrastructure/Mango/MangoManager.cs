@@ -17,6 +17,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
 
@@ -247,7 +248,7 @@ namespace Vodovoz.Infrastructure.Mango
 				CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager>(null, this);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			} else {
-				CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, MangoManager>(null, this);
+				CurrentPage = navigation.OpenViewModel<UnknownTalkViewModel, MangoManager>(null, this);
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
 			}
 			ConnectionState = ConnectionState.Talk;

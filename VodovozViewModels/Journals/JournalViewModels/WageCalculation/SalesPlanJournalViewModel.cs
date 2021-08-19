@@ -9,17 +9,21 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 {
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
-		public SalesPlanJournalViewModel(
-			EntitiesJournalActionsViewModel journalActionsViewModel,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(journalActionsViewModel, unitOfWorkFactory, commonServices)
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+
+		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+
 			TabName = "Журнал планов продаж";
 
 			var threadLoader = DataLoader as ThreadDataLoader<SalesPlanJournalNode>;
@@ -41,10 +45,11 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 			var result = query.SelectList(list => list
 									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
 									.Select(x => x.FullBottleToSell).WithAlias(() => resultAlias.FullBottleToSell)
 									.Select(x => x.EmptyBottlesToTake).WithAlias(() => resultAlias.EmptyBottlesToTake)
 									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
-								)
+					)
 								.TransformUsing(Transformers.AliasToBean<SalesPlanJournalNode>())
 								.OrderBy(x => x.Name).Asc
 								.ThenBy(x => x.IsArchive).Asc
@@ -55,14 +60,16 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
 			EntityUoWBuilder.ForCreate(),
-			UnitOfWorkFactory,
-			CommonServices
+			unitOfWorkFactory,
+			commonServices,
+			_nomenclatureSelectorFactory
 		);
 
 		protected override Func<JournalEntityNodeBase, SalesPlanViewModel> OpenDialogFunction => node => new SalesPlanViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			UnitOfWorkFactory,
-			CommonServices
+			unitOfWorkFactory,
+			commonServices,
+			_nomenclatureSelectorFactory
 	   	);
 	}
 }

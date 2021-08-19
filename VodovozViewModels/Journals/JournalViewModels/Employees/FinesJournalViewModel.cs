@@ -22,14 +22,14 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 {
 	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
 	{
-		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
+		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 
 		public FinesJournalViewModel(
 			EntitiesJournalActionsViewModel journalActionsViewModel,
 			FineFilterViewModel filterViewModel,
-			IUndeliveriesViewOpener undeliveryViewOpener,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,

@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.PriceDaily).Column ("price_daily");
 			Map (x => x.PriceMonthly).Column ("price_monthly");
 			Map (x => x.Deposit).Column ("deposit");
-			References (x => x.EquipmentType).Column ("equipment_type_id");
+			References (x => x.EquipmentKind).Column ("equipment_kind_id");
 			References (x => x.RentServiceDaily).Column ("rent_service_daily_id").LazyLoad ();
 			References (x => x.RentServiceMonthly).Column ("rent_service_monthly_id").LazyLoad ();
 			References (x => x.DepositService).Column ("deposit_service_id").LazyLoad ();

@@ -16,6 +16,8 @@ using VodovozInfrastructure.Interfaces;
 using QS.Project.Services;
 using QS.ViewModels;
 using Vodovoz.Repository.Cash;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
@@ -48,6 +50,8 @@ namespace Vodovoz
 			var journalActions = new EntitiesJournalActionsViewModel(commonServices.InteractiveService);
 			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
 			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			var employeeJournalFactory = new EmployeeJournalFactory();
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			
 			var incomeCategoryAutocompleteSelectorFactory =
 				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
@@ -62,14 +66,18 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									commonServices,
 									chooserIncomeProvider,
-									incomeCategoryFilter
+									incomeCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								node => new IncomeCategoryViewModel(
 									EntityUoWBuilder.ForOpen(node.Id),
 									UnitOfWorkFactory.GetDefaultFactory,
 									commonServices,
 									chooserIncomeProvider,
-									incomeCategoryFilter
+									incomeCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								UnitOfWorkFactory.GetDefaultFactory,
 								commonServices
@@ -94,14 +102,18 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									ServicesConfig.CommonServices,
 									chooserExpenseProvider,
-									expenseCategoryFilter
+									expenseCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								node => new ExpenseCategoryViewModel(
 									EntityUoWBuilder.ForOpen(node.Id),
 									UnitOfWorkFactory.GetDefaultFactory,
 									ServicesConfig.CommonServices,
 									chooserExpenseProvider,
-									expenseCategoryFilter
+									expenseCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								UnitOfWorkFactory.GetDefaultFactory,
 								ServicesConfig.CommonServices

@@ -23,6 +23,8 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -145,11 +147,17 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilterViewModel {Status = Domain.Employees.EmployeeStatus.IsWorking};
+			var filterCasher = new EmployeeRepresentationFilterViewModel
+			{
+				Status = Domain.Employees.EmployeeStatus.IsWorking
+			};
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel {Status = Domain.Employees.EmployeeStatus.IsWorking};
+			var filter = new EmployeeRepresentationFilterViewModel
+			{
+				Status = Domain.Employees.EmployeeStatus.IsWorking
+			};
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 
