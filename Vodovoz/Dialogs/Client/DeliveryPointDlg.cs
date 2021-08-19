@@ -166,8 +166,8 @@ namespace Vodovoz
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
-				entity => entity.ActiveVersion.CoordinatesExist
-				? String.Format("<span foreground='{1}'>{0}</span>", entity.ActiveVersion.CoordinatesText,
+				entity => entity.GetActiveVersion(DateTime.Now).CoordinatesExist
+				? String.Format("<span foreground='{1}'>{0}</span>", entity.GetActiveVersion(DateTime.Now).CoordinatesText,
 					(entity.FoundOnOsm ? "green" : "blue"))
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
@@ -315,8 +315,8 @@ namespace Vodovoz
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == Entity.GetPropertyName(x => x.ActiveVersion.Latitude)
-				|| e.PropertyName == Entity.GetPropertyName(x => x.ActiveVersion.Longitude)) {
+			if(e.PropertyName == Entity.GetPropertyName(x => x.GetActiveVersion(DateTime.Now).Latitude)
+				|| e.PropertyName == Entity.GetPropertyName(x => x.GetActiveVersion(DateTime.Now).Longitude)) {
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
@@ -390,8 +390,9 @@ namespace Vodovoz
 
 		private void UpdateMapPosition()
 		{
-			if(Entity.ActiveVersion.Latitude.HasValue && Entity.ActiveVersion.Longitude.HasValue) {
-				var position = new PointLatLng((double)Entity.ActiveVersion.Latitude.Value, (double)Entity.ActiveVersion.Longitude.Value);
+			var geodataVersion = Entity.GetActiveVersion();
+			if(geodataVersion.Latitude.HasValue && geodataVersion.Longitude.HasValue) {
+				var position = new PointLatLng((double)geodataVersion.Latitude.Value, (double)geodataVersion.Longitude.Value);
 				if(!MapWidget.ViewArea.Contains(position)) {
 					MapWidget.Position = position;
 					MapWidget.Zoom = 15;
@@ -404,16 +405,17 @@ namespace Vodovoz
 
 		private void UpdateAddressOnMap()
 		{
+			var geodataVersion = Entity.GetActiveVersion();
 			if(addressMarker != null) {
 				addressOverlay.Markers.Clear();
 				addressMarker = null;
 			}
 
-			if(Entity.ActiveVersion.Latitude.HasValue && Entity.ActiveVersion.Longitude.HasValue) {
+			if(geodataVersion.Latitude.HasValue && geodataVersion.Longitude.HasValue) {
 				addressMarker = new GMarkerGoogle(
 									new PointLatLng(
-										(double)Entity.ActiveVersion.Latitude.Value,
-										(double)Entity.ActiveVersion.Longitude.Value
+										(double)geodataVersion.Latitude.Value,
+										(double)geodataVersion.Longitude.Value
 									),
 									GMarkerGoogleType.arrow
 								) {
@@ -445,13 +447,14 @@ namespace Vodovoz
                 deliverypointresponsiblepersonsview1.RemoveEmpty();
                 phonesview1.ViewModel.RemoveEmpty();
 
-				if(!Entity.ActiveVersion.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+                var geodataVersion = Entity.GetActiveVersion();
+				if(!geodataVersion.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;
 
 				var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
 				if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 					return false;
-				if(Entity.ActiveVersion.Sector == null && !MessageDialogHelper.RunWarningDialog(
+				if(geodataVersion.Sector == null && !MessageDialogHelper.RunWarningDialog(
 									"Проверьте координаты!",
 									"Район доставки не найден. Это приведёт к невозможности отображения заказа на эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\nПродолжить сохранение точки доставки?",
 									Gtk.ButtonsType.YesNo
@@ -510,17 +513,18 @@ namespace Vodovoz
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(Entity.ActiveVersion != null)
-				if(EqualCoords(Entity.ActiveVersion.Latitude, latitude) && EqualCoords(Entity.ActiveVersion.Longitude, longitude))
+			var geodataVersion = Entity.GetActiveVersion();
+			if(geodataVersion != null)
+				if(EqualCoords(geodataVersion.Latitude, latitude) && EqualCoords(geodataVersion.Longitude, longitude))
 					return;
 
 			ISectorsRepository _sectorsRepository = new SectorsRepository();
 			
 			var newDeliveryPointSectorVersion = new DeliveryPointSectorVersion {DeliveryPoint = Entity};
-			if(Entity.ActiveVersion != null)
+			if(geodataVersion != null)
 			{
-				Entity.ActiveVersion.EndDate = DateTime.Now;
-				Entity.ActiveVersion.Status = SectorsSetStatus.Closed;
+				geodataVersion.EndDate = DateTime.Now;
+				geodataVersion.Status = SectorsSetStatus.Closed;
 			}
 
 			newDeliveryPointSectorVersion.SetСoordinates(latitude, longitude, _sectorsRepository, UoW);

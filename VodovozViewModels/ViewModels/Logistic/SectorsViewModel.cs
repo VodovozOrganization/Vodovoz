@@ -63,7 +63,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private SectorVersion _selectedSectorVersion;
 		private SectorNodeViewModel _selectedSectorNodeViewModel;
 		private SectorDeliveryRuleVersion _selectedDeliveryRuleVersion;
-		private SectorWeekDayDeliveryRule _selectedWeekDayDeliveryRule;
 		private SectorWeekDayScheduleVersion _selectedWeekDayScheduleVersion;
 		private SectorWeekDayDeliveryRuleVersion _selectedWeekDayDeliveryRuleVersion;
 		private CommonDistrictRuleItem _selectedCommonDistrictRuleItem;
@@ -94,14 +93,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_personellId = _employee.Id;
 			TabName = "Районы с графиками доставки";
-			Entity.LastEditor = _employee;
 			
-			if(Entity.Id == 0) {
-				Entity.Author = _employee;
+			if(Entity.Id == 0)
 				Entity.Status = SectorsSetStatus.Draft;
-				Entity.LastEditor = _employee;
-			}
-			
+
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Sector));
 			
 			CanEditSector = permissionResult.CanUpdate && Entity.Status != SectorsSetStatus.Active;
@@ -119,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				var sectorVersionForNode = x.GetActiveSectorVersion() ??
 				                   x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
-				                   x.SectorVersions.FindLast(z => z.Status == SectorsSetStatus.Draft);
+				                   x.SectorVersions.LastOrDefault(z => z.Status == SectorsSetStatus.Draft);
 				ObservableSectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated, sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
 			});
 			
@@ -144,51 +139,47 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DateTime? StartDateSectorVersion
 		{
 			get => _startDateSectorVersion;
-			set => _startDateSectorVersion = value;
-		}
-
-		public DateTime? EndDateSectorVersion
-		{
-			get => _endDateSectorVersion;
-			set => _endDateSectorVersion = value;
+			set
+			{
+				_startDateSectorVersion = value;
+				if(SelectedSectorVersion != null)
+					SelectedSectorVersion.StartDate = _startDateSectorVersion;
+			}
 		}
 
 		public DateTime? StartDateSectorDeliveryRule
 		{
 			get => _startDateSectorDeliveryRule;
-			set => _startDateSectorDeliveryRule = value;
-		}
-
-		public DateTime? EndDateSectorDeliveryRule
-		{
-			get => _endDateSectorDeliveryRule;
-			set => _endDateSectorDeliveryRule = value;
+			set
+			{
+				_startDateSectorDeliveryRule = value;
+				if(SelectedDeliveryRuleVersion != null)
+					SelectedDeliveryRuleVersion.StartDate = _startDateSectorDeliveryRule;
+			}
 		}
 
 		public DateTime? StartDateSectorDayDeliveryRule
 		{
 			get => _startDateSectorDayDeliveryRule;
-			set => _startDateSectorDayDeliveryRule = value;
-		}
-
-		public DateTime? EndDateSectorDayDeliveryRule
-		{
-			get => _endDateSectorDayDeliveryRule;
-			set => _endDateSectorDayDeliveryRule = value;
+			set
+			{
+				_startDateSectorDayDeliveryRule = value;
+				if(SelectedWeekDayDeliveryRuleVersion != null)
+					SelectedWeekDayDeliveryRuleVersion.StartDate = _startDateSectorDayDeliveryRule;
+			}
 		}
 
 		public DateTime? StartDateSectorDaySchedule
 		{
 			get => _startDateSectorDaySchedule;
-			set => _startDateSectorDaySchedule = value;
+			set
+			{
+				_startDateSectorDaySchedule = value;
+				if(SelectedWeekDayScheduleVersion != null)
+					SelectedWeekDayScheduleVersion.StartDate = _startDateSectorDaySchedule;
+			}
 		}
 
-		public DateTime? EndDateSectorDaySchedule
-		{
-			get => _endDateSectorDaySchedule;
-			set => _endDateSectorDaySchedule = value;
-		}
-		
 		#endregion
 
 		private WeekDayName? selectedWeekDayName;
@@ -315,9 +306,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(StartDateSectorVersion.HasValue)
 				newVersion.StartDate = StartDateSectorVersion.Value;
-			if(EndDateSectorVersion.HasValue)
-				newVersion.EndDate = EndDateSectorVersion.Value;
-
+			
 			SelectedSectorVersion = newVersion;
 			ObservableSectorVersionsInSession.Add(newVersion);
 			SectorVersions.Add(newVersion);
@@ -389,8 +378,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var deliveryRuleVersion = new SectorDeliveryRuleVersion{Sector = SelectedSector};
 			if(StartDateSectorDeliveryRule.HasValue)
 				deliveryRuleVersion.StartDate = StartDateSectorDeliveryRule.Value;
-			if(EndDateSectorDeliveryRule.HasValue)
-				deliveryRuleVersion.EndDate = EndDateSectorDeliveryRule.Value;
+			
 			SelectedDeliveryRuleVersion = deliveryRuleVersion;
 			ObservableSectorDeliveryRuleVersionsInSession.Add(deliveryRuleVersion);
 			ObservableSectorDeliveryRuleVersions.Add(deliveryRuleVersion);
@@ -491,8 +479,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var dayScheduleVersion = new SectorWeekDayScheduleVersion {Sector = SelectedSector, Status = SectorsSetStatus.Draft};
 				if(StartDateSectorDaySchedule.HasValue)
 					dayScheduleVersion.StartDate = StartDateSectorDaySchedule.Value;
-				if(EndDateSectorDaySchedule.HasValue)
-					dayScheduleVersion.EndDate = EndDateSectorDaySchedule.Value;
+				
 				SelectedWeekDayScheduleVersion = dayScheduleVersion;
 				ObservableSectorWeekDayScheduleVersionsInSession.Add(dayScheduleVersion);
 				ObservableSectorWeekDayScheduleVersions.Add(dayScheduleVersion);
@@ -629,8 +616,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					{ Sector = SelectedSector, Status = SectorsSetStatus.Draft};
 				if(StartDateSectorDayDeliveryRule.HasValue)
 					sectorWeekDayDeliveryRuleVersion.StartDate = StartDateSectorDayDeliveryRule.Value;
-				if(EndDateSectorDayDeliveryRule.HasValue)
-					sectorWeekDayDeliveryRuleVersion.EndDate = EndDateSectorDayDeliveryRule.Value;
 				
 				ObservableSectorWeekDeliveryRuleVersionsInSession.Add(sectorWeekDayDeliveryRuleVersion);
 				ObservableSectorWeekDeliveryRuleVersions.Add(sectorWeekDayDeliveryRuleVersion);
@@ -678,7 +663,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _selectedDistrictBorderVertices, value);
 		}
 
-		public List<DeliveryPointSectorVersion> DeliveryPointSectorVersions => SelectedSector.DeliveryPointSectorVersions;
+		public IList<DeliveryPointSectorVersion> DeliveryPointSectorVersions => SelectedSector.DeliveryPointSectorVersions;
 		
 		public bool IsCreatingNewBorder {
 			get => _isCreatingNewBorder;

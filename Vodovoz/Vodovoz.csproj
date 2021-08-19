@@ -1434,8 +1434,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Email.SendDocumentByEmailView.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Filters\GtkViews\SectorJournalFilterView.cs" />
-    <Compile Include="Views\Logistic\DistrictView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictView.cs" />
     <Compile Include="Views\Cash\PaymentByCardView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentByCardView.cs" />
     <Compile Include="ReportsParameters\Bottles\ReturnedTareReport.cs" />

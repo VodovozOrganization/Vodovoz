@@ -14,6 +14,17 @@ namespace Vodovoz.HibernateMapping.Sectors
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.DateCreated).Column("create_date");
+			
+			HasMany(x => x.SectorVersions)
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sector_id").LazyLoad();
+			HasMany(x => x.SectorDeliveryRuleVersions)
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sector_id").LazyLoad();
+			HasMany(x => x.SectorWeekDaySchedulesVersions)
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sector_id").LazyLoad();
+			HasMany(x => x.SectorWeekDayDeliveryRuleVersions)
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sector_id").LazyLoad();
+			HasMany(x => x.DeliveryPointSectorVersions)
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("sector_id").LazyLoad();
 		}
 	}
 }

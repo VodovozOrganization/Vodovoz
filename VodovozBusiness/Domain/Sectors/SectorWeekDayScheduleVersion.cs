@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Sectors
 	[HistoryTrace]
 	public class SectorWeekDayScheduleVersion : PropertyChangedBase, IDomainObject, ICloneable, IValidatableObject
 	{
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		private DateTime? _startDate;
 		
@@ -35,15 +35,15 @@ namespace Vodovoz.Domain.Sectors
 
 		private Sector _sector;
 
-		public Sector Sector
+		public virtual Sector Sector
 		{
 			get => _sector;
 			set => SetField(ref _sector, value);
 		}
 
-		private List<DeliveryScheduleRestriction> _sectorSchedules = new List<DeliveryScheduleRestriction>();
+		private IList<DeliveryScheduleRestriction> _sectorSchedules = new List<DeliveryScheduleRestriction>();
 
-		public virtual List<DeliveryScheduleRestriction> SectorSchedules
+		public virtual IList<DeliveryScheduleRestriction> SectorSchedules
 		{
 			get => _sectorSchedules;
 			set => SetField(ref _sectorSchedules, value);
@@ -67,11 +67,12 @@ namespace Vodovoz.Domain.Sectors
 			Status = SectorsSetStatus.Draft;
 		}
 
-		public object Clone()
+		public virtual object Clone()
 		{
 			var sectorSchedulesClone = new List<DeliveryScheduleRestriction>();
-			SectorSchedules.ForEach(a => sectorSchedulesClone.Add(a.Clone() as DeliveryScheduleRestriction));
-
+			foreach(var schedule in SectorSchedules)
+				sectorSchedulesClone.Add(schedule.Clone() as DeliveryScheduleRestriction);
+			
 			return new SectorWeekDayScheduleVersion
 			{
 				Sector = Sector,
@@ -82,7 +83,7 @@ namespace Vodovoz.Domain.Sectors
 			};
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(StartDate.HasValue == false)
 			{

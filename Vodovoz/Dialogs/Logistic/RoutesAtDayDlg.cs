@@ -280,14 +280,16 @@ namespace Vodovoz
 
 			if(ytreeRoutes.GetPathAtPos(binX, binY, out TreePath path, out TreeViewColumn col) && ytreeRoutes.Model.GetIter(out TreeIter iter, path)) {
 				var loadtimeCol = ytreeRoutes.ColumnsConfig.GetColumnsByTag(RouteColumnTag.OnloadTime).Where(x => x == col).ToArray();
-				if(loadtimeCol.Any() && ytreeRoutes.YTreeModel.NodeFromIter(iter) is RouteList node) {
-					var firstDP = node.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+				if(loadtimeCol.Any() && ytreeRoutes.YTreeModel.NodeFromIter(iter) is RouteList node)
+				{
+					var order = node.Addresses.FirstOrDefault()?.Order;
+					var firstDP = order.DeliveryPoint;
 					args.RetVal = true;
 					args.Tooltip.Text = string.Format(
 											"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
 											node.FirstAddressTime,
-											firstDP != null ? distanceCalculator.DistanceFromBaseMeter(node.GeographicGroups.FirstOrDefault(), firstDP) * 0.001 : 0,
-											firstDP != null ? distanceCalculator.TimeFromBase(node.GeographicGroups.FirstOrDefault(), firstDP) / 60 : 0,
+											firstDP != null ? distanceCalculator.DistanceFromBaseMeter(node.GeographicGroups.FirstOrDefault(), firstDP, order.DeliveryDate) * 0.001 : 0,
+											firstDP != null ? distanceCalculator.TimeFromBase(node.GeographicGroups.FirstOrDefault(), firstDP, order.DeliveryDate) / 60 : 0,
 											node.OnLoadTimeEnd,
 											node.TimeOnLoadMinuts
 										);
@@ -400,7 +402,7 @@ namespace Vodovoz
 
 				//Если выбран адрес, центруем на него карту.
 				if(row is RouteListItem rli) {
-					gmapWidget.Position = rli.Order.DeliveryPoint.ActiveVersion.GmapPoint;
+					gmapWidget.Position = rli.Order.DeliveryPoint.GetActiveVersion(rli.Order.DeliveryDate).GmapPoint;
 				}
 			}
 			logger.Info("Ok");
@@ -568,9 +570,9 @@ namespace Vodovoz
 
 			if(row is RouteListItem rli) {
 				if(rli.IndexInRoute == 0)
-					return string.Format("{0:N1}км", (double)distanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
+					return string.Format("{0:N1}км", (double)distanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint, rli.Order.DeliveryDate) / 1000);
 
-				return string.Format("{0:N1}км", (double)distanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
+				return string.Format("{0:N1}км", (double)distanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint, rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryDate, rli.Order.DeliveryDate) / 1000);
 			}
 			return null;
 		}
@@ -674,7 +676,9 @@ namespace Vodovoz
 			if(selectedGeographicGroup.Any()) {
 				baseOrderQuery
 				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias,
+						() => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+						      deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => sectorVersionAlias,
 					() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
 					      sectorVersionAlias.Status == SectorsSetStatus.Active,
@@ -691,7 +695,7 @@ namespace Vodovoz
 				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
-			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.ActiveVersion.CoordinatesExist).ToList();
+			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !deliveryPointSectorVersionAlias.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
 				MessageDialogHelper.RunWarningDialog("Не все заказы были загружены!" +
 													(withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + string.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
@@ -712,7 +716,7 @@ namespace Vodovoz
 			var outLogisticAreas = ordersAtDay
 				.Where(
 					x => !logisticanDistricts.Any(
-						a => x.DeliveryPoint.ActiveVersion.NetTopologyPoint != null && a.Polygon.Contains(x.DeliveryPoint.ActiveVersion.NetTopologyPoint)
+						a => deliveryPointSectorVersionAlias.NetTopologyPoint != null && a.Polygon.Contains(deliveryPointSectorVersionAlias.NetTopologyPoint)
 					)
 				)
 				.ToList();
@@ -789,7 +793,7 @@ namespace Vodovoz
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.ActiveVersion.Latitude.HasValue && order.DeliveryPoint.ActiveVersion.Longitude.HasValue) {
+				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.HasValue && order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.HasValue) {
 					PointMarkerShape shape = GetMarkerShape(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
@@ -816,7 +820,7 @@ namespace Vodovoz
 					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.ActiveVersion.Latitude, (double)order.DeliveryPoint.ActiveVersion.Longitude), type, shape) {
+					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude), type, shape) {
 						Tag = order
 					};
 
@@ -830,11 +834,11 @@ namespace Vodovoz
 
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
-						logisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.ActiveVersion.NetTopologyPoint))?.SectorName);
+						logisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).NetTopologyPoint))?.SectorName);
 
 					addressMarker.ToolTipText = ttText;
 
-					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.ActiveVersion.Latitude && g.Position.Lng == (double)order.DeliveryPoint.ActiveVersion.Longitude);
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude && g.Position.Lng == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude);
 					var pointShift = 5;
 					if(identicalPoint >= 1) {
 						addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);

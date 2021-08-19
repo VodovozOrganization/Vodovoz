@@ -1074,7 +1074,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
-			if(DeliveryPoint != null && (!DeliveryPoint.ActiveVersion.Latitude.HasValue || !DeliveryPoint.ActiveVersion.Longitude.HasValue)) {
+			if(DeliveryPoint != null && (!DeliveryPoint.GetActiveVersion(DeliveryDate).Latitude.HasValue || !DeliveryPoint.GetActiveVersion(DeliveryDate).Longitude.HasValue)) {
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}
@@ -1852,7 +1852,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			#endregion
 
-			var sector = DeliveryPoint?.ActiveVersion.Sector;
+			var sector = DeliveryPoint?.GetActiveVersion(DeliveryDate).Sector;
 
 			OrderStateKey orderKey = new OrderStateKey(this);
 			var price = 

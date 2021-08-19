@@ -124,7 +124,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var points = new List<PointOnEarth>();
-			var lastPoint = lastAddress.Order.DeliveryPoint?.ActiveVersion;
+			var lastPoint = lastAddress.Order.DeliveryPoint?.GetActiveVersion(lastAddress.Order.DeliveryDate);
 			points.Add(new PointOnEarth(lastPoint.Latitude.Value, lastPoint.Longitude.Value));
 			//Координаты базы
 			if(lastPoint.Sector == null) {

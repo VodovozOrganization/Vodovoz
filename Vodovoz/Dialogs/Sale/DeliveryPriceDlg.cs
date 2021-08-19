@@ -57,7 +57,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		public DeliveryPriceDlg(DeliveryPoint deliveryPoint) : this()
 		{
-			SetCoordinates(deliveryPoint.ActiveVersion.Latitude, deliveryPoint.ActiveVersion.Longitude);
+			SetCoordinates(deliveryPoint.GetActiveVersion().Latitude, deliveryPoint.GetActiveVersion().Longitude);
 			deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(latitude, longitude, yspinBottles.ValueAsInt);
 		}
 		void EntryBuilding_Changed(object sender, EventArgs e)

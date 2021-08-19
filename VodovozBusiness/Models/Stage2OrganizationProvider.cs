@@ -42,7 +42,7 @@ namespace Vodovoz.Models
 
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
 			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.OrderItems, order.PaymentByCardFrom,
-				order.DeliveryPoint?.ActiveVersion?.Sector?.GetActiveSectorVersion()?.GeographicGroup);
+				order.DeliveryPoint?.GetActiveVersion(order.DeliveryDate)?.Sector?.GetActiveSectorVersion()?.GeographicGroup);
 		}
 
 		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,

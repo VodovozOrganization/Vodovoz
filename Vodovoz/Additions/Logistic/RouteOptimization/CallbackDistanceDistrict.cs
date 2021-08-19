@@ -79,7 +79,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 #if DEBUG
 				SGoToBase[Trip]++;
 #endif
-				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase, Nodes[first_index - 1].Order.DeliveryDate);
 			}
 
 			bool fromExistRoute = false;
@@ -136,9 +136,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			//Возвращаем расстояние в метрах либо от базы до первого адреса, либо между адресами.
 			if(first_index == 0)
-				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryDate);
 			else
-				distance += distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+				distance += distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].Order.DeliveryDate, Nodes[second_index - 1].Order.DeliveryDate);
 
 			return distance + fixedAddressPenality;
 		}
@@ -146,8 +146,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		private long GetSimpleDistance(int first_index, int second_index)
 		{
 			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без учета дорожной сети.
-				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
-			return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryDate) * 1000);
+			return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].Order.DeliveryDate, Nodes[second_index - 1].Order.DeliveryDate) * 1000);
 		}
 	}
 }

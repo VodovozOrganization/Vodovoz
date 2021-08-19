@@ -612,12 +612,13 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public string GenerateToolTip(RouteList routeList)
 		{
-			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+			var order = routeList.Addresses.FirstOrDefault()?.Order;
+			var firstDP = order.DeliveryPoint;
 			return string.Format(
 				"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
 				routeList.FirstAddressTime,
-				firstDP != null ? DistanceCalculator.DistanceFromBaseMeter(routeList.GeographicGroups.FirstOrDefault(), firstDP) * 0.001 : 0,
-				firstDP != null ? DistanceCalculator.TimeFromBase(routeList.GeographicGroups.FirstOrDefault(), firstDP) / 60 : 0,
+				firstDP != null ? DistanceCalculator.DistanceFromBaseMeter(routeList.GeographicGroups.FirstOrDefault(), firstDP, order.DeliveryDate) * 0.001 : 0,
+				firstDP != null ? DistanceCalculator.TimeFromBase(routeList.GeographicGroups.FirstOrDefault(), firstDP, order.DeliveryDate) / 60 : 0,
 				routeList.OnLoadTimeEnd,
 				routeList.TimeOnLoadMinuts
 			);
@@ -755,9 +756,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(row is RouteListItem rli) {
 				if(rli.IndexInRoute == 0)
-					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
+					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint, rli.Order.DeliveryDate) / 1000);
 
-				return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
+				return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint, rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryDate, rli.Order.DeliveryDate) / 1000);
 			}
 			return null;
 		}
@@ -1165,7 +1166,7 @@ namespace Vodovoz.ViewModels.Logistic
 				if(selectedGeographicGroup.Any())
 				{
 					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
 						.JoinEntityAlias(() => sectorVersionAlias,
 							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
 							      sectorVersionAlias.Status == SectorsSetStatus.Active &&
@@ -1187,7 +1188,7 @@ namespace Vodovoz.ViewModels.Logistic
 				switch(DeliveryScheduleType)
 				{
 					case DeliveryScheduleFilterType.DeliveryStart:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.ActiveVersion.CoordinatesExist)
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.GetActiveVersion(DateForRouting).CoordinatesExist)
 								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
 								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
@@ -1195,7 +1196,7 @@ namespace Vodovoz.ViewModels.Logistic
 							;
 						break;
 					case DeliveryScheduleFilterType.DeliveryEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.ActiveVersion.CoordinatesExist)
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.GetActiveVersion(DateForRouting).CoordinatesExist)
 								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
 								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
@@ -1203,7 +1204,7 @@ namespace Vodovoz.ViewModels.Logistic
 							;
 						break;
 					case DeliveryScheduleFilterType.DeliveryStartAndEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.ActiveVersion.CoordinatesExist)
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.GetActiveVersion(DateForRouting).CoordinatesExist)
 								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
 								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
@@ -1407,7 +1408,7 @@ namespace Vodovoz.ViewModels.Logistic
 				if(selectedGeographicGroup.Any())
 				{
 					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersionAlias)
+						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
 						.JoinEntityAlias(() => sectorVersionAlias,
 							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
 							      sectorVersionAlias.Status == SectorsSetStatus.Active &&

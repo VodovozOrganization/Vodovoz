@@ -251,7 +251,7 @@ namespace Vodovoz.ViewModels.Reports
                 .JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)
                 .JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
                 .JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-                .Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+                .JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
                 .JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
                 .Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
                 .Left.JoinAlias(() => sectorVersionAlias.WageSector, () => wageSectorAlias)

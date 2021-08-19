@@ -60,7 +60,7 @@ namespace Vodovoz.Domain.Logistic
 					?.DriverDistrictPriorities
 					?.Select(x => x.Sector);
 				
-				return driverDistricts == null || !driverDistricts.Contains(item.Order.DeliveryPoint.ActiveVersion.Sector);
+				return driverDistricts == null || !driverDistricts.Contains(item.Order.DeliveryPoint.GetActiveVersion(item.Order.DeliveryDate)?.Sector);
 			}
 		}
 
@@ -79,7 +79,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public WageSector WageSectorOfAddress => item.Order.DeliveryPoint.ActiveVersion?.Sector?.GetActiveSectorVersion()?.WageSector ?? throw new InvalidOperationException("Точке доставки не присвоен логистический или зарплатный район!");
+		public WageSector WageSectorOfAddress => item.Order.DeliveryPoint.GetActiveVersion(item.Order.DeliveryDate)?.Sector?.GetActiveSectorVersion()?.WageSector ?? throw new InvalidOperationException("Точке доставки не присвоен логистический или зарплатный район!");
 
 		public bool WasVisitedByForwarder => item.WithForwarder;
 

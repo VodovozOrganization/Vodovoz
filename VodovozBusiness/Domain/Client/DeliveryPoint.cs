@@ -473,17 +473,13 @@ namespace Vodovoz.Domain.Client
 
 		private DeliveryPointSectorVersion _activeVersion;
 
-		public DeliveryPointSectorVersion ActiveVersion
+		public DeliveryPointSectorVersion GetActiveVersion(DateTime? activationTime = null)
 		{
-			get => _activeVersion;
-			set
-			{
-				var active = ObservableDeliveryPointSectorVersions.Single(x => x.Status == SectorsSetStatus.Active);
-				if(active != null)
-					_activeVersion = active;
-				else
-					_activeVersion = null;
-			}
+			if(activationTime.HasValue)
+				return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
+					x.StartDate >= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+			return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
+				x.StartDate >= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с

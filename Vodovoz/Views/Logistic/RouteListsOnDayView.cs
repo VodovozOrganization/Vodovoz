@@ -381,7 +381,7 @@ namespace Vodovoz.Views.Logistic
 
 				//Если выбран адрес, центруем на него карту.
 				if(row is RouteListItem rli)
-					gmapWidget.Position = rli.Order.DeliveryPoint.ActiveVersion.GmapPoint;
+					gmapWidget.Position = rli.Order.DeliveryPoint.GetActiveVersion(rli.Order.DeliveryDate).GmapPoint;
 			}
 			logger.Info("Ok");
 		}
@@ -500,7 +500,7 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.ActiveVersion.Latitude.HasValue && order.DeliveryPoint.ActiveVersion.Longitude.HasValue)
+				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.HasValue && order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.HasValue)
 				{
 					bool overdueOrder = false;
 					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
@@ -572,7 +572,7 @@ namespace Vodovoz.Views.Logistic
 
 		private PointMarker FillAddressMarker(Order order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
-			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.ActiveVersion.Latitude, (double)order.DeliveryPoint.ActiveVersion.Longitude), type, shape) {
+			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude), type, shape) {
 				Tag = order
 			};
 
@@ -588,11 +588,11 @@ namespace Vodovoz.Views.Logistic
 
 			ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 				order.DeliverySchedule?.Name ?? "Не назначено",
-				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.ActiveVersion.NetTopologyPoint))?.SectorName);
+				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).NetTopologyPoint))?.SectorName);
 
 			addressMarker.ToolTipText = ttText;
 
-			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.ActiveVersion.Latitude && g.Position.Lng == (double)order.DeliveryPoint.ActiveVersion.Longitude);
+			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude && g.Position.Lng == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude);
 			var pointShift = 5;
 			if(identicalPoint >= 1) {
 				addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
@@ -837,12 +837,12 @@ namespace Vodovoz.Views.Logistic
 			foreach(var order in ordersOnDay) {
 				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 			
-				if(order.DeliveryPoint.ActiveVersion.Latitude.HasValue && order.DeliveryPoint.ActiveVersion.Longitude.HasValue) {
+				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.HasValue && order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.HasValue) {
 					if(!ordersRouteLists.TryGetValue(order.Id, out var orderRls)) {
 						orderRls = new List<int>();
 					}
 			
-					if(driverDistricts.Contains(order.DeliveryPoint.ActiveVersion.Sector) && route == null) {
+					if(driverDistricts.Contains(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Sector) && route == null) {
 						FillTypeAndShapeMarker(order, null, orderRls, out PointMarkerShape shape, out PointMarkerType type);
 						var addressMarker = FillAddressMarker(order, type, shape, driverAddressesOverlay, null);
 						driverAddressesOverlay.Markers.Add(addressMarker);

@@ -219,7 +219,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+				.JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)

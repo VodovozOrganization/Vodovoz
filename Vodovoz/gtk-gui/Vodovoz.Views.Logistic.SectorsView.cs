@@ -429,7 +429,7 @@ namespace Vodovoz.Views.Logistic
 			this.sectorVersionStartDate.WithTime = false;
 			this.sectorVersionStartDate.HideCalendarButton = false;
 			this.sectorVersionStartDate.Date = new global::System.DateTime(0);
-			this.sectorVersionStartDate.IsEditable = false;
+			this.sectorVersionStartDate.IsEditable = true;
 			this.sectorVersionStartDate.AutoSeparation = false;
 			this.hbox6.Add(this.sectorVersionStartDate);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.sectorVersionStartDate]));
@@ -524,7 +524,7 @@ namespace Vodovoz.Views.Logistic
 			this.deliveryRuleStartDate.WithTime = false;
 			this.deliveryRuleStartDate.HideCalendarButton = false;
 			this.deliveryRuleStartDate.Date = new global::System.DateTime(0);
-			this.deliveryRuleStartDate.IsEditable = false;
+			this.deliveryRuleStartDate.IsEditable = true;
 			this.deliveryRuleStartDate.AutoSeparation = false;
 			this.hbox10.Add(this.deliveryRuleStartDate);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.deliveryRuleStartDate]));
@@ -780,7 +780,7 @@ namespace Vodovoz.Views.Logistic
 			this.weekDayScheduleStartDate.WithTime = false;
 			this.weekDayScheduleStartDate.HideCalendarButton = false;
 			this.weekDayScheduleStartDate.Date = new global::System.DateTime(0);
-			this.weekDayScheduleStartDate.IsEditable = false;
+			this.weekDayScheduleStartDate.IsEditable = true;
 			this.weekDayScheduleStartDate.AutoSeparation = false;
 			this.hbox13.Add(this.weekDayScheduleStartDate);
 			global::Gtk.Box.BoxChild w68 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.weekDayScheduleStartDate]));
@@ -852,7 +852,7 @@ namespace Vodovoz.Views.Logistic
 			this.weekDayDeliveryStartDate.WithTime = false;
 			this.weekDayDeliveryStartDate.HideCalendarButton = false;
 			this.weekDayDeliveryStartDate.Date = new global::System.DateTime(0);
-			this.weekDayDeliveryStartDate.IsEditable = false;
+			this.weekDayDeliveryStartDate.IsEditable = true;
 			this.weekDayDeliveryStartDate.AutoSeparation = false;
 			this.hbox16.Add(this.weekDayDeliveryStartDate);
 			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.weekDayDeliveryStartDate]));

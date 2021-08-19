@@ -168,7 +168,6 @@ namespace Vodovoz
 
 			//Регистрация вкладок
 			ViewModelWidgetResolver.Instance
-				.RegisterWidgetForTabViewModel<DistrictViewModel, DistrictView>()
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()

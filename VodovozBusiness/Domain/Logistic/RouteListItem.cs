@@ -763,7 +763,7 @@ namespace Vodovoz.Domain.Logistic
 				if(ix == 0)
 					time = time.Add(RouteList.Addresses[ix].Order.DeliverySchedule.From);
 				else
-					time = time.AddSeconds(sputnikCache.TimeSec(RouteList.Addresses[ix - 1].Order.DeliveryPoint, RouteList.Addresses[ix].Order.DeliveryPoint));
+					time = time.AddSeconds(sputnikCache.TimeSec(RouteList.Addresses[ix - 1].Order.DeliveryPoint, RouteList.Addresses[ix].Order.DeliveryPoint, RouteList.Addresses[ix - 1].Order.DeliveryDate, RouteList.Addresses[ix].Order.DeliveryDate));
 
 				if(address == this)
 					break;

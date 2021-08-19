@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			var query = Uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.Inner.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+				.JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.InnerJoin)
 				.Inner.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
 				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)

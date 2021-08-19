@@ -23,7 +23,7 @@ namespace Vodovoz.Additions.Logistic
 			} else {
 				points = new List<PointLatLng>();
 				points.Add(new PointLatLng(baseLat, baseLon));
-				points.AddRange(routeList.Addresses.Select(x => x.Order.DeliveryPoint.ActiveVersion.GmapPoint));
+				points.AddRange(routeList.Addresses.Select(x => x.Order.DeliveryPoint.GetActiveVersion(x.Order.DeliveryDate).GmapPoint));
 				points.Add(new PointLatLng(baseLat, baseLon));
 			}
 
@@ -53,7 +53,7 @@ namespace Vodovoz.Additions.Logistic
 		public static void DrawAddressesOfRoute(GMapOverlay overlay, RouteList routeList)
 		{
 			foreach(var orderItem in routeList.Addresses) {
-				var point = orderItem.Order.DeliveryPoint.ActiveVersion;
+				var point = orderItem.Order.DeliveryPoint.GetActiveVersion(orderItem.Order.DeliveryDate);
 				if(point == null)
 					continue;
 				if(point.Latitude.HasValue && point.Longitude.HasValue) {

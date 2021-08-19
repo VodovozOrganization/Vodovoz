@@ -235,6 +235,7 @@ namespace Vodovoz.Additions.Accounting
 
             orderEnumerator.Reset();
             DeliveryPoint deliveryPointFrom = null;
+            Order orderFrom = null;
 
             var lastId = wayBillDocument.WayBillDocumentItems.Count - 2;
             for (var i = 0; waybillItemsEnumerator.MoveNext() == true && orderEnumerator.MoveNext() == true; i++)
@@ -248,31 +249,32 @@ namespace Vodovoz.Additions.Accounting
 
                 if (i == 0)
                 {
-                    waybillItemsEnumerator.Current.Mileage =
-                        DistanceCalculator.DistanceFromBaseMeter(employee.Subdivision.GeographicGroup, orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
+	                waybillItemsEnumerator.Current.Mileage =
+		                DistanceCalculator.DistanceFromBaseMeter(employee.Subdivision.GeographicGroup,
+			                orderEnumerator.Current.DeliveryPoint, orderEnumerator.Current.DeliveryDate) * 2 / 1000;
 
                     wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
                     deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
                 }
                 else if (i == lastId)
                 {
-                    waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
-                        employee.Subdivision.GeographicGroup) * 2 / 1000;
+	                waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
+		                employee.Subdivision.GeographicGroup, orderEnumerator.Current.DeliveryDate) * 2 / 1000;
 
-                    if (orderEnumerator.Current.DeliveryPoint.ActiveVersion.CoordinatesExist)
+                    if (orderEnumerator.Current.DeliveryPoint.GetActiveVersion(orderEnumerator.Current.DeliveryDate).CoordinatesExist)
                     {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.ActiveVersion));
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.GetActiveVersion(orderEnumerator.Current.DeliveryDate)));
                     }
                     wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
                 }
                 else
                 {
                     waybillItemsEnumerator.Current.Mileage = DistanceCalculator.DistanceMeter(deliveryPointFrom,
-                        orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
+                        orderEnumerator.Current.DeliveryPoint, orderFrom.DeliveryDate, orderEnumerator.Current.DeliveryDate) * 2 / 1000;
 
-                    if (orderEnumerator.Current.DeliveryPoint.ActiveVersion.CoordinatesExist)
+                    if (orderEnumerator.Current.DeliveryPoint.GetActiveVersion(generationDate).CoordinatesExist)
                     {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.ActiveVersion));
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.GetActiveVersion(generationDate)));
                     }
                     deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
                 }

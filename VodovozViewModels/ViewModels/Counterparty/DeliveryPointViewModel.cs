@@ -167,9 +167,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			DeliveryPointCategories = UoW.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
 			Entity.PropertyChanged += (sender, e) =>
 			{
+				var activeVersion = Entity.GetActiveVersion();
 				switch (e.PropertyName)
 				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
-					case nameof(Entity.ActiveVersion.Sector):
+					case nameof(activeVersion.Sector):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 						break;
 				}
@@ -191,14 +192,14 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					return true;
 				}
 
-				if(!Entity.ActiveVersion.CoordinatesExist &&
+				if(!Entity.GetActiveVersion().CoordinatesExist &&
 				   !CommonServices.InteractiveService.Question(
 					   "Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 				{
 					return false;
 				}
 
-				if(Entity?.ActiveVersion.Sector == null && !CommonServices.InteractiveService.Question(
+				if(Entity?.GetActiveVersion().Sector == null && !CommonServices.InteractiveService.Question(
 					"Район доставки не найден. Это приведёт к невозможности отображения заказа на " +
 					"эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\n" +
 					"Продолжить сохранение точки доставки?",
@@ -258,21 +259,22 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public void WriteCoordinates(decimal? latitude, decimal? longitude, bool isManual)
 		{
 			Entity.ManualCoordinates = isManual;
-			if(Entity.ActiveVersion != null)
-				if(EqualCoords(Entity?.ActiveVersion.Latitude, latitude) && EqualCoords(Entity?.ActiveVersion.Longitude, longitude))
+			var activeVersion = Entity.GetActiveVersion();
+			if(activeVersion != null)
+				if(EqualCoords(Entity?.GetActiveVersion().Latitude, latitude) && EqualCoords(Entity?.GetActiveVersion().Longitude, longitude))
 					return;
 
 			DeliveryPointSectorVersion newDeliveryPointSectorVersion;
 			newDeliveryPointSectorVersion = new DeliveryPointSectorVersion {DeliveryPoint = Entity};
-			if(Entity.ActiveVersion != null)
+			if(activeVersion != null)
 			{
-				Entity.ActiveVersion.EndDate = DateTime.Now;
-				Entity.ActiveVersion.Status = SectorsSetStatus.Closed;
+				activeVersion.EndDate = DateTime.Now.Date.AddDays(-1);
+				activeVersion.Status = SectorsSetStatus.Closed;
 			}
 
 			newDeliveryPointSectorVersion.SetСoordinates(latitude, longitude, _sectorsRepository, UoW);
 			newDeliveryPointSectorVersion.Status = SectorsSetStatus.Active;
-			newDeliveryPointSectorVersion.StartDate = DateTime.Now;
+			newDeliveryPointSectorVersion.StartDate = DateTime.Now.Date;
 			
 			Entity?.ObservableDeliveryPointSectorVersions.Add(newDeliveryPointSectorVersion);
 			Entity.СoordsLastChangeUser = _currentUser ?? (_currentUser = _userRepository.GetCurrentUser(UoW));

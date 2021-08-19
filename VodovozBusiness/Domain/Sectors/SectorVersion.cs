@@ -18,20 +18,7 @@ namespace Vodovoz.Domain.Sectors
 		{
 			Status = SectorsSetStatus.Draft;
 		}
-		public int Id { get; set; }
-		
-		private Employee _author;
-		[Display(Name = "Автор")]
-		public virtual Employee Author {
-			get => _author;
-			set => SetField(ref _author, value);
-		}
-
-		private Employee _lastEditor;
-		public virtual Employee LastEditor {
-			get => _lastEditor;
-			set => SetField(ref _lastEditor, value);
-		}
+		public virtual int Id { get; set; }
 
 		private DateTime? _startDate;
 		[Display(Name = "Время активации")]
@@ -123,7 +110,7 @@ namespace Vodovoz.Domain.Sectors
 			}
 		}
 
-		public object Clone()
+		public virtual object Clone()
 		{
 			var wageSector = new WageSector{Name = WageSector.Name, IsArchive = WageSector.IsArchive};
 			
@@ -149,7 +136,7 @@ namespace Vodovoz.Domain.Sectors
 			};
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(SectorName))
 			{

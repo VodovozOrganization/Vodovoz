@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Sectors
 
 		private DeliveryPoint _deliveryPoint;
 
-		public DeliveryPoint DeliveryPoint
+		public virtual DeliveryPoint DeliveryPoint
 		{
 			get => _deliveryPoint;
 			set => SetField(ref _deliveryPoint, value);
@@ -129,7 +129,7 @@ namespace Vodovoz.Domain.Sectors
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
 		/// <param name="sectorsRepository">Репозиторий где достается сектор по координатам</param>
-		public bool FindAndAssociateDistrict(IUnitOfWork uow, ISectorsRepository sectorsRepository)
+		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, ISectorsRepository sectorsRepository)
 		{
 			if(!CoordinatesExist)
 			{

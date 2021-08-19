@@ -267,20 +267,5 @@ namespace VodovozDeliveryRulesService
 				})
 				.ToList();
 		}
-		
-		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO(IList<SectorWeekDayDeliveryRule> rules)
-		{
-			return rules.Select(rule => new DeliveryRuleDTO
-				{
-					Bottles19l = rule.DeliveryPriceRule.Water19LCount.ToString(),
-					Bottles6l = rule.DeliveryPriceRule.Water6LCount,
-					Bottles1500ml = rule.DeliveryPriceRule.Water1500mlCount,
-					Bottles600ml = rule.DeliveryPriceRule.Water600mlCount,
-					Bottles500ml = rule.DeliveryPriceRule.Water500mlCount,
-					MinOrder = $"{rule.DeliveryPriceRule.OrderMinSumEShopGoods}",
-					Price = $"{rule.Price:N0}"
-				})
-				.ToList();
-		}
 	}
 }

@@ -53,11 +53,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long serviceTime = 0, travelTime = 0;
 
 			if(second_index == 0)
-				travelTime = distanceCalculator.TimeToBaseSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+				travelTime = distanceCalculator.TimeToBaseSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase, Nodes[first_index - 1].Order.DeliveryDate);
 			else if(first_index == 0)
-				travelTime = distanceCalculator.TimeFromBaseSec(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+				travelTime = distanceCalculator.TimeFromBaseSec(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryDate);
 			else
-				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].Order.DeliveryDate, Nodes[second_index - 1].Order.DeliveryDate);
 
 			if (first_index != 0)
 				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null);

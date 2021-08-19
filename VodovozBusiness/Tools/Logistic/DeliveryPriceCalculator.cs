@@ -25,13 +25,13 @@ namespace Vodovoz.Tools.Logistic
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude) => Calculate(latitude, longitude, null);
 
-		public static DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null)
+		public static DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null, DateTime? activationTime = null)
 		{
 			deliveryPoint = point;
-			return Calculate(deliveryPoint?.ActiveVersion.Latitude, deliveryPoint?.ActiveVersion.Longitude, bottlesCount);
+			return Calculate(deliveryPoint?.GetActiveVersion(activationTime)?.Latitude, deliveryPoint?.GetActiveVersion(activationTime)?.Longitude, bottlesCount, activationTime);
 		}
 
-		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
+		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount, DateTime? activationTime = null)
 		{
 			IList<SectorVersion> sectorVersions;
 
@@ -48,7 +48,7 @@ namespace Vodovoz.Tools.Logistic
 
 				//Районы
 				sectorVersions = ScheduleRestrictionRepository.GetSectorVersion(uow);
-				result.WageDistrict = deliveryPoint?.ActiveVersion?.Sector?.GetActiveSectorVersion()?.WageSector?.Name ?? "Неизвестно";
+				result.WageDistrict = deliveryPoint?.GetActiveVersion(activationTime)?.Sector?.GetActiveSectorVersion()?.WageSector?.Name ?? "Неизвестно";
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {
@@ -81,7 +81,7 @@ namespace Vodovoz.Tools.Logistic
 					}
 					distance = osrmResult.Routes[0].TotalDistance / 1000d;
 				} else {
-					distance = (deliveryPoint?.ActiveVersion?.DistanceFromBaseMeters ?? 0) / 1000d;
+					distance = (deliveryPoint?.GetActiveVersion(activationTime)?.DistanceFromBaseMeters ?? 0) / 1000d;
 				}
 				result.Distance = distance.ToString("N1") + " км";
 

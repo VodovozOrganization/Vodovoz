@@ -264,7 +264,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.ActiveVersion, () => deliveryPointSectorVersion)
+				.JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias);
 
@@ -799,15 +799,15 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
+							if(order.DeliveryPoint == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null)
 								continue;
 
 							System.Diagnostics.Process.Start(
 								string.Format(
 									CultureInfo.InvariantCulture,
 									"https://maps.yandex.ru/?ll={0},{1}&z=17",
-									order.DeliveryPoint.ActiveVersion.Longitude,
-									order.DeliveryPoint.ActiveVersion.Latitude
+									order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude,
+									order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude
 								)
 							);
 						}
@@ -847,10 +847,10 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.ActiveVersion.Latitude == null || order.DeliveryPoint.ActiveVersion.Longitude == null)
+							if(order.DeliveryPoint == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null)
 								continue;
 
-							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.ActiveVersion.Longitude, order.DeliveryPoint.ActiveVersion.Latitude));
+							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude, order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude));
 						}
 					}
 				)

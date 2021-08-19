@@ -1809,12 +1809,12 @@ namespace Vodovoz.Domain.Logistic
 				if(ix == 0) {
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryPoint));
+					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryPoint, Addresses[ix].Order.DeliveryDate));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
 						minTime = Shift.StartTime + timeFromBase;
 				} else
-					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint, Addresses[ix - 1].Order.DeliveryDate, Addresses[ix].Order.DeliveryDate));
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
@@ -1826,12 +1826,12 @@ namespace Vodovoz.Domain.Logistic
 
 				if(ix == Addresses.Count - 1) {
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, GeographicGroups.FirstOrDefault()));
+					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryDate));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
 						maxTime = Shift.EndTime - timeToBase;
 				} else
-					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
+					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryDate, Addresses[ix + 1].Order.DeliveryDate));
 
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
@@ -1842,7 +1842,7 @@ namespace Vodovoz.Domain.Logistic
 					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
-													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
+													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint, Addresses[ix - 1].Order.DeliveryDate, Addresses[ix].Order.DeliveryDate))
 													 + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
 					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
@@ -1866,7 +1866,7 @@ namespace Vodovoz.Domain.Logistic
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(
 										x => new Tuple<TimeSpan, RouteList>(
-											x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.GeographicGroups.FirstOrDefault(), x.Addresses.First().Order.DeliveryPoint)),
+											x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.GeographicGroups.FirstOrDefault(), x.Addresses.First().Order.DeliveryPoint, x.Addresses.First().Order.DeliveryDate)),
 											x
 										)
 									)
@@ -1920,7 +1920,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new List<long>();
 			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
-			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.ActiveVersion.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint.ActiveVersion)));
+			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.GetActiveVersion(x.Order.DeliveryDate).CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint.GetActiveVersion(x.Order.DeliveryDate))));
 			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
 			return result.ToArray();
 		}
@@ -2025,7 +2025,7 @@ namespace Vodovoz.Domain.Logistic
 				{
 					if(address.Status == RouteListItemStatus.Completed)
 					{
-						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.ActiveVersion.Latitude, (double)address.Order.DeliveryPoint.ActiveVersion.Longitude));
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.GetActiveVersion(address.Order.DeliveryDate).Latitude, (double)address.Order.DeliveryPoint.GetActiveVersion(address.Order.DeliveryDate).Longitude));
 					}
 				}
 
@@ -2036,7 +2036,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 			else
 			{
-				var point = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint.ActiveVersion;
+				var order = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order;
+				var point = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
 				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
 			}
 

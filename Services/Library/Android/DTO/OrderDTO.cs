@@ -89,16 +89,17 @@ namespace Android
 		{
 			Id = item.Order.Id;
 			Title = item.Order.Title;
-			CityDistrict = item.Order.DeliveryPoint?.CityDistrict;
-			StreetDistrict = item.Order.DeliveryPoint?.StreetDistrict;
-			Latitude = item.Order.DeliveryPoint?.ActiveVersion.Latitude;
-			Longitude = item.Order.DeliveryPoint?.ActiveVersion.Longitude;
-			DeliveryPointComment = item.Order.DeliveryPoint?.Comment;
-			Address = item.Order.DeliveryPoint?.CompiledAddress;
-			DeliverySchedule = item.Order.DeliverySchedule.DeliveryTime;
+			var order = item.Order;
+			CityDistrict = order.DeliveryPoint?.CityDistrict;
+			StreetDistrict = order.DeliveryPoint?.StreetDistrict;
+			Latitude = order.DeliveryPoint?.GetActiveVersion(order.DeliveryDate).Latitude;
+			Longitude = order.DeliveryPoint?.GetActiveVersion(order.DeliveryDate).Longitude;
+			DeliveryPointComment = order.DeliveryPoint?.Comment;
+			Address = order.DeliveryPoint?.CompiledAddress;
+			DeliverySchedule = order.DeliverySchedule.DeliveryTime;
 			RouteListItemStatus = item.Status.GetEnumTitle ();
-			OrderComment = item.Order.Comment;
-			Counterparty = item.Order.Client.FullName;
+			OrderComment = order.Comment;
+			Counterparty = order.Client.FullName;
 			BottlesReturn = item.DriverBottlesReturned == null ? null :item.DriverBottlesReturned.ToString() ;
 
 			DPContact = "Контактные лица не указаны";

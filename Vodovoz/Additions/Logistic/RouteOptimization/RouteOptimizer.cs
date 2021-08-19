@@ -169,9 +169,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
 			// информации о заказе. Всего бутылей, вес и прочее.
 			foreach(var order in Orders) {
-				if(order.DeliveryPoint.ActiveVersion.Longitude == null || order.DeliveryPoint.ActiveVersion.Latitude == null)
+				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null)
 					continue;
-				var point = new Point((double)order.DeliveryPoint.ActiveVersion.Latitude.Value, (double)order.DeliveryPoint.ActiveVersion.Longitude.Value);
+				var point = new Point((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.Value, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.Value);
 				var area = areas.Find(x => x.Polygon.Contains(point));
 				if(area != null) {
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
@@ -434,7 +434,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			foreach(var address in route.Addresses) {
-				if(address.Order.DeliveryPoint.ActiveVersion.Longitude == null || address.Order.DeliveryPoint.ActiveVersion.Latitude == null)
+				if(address.Order.DeliveryPoint.GetActiveVersion(route.ClosingDate)?.Longitude == null || address.Order.DeliveryPoint.GetActiveVersion(route.ClosingDate)?.Latitude == null)
 					continue;
 
 				calculatedOrders.Add(new CalculatedOrder(address.Order, null));

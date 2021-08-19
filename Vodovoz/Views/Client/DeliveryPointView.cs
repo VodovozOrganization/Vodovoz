@@ -140,8 +140,8 @@ namespace Vodovoz.Views.Client
 			lblId.LabelProp = ViewModel.Entity.Id.ToString();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(ViewModel.Entity,
-				e => e.ActiveVersion.CoordinatesExist
-					? string.Format("<span foreground='{1}'>{0}</span>", e.ActiveVersion.CoordinatesText, e.FoundOnOsm ? "green" : "blue")
+				e => e.GetActiveVersion(DateTime.Now).CoordinatesExist
+					? string.Format("<span foreground='{1}'>{0}</span>", e.GetActiveVersion(DateTime.Now).CoordinatesText, e.FoundOnOsm ? "green" : "blue")
 					: "<span foreground='red'>Не найден на карте.</span>",
 				w => w.LabelProp).InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(ViewModel,
@@ -211,10 +211,11 @@ namespace Vodovoz.Views.Client
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			var activeGeodata = ViewModel.Entity.GetActiveVersion();
 			switch(e.PropertyName)
 			{
-				case nameof(ViewModel.Entity.ActiveVersion.Latitude):
-				case nameof(ViewModel.Entity.ActiveVersion.Longitude):
+				case nameof(activeGeodata.Latitude):
+				case nameof(activeGeodata.Longitude):
 					UpdateMapPosition();
 					UpdateAddressOnMap();
 					break;
@@ -234,9 +235,10 @@ namespace Vodovoz.Views.Client
 
 		private void UpdateMapPosition()
 		{
-			if(ViewModel.Entity.ActiveVersion.Latitude.HasValue && ViewModel.Entity.ActiveVersion.Longitude.HasValue)
+			var activeGeodata = ViewModel.Entity.GetActiveVersion();
+			if(activeGeodata.Latitude.HasValue && activeGeodata.Longitude.HasValue)
 			{
-				var position = new PointLatLng((double) ViewModel.Entity.ActiveVersion.Latitude.Value, (double) ViewModel.Entity.ActiveVersion.Longitude.Value);
+				var position = new PointLatLng((double) activeGeodata.Latitude.Value, (double) activeGeodata.Longitude.Value);
 				if(!_mapWidget.ViewArea.Contains(position))
 				{
 					_mapWidget.Position = position;
@@ -252,16 +254,17 @@ namespace Vodovoz.Views.Client
 
 		private void UpdateAddressOnMap()
 		{
+			var activeGeodata = ViewModel.Entity.GetActiveVersion();
 			if(_addressMarker != null)
 			{
 				_addressOverlay.Markers.Clear();
 				_addressMarker = null;
 			}
 
-			if(ViewModel.Entity.ActiveVersion.Latitude.HasValue && ViewModel.Entity.ActiveVersion.Longitude.HasValue)
+			if(activeGeodata.Latitude.HasValue && activeGeodata.Longitude.HasValue)
 			{
 				_addressMarker = new GMarkerGoogle(
-					new PointLatLng((double) ViewModel.Entity.ActiveVersion.Latitude.Value, (double) ViewModel.Entity.ActiveVersion.Longitude.Value),
+					new PointLatLng((double) activeGeodata.Latitude.Value, (double) activeGeodata.Longitude.Value),
 					GMarkerGoogleType.arrow)
 				{
 					ToolTipText = ViewModel.Entity.ShortAddress

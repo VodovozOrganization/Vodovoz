@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping.Sale
             
             References(x => x.DeliverySchedule).Column("delivery_schedule_id");
             References(x => x.AcceptBefore).Column("accept_before_id");
+            References(x => x.SectorWeekDayScheduleVersion).Column("sector_week_day_schedules");
         }
     }
 }

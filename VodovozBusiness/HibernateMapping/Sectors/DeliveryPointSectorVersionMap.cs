@@ -8,14 +8,14 @@ namespace Vodovoz.HibernateMapping.Sectors
 		public DeliveryPointSectorVersionMap()
 		{
 			Table("delivery_points_geodata_versions");
-			Not.LazyLoad();
 			
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.Latitude).Column("latitude");
-			Map(x => x.Longitude).Column("longitude");
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
+			Map(x => x.Latitude).Column("latitude");
+			Map(x => x.Longitude).Column("longitude");
+			Map(x => x.Status).Column("status").CustomType<SectorsSetStatusStringType>();
 			Map(x => x.DistanceFromBaseMeters).Column("distance_from_center_meters");
 			
 			References(x => x.Sector).Column("sector_id");

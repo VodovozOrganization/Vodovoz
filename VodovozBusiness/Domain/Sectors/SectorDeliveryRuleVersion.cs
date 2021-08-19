@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Sectors
 {
 	public class SectorDeliveryRuleVersion : PropertyChangedBase, IDomainObject, ICloneable, IValidatableObject
 	{
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		private DateTime? _startDate;
 
@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Sectors
 
 		private Sector _sector;
 
-		public Sector Sector
+		public virtual Sector Sector
 		{
 			get => _sector;
 			set => SetField(ref _sector, value);
@@ -65,7 +65,7 @@ namespace Vodovoz.Domain.Sectors
 			Status = SectorsSetStatus.Draft;
 		}
 
-		public object Clone()
+		public virtual object Clone()
 		{
 			var commonDistrictRuleItemsClone = new List<CommonDistrictRuleItem>();
 			CommonDistrictRuleItems.ForEach(x => commonDistrictRuleItemsClone.Add(x.Clone() as CommonDistrictRuleItem));
@@ -79,7 +79,7 @@ namespace Vodovoz.Domain.Sectors
 			};
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(StartDate.HasValue == false)
 			{
