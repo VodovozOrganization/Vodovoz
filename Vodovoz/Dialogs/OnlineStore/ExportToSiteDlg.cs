@@ -12,6 +12,8 @@ namespace Vodovoz.Dialogs.OnlineStore
 {
 	public partial class ExportToSiteDlg : QS.Dialog.Gtk.TdiTabBase
 	{
+		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		
 		public ExportToSiteDlg()
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance")) {
@@ -20,17 +22,29 @@ namespace Vodovoz.Dialogs.OnlineStore
 				return;
 			}
 
-			this.Build();
+			Build();
 			TabName = "Экспорт интернет магазин";
 			comboExportMode.ItemsEnum = typeof(ExportMode);
-			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStoreUrlParameterName))
-				entrySitePath.Text = SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStoreUrlParameterName);
-			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStoreLoginParameterName))
-				entryUser.Text = SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStoreLoginParameterName);
-			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStorePasswordParameterName))
-				entryPassword.Text = SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStorePasswordParameterName);
-			if(SingletonParametersProvider.Instance.ContainsParameter(Export.OnlineStoreExportMode))
-				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), SingletonParametersProvider.Instance.GetParameterValue(Export.OnlineStoreExportMode));
+			
+			if(_parametersProvider.ContainsParameter(Export.OnlineStoreUrlParameterName))
+			{
+				entrySitePath.Text = _parametersProvider.GetParameterValue(Export.OnlineStoreUrlParameterName);
+			}
+
+			if(_parametersProvider.ContainsParameter(Export.OnlineStoreLoginParameterName))
+			{
+				entryUser.Text = _parametersProvider.GetParameterValue(Export.OnlineStoreLoginParameterName);
+			}
+
+			if(_parametersProvider.ContainsParameter(Export.OnlineStorePasswordParameterName))
+			{
+				entryPassword.Text = _parametersProvider.GetParameterValue(Export.OnlineStorePasswordParameterName);
+			}
+
+			if(_parametersProvider.ContainsParameter(Export.OnlineStoreExportMode))
+			{
+				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), _parametersProvider.GetParameterValue(Export.OnlineStoreExportMode));
+			}
 		}
 
 		protected void OnButtonRunToFileClicked(object sender, EventArgs e)
@@ -69,22 +83,22 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		protected void OnEntrySitePathFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
+			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
 		}
 
 		protected void OnEntryUserFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreLoginParameterName, entryUser.Text);
+			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStoreLoginParameterName, entryUser.Text);
 		}
 
 		protected void OnEntryPasswordFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStorePasswordParameterName, entryPassword.Text);
+			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStorePasswordParameterName, entryPassword.Text);
 		}
 
 		protected void OnComboExportModeChangedByUser(object sender, EventArgs e)
 		{
-			SingletonParametersProvider.Instance.CreateOrUpdateParameter(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
+			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
 		}
 
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)

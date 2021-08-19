@@ -5,13 +5,13 @@ using QSProjectsLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
 namespace Vodovoz.Old1612ExportTo1c
 {
     public class ExportOperation : IDisposable
     {
+	    private readonly IOrderRepository _orderRepository = new OrderRepository();
         private readonly IUnitOfWork uow;
         private readonly DateTime start;
         private readonly DateTime end;
@@ -37,7 +37,7 @@ namespace Vodovoz.Old1612ExportTo1c
         {
             worker.OperationName = "Подготовка данных";
             worker.ReportProgress(0, "Загрузка заказов");
-            orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end, organization?.Id);
+            orders = _orderRepository.GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end, organization?.Id);
             worker.OperationName = "Выгрузка реализаций и счетов-фактур";
             worker.StepsCount = this.orders.Count;
             Result = new ExportData(uow, mode, start, end);

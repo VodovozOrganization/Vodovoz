@@ -14,8 +14,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -52,7 +50,7 @@ namespace Vodovoz.Views.Logistic
 			entityVMEntryLogistician.SetEntityAutocompleteSelectorFactory(ViewModel.LogisticanSelectorFactory);
 			entityVMEntryLogistician.Binding.AddBinding(ViewModel.Entity, rl => rl.Logistician, w => w.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(ViewModel.UoW);
+			speccomboShift.ItemsList = ViewModel.DeliveryShifts;
 			speccomboShift.Binding.AddBinding(ViewModel.Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			datePickerDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date).InitializeFromSource();
@@ -195,8 +193,9 @@ namespace Vodovoz.Views.Logistic
 			
 			var openNotDeliveredOrder = new MenuItem($"Открыть недовоз");
 			openNotDeliveredOrder.Activated += (s, args) => ViewModel.OpenUndeliveredOrderCommand.Execute();
-			openNotDeliveredOrder.Sensitive = ViewModel.SelectedItem.Status == RouteListItemStatus.Canceled && 
-			                                  UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(ViewModel.UoW, ViewModel.SelectedItem.Order.Id).Any();
+			openNotDeliveredOrder.Sensitive = 
+				ViewModel.SelectedItem.Status == RouteListItemStatus.Canceled
+				&& ViewModel.UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(ViewModel.UoW, ViewModel.SelectedItem.Order.Id).Any();
 			menu.Add(openNotDeliveredOrder);
 			
 			var createFine = new MenuItem($"Создать штраф");

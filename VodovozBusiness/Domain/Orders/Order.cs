@@ -28,19 +28,20 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz.Domain.Orders
@@ -57,8 +58,11 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
-		private readonly IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		#region Платная доставка
 
@@ -67,8 +71,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			get
 			{
-				if (paidDeliveryNomenclatureId == default(int)) {
-					paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId;
+				if (paidDeliveryNomenclatureId == default(int))
+				{
+					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
 				}
 
 				return paidDeliveryNomenclatureId;
@@ -1677,7 +1682,7 @@ namespace Vodovoz.Domain.Orders
 			};
 			AddOrderItem(newItem);
 
-			Nomenclature followingNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetNomenclatureToAddWithMaster(UoW);
+			Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
 			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
@@ -2010,7 +2015,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns><c>true</c>, если можно добавить промо-набор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
+		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
@@ -2022,11 +2027,16 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(SelfDelivery)
+			{
 				return true;
+			}
 
-			var proSetDict = Repositories.Orders.PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			
 			if(!proSetDict.Any())
+			{
 				return true;
+			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
 			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
@@ -2657,7 +2667,7 @@ namespace Vodovoz.Domain.Orders
 			   || initialStatus == newStatus)
 				return;
 
-			var undeliveries = Repositories.UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
+			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
@@ -2734,14 +2744,17 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService, CallTaskWorker callTaskWorker)
+		public virtual void SelfDeliveryToLoading(
+			Employee employee,
+			ICurrentPermissionService permissionService,
+			CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
-				LoadAllowedBy = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				LoadAllowedBy = employee;
 			}
 		}
 
@@ -2823,7 +2836,8 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
+					UpdateBottlesMovementOperationWithoutDelivery(
+						UoW, new BaseParametersProvider(new ParametersProvider()), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
 					ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 
@@ -3322,7 +3336,7 @@ namespace Vodovoz.Domain.Orders
 			nomenclaturesNeedUpdate = new List<Nomenclature>();
 			if(AddCertificates && DeliveryDate.HasValue) {
 				IList<Certificate> newList = new List<Certificate>();
-				foreach(var item in new NomenclatureRepository(new NomenclatureParametersProvider()).GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
+				foreach(var item in _nomenclatureRepository.GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
 					if(item.Value.All(c => c.IsArchive || c.ExpirationDate.HasValue && c.ExpirationDate.Value < DeliveryDate))
 						nomenclaturesNeedUpdate.Add(item.Key);
 					else
@@ -3572,10 +3586,10 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow)
+		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
 		{
 			SetFirstOrder();
-			LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();

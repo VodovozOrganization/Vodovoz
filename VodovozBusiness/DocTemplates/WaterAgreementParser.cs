@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DocTemplates;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repositories.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.DocTemplates
 {

@@ -9,13 +9,17 @@ using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ProductSpecificationMaterialsView : Gtk.Bin
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		GenericObservableList<ProductSpecificationMaterial> items;
 
@@ -79,8 +83,8 @@ namespace Vodovoz
 
 			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature),
 				SpecificationUoW,
-				Repositories.NomenclatureRepository.NomenclatureForProductMaterialsQuery ()
-				.GetExecutableQueryOver (SpecificationUoW.Session).RootCriteria
+				_nomenclatureRepository.NomenclatureForProductMaterialsQuery()
+				.GetExecutableQueryOver(SpecificationUoW.Session).RootCriteria
 			);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ObjectSelected += NomenclatureSelected;

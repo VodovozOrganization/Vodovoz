@@ -30,6 +30,8 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using QSProjectsLib;
+using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Stock;
 
 namespace DriverAPI
 {
@@ -226,14 +228,16 @@ namespace DriverAPI
 			services.AddScoped<ITrackRepository, TrackRepository>();
 			services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
 			services.AddScoped<IRouteListRepository, RouteListRepository>();
+			services.AddScoped<IStockRepository, StockRepository>();
 			services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
-			services.AddScoped<IOrderRepository, OrderSingletonRepository>((sp) => OrderSingletonRepository.GetInstance());
-			services.AddScoped<IEmployeeRepository, EmployeeSingletonRepository>((sp) => EmployeeSingletonRepository.GetInstance());
+			services.AddScoped<IOrderRepository, OrderRepository>();
+			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();
 			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
+			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 
 			// Конвертеры
 			foreach (var type in typeof(Library.AssemblyFinder).Assembly.GetTypes()

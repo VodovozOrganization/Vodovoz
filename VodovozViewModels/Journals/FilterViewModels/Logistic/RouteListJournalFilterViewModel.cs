@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
             GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
 
-            var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+            var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
 
             foreach (var addressTypeNode in AddressTypeNodes)
             {

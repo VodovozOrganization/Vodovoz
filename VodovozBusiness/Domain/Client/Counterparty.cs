@@ -20,9 +20,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Retail;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
@@ -790,28 +791,32 @@ namespace Vodovoz.Domain.Client
         #endregion
 
         #region CloseDelivery
-
-        public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
+        
+        public virtual void AddCloseDeliveryComment(string newComment, Employee currentEmployee)
 		{
-			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;
+			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
-
-		protected virtual bool CloseDelivery(IUnitOfWork UoW)
+        
+		protected virtual bool CloseDelivery(Employee currentEmployee)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			{
 				return false;
+			}
+
 			IsDeliveriesClosed = true;
 			CloseDeliveryDate = DateTime.Now;
-			CloseDeliveryPerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			CloseDeliveryPerson = currentEmployee;
 			return true;
 		}
 
 
-		protected virtual bool OperDelivery(IUnitOfWork UoW)
+		protected virtual bool OpenDelivery()
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			{
 				return false;
+			}
 
 			IsDeliveriesClosed = false;
 			CloseDeliveryDate = null;
@@ -821,9 +826,9 @@ namespace Vodovoz.Domain.Client
 			return true;
 		}
 
-		public virtual bool ToogleDeliveryOption(IUnitOfWork UoW)
+		public virtual bool ToggleDeliveryOption(Employee currentEmployee)
 		{
-			return IsDeliveriesClosed ? OperDelivery(UoW) : CloseDelivery(UoW);
+			return IsDeliveriesClosed ? OpenDelivery() : CloseDelivery(currentEmployee);
 		}
 
 		public virtual string GetCloseDeliveryInfo()
@@ -929,9 +934,9 @@ namespace Vodovoz.Domain.Client
 
 		#region IValidatableObject implementation
 
-		private bool CheckForINNDuplicate()
+		private bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository)
 		{
-			IList<Counterparty> counterarties = CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(UoW, INN);
 			if(counterarties == null)
 				return false;
 			if(counterarties.Any(x => x.Id != Id))
@@ -941,11 +946,38 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(bottlesRepository)}");
+			}
+			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IDepositRepository)) is IDepositRepository depositRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(depositRepository)}");
+			}
+			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IMoneyRepository)) is IMoneyRepository moneyRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(moneyRepository)}");
+			}
+			
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(ICounterpartyRepository)) is ICounterpartyRepository counterpartyRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(counterpartyRepository)}");
+			}
+			
+			if(!(validationContext.ServiceContainer.GetService(typeof(IOrderRepository)) is IOrderRepository orderRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderRepository)}");
+			}
+			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
 			}
 
-			if(CheckForINNDuplicate()) {
+			if(CheckForINNDuplicate(counterpartyRepository))
+			{
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 												  new[] { this.GetPropertyName(o => o.INN) });
 			}
@@ -981,35 +1013,50 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Необходимо заполнить комментарий по закрытию поставок",
 						new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
 
-			if(IsArchive) {
+			if(IsArchive)
+			{
 				var unclosedContracts = CounterpartyContracts.Where(c => !c.IsArchive)
 					.Select(c => c.Id.ToString()).ToList();
+				
 				if(unclosedContracts.Count > 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}", string.Join(", ", unclosedContracts)),
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
+				}
 
-				var balance = Repository.Operations.MoneyRepository.GetCounterpartyDebt(UoW, this);
+				var balance = moneyRepository.GetCounterpartyDebt(UoW, this);
+				
 				if(balance != 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
+				}
 
-				var activeOrders = OrderRepository.GetCurrentOrders(UoW, this);
+				var activeOrders = orderRepository.GetCurrentOrders(UoW, this);
+				
 				if(activeOrders.Count > 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", string.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
+				}
 
-				var deposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, this, null);
-				if(balance != 0)
+				var deposit = depositRepository.GetDepositsAtCounterparty(UoW, this, null);
+				
+				if(deposit != 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
+				}
 
-				var bottles = Repository.Operations.BottlesRepository.GetBottlesAtCounterparty(UoW, this);
-				if(balance != 0)
+				var bottles = bottlesRepository.GetBottlesAtCounterparty(UoW, this);
+				
+				if(bottles != 0)
+				{
 					yield return new ValidationResult(
 						string.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
-
+				}
 			}
 
 			if(Id == 0 && CameFrom == null) {

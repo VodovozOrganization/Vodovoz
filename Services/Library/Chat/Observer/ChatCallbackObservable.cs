@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository.Chats;
+using Vodovoz.EntityRepositories.Chats;
 
 namespace Chats
 {
@@ -14,14 +14,15 @@ namespace Chats
 		private uint timerId;
 		private IUnitOfWorkGeneric<Employee> employeeUoW;
 		private IList<IChatCallbackObserver> observers;
+		private readonly IChatMessageRepository _chatMessageRepository;
 
 		private Dictionary<int, int> unreadedMessages;
 
 		public static bool IsInitiated { get { return instance != null; } }
 
-		public static void CreateInstance(int employeeId) 
+		public static void CreateInstance(int employeeId, IChatMessageRepository chatMessageRepository) 
 		{
-			instance = new ChatCallbackObservable (employeeId);
+			instance = new ChatCallbackObservable (employeeId, chatMessageRepository);
 		}
 
 		public static ChatCallbackObservable GetInstance() 
@@ -32,11 +33,13 @@ namespace Chats
 			return instance;
 		}
 
-		private ChatCallbackObservable (int employeeId)
+		private ChatCallbackObservable(int employeeId, IChatMessageRepository chatMessageRepository)
 		{
+			_chatMessageRepository = chatMessageRepository ?? throw new ArgumentNullException(nameof(chatMessageRepository));
+
 			observers = new List<IChatCallbackObserver>();
 			employeeUoW = UnitOfWorkFactory.CreateForRoot<Employee>(employeeId, $"[CS]Слежение за чатами");
-			unreadedMessages = ChatMessageRepository.GetLastChatMessages(employeeUoW, employeeUoW.Root);
+			unreadedMessages = _chatMessageRepository.GetLastChatMessages(employeeUoW);
 
 			//Initiates new message check every 30 seconds.
 			timerId = GLib.Timeout.Add(refreshInterval, new GLib.TimeoutHandler (refresh));
@@ -77,7 +80,7 @@ namespace Chats
 
 		private bool refresh()
 		{
-			var tempUnreadedMessages = ChatMessageRepository.GetLastChatMessages(employeeUoW, employeeUoW.Root);
+			var tempUnreadedMessages = _chatMessageRepository.GetLastChatMessages(employeeUoW);
 			foreach (var item in tempUnreadedMessages)
 			{
 				if (!unreadedMessages.ContainsKey(item.Key) || unreadedMessages[item.Key] != item.Value)

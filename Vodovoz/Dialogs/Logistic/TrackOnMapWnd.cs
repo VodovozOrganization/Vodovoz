@@ -16,12 +16,14 @@ using QS.Dialog;
 using QS.Osm;
 using QS.Osm.Osrm;
 using QS.Osm.Spuntik;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Dialogs.Logistic
 {
 	public partial class TrackOnMapWnd : Gtk.Window
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		#region Поля
 
@@ -70,7 +72,7 @@ namespace Dialogs.Logistic
 
 		private void Configure()
 		{
-			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+			track = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
 			if(track == null){
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 				MessageDialogHelper.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
@@ -276,9 +278,9 @@ namespace Dialogs.Logistic
 
 		protected void OnButtonRecalculateToBaseClicked(object sender, EventArgs e)
 		{
-			var track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
-			var response = track.CalculateDistanceToBase();
-			UoW.Save(track);
+			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
+			var response = curTrack.CalculateDistanceToBase();
+			UoW.Save(curTrack);
 			UoW.Commit();
 			UpdateDistanceLabel();
 
@@ -327,7 +329,7 @@ namespace Dialogs.Logistic
 				
 				if(distance > 0.5)
 				{
-					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
+					_logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
 					message += string.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
 					                          distance,
 					                          lastPoint.TimeStamp,
@@ -352,7 +354,7 @@ namespace Dialogs.Logistic
 					if(afterIndex - beforeIndex > 1)
 					{
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
-						logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
+						_logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
 						routePoints.AddRange (
 							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
 							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));
@@ -450,19 +452,19 @@ namespace Dialogs.Logistic
 		{
 			
 			IEnumerable<PointLatLng> midlPoints;
-			var track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
 
 			tracksOverlay.Clear();
 
 			var startDateTime = ydatepickerStart.Date;
 			var endDateTime = ydatepickerEnd.Date;
 
-			var startPoints = track.TrackPoints.Where(x => x.TimeStamp < startDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
-			var endPoints = track.TrackPoints.Where(x => x.TimeStamp >= endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var startPoints = curTrack.TrackPoints.Where(x => x.TimeStamp < startDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var endPoints = curTrack.TrackPoints.Where(x => x.TimeStamp >= endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 
 			if(!ydatepickerStart.IsEmpty) {
 
-				midlPoints = track.TrackPoints.Where(x => x.TimeStamp >= startDateTime && x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+				midlPoints = curTrack.TrackPoints.Where(x => x.TimeStamp >= startDateTime && x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 
 				trackRoute = new GMapRoute(startPoints, routeList.Id.ToString()) {
 					Stroke = new Pen(Color.Gray) {
@@ -475,7 +477,7 @@ namespace Dialogs.Logistic
  
 			} else
 			{
-				midlPoints = track.TrackPoints.Where(x => x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+				midlPoints = curTrack.TrackPoints.Where(x => x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 			}
 
 			trackRoute = new GMapRoute(midlPoints, routeList.Id.ToString()) {

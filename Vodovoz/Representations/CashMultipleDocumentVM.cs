@@ -16,12 +16,13 @@ using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repository.Cash;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Representations
 {
 	public class CashMultipleDocumentVM : MultipleEntityModelBase<CashDocumentVMNode>
 	{
+		private readonly ICashRepository _cashRepository;
 		private CashDocumentVMNode resultAlias = null;
 
 		public CashDocumentsFilter Filter {
@@ -29,8 +30,11 @@ namespace Vodovoz.Representations
 			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
-		public CashMultipleDocumentVM(CashDocumentsFilter filter)
+		public CashMultipleDocumentVM(
+			CashDocumentsFilter filter,
+			ICashRepository cashRepository)
 		{
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Filter = filter;
 			Filter.UoW = UoW;
@@ -78,7 +82,7 @@ namespace Vodovoz.Representations
 			decimal totalCash = 0;
 			string allCashString = "";
 			foreach(var item in Filter.SelectedSubdivisions) {
-				var currentSubdivisionCash = CashRepository.CurrentCashForSubdivision(UoW, item);
+				var currentSubdivisionCash = _cashRepository.CurrentCashForSubdivision(UoW, item);
 				totalCash += currentSubdivisionCash;
 				allCashString += $"{item.Name}: {CurrencyWorks.GetShortCurrencyString(currentSubdivisionCash)} ";
 			}

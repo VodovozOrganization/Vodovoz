@@ -18,12 +18,13 @@ using Vodovoz.Dialogs.Phones;
 using Vodovoz.Parameters;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Repositories.Client;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {

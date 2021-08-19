@@ -17,12 +17,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewers;
-using Vodovoz.Repositories;
-using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -43,6 +41,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -55,8 +54,8 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			IEmployeeService employeeService
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IEmployeeService employeeService,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -64,8 +63,11 @@ namespace Vodovoz.JournalViewModels
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_undeliveredOrdersJournalOpener =
+				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_undeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
 			TabName = "Журнал заказов";
 
@@ -98,7 +100,8 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			Nomenclature sanitizationNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetSanitisationNomenclature(uow);
+			Nomenclature sanitizationNomenclature =
+				new NomenclatureParametersProvider(new ParametersProvider()).GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
@@ -297,7 +300,8 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
-						o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderForRouteListJournalNode).Id).Any()) && IsOrder(selectedItems),
+						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(
+							UoW, (o as OrderForRouteListJournalNode).Id).Any()) && IsOrder(selectedItems),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderForRouteListJournalNode>();
@@ -325,7 +329,8 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory
+							_orderSelectorFactory,
+							_undeliveredOrdersRepository
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

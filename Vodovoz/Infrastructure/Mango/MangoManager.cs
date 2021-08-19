@@ -37,22 +37,21 @@ namespace Vodovoz.Infrastructure.Mango
 		private CancellationTokenSource notificationCancellation;
 		private IPage CurrentPage;
 		private uint timer;
-		private MangoService.MangoController mangoController;
+		private MangoController _mangoController;
 
 		public MangoManager(Gtk.Action toolbarIcon,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IUserService userService,
 			INavigationManager navigation,
-			BaseParametersProvider parametrs,
-			PhoneRepository phoneRepository)
+			BaseParametersProvider parameters)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
-			this.mangoController = new MangoService.MangoController(parametrs.VpbxApiKey, parametrs.VpbxApiSalt);
+			_mangoController = new MangoController(parameters.VpbxApiKey, parameters.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
@@ -336,7 +335,7 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			var toHangUpCall = CurrentTalk ?? CurrentOutgoingRing ?? ActiveCalls.FirstOrDefault();
 			if(toHangUpCall != null) {
-				mangoController.HangUp(toHangUpCall.CallId);
+				_mangoController.HangUp(toHangUpCall.CallId);
 				if(CurrentPage != null)
 					navigation.ForceClosePage(CurrentPage);
 			}
@@ -349,7 +348,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void MakeCall(string to_extension)
 		{
-			mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
+			_mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
 		}
 
 		public void ForwardCall(string to_extension, ForwardingMethod method)
@@ -359,7 +358,7 @@ namespace Vodovoz.Infrastructure.Mango
 				return;
 			}
 			
-			mangoController.ForwardCall(CurrentTalk.CallId, Convert.ToString(this.extension), to_extension, method);
+			_mangoController.ForwardCall(CurrentTalk.CallId, Convert.ToString(this.extension), to_extension, method);
 		}
 
 		#endregion

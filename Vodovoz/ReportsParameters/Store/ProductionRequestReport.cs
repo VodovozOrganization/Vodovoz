@@ -18,8 +18,9 @@ namespace Vodovoz.ReportsParameters.Store
 	public partial class ProductionRequestReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
+		private IEmployeeRepository _employeeRepository;
 
-		public ProductionRequestReport()
+		public ProductionRequestReport(IEmployeeRepository employeeRepository)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -34,7 +35,9 @@ namespace Vodovoz.ReportsParameters.Store
 			yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
 
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			{
 				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
+			}
 
 			dateperiodpickerMaxSales.StartDate = DateTime.Today.AddYears(-1);
 			dateperiodpickerMaxSales.EndDate = DateTime.Today.AddHours(23).AddMinutes(59).AddSeconds(59);
@@ -43,14 +46,17 @@ namespace Vodovoz.ReportsParameters.Store
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
 				UoW.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x)).ToList());
 			
-			GeographicGroup employeeGeographicGroup = EmployeeSingletonRepository.GetInstance()
-				.GetEmployeeForCurrentUser(UoW).Subdivision.GetGeographicGroup();
+			var employeeGeographicGroup = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Subdivision.GetGeographicGroup();
 			
-			if(employeeGeographicGroup != null) {
-				var foundGeoGroup = GeographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
+			if(employeeGeographicGroup != null)
+			{
+				var foundGeoGroup =
+					GeographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
 
 				if(foundGeoGroup != null)
+				{
 					foundGeoGroup.Selected = true;
+				}
 			}
 			
 			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>

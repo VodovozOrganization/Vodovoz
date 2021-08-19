@@ -23,7 +23,8 @@ namespace Vodovoz
 	{
 		InventoryDocumentItem FineEditItem;
 
-		INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository(new NomenclatureParametersProvider());
+		INomenclatureRepository nomenclatureRepository { get; } =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		public InventoryDocumentItemsView()
 		{

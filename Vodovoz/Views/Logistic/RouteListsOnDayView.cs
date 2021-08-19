@@ -9,7 +9,6 @@ using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using QSOrmProject;
@@ -17,14 +16,12 @@ using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
-using Gamma.Utilities;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
@@ -126,7 +123,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
-						.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
+						.FillItems(ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
 						.AddSetter(
 							(c, n) => {
 								c.Editable = n.Car != null;
@@ -478,12 +475,12 @@ namespace Vodovoz.Views.Logistic
 			addressesOverlay.Clear();
 
 			//добавляем маркеры складов
-			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
 				addressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
 			var ordersOnDay = ViewModel.OrdersOnDay;
-			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
+			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersOnDay) {
 				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
@@ -730,7 +727,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(ViewModel.UoW);
+			ViewModel.LogisticanDistricts = ViewModel.ScheduleRestrictionRepository.GetDistrictsWithBorder(ViewModel.UoW);
 			foreach(var district in ViewModel.LogisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
@@ -798,7 +795,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			driverAddressesOverlay.Clear();
 
-			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
 				driverAddressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -831,7 +828,7 @@ namespace Vodovoz.Views.Logistic
 
 			var ordersOnDay = ViewModel.OrdersOnDay.Select(x => x)
 				.Where(x => x.OrderAddressType != OrderAddressType.Service).ToList();
-			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
+			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 
 			//добавляем маркеры нераспределенных заказов из районов водителя
 			foreach(var order in ordersOnDay) {
@@ -880,7 +877,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			var SelectDriverCar = new OrmReference(
 				ViewModel.UoW,
-				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
+				ViewModel.CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;

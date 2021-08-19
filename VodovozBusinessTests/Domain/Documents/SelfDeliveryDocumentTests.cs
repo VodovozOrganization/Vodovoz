@@ -72,7 +72,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			uow.GetById<Nomenclature>(99).Returns(nomenclatureMock);
 
 			INomenclatureRepository nomenclatureRepository = Substitute.For<INomenclatureRepository>();
-			nomenclatureRepository.GetDefaultBottle(uow).Returns(nomenclatureMock);
+			nomenclatureRepository.GetDefaultBottleNomenclature(uow).Returns(nomenclatureMock);
 
 			IBottlesRepository bottlesRepository = Substitute.For<IBottlesRepository>();
 			bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, order, 1).ReturnsForAnyArgs(order.ReturnedTare.Value);

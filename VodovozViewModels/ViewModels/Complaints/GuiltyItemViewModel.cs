@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
 			ConfigureEntityPropertyChanges();
-			AllDepartments = subdivisionRepository.GetAllDepartments(UoW);
+			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 		}
 
 		public event EventHandler OnGuiltyItemReady;
