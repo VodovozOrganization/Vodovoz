@@ -7,6 +7,8 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSOrmProject;
@@ -30,6 +32,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -37,6 +40,7 @@ namespace Vodovoz
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -332,33 +336,38 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(new NomenclatureRepository(new NomenclatureParametersProvider()).NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
-				FilterClass = null,
-				Mode = OrmReferenceMode.Select
-			};
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			this.TabParent.AddTab(refWin, this);
+			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector();
+			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
+			TabParent.AddTab(nomenclatureSelector, this);
 		}
 
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			Nomenclature nomenclature = (e.Subject as Nomenclature);
-			if(nomenclature == null) {
+			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
+			
+			if(nomenclatureNode == null)
+			{
 				return;
 			}
-			var node = new GoodsReceptionVMNode {
+
+			var nomenclature = UoW.GetById<Nomenclature>(nomenclatureNode.Id);
+			
+			var node = new GoodsReceptionVMNode
+			{
 				Category = nomenclature.Category,
 				NomenclatureId = nomenclature.Id,
 				Name = nomenclature.Name
 			};
 
-			if (node.Category == NomenclatureCategory.equipment)
-            {
+			if(node.Category == NomenclatureCategory.equipment)
+			{
 				node.Direction = Domain.Orders.Direction.PickUp;
-            }
+			}
 
 			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))
+			{
 				GoodsReceptionList.Add(node);
+			}
 		}
 	}
 }

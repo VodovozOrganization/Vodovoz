@@ -16,6 +16,8 @@ namespace Vodovoz
 
 		private global::Gtk.Table tableWater;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry destinationWarehouseEntry;
+
 		private global::Vodovoz.IncomingWaterMaterialView incomingwatermaterialview1;
 
 		private global::Gtk.Label label1;
@@ -30,9 +32,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel labelTimeStamp;
 
-		private global::Gamma.Widgets.yEntryReference referenceDstWarehouse;
-
-		private global::Gamma.Widgets.yEntryReference referenceSrcWarehouse;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry sourceWarehouseEntry;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinAmount;
 
@@ -103,95 +103,97 @@ namespace Vodovoz
 			this.tableWater.RowSpacing = ((uint)(6));
 			this.tableWater.ColumnSpacing = ((uint)(6));
 			// Container child tableWater.Gtk.Table+TableChild
+			this.destinationWarehouseEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.destinationWarehouseEntry.Events = ((global::Gdk.EventMask)(256));
+			this.destinationWarehouseEntry.Name = "destinationWarehouseEntry";
+			this.destinationWarehouseEntry.CanEditReference = false;
+			this.tableWater.Add(this.destinationWarehouseEntry);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWater[this.destinationWarehouseEntry]));
+			w7.TopAttach = ((uint)(3));
+			w7.BottomAttach = ((uint)(4));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWater.Gtk.Table+TableChild
 			this.incomingwatermaterialview1 = new global::Vodovoz.IncomingWaterMaterialView();
 			this.incomingwatermaterialview1.Events = ((global::Gdk.EventMask)(256));
 			this.incomingwatermaterialview1.Name = "incomingwatermaterialview1";
 			this.tableWater.Add(this.incomingwatermaterialview1);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWater[this.incomingwatermaterialview1]));
-			w7.TopAttach = ((uint)(5));
-			w7.BottomAttach = ((uint)(6));
-			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableWater[this.incomingwatermaterialview1]));
+			w8.TopAttach = ((uint)(5));
+			w8.BottomAttach = ((uint)(6));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата документа:");
 			this.tableWater.Add(this.label1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label1]));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label1]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Количество единиц:");
 			this.tableWater.Add(this.label2);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label2]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label2]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Склад поступления:");
 			this.tableWater.Add(this.label3);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label3]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label3]));
+			w11.TopAttach = ((uint)(3));
+			w11.BottomAttach = ((uint)(4));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Склад списания:");
 			this.tableWater.Add(this.label5);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label5]));
-			w11.TopAttach = ((uint)(4));
-			w11.BottomAttach = ((uint)(5));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label5]));
+			w12.TopAttach = ((uint)(4));
+			w12.BottomAttach = ((uint)(5));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
 			this.label6.Xalign = 1F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Продукт производства:");
 			this.tableWater.Add(this.label6);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label6]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWater[this.label6]));
+			w13.TopAttach = ((uint)(1));
+			w13.BottomAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.labelTimeStamp = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTimeStamp.Name = "labelTimeStamp";
 			this.labelTimeStamp.Xalign = 0F;
 			this.tableWater.Add(this.labelTimeStamp);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWater[this.labelTimeStamp]));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceDstWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.referenceDstWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.referenceDstWarehouse.Name = "referenceDstWarehouse";
-			this.tableWater.Add(this.referenceDstWarehouse);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceDstWarehouse]));
-			w14.TopAttach = ((uint)(3));
-			w14.BottomAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWater[this.labelTimeStamp]));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceSrcWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.referenceSrcWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.referenceSrcWarehouse.Name = "referenceSrcWarehouse";
-			this.tableWater.Add(this.referenceSrcWarehouse);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceSrcWarehouse]));
+			this.sourceWarehouseEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.sourceWarehouseEntry.Events = ((global::Gdk.EventMask)(256));
+			this.sourceWarehouseEntry.Name = "sourceWarehouseEntry";
+			this.sourceWarehouseEntry.CanEditReference = false;
+			this.tableWater.Add(this.sourceWarehouseEntry);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWater[this.sourceWarehouseEntry]));
 			w15.TopAttach = ((uint)(4));
 			w15.BottomAttach = ((uint)(5));
 			w15.LeftAttach = ((uint)(1));

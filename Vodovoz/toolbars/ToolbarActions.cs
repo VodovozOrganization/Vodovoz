@@ -969,9 +969,25 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-			new WarehouseRepository()
-		) {ShowArchive = true};
+		bool userHasOnlyAccessToWarehouseAndComplaints;
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+		}
+		
+		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
+		{
+			ShowArchive = true
+		};
+
+		if(userHasOnlyAccessToWarehouseAndComplaints && defaultWarehouse != null)
+		{
+			filter.RestrictWarehouse = defaultWarehouse;
+		}
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 			filter,

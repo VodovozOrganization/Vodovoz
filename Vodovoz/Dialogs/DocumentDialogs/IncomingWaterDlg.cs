@@ -23,12 +23,15 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	public partial class IncomingWaterDlg : QS.Dialog.Gtk.EntityDialogBase<IncomingWater>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IEntityAutocompleteSelectorFactory _warehouseAutocompleteSelectorFactory =
+			new WarehouseSelectorFactory();
 
 		public IncomingWaterDlg()
 		{
@@ -66,17 +69,29 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
-			buttonFill.Sensitive = yentryProduct.IsEditable = spinAmount.Sensitive
-				= referenceSrcWarehouse.IsEditable = referenceDstWarehouse.IsEditable = editing;
+			buttonFill.Sensitive = yentryProduct.IsEditable = spinAmount.Sensitive = editing;
 			incomingwatermaterialview1.Sensitive = editing;
 
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
-			referenceSrcWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
-			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
-			referenceDstWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.IncomingWaterEdit);
-			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
+			var userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+			if(userHasOnlyAccessToWarehouseAndComplaints)
+			{
+				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = false;
+			}
+			else
+			{
+				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = true;
+			}
+
+			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(_warehouseAutocompleteSelectorFactory);
+			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
+			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(_warehouseAutocompleteSelectorFactory);
+			destinationWarehouseEntry.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 
@@ -85,8 +100,8 @@ namespace Vodovoz
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryProduct.Sensitive = false;
-				referenceDstWarehouse.Sensitive = false;
-				referenceSrcWarehouse.Sensitive = false;
+				destinationWarehouseEntry.Sensitive = false;
+				sourceWarehouseEntry.Sensitive = false;
 				buttonFill.Sensitive = false;
 				incomingwatermaterialview1.Sensitive = false;
 				buttonSave.Sensitive = false;

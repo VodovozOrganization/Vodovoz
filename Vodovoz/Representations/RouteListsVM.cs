@@ -47,6 +47,8 @@ namespace Vodovoz.ViewModel
 {
 	public class RouteListsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
+		private bool _userHasOnlyAccessToWarehouseAndComplaints;
+		
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
 			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
@@ -226,6 +228,10 @@ namespace Vodovoz.ViewModel
 		{
 			NotifyConfiguration.Enable();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
+			
+			_userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			Filter.SelectedStatuses = new[]{
 					RouteListStatus.New,
@@ -317,6 +323,12 @@ namespace Vodovoz.ViewModel
 					SingletonErrorReporter.Instance);
 
 				var result = new List<IJournalPopupItem>();
+
+				if(_userHasOnlyAccessToWarehouseAndComplaints)
+				{
+					return result;
+				}
+				
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть трек",
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
