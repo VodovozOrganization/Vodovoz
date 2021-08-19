@@ -10,15 +10,18 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -27,6 +30,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
@@ -45,6 +49,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory;
+		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly UserSettings _userSettings;
@@ -66,6 +71,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			UserSettings userSettings,
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -89,6 +95,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
+			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
@@ -315,7 +322,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_phonesViewModelFactory,
 			_warehouseRepository,
 			_routeListRepository,
-			_userSettings);
+			_driverApiUserRegisterEndpoint,
+			_userSettings,
+			new UserRepository(),
+			new BaseParametersProvider(new ParametersProvider()));
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
@@ -335,6 +345,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_phonesViewModelFactory,
 				_warehouseRepository,
 				_routeListRepository,
-				_userSettings);
+				_driverApiUserRegisterEndpoint,
+				_userSettings,
+				new UserRepository(),
+				new BaseParametersProvider(new ParametersProvider()));
 	}
 }

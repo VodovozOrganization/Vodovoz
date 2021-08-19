@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using FluentNHibernate.Utils;
 using Gamma.Utilities;
-using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -29,7 +28,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -39,9 +37,7 @@ using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -49,10 +45,8 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IRouteListRepository routeListRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly IOrderRepository orderRepository;
 		private readonly IAtWorkRepository atWorkRepository;
 		private readonly IGtkTabsOpener gtkTabsOpener;
-		private readonly ICarRepository carRepository;
 		private readonly IUserRepository userRepository;
 		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
@@ -73,17 +67,25 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory
-		) : base(commonServices.InteractiveService, navigationManager)
+			IEmployeeJournalFactory employeeJournalFactory,
+			IGeographicGroupRepository geographicGroupRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			if(defaultDeliveryDayScheduleSettings == null) throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			if(defaultDeliveryDayScheduleSettings == null)
+			{
+				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			}
+
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			GeographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			ScheduleRestrictionRepository =
+				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
-			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			this.OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			
@@ -129,6 +131,11 @@ namespace Vodovoz.ViewModels.Logistic
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
+		
+		public ICarRepository CarRepository { get; }
+		public IGeographicGroupRepository GeographicGroupRepository { get; }
+		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
+		public IOrderRepository OrderRepository { get; }
 
 		void CreateCommands()
 		{
@@ -229,7 +236,7 @@ namespace Vodovoz.ViewModels.Logistic
 					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
-						var allCars = carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+						var allCars = CarRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 						foreach(var n in selectedNodes) {
 							var drv = UoW.GetById<Employee>(n.Id);
@@ -903,14 +910,14 @@ namespace Vodovoz.ViewModels.Logistic
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			int totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											 .GetExecutableQueryOver(UoW.Session)
 											 .Select(Projections.Count<Order>(x => x.Id))
 											 .Where(o => !o.IsContractCloser)
 											 .And(o => o.OrderAddressType != OrderAddressType.Service)
 											 .SingleOrDefault<int>();
 
-			decimal totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal totalBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -920,7 +927,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .And(o => o.OrderAddressType != OrderAddressType.Service)
 											  .SingleOrDefault<decimal>();
 												
-			decimal total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total6LBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -930,7 +937,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .And(o => o.OrderAddressType != OrderAddressType.Service)
 											  .SingleOrDefault<decimal>();
 
-			decimal total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			decimal total600mlBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											  .GetExecutableQueryOver(UoW.Session)
 											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -955,11 +962,11 @@ namespace Vodovoz.ViewModels.Logistic
 			int totalBottles = 0;
 			int totalAddresses = 0;
 
-			var drivers = EmployeeSingletonRepository.GetInstance().GetWorkingDriversAtDay(UoW, DateForRouting);
+			var drivers = new EmployeeRepository().GetWorkingDriversAtDay(UoW, DateForRouting);
 
 			if(drivers.Count > 0) {
 				foreach(var driver in drivers) {
-					var car = carRepository.GetCarByDriver(UoW, driver);
+					var car = CarRepository.GetCarByDriver(UoW, driver);
 
 					if(car != null)
 						totalBottles += car.MaxBottles;
@@ -1181,7 +1188,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
 					.Where(x => x.IsContractCloser == false)
-					.Where(x => !orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
+					.Where(x => !OrderRepository.IsOrderCloseWithoutDelivery(UoW, x));
 
 				baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
 
@@ -1241,7 +1248,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 
-			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(DateForRouting)
+			var routesQuery1 = routeListRepository.GetRoutesAtDay(DateForRouting)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!ShowCompleted)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
@@ -1389,7 +1396,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			ObservableDeliverySummary.Clear();
 
-			var baseQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			var baseQuery = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => o.OrderAddressType != OrderAddressType.Service);

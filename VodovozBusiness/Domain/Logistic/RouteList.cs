@@ -31,17 +31,15 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using CashRepository = Vodovoz.Repository.Cash.CashRepository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -53,25 +51,28 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
+		private static readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
-				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
+				_commonOrganisationProvider,
 				new RouteListItemCashDistributionDocumentRepository(),
-				OrderSingletonRepository.GetInstance());
+				new OrderRepository());
 		
 		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor = 
 			new ExpenseCashOrganisationDistributor();
-
-		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
-
-		private readonly ICarLoadDocumentRepository carLoadDocumentRepository = new CarLoadDocumentRepository(new RouteListRepository());
-		private readonly ICarUnloadRepository carUnloadRepository = CarUnloadSingletonRepository.GetInstance();
-		private readonly ICashRepository cashRepository = new EntityRepositories.Cash.CashRepository(); 
 		
+		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -551,7 +552,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
 
-		public virtual bool HasMoneyDiscrepancy => Total != cashRepository.CurrentRouteListCash(UoW, Id);
+		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
 		#endregion
 
@@ -712,14 +713,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool ShipIfCan(IUnitOfWork uow, CallTaskWorker callTaskWorker)
 		{
-			var routeListRepository = new RouteListRepository();
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(uow, this);
 
-			var terminalsTransferedToThisRL = routeListRepository.TerminalTransferedCountToRouteList(uow, this);
-
-			var inLoaded = routeListRepository.AllGoodsLoaded(uow, this);
-			var goods = routeListRepository.GetGoodsAndEquipsInRL(uow, this);
+			var inLoaded = _routeListRepository.AllGoodsLoaded(uow, this);
+			var goods = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
 			foreach(var good in goods) {
@@ -786,9 +785,9 @@ namespace Vodovoz.Domain.Logistic
 			#endregion
 
 			//Терминал для оплаты
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-			var loadedTerminalAmount = carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
-			var unloadedTerminalAmount = carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
 			if (loadedTerminalAmount > 0) {
 				var terminal = UoW.GetById<Nomenclature>(terminalId);
@@ -890,15 +889,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
-			var returnedBottlesNom = int.Parse(SingletonParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
-			var bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
+			var returnedBottlesNom = int.Parse(_parametersProvider.GetParameterValue("returned_bottle_nomenclature_id"));
+			var bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
 			var notloadedNomenclatures = NotLoadedNomenclatures(true);
-			var allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
+			var allReturnsToWarehouse = _routeListRepository.GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
 			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
 
 			var hasItemsDiscrepancies = discrepancies.Any(discrepancy => discrepancy.Remainder != 0);
@@ -960,7 +959,7 @@ namespace Vodovoz.Domain.Logistic
 					|| Status == RouteListStatus.Delivered) {
 						if(Status != RouteListStatus.Delivered) {
 							foreach(var item in Addresses) {
-								bool isInvalidStatus = OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 								if(!isInvalidStatus)
 									item.Order.OrderStatus = OrderStatus.OnTheWay;
@@ -1074,7 +1073,7 @@ namespace Vodovoz.Domain.Logistic
 					   || Status == RouteListStatus.Confirmed
 					   || Status == RouteListStatus.Delivered) {
 						foreach(var item in Addresses) {
-							bool isInvalidStatus =  OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+							bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
@@ -1138,7 +1137,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(Status == RouteListStatus.Closed)
 			{
-				ClosedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				ClosedBy = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				ClosingDate = DateTime.Now;
 				if(!FirstClosingDate.HasValue)
 				{
@@ -1322,7 +1321,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 		
-		public virtual void CompleteRouteAndCreateTask(WageParameterService wageParameterService, CallTaskWorker callTaskWorker)
+		public virtual void CompleteRouteAndCreateTask(
+			WageParameterService wageParameterService,
+			CallTaskWorker callTaskWorker,
+			ITrackRepository trackRepository)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -1334,7 +1336,7 @@ namespace Vodovoz.Domain.Logistic
 				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
 			}
 
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();
@@ -1345,7 +1347,7 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save(this);
 		}
 		
-		public virtual void CompleteRoute(WageParameterService wageParameterService)
+		public virtual void CompleteRoute(WageParameterService wageParameterService, ITrackRepository trackRepository)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -1353,7 +1355,7 @@ namespace Vodovoz.Domain.Logistic
 
 			ChangeStatus(RouteListStatus.Delivered);
 
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
 				track.CalculateDistanceToBase();
@@ -1464,7 +1466,8 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
+		public virtual string[] ManualCashOperations(
+			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, ICategoryRepository categoryRepository)
 		{
 			var messages = new List<string>();
 
@@ -1475,7 +1478,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(casheInput > 0) {
 				cashIncome = new Income {
-					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1490,7 +1493,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1507,19 +1510,19 @@ namespace Vodovoz.Domain.Logistic
 			return messages.ToArray();
 		}
 
-		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)
+		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, ICategoryRepository categoryRepository)
 		{
 			string message;
 			if(Cashier?.Subdivision == null)
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
-				ExpenseCategory = CategoryRepository.EmployeeSalaryExpenseCategory(UoW),
+				ExpenseCategory = categoryRepository.EmployeeSalaryExpenseCategory(UoW),
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
-				Organisation = commonOrganisationProvider.GetCommonOrganisation(UoW),
+				Organisation = _commonOrganisationProvider.GetCommonOrganisation(UoW),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
@@ -1581,7 +1584,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument() 
-				&& new PermissionRepository().HasAccessToClosingRoutelist(UoW, new SubdivisionRepository(), EmployeeSingletonRepository.GetInstance(), ServicesConfig.UserService)) {
+				&& new PermissionRepository().HasAccessToClosingRoutelist(
+					UoW, new SubdivisionRepository(_parametersProvider), _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
@@ -1599,7 +1603,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(cashier == null) {
-				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
+				throw new InvalidOperationException("Должен быть заполнен кассир");
 			}
 
 			ConfirmAndClose(callTaskWorker);
@@ -1672,8 +1676,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateDeliveryDocuments(IUnitOfWork uow)
 		{
-			var parametersProvider = new BaseParametersProvider();
-			var controller = new RouteListClosingDocumentsController(parametersProvider, EmployeeSingletonRepository.GetInstance(), new RouteListRepository(), parametersProvider);
+			var controller =
+				new RouteListClosingDocumentsController(
+					_baseParametersProvider, _employeeRepository, _routeListRepository, _baseParametersProvider);
 			controller.UpdateDocuments(this, uow);
 		}
 
@@ -1697,14 +1702,14 @@ namespace Vodovoz.Domain.Logistic
 			return reportInfo;
 		}
 
-		public virtual IEnumerable<string> UpdateCashOperations()
+		public virtual IEnumerable<string> UpdateCashOperations(ICategoryRepository categoryRepository)
 		{
 			var messages = new List<string>();
 			//Закрываем наличку.
 			Income cashIncome = null;
 			Expense cashExpense = null;
 
-			var currentRouteListCash = CashRepository.CurrentRouteListCash(UoW, this.Id);
+			var currentRouteListCash = _cashRepository.CurrentRouteListCash(UoW, this.Id);
 			var different = Total - currentRouteListCash;
 			if(different == 0M) {
 				return messages.ToArray();
@@ -1717,7 +1722,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(different > 0) {
 				cashIncome = new Income {
-					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1732,7 +1737,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -1765,9 +1770,9 @@ namespace Vodovoz.Domain.Logistic
 			return messages;
 		}
 
-		public virtual IEnumerable<string> UpdateMovementOperations()
+		public virtual IEnumerable<string> UpdateMovementOperations(ICategoryRepository categoryRepository)
 		{
-			var result = UpdateCashOperations();
+			var result = UpdateCashOperations(categoryRepository);
 			UpdateOperations();
 			return result;
 		}
@@ -1781,14 +1786,14 @@ namespace Vodovoz.Domain.Logistic
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			UpdateBottlesMovementOperation(new BaseParametersProvider());
+			UpdateBottlesMovementOperation(_baseParametersProvider);
 			depositsOperations.ForEach(op => UoW.Save(op));
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
 
-			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(EmployeeSingletonRepository.GetInstance(), new BaseParametersProvider(),
-				new PremiumRaskatGAZelleParametersProvider(SingletonParametersProvider.Instance), this);
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, _baseParametersProvider,
+				new PremiumRaskatGAZelleParametersProvider(_parametersProvider), this);
 			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
@@ -1972,8 +1977,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			if(Id > 0) {
-				var loadedNomenclatures = new RouteListRepository().AllGoodsLoaded(UoW, this);
-				var nomenclaturesToLoad = new RouteListRepository().GetGoodsAndEquipsInRL(UoW, this);
+				var loadedNomenclatures = _routeListRepository.AllGoodsLoaded(UoW, this);
+				var nomenclaturesToLoad = _routeListRepository.GetGoodsAndEquipsInRL(UoW, this);
 				
 				foreach(var n in nomenclaturesToLoad) {
 					

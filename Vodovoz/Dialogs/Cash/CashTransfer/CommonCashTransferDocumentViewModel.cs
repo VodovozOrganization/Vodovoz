@@ -5,27 +5,42 @@ using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
 using QS.Commands;
 using Vodovoz.ViewModelBased;
-using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class CommonCashTransferDocumentViewModel : ViewModel<CommonCashTransferDocument>
 	{
+		private readonly ICategoryRepository _categoryRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IList<Subdivision> availableSubdivisionsForUser;
 
-		public CommonCashTransferDocumentViewModel(IEntityUoWBuilder entityUoWBuilder, IUnitOfWorkFactory factory) : base(entityUoWBuilder, factory)
+		public CommonCashTransferDocumentViewModel(
+			IEntityUoWBuilder entityUoWBuilder,
+			IUnitOfWorkFactory factory,
+			ICategoryRepository categoryRepository,
+			IEmployeeRepository employeeRepository,
+			ISubdivisionRepository subdivisionRepository) : base(entityUoWBuilder, factory)
 		{
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+
 			if(entityUoWBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}
+			
 			CreateCommands();
 			UpdateCashSubdivisions();
 			UpdateIncomeCategories();
@@ -42,7 +57,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		public Employee Cashier {
 			get {
 				if(cashier == null) {
-					cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+					cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				}
 				return cashier;
 			}
@@ -217,7 +232,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				return;
 			}
 			var currentSelectedCategory = Entity.IncomeCategory;
-			IncomeCategories = CategoryRepository.IncomeCategories(UoW).Where(x => x.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument).ToList();
+			IncomeCategories = 
+				_categoryRepository.IncomeCategories(UoW)
+					.Where(x => x.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument).ToList();
 			if(IncomeCategories.Contains(currentSelectedCategory)) {
 				Entity.IncomeCategory = currentSelectedCategory;
 			}
@@ -229,7 +246,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				return;
 			}
 			var currentSelectedCategory = Entity.ExpenseCategory;
-			ExpenseCategories = CategoryRepository.ExpenseCategories(UoW).Where(x => x.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument).ToList();
+			ExpenseCategories =
+				_categoryRepository.ExpenseCategories(UoW)
+					.Where(x => x.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument).ToList();
 			if(ExpenseCategories.Contains(currentSelectedCategory)) {
 				Entity.ExpenseCategory = currentSelectedCategory;
 			}
@@ -254,11 +273,17 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private void UpdateCashSubdivisions()
 		{
 			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
-			availableSubdivisionsForUser = SubdivisionsRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes).ToList();
-			if(Entity.Id != 0 && !CanEdit && Entity.CashSubdivisionFrom != null && !availableSubdivisionsForUser.Contains(Entity.CashSubdivisionFrom)) {
+			availableSubdivisionsForUser = _subdivisionRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes).ToList();
+			
+			if(Entity.Id != 0
+			   && !CanEdit
+			   && Entity.CashSubdivisionFrom != null
+			   && !availableSubdivisionsForUser.Contains(Entity.CashSubdivisionFrom))
+			{
 				availableSubdivisionsForUser.Add(Entity.CashSubdivisionFrom);
 			}
-			cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, cashDocumentTypes).Distinct();
+			
+			cashSubdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, cashDocumentTypes).Distinct();
 			SubdivisionsFrom = availableSubdivisionsForUser;
 			SubdivisionsTo = cashSubdivisions;
 		}

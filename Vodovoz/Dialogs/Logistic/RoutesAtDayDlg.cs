@@ -31,15 +31,18 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -48,6 +51,14 @@ namespace Vodovoz
 	{
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();		
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly ICarRepository _carRepository = new CarRepository();
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -214,7 +225,7 @@ namespace Vodovoz
 																		  .AddColumn("База")
 																			.AddComboRenderer(x => x.GeographicGroup)
 																			.SetDisplayFunc(x => x.Name)
-																			.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+																			.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
 																			.AddSetter(
 																				(c, n) => {
 																					c.Editable = n.Car != null;
@@ -243,7 +254,7 @@ namespace Vodovoz
 
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
 
-			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var subdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!subdivisions.Any()) {
 				MessageDialogHelper.RunErrorDialog("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
 				FailInitialize = true;
@@ -670,7 +681,7 @@ namespace Vodovoz
 			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 			SectorVersion sectorVersionAlias = null;
 
-			var baseOrderQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			var baseOrderQuery = _orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session);
 			var selectedGeographicGroup = geographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			if(selectedGeographicGroup.Any()) {
@@ -690,7 +701,7 @@ namespace Vodovoz
 			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
 				.Future();
 
-			OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			_orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
@@ -709,7 +720,7 @@ namespace Vodovoz
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
 									 .Where(x => !x.IsContractCloser)
-									 .Where(x => !OrderSingletonRepository.GetInstance().IsOrderCloseWithoutDelivery(UoW,x))
+									 .Where(x => !_orderRepository.IsOrderCloseWithoutDelivery(UoW, x))
 									 .ToList()
 									 ;
 
@@ -726,7 +737,7 @@ namespace Vodovoz
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 
-			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery1 = _routeListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
@@ -769,7 +780,7 @@ namespace Vodovoz
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
 			//добавляем маркеры складов
-			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
+			foreach(var b in _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
 				var addressMarker = new PointMarker(
 					new PointLatLng(
 						(double)b.BaseLatitude,
@@ -860,7 +871,7 @@ namespace Vodovoz
 		private void Refresh()
 		{
 			FillDialogAtDay();
-			FillFullOrdersInfo(OrderSingletonRepository.GetInstance());
+			FillFullOrdersInfo(_orderRepository);
 			OnTabNameChanged();
 		}
 
@@ -1114,19 +1125,21 @@ namespace Vodovoz
 
 		private bool CheckAlreadyAddedAddress(Order order)
 		{
-			RouteListRepository routeListRepository = new RouteListRepository();
-			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
-			if(routeList == null) {
+			var routeList = _routeListRepository.GetRouteListByOrder(UoW, order);
+			
+			if(routeList == null)
+			{
 				return true;
 			}
+			
 			MessageDialogHelper.RunWarningDialog($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
 			return false;
 		}
 
 		private bool CheckRouteListWasChanged(RouteList routeList)
 		{
-			RouteListRepository routeListRepository = new RouteListRepository();
-			if(routeListRepository.RouteListWasChanged(routeList)) {
+			if(_routeListRepository.RouteListWasChanged(routeList))
+			{
 				MessageDialogHelper.RunWarningDialog($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
 				return false;
 			}
@@ -1203,7 +1216,7 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = ScheduleRestrictionRepository.GetSectorVersion(UoW);
+			logisticanDistricts = _scheduleRestrictionRepository.GetSectorVersion(UoW, CurDate);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.Polygon.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
@@ -1223,7 +1236,7 @@ namespace Vodovoz
 		{
 			var SelectDrivers = new OrmReference(
 				UoW,
-				EmployeeRepository.ActiveDriversOrderedQuery()
+				_employeeRepository.ActiveDriversOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -1236,7 +1249,7 @@ namespace Vodovoz
 			var addDrivers = e.GetEntities<Employee>().ToList();
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = Repository.Logistics.CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
 				driversAtDay.Add(
@@ -1255,7 +1268,7 @@ namespace Vodovoz
 		{
 			var SelectForwarder = new OrmReference(
 				UoW,
-				EmployeeRepository.ActiveForwarderOrderedQuery()
+				_employeeRepository.ActiveForwarderOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -1300,7 +1313,7 @@ namespace Vodovoz
 
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
-			var logistican = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var logistican = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(logistican == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				return;
@@ -1375,7 +1388,7 @@ namespace Vodovoz
 		{
 			var SelectDriverCar = new OrmReference(
 				UoW,
-				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
+				_carRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;
@@ -1469,7 +1482,7 @@ namespace Vodovoz
 		protected void OnLabel2WidgetEvent(object o, WidgetEventArgs args)
 		{
 			if(args.Event.Type == EventType.ButtonPress && (args.Event as EventButton).Button == 1) {
-				var user = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				var user = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				if(user.User.Id != 94)
 					return;
 

@@ -8,15 +8,23 @@ using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+<<<<<<< HEAD
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Sale;
+=======
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Sale;
+>>>>>>> develop
 
 namespace Vodovoz.Tools.Logistic
 {
 	public static class DeliveryPriceCalculator
 	{
+		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
+		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -39,7 +47,7 @@ namespace Vodovoz.Tools.Logistic
 
 			//Топливо
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
-				var fuel = FuelRepository.GetDefaultFuel(uow);
+				var fuel = _fuelRepository.GetDefaultFuel(uow);
 				if(fuel == null) {
 					result.ErrorMessage = string.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
 					return result;
@@ -47,8 +55,13 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
+<<<<<<< HEAD
 				sectorVersions = ScheduleRestrictionRepository.GetSectorVersion(uow);
 				result.WageDistrict = deliveryPoint?.GetActiveVersion(activationTime)?.Sector?.GetActiveSectorVersion()?.WageSector?.Name ?? "Неизвестно";
+=======
+				districts = _scheduleRestrictionRepository.GetDistrictsWithBorder(uow);
+				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
+>>>>>>> develop
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {
@@ -58,7 +71,12 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
+<<<<<<< HEAD
 					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, sectorVersions);
+=======
+					var gg =
+						_geographicGroupRepository.GeographicGroupsWithCoordinatesQuery((double)latitude.Value, (double)longitude.Value, districts);
+>>>>>>> develop
 					var route = new List<PointOnEarth>(2);
 					if(gg != null && gg.BaseCoordinatesExist)
 						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));

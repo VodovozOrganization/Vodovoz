@@ -4,6 +4,7 @@ using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -40,7 +41,8 @@ namespace Vodovoz.JournalViewers
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
-				new OrderSelectorFactory());
+				new OrderSelectorFactory(),
+				new UndeliveredOrdersRepository());
 
 			tab.TabParent.AddSlaveTab(tab, dlg);
 		}

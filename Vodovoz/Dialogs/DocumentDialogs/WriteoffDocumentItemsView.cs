@@ -8,29 +8,25 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
-using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class WriteoffDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly ICullingCategoryRepository _cullingCategoryRepository = new CullingCategoryRepository();
 		GenericObservableList<WriteoffDocumentItem> items;
 		WriteoffDocumentItem FineEditItem;
 
@@ -64,7 +60,7 @@ namespace Vodovoz
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.AddColumn ("Причина выбраковки").AddComboRenderer (i => i.CullingCategory)
 					.SetDisplayFunc (DomainHelper.GetTitle).Editing ()
-					.FillItems (Repository.CullingCategoryRepository.All (DocumentUoW))
+					.FillItems (_cullingCategoryRepository.All(DocumentUoW))
 					.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 					.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 					.AddColumn("Выявлено в процессе").AddTextRenderer(i => i.Comment).Editable()
@@ -102,9 +98,7 @@ namespace Vodovoz
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository()
-			);
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(

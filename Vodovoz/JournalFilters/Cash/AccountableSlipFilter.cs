@@ -3,8 +3,10 @@ using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -15,7 +17,7 @@ namespace Vodovoz
 	{
 		protected override void ConfigureWithUow()
 		{
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
+			yentryExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
 
 			var filter = new EmployeeRepresentationFilterViewModel();
 			filter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);

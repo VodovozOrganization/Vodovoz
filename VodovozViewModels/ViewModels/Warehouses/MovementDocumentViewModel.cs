@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
@@ -21,14 +22,12 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
-using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
 	public class MovementDocumentViewModel : EntityTabViewModelBase<MovementDocument>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
 		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
@@ -36,6 +35,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
 		private readonly IRDLPreviewOpener rdlPreviewOpener;
+		private readonly IStockRepository _stockRepository;
 		private readonly IWarehousePermissionValidator warehousePermissionValidator;
 		private readonly bool canEditRectroactively;
 
@@ -50,10 +50,10 @@ namespace Vodovoz.ViewModels.Warehouses
 			IWarehouseRepository warehouseRepository,
 			IUserRepository userRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
-			ICommonServices commonServices) 
+			ICommonServices commonServices,
+			IStockRepository stockRepository) 
 		: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -61,6 +61,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
 
 			canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
@@ -428,7 +429,7 @@ namespace Vodovoz.ViewModels.Warehouses
 								var nomsAmount = new Dictionary<int, decimal>();
 								if (nomIds != null && nomIds.Any()) {
 									nomIds = nomIds.Distinct().ToList();
-									nomsAmount = StockRepository.NomenclatureInStock(UoW, Entity.FromWarehouse.Id, nomIds.ToArray());
+									nomsAmount = _stockRepository.NomenclatureInStock(UoW, Entity.FromWarehouse.Id, nomIds.ToArray());
 								}
 								foreach (var item in orderItems) {
 									var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);

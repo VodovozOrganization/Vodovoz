@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -13,7 +12,6 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSProjectsLib;
-using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
@@ -21,7 +19,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using QS.Dialog;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -33,19 +30,16 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
-using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
-	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
-	{
-		private class OrderNode : PropertyChangedBase
+    public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+    {
+	    private class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -104,18 +98,19 @@ namespace Vodovoz
 		}
 
 		#region Поля и свойства
+		
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private readonly RouteListItem _routeListItem;
+		
 		private IUnitOfWork _uow;
 		private bool _canEditPrices;
 		private OrderNode _orderNode;
 		private CallTaskWorker _callTaskWorker;
-		private readonly RouteListItem _routeListItem;
 		private List<OrderItemReturnsNode> _itemsToClient;
 		public event PropertyChangedEventHandler PropertyChanged;
-
-		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-
-		private readonly IOrderRepository _orderRepository = OrderSingletonRepository.GetInstance();
 
 		public IUnitOfWork UoW
 		{
@@ -133,28 +128,27 @@ namespace Vodovoz
 				_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
 					CallTaskSingletonFactory.GetInstance(),
 					new CallTaskRepository(),
-					OrderSingletonRepository.GetInstance(),
-					EmployeeSingletonRepository.GetInstance(),
-					new BaseParametersProvider(),
+					_orderRepository,
+					new EmployeeRepository(),
+					new BaseParametersProvider(_parametersProvider),
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance));
 			set => _callTaskWorker = value;
 		}
+		
 		#endregion
 
 		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
 		{
-			this.Build();
-			this._routeListItem = routeListItem;
-			this.TabName = "Изменение заказа №" + routeListItem.Order.Id;
+			Build();
+			_routeListItem = routeListItem;
+			TabName = "Изменение заказа №" + routeListItem.Order.Id;
 
 			UoW = uow;
 
 			UpdateListsSentivity();
-			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive =
-				routeListItem.Status != RouteListItemStatus.Transfered;
-
-
+			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive = routeListItem.Status != RouteListItemStatus.Transfered;
+			
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 			Configure();
 			UpdateItemsList();
@@ -470,7 +464,8 @@ namespace Vodovoz
 				//доставки будет пустая
 				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
 				_routeListItem.Order.Client = _orderNode.Client;
-				_routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(), _routeListItem.BottlesReturned);
+				_routeListItem.Order.UpdateBottleMovementOperation(
+					UoW, new BaseParametersProvider(_parametersProvider), _routeListItem.BottlesReturned);
 			}
 		}
 
@@ -553,7 +548,7 @@ namespace Vodovoz
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
-			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider(_parametersProvider);
 			_routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
 		}
 

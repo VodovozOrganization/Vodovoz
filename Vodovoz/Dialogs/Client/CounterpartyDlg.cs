@@ -13,11 +13,9 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -42,17 +40,21 @@ using Vodovoz.Domain.Retail;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 
@@ -61,13 +63,21 @@ namespace Vodovoz
     public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        
-        private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
-        private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
+
+        private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+        private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
+        private readonly IUserRepository _userRepository = new UserRepository();
+        private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
+        private readonly IDepositRepository _depositRepository = new DepositRepository();
+        private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
+        private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+        private readonly IOrderRepository _orderRepository = new OrderRepository();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
-        private  INomenclatureRepository nomenclatureRepository;
+        private INomenclatureRepository nomenclatureRepository;
+        private ValidationContext _validationContext;
+        private Employee _currentEmployee;
 
         private bool deliveryPointsConfigured = false;
         private bool documentsConfigured = false;
@@ -109,7 +119,7 @@ namespace Vodovoz
 	        {
 		        if (subdivisionRepository is null)
 		        {
-			        subdivisionRepository = new SubdivisionRepository();
+			        subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		        }
 		        return subdivisionRepository;
 	        }
@@ -148,7 +158,7 @@ namespace Vodovoz
         public virtual INomenclatureRepository NomenclatureRepository {
             get {
                 if(nomenclatureRepository == null) {
-                    nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
+                    nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
                 };
                 return nomenclatureRepository;
             }
@@ -221,7 +231,7 @@ namespace Vodovoz
                     nomenclatureSelectorFactory =
                         new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
                             ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-                            NomenclatureRepository, userRepository);
+                            NomenclatureRepository, _userRepository);
                 }
                 return nomenclatureSelectorFactory;
             }
@@ -272,6 +282,9 @@ namespace Vodovoz
             ConfigureDlg();
         }
 
+        private Employee CurrentEmployee => _currentEmployee ??
+			(_currentEmployee = _employeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId));
+       
         void ConfigureDlg()
         {
             notebook1.CurrentPage = 0;
@@ -300,6 +313,7 @@ namespace Vodovoz
             ConfigureTabSpecialFields();
             ConfigureTabPrices();
             ConfigureTabFixedPrices();
+            ConfigureValidationContext();
             
             //make actions menu
             var menu = new Gtk.Menu();
@@ -357,7 +371,7 @@ namespace Vodovoz
             ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
             ySpecCmbCameFrom.Sensitive = Entity.Id == 0;
-            ySpecCmbCameFrom.ItemsList = CounterpartyRepository.GetPlacesClientCameFrom(
+            ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
                 UoW,
                 Entity.CameFrom == null || !Entity.CameFrom.IsArchive
             );
@@ -421,7 +435,8 @@ namespace Vodovoz
 
             // Прикрепляемые документы
 
-            var filesViewModel = new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices);
+            var filesViewModel = new CounterpartyFilesViewModel(
+	            Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository);
             counterpartyfilesview1.ViewModel = filesViewModel;
 
             chkNeedNewBottles.Binding.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active).InitializeFromSource();
@@ -635,11 +650,11 @@ namespace Vodovoz
                     UoW,
                     this,
                     ServicesConfig.CommonServices,
-                    employeeService,
+                    _employeeService,
                     CounterpartySelectorFactory,
                     NomenclatureSelectorFactory,
                     NomenclatureRepository,
-                    userRepository);
+                    _userRepository);
 
         }
 
@@ -654,6 +669,16 @@ namespace Vodovoz
             fixedpricesview.ViewModel = fixedPricesViewModel;
         }
 
+        private void ConfigureValidationContext()
+        {
+	        _validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
+	        
+	        _validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
+	        _validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
+        }
 
         private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
         {
@@ -707,7 +732,7 @@ namespace Vodovoz
 		        nomenclatureSelectorFactory,
 		        counterpartySelectorFactory,
 		        nomenclatureRepository,
-		        userRepository,
+		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),
@@ -715,8 +740,7 @@ namespace Vodovoz
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
 		        new UndeliveredOrdersJournalOpener(),
-				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory()
+				new UndeliveredOrdersRepository()
 			);
 
 	        TabParent.AddTab(orderJournalViewModel, this, false);
@@ -734,7 +758,7 @@ namespace Vodovoz
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        UndeliveredOrdersJournalOpener,
-		        employeeService,
+		        _employeeService,
 		        CounterpartySelectorFactory,
 		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
@@ -745,14 +769,15 @@ namespace Vodovoz
 		        new GtkReportViewOpener(),
 		        new GtkTabsOpener(),
 		        NomenclatureRepository,
-		        userRepository,
+		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory()
+				new NomenclatureSelectorFactory(),
+		        new UndeliveredOrdersRepository()
 	        );
 	        
 	        TabParent.AddTab(complaintsJournalViewModel, this, false);
@@ -775,21 +800,31 @@ namespace Vodovoz
 
         public override bool Save()
         {
-            try {
+            try
+            {
                 SetSensetivity(false);
-                if(Entity.PayerSpecialKPP == String.Empty)
-                    Entity.PayerSpecialKPP = null;
+                
+                if(Entity.PayerSpecialKPP == string.Empty)
+                {
+	                Entity.PayerSpecialKPP = null;
+                }
+
                 Entity.UoW = UoW;
-                var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
-                if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-                    return false;
+
+                if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
+                {
+	                return false;
+                }
+
                 logger.Info("Сохраняем контрагента...");
                 phonesView.RemoveEmpty();
                 emailsView.RemoveEmpty();
                 UoWGeneric.Save();
                 logger.Info("Ok.");
                 return true;
-            } finally{
+            }
+            finally
+            {
                 SetSensetivity(true);
             }
         }
@@ -801,7 +836,7 @@ namespace Vodovoz
         private bool CheckDuplicate()
         {
             string INN = UoWGeneric.Root.INN;
-            IList<Counterparty> counterarties = Repositories.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+            IList<Counterparty> counterarties = _counterpartyRepository.GetCounterpartiesByINN(UoW, INN);
             return counterarties != null && counterarties.Any(x => x.Id != UoWGeneric.Root.Id);
         }
 
@@ -942,7 +977,7 @@ namespace Vodovoz
         {
             if(yentrySignPost.Completion == null) {
                 yentrySignPost.Completion = new EntryCompletion();
-                var list = CounterpartyRepository.GetUniqueSignatoryPosts(UoW);
+                var list = _counterpartyRepository.GetUniqueSignatoryPosts(UoW);
                 yentrySignPost.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
                 yentrySignPost.Completion.TextColumn = 0;
                 yentrySignPost.Completion.Complete();
@@ -953,7 +988,7 @@ namespace Vodovoz
         {
             if(yentrySignBaseOf.Completion == null) {
                 yentrySignBaseOf.Completion = new EntryCompletion();
-                var list = CounterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
+                var list = _counterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
                 yentrySignBaseOf.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
                 yentrySignBaseOf.Completion.TextColumn = 0;
                 yentrySignBaseOf.Completion.Complete();
@@ -1034,7 +1069,7 @@ namespace Vodovoz
                 return;
             }
 
-            Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, UoW);
+            Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, CurrentEmployee);
             SetVisibilityForCloseDeliveryComments();
         }
 
@@ -1053,7 +1088,8 @@ namespace Vodovoz
 
         protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
         {
-            if(!Entity.ToogleDeliveryOption(UoW)) {
+            if(!Entity.ToggleDeliveryOption(CurrentEmployee))
+            {
                 MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
                 return;
             }

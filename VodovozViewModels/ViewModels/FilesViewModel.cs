@@ -8,7 +8,6 @@ using System.Diagnostics;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Services;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels
@@ -16,6 +15,7 @@ namespace Vodovoz.ViewModels
 	public class FilesViewModel : UoWWidgetViewModelBase
 	{
 		private readonly IInteractiveService _interactiveService;
+		private readonly IUserRepository _userRepository;
 		private readonly IFilePickerService _filePicker;
 
 		private GenericObservableList<ComplaintFile> filesList;
@@ -37,9 +37,14 @@ namespace Vodovoz.ViewModels
 		public DelegateCommand<ComplaintFile> DeleteItemCommand { get; private set; }
 		public DelegateCommand<ComplaintFile> LoadItemCommand { get; private set; }
 
-		public FilesViewModel(IFilePickerService filePicker, IInteractiveService interactiveService, IUnitOfWork uow)
+		public FilesViewModel(
+			IFilePickerService filePicker,
+			IInteractiveService interactiveService,
+			IUnitOfWork uow,
+			IUserRepository userRepository)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
@@ -79,15 +84,19 @@ namespace Vodovoz.ViewModels
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
 				file => {
 
-					var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
+					var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
 
 					if(string.IsNullOrWhiteSpace(vodUserTempDir))
+					{
 						return;
+					}
 
 					var tempFilePath = Path.Combine(Path.GetTempPath(),vodUserTempDir, file.FileStorageId);
 
 					if(!File.Exists(tempFilePath))
+					{
 						File.WriteAllBytes(tempFilePath, file.ByteFile);
+					}
 
 					var process = new Process();
 					process.StartInfo.FileName = Path.Combine(vodUserTempDir, file.FileStorageId);

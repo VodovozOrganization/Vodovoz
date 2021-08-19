@@ -5,7 +5,6 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Employees;
 using Vodovoz;
 using Vodovoz.Domain.Logistic;
-using StaticFuelRepository = Vodovoz.Repositories.FuelRepository;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Fuel;
 

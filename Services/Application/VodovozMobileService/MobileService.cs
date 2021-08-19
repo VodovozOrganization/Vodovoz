@@ -10,7 +10,8 @@ using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 using VodovozMobileService.DTO;
 
 namespace VodovozMobileService
@@ -21,6 +22,8 @@ namespace VodovozMobileService
 	public class MobileService : IMobileService
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public static string BaseUrl { get; set; }
 
 		public MobileService()
@@ -35,7 +38,7 @@ namespace VodovozMobileService
 								.Where(x => x.ToString().StartsWith(type.ToString()))
 								.ToArray();
 
-				var list = NomenclatureRepository.GetNomenclatureWithPriceForMobileApp(uow, types);
+				var list = _nomenclatureRepository.GetNomenclatureWithPriceForMobileApp(uow, types);
 				if(type == CatalogType.Water)
 					list = list.OrderByDescending(n => n.Weight)
 						.ThenBy(n => n.NomenclaturePrice.Any() ? n.NomenclaturePrice.Max(p => p.Price) : 0)
@@ -47,7 +50,7 @@ namespace VodovozMobileService
 
 				var listDto = list.Select(n => new NomenclatureDTO(n)).ToList();
 
-				var imageIds = NomenclatureRepository.GetNomenclatureImagesIds(uow, list.Select(x => x.Id).ToArray());
+				var imageIds = _nomenclatureRepository.GetNomenclatureImagesIds(uow, list.Select(x => x.Id).ToArray());
 				listDto.Where(dto => imageIds.ContainsKey(dto.Id))
 					.ToList()
 					.ForEach(dto => dto.imagesIds = imageIds[dto.Id]);

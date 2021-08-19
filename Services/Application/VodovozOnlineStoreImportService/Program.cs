@@ -78,7 +78,8 @@ namespace VodovozOnlineStoreImportService
 			}
 
 			try {
-				INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider();
+				INomenclatureParametersProvider nomenclatureParametersProvider =
+					new NomenclatureParametersProvider(new ParametersProvider());
 				INomenclatureRepository nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
 				
 				ImporterDataFromOnlineStore importer = new ImporterDataFromOnlineStore(

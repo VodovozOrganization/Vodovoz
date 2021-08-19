@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using Vodovoz.Repositories;
-using Vodovoz.Repository.Store;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {
-	public class Offers : IXmlConvertable 
+	public class Offers : IXmlConvertable
 	{
-		Dictionary<int, decimal> amounts;
+		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly Dictionary<int, decimal> _amounts;
 
 		public Offers(Export export)
 		{
 			myExport = export;
 			myExport.OnProgressPlusOneTask("Выгружаем наличие на складе");
 
-			var warehouses = WarehouseRepository.WarehousesForPublishOnlineStore(myExport.UOW);
+			var warehouses = _warehouseRepository.WarehousesForPublishOnlineStore(myExport.UOW);
 			var nomenclatureIds = myExport.Catalog.Goods.NomenclatureIds;
 			var warehousesIds = warehouses.Select(x => x.Id).ToArray();
 
-			amounts = StockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
+			_amounts = _stockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
 		}
 
 		Export myExport;

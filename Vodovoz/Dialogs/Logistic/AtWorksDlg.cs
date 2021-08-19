@@ -15,6 +15,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Service.BaseParametersServices;
@@ -22,12 +23,12 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -35,13 +36,16 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using CarRepository = Vodovoz.Repository.Logistics.CarRepository;
+using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly DriverApiUserRegisterEndpoint _driverApiRegistrationEndpoint;
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
@@ -50,16 +54,21 @@ namespace Vodovoz.Dialogs.Logistic
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-		private readonly IWageCalculationRepository _wageCalculationRepository  = WageSingletonRepository.GetInstance();
-		private readonly IEmployeeRepository _employeeRepository = EmployeeSingletonRepository.GetInstance();
+		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly ICarRepository _carRepository = new CarRepository();
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-        private readonly IRouteListRepository _routeListRepository = new RouteListRepository();
+        private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory)
+			IEmployeeJournalFactory employeeJournalFactory,
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -67,7 +76,7 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			
+			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			this.Build();
 
 			var colorWhite = new Color(0xff, 0xff, 0xff);
@@ -99,18 +108,17 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 				.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("База")
-				.AddComboRenderer(x => x.GeographicGroup)
-				.SetDisplayFunc(x => x.Name)
-				.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
-				.AddSetter(
-					(c, n) =>
-					{
-						c.Editable = true;
-						c.BackgroundGdk = n.GeographicGroup == null
-							? colorLightRed
-							: colorWhite;
-					}
-				)
+					.AddComboRenderer(x => x.GeographicGroup)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+					.AddSetter(
+						(c, n) => {
+							c.Editable = true;
+							c.BackgroundGdk = n.GeographicGroup == null
+								? colorLightRed
+								: colorWhite;
+						}
+					)
 				.AddColumn("Грузоп.")
 				.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
@@ -145,7 +153,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 			SetButtonClearDriverScreenSensitive();
-        }
+		}
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
@@ -213,7 +221,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
-			var workDriversAtDay = EmployeeSingletonRepository.GetInstance().GetWorkingDriversAtDay(UoW, DialogAtDate);
+			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, DialogAtDate);
 
 			if(workDriversAtDay.Count > 0) {
 				foreach(var driver in workDriversAtDay) {
@@ -222,7 +230,7 @@ namespace Vodovoz.Dialogs.Logistic
 						continue;
 					}
 
-					var car = CarRepository.GetCarByDriver(UoW, driver);
+					var car = _carRepository.GetCarByDriver(UoW, driver);
 					var daySchedule = GetDriverWorkDaySchedule(driver);
 
 					var atwork = new AtWorkDriver(driver, DialogAtDate, car, daySchedule);
@@ -242,8 +250,8 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
-            SetButtonClearDriverScreenSensitive();
-        }
+			SetButtonClearDriverScreenSensitive();
+		}
 
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
 		{
@@ -264,7 +272,7 @@ namespace Vodovoz.Dialogs.Logistic
 					else
 					{
 						driver.Status = AtWorkDriver.DriverStatus.NotWorking;
-						driver.AuthorRemovedDriver = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+						driver.AuthorRemovedDriver = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 						driver.RemovedDate = DateTime.Now;
 					}
 				}
@@ -272,24 +280,24 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
-        protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
-        {
-            if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
-                $"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет очищен\n\n" +
-                "Вы действительно хотите продолжить?"))
-            {
-                DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
-                observableDriversAtDay.Clear();
-                SetButtonClearDriverScreenSensitive();
-            }
-        }
+		protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
+		{
+			if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
+				$"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет очищен\n\n" +
+				"Вы действительно хотите продолжить?"))
+			{
+				DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
+				observableDriversAtDay.Clear();
+				SetButtonClearDriverScreenSensitive();
+			}
+		}
 
 
-        protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
+		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
 			var selectDriverCar = new OrmReference(
 				UoW,
-				CarRepository.ActiveCompanyCarsQuery()
+				_carRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			selectDriverCar.Tag = driver;
@@ -312,7 +320,7 @@ namespace Vodovoz.Dialogs.Logistic
 			if(toAdd.Count == 0)
 				return;
 
-			var orders = ScheduleRestrictionRepository.OrdersCountByDistrict(UoW, DialogAtDate, 12);
+			var orders = _scheduleRestrictionRepository.OrdersCountByDistrict(UoW, DialogAtDate, 12);
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {
@@ -389,7 +397,10 @@ namespace Vodovoz.Dialogs.Logistic
 					_phonesViewModelFactory,
 					_warehouseRepository,
 					_routeListRepository,
-					CurrentUserSettings.Settings);
+					_driverApiRegistrationEndpoint,
+					CurrentUserSettings.Settings,
+					_userRepository,
+					_baseParametersProvider);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),
@@ -402,7 +413,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var SelectForwarder = new OrmReference(
 				UoW,
-				EmployeeRepository.ActiveForwarderOrderedQuery()
+				_employeeRepository.ActiveForwarderOrderedQuery()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -459,15 +470,15 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			FillDialogAtDay();
 			OnTabNameChanged();
-            SetButtonClearDriverScreenSensitive();
-        }
+			SetButtonClearDriverScreenSensitive();
+		}
 
 		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var addDrivers = e.SelectedNodes;
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
 				var drv = UoW.GetById<Employee>(driver.Id);
@@ -514,23 +525,23 @@ namespace Vodovoz.Dialogs.Logistic
 			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}
 
-        #endregion
+		#endregion
 
-        #region Fuctions
-        private void SetButtonClearDriverScreenSensitive()
-        {
-            if (ydateAtWorks.Date < DateTime.Now.Date || !driversAtDay.Any())
-            {
-                buttonClearDriverScreen.Sensitive = false;
-            }
-            else
-            {
-                buttonClearDriverScreen.Sensitive = true;
-            }
-        }
+		#region Fuctions
+		private void SetButtonClearDriverScreenSensitive()
+		{
+			if (ydateAtWorks.Date < DateTime.Now.Date || !driversAtDay.Any())
+			{
+				buttonClearDriverScreen.Sensitive = false;
+			}
+			else
+			{
+				buttonClearDriverScreen.Sensitive = true;
+			}
+		}
 
 
-        private void ChangeButtonAddRemove(bool needRemove)
+		private void ChangeButtonAddRemove(bool needRemove)
 		{
 			if (!canReturnDriver)
 			{
@@ -593,11 +604,12 @@ namespace Vodovoz.Dialogs.Logistic
 					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
 					return false;
 				}
-
+			
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
 			{
-				atWorkDriver.CommentLastEditedAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				atWorkDriver.CommentLastEditedAuthor = currentEmployee;
 				atWorkDriver.CommentLastEditedDate = DateTime.Now;
 			}
 			driversWithCommentChanged.Clear();
@@ -626,8 +638,8 @@ namespace Vodovoz.Dialogs.Logistic
 			logger.Info("Ок");
 
 			CheckAndCorrectDistrictPriorities();
-            SetButtonClearDriverScreenSensitive();
-        }
+			SetButtonClearDriverScreenSensitive();
+		}
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
 		private void CheckAndCorrectDistrictPriorities()
@@ -707,6 +719,6 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			Forwarder
 		}
-               
-    }
+			   
+	}
 }

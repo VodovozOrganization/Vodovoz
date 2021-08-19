@@ -45,6 +45,7 @@ namespace Vodovoz
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+		private readonly IUserRepository _userRepository = new UserRepository();
 
 		IPhoneRepository phoneRepository = new PhoneRepository();
 
@@ -155,7 +156,7 @@ namespace Vodovoz
 			lblId.LabelProp = Entity.Id.ToString();
 
 			radioFixedPrices.Toggled += OnRadioFixedPricesToggled;
-			var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 			var nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
 			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(nomenclatureRepository);
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
@@ -533,7 +534,7 @@ namespace Vodovoz
 			
 			Entity?.ObservableDeliveryPointSectorVersions.Add(newDeliveryPointSectorVersion);
 			
-			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
+			Entity.СoordsLastChangeUser = _userRepository.GetCurrentUser(UoW);
 		}
 
 		/// <summary>

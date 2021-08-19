@@ -9,7 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Service
 {
@@ -210,8 +210,8 @@ namespace Vodovoz.Domain.Service
 				TotalPrice += sci.Total;
 			}
 		}
-
-		public void AddHistoryRecord (ServiceClaimStatus status, string comment)
+		
+		public void AddHistoryRecord (ServiceClaimStatus status, string comment, IEmployeeRepository employeeRepository)
 		{
 			if(Status != status)
 			{
@@ -222,7 +222,7 @@ namespace Vodovoz.Domain.Service
 			ObservableServiceClaimHistory.Add (new ServiceClaimHistory { 
 				Date = DateTime.Now,
 				Status = status,
-				Employee = EmployeeRepository.GetEmployeeForCurrentUser (UoW),
+				Employee = employeeRepository.GetEmployeeForCurrentUser(UoW),
 				Comment = comment,
 				ServiceClaim = this
 			});

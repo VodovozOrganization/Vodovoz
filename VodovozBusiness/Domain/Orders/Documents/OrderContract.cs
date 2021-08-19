@@ -4,6 +4,7 @@ using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -34,13 +35,14 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DateTime? DocumentDate => Contract?.IssueDate;
 
-		public virtual void PrepareTemplate(IUnitOfWork uow)
+		public virtual void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(Contract.DocumentTemplate == null)
-				Contract.UpdateContractTemplate(uow);
+			{
+				Contract.UpdateContractTemplate(uow, docTemplateRepository);
+			}
 
-			if(Contract.DocumentTemplate != null)
-				Contract.DocumentTemplate.DocParser.SetDocObject(Contract);
+			Contract.DocumentTemplate?.DocParser.SetDocObject(Contract);
 		}
 
 		public virtual IDocTemplate GetTemplate() => Contract?.DocumentTemplate;

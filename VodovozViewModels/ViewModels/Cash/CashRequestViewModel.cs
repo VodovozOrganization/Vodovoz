@@ -12,18 +12,17 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Project.Services.Interactive;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Repository.Cash;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using VodovozInfrastructure.Interfaces;
-using CashRepository = Vodovoz.EntityRepositories.Cash.CashRepository;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -35,9 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public IEnumerable<CashRequestUserRole> UserRoles { get; }
 
         private readonly IEntityUoWBuilder uowBuilder;
-        private readonly CashRepository cashRepository;
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly ConsoleInteractiveService consoleInteractiveService;
+        private readonly ICashRepository _cashRepository;
         public HashSet<CashRequestSumItem> SumsGiven = new HashSet<CashRequestSumItem>();
         
         public string StateName => Entity.State.GetEnumTitle();
@@ -47,20 +44,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
-            CashRepository cashRepository,
-            ConsoleInteractiveService consoleInteractiveService,
+            ICashRepository cashRepository,
             IEmployeeJournalFactory employeeJournalFactory,
             ISubdivisionJournalFactory subdivisionJournalFactory
         ) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
             this.uowBuilder = uowBuilder ?? throw new ArgumentNullException(nameof(uowBuilder));
-            this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.consoleInteractiveService = consoleInteractiveService ?? throw new ArgumentNullException(nameof(consoleInteractiveService));
+            _cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
             EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
             var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
-                ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+                ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
                 HidenByDefault = true
             };
 
@@ -427,7 +421,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         {
             var builder = new StringBuilder();
 
-            var balanceList = cashRepository.GetCashBalanceForOrganizations(UoW);
+            var balanceList = _cashRepository.GetCashBalanceForOrganizations(UoW);
             foreach (var operationNode in balanceList)
             {
                 builder.Append(operationNode.Name + ": ");

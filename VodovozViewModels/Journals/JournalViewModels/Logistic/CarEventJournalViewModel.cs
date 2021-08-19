@@ -11,6 +11,7 @@ using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -24,15 +25,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
+		private readonly IEmployeeService _employeeService;
 
-		public CarEventJournalViewModel(CarEventFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
+		public CarEventJournalViewModel(
+			CarEventFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ICarJournalFactory carJournalFactory,
+			ICarEventTypeJournalFactory carEventTypeJournalFactory,
+			IEmployeeService employeeService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
 
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 
 			UpdateOnChanges(
 				typeof(CarEvent),
@@ -149,9 +157,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<CarEventViewModel> CreateDialogFunction =>
-			() => new CarEventViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _carJournalFactory, _carEventTypeJournalFactory);
+			() => new CarEventViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory,
+				commonServices,
+				_carJournalFactory,
+				_carEventTypeJournalFactory,
+				_employeeService);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
-			node => new CarEventViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _carJournalFactory, _carEventTypeJournalFactory);
+			node => new CarEventViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				commonServices,
+				_carJournalFactory,
+				_carEventTypeJournalFactory,
+				_employeeService);
 	}
 }

@@ -123,7 +123,11 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -137,6 +141,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using Vodovoz.EntityRepositories.Sectors;
 
 public partial class MainWindow : Gtk.Window
@@ -154,7 +159,7 @@ public partial class MainWindow : Gtk.Window
 
     public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
     {
-        this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+	    this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
         this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
         Build();
         PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
@@ -165,7 +170,7 @@ public partial class MainWindow : Gtk.Window
         var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
         var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
         var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
-        var tabsParametersProvider = new TabsParametersProvider(SingletonParametersProvider.Instance);
+        var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
         TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
         TDIMain.SetTabsReordering(reorderTabs);
         if (reorderTabs)
@@ -254,6 +259,24 @@ public partial class MainWindow : Gtk.Window
         NavigationManager = autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
         MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
         MangoManager.Connect();
+
+		#region Пользователь с правом работы только со складом и рекламациями
+
+		bool accessToWarehouseAndComplaints;
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			accessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+		}
+
+		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
+			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
+				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
+					MangoAction.Visible = !accessToWarehouseAndComplaints;
+        
+        #endregion
 
         BanksUpdater.CheckBanksUpdate(false);
 
@@ -513,32 +536,28 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionNomenclatureActivated(object sender, EventArgs e)
     {
-        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+        var userRepository = new UserRepository();
 
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+	            new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 
         tdiMain.OpenTab(
-            () =>
-            {
-                return new NomenclaturesJournalViewModel(
-                    new NomenclatureFilterViewModel() { HidenByDefault = true },
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    VodovozGtkServicesConfig.EmployeeService,
-                    nomenclatureSelectorFactory,
-                    counterpartySelectorFactory,
-                    nomenclatureRepository,
-                    UserSingletonRepository.GetInstance()
-                );
-            }
-        );
+            () => new NomenclaturesJournalViewModel(
+	            new NomenclatureFilterViewModel() { HidenByDefault = true },
+	            UnitOfWorkFactory.GetDefaultFactory,
+	            ServicesConfig.CommonServices,
+	            VodovozGtkServicesConfig.EmployeeService,
+	            nomenclatureSelectorFactory,
+	            counterpartySelectorFactory,
+	            nomenclatureRepository,
+	            userRepository
+            ));
     }
 
     protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
@@ -816,18 +835,20 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
     {
+	    var userRepository = new UserRepository();
+
         DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
         var deliveryPointJournal = new DeliveryPointJournalViewModel(
-	        UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
+	        userRepository, new GtkTabsOpener(), new PhoneRepository(),
 	        ContactParametersProvider.Instance,
 	        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 	        new HousesDataLoader(OsmWorker.GetOsmService()),
 	        new NomenclatureSelectorFactory(),
 	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
+		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 			new SectorsRepository(),
 			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-        tdiMain.AddTab(deliveryPointJournal);
+			tdiMain.AddTab(deliveryPointJournal);
     }
 
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
@@ -899,59 +920,57 @@ public partial class MainWindow : Gtk.Window
 
 	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
-        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-
-        var employeeJournalFactory = new EmployeeJournalFactory();
-
+	    var parametersProvider = new ParametersProvider();
+	    var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
+	    var employeeJournalFactory = new EmployeeJournalFactory();
+	    var userRepository = new UserRepository();
+        
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+	            new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 
-        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
         IFilePickerService filePickerService = new GtkFilePicker();
 
         tdiMain.OpenTab(
-            () =>
-            {
-                return new ComplaintsJournalViewModel(
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    undeliveredOrdersJournalOpener,
-                    VodovozGtkServicesConfig.EmployeeService,
-                    counterpartySelectorFactory,
-                    nomenclatureSelectorFactory,
-                    routeListItemRepository,
-                    SubdivisionParametersProvider.Instance,
-                    new ComplaintFilterViewModel(
-                        ServicesConfig.CommonServices,
-                        subdivisionRepository,
-                        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        counterpartySelectorFactory
-                    )
-                    {
-	                    HidenByDefault = true
-                    },
-                    filePickerService,
-                    subdivisionRepository,
-                    new GtkReportViewOpener(),
-                    new GtkTabsOpener(),
-                    nomenclatureRepository,
-                    UserSingletonRepository.GetInstance(),
-                    new OrderSelectorFactory(),
-                    employeeJournalFactory,
-                    new CounterpartyJournalFactory(),
-                    new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
-                );
-            }
+            () => new ComplaintsJournalViewModel(
+	            UnitOfWorkFactory.GetDefaultFactory,
+	            ServicesConfig.CommonServices,
+	            undeliveredOrdersJournalOpener,
+	            VodovozGtkServicesConfig.EmployeeService,
+	            counterpartySelectorFactory,
+	            nomenclatureSelectorFactory,
+	            routeListItemRepository,
+	            SubdivisionParametersProvider.Instance,
+	            new ComplaintFilterViewModel(
+		            ServicesConfig.CommonServices,
+		            subdivisionRepository,
+		            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+		            counterpartySelectorFactory
+	            )
+	            {
+		            HidenByDefault = true
+	            },
+	            filePickerService,
+	            subdivisionRepository,
+	            new GtkReportViewOpener(),
+	            new GtkTabsOpener(),
+	            nomenclatureRepository,
+	            userRepository,
+	            new OrderSelectorFactory(),
+	            employeeJournalFactory,
+	            new CounterpartyJournalFactory(),
+	            new DeliveryPointJournalFactory(),
+	            subdivisionJournalFactory,
+	            new SalesPlanJournalFactory(),
+	            new NomenclatureSelectorFactory(),
+	            new UndeliveredOrdersRepository()
+            )
         );
     }
 
@@ -959,7 +978,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(EmployeeSingletonRepository.GetInstance()))
+            () => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository()))
         );
     }
 
@@ -1081,7 +1100,9 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
     {
         #region DependencyCreation
-        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+        
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+        var userRepository = new UserRepository();
 
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -1089,14 +1110,14 @@ public partial class MainWindow : Gtk.Window
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
             new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-                new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
-                UserSingletonRepository.GetInstance());
+                new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 
         #endregion
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
-            () => new QSReport.ReportViewDlg(new ProducedProductionReport(counterpartySelectorFactory, nomenclatureSelectorFactory, nomenclatureRepository))
+            () => new QSReport.ReportViewDlg(
+	            new ProducedProductionReport(nomenclatureSelectorFactory))
         );
     }
 
@@ -1297,7 +1318,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-            () => new QSReport.ReportViewDlg(new MastersVisitReport())
+            () => new QSReport.ReportViewDlg(new MastersVisitReport(new EmployeeRepository()))
         );
     }
 
@@ -1443,9 +1464,11 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnOnLineActionActivated(object sender, EventArgs e)
     {
+	    var paymentsRepository = new PaymentsRepository();
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport())
+            () => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport(paymentsRepository))
         );
     }
 
@@ -1539,8 +1562,8 @@ public partial class MainWindow : Gtk.Window
 	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-            () => new QSReport.ReportViewDlg(new FirstClientsReport(sectorsSelectorFactory))
-        );
+            () => new QSReport.ReportViewDlg(new FirstClientsReport(sectorsSelectorFactory, new OrderRepository()))
+	        );
     }
 
     protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
@@ -1577,16 +1600,16 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
     {
-        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+        var userRepository = new UserRepository();
+        
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
-                UserSingletonRepository.GetInstance());
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+	            new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 
         tdiMain.AddTab(
             new PromotionalSetsJournalViewModel(
@@ -1596,7 +1619,7 @@ public partial class MainWindow : Gtk.Window
                 counterpartySelectorFactory,
                 nomenclatureSelectorFactory,
                 nomenclatureRepository,
-                UserSingletonRepository.GetInstance()
+                userRepository
             )
         );
     }
@@ -1637,7 +1660,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-            () => new QSReport.ReportViewDlg(new FirstSecondClientReport())
+            () => new QSReport.ReportViewDlg(new FirstSecondClientReport(new OrderRepository()))
         );
     }
 
@@ -1669,7 +1692,8 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-            () => new QSReport.ReportViewDlg(new CashBookReport(new SubdivisionRepository(), ServicesConfig.CommonServices))
+            () => new QSReport.ReportViewDlg(new CashBookReport(
+	            new SubdivisionRepository(new ParametersProvider()), ServicesConfig.CommonServices))
         );
     }
 
@@ -1853,12 +1877,13 @@ public partial class MainWindow : Gtk.Window
     {
         var counterpartyAutocompleteSelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-
-        var userRepository = UserSingletonRepository.GetInstance();
+        
+        var userRepository = new UserRepository();
+        
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
-            () => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport(counterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
+            () => new QSReport.ReportViewDlg(
+	            new PaymentsFromBankClientReport(counterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
         );
     }
 
@@ -1900,9 +1925,11 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
     {
+	    var employeeRepository = new EmployeeRepository();
+	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
-            () => new QSReport.ReportViewDlg(new ProductionRequestReport())
+            () => new QSReport.ReportViewDlg(new ProductionRequestReport(employeeRepository))
         );
     }
 
@@ -1946,7 +1973,7 @@ public partial class MainWindow : Gtk.Window
     {
         var cashRequestFilterViewModel = new CashRequestJournalFilterViewModel(new EmployeeJournalFactory());
         IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
-        IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
+        IEmployeeRepository employeeRepository = new EmployeeRepository();
         CashRepository cashRepository = new CashRepository();
         ConsoleInteractiveService consoleInteractiveService = new ConsoleInteractiveService();
         
@@ -2004,6 +2031,7 @@ public partial class MainWindow : Gtk.Window
 	    };
 	    
         var employeesJournalFactory = new EmployeeJournalFactory(employeeFilter);
+        var docTemplateRepository = new DocTemplateRepository();
 
         tdiMain.OpenTab(
             () => new WayBillGeneratorViewModel
@@ -2013,7 +2041,8 @@ public partial class MainWindow : Gtk.Window
 	            NavigationManagerProvider.NavigationManager,
 	            new WayBillDocumentRepository(),
 	            new RouteGeometryCalculator(DistanceProvider.Osrm),
-	            employeesJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
+	            employeesJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+	            docTemplateRepository
             ));
     }
 
@@ -2021,7 +2050,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(SingletonParametersProvider.Instance)))
+            () => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(new ParametersProvider())))
         );
     }
 
@@ -2048,57 +2077,55 @@ public partial class MainWindow : Gtk.Window
 
 	    IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
-        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-
+	    var parametersProvider = new ParametersProvider();
+        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
         var employeeJournalFactory = new EmployeeJournalFactory();
+        var userRepository = new UserRepository();
 
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
                 CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
-                .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
+            new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+	            new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
 
-        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+        ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
         IFilePickerService filePickerService = new GtkFilePicker();
 
         tdiMain.OpenTab(
-            () =>
-            {
-                return new ComplaintsJournalViewModel(
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    undeliveredOrdersJournalOpener,
-                    VodovozGtkServicesConfig.EmployeeService,
-                    counterpartySelectorFactory,
-                    nomenclatureSelectorFactory,
-                    routeListItemRepository,
-                    SubdivisionParametersProvider.Instance,
-                    new ComplaintFilterViewModel(
-                        ServicesConfig.CommonServices,
-                        subdivisionRepository,
-                        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        counterpartySelectorFactory
-                    )
-                    { IsForRetail = true },
-                    filePickerService,
-                    subdivisionRepository,
-                    new GtkReportViewOpener(),
-                    new GtkTabsOpener(),
-                    nomenclatureRepository,
-                    UserSingletonRepository.GetInstance(),
-                    new OrderSelectorFactory(),
-                    employeeJournalFactory,
-                    new CounterpartyJournalFactory(),
-                    new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
-                );
-            }
+            () => new ComplaintsJournalViewModel(
+	            UnitOfWorkFactory.GetDefaultFactory,
+	            ServicesConfig.CommonServices,
+	            undeliveredOrdersJournalOpener,
+	            VodovozGtkServicesConfig.EmployeeService,
+	            counterpartySelectorFactory,
+	            nomenclatureSelectorFactory,
+	            routeListItemRepository,
+	            SubdivisionParametersProvider.Instance,
+	            new ComplaintFilterViewModel(
+			            ServicesConfig.CommonServices,
+			            subdivisionRepository,
+			            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+			            counterpartySelectorFactory
+		            )
+		            { IsForRetail = true },
+	            filePickerService,
+	            subdivisionRepository,
+	            new GtkReportViewOpener(),
+	            new GtkTabsOpener(),
+	            nomenclatureRepository,
+	            userRepository,
+	            new OrderSelectorFactory(),
+	            employeeJournalFactory,
+	            new CounterpartyJournalFactory(),
+	            new DeliveryPointJournalFactory(),
+	            subdivisionJournalFactory,
+	            new SalesPlanJournalFactory(),
+	            new NomenclatureSelectorFactory(),
+	            new UndeliveredOrdersRepository()
+            )
         );
     }
 
@@ -2121,7 +2148,8 @@ public partial class MainWindow : Gtk.Window
     {
 	    ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-	    var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+	    var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+	    var userRepository = new UserRepository();
 
         IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
             new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
@@ -2130,7 +2158,7 @@ public partial class MainWindow : Gtk.Window
         IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
             new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig
                 .CommonServices, new NomenclatureFilterViewModel(), counterpartySelectorFactory,
-                nomenclatureRepository, UserSingletonRepository.GetInstance());
+                nomenclatureRepository, userRepository);
 
         tdiMain.OpenTab(
             () => new RetailOrderJournalViewModel(
@@ -2141,7 +2169,7 @@ public partial class MainWindow : Gtk.Window
                     nomenclatureSelectorFactory,
                     counterpartySelectorFactory,
                     nomenclatureRepository,
-                    UserSingletonRepository.GetInstance(),
+                    userRepository,
                     new OrderSelectorFactory(),
                     new EmployeeJournalFactory(),
                     new CounterpartyJournalFactory(),
@@ -2149,8 +2177,7 @@ public partial class MainWindow : Gtk.Window
                     subdivisionJournalFactory,
                     new GtkTabsOpener(),
                     new UndeliveredOrdersJournalOpener(),
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
+					new UndeliveredOrdersRepository()
             )
         );
     }
@@ -2200,7 +2227,9 @@ public partial class MainWindow : Gtk.Window
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
 
-		var viewModel = new CarsExploitationReportViewModel(uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(), carEntityAutocompleteSelectorFactory);
+		var viewModel = new CarsExploitationReportViewModel(
+			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
+			carEntityAutocompleteSelectorFactory);
 
 		tdiMain.AddTab(viewModel);
 	}
@@ -2226,7 +2255,9 @@ public partial class MainWindow : Gtk.Window
     
     protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
     {
-        var wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+        var wageParameterService =
+	        new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+        
         tdiMain.AddTab(
             new DriversInfoExportViewModel(
                 wageParameterService,

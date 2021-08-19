@@ -1,5 +1,6 @@
 ﻿using QSOrmProject.Users;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -9,8 +10,9 @@ namespace Vodovoz
 
 		static CurrentUserSettings()
 		{
-			manager.CreateUserSettings = uow => new UserSettings(Repositories.HumanResources.UserRepository.GetCurrentUser(uow));
-			manager.LoadUserSettings = Repositories.HumanResources.UserRepository.GetCurrentUserSettings;
+			var userRepository = new UserRepository();
+			manager.CreateUserSettings = uow => new UserSettings(userRepository.GetCurrentUser(uow));
+			manager.LoadUserSettings = userRepository.GetCurrentUserSettings;
 		}
 
 		public static UserSettings Settings

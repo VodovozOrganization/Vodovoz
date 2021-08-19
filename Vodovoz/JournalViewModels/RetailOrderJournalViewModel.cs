@@ -18,8 +18,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewers;
-using Vodovoz.Repositories;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
@@ -29,7 +27,10 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -53,8 +54,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -72,8 +72,7 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelector) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -88,9 +87,10 @@ namespace Vodovoz.JournalViewModels
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+			_undeliveredOrdersJournalOpener =
+				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_undeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
 			TabName = "Журнал заказов";
 
@@ -416,13 +416,17 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						commonServices,
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						commonServices,
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
@@ -545,13 +549,17 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						commonServices,
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						commonServices,
+						employeeService,
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
@@ -669,7 +677,9 @@ namespace Vodovoz.JournalViewModels
 						nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+						new OrderRepository(),
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -680,7 +690,9 @@ namespace Vodovoz.JournalViewModels
 						nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+						new OrderRepository(),
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
@@ -731,7 +743,8 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
-						o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(selectedItems),
+						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(
+							UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(selectedItems),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -759,7 +772,8 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory
+							_orderSelectorFactory,
+							_undeliveredOrdersRepository
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

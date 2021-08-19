@@ -8,18 +8,16 @@ using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.DocTemplates;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -27,6 +25,9 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class M2ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<M2ProxyDocument>, IEditableDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		
 		private List<OrderEquipment> equipmentList;
 		public IUnitOfWork UoWOrder { get; private set; }
 
@@ -168,7 +169,7 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.Organization == null || !isNewDoc) {
 				return;
 			}
-			templatewidget.AvailableTemplates = Repository.Client.DocTemplateRepository.GetAvailableTemplates(UoW, TemplateType.M2Proxy, Entity.Organization);
+			templatewidget.AvailableTemplates = _docTemplateRepository.GetAvailableTemplates(UoW, TemplateType.M2Proxy, Entity.Organization);
 			templatewidget.Template = templatewidget.AvailableTemplates.FirstOrDefault();
 		}
 

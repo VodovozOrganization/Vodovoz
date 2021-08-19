@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -117,7 +118,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 	public interface ITemplateOdtDocument
 	{
-		void PrepareTemplate(IUnitOfWork uow);
+		void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository);
 	}
 
 	[AttributeUsage(AttributeTargets.Field)]

@@ -7,9 +7,9 @@ using QS.DomainModel.UoW;
 using QS.Tdi;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Chats;
 using Chats;
+using Vodovoz.EntityRepositories.Chats;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz
 {
@@ -21,6 +21,8 @@ namespace Vodovoz
 		private TextTagTable textTags;
 		private Employee currentEmployee;
 		private IUnitOfWorkGeneric<Chat> chatUoW;
+		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
+		private readonly ILastReadedRepository _lastReadedRepository = new LastReadedRepository();
 
 		static IChatService getChatService()
 		{
@@ -29,13 +31,18 @@ namespace Vodovoz
 				ChatMain.ChatServiceUrl).CreateChannel();
 		}
 
-		public ChatWidget(int chatId)
+		public ChatWidget(int chatId, IEmployeeRepository employeeRepository)
 		{
-			this.Build();
+			if(employeeRepository == null)
+			{
+				throw new ArgumentNullException(nameof(employeeRepository));
+			}
+			
+			Build();
 			textTags = buildTagTable();
 			HandleSwitchIn = OnSwitchIn;
 			HandleSwitchOut = OnSwitchOut;
-			configure(chatId);
+			Configure(chatId, employeeRepository);
 			GtkScrolledWindow1.SizeAllocated += (object o, SizeAllocatedArgs args) => {
 				if (GtkScrolledWindow1.Vadjustment.Value == 0)
 					scrollToEnd();
@@ -43,15 +50,15 @@ namespace Vodovoz
 			textViewChat.ModifyFont(Pango.FontDescription.FromString(".SF NS Text 14"));
 		}
 
-		private void updateLastReadedMessage () {
+		private void UpdateLastReadedMessage () {
 			chatUoW.Root.UpdateLastReadedTime (currentEmployee);
 			chatUoW.Save();
 		}
 
-		private void configure(int chatId)
+		private void Configure(int chatId, IEmployeeRepository employeeRepository)
 		{
 			chatUoW = UnitOfWorkFactory.CreateForRoot<Chat>(chatId);
-			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
+			currentEmployee = employeeRepository.GetEmployeeForCurrentUser(chatUoW);
 
 			if (currentEmployee == null)
 			{
@@ -59,10 +66,14 @@ namespace Vodovoz
 				this.Destroy();
 				return;
 			}
+			
 			if (!ChatCallbackObservable.IsInitiated)
-				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
+			{
+				ChatCallbackObservable.CreateInstance(currentEmployee.Id, _chatMessageRepository);
+			}
+
 			ChatCallbackObservable.GetInstance().AddObserver(this);
-			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
+			var lastReaded = _lastReadedRepository.GetLastReadedMessageForEmployee(chatUoW, chatUoW.Root, currentEmployee);
 
 			if (lastReaded != null)
 			{
@@ -128,7 +139,7 @@ namespace Vodovoz
 
 		private void updateChat()
 		{
-			var messages = ChatMessageRepository.GetChatMessagesForPeriod(chatUoW, chatUoW.Root, showMessagePeriod);
+			var messages = _chatMessageRepository.GetChatMessagesForPeriod(chatUoW, chatUoW.Root, showMessagePeriod);
 
 			TextBuffer tempBuffer = new TextBuffer(textTags);
 			TextIter iter = tempBuffer.EndIter;
@@ -167,7 +178,7 @@ namespace Vodovoz
 		private void updateTitle() {
 			if (!isActive)
 			{
-				var newMessagesCount = LastReadedRepository.GetLastReadedMessagesCountForEmployee(chatUoW, chatUoW.Root, currentEmployee);
+				var newMessagesCount = _lastReadedRepository.GetLastReadedMessagesCountForEmployee(chatUoW, chatUoW.Root, currentEmployee);
 				if (newMessagesCount > 0)
 				{
 					if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
@@ -183,12 +194,12 @@ namespace Vodovoz
 			{
 				if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
 					this.TabName = String.Format("Чат ({0})", chatUoW.Root.Driver.ShortName);
-				updateLastReadedMessage();
+				UpdateLastReadedMessage();
 			}
 		}
 
 		private void OnSwitchIn(ITdiTab tabFrom) {
-			updateLastReadedMessage();
+			UpdateLastReadedMessage();
 			ChatCallbackObservable.GetInstance().NotifyChatUpdate(chatUoW.Root.Id, this);
 			isActive = true;
 			updateTitle();
