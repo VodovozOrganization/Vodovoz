@@ -46,10 +46,17 @@ namespace DriverAPI.Controllers
 
 			var orders = _aPIOrderData.Get(ordersIds.ToArray());
 
+			var resortedOrders = new List<OrderDto>();
+
+			foreach(var orderId in ordersIds)
+			{
+				resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
+			}
+
 			return new GetRouteListsDetailsResponseDto()
 			{
 				RouteLists = routeLists,
-				Orders = orders
+				Orders = resortedOrders
 			};
 		}
 
