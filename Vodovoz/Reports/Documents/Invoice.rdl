@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -90,8 +90,8 @@
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
 	orders.trifle AS trifle,
 	orders.self_delivery,
-    if(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
-    if(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
+	IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
+	IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
 FROM
 	orders
 		LEFT JOIN
@@ -119,7 +119,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1791,7 +1791,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Покупатель1:</Value>
+                      <Value>Покупатель:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -3326,11 +3326,27 @@ WHERE stored_resource.id = @id1</CommandText>
       </List>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
+        <Width>55.00pt</Width>
+        <Value>=Max({delivery_schedule}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>82.3pt</Left>
+        <Top>222.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
         <ZIndex>1</ZIndex>
-        <Left>47.2pt</Left>
-        <Top>222.4pt</Top>
+        <Left>17.0pt</Left>
+        <Top>222.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3339,89 +3355,59 @@ WHERE stored_resource.id = @id1</CommandText>
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12pt</Height>
-        <Width>48.24pt</Width>
-        <Value>=Max({delivery_schedule}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>113.3pt</Left>
-        <Top>222.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontSize>10pt</FontSize>
-          <TextAlign >Left</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.75pt</Height>
         <Width>49.28pt</Width>
         <Value>Договор:</Value>
         <ZIndex>1</ZIndex>
-        <Left>164.4pt</Left>
-        <Top>222.4pt</Top>
+        <Left>136.6pt</Left>
+        <Top>222.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
-          <TextAlign >Left</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox57" >
-        <Height>12.75pt</Height>
-        <Width>95.56pt</Width>
-        <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>205.5pt</Left>
-        <Top>222.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox68" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12pt</Height>
         <Width>36.39pt</Width>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
         <ZIndex>1</ZIndex>
-        <Left>294.8pt</Left>
-        <Top>222.4pt</Top>
+        <Left>277.4pt</Left>
+        <Top>222.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
-          <TextAlign >Right</TextAlign>
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox101" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12pt</Height>
-        <Width>62.50pt</Width>
+      <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>81.28pt</Width>
         <Value>=Max({lunch_time}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>330.8pt</Left>
-        <Top>222.4pt</Top>
+        <Left>315.8pt</Left>
+        <Top>222.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
-          <TextAlign >Left</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox102" >
+      <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
         <Width>148.11pt</Width>
         <Value>Доставка раньше интервала:</Value>
         <ZIndex>1</ZIndex>
-        <Left>388.9pt</Left>
-        <Top>221.6pt</Top>
+        <Left>385.9pt</Left>
+        <Top>222.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3429,19 +3415,33 @@ WHERE stored_resource.id = @id1</CommandText>
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox103" >
-        <Height>12.75pt</Height>
-        <Width>21.17pt</Width>
+      <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>27.18pt</Width>
         <Value>=Max({is_before_interval_delivery}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>536.7pt</Left>
-        <Top>222.1pt</Top>
+        <Left>534.5pt</Left>
+        <Top>222.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox57" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12pt</Height>
+        <Width>104.58pt</Width>
+        <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>180.9pt</Left>
+        <Top>222.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
     </ReportItems>

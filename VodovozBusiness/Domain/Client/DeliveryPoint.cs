@@ -569,14 +569,14 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		[Display(Name = "Обед с часа")]
+		[Display(Name = "Время начала обеда")]
 		public virtual TimeSpan LunchTimeFrom
 		{
 			get => _lunchTimeFrom;
 			set => SetField(ref _lunchTimeFrom, value);
 		}
 
-		[Display(Name = "Обед до часа")]
+		[Display(Name = "Время окончания обеда")]
 		public virtual TimeSpan LunchTimeTo
 		{
 			get => _lunchTimeTo;

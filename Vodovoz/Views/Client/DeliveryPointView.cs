@@ -158,19 +158,6 @@ namespace Vodovoz.Views.Client
 			entryLunchTimeFrom.Binding.AddBinding(ViewModel.Entity, e => e.LunchTimeFrom, w => w.Time).InitializeFromSource();
 			entryLunchTimeTo.Binding.AddBinding(ViewModel.Entity, e => e.LunchTimeTo, w => w.Time).InitializeFromSource();
 
-
-			//cmbxBeforeIntervalDelivery.SetRenderTextFunc<DeliveryPointViewModel.BeforeIntervalDeliveryNode>(x => x.Name);
-			//.Binding.AddBinding(ViewModel, vm => vm.BeforeIntervalDeliveryItems, w => w.ItemsList).InitializeFromSource();
-
-			//cmbxBeforeIntervalDelivery.ShowSpecialStateNot = true;
-			//cmbxBeforeIntervalDelivery.NameForSpecialStateNot = " ";
-			//cmbxBeforeIntervalDelivery.SetRenderTextFunc<bool?>(x=> x == true ? "Да" : "Нет");
-			//cmbxBeforeIntervalDelivery.Binding.AddBinding(ViewModel.Entity, e => e.IsBeforeIntervalDelivery, w => w.SelectedItem).InitializeFromSource();
-			//cmbxBeforeIntervalDelivery.Binding.AddBinding(ViewModel, vm => vm.BeforeIntervalDeliveryItems, w => w.ItemsList).InitializeFromSource();
-
-
-			//cmbxBeforeIntervalDelivery.ItemsList = ViewModel.BeforeIntervalDeliveryItems;
-
 			chkBeforeIntervalDelivery.RenderMode = QS.Widgets.RenderMode.Icon;
 			chkBeforeIntervalDelivery.Binding.AddBinding(ViewModel.Entity, e => e.IsBeforeIntervalDelivery, w => w.Active).InitializeFromSource();
 
