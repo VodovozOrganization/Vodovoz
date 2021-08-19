@@ -16,8 +16,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -37,10 +37,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+
+		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory)
+			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -48,6 +52,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			_undeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
@@ -65,6 +71,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			FinishJournalConfiguration();
 		}
+
+		private Employee CurrentEmployee => _currentEmployee ??
+		    (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
 
 		private void RegisterUndeliveredOrders()
 		{
@@ -209,7 +218,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			if(FilterViewModel?.RestrictDriver != null)
 			{
-				var oldOrderIds = UndeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(UoW, FilterViewModel.RestrictDriver);
+				var oldOrderIds = _undeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(UoW, FilterViewModel.RestrictDriver);
 				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
 			}
 
@@ -507,7 +516,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						}
 
 						UndeliveredOrder undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);
-						undeliveredOrder.Close();
+						undeliveredOrder.Close(CurrentEmployee);
 						UoW.Save(undeliveredOrder);
 						UoW.Commit();
 					}

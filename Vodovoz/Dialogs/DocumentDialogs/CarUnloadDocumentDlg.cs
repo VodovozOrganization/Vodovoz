@@ -14,7 +14,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -25,9 +24,10 @@ using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
@@ -36,14 +36,20 @@ namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
-		private IEmployeeRepository EmployeeRepository => EmployeeSingletonRepository.GetInstance();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
+		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
+		private readonly IRouteListRepository
+			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
-		private ICarUnloadRepository CarUnloadRepository => CarUnloadSingletonRepository.GetInstance();
-		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 		IList<Equipment> alreadyUnloadedEquipment;
-		private WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private WageParameterService wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private CallTaskWorker callTaskWorker;
 
 		#region Конструкторы
@@ -86,7 +92,7 @@ namespace Vodovoz
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -100,9 +106,9 @@ namespace Vodovoz
 			callTaskWorker = new CallTaskWorker(
 				CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
-				OrderSingletonRepository.GetInstance(),
-				EmployeeSingletonRepository.GetInstance(),
-				new BaseParametersProvider(),
+				new OrderRepository(),
+				_employeeRepository,
+				_baseParametersProvider,
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance);
 
@@ -111,11 +117,14 @@ namespace Vodovoz
 				return;
 			}
 
-			var currentUserId = QS.Project.Services.ServicesConfig.CommonServices.UserService.CurrentUserId;
-			var hasPermitionToEditDocWithClosedRL = QS.Project.Services.ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_car_load_and_unload_docs", currentUserId);
+			var currentUserId = ServicesConfig.UserService.CurrentUserId;
+			var hasPermitionToEditDocWithClosedRL =
+				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
+					"can_change_car_load_and_unload_docs", currentUserId);
+			
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()));
+			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
 				hbxTareToReturn.Sensitive =
@@ -152,8 +161,12 @@ namespace Vodovoz
 			if(!UoW.IsNew)
 				LoadReception();
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(CarUnloadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(typeof(CarUnloadDocument), currentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -181,19 +194,19 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			if(!UpdateReceivedItemsOnEntity(terminalNomenclatureProvider.GetNomenclatureIdForTerminal))
+			if(!UpdateReceivedItemsOnEntity(_baseParametersProvider.GetNomenclatureIdForTerminal))
 				return false;
 
 			var valid = new QS.Validation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			if(!CarUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
+			if(!_carUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
 				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
 			}
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
@@ -202,7 +215,7 @@ namespace Vodovoz
 
 			if (Entity.RouteList.Status == RouteListStatus.Delivered)
 			{
-				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker);
+				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker, _trackRepository);
 			}
 			
 			logger.Info("Сохраняем разгрузочный талон...");
@@ -231,7 +244,7 @@ namespace Vodovoz
 
 		void UpdateAlreadyUnloaded()
 		{
-			alreadyUnloadedEquipment = Repositories.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
+			alreadyUnloadedEquipment = _equipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
 			returnsreceptionview.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
@@ -239,7 +252,7 @@ namespace Vodovoz
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
 				return;
-			Dictionary<int, decimal> returns = CarUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
+			Dictionary<int, decimal> returns = _carUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
@@ -507,7 +520,7 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 			FillOtherReturnsTable();
-			Entity.ReturnedEmptyBottlesBefore(UoW, new RouteListRepository());
+			Entity.ReturnedEmptyBottlesBefore(UoW, _routeListRepository);
 		}
 		#endregion
 

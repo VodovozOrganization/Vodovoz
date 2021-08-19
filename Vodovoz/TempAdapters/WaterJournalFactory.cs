@@ -27,37 +27,31 @@ namespace Vodovoz.TempAdapters
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
         {
-	        NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel
-	        {
-		        RestrictCategory = NomenclatureCategory.fuel, RestrictArchive = false
-	        };
-
-	        var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
+            NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
+            nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
+            nomenclatureFilter.RestrictArchive = false;
 			
+            var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+            var userRepository = new UserRepository();
+
             var counterpartySelectorFactory =
                 new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
                     ServicesConfig.CommonServices);
 			
             var nomenclatureSelectorFactory =
-                new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-	                nomenclatureFilter, new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
-	                counterpartySelectorFactory, nomenclatureRepository, UserSingletonRepository.GetInstance());
-            
-            var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-
+                new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+                    ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
+			
             WaterJournalViewModel waterJournal = new WaterJournalViewModel(
-	            journalActions,
-	            UnitOfWorkFactory.GetDefaultFactory,
-	            ServicesConfig.CommonServices,
-	            new EmployeeService(),
-	            nomenclatureSelectorFactory,
-	            counterpartySelectorFactory,
-	            nomenclatureRepository,
-	            UserSingletonRepository.GetInstance()
-            )
-            {
-	            SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single
-            };
+                UnitOfWorkFactory.GetDefaultFactory,
+                ServicesConfig.CommonServices,
+                new EmployeeService(),
+                nomenclatureSelectorFactory,
+                counterpartySelectorFactory,
+                nomenclatureRepository,
+                userRepository	
+            );
+
 
             return waterJournal;
         }

@@ -5,12 +5,12 @@ using System.Linq;
 using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
-using QS.Print;
 using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Additions.Printing
 {
@@ -21,6 +21,7 @@ namespace Vodovoz.Additions.Printing
 	/// </summary>
 	public class EntitiyDocumentsPrinter
 	{
+		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 		public List<SelectablePrintDocument> DocumentsToPrint { get; set; } = new List<SelectablePrintDocument>();
 		public MultipleDocumentPrinter MultiDocPrinter { get; set; }
 		public string ODTTemplateNotFoundMessages { get; set; }
@@ -45,27 +46,42 @@ namespace Vodovoz.Additions.Printing
 			List<string> msgs = null;
 			bool? successfulUpdate = null;
 
-			foreach(var item in currentOrder.OrderDocuments.OfType<PrintableOrderDocument>()) {
-				if(item is IPrintableOdtDocument) {
-					switch(item.Type) {
+			foreach(var item in currentOrder.OrderDocuments.OfType<PrintableOrderDocument>())
+			{
+				if(item is IPrintableOdtDocument printableDoc)
+				{
+					switch(item.Type)
+					{
 						case OrderDocumentType.Contract:
-							if((item as IPrintableOdtDocument).GetTemplate() == null)
-								successfulUpdate = (item as OrderContract).Contract.UpdateContractTemplate(currentOrder.UoW);
-							(item as OrderContract).PrepareTemplate(currentOrder.UoW);
+							if(printableDoc.GetTemplate() == null)
+							{
+								successfulUpdate =
+									(item as OrderContract).Contract.UpdateContractTemplate(currentOrder.UoW, _docTemplateRepository);
+							}
+
+							(item as OrderContract).PrepareTemplate(currentOrder.UoW, _docTemplateRepository);
 							break;
 						case OrderDocumentType.M2Proxy:
-							if((item as IPrintableOdtDocument).GetTemplate() == null)
-								successfulUpdate = (item as OrderM2Proxy).M2Proxy.UpdateM2ProxyDocumentTemplate(currentOrder.UoW);
-							(item as OrderM2Proxy).PrepareTemplate(currentOrder.UoW);
+							if(printableDoc.GetTemplate() == null)
+							{
+								successfulUpdate =
+									(item as OrderM2Proxy).M2Proxy.UpdateM2ProxyDocumentTemplate(currentOrder.UoW, _docTemplateRepository);
+							}
+
+							(item as OrderM2Proxy).PrepareTemplate(currentOrder.UoW, _docTemplateRepository);
 							break;
 						case OrderDocumentType.AdditionalAgreement:
 							break;
 						default:
 							throw new NotSupportedException("Документ не поддерживается");
 					}
-					if(successfulUpdate == false) {
+					if(successfulUpdate == false)
+					{
 						if(msgs == null)
+						{
 							msgs = new List<string>();
+						}
+
 						msgs.Add(string.Format("Документ '{0}' в комплект печати добавлен не был, т.к. для него не установлен шаблон документа и не удалось найти подходящий.", item.Name));
 						continue;
 					}

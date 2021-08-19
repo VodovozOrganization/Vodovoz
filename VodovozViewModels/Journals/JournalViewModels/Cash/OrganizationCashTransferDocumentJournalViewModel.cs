@@ -12,6 +12,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -20,16 +21,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
     public class OrganizationCashTransferDocumentJournalViewModel : FilterableSingleEntityJournalViewModelBase<OrganizationCashTransferDocument, OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentFilterViewModel>
     {
-        private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
+        private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
+        private readonly IEmployeeService _employeeService;
+        
         public OrganizationCashTransferDocumentJournalViewModel(
-	        EntitiesJournalActionsViewModel journalActionsViewModel,
 	        OrganizationCashTransferDocumentFilterViewModel filterViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        ICommonServices commonServices,
-	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
-            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
+	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
+	        IEmployeeService employeeService)
+            : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
+            _entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
+            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+
             TabName = "Журнал перемещения д/с для юр.лиц";
             UpdateOnChanges(typeof(OrganizationCashTransferDocument));
         }

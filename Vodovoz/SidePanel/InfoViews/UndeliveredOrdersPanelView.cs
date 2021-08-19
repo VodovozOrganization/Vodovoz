@@ -10,7 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using IUndeliveredOrdersInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IUndeliveredOrdersInfoProvider;
@@ -21,6 +21,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class UndeliveredOrdersPanelView : Gtk.Bin, IPanelView
 	{
 		private readonly IUnitOfWork _uow;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		
 		public UndeliveredOrdersPanelView()
 		{
@@ -110,7 +111,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				.Left.JoinAlias(u => u.Author, () => authorAlias);
 
 			if(filter?.RestrictDriver != null) {
-				var oldOrderIds = UndeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(_uow, filter.RestrictDriver);
+				var oldOrderIds = _undeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(_uow, filter.RestrictDriver);
 				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
 			}
 

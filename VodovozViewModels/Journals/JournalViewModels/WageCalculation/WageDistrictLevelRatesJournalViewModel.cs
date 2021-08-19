@@ -8,6 +8,7 @@ using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.WageCalculation;
 
@@ -57,17 +58,19 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 		protected override Func<WageDistrictLevelRatesViewModel> CreateDialogFunction => () => new WageDistrictLevelRatesViewModel(
 			this,
 			EntityUoWBuilder.ForCreate(),
-			UnitOfWorkFactory,
-			CommonServices,
-			UoW
+			unitOfWorkFactory,
+			commonServices,
+			UoW,
+			new WageCalculationRepository()
 	   );
 
 		protected override Func<JournalEntityNodeBase, WageDistrictLevelRatesViewModel> OpenDialogFunction => n => new WageDistrictLevelRatesViewModel(
 			this,
 			EntityUoWBuilder.ForOpen(n.Id),
-			UnitOfWorkFactory,
-			CommonServices,
-			UoW
+			unitOfWorkFactory,
+			commonServices,
+			UoW,
+			new WageCalculationRepository()
 	   );
 	}
 }

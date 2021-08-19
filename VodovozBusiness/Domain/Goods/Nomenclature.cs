@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
@@ -13,9 +12,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -691,6 +689,12 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(nomenclatureRepository) }");
+			}
+			
 			if(String.IsNullOrWhiteSpace(Name))
 				yield return new ValidationResult(
 					"Название номенклатуры должно быть заполнено.", new[] { this.GetPropertyName(o => o.Name) });
@@ -745,14 +749,22 @@ namespace Vodovoz.Domain.Goods
 					new[] { this.GetPropertyName(o => o.Unit) });
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
-			if(DependsOnNomenclature != null) {
-				IList<Nomenclature> dependedNomenclatures = NomenclatureRepository.GetDependedNomenclatures(UoW, this);
-				if(dependedNomenclatures.Any()) {
+			if(DependsOnNomenclature != null)
+			{
+				IList<Nomenclature> dependedNomenclatures = nomenclatureRepository.GetDependedNomenclatures(UoW, this);
+				
+				if(dependedNomenclatures.Any())
+				{
 					string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
+					
 					foreach(Nomenclature n in dependedNomenclatures)
+					{
 						dependedNomenclaturesText += $"{n.Id}: {n.OfficialName} ({n.CategoryString})\n";
+					}
+
 					yield return new ValidationResult(dependedNomenclaturesText, new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 				}
+				
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
 					yield return new ValidationResult(
 						$"Номенклатура '{DependsOnNomenclature.ShortOrFullName}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName}'",
@@ -765,11 +777,13 @@ namespace Vodovoz.Domain.Goods
 						$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
 						new[] { this.GetPropertyName(o => o.Code1c) });
 
-				var next = NomenclatureRepository.GetNextCode1c(UoW);
+				var next = nomenclatureRepository.GetNextCode1c(UoW);
 				if(string.Compare(Code1c, next) > 0)
+				{
 					yield return new ValidationResult(
 						$"Код 1с использует префикс автоматического формирования кодов '{PrefixOfCode1c}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {next} или оставьте это поле пустым для автозаполенения.",
 						new[] { this.GetPropertyName(o => o.Code1c) });
+				}
 			}
 
 			if(DateTime.Now >= new DateTime(2019, 01, 01) && VAT == VAT.Vat18)

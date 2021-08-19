@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		RegradingOfGoodsTemplateItem newRow;
+		private RegradingOfGoodsTemplateItem _newRow;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 
 		public RegradingOfGoodsTemplateItemsView()
 		{
@@ -53,71 +57,94 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var selectOldNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			selectOldNomenclature.TabName =	"Выберите номенклатуру на замену";
-			selectOldNomenclature.Mode = OrmReferenceMode.Select;
-			selectOldNomenclature.ObjectSelected += SelectOldNomenclature_ObjectSelected1;
-			MyTab.TabParent.AddSlaveTab(MyTab, selectOldNomenclature);
+			var oldNomenclatureSelector =
+				CreateNomenclatureSelector("Выберите номенклатуру на замену", OldNomenclatureSelectorOnEntitySelectedResult);
+			MyTab.TabParent.AddSlaveTab(MyTab, oldNomenclatureSelector);
+		}
+		
+		private IEntitySelector CreateNomenclatureSelector(string tabName, EventHandler<JournalSelectedNodesEventArgs> onEntitySelectResult)
+		{
+			var newNomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector(null, false);
+			(newNomenclatureSelector as JournalViewModelBase).TabName = tabName;
+			newNomenclatureSelector.OnEntitySelectedResult += onEntitySelectResult;
+			return newNomenclatureSelector;
 		}
 
-		void SelectOldNomenclature_ObjectSelected1 (object sender, OrmReferenceObjectSectedEventArgs e)
+		private void OldNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = e.Subject as Nomenclature;
-			newRow = new RegradingOfGoodsTemplateItem()
-				{
-					NomenclatureOld = nomenclature
-				};
+			var node = e.SelectedNodes.FirstOrDefault();
 
-			var selectNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			selectNewNomenclature.Mode = OrmReferenceMode.Select;
-			selectNewNomenclature.TabName = "Выберите новую номенклатуру";
-			selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, selectNewNomenclature);
+			if(node == null)
+			{
+				return;
+			}
+
+			var nomenclature = TemplateUoW.GetById<Nomenclature>(node.Id);
+			
+			_newRow = new RegradingOfGoodsTemplateItem()
+			{
+				NomenclatureOld = nomenclature
+			};
+
+			var newNomenclatureSelector =
+				CreateNomenclatureSelector("Выберите новую номенклатуру", NewNomenclatureSelectorOnEntitySelectedResult);
+			MyTab.TabParent.AddSlaveTab(MyTab, newNomenclatureSelector);
 		}
 
-		void SelectNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		private void NewNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = e.Subject as Nomenclature;
-			newRow.NomenclatureNew = nomenclature;
-			TemplateUoW.Root.AddItem(newRow);
+			var node = e.SelectedNodes.FirstOrDefault();
+
+			if(node == null)
+			{
+				_newRow = null;
+				return;
+			}
+
+			var nomenclature = TemplateUoW.GetById<Nomenclature>(node.Id);
+			_newRow.NomenclatureNew = nomenclature;
+			TemplateUoW.Root.AddItem(_newRow);
 		}
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var changeOldNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			changeOldNomenclature.TabName =	"Изменить старую номенклатуру";
-			changeOldNomenclature.Mode = OrmReferenceMode.Select;
-			changeOldNomenclature.ObjectSelected += ChangeOldNomenclature_ObjectSelected1;;
-			MyTab.TabParent.AddSlaveTab(MyTab, changeOldNomenclature);
+			var changeOldNomenclatureSelector =
+				CreateNomenclatureSelector("Изменить старую номенклатуру", ChangeOldNomenclatureSelectorOnEntitySelectedResult);
+			MyTab.TabParent.AddSlaveTab(MyTab, changeOldNomenclatureSelector);
 		}
-
-		void ChangeOldNomenclature_ObjectSelected1 (object sender, OrmReferenceObjectSectedEventArgs e)
+		
+		private void ChangeOldNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsTemplateItem>();
-			if (row == null)
-				return;
+			var node = e.SelectedNodes.FirstOrDefault();
 
-			var nomenclature = e.Subject as Nomenclature;
+			if(node == null || row == null)
+			{
+				return;
+			}
+
+			var nomenclature = TemplateUoW.GetById<Nomenclature>(node.Id);
 			row.NomenclatureOld = nomenclature;
 		}
 
-
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var changeNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			changeNewNomenclature.Mode = OrmReferenceMode.Select;
-			changeNewNomenclature.TabName = "Изменить новую номенклатуру";
-			changeNewNomenclature.ObjectSelected += ChangeNewNomenclature_ObjectSelected;;
-			MyTab.TabParent.AddSlaveTab(MyTab, changeNewNomenclature);
+			var changeNewNomenclatureSelector =
+				CreateNomenclatureSelector("Изменить новую номенклатуру", ChangeNewNomenclatureSelectorOnEntitySelectedResult);
+			MyTab.TabParent.AddSlaveTab(MyTab, changeNewNomenclatureSelector);
 		}
-
-		void ChangeNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		
+		private void ChangeNewNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsTemplateItem>();
-			if (row == null)
-				return;
+			var node = e.SelectedNodes.FirstOrDefault();
 
-			var nomenclature = e.Subject as Nomenclature;
+			if(node == null || row == null)
+			{
+				return;
+			}
+
+			var nomenclature = TemplateUoW.GetById<Nomenclature>(node.Id);
 			row.NomenclatureNew = nomenclature;
 		}
 

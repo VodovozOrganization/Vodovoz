@@ -7,10 +7,7 @@ using QS.Validation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Goods;
 using System.Linq;
@@ -21,21 +18,32 @@ using NHibernate;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Gamma.GtkWidgets;
+using QS.Project.Services;
 using QSProjectsLib;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly IStockRepository _stockRepository = new StockRepository();
+
 		private SelectableParametersReportFilter filter;
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -70,9 +78,13 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
-			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
-				var permissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-				canEdit &= permissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
+			{
+				var permissionValidator = 
+					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				
+				canEdit &= permissionValidator.Validate(
+					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			}
 
 			canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
@@ -214,7 +226,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
@@ -307,30 +319,36 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			if(Entity.Items.Count == 0)
-				Entity.FillItemsFromStock(UoW,
-						nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
-						nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
-						nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
-						nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
-						productGroupToInclude: productGroupToInclude.ToArray(),
-						productGroupToExclude: productGroupToExclude.ToArray()
-					);
-			else
-				Entity.UpdateItemsFromStock(UoW,
+			{
+				Entity.FillItemsFromStock(
+					UoW,
+					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
 					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
 					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
 					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
 					productGroupToInclude: productGroupToInclude.ToArray(),
-					productGroupToExclude: productGroupToExclude.ToArray()
-					);
+					productGroupToExclude: productGroupToExclude.ToArray());
+			}
+			else
+			{
+				Entity.UpdateItemsFromStock(
+					UoW,
+					_stockRepository,
+					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
+					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
+					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
+					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
+					productGroupToInclude: productGroupToInclude.ToArray(),
+					productGroupToExclude: productGroupToExclude.ToArray());
+			}
 
 			UpdateButtonState();
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var nomenclatureSelectDlg = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
 			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
 			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);

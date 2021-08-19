@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Gamma.Utilities;
-using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Repository.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Client
 {
@@ -107,7 +104,7 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <returns><c>true</c>, in case of successful update, <c>false</c> if template for the additional agreement was not found.</returns>
 		/// <param name="uow">Unit of Work.</param>
-		public virtual bool UpdateContractTemplate(IUnitOfWork uow)
+		public virtual bool UpdateContractTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if (Contract == null)
 			{
@@ -116,7 +113,7 @@ namespace Vodovoz.Domain.Client
 			}
 			else
 			{
-				var newTemplate = DocTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization, Contract.ContractType);
+				var newTemplate = docTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization, Contract.ContractType);
 				if(newTemplate == null) {
 					DocumentTemplate = null;
 					ChangedTemplateFile = null;

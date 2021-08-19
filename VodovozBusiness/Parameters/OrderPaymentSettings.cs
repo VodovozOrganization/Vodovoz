@@ -1,18 +1,17 @@
-﻿using Vodovoz.Services;
+﻿using System;
+using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
 {
     public class OrderPaymentSettings: IOrderPaymentSettings
     {
-        private IParametersProvider parametersProvider;
+        private IParametersProvider _parametersProvider;
 
-        public OrderPaymentSettings()
+        public OrderPaymentSettings(IParametersProvider parametersProvider)
         {
-            parametersProvider = SingletonParametersProvider.Instance;
+            _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
 
-        public int DefaultSelfDeliveryPaymentFromId{
-            get => parametersProvider.GetIntValue("default_selfdelivery_paymentFrom_id");        
-        }
+        public int DefaultSelfDeliveryPaymentFromId => _parametersProvider.GetIntValue("default_selfdelivery_paymentFrom_id");
     }
 }

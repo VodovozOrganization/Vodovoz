@@ -13,21 +13,19 @@ using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using System.Linq;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
 	public partial class CashFlow : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly ICommonServices commonServices;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly ICommonServices _commonServices;
 
 		private IEnumerable<Subdivision> UserSubdivisions { get; }
 		private IEnumerable<Organization> Organisations { get; }
@@ -36,14 +34,22 @@ namespace Vodovoz.Reports
 			Name = "Все"
 		};
 
-		public CashFlow (ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
+		public CashFlow (
+			ISubdivisionRepository subdivisionRepository, ICommonServices commonServices, ICategoryRepository categoryRepository)
 		{
-			this.Build ();
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			if(categoryRepository == null)
+			{
+				throw new ArgumentNullException(nameof(categoryRepository));
+			}
+			
+			Build();
+			
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			comboPart.ItemsEnum = typeof(ReportParts);
-			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (UoW);
+			comboIncomeCategory.ItemsList = categoryRepository.IncomeCategories(UoW);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
 			var now = DateTime.Now;
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
@@ -57,7 +63,7 @@ namespace Vodovoz.Reports
 			yentryrefEmployee.RepresentationModel = new EmployeesVM();
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
-			var list = CategoryRepository.ExpenseCategories(UoW);
+			var list = categoryRepository.ExpenseCategories(UoW);
 			list.Insert(0, allItem);
 			var model = recurciveConfig.CreateModel((IList)list);
 			comboExpenseCategory.Model = model.Adapter;
@@ -94,7 +100,7 @@ namespace Vodovoz.Reports
 		}
 
 		private IEnumerable<Subdivision> GetSubdivisionsForUser() => 
-			subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, commonServices.UserService.GetCurrentUser(UoW));
+			_subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, _commonServices.UserService.GetCurrentUser(UoW));
 
 		void HandleCellLayoutDataFunc (Gtk.CellLayout cell_layout, CellRenderer cell, Gtk.TreeModel tree_model, Gtk.TreeIter iter)
 		{
@@ -248,7 +254,7 @@ namespace Vodovoz.Reports
 				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(SingletonParametersProvider.Instance);
+			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(new ParametersProvider());
 			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
 			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
 

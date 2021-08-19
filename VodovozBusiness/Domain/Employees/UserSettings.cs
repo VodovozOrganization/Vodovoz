@@ -139,8 +139,7 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref logisticChainStoreOrders, value, () => LogisticChainStoreOrders);
 		}
 
-
-        /// <summary>
+		/// <summary>
         /// Использовать отдел сотрудника
         /// </summary>
 

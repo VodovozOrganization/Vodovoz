@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Linq;
-using FluentNHibernate.Utils;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using QSWidgetLib;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 
 namespace Vodovoz
 {
 	public partial class DeliveryScheduleDlg : QS.Dialog.Gtk.EntityDialogBase<DeliverySchedule>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 
 		public DeliveryScheduleDlg ()
 		{
@@ -57,7 +57,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var all = DeliveryScheduleRepository.All(UoWGeneric);
+			var all =_deliveryScheduleRepository.All(UoWGeneric);
 			var notArchivedList = all.Where(ds => ds.IsArchive == false && ds.From == Entity.From && ds.To == Entity.To).ToList();
 			if (notArchivedList.Any() && UoWGeneric.Root.IsArchive == false)
 			{//при архивировании интервала эти проверки не нужны

@@ -19,15 +19,15 @@ namespace Vodovoz.JournalViewModels
 {
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IEmployeeService _employeeService;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		
 		public PromotionalSetsJournalViewModel(
-			EntitiesJournalActionsViewModel journalActionsViewModel,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
@@ -36,13 +36,14 @@ namespace Vodovoz.JournalViewModels
 			IUserRepository userRepository,
 			bool hideJournalForOpenDialog = false, 
 			bool hideJournalForCreateDialog = false)
-			: base(journalActionsViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
 			TabName = "Рекламные наборы";
 
@@ -76,24 +77,24 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<PromotionalSetViewModel> CreateDialogFunction => () => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForCreate(),
-			UnitOfWorkFactory,
-			CommonServices,
-			employeeService,
-			counterpartySelectorFactory,
-			nomenclatureSelectorFactory,
-			nomenclatureRepository,
-			userRepository
+			_unitOfWorkFactory,
+			commonServices,
+			_employeeService,
+			_counterpartySelectorFactory,
+			_nomenclatureSelectorFactory,
+			_nomenclatureRepository,
+			_userRepository
 		);
 
 		protected override Func<JournalEntityNodeBase, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			UnitOfWorkFactory,
-			CommonServices,
-			employeeService,
-			counterpartySelectorFactory,
-			nomenclatureSelectorFactory,
-			nomenclatureRepository,
-			userRepository
+			_unitOfWorkFactory,
+			commonServices,
+			_employeeService,
+			_counterpartySelectorFactory,
+			_nomenclatureSelectorFactory,
+			_nomenclatureRepository,
+			_userRepository
 	   	);
 
 		protected override void InitializeJournalActionsViewModel()

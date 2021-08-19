@@ -1,15 +1,21 @@
-﻿using Gamma.GtkWidgets;
+﻿using System.ComponentModel.DataAnnotations;
+using Gamma.GtkWidgets;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Validation;
+using QS.Project.Services;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Sale;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Dialogs.Sale
 {
 	public partial class DeliveryPriceRuleDlg : EntityDialogBase<DeliveryPriceRule>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IDistrictRuleRepository _districtRuleRepository = new DistrictRuleRepository();
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
+
+		private ValidationContext _validationContext;
 
 		public DeliveryPriceRuleDlg()
 		{
@@ -31,6 +37,8 @@ namespace Vodovoz.Dialogs.Sale
 
 		void ConfigureDlg()
 		{
+			ConfigureValidationContext();
+			
 			spin19LQty.Binding.AddBinding(Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
 			spinOrderMinSumEShopGoods.Binding.AddBinding(Entity, e => e.OrderMinSumEShopGoods, w => w.ValueAsDecimal).InitializeFromSource();
 			ylabel6LWater.Binding.AddBinding(Entity, e => e.Water6LCount, w => w.LabelProp).InitializeFromSource();
@@ -43,15 +51,23 @@ namespace Vodovoz.Dialogs.Sale
 					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
 					.Finish();
 
-				treeDistricts.ItemsDataSource = DistrictRuleRepository.GetDistrictsHavingRule(UoW, Entity);
+				treeDistricts.ItemsDataSource = _districtRuleRepository.GetDistrictsHavingRule(UoW, Entity);
 			}
+		}
+
+		private void ConfigureValidationContext()
+		{
+			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
+			
+			_validationContext.ServiceContainer.AddService(typeof(IDistrictRuleRepository), _districtRuleRepository);
 		}
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<DeliveryPriceRule>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
+			{
 				return false;
+			}
 
 			logger.Info("Сохраняем правило для цены доставки...");
 			UoWGeneric.Save();

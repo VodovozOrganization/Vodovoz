@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Goods
@@ -78,13 +77,8 @@ namespace Vodovoz.EntityRepositories.Goods
 							.Where(n => !n.IsArchive);
 		}
 
-		public Nomenclature GetDefaultBottle(IUnitOfWork uow)
-		{
-			var defaultBottleParameter = "default_bottle_nomenclature";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(defaultBottleParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию.");
-			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(defaultBottleParameter)));
-		}
+		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow) =>
+			nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
 
 		/// <summary>
 		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.
@@ -149,30 +143,13 @@ namespace Vodovoz.EntityRepositories.Goods
 							.Where(n => n.ProductGroup.Id.IsIn(groupsIds));
 		}
 
-		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
-		{
-			var followingNomenclaure = "номенклатура_для_выезда_с_мастером";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(followingNomenclaure))
-				throw new InvalidProgramException("В параметрах базы не указана номенклатура \"номенклатура_для_выезда_с_мастером\" для добавления в заказ типа \"Выезд мастера\"");
-			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(followingNomenclaure)));
-		}
-
-		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow)
-		{
-			var forfeitNomenclatureStr = "forfeit_nomenclature_id";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(forfeitNomenclatureStr))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Бутыль (Неустойка)\"");
-			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(forfeitNomenclatureStr)));
-		}
-
-		public Nomenclature GetSanitisationNomenclature(IUnitOfWork uow)
-		{
-			var sanitisationNomenclature = "выезд_мастера_для_сан_обр";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(sanitisationNomenclature))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Выезд мастера для с\\о\"");
-			return uow.GetById<Nomenclature>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(sanitisationNomenclature)));
-		}
-
+		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow) =>
+			nomenclatureParametersProvider.GetNomenclatureToAddWithMaster(uow);
+		
+		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetForfeitNomenclature(uow);
+		
+		public Nomenclature GetSanitisationNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetSanitisationNomenclature(uow);
+		
 		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
@@ -231,34 +208,22 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		#region Получение номенклатур воды
 
-		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterSemiozerie(uow);
+		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSemiozerie(uow);
 
-		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
+		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
 
-		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
+		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
 
-		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
+		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
 
-		public Nomenclature GetWaterStroika(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterStroika(uow);
+		public Nomenclature GetWaterStroika(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterStroika(uow);
 
-		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => 
-			nomenclatureParametersProvider.GetWaterRuchki(uow);
+		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterRuchki(uow);
 
 		#endregion
 
 		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
 
-		public int GetIdentifierOfOnlineShopGroup()
-		{
-			string parameterName = "код_группы_товаров_для_интерент-магазина";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(parameterName) || !int.TryParse(SingletonParametersProvider.Instance.GetParameterValue(parameterName), out int res))
-				return 0;
-			return res;
-		}
+		public int GetIdentifierOfOnlineShopGroup() => nomenclatureParametersProvider.GetIdentifierOfOnlineShopGroup();
 	}
 }

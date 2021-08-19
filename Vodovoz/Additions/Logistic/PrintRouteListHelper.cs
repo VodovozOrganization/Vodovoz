@@ -14,7 +14,7 @@ using QS.Report;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic
@@ -22,6 +22,7 @@ namespace Vodovoz.Additions.Logistic
 	public static class PrintRouteListHelper
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
@@ -47,7 +48,7 @@ namespace Vodovoz.Additions.Logistic
 
 		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, RouteList routeList)
 		{
-			var RouteColumns = RouteColumnRepository.ActiveColumns(uow);
+			var RouteColumns = _routeColumnRepository.ActiveColumns(uow);
 
 			if(RouteColumns.Count < 1)
 				MessageDialogHelper.RunErrorDialog("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
@@ -196,11 +197,16 @@ namespace Vodovoz.Additions.Logistic
 					}
 				}
 				//Формула итоговой суммы по всем бутылям.
-				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L)) {
+				if(_routeColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L))
+				{
 					if(isClosed)
+					{
 						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water_fact{column.Id}}}, 0))";
+					}
 					else
+					{
 						TotalSum += $"+ Sum({{Water{column.Id}}})";
+					}
 				}
 			}
 			RdlText = RdlText.Replace("<!--table_cell_name-->", CellColumnHeader);

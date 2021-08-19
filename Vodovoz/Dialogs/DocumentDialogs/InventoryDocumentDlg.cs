@@ -9,9 +9,7 @@ using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -26,18 +24,24 @@ using Vodovoz.ViewModels.Reports;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Project.Services;
+using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-		private IEmployeeRepository EmployeeRepository { get; } = EmployeeSingletonRepository.GetInstance();
-		private INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository(new NomenclatureParametersProvider());
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
+		private INomenclatureRepository nomenclatureRepository { get; } =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private SelectableParametersReportFilter filter;
 		private InventoryDocumentItem FineEditItem;
 
@@ -45,7 +49,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<InventoryDocument> ();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -106,8 +110,13 @@ namespace Vodovoz
 				return;
 			}
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			Entity.CanEdit = permmissionValidator.Validate(typeof(InventoryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(
+					typeof(InventoryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ydatepickerDocDate.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -202,7 +211,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
@@ -361,21 +370,30 @@ namespace Vodovoz
 			FillDiscrepancies();
 
 			if(Entity.Items.Count == 0)
-				Entity.FillItemsFromStock(UoW,
+			{
+				Entity.FillItemsFromStock(
+					UoW,
+					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
 					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
 					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
 					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
 					productGroupToInclude: productGroupToInclude.ToArray(),
 					productGroupToExclude: productGroupToExclude.ToArray());
+			}
 			else
-				Entity.UpdateItemsFromStock(UoW,
+			{
+				Entity.UpdateItemsFromStock(
+					UoW,
+					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
 					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
 					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
 					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
 					productGroupToInclude: productGroupToInclude.ToArray(),
 					productGroupToExclude: productGroupToExclude.ToArray());
+			}
+
 			UpdateButtonState();
 		}
 
@@ -390,19 +408,26 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
-			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector();
+			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
+			TabParent.AddSlaveTab(this, nomenclatureSelector);
 		}
 
-		void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = e.Subject as Nomenclature;
-			if(Entity.Items.Any(x => x.Nomenclature.Id == nomenclature.Id))
-				return;
+			if(e.SelectedNodes.Any())
+			{
+				foreach(var node in e.SelectedNodes)
+				{
+					if(Entity.Items.Any(x => x.Nomenclature.Id == node.Id))
+					{
+						continue;
+					}
 
-			Entity.AddItem(nomenclature, 0, 0);
+					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
+					Entity.AddItem(nomenclature, 0, 0);
+				}
+			}
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
