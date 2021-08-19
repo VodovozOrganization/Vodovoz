@@ -10,8 +10,9 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 
 namespace Vodovoz.Journals.JournalActionsViewModels
 {
-	public class EmployeesJournalActionsViewModel : EntitiesJournalActionsViewModel
+	public class EmployeesJournalActionsViewModel : EntitiesJournalActionsViewModel, IDisposable
 	{
+		private readonly IUnitOfWork _uow;
 		private Action<Employee> _resetPasswordForEmployeeAction;
 		private DelegateCommand _resetPasswordCommand;
 		
@@ -24,7 +25,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 			
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		public override object[] SelectedItems 
@@ -34,10 +35,10 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			{
 				if(SetField(ref selectedItems, value))
 				{
-					OnPropertyChanged(nameof(CanSelect));
-					OnPropertyChanged(nameof(CanAdd));
-					OnPropertyChanged(nameof(CanEdit));
-					OnPropertyChanged(nameof(CanDelete));
+					foreach(var action in JournalActions)
+					{
+						action.OnPropertyChanged(nameof(action.Sensitive));
+					}
 					OnPropertyChanged(nameof(CanResetPassword));
 				}
 			}
@@ -53,7 +54,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 					
 					if(selectedNode != null)
 					{
-						var employee = UoW.GetById<Employee>(selectedNode.Id);
+						var employee = _uow.GetById<Employee>(selectedNode.Id);
 
 						if(employee.User == null)
 						{
@@ -82,6 +83,11 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 		public void SetResetPasswordForEmployeeAction(Action<Employee> resetPasswordForEmployeeAction)
 		{
 			_resetPasswordForEmployeeAction = resetPasswordForEmployeeAction;
+		}
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
 		}
 	}
 }

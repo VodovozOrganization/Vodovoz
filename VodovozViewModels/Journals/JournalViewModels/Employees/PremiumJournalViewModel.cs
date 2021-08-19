@@ -57,9 +57,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			);
 		}
 
+		protected override void InitializeJournalActionsViewModel()
+		{
+			base.InitializeJournalActionsViewModel();
+			ConfigureDeleteAction();
+		}
+		
 		private void ConfigureDeleteAction()
 		{
-			EntitiesJournalActionsViewModel.CanDeleteFunc =
+			var deleteAction = EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Delete);
+			
+			deleteAction.SensitiveFunc =
 				() =>
 				{
 					var selectedNodes = SelectedItems.OfType<PremiumJournalNode>().ToList();
@@ -83,12 +91,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					var config = EntityConfigs[selectedNode.EntityType];
 					return config.PermissionResult.CanDelete;
 				};
-		}
-		
-		protected override void InitializeJournalActionsViewModel()
-		{
-			base.InitializeJournalActionsViewModel();
-			ConfigureDeleteAction();
 		}
 
 		private void RegisterPremiums()

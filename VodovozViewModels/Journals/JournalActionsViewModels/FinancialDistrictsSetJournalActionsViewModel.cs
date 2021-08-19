@@ -13,10 +13,11 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.Journals.JournalActionsViewModels
 {
-	public class FinancialDistrictsSetJournalActionsViewModel : EntitiesJournalActionsViewModel
+	public class FinancialDistrictsSetJournalActionsViewModel : EntitiesJournalActionsViewModel, IDisposable
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
+		private readonly IUnitOfWork _uow;
 		private readonly bool _canCreate;
 		private DelegateCommand _copyDistrictSetCommand;
 
@@ -33,7 +34,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = unitOfWorkFactory.CreateWithoutRoot();
 
 			_canCreate = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrictsSet)).CanCreate;
 		}
@@ -45,10 +46,11 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			{
 				if(SetField(ref selectedItems, value))
 				{
-					OnPropertyChanged(nameof(CanSelect));
-					OnPropertyChanged(nameof(CanAdd));
-					OnPropertyChanged(nameof(CanEdit));
-					OnPropertyChanged(nameof(CanDelete));
+					foreach(var action in JournalActions)
+					{
+						action.OnPropertyChanged(nameof(action.Sensitive));
+						action.OnPropertyChanged(nameof(action.Visible)); //TODO удостовериться, что действительно надо дергать visible
+					}
 					OnPropertyChanged(nameof(CanCopyFinancialDistrictSet));
 				}
 			}
@@ -67,9 +69,9 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 						return;
 					}
 
-					var districtsSetToCopy = UoW.GetById<FinancialDistrictsSet>(selectedNode.Id);
+					var districtsSetToCopy = _uow.GetById<FinancialDistrictsSet>(selectedNode.Id);
 					var alreadyCopiedDistrict =
-						UoW.Session.QueryOver<FinancialDistrict>()
+						_uow.Session.QueryOver<FinancialDistrict>()
 							.WhereRestrictionOn(x => x.CopyOf.Id)
 							.IsIn(districtsSetToCopy.FinancialDistricts.Select(x => x.Id).ToArray())
 							.Take(1)
@@ -87,17 +89,22 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 					{
 						var copy = districtsSetToCopy.Clone() as FinancialDistrictsSet;
 						copy.Name += " - копия";
-						copy.Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
+						copy.Author = _employeeService.GetEmployeeForUser(_uow, _commonServices.UserService.CurrentUserId);
 						copy.Status = DistrictsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;
 
-						UoW.Save(copy);
-						UoW.Commit();
+						_uow.Save(copy);
+						_uow.Commit();
 						interactiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
 					}
 				},
 			() => CanCopyFinancialDistrictSet
 			)
 		);
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
+		}
 	}
 }

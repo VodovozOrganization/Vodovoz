@@ -63,7 +63,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
         private void ConfigureDeleteAction()
         {
-	        EntitiesJournalActionsViewModel.CanDeleteFunc =
+	        var deleteAction = EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Delete);
+	        
+	        deleteAction.SensitiveFunc =
 		        () =>
 		        {
 			        var selectedNodes = SelectedItems.OfType<CashRequestJournalNode>().ToList();

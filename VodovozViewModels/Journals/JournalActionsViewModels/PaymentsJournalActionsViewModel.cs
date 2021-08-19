@@ -10,8 +10,9 @@ using Vodovoz.Repositories.Payments;
 
 namespace Vodovoz.Journals.JournalActionsViewModels
 {
-	public class PaymentsJournalActionsViewModel : EntitiesJournalActionsViewModel
+	public class PaymentsJournalActionsViewModel : EntitiesJournalActionsViewModel, IDisposable
 	{
+		private readonly IUnitOfWork _uow;
 		private DelegateCommand _completeAllocationCommand;
 		
 		public PaymentsJournalActionsViewModel(
@@ -23,27 +24,32 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 			
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 		
 		public DelegateCommand CompleteAllocationCommand => _completeAllocationCommand ?? (_completeAllocationCommand = new DelegateCommand(
-					() =>
+				() =>
+				{
+					var distributedPayments = PaymentsRepository.GetAllDistributedPayments(_uow);
+
+					if(distributedPayments.Any()) 
 					{
-						var distributedPayments = PaymentsRepository.GetAllDistributedPayments(UoW);
-
-						if(distributedPayments.Any()) 
+						foreach(var payment in distributedPayments) 
 						{
-							foreach(var payment in distributedPayments) 
-							{
-								payment.Status = PaymentState.completed;
-								UoW.Save(payment);
-							}
-
-							UoW.Commit();
+							payment.Status = PaymentState.completed;
+							_uow.Save(payment);
 						}
-					},
-					() => true
-				)
+
+						_uow.Commit();
+					}
+				},
+				() => true
+			)
 		);
+
+		public void Dispose()
+		{
+			_uow.Dispose();
+		}
 	}
 }

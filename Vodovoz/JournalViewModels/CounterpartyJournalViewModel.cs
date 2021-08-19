@@ -48,10 +48,10 @@ namespace Vodovoz.JournalViewModels
         
         private void ConfigureSelectAction()
         {
-	        EntitiesJournalActionsViewModel.CanSelectFunc =
-		        () => SelectedItems.Any() && SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive);
+	        var selectAction = EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Select);
 	        
-	        EntitiesJournalActionsViewModel.SelectAction =
+	        selectAction.SensitiveFunc = () => SelectedItems.Any() && SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive);
+	        selectAction.ExecuteAction =
 		        () =>
 		        {
 			        if(SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive))
@@ -63,7 +63,9 @@ namespace Vodovoz.JournalViewModels
         
         private void ConfigureEditAction()
         {
-	        EntitiesJournalActionsViewModel.IsEditVisible = SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive);
+	        var editAction = EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Edit);
+	        
+	        editAction.VisibleFunc = () => SelectedItems.All(x => (x as CounterpartyJournalNode).Sensitive);
         }
 
         protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {

@@ -12,10 +12,11 @@ using Vodovoz.JournalNodes;
 
 namespace Vodovoz.Journals.JournalActionsViewModels
 {
-	public class DistrictsSetJournalActionsViewModel : EntitiesJournalActionsViewModel
+	public class DistrictsSetJournalActionsViewModel : EntitiesJournalActionsViewModel, IDisposable
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
+		private readonly IUnitOfWork _uow;
 		private readonly bool _canCreate;
 		private DelegateCommand _copyDistrictSetCommand;
 		
@@ -32,7 +33,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 			
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = unitOfWorkFactory.CreateWithoutRoot();
 
 			_canCreate = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanCreate;
 		}
@@ -44,10 +45,10 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			{
 				if (SetField(ref selectedItems, value)) 
 				{
-					OnPropertyChanged(nameof(CanSelect));
-					OnPropertyChanged(nameof(CanAdd));
-					OnPropertyChanged(nameof(CanEdit));
-					OnPropertyChanged(nameof(CanDelete));
+					foreach(var action in JournalActions)
+					{
+						action.OnPropertyChanged(nameof(action.Sensitive));
+					}
 					OnPropertyChanged(nameof(CanCopyDistrictSet));
 				}
 			}
@@ -65,8 +66,8 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 						return;
 					}
 
-					var districtsSetToCopy = UoW.GetById<DistrictsSet>(selectedNode.Id);
-					var alreadyCopiedDistrict = UoW.Session.QueryOver<District>()
+					var districtsSetToCopy = _uow.GetById<DistrictsSet>(selectedNode.Id);
+					var alreadyCopiedDistrict = _uow.Session.QueryOver<District>()
 						.WhereRestrictionOn(x => x.CopyOf.Id)
 						.IsIn(districtsSetToCopy.Districts.Select(x => x.Id).ToArray())
 						.Take(1)
@@ -84,17 +85,22 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 					{
 						var copy = (DistrictsSet)districtsSetToCopy.Clone();
 						copy.Name += " - копия";
-						copy.Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
+						copy.Author = _employeeService.GetEmployeeForUser(_uow, _commonServices.UserService.CurrentUserId);
 						copy.Status = DistrictsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;
 						
-						UoW.Save(copy);
-						UoW.Commit();
+						_uow.Save(copy);
+						_uow.Commit();
 						interactiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
 					}
 				},
 				() => CanCopyDistrictSet
 			)
 		);
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
+		}
 	}
 }

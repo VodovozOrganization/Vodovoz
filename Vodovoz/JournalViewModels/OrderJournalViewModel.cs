@@ -94,7 +94,9 @@ namespace Vodovoz.JournalViewModels
 
 		private void ConfigureEditAction()
 		{
-			EntitiesJournalActionsViewModel.IsEditVisible = SelectedItems.All(x => (x as OrderJournalNode).Sensitive);
+			var editAction = EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Edit);
+			
+			editAction.VisibleFunc = () => SelectedItems.All(x => (x as OrderJournalNode).Sensitive);
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
