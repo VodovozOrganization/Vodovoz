@@ -453,6 +453,7 @@
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
+    <Compile Include="ReportsParameters\Sales\SalesReport.cs" />
     <Compile Include="Representations\ProductGroupVM.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\BankCatalog.cs" />
@@ -756,7 +757,6 @@
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
     <Compile Include="ViewWidgets\WorkChartTable.cs" />
-    <Compile Include="ReportsParameters\SalesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.SalesReport.cs" />
     <Compile Include="Dialogs\SubdivisionDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />

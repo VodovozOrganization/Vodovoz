@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -28,12 +29,15 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DateTime? DocumentDate => M2Proxy?.Date;
 
-		public virtual void PrepareTemplate(IUnitOfWork uow)
+		public virtual void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(M2Proxy.DocumentTemplate == null)
-				M2Proxy.UpdateM2ProxyDocumentTemplate(uow);
+			{
+				M2Proxy.UpdateM2ProxyDocumentTemplate(uow, docTemplateRepository);
+			}
 
-			if(M2Proxy.DocumentTemplate != null) {
+			if(M2Proxy.DocumentTemplate != null)
+			{
 				M2Proxy.DocumentTemplate.DocParser.SetDocObject(M2Proxy);
 				var parser = (M2Proxy.DocumentTemplate.DocParser as M2ProxyDocumentParser);
 				parser.AddTableEquipmentFromClient(Order.ObservableOrderEquipments.Where(eq => eq.Direction == Domain.Orders.Direction.PickUp).ToList<OrderEquipment>());

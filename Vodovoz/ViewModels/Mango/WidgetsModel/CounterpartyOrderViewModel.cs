@@ -6,14 +6,11 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -23,12 +20,9 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -36,10 +30,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
@@ -52,13 +42,14 @@ namespace Vodovoz.ViewModels.Mango
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
-		private readonly RouteListRepository routedListRepository;
+		private readonly RouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
-		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
-		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
+		private readonly IParametersProvider _parametersProvider;
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		private IUnitOfWork UoW;
 
@@ -79,18 +70,20 @@ namespace Vodovoz.ViewModels.Mango
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
+			IParametersProvider parametersProvider,
 			int count = 5)
 		{
 			Client = client;
 			tdiNavigation = tdinavigation;
-			this.routedListRepository = routedListRepository;
+			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			LatestOrder = orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
+			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
 			NotifyConfiguration.Instance.BatchSubscribe(_RefreshCounterparty)
@@ -111,7 +104,7 @@ namespace Vodovoz.ViewModels.Mango
 		}
 		private void _RefreshOrders()
 		{
-			LatestOrder = orderRepository.GetLatestOrdersForCounterparty(UoW, Client, 5).ToList();
+			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, Client, 5).ToList();
 			OnPropertyChanged(nameof(LatestOrder));
 		}
 		#endregion
@@ -143,12 +136,12 @@ namespace Vodovoz.ViewModels.Mango
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed
 			) {
-				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
+				RouteList routeList = _routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
-				RouteList routeList = routedListRepository.GetRouteListByOrder(UoW, order);
+				RouteList routeList = _routedListRepository.GetRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
@@ -170,9 +163,9 @@ namespace Vodovoz.ViewModels.Mango
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 							CallTaskSingletonFactory.GetInstance(),
 							new CallTaskRepository(),
-							orderRepository,
-							employeeRepository,
-							new BaseParametersProvider(),
+							_orderRepository,
+							_employeeRepository,
+							new BaseParametersProvider(_parametersProvider),
 							ServicesConfig.CommonServices.UserService,
 							SingletonErrorReporter.Instance);
 
@@ -190,9 +183,9 @@ namespace Vodovoz.ViewModels.Mango
 
 				ITdiPage page = tdiNavigation.OpenTdiTab<UndeliveryOnOrderCloseDlg, Order, IUnitOfWork>(null, order, UoW);
 				page.PageClosed += (sender, e) => {
-					order.SetUndeliveredStatus(UoW, new BaseParametersProvider(), callTaskWorker);
+					order.SetUndeliveredStatus(UoW, new BaseParametersProvider(_parametersProvider), callTaskWorker);
 
-					var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, order);
+					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
 						routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
 						routeListItem.StatusLastUpdate = DateTime.Now;
@@ -219,8 +212,7 @@ namespace Vodovoz.ViewModels.Mango
 
 				var nomenclatureSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository,
-						UserSingletonRepository.GetInstance());
+						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
 
 				var parameters = new Dictionary<string, object> {
 					{"order", order},

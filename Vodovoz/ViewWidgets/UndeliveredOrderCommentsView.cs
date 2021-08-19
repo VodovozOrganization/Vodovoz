@@ -3,14 +3,17 @@ using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UndeliveredOrderCommentsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrderCommentsRepository _undeliveredOrderCommentsRepository = new UndeliveredOrderCommentsRepository();
+		
 		public UndeliveredOrderCommentsView()
 		{
 			this.Build();
@@ -34,7 +37,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			UoW = uow;
 			UndeliveredOrder = undeliveredOrder;
-			Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Employee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Field = field;
 			yTreeComments.ColumnsConfig = ColumnsConfigFactory.Create<UndeliveredOrderCommentsNode>()
 				.AddColumn("Дата - Имя")
@@ -59,7 +62,7 @@ namespace Vodovoz.ViewWidgets
 
 		void GetComments()
 		{
-			yTreeComments.ItemsDataSource = UndeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
+			yTreeComments.ItemsDataSource = _undeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
 		}
 
 		protected void OnBtnAddCommentClicked(object sender, EventArgs e)

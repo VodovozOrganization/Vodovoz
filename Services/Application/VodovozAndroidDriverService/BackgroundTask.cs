@@ -2,12 +2,14 @@
 using Chats;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace VodovozAndroidDriverService
 {
 	public static class BackgroundTask
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		public static void OrderTimeIsRunningOut()
 		{
@@ -16,7 +18,8 @@ namespace VodovozAndroidDriverService
 			int messagesCount = 0;
 
 			using(var UoW = UnitOfWorkFactory.CreateWithoutRoot($"[BT]Сообщения о заказах срок доставки которых скоро наступит")) {
-				var todayAddresses = Vodovoz.Repository.Logistics.RouteListItemRepository.GetRouteListItemAtDay(UoW, DateTime.Today, RouteListItemStatus.EnRoute);
+				var todayAddresses =
+					_routeListItemRepository.GetRouteListItemAtDay(UoW, DateTime.Today, RouteListItemStatus.EnRoute);
 
 				var now = DateTime.Now.TimeOfDay;
 				var nowMinus30 = DateTime.Now.TimeOfDay.Add(new TimeSpan(0, 30, 0));

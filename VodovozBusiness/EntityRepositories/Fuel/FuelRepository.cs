@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 
@@ -140,6 +141,41 @@ namespace Vodovoz.EntityRepositories.Fuel
 				).SingleOrDefault<decimal>();
 			return balance;
 		}
+		
+		public decimal GetFuelBalance(IUnitOfWork uow, Employee driver, Car car, DateTime? before = null, params int[] excludeOperationsIds)
+		{
+			FuelOperation operationAlias = null;
+			FuelQueryResult result = null;
+			
+			var queryResult = uow.Session.QueryOver<FuelOperation>(() => operationAlias);
+			
+			if(driver != null)
+			{
+				queryResult.Where(() => operationAlias.Driver.Id == driver.Id);
+			}
+
+			if(car != null)
+			{
+				queryResult.Where(() => operationAlias.Car.Id == car.Id);
+			}
+
+			if (before.HasValue)
+			{
+				queryResult.Where(() => operationAlias.OperationTime < before);
+			}
+
+			if(excludeOperationsIds != null)
+			{
+				queryResult.Where(() => !operationAlias.Id.IsIn(excludeOperationsIds));
+			}
+
+			return queryResult.SelectList(list => list
+					.SelectSum(() => operationAlias.LitersGived).WithAlias(() => result.Gived)
+					.SelectSum(() => operationAlias.LitersOutlayed).WithAlias(() => result.Outlayed))
+				.TransformUsing(Transformers.AliasToBean<FuelQueryResult>())
+				.List<FuelQueryResult>()
+				.FirstOrDefault()?.FuelBalance ?? 0;
+		}
 
 		public decimal GetFuelBalanceForSubdivision(IUnitOfWork uow, Subdivision subdivision, FuelType fuelType)
 		{
@@ -191,6 +227,14 @@ namespace Vodovoz.EntityRepositories.Fuel
 			}
 
 			return uow.GetAll<FuelType>();
+		}
+		
+		public FuelType GetDefaultFuel(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<FuelType>()
+				.Where(x => x.Name == "АИ-92")
+				.Take(1)
+				.SingleOrDefault();
 		}
 	}
 }

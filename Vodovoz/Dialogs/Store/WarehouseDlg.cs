@@ -1,22 +1,17 @@
-﻿using System;
-using System.Linq;
-using Gamma.GtkWidgets;
-using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QSOrmProject;
-using QS.Project.Repositories;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
-		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		Nomenclature selectedNomenclature;
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private Nomenclature selectedNomenclature;
 
 		public WarehouseDlg()
 		{
@@ -55,7 +50,7 @@ namespace Vodovoz
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItem).InitializeFromSource();
 
 			ySpecCmbOwner.SetRenderTextFunc<Subdivision>(s => s.Name);
-			ySpecCmbOwner.ItemsList = SubdivisionsRepository.GetAllDepartments(UoW);
+			ySpecCmbOwner.ItemsList = _subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			ySpecCmbOwner.Binding.AddBinding(Entity, s => s.OwningSubdivision, w => w.SelectedItem).InitializeFromSource();
 	
 		}
@@ -68,7 +63,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			logger.Info("Сохраняем склад...");
+			_logger.Info("Сохраняем склад...");
 			UoWGeneric.Save();
 			return true;
 		}

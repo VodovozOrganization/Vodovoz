@@ -11,11 +11,8 @@ using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Cash;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Services;
-using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
@@ -23,33 +20,40 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
 	public partial class CashIncomeDlg : QS.Dialog.Gtk.EntityDialogBase<Income>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static IParametersProvider _parametersProvider = new ParametersProvider();
+
 		//Блокируем возможность выбора категории приходаЖ самовывоз - старый
 		private const int excludeIncomeCategoryId = 3;
 		private bool canEdit = true;
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
-		private readonly bool canEditDate = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+		private readonly bool canEditDate
+			= ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)),
+					new OrganizationParametersProvider(_parametersProvider)),
 				new RouteListItemCashDistributionDocumentRepository(),
-				OrderSingletonRepository.GetInstance());
+				new OrderRepository());
 		
 		private IncomeCashOrganisationDistributor incomeCashOrganisationDistributor = 
 			new IncomeCashOrganisationDistributor(
 				new CashDistributionCommonOrganisationProvider(
-					new OrganizationParametersProvider(SingletonParametersProvider.Instance)));
+					new OrganizationParametersProvider(_parametersProvider)));
 		
 		List<Selectable<Expense>> selectableAdvances;
 
@@ -57,7 +61,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
-			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
@@ -65,7 +69,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) 
 			{
@@ -96,7 +100,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;
@@ -104,8 +108,11 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			canEditRectroactively =
+				permmissionValidator.Validate(
+					typeof(Income), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			
 			ConfigureDlg ();
 		}
@@ -172,7 +179,7 @@ namespace Vodovoz
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.ChangedByUser += YEntryRouteList_ValueOrVisibilityChanged;
 
-			yentryClient.ItemsQuery = Repositories.CounterpartyRepository.ActiveClientsQuery ();
+			yentryClient.ItemsQuery = _counterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
@@ -180,20 +187,20 @@ namespace Vodovoz
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(
 				s => 
-					comboExpense.ItemsList = CategoryRepository.ExpenseCategories(UoW).Where(x => 
+					comboExpense.ItemsList = _categoryRepository.ExpenseCategories(UoW).Where(x => 
 						x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
 			);
 			comboExpense.ItemsList = 
-				CategoryRepository.ExpenseCategories(UoW).Where(x => 
+				_categoryRepository.ExpenseCategories(UoW).Where(x => 
 					x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery);
 			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
 				s => 
-					comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW).Where(x =>
+					comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
 						x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId)
 			); 
-			comboCategory.ItemsList = CategoryRepository.IncomeCategories(UoW).Where(x =>
+			comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
 				x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
 
@@ -235,7 +242,7 @@ namespace Vodovoz
 
 		public void FillForRoutelist(int routelistId)
 		{
-			var cashier = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
@@ -243,7 +250,7 @@ namespace Vodovoz
 
 			var rl = UoW.GetById<RouteList>(routelistId);
 
-			Entity.IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW);
+			Entity.IncomeCategory = _categoryRepository.RouteListClosingIncomeCategory(UoW);
 			Entity.TypeOperation = IncomeType.DriverReport;
 			Entity.Date = DateTime.Now;
 			Entity.Casher = cashier;
@@ -295,7 +302,7 @@ namespace Vodovoz
 		private void DistributeCash()
 		{
 			if (Entity.TypeOperation == IncomeType.DriverReport && 
-			    Entity.IncomeCategory.Id == CategoryRepository.RouteListClosingIncomeCategory(UoW)?.Id) {
+			    Entity.IncomeCategory.Id == _categoryRepository.RouteListClosingIncomeCategory(UoW)?.Id) {
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if (Entity.TypeOperation == IncomeType.Return) {
@@ -308,7 +315,7 @@ namespace Vodovoz
 		
 		private void UpdateCashDistributionsDocuments()
 		{
-			var editor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			var editor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			var document = UoW.Session.QueryOver<CashOrganisationDistributionDocument>()
 				.Where(x => x.Income.Id == Entity.Id).List().FirstOrDefault();
 
@@ -379,9 +386,11 @@ namespace Vodovoz
 			FillDebts ();
 		}
 
-		protected void FillDebts(){
-			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null) {
-				var advances = AccountableDebtsRepository
+		protected void FillDebts()
+		{
+			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null)
+			{
+				var advances = _accountableDebtsRepository
 					.UnclosedAdvance(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
 				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
 				.ToList ();

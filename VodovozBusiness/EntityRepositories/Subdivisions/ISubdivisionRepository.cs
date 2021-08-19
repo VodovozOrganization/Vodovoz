@@ -12,7 +12,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		IEnumerable<Subdivision> GetCashSubdivisions(IUnitOfWork uow);
 		IEnumerable<Subdivision> GetCashSubdivisionsAvailableForUser(IUnitOfWork uow, UserBase user);
 
-		IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false);
+		IList<Subdivision> GetAllDepartmentsOrderedByName(IUnitOfWork uow, bool orderByDescending = false);
 		IEnumerable<Subdivision> GetAvailableSubdivionsForUser(IUnitOfWork uow, Type[] documentsTypes);
 		IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false);
 		Subdivision GetQCDepartment(IUnitOfWork uow);

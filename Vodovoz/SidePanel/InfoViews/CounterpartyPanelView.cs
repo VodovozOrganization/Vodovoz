@@ -9,8 +9,7 @@ using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewWidgets.Mango;
 
@@ -18,7 +17,8 @@ namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyPanelView : Gtk.Bin, IPanelView
-	{		
+	{
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		Counterparty Counterparty{get;set;}
 
 		public CounterpartyPanelView()
@@ -55,7 +55,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.Text = Counterparty.FullName;
 			textviewComment.Buffer.Text = Counterparty.Comment;
 
-			var latestOrder = OrderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, Counterparty);
+			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, Counterparty);
 			if (latestOrder != null)
 			{
 				var daysFromLastOrder = (DateTime.Today - latestOrder.DeliveryDate.Value).Days;
@@ -70,7 +70,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				labelLatestOrderDate.Text = "(Выполненных заказов нет)";
 			}
-			var currentOrders = OrderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
+			var currentOrders = _orderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
 

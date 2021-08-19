@@ -997,7 +997,7 @@ FROM
 	        delivery_date = @date
 	        AND !orders.is_contract_closer
 	        AND !orders.self_delivery
-	        AND !orders.service
+	        AND orders.order_address_type != 'Service'
 	        AND delivery_schedules.id IS NOT NULL
 	        AND orders.delivery_point_id IS NOT NULL
 	        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')

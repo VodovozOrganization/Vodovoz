@@ -1,15 +1,15 @@
 ﻿using System;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QS.Project.Services;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PermissionCommentView : Gtk.Bin
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		public IUnitOfWork UoW { get; set; }
 
 		public bool AddCommentInfo { get; set; } = false;
@@ -67,7 +67,7 @@ namespace Vodovoz.ViewWidgets
 			if(!CheckPermissions())
 				return;
 
-			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var employee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(AddCommentInfo)
 				Comment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + ytextviewComment.Buffer.Text;

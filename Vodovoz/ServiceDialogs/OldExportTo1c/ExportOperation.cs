@@ -4,13 +4,13 @@ using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
 namespace Vodovoz.OldExportTo1c
 {
 	public class ExportOperation : IDisposable
-	{		
+	{
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUnitOfWork uow;
 		private readonly IOrderParametersProvider orderParametersProvider;
 		private readonly DateTime start;
@@ -24,7 +24,7 @@ namespace Vodovoz.OldExportTo1c
 		public ExportOperation(IOrderParametersProvider orderParametersProvider, Export1cMode mode, DateTime start, DateTime end)
 		{			
 			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			this.uow = UnitOfWorkFactory.CreateWithoutRoot();
+			uow = UnitOfWorkFactory.CreateWithoutRoot();
 			this.start = start;
 			this.end = end;
 			this.mode = mode;
@@ -34,7 +34,7 @@ namespace Vodovoz.OldExportTo1c
 		{				
 			worker.OperationName = "Подготовка данных";
 			worker.ReportProgress(0, "Загрузка заказов");
-			this.orders = OrderSingletonRepository.GetInstance().GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end);
+			orders = _orderRepository.GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end);
 			worker.OperationName = "Выгрузка реализаций и счетов-фактур";
 			worker.StepsCount = this.orders.Count;
 			Result = new ExportData(uow, mode, start, end);

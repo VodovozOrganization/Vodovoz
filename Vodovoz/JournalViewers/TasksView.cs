@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.JournalViewers
@@ -54,7 +55,7 @@ namespace Vodovoz.JournalViewers
 			representationentryEmployee.RepresentationModel = new EmployeesVM(UoW);
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			callTasksVM = new CallTasksVM(new BaseParametersProvider());
+			callTasksVM = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
 			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			callTasksVM.Filter = new CallTaskFilterViewModel(new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());

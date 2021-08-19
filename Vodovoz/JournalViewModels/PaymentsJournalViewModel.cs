@@ -3,6 +3,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels;
 using System;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Navigation;
@@ -14,21 +15,22 @@ using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using Vodovoz.Repositories.Payments;
-using System.Linq;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class PaymentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<PaymentJournalNode, PaymentsJournalFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly INavigationManager navigationManager;
-		private readonly ICommonServices commonServices;
-		private readonly IOrderRepository orderRepository;
-		private readonly IOrganizationParametersProvider organizationParametersProvider;
-		private readonly IProfitCategoryProvider profitCategoryProvider;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly INavigationManager _navigationManager;
+		private readonly ICommonServices _commonServices;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IProfitCategoryProvider _profitCategoryProvider;
+		private readonly IPaymentsRepository _paymentsRepository;
 
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
@@ -37,18 +39,20 @@ namespace Vodovoz.JournalViewModels
 			INavigationManager navigationManager,
 			IOrderRepository orderRepository,
 			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IProfitCategoryProvider profitCategoryProvider,
+			IPaymentsRepository paymentsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_navigationManager = navigationManager;
+			
 			TabName = "Журнал платежей из банк-клиента";
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
-			this.profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
-			this.navigationManager = navigationManager;
 
 			RegisterPayments();
-
 			FinishJournalConfiguration();
 
 			UpdateOnChanges(
@@ -152,23 +156,24 @@ namespace Vodovoz.JournalViewModels
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new PaymentLoaderViewModel(
-						unitOfWorkFactory,
-						commonServices,
-						navigationManager,
-						organizationParametersProvider,
-						profitCategoryProvider
+						_unitOfWorkFactory,
+						_commonServices,
+						_navigationManager,
+						_organizationParametersProvider,
+						_profitCategoryProvider,
+						_paymentsRepository,
+						new CounterpartyRepository()
 					),
 					//функция диалога открытия документа
 					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
-						unitOfWorkFactory,
-						commonServices,
-						orderRepository
+						_unitOfWorkFactory,
+						_commonServices,
+						_orderRepository,
+						_paymentsRepository
 					),
 					//функция идентификации документа 
-					(PaymentJournalNode node) => {
-						return node.EntityType == typeof(Payment);
-					},
+					(PaymentJournalNode node) => node.EntityType == typeof(Payment),
 					"Платежи",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true }
 				);
@@ -179,11 +184,12 @@ namespace Vodovoz.JournalViewModels
 
 		void CompleteAllocation()
 		{
-			var distributedPayments = PaymentsRepository.GetAllDistributedPayments(UoW);
+			var distributedPayments = _paymentsRepository.GetAllDistributedPayments(UoW);
 
-			if(distributedPayments.Any()) {
-				foreach(var payment in distributedPayments) {
-
+			if(distributedPayments.Any())
+			{
+				foreach(var payment in distributedPayments)
+				{
 					payment.Status = PaymentState.completed;
 					UoW.Save(payment);
 				}

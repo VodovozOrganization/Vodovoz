@@ -44,7 +44,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Cash
 		public SalaryByEmployeeJournalFilterViewModel(
 			ISubdivisionRepository subdivisionRepository, EmployeeStatus? defaultStatus = null)
 		{
-			_subdivisions = subdivisionRepository?.GetAllDepartments(UoW) ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_subdivisions = subdivisionRepository?.GetAllDepartmentsOrderedByName(UoW)
+			                ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_status = defaultStatus;
 		}
 	}

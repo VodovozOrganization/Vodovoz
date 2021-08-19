@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -98,11 +99,11 @@ namespace Vodovoz.Domain.Employees
 			return uow;
 		}
 
-		public virtual bool UpdateM2ProxyDocumentTemplate(IUnitOfWork uow)
+		public virtual bool UpdateM2ProxyDocumentTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(Id > 0 || Organization == null)
 				return false;
-			DocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.M2Proxy, Organization);
+			DocumentTemplate = docTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.M2Proxy, Organization);
 			return DocumentTemplate != null;
 		}
 

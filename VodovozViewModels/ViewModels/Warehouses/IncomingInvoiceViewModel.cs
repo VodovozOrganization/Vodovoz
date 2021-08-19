@@ -13,7 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
@@ -21,14 +21,12 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
-using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
     public class IncomingInvoiceViewModel: EntityTabViewModelBase<IncomingInvoice>
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IEmployeeService employeeService;
         private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
         private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
@@ -36,7 +34,8 @@ namespace Vodovoz.ViewModels.Warehouses
         private readonly IWarehouseRepository warehouseRepository;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
         private readonly IWarehousePermissionValidator warehousePermissionValidator;
-
+        private readonly IStockRepository _stockRepository;
+        
         #region Конструктор
         public IncomingInvoiceViewModel(
             IEntityUoWBuilder uowBuilder, 
@@ -48,16 +47,17 @@ namespace Vodovoz.ViewModels.Warehouses
             IOrderSelectorFactory orderSelectorFactory,
             IWarehouseRepository warehouseRepository,
             IRDLPreviewOpener rdlPreviewOpener,
-            ICommonServices commonServices) 
+            ICommonServices commonServices,
+            IStockRepository stockRepository) 
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
             this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
             this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
             this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
             this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
             this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+            _stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
             warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
 
             canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
@@ -69,8 +69,7 @@ namespace Vodovoz.ViewModels.Warehouses
 	            && !CurrentUser.IsAdmin;
         }
         #endregion
-        
-        
+
         #region Functions
 
         private void ConfigureEntityChangingRelations()
@@ -117,8 +116,7 @@ namespace Vodovoz.ViewModels.Warehouses
         }
 
         #endregion
-        
-        
+
         #region Properties
         
         public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
@@ -178,7 +176,6 @@ namespace Vodovoz.ViewModels.Warehouses
         public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
         
         #endregion
-        
         
         #region Commands
 
@@ -262,7 +259,7 @@ namespace Vodovoz.ViewModels.Warehouses
 								if (nomIds != null && nomIds.Any()) 
                                 {
 									nomIds = nomIds.Distinct().ToList();
-									nomsAmount = StockRepository.NomenclatureInStock(UoW, Entity.Warehouse.Id, nomIds.ToArray());
+									nomsAmount = _stockRepository.NomenclatureInStock(UoW, Entity.Warehouse.Id, nomIds.ToArray());
 								}
                                 //Если такие уже добавлены, то только увеличить их количество
 								foreach (var item in orderItems) {
@@ -308,7 +305,7 @@ namespace Vodovoz.ViewModels.Warehouses
                 if(printCommand == null) {
                     printCommand = new DelegateCommand(
                         () => {
-                            int? currentEmployeeId = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW)?.Id;
+                            int? currentEmployeeId = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
                             var doc = new IncomingInvoiceDocumentRDL(Entity, currentEmployeeId){Title = Entity.Title};
                             if(doc is IPrintableRDLDocument) {
                                 rdlPreviewOpener.OpenRldDocument(typeof(IncomingInvoice), doc);

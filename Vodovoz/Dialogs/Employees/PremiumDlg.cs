@@ -8,7 +8,7 @@ using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Employees
@@ -16,7 +16,9 @@ namespace Vodovoz.Dialogs.Employees
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PremiumDlg : QS.Dialog.Gtk.EntityDialogBase<Premium>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public PremiumDlg()
 		{
@@ -85,7 +87,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private bool GetAuthor(out Employee cashier)
 		{
-			cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
 				MessageDialogHelper.RunErrorDialog(
 					"Ваш пользователь не привязан к действующему сотруднику.");

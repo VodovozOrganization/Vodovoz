@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -25,6 +24,8 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -32,6 +33,10 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		
 		RegradingOfGoodsDocumentItem newRow;
 		RegradingOfGoodsDocumentItem FineEditItem;
 
@@ -184,9 +189,7 @@ namespace Vodovoz
 
 				var nomenclatureFilter = new NomenclatureFilterViewModel();
 
-				var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
-
-				var userRepository = UserSingletonRepository.GetInstance();
+				var userRepository = new UserRepository();
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
@@ -199,7 +202,7 @@ namespace Vodovoz
 						ServicesConfig.CommonServices,
 						nomenclatureFilter,
 						counterpartySelectorFactory,
-						nomenclatureRepository,
+						_nomenclatureRepository,
 						userRepository
 						);
 
@@ -211,7 +214,7 @@ namespace Vodovoz
 					employeeService,
 					nomenclatureAutoCompleteSelectorFactory,
 					counterpartySelectorFactory,
-					nomenclatureRepository,
+					_nomenclatureRepository,
 					userRepository
 					);
 
@@ -244,7 +247,7 @@ namespace Vodovoz
 		private void LoadStock()
 		{
 			var nomenclatureIds = DocumentUoW.Root.Items.Select(x => x.NomenclatureOld.Id).ToArray();
-			var inStock = Repositories.StockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
+			var inStock = _stockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
 				nomenclatureIds, DocumentUoW.Root.TimeStamp);
 
 			foreach(var item in DocumentUoW.Root.Items)
@@ -283,9 +286,7 @@ namespace Vodovoz
 		{
 			var filter = new NomenclatureFilterViewModel();
 
-			var nomenclatureRepository = new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider());
-
-			var userRepository = UserSingletonRepository.GetInstance();
+			var userRepository = new UserRepository();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
@@ -298,7 +299,7 @@ namespace Vodovoz
 					ServicesConfig.CommonServices,
 					filter,
 					counterpartySelectorFactory,
-					nomenclatureRepository,
+					_nomenclatureRepository,
 					userRepository
 					);
 
@@ -310,7 +311,7 @@ namespace Vodovoz
 					employeeService,
 					nomenclatureAutoCompleteSelectorFactory,
 					counterpartySelectorFactory,
-					nomenclatureRepository,
+					_nomenclatureRepository,
 					userRepository
 					);
 

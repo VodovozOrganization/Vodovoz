@@ -7,20 +7,22 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IOrderRepository _orderRepository;
 		public bool ShowStockBottle { get; set; }
 
-		public RevisionBottlesAndDeposits()
+		public RevisionBottlesAndDeposits(IOrderRepository orderRepository)
 		{
-			this.Build();
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
 				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
@@ -92,7 +94,7 @@ namespace Vodovoz.Reports
 			}
 			else
 			{
-				ShowStockBottle = OrderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
+				ShowStockBottle = _orderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
 				referenceDeliveryPoint.Subject = null;
 				referenceDeliveryPoint.Sensitive = true;
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, 

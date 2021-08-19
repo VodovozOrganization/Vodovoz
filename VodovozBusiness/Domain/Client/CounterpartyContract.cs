@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
 
 namespace Vodovoz.Domain.Client
@@ -185,13 +183,13 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <returns><c>true</c>, in case of successful update, <c>false</c> if template for the contract was not found.</returns>
 		/// <param name="uow">Unit of Work.</param>
-		public virtual bool UpdateContractTemplate(IUnitOfWork uow)
+		public virtual bool UpdateContractTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(Organization == null) {
 				DocumentTemplate = null;
 				ChangedTemplateFile = null;
 			} else {
-				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization, ContractType);
+				var newTemplate = docTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization, ContractType);
 				if(newTemplate == null) {
 					DocumentTemplate = null;
 					ChangedTemplateFile = null;
