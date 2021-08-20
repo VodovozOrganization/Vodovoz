@@ -29,10 +29,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 			yenumcomboboxDateType.ItemsEnum = typeof(OrderDateType);
 			yenumcomboboxDateType.SelectedItem = OrderDateType.CreationDate;
 			entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
-			buttonHelp.Clicked += ButtonHelp_Clicked;
+			buttonHelp.Clicked += OnButtonHelpClicked;
 		}
 
-		private void ButtonHelp_Clicked(object sender, EventArgs e)
+		private void OnButtonHelpClicked(object sender, EventArgs e)
 		{
 			var info =
 				"В отчёт попадают заказы с учётом выбранных фильтров, а также следующих условий:\n" +
