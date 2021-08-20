@@ -721,25 +721,30 @@ namespace Vodovoz
 
         void AllOrders_Activated(object sender, EventArgs e)
         {
-	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+	        var subdivisionJournalFactory = new SubdivisionJournalFactory();
+	        var counterpartyJournalFactory = new CounterpartyJournalFactory();
+	        var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 
-	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
+	        var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+	        {
+		        RestrictCounterparty = Entity
+	        };
+
 	        var orderJournalViewModel = new OrderJournalViewModel(
 		        orderJournalFilter,
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        new EmployeeService(),
-		        nomenclatureSelectorFactory,
-		        counterpartySelectorFactory,
 		        nomenclatureRepository,
 		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
-		        new CounterpartyJournalFactory(),
+		        counterpartyJournalFactory,
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 		        new GtkTabsOpener(),
 		        new UndeliveredOrdersJournalOpener(),
+				new NomenclatureSelectorFactory(),
 				new UndeliveredOrdersRepository()
 			);
 
@@ -760,7 +765,6 @@ namespace Vodovoz
 		        UndeliveredOrdersJournalOpener,
 		        _employeeService,
 		        CounterpartySelectorFactory,
-		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
 		        SubdivisionParametersProvider.Instance,
 		        filter,

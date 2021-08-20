@@ -27,6 +27,8 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -227,7 +229,9 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrderJournalFilterViewModel
+			var filter = new OrderJournalFilterViewModel(
+				new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory())
 			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};

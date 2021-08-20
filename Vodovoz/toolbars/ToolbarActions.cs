@@ -80,6 +80,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
@@ -675,11 +676,14 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
 
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+
 		filter.SetAndRefilterAtOnce(
-			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
+			x => x.AllowStatuses = new [] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
 			x => x.RestrictOnlySelfDelivery = true,
 			x => x.RestrictWithoutSelfDelivery = false,
 			x => x.RestrictHideService = true,
@@ -1049,41 +1053,14 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+		{
+			IsForRetail = false
+		};
 
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-		
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
-
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel() { IsForRetail = false };
-		var ordersJournal = new OrderJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			nomenclatureSelectorFactory,
-			counterpartySelectorFactory,
-			nomenclatureRepository,
-			userRepository,
-			new OrderSelectorFactory(),
-			new EmployeeJournalFactory(),
-			new CounterpartyJournalFactory(),
-			new DeliveryPointJournalFactory(),
-			subdivisionJournalFactory,
-			new GtkTabsOpener(),
-			new UndeliveredOrdersJournalOpener(),
-			new UndeliveredOrdersRepository()
-		);
-		
-		tdiMain.AddTab(ordersJournal);
+		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
