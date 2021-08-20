@@ -11,6 +11,7 @@ using System.Xml;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.Logistic;
 
@@ -148,7 +149,7 @@ namespace Vodovoz.Additions.Logistic
 					SqlSelect += $", orders.comment AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
 						$"SELECT * FROM undelivered_orders uo" +
-						" WHERE uo.guilty_is IN('Driver','Department')" +
+						$" WHERE uo.guilty_is IN('{ GuiltyTypes.Driver }','{ GuiltyTypes.Department }')" +
 						" AND uo.new_order_id = orders.id" +
 						$")) AS { _orderPrioritizedTagName }";
 
@@ -175,7 +176,7 @@ namespace Vodovoz.Additions.Logistic
 					if(isClosed)
 					{
 						SqlSelect +=
-							$", IF(route_list_addresses.status = 'Transfered', 0," +
+							$", IF(route_list_addresses.status = '{ RouteListItemStatus.Transfered }', 0," +
 							$" cast(IFNULL(wt_qry.{_waterFactTagPrefix}{ column.Id }, 0) as DECIMAL)) AS { _waterFactTagPrefix }{ column.Id }";
 						SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = { column.Id }, cast(IFNULL(order_items.actual_count, 0) as DECIMAL)," +
 							$" 0)) AS { _waterFactTagPrefix }{ column.Id }";
@@ -201,7 +202,7 @@ namespace Vodovoz.Additions.Logistic
 				{
 					if(isClosed)
 					{
-						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{{ _waterFactTagPrefix }{ column.Id }}}, 0))";
+						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"{ RouteListItemStatus.Completed }\", {{{ _waterFactTagPrefix }{ column.Id }}}, 0))";
 					}
 					else
 					{
@@ -264,7 +265,7 @@ namespace Vodovoz.Additions.Logistic
 				   "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
 				   $"<TextAlign>Center</TextAlign><Format>{ formatString }</Format><VerticalAlign>Middle</VerticalAlign>" +
 				   (isClosed
-				   ? "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>"
+				   ? $"<BackgroundColor>=Iif((Fields!Status.Value = \"{ RouteListItemStatus.EnRoute }\") or (Fields!Status.Value = \"{ RouteListItemStatus.Completed }\"), White, Lightgrey)</BackgroundColor>"
 				   : "") +
 				   "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
 				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
