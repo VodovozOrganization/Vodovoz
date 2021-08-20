@@ -767,9 +767,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_name-->
-                <TableCell>
+                </TableCell><!--table_cell_name--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -1006,9 +1004,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_value-->
-                <TableCell>
+                </TableCell><!--table_cell_value--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1170,9 +1166,7 @@
                     </Textbox>
                   </ReportItems>
                   <ColSpan>6</ColSpan>
-                </TableCell>
-                <!--table_cell_total-->
-                <TableCell>
+                </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>Километраж</Value>
@@ -1378,9 +1372,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                        <!--table_cell_total_without_stock-->
-                      </Value>
+                      <Value><!--table_cell_total_without_stock--></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
