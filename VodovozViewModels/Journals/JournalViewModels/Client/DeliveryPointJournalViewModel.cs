@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 {
 	public class DeliveryPointJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPoint, DeliveryPointViewModel, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
 	{
+		private readonly bool _canDeleteClientAndDp;
 		private readonly IUserRepository _userRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IPhoneRepository _phoneRepository;
@@ -60,6 +61,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				typeof(Counterparty),
 				typeof(DeliveryPoint)
 			);
+			_canDeleteClientAndDp =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
 		}
 
 		protected override void CreateNodeActions()
@@ -74,30 +77,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		{
 			var deleteAction = new JournalAction("Удалить",
 				(selected) => {
-					var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+					var selectedNodes = selected.OfType<DeliveryPointJournalNode>().ToList();
+					if(!selectedNodes.Any())
+					{
 						return false;
 					}
-					DeliveryPointJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanDelete 
-						&& commonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
+					return config.PermissionResult.CanDelete && _canDeleteClientAndDp;
 				},
 				(selected) => true,
 				(selected) => {
-					var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+					var selectedNodes = selected.OfType<DeliveryPointJournalNode>().ToList();
+					if(!selectedNodes.Any())
+					{
 						return;
 					}
-					DeliveryPointJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					if(config.PermissionResult.CanDelete) {
+					if(config.PermissionResult.CanDelete)
+					{
 						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
 					}
 				},
