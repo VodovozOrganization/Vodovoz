@@ -75,7 +75,7 @@ namespace Vodovoz
 
 		public RouteListCreateDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
 			Entity.Logistician = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Logistician == null)
@@ -241,12 +241,12 @@ namespace Vodovoz
 			}
 		}
 
-		void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		private void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			Entity.ClosingSubdivision = yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
 		}
 
-		void CheckCarLoadDocuments()
+		private void CheckCarLoadDocuments()
 		{
 			if(Entity.Id > 0 && _routeListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
 			{
@@ -254,19 +254,19 @@ namespace Vodovoz
 			}
 		}
 
-		void PrintSelectedDocument(RouteListPrintableDocuments choise)
+		private void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
 			TabParent.AddSlaveTab(this, CreateDocumentsPrinterDlg(choise));
 		}
 
-		DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
+		private DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
 		{
 			var dlg = new DocumentsPrinterDlg(UoW, Entity, choise);
 			dlg.DocumentsPrinted += Dlg_DocumentsPrinted;
 			return dlg;
 		}
 
-		void Dlg_DocumentsPrinted(object sender, EventArgs e)
+		private void Dlg_DocumentsPrinted(object sender, EventArgs e)
 		{
 			if(e is EndPrintArgs printArgs)
 			{
