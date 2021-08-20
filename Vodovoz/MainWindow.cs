@@ -1906,7 +1906,7 @@ public partial class MainWindow : Gtk.Window
         var employeeFactory = new EmployeeJournalFactory();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-            () => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory.CreateEmployeeAutocompleteSelectorFactory()))
+            () => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory.CreateEmployeeAutocompleteSelectorFactory(), ServicesConfig.InteractiveService))
         );
     }
 
