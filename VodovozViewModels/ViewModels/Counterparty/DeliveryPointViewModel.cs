@@ -186,7 +186,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				IsNotSaving = false;
 				if(!HasChanges)
 				{
-					return true;
+					return base.Save(close);
 				}
 
 				if(!Entity.CoordinatesExist &&
