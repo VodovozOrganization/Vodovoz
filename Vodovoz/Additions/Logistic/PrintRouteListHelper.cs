@@ -142,6 +142,7 @@ namespace Vodovoz.Additions.Logistic
 				else
 				{
 					if(isClosed)
+					{
 						CellColumnValue += string.Format(numericCellTemplate,
 							TextBoxNumber++,
 							string.Format(
@@ -150,6 +151,7 @@ namespace Vodovoz.Additions.Logistic
 								column.Id),
 							string.Format("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
 						);
+					}
 					else
 					{
 						CellColumnValue += string.Format(numericCellTemplate,
