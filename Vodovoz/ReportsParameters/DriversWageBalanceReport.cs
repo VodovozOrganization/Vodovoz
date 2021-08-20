@@ -22,7 +22,8 @@ namespace Vodovoz.Reports
 			public int 	  Id 		 { get; set; }
 			public string Name 		 { get; set; }
 			public string LastName 	 { get; set; }
-			public string FullName 	 { get {return LastName + " " + Name;} }
+			public string Patronymic { get; set; }
+			public string FullName => LastName + " " + Name + (String.IsNullOrWhiteSpace(Patronymic) ? "" : (" " + Patronymic));
 			public bool   IsSelected { get; set; } = false;
 			public EmployeeCategory Category { get; set; }
 			public DateTime FirstWorkDay { get; set; }
@@ -30,6 +31,7 @@ namespace Vodovoz.Reports
 
 		//Если это сопровождающий(forwarder) закрашивает серым то закрасить серым
 		IColumnsConfig columnsConfig = ColumnsConfigFactory.Create<DriverNode> ()
+			.AddColumn("Код").AddNumericRenderer(d => d.Id)
 			.AddColumn("Имя").AddTextRenderer(d => d.FullName)
 			.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
 			.RowCells().AddSetter<CellRenderer>((c, n) => c.CellBackground = n.Category == EmployeeCategory.forwarder ? "Light Gray" : "white")
@@ -103,6 +105,7 @@ namespace Vodovoz.Reports
 			                             .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
 			                             .Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)
 			                             .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName)
+			                             .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
 			                             .Select(() => employeeAlias.Category).WithAlias (() => resultAlias.Category)
 			                             .Select(() => employeeAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay))
 			                 .OrderBy(e => e.LastName).Asc.ThenBy(x => x.Name).Asc
