@@ -34,6 +34,10 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory()
 		{
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+				new WaterFixedPricesGenerator(
+					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+
 			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
 				() => new DeliveryPointJournalViewModel(
 					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
@@ -42,15 +46,18 @@ namespace Vodovoz.TempAdapters
 					new HousesDataLoader(OsmWorker.GetOsmService()),
 					new DeliveryPointRepository(),
 					new NomenclatureSelectorFactory(),
-					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-						new WaterFixedPricesGenerator(
-							new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
+					controller,
+					new DeliveryScheduleSelectorFactory(),
 					_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, true, true));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointByClientAutocompleteSelectorFactory()
 		{
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+				new WaterFixedPricesGenerator(
+					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+
 			return new EntityAutocompleteSelectorFactory<DeliveryPointByClientJournalViewModel>(typeof(DeliveryPoint),
 				() => new DeliveryPointByClientJournalViewModel(
 					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
@@ -59,12 +66,11 @@ namespace Vodovoz.TempAdapters
 					new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
 					new DeliveryPointRepository(),
-					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-						new WaterFixedPricesGenerator(
-							new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
+					controller,
+					new DeliveryScheduleSelectorFactory(),
 					_deliveryPointJournalFilter
 					?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, true, true));
 		}
 	}
 }

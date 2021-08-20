@@ -835,6 +835,9 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
     {
 	    var userRepository = new UserRepository();
+	    var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+		    new WaterFixedPricesGenerator(
+			    new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
 
         DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
         var deliveryPointJournal = new DeliveryPointJournalViewModel(
@@ -844,9 +847,9 @@ public partial class MainWindow : Gtk.Window
 	        new HousesDataLoader(OsmWorker.GetOsmService()),
 	        new DeliveryPointRepository(),
 	        new NomenclatureSelectorFactory(),
-	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-	        filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+	        controller,
+	        new DeliveryScheduleSelectorFactory(),
+	        filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, true, true);
         tdiMain.AddTab(deliveryPointJournal);
     }
 

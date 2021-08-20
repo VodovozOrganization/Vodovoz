@@ -26,12 +26,16 @@ namespace Vodovoz.TempAdapters
 
         public void OpenFixedPricesForDeliveryPoint(int deliveryPointId)
         {
+	        var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+		        new WaterFixedPricesGenerator(
+			        new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+
 	        var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(), ContactParametersProvider.Instance,
 		        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
 		        new NomenclatureSelectorFactory(),
-		        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-			        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
+		        controller,
 		        new DeliveryPointRepository(),
+		        new DeliveryScheduleSelectorFactory(),
 		        EntityUoWBuilder.ForOpen(deliveryPointId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
             TDIMain.MainNotebook.AddTab(dpViewModel);
             dpViewModel.OpenFixedPrices();

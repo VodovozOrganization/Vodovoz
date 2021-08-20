@@ -6,6 +6,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Osm.Loaders;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -20,6 +21,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
@@ -72,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
 		public INomenclatureSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
 
 		#endregion
 
@@ -105,9 +108,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
+			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
 			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: this(userRepository, gtkTabsOpener, phoneRepository, contactsParameters, citiesDataLoader, streetsDataLoader,
-				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController, deliveryPointRepository,
+				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController,
+				deliveryPointRepository, deliveryScheduleSelectorFactory,
 				uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			Entity.Counterparty = client;
@@ -124,6 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
+			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
 			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -163,6 +169,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			DeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			DeliveryScheduleSelectorFactory =
+				deliveryScheduleSelectorFactory?.CreateDeliveryScheduleAutocompleteSelectorFactory()
+				?? throw new ArgumentNullException(nameof(deliveryScheduleSelectorFactory));
+
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch (e.PropertyName)

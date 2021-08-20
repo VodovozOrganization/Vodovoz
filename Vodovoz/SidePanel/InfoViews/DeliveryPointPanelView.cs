@@ -184,15 +184,19 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+				new WaterFixedPricesGenerator(
+					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+
 			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
 				ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()),
 				new StreetsDataLoader(OsmWorker.GetOsmService()),
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
+				controller,
 				new DeliveryPointRepository(),
+				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}

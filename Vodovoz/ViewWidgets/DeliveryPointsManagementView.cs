@@ -86,15 +86,19 @@ namespace Vodovoz
 				}
 			}
 
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+				new WaterFixedPricesGenerator(
+					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+
 			var client = DeliveryPointUoW.Root;
 			var dpViewModel = new DeliveryPointViewModel(client, new UserRepository(), new GtkTabsOpener(),
 				new PhoneRepository(), ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)))),
+				controller,
 				new DeliveryPointRepository(),
+				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
@@ -102,15 +106,19 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
+				new WaterFixedPricesGenerator(
+					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+
 			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
 			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
 				ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)))),
+				controller,
 				new DeliveryPointRepository(),
+				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForOpen(dpId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 		}

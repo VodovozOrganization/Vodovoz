@@ -18,6 +18,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
@@ -35,14 +36,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly IDeliveryScheduleSelectorFactory _deliveryScheduleSelectorFactory;
 
 		public DeliveryPointJournalViewModel(
 			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
 			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
 			IDeliveryPointRepository deliveryPointRepository,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory, NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
+			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
+			bool hideJournalForOpen, bool hideJournalForCreate)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
 		{
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -55,6 +59,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_nomenclatureFixedPriceController = nomenclatureFixedPriceController ??
 			                                    throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
+			_deliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory ??
+			                                   throw new ArgumentNullException(nameof(deliveryScheduleSelectorFactory));
 
 			TabName = "Журнал точек доставки";
 			UpdateOnChanges(
@@ -177,6 +183,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
 				_deliveryPointRepository,
+				_deliveryScheduleSelectorFactory,
 				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}
 }
