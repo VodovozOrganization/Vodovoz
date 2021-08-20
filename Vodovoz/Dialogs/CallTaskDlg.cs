@@ -4,7 +4,6 @@ using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QSReport;
 using Vodovoz.EntityRepositories.Employees;
@@ -23,7 +22,7 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
@@ -97,13 +96,13 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.ValidationMode = ValidationType.numeric;
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
+			textViewCommentAboutClient.Buffer.Text = Entity?.Counterparty?.Comment;
+			vboxOldComments.Visible = true;
 
-			var employeeFilterViewModel = new EmployeeRepresentationFilterViewModel();
-			employeeFilterViewModel.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
-			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
-			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
-
-			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
+			var employeeFilterViewModel = new EmployeeFilterViewModel {RestrictCategory = EmployeeCategory.office};
+			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilterViewModel);
+			entryAttachedEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+			entryAttachedEmployee.Binding.AddBinding(Entity, e => e.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel)
 				.CreateDeliveryPointAutocompleteSelectorFactory());
@@ -167,8 +166,8 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSplitClicked(object sender, EventArgs e)
 		{
-			vboxOldComments.Visible = !vboxOldComments.Visible;
-			buttonSplit.Label = vboxOldComments.Visible ? ">>" : "<<";
+			tablePreviousComments.Visible = !tablePreviousComments.Visible;
+			buttonSplit.Label = tablePreviousComments.Visible ? ">>" : "<<";
 		}
 
 		#region Comments
