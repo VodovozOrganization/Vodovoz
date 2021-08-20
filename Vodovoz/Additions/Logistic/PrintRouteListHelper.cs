@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Xml;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Xml;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -23,6 +23,8 @@ namespace Vodovoz.Additions.Logistic
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private const string _orderCommentTagName = "OrderComment";
+		private const string _orderPrioritizedTagName = "prioritized";
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
@@ -124,7 +126,7 @@ namespace Vodovoz.Additions.Logistic
 				//'' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'
 				
 				if (isFirstColumn) {
-					CellColumnValue += String.Format(numericCellTemplate, TextBoxNumber++, "={OrderComment}", "0");
+					CellColumnValue += String.Format(numericCellTemplate, TextBoxNumber++, $"=Iif({{{ _orderPrioritizedTagName }}}, \'Приоритет! \', \"\") + {{{ _orderCommentTagName }}}", "0");
 				}
 				else {
 					if (isClosed)
@@ -159,12 +161,25 @@ namespace Vodovoz.Additions.Logistic
 
 				//Запрос..
 				if (isFirstColumn) {
-					SqlSelect += String.Format(", orders.comment AS OrderComment", column.Id.ToString());
-					Fields += String.Format("" +
-					                        "<Field Name=\"{0}\">" +
-					                        "<DataField>{0}</DataField>" +
-					                        "<TypeName>System.String</TypeName>" +
-					                        "</Field>", "OrderComment" );
+					SqlSelect += $", orders.comment AS { _orderCommentTagName }" +
+						$", (SELECT EXISTS (" +
+						$"SELECT * FROM undelivered_orders uo" +
+						" WHERE uo.guilty_is IN('Driver','Department')" +
+						" AND uo.new_order_id = orders.id" +
+						$")) AS { _orderPrioritizedTagName }";
+
+					Fields +=
+						$"<Field Name=\"{ _orderPrioritizedTagName }\">" +
+						$"<DataField>{ _orderPrioritizedTagName }</DataField>" +
+						"<TypeName>System.Boolean</TypeName>" +
+						"</Field>";
+
+					Fields +=
+						$"<Field Name=\"{ _orderCommentTagName }\">" +
+						$"<DataField>{ _orderCommentTagName }</DataField>" +
+						"<TypeName>System.String</TypeName>" +
+						"</Field>";
+
 					isFirstColumn = false;
 				}
 				else {
