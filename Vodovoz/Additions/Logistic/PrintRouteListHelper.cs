@@ -22,32 +22,8 @@ namespace Vodovoz.Additions.Logistic
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
-
-		public static ReportInfo GetRDLTimeList(int routeListId)
-		{
-			return new ReportInfo
-			{
-				Title = $"Лист времени для МЛ № { routeListId }",
-				Identifier = "Documents.TimeList",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "route_list_id", routeListId }
-				}
-			};
-		}
-
-		public static ReportInfo GetRDLDailyList(int routeListId)
-		{
-			return new ReportInfo
-			{
-				Title = $"Ежедневные номера МЛ № { routeListId }",
-				Identifier = "Logistic.AddressesByDailyNumber",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "route_list", routeListId }
-				}
-			};
-		}
+		private const string _waterTagNamePrefix = "Water";
+		private const string _waterFactTagPrefix = "Water_fact";
 
 		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, RouteList routeList)
 		{
@@ -74,22 +50,6 @@ namespace Vodovoz.Additions.Logistic
 			}
 			//Для уникальности номеров Textbox.
 			int TextBoxNumber = 100;
-
-			//Шаблон стандартной ячейки
-			string numericCellTemplate =
-				"<TableCell><ReportItems>" +
-				"<Textbox Name=\"Textbox{0}\">" +
-				"<Value>{1}</Value>" +
-				"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-				"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
-				"<TextAlign>Center</TextAlign><Format>{2}</Format><VerticalAlign>Middle</VerticalAlign>";
-
-			if(isClosed)
-			{
-				numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
-			}
-			numericCellTemplate += "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
-								   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
 			RdlText = RdlText.Replace("<!--colspan-->", $"<ColSpan>{ RouteColumns.Count }</ColSpan>");
@@ -119,64 +79,67 @@ namespace Vodovoz.Additions.Logistic
 
 			foreach(var column in RouteColumns)
 			{
-				//Заголовки колонок
-				CellColumnHeader += string.Format(
-					"<TableCell><ReportItems>" +
-					"<Textbox Name=\"Textbox{0}\">" +
-					"<Value>{1}</Value>" +
-					"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-					"<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
-					"<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
-					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>",
-					TextBoxNumber++, column.Name);
-				//Формула для колонки с водой для информации из запроса
-				//'' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'
+				CellColumnHeader += GetColumnHeader(TextBoxNumber++, column.Name);
 
 				if(isFirstColumn)
 				{
-					CellColumnValue += string.Format(numericCellTemplate, TextBoxNumber++, $"=Iif({{{ _orderPrioritizedTagName }}}, \'Приоритет! \', \"\") + {{{ _orderCommentTagName }}}", "0");
+					CellColumnValue += GetCellTag(
+							TextBoxNumber++,
+							$"=Iif({{{ _orderPrioritizedTagName }}}, \'Приоритет! \', \"\") + {{{ _orderCommentTagName }}}",
+							"0",
+							isClosed
+						);
 				}
 				else
 				{
 					if(isClosed)
 					{
-						CellColumnValue += string.Format(numericCellTemplate,
+						CellColumnValue += GetCellTag(
 							TextBoxNumber++,
-							string.Format(
-								"=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), ''" +
-								" + {{Water_fact{0}}} + '(' + Iif({{Water_fact{0}}} - {{Water{0}}} > 0, '+', '') + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))",
-								column.Id),
-							string.Format("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
+							$"=Iif(" +
+								$"{{{ _waterTagNamePrefix }{ column.Id }}} + {{{ _waterFactTagPrefix }{ column.Id }}} = 0," +
+								$" \"\"," +
+								$" Iif(" +
+									$"{{{ _waterTagNamePrefix }{ column.Id }}} = {{{ _waterFactTagPrefix }{ column.Id }}}," +
+									$" Format({{{ _waterTagNamePrefix }{ column.Id }}}, '0')," +
+									$" '' + {{{ _waterFactTagPrefix }{ column.Id }}} +" +
+										$" '(' + Iif(" +
+											$"{{{ _waterFactTagPrefix }{column.Id}}} - {{{ _waterTagNamePrefix }{ column.Id }}} > 0," +
+											$" '+'," +
+											$" '') + ({{{ _waterFactTagPrefix }{column.Id}}} - {{{ _waterTagNamePrefix }{ column.Id }}}) + ')'))",
+							$"=Iif({{{ _waterTagNamePrefix }{ column.Id }}} = {{{ _waterFactTagPrefix }{ column.Id }}}, \"0\", \"\")",
+							isClosed
 						);
 					}
 					else
 					{
-						CellColumnValue += string.Format(numericCellTemplate,
-							TextBoxNumber++, $"=Iif({{Water{ column.Id }}} = 0, \"\", {{Water{ column.Id }}})",
-							'C');
+						CellColumnValue += GetCellTag(
+							TextBoxNumber++, $"=Iif({{{ _waterTagNamePrefix }{ column.Id }}} = 0, \"\", {{{ _waterTagNamePrefix }{ column.Id }}})",
+							"C",
+							isClosed);
 					}
 				}
 				//Ячейка с запасом. Пока там пусто
-				CellColumnStock += string.Format(numericCellTemplate, TextBoxNumber++, "", 0);
+				CellColumnStock += GetCellTag(TextBoxNumber++, "", "0", isClosed);
 
 				//Ячейка с суммой по бутылям.
 				if(isFirstColumn)
 				{
-					CellColumnTotal += string.Format(numericCellTemplate, TextBoxNumber++, "", 0);
+					CellColumnTotal += GetCellTag(TextBoxNumber++, "", "0", isClosed);
 				}
 				else
 				{
 					string formula;
 					if(isClosed)
 					{
-						formula = $"=Iif(Sum({{Water_fact{ column.Id }}}) = 0, \"\", Sum({{Water_fact{ column.Id }}}))";
+						formula = $"=Iif(Sum({{{ _waterFactTagPrefix }{ column.Id }}}) = 0, \"\", Sum({{{ _waterFactTagPrefix }{ column.Id }}}))";
 					}
 					else
 					{
-						formula = $"=Iif(Sum({{Water{ column.Id }}}) = 0, \"\", Sum({{Water{ column.Id }}}))";
+						formula = $"=Iif(Sum({{{ _waterTagNamePrefix }{ column.Id }}}) = 0, \"\", Sum({{{ _waterTagNamePrefix }{ column.Id }}}))";
 					}
 
-					CellColumnTotal += string.Format(numericCellTemplate, TextBoxNumber++, formula, 0);
+					CellColumnTotal += GetCellTag(TextBoxNumber++, formula, "0", isClosed);
 				}
 
 				//Запрос..
@@ -205,33 +168,32 @@ namespace Vodovoz.Additions.Logistic
 				}
 				else
 				{
-					SqlSelect += string.Format(", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString());
-					SqlSelectSubquery += string.Format(
-						", SUM(IF(nomenclature_route_column.id = {0}, cast(order_items.count as DECIMAL), 0)) AS {1}",
-						column.Id, "Water" + column.Id.ToString());
+					SqlSelect += $", IFNULL(wt_qry.{ _waterTagNamePrefix }{ column.Id }, 0) AS { _waterTagNamePrefix }{ column.Id }";
+					SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = { column.Id }," +
+						$" cast(order_items.count as DECIMAL), 0)) AS { _waterTagNamePrefix }{ column.Id }";
+
 					if(isClosed)
 					{
 						SqlSelect +=
-							string.Format(
-								", IF(route_list_addresses.status = 'Transfered', 0, cast(IFNULL(wt_qry.Water_fact{0}, 0) as DECIMAL)) AS Water_fact{0}",
-								column.Id.ToString());
-						SqlSelectSubquery += string.Format(
-							", SUM(IF(nomenclature_route_column.id = {0}, cast(IFNULL(order_items.actual_count, 0) as DECIMAL), 0)) AS {1}",
-							column.Id, "Water_fact" + column.Id.ToString());
+							$", IF(route_list_addresses.status = 'Transfered', 0," +
+							$" cast(IFNULL(wt_qry.{_waterFactTagPrefix}{ column.Id }, 0) as DECIMAL)) AS { _waterFactTagPrefix }{ column.Id }";
+						SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = { column.Id }, cast(IFNULL(order_items.actual_count, 0) as DECIMAL)," +
+							$" 0)) AS { _waterFactTagPrefix }{ column.Id }";
 					}
 
 					//Линкуем запрос на переменные RDL
-					Fields += string.Format("" +
-											"<Field Name=\"{0}\">" +
-											"<DataField>{0}</DataField>" +
-											"<TypeName>System.Decimal</TypeName>" +
-											"</Field>", "Water" + column.Id.ToString());
+					Fields +=
+						$"<Field Name=\"{ _waterTagNamePrefix }{ column.Id }\">" +
+						$"<DataField>{ _waterTagNamePrefix }{ column.Id }</DataField>" +
+						$"<TypeName>System.Decimal</TypeName>" +
+						$"</Field>";
 					if(isClosed)
 					{
-						Fields += string.Format("<Field Name=\"{0}\">" +
-												"<DataField>{0}</DataField>" +
-												"<TypeName>System.Decimal</TypeName>" +
-												"</Field>", "Water_fact" + column.Id.ToString());
+						Fields +=
+							$"<Field Name=\"{ _waterFactTagPrefix }{ column.Id }\">" +
+							$"<DataField>{ _waterFactTagPrefix }{ column.Id }</DataField>" +
+							$"<TypeName>System.Decimal</TypeName>" +
+							$"</Field>";
 					}
 				}
 				//Формула итоговой суммы по всем бутылям.
@@ -239,11 +201,11 @@ namespace Vodovoz.Additions.Logistic
 				{
 					if(isClosed)
 					{
-						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water_fact{ column.Id }}}, 0))";
+						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{{ _waterFactTagPrefix }{ column.Id }}}, 0))";
 					}
 					else
 					{
-						TotalSum += $"+ Sum({{Water{ column.Id }}})";
+						TotalSum += $"+ Sum({{{ _waterTagNamePrefix }{ column.Id }}})";
 					}
 				}
 			}
@@ -265,7 +227,7 @@ namespace Vodovoz.Additions.Logistic
 			Console.WriteLine(RdlText);
 #endif
 
-			string printDatestr = $"Дата печати: { DateTime.Now.ToString("g") }";
+			string printDatestr = $"Дата печати: { DateTime.Now:g}";
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			return new ReportInfo
@@ -278,6 +240,58 @@ namespace Vodovoz.Additions.Logistic
 					{ "Print_date", printDatestr},
 					{ "RouteListDate", routeList.Date},
 					{ "need_terminal", needTerminal }
+				}
+			};
+		}
+
+		private static string GetColumnHeader(int id, string name)
+		{
+			return "<TableCell><ReportItems>" +
+				   $"<Textbox Name=\"Textbox{ id }\">" +
+				   $"<Value>{ name }</Value>" +
+				   "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
+				   "<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
+				   "<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
+				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
+		}
+
+		private static string GetCellTag(int id, string value, string formatString, bool isClosed)
+		{
+			return "<TableCell><ReportItems>" +
+				   $"<Textbox Name=\"Textbox{ id }\">" +
+				   $"<Value>{ value }</Value>" +
+				   "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
+				   "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
+				   $"<TextAlign>Center</TextAlign><Format>{ formatString }</Format><VerticalAlign>Middle</VerticalAlign>" +
+				   (isClosed
+				   ? "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>"
+				   : "") +
+				   "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
+				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
+		}
+
+		public static ReportInfo GetRDLTimeList(int routeListId)
+		{
+			return new ReportInfo
+			{
+				Title = $"Лист времени для МЛ № { routeListId }",
+				Identifier = "Documents.TimeList",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "route_list_id", routeListId }
+				}
+			};
+		}
+
+		public static ReportInfo GetRDLDailyList(int routeListId)
+		{
+			return new ReportInfo
+			{
+				Title = $"Ежедневные номера МЛ № { routeListId }",
+				Identifier = "Logistic.AddressesByDailyNumber",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "route_list", routeListId }
 				}
 			};
 		}
