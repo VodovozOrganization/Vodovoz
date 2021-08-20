@@ -36,32 +36,35 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Номер")
 					.AddNumericRenderer(node => node.Id)
 				.AddColumn("Дата")
-				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : String.Empty)
+				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Статус")
 					.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
-				.Finish();			
+				.Finish();
 		}
 
 		#region IPanelView implementation
-		public IInfoProvider InfoProvider{ get; set; }
+
+		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
 		{
 			_counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
-			if(_counterparty == null) {
+			if(_counterparty == null)
+			{
 				buttonSaveComment.Sensitive = false;
 				return;
 			}
+
 			buttonSaveComment.Sensitive = true;
 			labelName.Text = _counterparty.FullName;
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
 
 			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
-			if (latestOrder != null)
+			if(latestOrder != null)
 			{
 				var daysFromLastOrder = (DateTime.Today - latestOrder.DeliveryDate.Value).Days;
-				labelLatestOrderDate.Text = String.Format(
+				labelLatestOrderDate.Text = string.Format(
 					"{0} ({1} {2} назад)",
 					latestOrder.DeliveryDate.Value.ToShortDateString(),
 					daysFromLastOrder,
@@ -72,18 +75,21 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				labelLatestOrderDate.Text = "(Выполненных заказов нет)";
 			}
+
 			var currentOrders = _orderRepository.GetCurrentOrders(InfoProvider.UoW, _counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
 
-			foreach(var child in PhonesTable.Children) {
+			foreach(var child in PhonesTable.Children)
+			{
 				PhonesTable.Remove(child);
 				child.Destroy();
 			}
 
-			uint rowsCount = Convert.ToUInt32(_counterparty.Phones.Count)+1;
+			uint rowsCount = Convert.ToUInt32(_counterparty.Phones.Count) + 1;
 			PhonesTable.Resize(rowsCount, 2);
-			for(uint row = 0; row < rowsCount - 1; row++) {
+			for(uint row = 0; row < rowsCount - 1; row++)
+			{
 				Label label = new Label();
 				label.Selectable = true;
 				label.Markup = $"{_counterparty.Phones[Convert.ToInt32(row)].LongText}";
@@ -146,8 +152,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		public bool VisibleOnPanel => _counterparty != null;
 
 		public void OnCurrentObjectChanged(object changedObject)
-		{			
-			if (changedObject is Counterparty)
+		{
+			if(changedObject is Counterparty)
 			{
 				Refresh();
 			}
@@ -155,7 +161,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
+			using(var uow =
+				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
@@ -166,14 +173,17 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			TDIMain.MainNotebook.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
-				() => {
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(_counterparty.Id, InfoProvider.UoW), UnitOfWorkFactory.GetDefaultFactory);
+				() =>
+				{
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(_counterparty.Id, InfoProvider.UoW),
+						UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
 					dlg.TabClosed += (senderObject, eventArgs) => { this.Refresh(); };
 					return dlg;
 				}
 			);
 		}
+
 		#endregion
 	}
 }
