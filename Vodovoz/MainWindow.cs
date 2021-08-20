@@ -841,6 +841,7 @@ public partial class MainWindow : Gtk.Window
 	        ContactParametersProvider.Instance,
 	        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 	        new HousesDataLoader(OsmWorker.GetOsmService()),
+	        new DeliveryPointRepository(),
 	        new NomenclatureSelectorFactory(),
 	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),

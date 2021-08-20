@@ -13,6 +13,7 @@ using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -30,12 +31,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private readonly ICitiesDataLoader _citiesLoader;
 		private readonly IStreetsDataLoader _streetsLoader;
 		private readonly IHousesDataLoader _housesLoader;
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
 		public DeliveryPointJournalViewModel(
 			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
 			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
+			IDeliveryPointRepository deliveryPointRepository,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory, NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -47,6 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			_citiesLoader = citiesLoader ?? throw new ArgumentNullException(nameof(citiesLoader));
 			_streetsLoader = streetsLoader ?? throw new ArgumentNullException(nameof(streetsLoader));
 			_housesLoader = housesLoader ?? throw new ArgumentNullException(nameof(housesLoader));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_nomenclatureFixedPriceController = nomenclatureFixedPriceController ??
 			                                    throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
@@ -110,22 +114,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			var query = uow.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias);
 
 			if(FilterViewModel != null && FilterViewModel.RestrictOnlyActive)
+			{
 				query = query.Where(() => deliveryPointAlias.IsActive);
+			}
 
-			if(FilterViewModel != null && FilterViewModel.Counterparty != null)
+			if(FilterViewModel?.Counterparty != null)
+			{
 				query = query.Where(() => counterpartyAlias.Id == FilterViewModel.Counterparty.Id);
+			}
 
-			if(FilterViewModel != null && FilterViewModel.RestrictOnlyNotFoundOsm)
+			if(FilterViewModel?.RestrictOnlyNotFoundOsm == true)
+			{
 				query = query.Where(() => deliveryPointAlias.FoundOnOsm == false);
+			}
 
-			if(FilterViewModel != null && FilterViewModel.RestrictOnlyWithoutStreet)
+			if(FilterViewModel?.RestrictOnlyWithoutStreet == true)
+			{
 				query = query.Where(Restrictions.Eq
 					(
 						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Boolean, "IS_NULL_OR_WHITESPACE(?1)"),
-						NHibernateUtil.String, new IProjection[] { Projections.Property(() => deliveryPointAlias.Street) }
-					), true
-				)
-			);
+							NHibernateUtil.String, Projections.Property(() => deliveryPointAlias.Street)), true
+					)
+				);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => deliveryPointAlias.Id,
@@ -158,6 +169,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				_citiesLoader, _streetsLoader, _housesLoader,
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
+				_deliveryPointRepository,
 				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}
 }

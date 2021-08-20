@@ -32,6 +32,7 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -43,6 +44,7 @@ namespace Vodovoz
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
 		IPhoneRepository phoneRepository = new PhoneRepository();
 
@@ -106,7 +108,7 @@ namespace Vodovoz
 
 			ShowResidue();
 
-			ySpecCmbCategory.ItemsList = UoW.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
+			ySpecCmbCategory.ItemsList = _deliveryPointRepository.GetActiveDeliveryPointCategories(UoW);
 			ySpecCmbCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			comboRoomType.ItemsEnum = typeof(RoomType);

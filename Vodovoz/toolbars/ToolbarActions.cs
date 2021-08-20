@@ -46,6 +46,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Chats;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
@@ -461,7 +462,9 @@ public partial class MainWindow : Window
 			() => new TasksView(new EmployeeRepository(), 
 								new BottlesRepository(),
 								new CallTaskRepository(),
-								new PhoneRepository()), null
+								new PhoneRepository(),
+								new EmployeeJournalFactory(),
+								new DeliveryPointRepository()), null
 		);
 	}
 

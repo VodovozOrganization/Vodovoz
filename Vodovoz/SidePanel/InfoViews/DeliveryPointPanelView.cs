@@ -192,6 +192,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
+				new DeliveryPointRepository(),
 				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}

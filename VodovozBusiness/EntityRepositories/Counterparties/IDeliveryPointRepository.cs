@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -16,5 +17,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		int GetBottlesOrderedForPeriod(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime start, DateTime end);
 		decimal GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
+		/// <summary>
+		/// Возвращает активные категории точек доставки, упорядоченные по имени
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <returns></returns>
+		IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow);
 	}
 }
