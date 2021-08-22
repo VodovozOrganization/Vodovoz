@@ -54,7 +54,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecCmbGeographicGroup;
 
-		private global::Gtk.HBox hbox4;
+		private global::Gtk.HBox hbox5;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOnlySelfdelivery;
 
@@ -77,7 +77,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(8)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(9)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -379,71 +379,71 @@ namespace Vodovoz.Filters.GtkViews
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
+			this.hbox5 = new global::Gtk.HBox();
+			this.hbox5.Name = "hbox5";
+			this.hbox5.Spacing = 6;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.ycheckOnlySelfdelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckOnlySelfdelivery.CanFocus = true;
 			this.ycheckOnlySelfdelivery.Name = "ycheckOnlySelfdelivery";
 			this.ycheckOnlySelfdelivery.Label = global::Mono.Unix.Catalog.GetString("Только самовывоз");
 			this.ycheckOnlySelfdelivery.DrawIndicator = true;
 			this.ycheckOnlySelfdelivery.UseUnderline = true;
-			this.hbox4.Add(this.ycheckOnlySelfdelivery);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlySelfdelivery]));
+			this.hbox5.Add(this.ycheckOnlySelfdelivery);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ycheckOnlySelfdelivery]));
 			w25.Position = 0;
 			w25.Expand = false;
 			w25.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.ycheckWithoutSelfdelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckWithoutSelfdelivery.CanFocus = true;
 			this.ycheckWithoutSelfdelivery.Name = "ycheckWithoutSelfdelivery";
 			this.ycheckWithoutSelfdelivery.Label = global::Mono.Unix.Catalog.GetString("Скрыть самовывозы");
 			this.ycheckWithoutSelfdelivery.DrawIndicator = true;
 			this.ycheckWithoutSelfdelivery.UseUnderline = true;
-			this.hbox4.Add(this.ycheckWithoutSelfdelivery);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckWithoutSelfdelivery]));
+			this.hbox5.Add(this.ycheckWithoutSelfdelivery);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ycheckWithoutSelfdelivery]));
 			w26.Position = 1;
 			w26.Expand = false;
 			w26.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.ycheckOnlyServices = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckOnlyServices.CanFocus = true;
 			this.ycheckOnlyServices.Name = "ycheckOnlyServices";
 			this.ycheckOnlyServices.Label = global::Mono.Unix.Catalog.GetString("Только выезд мастера");
 			this.ycheckOnlyServices.DrawIndicator = true;
 			this.ycheckOnlyServices.UseUnderline = true;
-			this.hbox4.Add(this.ycheckOnlyServices);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlyServices]));
+			this.hbox5.Add(this.ycheckOnlyServices);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ycheckOnlyServices]));
 			w27.Position = 2;
 			w27.Expand = false;
 			w27.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.ycheckHideServices = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckHideServices.CanFocus = true;
 			this.ycheckHideServices.Name = "ycheckHideServices";
 			this.ycheckHideServices.Label = global::Mono.Unix.Catalog.GetString("Скрыть выезд мастера");
 			this.ycheckHideServices.DrawIndicator = true;
 			this.ycheckHideServices.UseUnderline = true;
-			this.hbox4.Add(this.ycheckHideServices);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckHideServices]));
+			this.hbox5.Add(this.ycheckHideServices);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ycheckHideServices]));
 			w28.Position = 3;
 			w28.Expand = false;
 			w28.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.ycheckLessThreeHours = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckLessThreeHours.CanFocus = true;
 			this.ycheckLessThreeHours.Name = "ycheckLessThreeHours";
 			this.ycheckLessThreeHours.Label = global::Mono.Unix.Catalog.GetString("Менее 3-х часов");
 			this.ycheckLessThreeHours.DrawIndicator = true;
 			this.ycheckLessThreeHours.UseUnderline = true;
-			this.hbox4.Add(this.ycheckLessThreeHours);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckLessThreeHours]));
+			this.hbox5.Add(this.ycheckLessThreeHours);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ycheckLessThreeHours]));
 			w29.Position = 4;
 			w29.Expand = false;
 			w29.Fill = false;
-			this.vbox2.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
+			this.vbox2.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox5]));
 			w30.Position = 1;
 			w30.Expand = false;
 			w30.Fill = false;
