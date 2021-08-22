@@ -52,6 +52,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
+			dateperiodOrdersCreated.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
+			dateperiodOrdersCreated.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
+			dateperiodOrdersCreated.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.CanChangeCreatedStartDate && vm.CanChangeCreatedEndDate, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictCreatedStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.RestrictCreatedEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
 			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeOnlySelfDelivery, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter())
@@ -90,6 +98,9 @@ namespace Vodovoz.Filters.GtkViews
 			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible)
 				.InitializeFromSource();
 			ylblPaymentFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible).InitializeFromSource();
+			
+			ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
+			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		private void InitializeRestrictions()
