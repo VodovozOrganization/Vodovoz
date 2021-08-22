@@ -202,6 +202,7 @@ namespace Vodovoz.JournalViewModels
 			District districtAlias = null;
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
+			GeographicGroup geographicalGroupAlias = null;
 
 			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -248,6 +249,26 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
+			if(FilterViewModel.RestrictCreatedStartDate == null)
+			{
+				FilterViewModel.RestrictCreatedStartDate = DateTime.Today.AddMonths(-2);
+			}
+
+			if(FilterViewModel.RestrictCreatedEndDate == null)
+			{
+				FilterViewModel.RestrictCreatedEndDate = DateTime.Today.AddDays(7);
+			}
+			
+			if(FilterViewModel.RestrictCreatedStartDate != null) 
+			{
+				query.Where(o => o.CreateDate >= FilterViewModel.RestrictCreatedStartDate);
+			}
+
+			if(FilterViewModel.RestrictCreatedEndDate != null) 
+			{
+				query.Where(o => o.CreateDate <= FilterViewModel.RestrictCreatedEndDate.Value.AddDays(1).AddTicks(-1));
+			}
+
 			if(FilterViewModel.RestrictLessThreeHours == true) {
 				query.Where(Restrictions
 							.GtProperty(Projections.SqlFunction(
@@ -281,7 +302,7 @@ namespace Vodovoz.JournalViewModels
 					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
 				}
 			}
-			
+
 			if(FilterViewModel.OrderPaymentStatus != null) {
 				query.Where(o => o.OrderPaymentStatus == FilterViewModel.OrderPaymentStatus);
 			}
@@ -292,6 +313,15 @@ namespace Vodovoz.JournalViewModels
 			
 			if (FilterViewModel.PaymentByCardFrom != null) {
 				query.Where(o => o.PaymentByCardFrom.Id == FilterViewModel.PaymentByCardFrom.Id);
+			}
+
+			if (FilterViewModel.GeographicGroup != null)
+			{
+				query
+					.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+					.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+					.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
+					.Where(o => !o.SelfDelivery).And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -320,13 +350,25 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				.Left.JoinAlias(o => o.Author, () => authorAlias)
-				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(o => o.Contract, () => contractAlias);
+			if(FilterViewModel.GeographicGroup != null)
+			{
+				query
+					.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+					.Left.JoinAlias(o => o.Author, () => authorAlias)
+					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
+					.Left.JoinAlias(o => o.Contract, () => contractAlias);
+			}
+			else
+			{
+				query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+					.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+					.Left.JoinAlias(o => o.Author, () => authorAlias)
+					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
+					.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+					.Left.JoinAlias(o => o.Contract, () => contractAlias);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
