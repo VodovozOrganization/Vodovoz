@@ -2610,7 +2610,7 @@ FROM
         AND (@report_mode = 0 OR orders.order_status NOT IN ('DeliveryCanceled', 'NotDelivered'))
         AND !orders.self_delivery
         AND !orders.is_contract_closer
-        AND !orders.service
+        AND orders.order_address_type != 'Service'
         AND delivery_schedule.id IS NOT NULL
         AND orders.delivery_point_id IS NOT NULL) as T
 GROUP BY week_begin
@@ -2711,7 +2711,7 @@ FROM
 WHERE
     old_order.delivery_date &gt;= @start_date
     and old_order.delivery_date &lt;= @end_date
-    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26));</CommandText>
+    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46));</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

@@ -8,7 +8,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -32,6 +31,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="UoW">UoW</param>
 		/// <param name="order">Заказ</param>
 		IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, Domain.Orders.Order order);
+
+		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<Domain.Orders.Order> orders);
 
 		IList<Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
@@ -85,9 +86,22 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="count">Требуемое количество последних заказов.</param>
 		IList<Domain.Orders.Order> GetLatestOrdersForCounterparty(IUnitOfWork UoW, Counterparty client, int? count = null);
 
+		/// <summary>
+		/// Проверка возможности изменения даты контракта при изменении даты доставки заказа.
+		/// Если дата первого заказа меньше newDeliveryDate и это - текущий изменяемый заказ - возвращает True.
+		/// Если первый заказ меньше newDeliveryDate и он не является текущим заказом - возвращает False.
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="client">Поиск заказов по этому контрагенту</param>
+		/// <param name="newDeliveryDate">Новая дата доставки заказа</param>
+		/// <param name="orderId">Текущий изменяемый заказ</param>
+		/// <returns>Возможность смены даты контракта</returns>
+		bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId);
+
 		OrderStatus[] GetOnClosingOrderStatuses();
 
 		Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
+		IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
         Domain.Orders.Order GetOrder(IUnitOfWork unitOfWork, int orderId);
         IList<Domain.Orders.Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 
@@ -133,8 +147,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
-		bool CanAddVodovozCatalogToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int leafletId, int geographicGroup);
+		bool CanAddFlyerToOrder(
+			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
     }
 
 	public class ClientEquipmentNode

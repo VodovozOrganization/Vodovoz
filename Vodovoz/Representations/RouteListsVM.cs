@@ -33,14 +33,24 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModel
 {
 	public class RouteListsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
+		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private bool _userHasOnlyAccessToWarehouseAndComplaints;
+		
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
 			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
@@ -84,32 +94,52 @@ namespace Vodovoz.ViewModel
 					 .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
+			if(Filter.ShowDriversWithTerminal)
+			{
+				DriverAttachedTerminalDocumentBase baseAlias = null;
+				DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
+				var baseQuery = QueryOver.Of(() => baseAlias)
+					.Where(doc => doc.Driver.Id == routeListAlias.Driver.Id)
+					.And(doc => doc.CreationDate.Date <= routeListAlias.Date)
+					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
+				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
+					.Select(doc => doc.Driver.Id);
+				query.WithSubquery.WhereProperty(rl => rl.Driver.Id).In(giveoutQuery);
+			}
+
 			#region RouteListAddressTypeFilter
 			
 			//WithDeliveryAddresses(Доставка) означает МЛ без WithChainStoreAddresses(Сетевой магазин) и WithServiceAddresses(Сервисное обслуживание)
-			if(      Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			if(Filter.WithDeliveryAddresses && Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				query.Where(() => !driverAlias.VisitingMaster);
 			}
-			else if( Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
+			else if(Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && Filter.WithServiceAddresses) 
+			{
 				query.Where(() => !driverAlias.IsChainStoreDriver);
 			}
-			else if( Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			else if(Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				query.Where(() => !driverAlias.VisitingMaster);
 				query.Where(() => !driverAlias.IsChainStoreDriver);
 			}
-			else if(!Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && Filter.WithChainStoreAddresses && Filter.WithServiceAddresses) 
+			{
 				query.Where(Restrictions.Or(
 					Restrictions.Where(() => driverAlias.VisitingMaster),
 					Restrictions.Where(() => driverAlias.IsChainStoreDriver)
 				));
 			}
-			else if(!Filter.WithDeliveryAddresses &&  Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				query.Where(() => driverAlias.IsChainStoreDriver);
 			}
-			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses &&  Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && Filter.WithServiceAddresses) 
+			{
 				query.Where(() => driverAlias.VisitingMaster);
 			}
-			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) {
+			else if(!Filter.WithDeliveryAddresses && !Filter.WithChainStoreAddresses && !Filter.WithServiceAddresses) 
+			{
 				SetItemsSource(new List<RouteListsVMNode>());
 				return;
 			}
@@ -207,6 +237,10 @@ namespace Vodovoz.ViewModel
 		{
 			NotifyConfiguration.Enable();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
+			
+			_userHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			Filter.SelectedStatuses = new[]{
 					RouteListStatus.New,
@@ -291,13 +325,19 @@ namespace Vodovoz.ViewModel
 				var callTaskWorker = new CallTaskWorker(
 					CallTaskSingletonFactory.GetInstance(),
 					new CallTaskRepository(),
-					OrderSingletonRepository.GetInstance(),
-					EmployeeSingletonRepository.GetInstance(),
-					new BaseParametersProvider(),
+					new OrderRepository(),
+					new EmployeeRepository(),
+					new BaseParametersProvider(_parametersProvider),
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);
 
 				var result = new List<IJournalPopupItem>();
+
+				if(_userHasOnlyAccessToWarehouseAndComplaints)
+				{
+					return result;
+				}
+				
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть трек",
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
@@ -352,7 +392,7 @@ namespace Vodovoz.ViewModel
 
 							foreach (var routeList in routeLists)
 							{
-								var routeListParametersProvider = new RouteListParametersProvider(SingletonParametersProvider.Instance);
+								var routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 								int warehouseId = 0;
 								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
 									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
@@ -508,7 +548,16 @@ namespace Vodovoz.ViewModel
 								new RouteListAnalysisViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
 									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new OrderSelectorFactory(),
+									new EmployeeJournalFactory(),
+									new CounterpartyJournalFactory(),
+									new DeliveryPointJournalFactory(), 
+									new SubdivisionJournalFactory(),
+									new GtkTabsOpener(),
+									new UndeliveredOrdersJournalOpener(),
+									new DeliveryShiftRepository(),
+									new UndeliveredOrdersRepository()
 								)
 							);
 					},
@@ -580,10 +629,12 @@ namespace Vodovoz.ViewModel
 									() => new FuelDocumentViewModel(
 														RouteList, 
 														ServicesConfig.CommonServices, 
-														new SubdivisionRepository(), 
-														EmployeeSingletonRepository.GetInstance(), 
+														new SubdivisionRepository(_parametersProvider), 
+														new EmployeeRepository(), 
 														new FuelRepository(),
-														NavigationManagerProvider.NavigationManager
+														NavigationManagerProvider.NavigationManager,
+														new TrackRepository(),
+														new CategoryRepository(_parametersProvider)
 									)
 								);
 						}

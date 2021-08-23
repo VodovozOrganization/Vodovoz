@@ -14,7 +14,9 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -34,6 +36,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         private readonly IEmployeeRepository employeeRepository;
         private readonly CashRepository cashRepository;
         private readonly ConsoleInteractiveService consoleInteractiveService;
+        private readonly IEmployeeJournalFactory _employeeJournalFactory;
+        private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
         
         public CashRequestJournalViewModel(
             CashRequestJournalFilterViewModel filterViewModel,
@@ -42,7 +46,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
             CashRepository cashRepository,
-            ConsoleInteractiveService consoleInteractiveService
+            ConsoleInteractiveService consoleInteractiveService,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory
         ) : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -50,6 +56,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
             this.consoleInteractiveService = consoleInteractiveService ?? throw new ArgumentNullException(nameof(consoleInteractiveService));
+            _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+            _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
             TabName = "Журнал заявок ДС";
             
@@ -221,7 +229,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             fileChooserProvider,
             employeeRepository,
             cashRepository,
-            consoleInteractiveService
+            _employeeJournalFactory,
+            _subdivisionJournalFactory
         );
         protected override Func<CashRequestJournalNode, CashRequestViewModel> OpenDialogFunction =>
             node => new CashRequestViewModel(
@@ -231,7 +240,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 fileChooserProvider,
                 employeeRepository,
                 cashRepository,
-                consoleInteractiveService
+                _employeeJournalFactory,
+                _subdivisionJournalFactory
             );
     }
 }

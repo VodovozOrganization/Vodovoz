@@ -5,22 +5,19 @@ using System.Linq;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
+using QS.Dialog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
-using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Domain.Orders
@@ -28,13 +25,6 @@ namespace VodovozBusinessTests.Domain.Orders
 	[TestFixture()]
 	public class OrderTests
 	{
-		[TearDown]
-		public void RemoveStaticGaps()
-		{
-			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = null;
-			//OrganizationRepository.GetOrganizationByPaymentTypeTestGap = null;
-		}
-
 		#region OrderItemsPacks
 
 		private static IEnumerable<OrderItem> ForfeitWaterAndEmptyBottles(int waterCount, int forfeitCount, int emptyBottlesCount = 0)
@@ -348,10 +338,14 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndNoSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsTrue()
 		{
 			// arrange
-			Order orderUnderTest = new Order();	PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]>();
+			Order orderUnderTest = new Order();
+
+			var dict = new Dictionary<int, int[]>();
+			var promotionalSetRepositoryMock = Substitute.For<IPromotionalSetRepository>();
+			promotionalSetRepositoryMock.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(null, orderUnderTest).Returns(dict);
 
 			// act
-			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>());
+			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>(), promotionalSetRepositoryMock);
 
 			// assert
 			Assert.That(res, Is.True);
@@ -368,10 +362,18 @@ namespace VodovozBusinessTests.Domain.Orders
 				DeliveryPoint = Substitute.For<DeliveryPoint>(),
 				InteractiveService = intercativeServiceMock
 			};
-			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]> { { 1, new[] { 1, 2 } } };
+			
+			var dict = new Dictionary<int, int[]>
+			{
+				{1, new[]{ 1, 2 }}
+			};
+			
+			var promotionalSetRepositoryMock = Substitute.For<IPromotionalSetRepository>();
+			promotionalSetRepositoryMock.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
+				orderUnderTest.UoW, orderUnderTest).Returns(dict);
 
 			// act
-			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>());
+			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>(), promotionalSetRepositoryMock);
 
 			// assert
 			Assert.That(res, Is.False);
@@ -383,13 +385,14 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			var promotionalSetMock = Substitute.For<PromotionalSet>();
 			var intercativeServiceMock = Substitute.For<IInteractiveService>();
+			var promotionalSetRepositoryMock = Substitute.For<IPromotionalSetRepository>();
 
 			Order orderUnderTest = new Order();
 			orderUnderTest.PromotionalSets.Add(promotionalSetMock);
 			orderUnderTest.InteractiveService = intercativeServiceMock;
 
 			// act
-			var result = orderUnderTest.CanAddPromotionalSet(promotionalSetMock);
+			var result = orderUnderTest.CanAddPromotionalSet(promotionalSetMock, promotionalSetRepositoryMock);
 
 			// assert
 			Assert.That(result, Is.False);

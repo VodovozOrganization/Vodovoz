@@ -28,17 +28,20 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Client;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz.Domain.Orders
@@ -54,40 +57,12 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
-		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
+		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 
-		private int _vodovozLeafletId;
-		private int _luckyPizzaLeafletId;
-
-		#region Листовки
-
-		private int VodovozLeafletId
-		{
-			get
-			{
-				if (_vodovozLeafletId == default(int)) {
-					_vodovozLeafletId = new NomenclatureParametersProvider().VodovozLeafletId;
-				}
-
-				return _vodovozLeafletId;
-			}
-		}
-
-		private int LuckyPizzaLeafletId
-		{
-			get
-			{
-				if(_luckyPizzaLeafletId == default(int))
-				{
-					_luckyPizzaLeafletId = new NomenclatureParametersProvider().LuckyPizzaLeafletId;
-				}
-
-				return _luckyPizzaLeafletId;
-			}
-		}
-
-		#endregion
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		#region Платная доставка
 
@@ -96,8 +71,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			get
 			{
-				if (paidDeliveryNomenclatureId == default(int)) {
-					paidDeliveryNomenclatureId = new NomenclatureParametersProvider().PaidDeliveryNomenclatureId;
+				if (paidDeliveryNomenclatureId == default(int))
+				{
+					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
 				}
 
 				return paidDeliveryNomenclatureId;
@@ -150,6 +126,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderPaymentStatus, value);
 		}
 
+		private OrderAddressType _orderAddressType;
+		[Display(Name = "Тип доставки заказа")]
+		public virtual OrderAddressType OrderAddressType
+		{
+			get => _orderAddressType;
+			set => SetField(ref _orderAddressType, value);
+		}
+
 		Employee author;
 
 		[Display(Name = "Создатель заказа")]
@@ -173,7 +157,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if (orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if (_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
@@ -233,7 +217,25 @@ namespace Vodovoz.Domain.Orders
 		[HistoryDateOnly]
 		public virtual DateTime? DeliveryDate {
 			get => deliveryDate;
-			set => SetField(ref deliveryDate, value, () => DeliveryDate);
+			set
+			{
+				var lastDate = deliveryDate;
+				if(SetField(ref deliveryDate, value) && 
+				   Contract != null && Contract.Id == 0)
+				{
+					UpdateContract();
+				}
+				if(Contract != null && Contract.Id != 0 && DeliveryDate.HasValue 
+				   && lastDate == Contract.IssueDate 
+				   && Contract.IssueDate != DeliveryDate.Value
+				   && _orderRepository.CanChangeContractDate(UoW, Client, DeliveryDate.Value, Id)
+				   && OrderStatus != OrderStatus.Closed)
+				{
+					Contract.IssueDate = DeliveryDate.Value.Date;
+					InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Дата договора будет изменена при сохранении текущего заказа!");
+				}
+			}
 		}
 
 		DateTime billDate = DateTime.Now;
@@ -311,7 +313,7 @@ namespace Vodovoz.Domain.Orders
 			get => opComment;
 			set => SetField(ref opComment, value);
 		}
-
+		
 		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
@@ -495,11 +497,15 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		PaymentFrom _paymentByCardFrom;
+
 		[Display(Name = "Место, откуда проведена оплата")]
-		public virtual PaymentFrom PaymentByCardFrom {
+		public virtual PaymentFrom PaymentByCardFrom
+		{
 			get => _paymentByCardFrom;
-			set {
-				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom)) {
+			set
+			{
+				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom))
+				{
 					UpdateContract();
 				}
 			}
@@ -646,14 +652,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual int? DriverCallId {
 			get => driverCallId;
 			set => SetField(ref driverCallId, value, () => DriverCallId);
-		}
-
-		bool isService;
-
-		[Display(Name = "Сервисное обслуживание")]
-		public virtual bool IsService {
-			get => isService;
-			set => SetField(ref isService, value, () => IsService);
 		}
 
 		int? trifle;
@@ -937,7 +935,7 @@ namespace Vodovoz.Domain.Orders
 					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
-
+					
 					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
@@ -997,23 +995,27 @@ namespace Vodovoz.Domain.Orders
 					// Конец проверки цен
 
 					//создание нескольких заказов на одну дату и точку доставки
-					if(!SelfDelivery && DeliveryPoint != null) {
-						var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
-																	 .Where(
-																		 o => o.Id != Id
-																		 && o.DeliveryDate == DeliveryDate
-																		 && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-																		 && !o.IsService
-																		);
-
+					if(!SelfDelivery && DeliveryPoint != null
+					                 && DeliveryDate.HasValue
+					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
+					                 && validationContext.Items.ContainsKey("uowFactory")
+					                 && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") 
+					                 && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) 
+					{
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
+						var orderCheckedOutsideSession = _orderRepository
+							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"], 
+								DeliveryDate.Value, DeliveryPoint)
+							.Where(o => o.Id != Id 
+							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+							            && o.OrderAddressType != OrderAddressType.Service).ToList();
+
 						if(!hasMaster
-						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-						   && ordersForDeliveryPoints.Any()
-						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
+						   && orderCheckedOutsideSession.Any())
+						{
 							yield return new ValidationResult(
-								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже создан заказ №{0}", ordersForDeliveryPoints.First().Id),
+								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
 								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 						}
 					}
@@ -1042,26 +1044,33 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 
-				if(IsService && PaymentType == PaymentType.cashless
+				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.cashless
 				   && newStatus == OrderStatus.Accepted
-				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
+				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders"))
+				   {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
 					);
 				}
 
-				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
+				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer"))
+				{
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
-			}           
+			}
+
+			if(Client.IsChainStore && OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				yield return new ValidationResult($"Невозможно создать заказ для сетевого магазина, содержащий сервисную номенклатуру!");
+			}
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
                     yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
             if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
@@ -1127,6 +1136,19 @@ namespace Vodovoz.Domain.Orders
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
+			}
+			
+			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
+			{
+				IOrderParametersProvider _orderParametersProvider = (validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider); 
+				if(_orderParametersProvider == null)
+				{
+					throw new ArgumentException("Не был передан необходимый аргумент IOrderParametersProvider");
+				}
+				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+				{
+					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
+				}
 			}
 
 			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
@@ -1402,6 +1424,12 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderItems.Remove(orderItem);
 			}
 
+			//Если была удалена последняя номенклатура "мастер" - переходит в стандартный тип адреса
+			if(!OrderItems.Any(x => x.IsMasterNomenclature) && orderItem.IsMasterNomenclature)
+			{
+				OrderAddressType = OrderAddressType.Delivery;
+			}
+
 			UpdateContract();
 		}
 
@@ -1504,7 +1532,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CheckAndSetOrderIsService()
 		{
-			IsService = OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master);
+			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master))
+			{
+				OrderAddressType = OrderAddressType.Service;
+			}
 		}
 
 		public virtual void SetFirstOrder()
@@ -1533,7 +1564,8 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this);
+			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this,
+				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
 			if(counterpartyContract == null) {
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
@@ -1650,7 +1682,7 @@ namespace Vodovoz.Domain.Orders
 			};
 			AddOrderItem(newItem);
 
-			Nomenclature followingNomenclature = new NomenclatureRepository(new NomenclatureParametersProvider()).GetNomenclatureToAddWithMaster(UoW);
+			Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
 			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
@@ -1686,9 +1718,9 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(oi);
 		}
 
-		public virtual void AddVodovozLeafletNomenclature(Nomenclature leaflet)
+		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
 		{
-			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == VodovozLeafletId)) {
+			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == flyerNomenclature.Id)) {
 				return;
 			}
 			
@@ -1701,7 +1733,7 @@ namespace Vodovoz.Domain.Orders
 					OrderItem = null,
 					Reason = Reason.Sale,
 					Confirmed = true,
-					Nomenclature = leaflet
+					Nomenclature = flyerNomenclature
 				}
 			);
 			UpdateDocuments();
@@ -1812,11 +1844,11 @@ namespace Vodovoz.Domain.Orders
 			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
 			#region перенести всё это в OrderStateKey
-			bool IsDeliveryForFree = SelfDelivery
-												  || IsService
-												  || DeliveryPoint.AlwaysFreeDelivery
-												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
+			bool IsDeliveryForFree = SelfDelivery 
+											      || OrderAddressType == OrderAddressType.Service
+											      || DeliveryPoint.AlwaysFreeDelivery
+			                                      || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+			                                      || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
@@ -1983,7 +2015,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns><c>true</c>, если можно добавить промо-набор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
+		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
@@ -1995,11 +2027,16 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(SelfDelivery)
+			{
 				return true;
+			}
 
-			var proSetDict = Repositories.Orders.PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			
 			if(!proSetDict.Any())
+			{
 				return true;
+			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
 			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
@@ -2126,7 +2163,9 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
 			{
-				if (orderEquipment.Nomenclature.Id == VodovozLeafletId || orderEquipment.Nomenclature.Id == LuckyPizzaLeafletId) 
+				var flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(UoW);
+				
+				if (flyersNomenclaturesIds.Contains(orderEquipment.Nomenclature.Id))
 				{
 					continue;
 				}
@@ -2628,7 +2667,7 @@ namespace Vodovoz.Domain.Orders
 			   || initialStatus == newStatus)
 				return;
 
-			var undeliveries = Repositories.UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
+			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
@@ -2644,7 +2683,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangeOrderPaymentStatus()
 		{
-			var paymentItems = orderRepository.GetPaymentItemsForOrder(UoW, Id);
+			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
 
 			if (!paymentItems.Any()) 
 				return;
@@ -2705,14 +2744,17 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService, CallTaskWorker callTaskWorker)
+		public virtual void SelfDeliveryToLoading(
+			Employee employee,
+			ICurrentPermissionService permissionService,
+			CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
-				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
+				LoadAllowedBy = employee;
 			}
 		}
 
@@ -2794,7 +2836,8 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
+					UpdateBottlesMovementOperationWithoutDelivery(
+						UoW, new BaseParametersProvider(new ParametersProvider()), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
 					ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 
@@ -3208,7 +3251,7 @@ namespace Vodovoz.Domain.Orders
 			bool isValidCondition = amountDelivered != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
-			isValidCondition &= !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
+			isValidCondition &= !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
 
 			if(isValidCondition) {
 				if(BottlesMovementOperation == null) {
@@ -3293,7 +3336,7 @@ namespace Vodovoz.Domain.Orders
 			nomenclaturesNeedUpdate = new List<Nomenclature>();
 			if(AddCertificates && DeliveryDate.HasValue) {
 				IList<Certificate> newList = new List<Certificate>();
-				foreach(var item in new NomenclatureRepository(new NomenclatureParametersProvider()).GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
+				foreach(var item in _nomenclatureRepository.GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
 					if(item.Value.All(c => c.IsArchive || c.ExpirationDate.HasValue && c.ExpirationDate.Value < DeliveryDate))
 						nomenclaturesNeedUpdate.Add(item.Key);
 					else
@@ -3543,10 +3586,10 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow)
+		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
 		{
 			SetFirstOrder();
-			LastEditor = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();

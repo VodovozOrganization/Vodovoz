@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Gtk;
+using QS.Dialog;
 using QS.Project.Domain;
 using QS.Project.Versioning;
 using Vodovoz.Views;

@@ -11,18 +11,26 @@ using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories;
-using Vodovoz.Repository;
-using Vodovoz.Repository.Cash;
+using Vodovoz.EntityRepositories.Accounting;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class LoadBankTransferDocumentDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		private BankTransferDocumentParser parser;
-		private IUnitOfWork uow;
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IAccountExpenseRepository _accountExpenseRepository = new AccountExpenseRepository();
+		private readonly IAccountIncomeRepository _accountIncomeRepository = new AccountIncomeRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+		private BankTransferDocumentParser _parser;
+		private IUnitOfWork _uow;
 
 		private const string NeedToAdd = "light coral";
 		private const string OddRowColor = "white";
@@ -87,7 +95,7 @@ namespace Vodovoz
 		public LoadBankTransferDocumentDlg ()
 		{
 			this.Build ();
-			uow = UnitOfWorkFactory.CreateWithoutRoot ();
+			_uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TabName = "Загрузка из банк-клиента";
 
 			var txtFilter = new FileFilter ();
@@ -101,10 +109,10 @@ namespace Vodovoz
 
 			labelDescription1.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет создан", NeedToAdd);
 
-			foreach (var category in CategoryRepository.ExpenseCategories (uow)) {
+			foreach (var category in _categoryRepository.ExpenseCategories (_uow)) {
 				expenseCategories.AppendValues (category.Name, category);
 			}
-			foreach (var category in CategoryRepository.IncomeCategories (uow)) {
+			foreach (var category in _categoryRepository.IncomeCategories (_uow)) {
 				incomeCategories.AppendValues (category.Name, category);
 			}
 
@@ -261,15 +269,15 @@ namespace Vodovoz
 
 		protected void OnButtonReadFileClicked (object sender, EventArgs e)
 		{
-			uow = UnitOfWorkFactory.CreateWithoutRoot ();
+			_uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			documents.Clear ();
 			checkButtonAll.Active = true;
 			rowsCount = 0;
-			parser = new BankTransferDocumentParser (filechooser.Filename);
-			parser.Parse ();
+			_parser = new BankTransferDocumentParser (filechooser.Filename);
+			_parser.Parse ();
 			buttonUpload.Sensitive = true;
 			checkButtonAll.Sensitive = true;
-			foreach (var doc in parser.TransferDocuments) {
+			foreach (var doc in _parser.TransferDocuments) {
 				documents.AppendValues (
 					true, 
 					doc.Number, 
@@ -319,7 +327,7 @@ namespace Vodovoz
 			if (!documents.GetIterFirst (out iter))
 				return;
 
-			var defaultIncomeCategory = CategoryRepository.DefaultIncomeCategory (uow);
+			var defaultIncomeCategory = _categoryRepository.DefaultIncomeCategory (_uow);
 			progressBar.Fraction = 0;
 			progressBar.Text = "Идет обработка файла выгрузки...";
 			double progressStep = 1.0 / rowsCount;
@@ -335,13 +343,18 @@ namespace Vodovoz
 				var doc = (documents.GetValue (iter, (int)Columns.TransferDocumentCol) as TransferDocument);
 
 				//Сначала пробуем найти нашу организацию. Она должна фигурировать либо как получатель либо как плательщик.
-				var organization = OrganizationRepository.GetOrganizationByInn (uow, doc.PayerInn);
-				if (organization == null) {
+				var organization = _organizationRepository.GetOrganizationByInn(_uow, doc.PayerInn);
+				if (organization == null)
+				{
 					//Нам платят
-					organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
-					if (organization == null) {
-						organization = OrganizationRepository.GetOrganizationByAccountNumber (uow, doc.RecipientCheckingAccount);
-						if (organization == null) {
+					organization = _organizationRepository.GetOrganizationByInn(_uow, doc.RecipientInn);
+					
+					if (organization == null)
+					{
+						organization = _organizationRepository.GetOrganizationByAccountNumber(_uow, doc.RecipientCheckingAccount);
+						
+						if (organization == null)
+						{
 							progressBar.Fraction = 0;
 							progressBar.Text = "Ошибка обработки выгрузки!";
 							throw new Exception ("Не удалось обнаружить нашу организацию ни по ИНН, ни по номеру счета. Заполните организацию, или проверьте корректность ИНН.");
@@ -351,10 +364,13 @@ namespace Vodovoz
 					if (!organization.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 					//Ищем плательщика
-					var payerCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
-					if(payerCounterparty == null)
-						payerCounterparty = CounterpartyRepository.GetCounterpartyByAccount (uow, doc.PayerAccount);
+					var payerCounterparty = _counterpartyRepository.GetCounterpartyByINN (_uow, doc.PayerInn);
 					
+					if(payerCounterparty == null)
+					{
+						payerCounterparty = _counterpartyRepository.GetCounterpartyByAccount (_uow, doc.PayerAccount);
+					}
+
 					if (payerCounterparty == null) {
 						documents.SetValue (iter, (int)Columns.PayerNameColorCol, NeedToAdd);
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
@@ -370,10 +386,10 @@ namespace Vodovoz
 					if (!organization.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
 					//Ищем получателя
-					var recipientCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
+					var recipientCounterparty = _counterpartyRepository.GetCounterpartyByINN (_uow, doc.RecipientInn);
 					if (recipientCounterparty == null) {
 						//Возможно это сотрудник
-						var employee = EmployeeRepository.GetEmployeeByINNAndAccount (uow, doc.RecipientInn, doc.RecipientCheckingAccount);
+						var employee = _employeeRepository.GetEmployeeByINNAndAccount(_uow, doc.RecipientInn, doc.RecipientCheckingAccount);
 						if (employee == null) {
 							documents.SetValue (iter, (int)Columns.RecipientNameColorCol, NeedToAdd);
 							documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
@@ -389,10 +405,10 @@ namespace Vodovoz
 				}
 
 				//Проверяем банки
-				var payerBank = BankRepository.GetBankByBik (uow, doc.PayerBik);
+				var payerBank = BankRepository.GetBankByBik (_uow, doc.PayerBik);
 				if (payerBank == null && !String.IsNullOrEmpty (doc.PayerBik))
 					documents.SetValue (iter, (int)Columns.PayerBankColorCol, NeedToAdd);
-				var recipientBank = BankRepository.GetBankByBik (uow, doc.RecipientBik);
+				var recipientBank = BankRepository.GetBankByBik (_uow, doc.RecipientBik);
 				if (recipientBank == null && !String.IsNullOrEmpty (doc.PayerBik))
 					documents.SetValue (iter, (int)Columns.RecipientBankColorCol, NeedToAdd);
 			} while (documents.IterNext (ref iter));
@@ -411,7 +427,7 @@ namespace Vodovoz
 
 		protected void FillCounterparties ()
 		{
-			uow = UnitOfWorkFactory.CreateWithoutRoot ();
+			_uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TreeIter iter;
 			progressBar.Fraction = 0;
 			progressBar.Text = "Идет исправление/создание недостающих объектов... Операция 1/2";
@@ -469,19 +485,19 @@ namespace Vodovoz
 						}
 						cuow.Root.ObservableAccounts.Add (new Account () {
 							Number = doc.PayerCheckingAccount,
-							InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
+							InBank = BankRepository.GetBankByBik (_uow, doc.PayerBik)
 						});
 						cuow.Save ();
 						documents.SetValue (iter, (int)Columns.PayerNameColorCol, OddRowColor);
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, EvenRowColor);
 						DeselectSameOrganizations (doc.PayerInn, doc.PayerName);
 					} else if ((documents.GetValue (iter, (int)Columns.PayerAccountColorCol) as string) == NeedToAdd) {
-						var cuow = UnitOfWorkFactory.CreateForRoot <Counterparty> (
-							           CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn).Id);
+						var cuow = UnitOfWorkFactory.CreateForRoot<Counterparty>(
+							_counterpartyRepository.GetCounterpartyByINN (_uow, doc.PayerInn).Id);
 						if (!cuow.Root.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount)) {
 							cuow.Root.Accounts.Add (new Account () {
 								Number = doc.PayerCheckingAccount,
-								InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
+								InBank = BankRepository.GetBankByBik (_uow, doc.PayerBik)
 							});
 							cuow.Save ();
 						}
@@ -521,19 +537,20 @@ namespace Vodovoz
 						}
 						cuow.Root.ObservableAccounts.Add (new Account () {
 							Number = doc.RecipientCheckingAccount,
-							InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
+							InBank = BankRepository.GetBankByBik (_uow, doc.RecipientBik)
 						});
 						cuow.Save ();
 						documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
 						DeselectSameOrganizations (doc.RecipientInn, doc.RecipientName);
 					} else if ((documents.GetValue (iter, (int)Columns.RecipientAccountColorCol) as string) == NeedToAdd) {
-						var cuow = UnitOfWorkFactory.CreateForRoot <Counterparty> (
-							           CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn).Id);
+						var cuow =
+							UnitOfWorkFactory.CreateForRoot<Counterparty>(
+								_counterpartyRepository.GetCounterpartyByINN(_uow, doc.RecipientInn).Id);
 						if (!cuow.Root.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount)) {
 							cuow.Root.Accounts.Add (new Account () {
 								Number = doc.RecipientCheckingAccount,
-								InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
+								InBank = BankRepository.GetBankByBik (_uow, doc.RecipientBik)
 							});
 							cuow.Save ();	
 						}
@@ -550,7 +567,7 @@ namespace Vodovoz
 
 		protected void FillDocuments ()
 		{
-			uow = UnitOfWorkFactory.CreateWithoutRoot ();
+			_uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TreeIter iter;
 			progressBar.Fraction = 0;
 			progressBar.Text = "Загружаем выгрузку из банк-клиента... Операция 2/2";
@@ -572,11 +589,13 @@ namespace Vodovoz
 						continue;
 					//Получаем документ
 					var doc = (TransferDocument)documents.GetValue (iter, (int)Columns.TransferDocumentCol);
-					var organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
+					var organization = _organizationRepository.GetOrganizationByInn (_uow, doc.RecipientInn);
 					//Мы платим
-					if (organization == null) {
-						if (!AccountExpenseRepository.AccountExpenseExists (uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerCheckingAccount)) {
-							organization = OrganizationRepository.GetOrganizationByInn (uow, doc.PayerInn);
+					if (organization == null)
+					{
+						if (!_accountExpenseRepository.AccountExpenseExists (_uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerCheckingAccount))
+						{
+							organization = _organizationRepository.GetOrganizationByInn (_uow, doc.PayerInn);
 							var expenseUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountExpense> ();
 							expenseUoW.Root.Number = Int32.Parse (doc.Number);
 							expenseUoW.Root.Date = doc.Date;
@@ -585,9 +604,9 @@ namespace Vodovoz
 							expenseUoW.Root.MoneyOperation.PaymentType = PaymentType.cashless;
 							expenseUoW.Root.Organization = organization;
 							expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
-							expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (expenseUoW, doc.RecipientInn);
+							expenseUoW.Root.Counterparty = _counterpartyRepository.GetCounterpartyByINN (expenseUoW, doc.RecipientInn);
 							if (expenseUoW.Root.Counterparty == null) {
-								expenseUoW.Root.Employee = EmployeeRepository.GetEmployeeByINNAndAccount (expenseUoW, doc.RecipientInn, doc.RecipientCheckingAccount);
+								expenseUoW.Root.Employee =_employeeRepository.GetEmployeeByINNAndAccount (expenseUoW, doc.RecipientInn, doc.RecipientCheckingAccount);
 								expenseUoW.Root.EmployeeAccount = expenseUoW.Root.Employee.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
 							} else {
 								expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
@@ -598,18 +617,21 @@ namespace Vodovoz
 					} 
 					//Нам платят
 					else {
-						if (!AccountIncomeRepository.AccountIncomeExists (uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerInn, doc.PayerCheckingAccount)) {
+						if (!_accountIncomeRepository.AccountIncomeExists (_uow, doc.Date.Year, Int32.Parse (doc.Number), doc.PayerInn, doc.PayerCheckingAccount)) {
 							var incomeUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountIncome> ();
 							incomeUoW.Root.Number = Int32.Parse (doc.Number);
 							incomeUoW.Root.Date = doc.Date;
 							incomeUoW.Root.Total = doc.Total;
 							incomeUoW.Root.Description = doc.PaymentPurpose;
 							incomeUoW.Root.MoneyOperation.PaymentType = PaymentType.cashless;
-						var counterparty = CounterpartyRepository.GetCounterpartyByINN (incomeUoW, doc.PayerInn);
+						var counterparty = _counterpartyRepository.GetCounterpartyByINN(incomeUoW, doc.PayerInn);
+						
 						if(counterparty == null)
-							counterparty  = CounterpartyRepository.GetCounterpartyByAccount (incomeUoW, doc.PayerAccount);
-							
-							incomeUoW.Root.Counterparty = counterparty;
+						{
+							counterparty  = _counterpartyRepository.GetCounterpartyByAccount(incomeUoW, doc.PayerAccount);
+						}
+
+						incomeUoW.Root.Counterparty = counterparty;
 							incomeUoW.Root.CounterpartyAccount = incomeUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							incomeUoW.Root.Organization = organization;
 							incomeUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
@@ -696,7 +718,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			uow?.Dispose();
+			_uow?.Dispose();
 			base.Destroy();
 		}
 	}

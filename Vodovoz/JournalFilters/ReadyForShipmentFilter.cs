@@ -1,6 +1,7 @@
 using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Permissions.Warehouse;
@@ -19,6 +20,11 @@ namespace Vodovoz
 	        var storeDocument = new StoreDocumentHelper();
             var warehousesList = storeDocument.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
                                     .OrderBy(w => w.Name).ToList();
+
+            bool accessToWarehouseAndComplaints =
+	            ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+	            && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+            
             if (warehousesList.Count > 5)
             {
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
@@ -34,6 +40,11 @@ namespace Vodovoz
 
                 entryWarehouses.Visible = false;
                 yspeccomboWarehouse.Visible = true;
+            }
+
+            if(accessToWarehouseAndComplaints)
+            {
+	            entryWarehouses.Sensitive = yspeccomboWarehouse.Sensitive = false;
             }
 		}
 

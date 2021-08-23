@@ -57,6 +57,7 @@
     <Compile Include="DTO\SmsPaymentCacheDTO.cs" />
     <Compile Include="DTO\SmsPaymentDTO.cs" />
     <Compile Include="DTO\StatusCode.cs" />
+    <Compile Include="ISmsPaymentDTOFactory.cs" />
     <Compile Include="ISmsPaymentStatusNotificationReciever.cs" />
     <Compile Include="SmsPaymentDTOFactory.cs" />
     <Compile Include="SmsPaymentFileCache.cs" />
@@ -71,6 +72,10 @@
     <Compile Include="TestPaymentController.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>

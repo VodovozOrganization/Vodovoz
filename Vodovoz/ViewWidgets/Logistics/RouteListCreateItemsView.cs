@@ -10,20 +10,25 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -31,14 +36,16 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		private int goodsColumnsCount = -1;
 		private bool isEditable = true;
 
 		private IList<RouteColumn> _columnsInfo;
 
-		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? Repository.Logistics.RouteColumnRepository.ActiveColumns(RouteListUoW);
+		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -222,7 +229,9 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrderJournalFilterViewModel
+			var filter = new OrderJournalFilterViewModel(
+				new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory())
 			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};
@@ -254,10 +263,15 @@ namespace Vodovoz
 				x => x.RestrictOnlySelfDelivery = false,
 				x => x.RestrictHideService = true
 			);
-			
 
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter,UnitOfWorkFactory.GetDefaultFactory,ServicesConfig.CommonServices){SelectionMode = JournalSelectionMode.Multiple};
-			
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
+				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository())
+			{
+				SelectionMode = JournalSelectionMode.Multiple
+			};
+
 			//Selected Callback
 			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
 			{
@@ -286,10 +300,18 @@ namespace Vodovoz
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
-				if(selectedDistrict != null) {
-					foreach(var order in OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id)))
+				if(selectedDistrict != null)
+				{
+					var orders = _orderRepository.GetAcceptedOrdersForRegion(
+						RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id));
+					
+					foreach(var order in orders)
+					{
 						if(RouteListUoW.Root.ObservableAddresses.All(a => a.Order.Id != order.Id))
+						{
 							RouteListUoW.Root.AddAddressFromOrder(order);
+						}
+					}
 				}
 			};
 			MyTab.TabParent.AddSlaveTab(MyTab, journalViewModel);

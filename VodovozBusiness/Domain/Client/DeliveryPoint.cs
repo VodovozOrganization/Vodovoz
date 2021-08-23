@@ -32,6 +32,10 @@ namespace Vodovoz.Domain.Client
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+		private TimeSpan? _lunchTimeFrom;
+		private TimeSpan? _lunchTimeTo;
+		private bool? _isBeforeIntervalDelivery;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -340,7 +344,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get => counterparty;
-			protected set => SetField(ref counterparty, value, () => Counterparty);
+			set => SetField(ref counterparty, value, () => Counterparty);
 		}
 
 		private string kpp;
@@ -565,6 +569,27 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		[Display(Name = "Время начала обеда")]
+		public virtual TimeSpan? LunchTimeFrom
+		{
+			get => _lunchTimeFrom;
+			set => SetField(ref _lunchTimeFrom, value);
+		}
+
+		[Display(Name = "Время окончания обеда")]
+		public virtual TimeSpan? LunchTimeTo
+		{
+			get => _lunchTimeTo;
+			set => SetField(ref _lunchTimeTo, value);
+		}
+
+		[Display(Name = "Доставка раньше интервала")]
+		public virtual bool? IsBeforeIntervalDelivery
+		{
+			get => _isBeforeIntervalDelivery;
+			set => SetField(ref _isBeforeIntervalDelivery, value);
+		}
+
 		#endregion
 
 
@@ -674,6 +699,7 @@ namespace Vodovoz.Domain.Client
 			return true;
 		}
 
+		[Obsolete]
 		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();
@@ -782,6 +808,18 @@ namespace Vodovoz.Domain.Client
 				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
 					yield return fixedPriceValidationResult;
 				}
+			}
+
+			if(LunchTimeFrom == null && LunchTimeTo != null)
+			{
+				yield return new ValidationResult("При заполненной дате окончания обеда должна быть указана и дата начала обеда.",
+					new[] { nameof(LunchTimeTo) });
+			}
+
+			if(LunchTimeTo == null && LunchTimeFrom != null)
+			{
+				yield return new ValidationResult("При заполненной дате начала обеда должна быть указана и дата окончания обеда.",
+					new[] { nameof(LunchTimeTo) });
 			}
 		}
 

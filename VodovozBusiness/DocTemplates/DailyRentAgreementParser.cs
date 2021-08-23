@@ -48,7 +48,7 @@ namespace Vodovoz.DocTemplates
 			SortFields();
 		}
 
-		public void AddTableEquipmentTypes(List<PaidRentEquipment> list)
+		public void AddTableEquipmentKinds(List<PaidRentEquipment> list)
 		{
 			AddCustomTable<PaidRentEquipment>("ТипыОборудования", list)
 				.AddColumn(x => x.Nomenclature.OfficialName, PatternFieldType.FString)

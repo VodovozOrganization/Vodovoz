@@ -8,11 +8,8 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Project.Services.GtkUI;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Core.Permissions
 {

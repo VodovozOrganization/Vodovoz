@@ -17,6 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
@@ -24,8 +25,9 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
-using Vodovoz.Repositories.Client;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
+using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -69,7 +71,7 @@ namespace Vodovoz.JournalViewModels
 			this.footerViewModel = footerViewModel;
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			actionsViewModel = new BusinessTasksJournalActionsViewModel();
+			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
 			RegisterTasks();
 			

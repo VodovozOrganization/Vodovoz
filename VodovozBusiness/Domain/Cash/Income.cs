@@ -14,7 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Repository.Cash;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Cash
@@ -241,10 +241,10 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
-		public virtual void FillFromOrder(IUnitOfWork uow)
+		public virtual void FillFromOrder(IUnitOfWork uow, ICashRepository cashRepository)
 		{
 			if(Id == 0) {
-				var existsIncome = CashRepository.GetIncomePaidSumForOrder(uow, Order.Id);
+				var existsIncome = cashRepository.GetIncomePaidSumForOrder(uow, Order.Id);
 				decimal orderCash = 0m;
 				if(Order.PaymentType == PaymentType.cash || Order.PaymentType == PaymentType.BeveragesWorld) {
 					orderCash = Order.OrderSum + (Order.ExtraMoney < 0 ? 0 : Order.ExtraMoney);

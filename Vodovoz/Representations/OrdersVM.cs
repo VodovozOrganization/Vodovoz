@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -9,25 +9,34 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
 using QSProjectsLib;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
-using Vodovoz.Repositories;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModel
 {
 	public class OrdersVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		public OrdersFilter Filter {
 			get => RepresentationFilter as OrdersFilter;
 			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
@@ -103,12 +112,28 @@ namespace Vodovoz.ViewModel
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if(Filter.RestrictHideService != null) {
-				query.Where(o => o.IsService != Filter.RestrictHideService);
+			if(Filter.RestrictHideService != null) 
+			{
+				if(Filter.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
 			}
 
-			if(Filter.RestrictOnlyService != null) {
-				query.Where(o => o.IsService == Filter.RestrictOnlyService);
+			if(Filter.RestrictOnlyService != null) 
+			{
+				if(Filter.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
 			}
 
 			if(Filter.ExceptIds != null && Filter.ExceptIds.Any())
@@ -246,17 +271,38 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
 						var order = UoW.GetById<Domain.Orders.Order>(selectedNodes.FirstOrDefault().Id);
-						UndeliveriesView dlg = new UndeliveriesView();
-						dlg.HideFilterAndControls();
-						dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
-							x => x.ResetFilter(),
-							x => x.RestrictOldOrder = order,
-							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
-							x => x.RestrictOldOrderEndDate = order.DeliveryDate
+
+						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
+							ServicesConfig.CommonServices,
+							new OrderSelectorFactory(),
+							new EmployeeJournalFactory(),
+							new CounterpartyJournalFactory(),
+							new DeliveryPointJournalFactory(),
+							new SubdivisionJournalFactory()
+						)
+						{
+							HidenByDefault = true,
+							RestrictOldOrder = order,
+							RestrictOldOrderStartDate = order.DeliveryDate,
+							RestrictOldOrderEndDate = order.DeliveryDate
+						};
+
+						var dlg = new UndeliveredOrdersJournalViewModel(
+							undeliveredOrdersFilter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							new GtkTabsOpener(),
+							new EmployeeJournalFactory(),
+							VodovozGtkServicesConfig.EmployeeService,
+							new UndeliveredOrdersJournalOpener(),
+							new OrderSelectorFactory(),
+							_undeliveredOrdersRepository
 						);
+
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					},
-					(selectedItems) => selectedItems.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, ((OrdersVMNode)o).Id).Any())
+					(selectedItems) =>
+						selectedItems.Any(o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, ((OrdersVMNode)o).Id).Any())
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог закрытия",
@@ -378,7 +424,7 @@ namespace Vodovoz.ViewModel
 		public OrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
-			sanitizationNomenclature = NomenclatureRepository.GetSanitisationNomenclature(UoW);
+			sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(UoW);
 			ShowColumns(false);
 		}
 	}

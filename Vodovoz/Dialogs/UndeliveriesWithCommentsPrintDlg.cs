@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Report;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.Dialogs
 {
@@ -25,9 +26,10 @@ namespace Vodovoz.Dialogs
 		string undeliveryStatus = String.Empty;
 		int undeliveryAuthorId = 0;
 
-		public UndeliveriesWithCommentsPrintDlg(UndeliveredOrdersFilter filter)
+		public UndeliveriesWithCommentsPrintDlg(UndeliveredOrdersFilterViewModel filter)
 		{
 			this.Build();
+
 			if(filter.RestrictOldOrder != null)
 				oldOrderId = filter.RestrictOldOrder.Id;
 			if(filter.RestrictDriver != null)
@@ -56,7 +58,7 @@ namespace Vodovoz.Dialogs
 				undeliveryStatus = filter.RestrictUndeliveryStatus.ToString();
 			if(filter.RestrictUndeliveryAuthor != null)
 				undeliveryAuthorId = filter.RestrictUndeliveryAuthor.Id;
-			if(filter.IsProblematicCasesChkActive) {
+			if(filter.RestrictIsProblematicCases) {
 				guiltySides = Enum.GetValues(typeof(GuiltyTypes))
 								  .Cast<GuiltyTypes>()
 								  .Where(t => !filter.ExcludingGuiltiesForProblematicCases.Contains(t))

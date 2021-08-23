@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -52,14 +50,16 @@
             IF(employees.patronymic = '',
                 '',
                 CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
-    orders.trifle AS trifle
+    orders.trifle AS trifle,
+    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
+    IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
 FROM
     orders
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
         LEFT JOIN
     counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
- AND orders.counterparty_contract_id = counterparty_contract.id
+    AND orders.counterparty_contract_id = counterparty_contract.id
         LEFT JOIN
     organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN
@@ -78,7 +78,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -157,6 +157,14 @@ WHERE
         </Field>
         <Field Name="order_comment_for_logist">
           <DataField>order_comment_for_logist</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="lunch_time">
+          <DataField>lunch_time</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="is_before_interval_delivery">
+          <DataField>is_before_interval_delivery</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -541,8 +549,7 @@ payment_type='ToClient'</CommandText>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>
-                        </Hidden>
+                        <Hidden></Hidden>
                       </Visibility>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -695,8 +702,7 @@ payment_type='ToClient'</CommandText>
                         <Format>="N" + {digits}</Format>
                       </Style>
                       <Visibility>
-                        <Hidden>
-                        </Hidden>
+                        <Hidden></Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -807,8 +813,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -826,8 +831,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -845,8 +849,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -864,8 +867,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -904,8 +906,7 @@ payment_type='ToClient'</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1381,8 +1382,7 @@ payment_type='ToClient'</CommandText>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -1550,17 +1550,18 @@ payment_type='ToClient'</CommandText>
       </Textbox>
       <Textbox Name="Textbox76" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
-        <Width>69.27pt</Width>
+        <Width>55.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>257.2pt</Left>
-        <Top>164.0pt</Top>
+        <Left>91.7pt</Left>
+        <Top>162.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox77" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1568,8 +1569,8 @@ payment_type='ToClient'</CommandText>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
         <ZIndex>1</ZIndex>
-        <Left>190.8pt</Left>
-        <Top>164.0pt</Top>
+        <Left>24.8pt</Left>
+        <Top>162.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1579,17 +1580,18 @@ payment_type='ToClient'</CommandText>
         </Style>
       </Textbox>
       <Textbox Name="Textbox78" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>186.27pt</Width>
-        <Value>='Договор: ' + Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
+        <Height>12pt</Height>
+        <Width>49.28pt</Width>
+        <Value>Договор:</Value>
         <ZIndex>1</ZIndex>
-        <Left>329.1pt</Left>
-        <Top>164.0pt</Top>
+        <Left>146.0pt</Left>
+        <Top>162.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox79" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1818,6 +1820,80 @@ payment_type='ToClient'</CommandText>
         <Left>34.5pt</Left>
         <Top>551.4pt</Top>
       </Table>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12pt</Height>
+        <Width>36.39pt</Width>
+        <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>286.8pt</Left>
+        <Top>162.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>81.28pt</Width>
+        <Value>=Max({lunch_time}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>325.20pt</Left>
+        <Top>162.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>10pt</FontSize>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox8">
+        <Height>12.00pt</Height>
+        <Width>148.11pt</Width>
+        <Value>Доставка раньше интервала:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>395.3pt</Left>
+        <Top>161.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox9">
+        <Height>12.00pt</Height>
+        <Width>27.18pt</Width>
+        <Value>=Max({is_before_interval_delivery}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>543.90pt</Left>
+        <Top>161.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox10">
+        <Height>12pt</Height>
+        <Width>104.58pt</Width>
+        <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>190.30pt</Left>
+        <Top>162.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2246,8 +2322,7 @@ payment_type='ToClient'</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

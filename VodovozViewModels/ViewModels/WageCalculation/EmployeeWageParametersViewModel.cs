@@ -12,7 +12,8 @@ using QS.DomainModel.Entity.PresetPermissions;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity;
 using QS.Navigation;
-using QS.Project.Domain;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -21,7 +22,9 @@ namespace Vodovoz.ViewModels.WageCalculation
 		private readonly ITdiTab tab;
 		private readonly ICommonServices commonServices;
 		private readonly INavigationManager navigationManager;
+		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly bool canChangeWageCalculation;
+		private readonly bool _canEditWageBySelfSubdivision;
 
 		public EmployeeWageParametersViewModel(
 			Employee entity, 
@@ -30,16 +33,22 @@ namespace Vodovoz.ViewModels.WageCalculation
 			IPresetPermissionValidator permissionValidator,
 			IUserRepository userRepository, 
 			ICommonServices commonServices,
-			INavigationManager navigationManager
-			) : base(entity, commonServices)
+			INavigationManager navigationManager, 
+			IEmployeeRepository employeeRepository,
+			IWageCalculationRepository wageCalculationRepository) : base(entity, commonServices)
 		{
 			this.tab = tab ?? throw new ArgumentNullException(nameof(tab));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.navigationManager = navigationManager;
+			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			Entity.ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			Entity.ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
 			canChangeWageCalculation = permissionValidator.Validate("can_edit_wage", userRepository.GetCurrentUser(UoW).Id);
+			_canEditWageBySelfSubdivision = userRepository.GetCurrentUser(UoW).IsAdmin ||
+										   (employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision == Entity.Subdivision &&
+										    permissionValidator.Validate("can_edit_wage_by_self_subdivision", userRepository.GetCurrentUser(UoW).Id)
+										    );
 		}
 
 		public event EventHandler OnParameterNodesUpdated;
@@ -63,7 +72,9 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		#region ChangeWageParameterCommand
 
-		public virtual bool CanChangeWageCalculation => canChangeWageCalculation && StartDate.HasValue && Entity.CheckStartDateForNewWageParameter(StartDate.Value);
+		public virtual bool CanChangeWageCalculation =>
+			(StartDate.HasValue && Entity.CheckStartDateForNewWageParameter(StartDate.Value)) &&
+			(canChangeWageCalculation || _canEditWageBySelfSubdivision);
 
 		private DelegateCommand changeWageParameterCommand;
 
@@ -72,7 +83,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 				if(changeWageParameterCommand == null) {
 					changeWageParameterCommand = new DelegateCommand(
 						() => {
-							var newEmployeeWageParameterViewModel = new EmployeeWageParameterViewModel(UoW, Entity, CommonServices);
+							var newEmployeeWageParameterViewModel =
+								new EmployeeWageParameterViewModel(UoW, Entity, CommonServices, _wageCalculationRepository);
 							newEmployeeWageParameterViewModel.OnWageParameterCreated += (sender, wageParameter) => {
 								Entity.ChangeWageParameter(wageParameter, StartDate.Value);
 							};
@@ -152,9 +164,9 @@ namespace Vodovoz.ViewModels.WageCalculation
 				if(openWageParameterCommand == null) {
 					openWageParameterCommand = new DelegateCommand<EmployeeWageParameterNode>(
 						(node) => {
-							var uowBuilder = EntityUoWBuilder.ForCreate();
-							var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-							EmployeeWageParameterViewModel employeeWageParameterViewModel = new EmployeeWageParameterViewModel(UoW, node.EmployeeWageParameter, CommonServices);
+							EmployeeWageParameterViewModel employeeWageParameterViewModel =
+								new EmployeeWageParameterViewModel(
+									UoW, node.EmployeeWageParameter, CommonServices, _wageCalculationRepository);
 							tab.TabParent.AddTab(employeeWageParameterViewModel, tab);
 						},
 						(node) => node != null

@@ -9,39 +9,40 @@ namespace DriverAPI.Library.Converters
 {
 	public class OrderConverter
 	{
-		private readonly ILogger<OrderConverter> logger;
-		private readonly DeliveryPointConverter deliveryPointConverter;
-		private readonly SmsPaymentStatusConverter smsPaymentConverter;
-		private readonly PaymentTypeConverter paymentTypeConverter;
+		private readonly ILogger<OrderConverter> _logger;
+		private readonly DeliveryPointConverter _deliveryPointConverter;
+		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
+		private readonly PaymentTypeConverter _paymentTypeConverter;
 
 		public OrderConverter(ILogger<OrderConverter> logger,
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
 			PaymentTypeConverter paymentTypeConverter)
 		{
-			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this.deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
-			this.smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
-			this.paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
+			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			this._deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
+			this._smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
+			this._paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 		}
 
 		public OrderDto convertToAPIOrder(Vodovoz.Domain.Orders.Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus)
 		{
-			var pairOfSplitedLists = splitDeliveryItems(vodovozOrder.OrderEquipments);
+			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
 			var apiOrder = new OrderDto()
 			{
 				OrderId = vodovozOrder.Id,
-				SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
+				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
+				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
 				Counterparty = vodovozOrder.Client.FullName,
-				CounterpartyPhoneNumbers = vodovozOrder.Client.Phones.Select(x => "+7" + x.DigitsNumber),
-				PaymentType = paymentTypeConverter.convertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
-				Address = deliveryPointConverter.extractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
+				PhoneNumbers = vodovozOrder.DeliveryPoint.Phones.Concat(vodovozOrder.Client.Phones).Select(x => "+7" + x.DigitsNumber),
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
+				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,
 				OrderSum = vodovozOrder.ActualTotalSum,
-				OrderSaleItems = prepareSaleItemsList(vodovozOrder.OrderItems),
+				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems
 			};
@@ -50,7 +51,7 @@ namespace DriverAPI.Library.Converters
 		}
 
 		private (IEnumerable<OrderDeliveryItemDto> orderDeliveryItems, IEnumerable<OrderReceptionItemDto> orderReceptionItems)
-			splitDeliveryItems(IEnumerable<Vodovoz.Domain.Orders.OrderEquipment> orderEquipment)
+			SplitDeliveryItems(IEnumerable<Vodovoz.Domain.Orders.OrderEquipment> orderEquipment)
 		{
 			var deliveryItems = new List<OrderDeliveryItemDto>();
 			var receptionItems = new List<OrderReceptionItemDto>();
@@ -59,30 +60,30 @@ namespace DriverAPI.Library.Converters
 			{
 				if (transferItem.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
 				{
-					deliveryItems.Add(convertToAPIOrderDeliveryItem(transferItem));
+					deliveryItems.Add(ConvertToAPIOrderDeliveryItem(transferItem));
 				}
 				else if (transferItem.Direction == Vodovoz.Domain.Orders.Direction.PickUp)
 				{
-					receptionItems.Add(convertToAPIOrderReceptionItem(transferItem));
+					receptionItems.Add(ConvertToAPIOrderReceptionItem(transferItem));
 				}
 			}
 
 			return (deliveryItems, receptionItems);
 		}
 
-		private IEnumerable<OrderSaleItemDto> prepareSaleItemsList(IEnumerable<Vodovoz.Domain.Orders.OrderItem> orderItems)
+		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(IEnumerable<Vodovoz.Domain.Orders.OrderItem> orderItems)
 		{
 			var result = new List<OrderSaleItemDto>();
 
 			foreach (var saleItem in orderItems)
 			{
-				result.Add(convertToAPIOrderSaleItem(saleItem));
+				result.Add(ConvertToAPIOrderSaleItem(saleItem));
 			}
 
 			return result;
 		}
 
-		private OrderSaleItemDto convertToAPIOrderSaleItem(Vodovoz.Domain.Orders.OrderItem saleItem)
+		private OrderSaleItemDto ConvertToAPIOrderSaleItem(Vodovoz.Domain.Orders.OrderItem saleItem)
 		{
 			var result = new OrderSaleItemDto()
 			{
@@ -95,7 +96,7 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private OrderDeliveryItemDto convertToAPIOrderDeliveryItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
+		private OrderDeliveryItemDto ConvertToAPIOrderDeliveryItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
 		{
 			var result = new OrderDeliveryItemDto()
 			{
@@ -107,7 +108,7 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private OrderReceptionItemDto convertToAPIOrderReceptionItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
+		private OrderReceptionItemDto ConvertToAPIOrderReceptionItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
 		{
 			var result = new OrderReceptionItemDto()
 			{

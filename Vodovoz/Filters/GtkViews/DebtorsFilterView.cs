@@ -18,9 +18,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyVM);
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointVM);
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureVM);
+			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
+			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
 
 			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yvalidatedentryDebtFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -41,19 +41,28 @@ namespace Vodovoz.Filters.GtkViews
 			yvalidatedentryBottlesFrom.Binding.AddBinding(ViewModel, x => x.LastOrderBottlesFrom, x => x.Text, new IntToStringConverter()).InitializeFromSource();
 			yenumcomboboxOPF.Binding.AddBinding(ViewModel, x => x.OPF, x => x.SelectedItemOrNull).InitializeFromSource();
 			ycomboboxReason.Binding.AddBinding(ViewModel, x => x.DiscountReason, x => x.SelectedItem).InitializeFromSource();
-			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.StartDate, x => x.StartDateOrNull).InitializeFromSource();
-			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.EndDate, x => x.EndDateOrNull).InitializeFromSource();
-			ycheckbuttonHideActive.Binding.AddBinding(ViewModel, x => x.HideActiveCounterparty, x => x.Active).InitializeFromSource();
-			ycheckbuttonHideActive.Binding.AddBinding(ViewModel, x => x.ShowHideActiveCheck, x => x.Visible).InitializeFromSource();
+			ydateperiodpickerLastOrder.Binding.AddSource(ViewModel)
+				.AddBinding(ViewModel, x => x.StartDate, x => x.StartDateOrNull)
+				.AddBinding(ViewModel, x => x.EndDate, x => x.EndDateOrNull)
+				.InitializeFromSource();
+			ycheckbuttonHideActive.Binding.AddSource(ViewModel)
+				.AddBinding(x => x.HideActiveCounterparty, x => x.Active)
+				.AddBinding(ViewModel, x => x.ShowHideActiveCheck, x => x.Visible)
+				.InitializeFromSource();
 			ycheckbuttonHideOneOrder.Binding.AddBinding(ViewModel, x => x.HideWithOneOrder, x => x.Active).InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
 		{
-			if(ViewModel?.Address?.Counterparty?.Id != ViewModel.Client?.Id)
+			if(ViewModel?.Address?.Counterparty?.Id != ViewModel?.Client?.Id)
+			{
 				ViewModel.Address = null;
-			if(ViewModel.DeliveryPointJournalFilterViewModel != null)
+			}
+
+			if(ViewModel?.DeliveryPointJournalFilterViewModel != null)
+			{
 				ViewModel.DeliveryPointJournalFilterViewModel.Counterparty = ViewModel.Client;
+			}
 		}
 	}
 }

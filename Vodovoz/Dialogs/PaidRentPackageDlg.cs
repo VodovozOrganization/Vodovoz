@@ -1,15 +1,22 @@
-﻿using NHibernate.Criterion;
+﻿using System.ComponentModel.DataAnnotations;
+using NHibernate.Criterion;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Validation;
+using QS.Project.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.RentPackages;
+using Vodovoz.Factories;
 
 namespace Vodovoz
 {
 	public partial class PaidRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<PaidRentPackage>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IRentPackageRepository _rentPackageRepository = new RentPackageRepository();
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
+
+		private ValidationContext _validationContext;
 
 		public PaidRentPackageDlg ()
 		{
@@ -49,15 +56,26 @@ namespace Vodovoz
 			referenceRentServiceMonthly.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>();
 			referenceRentServiceMonthly.Binding.AddBinding (Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource ();
 
-			referenceEquipmentType.SubjectType = typeof(EquipmentType);
-			referenceEquipmentType.Binding.AddBinding (Entity, e => e.EquipmentType, w => w.Subject).InitializeFromSource ();
+			referenceEquipmentKind.SubjectType = typeof(EquipmentKind);
+			referenceEquipmentKind.Binding.AddBinding (Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource ();
+
+			ConfigureValidateContext();
 		}
 
-		public override bool Save ()
+		private void ConfigureValidateContext()
 		{
-			var valid = new QSValidator<PaidRentPackage> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
+			
+			_validationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
+		}
+
+		public override bool Save()
+		{
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
+			{
 				return false;
+			}
+
 			logger.Info ("Сохраняем пакет платных услуг...");
 			UoWGeneric.Save();
 			return true;

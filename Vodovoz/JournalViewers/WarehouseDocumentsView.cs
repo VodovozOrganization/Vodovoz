@@ -18,11 +18,14 @@ using Vodovoz.Services.Permissions;
 using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -94,13 +97,15 @@ namespace Vodovoz
 								UnitOfWorkFactory.GetDefaultFactory,
 								new WarehousePermissionService(),
 								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
-								UserSingletonRepository.GetInstance(),
+								new UserRepository(),
 								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices
+								ServicesConfig.CommonServices,
+								new StockRepository()
 							);
 						},
 						this
@@ -115,12 +120,14 @@ namespace Vodovoz
 								UnitOfWorkFactory.GetDefaultFactory,
 								new WarehousePermissionService(),
 								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 								new NomenclatureSelectorFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices
+								ServicesConfig.CommonServices,
+								new StockRepository()
 							);
 						},
 						this
@@ -166,12 +173,14 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									new WarehousePermissionService(),
 									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new EntityExtendedPermissionValidator(
+										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new StockRepository()
 								);
 							},
 							this
@@ -193,15 +202,39 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									new WarehousePermissionService(),
 									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new EntityExtendedPermissionValidator(
+										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
 									new NomenclatureSelectorFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
-									UserSingletonRepository.GetInstance(),
+									new UserRepository(),
 									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices
+									ServicesConfig.CommonServices,
+									new StockRepository()
 								);
 							},
+							this
+						);
+						break;
+					case DocumentType.DriverTerminalGiveout:
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalGiveoutDocument>(id),
+							() => new DriverAttachedTerminalViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices
+							),
+							this
+						);
+						break;
+					case DocumentType.DriverTerminalReturn:
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalReturnDocument>(id),
+							() => new DriverAttachedTerminalViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices
+							),
 							this
 						);
 						break;

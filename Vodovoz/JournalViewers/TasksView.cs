@@ -16,71 +16,79 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TasksView : SingleUowTabBase
 	{
-		CallTasksVM callTasksVM;
-		CallTaskFilterView callTaskFilterView;
+		private CallTasksVM _callTasksVm;
+		private CallTaskFilterView _callTaskFilterView;
 
-		readonly IEmployeeRepository employeeRepository;
-		readonly IBottlesRepository bottleRepository;
-		readonly ICallTaskRepository callTaskRepository;
-		readonly IPhoneRepository phoneRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IBottlesRepository _bottleRepository;
+		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly IPhoneRepository _phoneRepository;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
 
 		public TasksView(
 			IEmployeeRepository employeeRepository,
 			IBottlesRepository bottleRepository,
 			ICallTaskRepository callTaskRepository,
-			IPhoneRepository phoneRepository)
+			IPhoneRepository phoneRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IDeliveryPointRepository deliveryPointRepository)
 		{
 			this.Build();
 
-			this.employeeRepository = employeeRepository;
-			this.bottleRepository = bottleRepository;
-			this.callTaskRepository = callTaskRepository;
-			this.phoneRepository = phoneRepository;
+			_employeeRepository = employeeRepository;
+			_bottleRepository = bottleRepository;
+			_callTaskRepository = callTaskRepository;
+			_phoneRepository = phoneRepository;
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
 		}
 
-		public void ConfigureDlg()
-		{ 
+		private void ConfigureDlg()
+		{
 			representationentryEmployee.RepresentationModel = new EmployeesVM(UoW);
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			callTasksVM = new CallTasksVM(new BaseParametersProvider());
-			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
-			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
-			callTasksVM.Filter = new CallTaskFilterViewModel();
-			callTasksVM.PropertyChanged += CreateCallTaskFilterView;
-			representationtreeviewTask.RepresentationModel = callTasksVM;
-			CreateCallTaskFilterView(callTasksVM.Filter, EventArgs.Empty);
+			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
+			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
+			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
+			_callTasksVm.Filter =
+				new CallTaskFilterViewModel(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), _deliveryPointRepository);
+			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
+			representationtreeviewTask.RepresentationModel = _callTasksVm;
+			CreateCallTaskFilterView(_callTasksVm.Filter, EventArgs.Empty);
 			UpdateStatistics();
 		}
 
-		void CreateCallTaskFilterView(object sender, EventArgs e)
+		private void CreateCallTaskFilterView(object sender, EventArgs e)
 		{
-			if(callTaskFilterView != null)
-				callTaskFilterView.Destroy();
+			_callTaskFilterView?.Destroy();
 
-			callTaskFilterView = new CallTaskFilterView(callTasksVM.Filter);
-			hboxTasksFilter.Add(callTaskFilterView);
+			_callTaskFilterView = new CallTaskFilterView(_callTasksVm.Filter);
+			hboxTasksFilter.Add(_callTaskFilterView);
 		}
 
-		public void UpdateStatistics()
+		private void UpdateStatistics()
 		{
-			var statistics = callTasksVM.GetStatistics(callTasksVM.Filter.Employee);
+			var statistics = _callTasksVm.GetStatistics(_callTasksVm.Filter.Employee);
 
 			hboxStatistics.Children.OfType<Widget>().ToList().ForEach(x => x.Destroy());
 
-			foreach(var item in statistics) 
+			foreach(var stats in statistics.Select(item => new Label(item.Key + item.Value)))
 			{
-				var stats = new Label(item.Key + item.Value);
 				hboxStatistics.Add(stats);
 				stats.Show();
 
@@ -91,12 +99,11 @@ namespace Vodovoz.JournalViewers
 		}
 
 		#region BaseJournalHeandler
+
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
-
 			CallTaskDlg dlg = new CallTaskDlg();
-			TabParent.AddTab(dlg,this);
-
+			TabParent.AddTab(dlg, this);
 
 			/*
 			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
@@ -112,13 +119,14 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
 			if(selected == null)
+			{
 				return;
+			}
+
 			CallTaskDlg dlg = new CallTaskDlg(selected.Id);
 			OpenSlaveTab(dlg);
-
 
 			/*
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
@@ -141,13 +149,14 @@ namespace Vodovoz.JournalViewers
 		{
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>();
 			foreach(var item in selected)
+			{
 				DeleteHelper.DeleteEntity(typeof(CallTask), item.Id);
+			}
 
-			callTasksVM.UpdateNodes();
-
+			_callTasksVm.UpdateNodes();
 		}
 
-		protected void OnButtonRefreshClicked(object sender, EventArgs e) => callTasksVM.UpdateNodes();
+		protected void OnButtonRefreshClicked(object sender, EventArgs e) => _callTasksVm.UpdateNodes();
 
 		protected void OnRadiobuttonShowFilterToggled(object sender, EventArgs e)
 		{
@@ -156,12 +165,12 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnRadiobuttonEditSelectedToggled(object sender, EventArgs e)
 		{
-			callTaskFilterView.Visible = false;
+			_callTaskFilterView.Visible = false;
 		}
 
 		protected void OnRadiobuttonShowFilterClicked(object sender, EventArgs e)
 		{
-			callTaskFilterView.Visible = !callTaskFilterView.Visible;
+			_callTaskFilterView.Visible = !_callTaskFilterView.Visible;
 		}
 
 		protected void OnRadiobuttonEditSelectedClicked(object sender, EventArgs e)
@@ -184,55 +193,64 @@ namespace Vodovoz.JournalViewers
 
 		#region ChangeEntityStateButton
 
-		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) => representationentryEmployee.OpenSelectDialog("Ответственный :");
+		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) =>
+			representationentryEmployee.OpenSelectDialog("Ответственный :");
 
 		protected void OnRepresentationentryEmployeeChangedByUser(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.AssignedEmployee = representationentryEmployee.Subject as Employee);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			callTasksVM.ChangeEnitity(action , tasks);
+			_callTasksVm.ChangeEnitity(action, tasks);
 		}
 
 		protected void OnCompleteTaskButtonClicked(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.IsTaskComplete = true);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			callTasksVM.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks);
 		}
 
 		protected void OnTaskstateButtonEnumItemClicked(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.TaskState = (CallTaskStatus)taskStatusComboBox.SelectedItem);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			callTasksVM.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks);
 		}
 
 		protected void OnDatepickerDeadlineChangeDateChangedByUser(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.EndActivePeriod = datepickerDeadlineChange.Date);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			callTasksVM.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks);
 			datepickerDeadlineChange.Clear();
 		}
 
 		protected void OnRepresentationtreeviewTaskButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button != 3)
-				return;
-
-			var selectedObjects = representationtreeviewTask.GetSelectedObjects();
-			if(selectedObjects == null || !selectedObjects.Any()) {
+			{
 				return;
 			}
+
+			var selectedObjects = representationtreeviewTask.GetSelectedObjects();
+			if(selectedObjects == null || !selectedObjects.Any())
+			{
+				return;
+			}
+
 			var selectedObj = selectedObjects[0];
 			var selectedNodeId = (selectedObj as CallTaskVMNode)?.Id;
 			if(selectedNodeId == null)
+			{
 				return;
+			}
 
 			Menu popup = new Menu();
-			var popupItems = callTasksVM.PopupItems;
-			foreach(var popupItem in popupItems) {
-				var menuItem = new MenuItem(popupItem.Title) {
+			var popupItems = _callTasksVm.PopupItems;
+			foreach(var popupItem in popupItems)
+			{
+				var menuItem = new MenuItem(popupItem.Title)
+				{
 					Sensitive = popupItem.SensitivityFunc.Invoke(selectedObjects)
 				};
 				menuItem.Activated += (sender, e) => { popupItem.ExecuteAction.Invoke(selectedObjects); };
@@ -245,8 +263,9 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnYcheckbuttonAutoUpdateToggled(object sender, EventArgs e)
 		{
-			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
+			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 		}
+
 		#endregion
 	}
 }

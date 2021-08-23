@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.RentPackages;
 
 namespace Vodovoz.Domain
 {
@@ -43,13 +44,13 @@ namespace Vodovoz.Domain
 			set { SetField (ref deposit, value, () => Deposit); }
 		}
 
-		EquipmentType equipmentType;
+		EquipmentKind equipmentKind;
 
-		[Display (Name = "Тип оборудования")]
-		[Required(ErrorMessage = "Тип оборудования должен быть указан.")]
-		public virtual EquipmentType EquipmentType {
-			get { return equipmentType; }
-			set { SetField (ref equipmentType, value, () => EquipmentType); }
+		[Display (Name = "Вид оборудования")]
+		[Required(ErrorMessage = "Вид оборудования должен быть указан.")]
+		public virtual EquipmentKind EquipmentKind {
+			get { return equipmentKind; }
+			set { SetField (ref equipmentKind, value, () => EquipmentKind); }
 		}
 
 		Nomenclature depositService;
@@ -66,12 +67,18 @@ namespace Vodovoz.Domain
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var allready = Repositories.RentPackageRepository.GetFreeRentPackage(UoW, EquipmentType);
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(IRentPackageRepository)) is IRentPackageRepository rentPackageRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(rentPackageRepository)}");
+			}
+			
+			var allready = rentPackageRepository.GetFreeRentPackage(UoW, EquipmentKind);
 			if(allready != null && allready.Id != Id)
 			{
 				yield return new ValidationResult (
-					String.Format ("Условия для оборудования {0} уже существуют.", EquipmentType.Name),
-					new[] { this.GetPropertyName (o => o.EquipmentType) });
+					String.Format ("Условия для оборудования {0} уже существуют.", EquipmentKind.Name),
+					new[] { this.GetPropertyName (o => o.EquipmentKind) });
 			}
 		}
 

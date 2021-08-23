@@ -20,7 +20,6 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -167,11 +166,14 @@ namespace Vodovoz.Views.Logistic
 			ytextComment.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
 			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEditDistrict, w => w.Sensitive).InitializeFromSource();
-			btnAddCommonRule.Clicked += (sender, args) => {
-				var selectRules = new OrmReference(ViewModel.UoW, DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules()) {
+			btnAddCommonRule.Clicked += (sender, args) =>
+			{
+				var selectRules = new OrmReference(ViewModel.UoW, ViewModel.DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules())
+				{
 					Mode = OrmReferenceMode.MultiSelect,
 					ButtonMode = QS.Project.Dialogs.ReferenceButtonMode.None
 				};
+				
 				selectRules.ObjectSelected +=
 					(o, e) => ViewModel.AddCommonDistrictRuleItemCommand.Execute(e.GetEntities<DeliveryPriceRule>());
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
@@ -245,11 +247,14 @@ namespace Vodovoz.Views.Logistic
 			btnRemoveAcceptBefore.Clicked += (sender, args) => ViewModel.RemoveAcceptBeforeCommand.Execute();
 			
 			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
-			btnAddWeekDayRule.Clicked += (sender, args) => {
-				var selectRules = new OrmReference(ViewModel.UoW, DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules()) {
+			btnAddWeekDayRule.Clicked += (sender, args) =>
+			{
+				var selectRules = new OrmReference(ViewModel.UoW, ViewModel.DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules())
+				{
 					Mode = OrmReferenceMode.MultiSelect,
 					ButtonMode = QS.Project.Dialogs.ReferenceButtonMode.None
 				};
+				
 				selectRules.ObjectSelected += (o, e) =>
 					ViewModel.AddWeekDayDistrictRuleItemCommand.Execute(e.GetEntities<DeliveryPriceRule>());
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);

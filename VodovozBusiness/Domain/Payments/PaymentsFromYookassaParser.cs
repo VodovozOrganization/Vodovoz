@@ -10,6 +10,7 @@ namespace Vodovoz.Domain.Payments
 	    private readonly string docPath;
 	    private const string ShopVodovozString = "https://shop.vodovoz-spb.ru";
 	    private const string VodovozString = "https://vodovoz-spb.ru";
+	    private const string VodovozString2 = "https://www.vodovoz-spb.ru/";
 	    private const string ShopVodovozUberserverString = "https://shopvodovoz.uberserver.ru";
 	    
         public List<PaymentByCardOnline> PaymentsFromYookassa { get; set; } = new List<PaymentByCardOnline>();
@@ -49,7 +50,7 @@ namespace Vodovoz.Domain.Payments
 
         private void TryMatchPaymentFrom(string data, ref PaymentByCardOnlineFrom paymentByCardFrom)
         {
-	        if (data == VodovozString) {
+	        if (data == VodovozString || data == VodovozString2) {
 		        paymentByCardFrom = PaymentByCardOnlineFrom.FromSMS;
 	        }
 	        else if (data == ShopVodovozString) {

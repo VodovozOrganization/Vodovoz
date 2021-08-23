@@ -7,6 +7,7 @@ using QS.Project.Repositories;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Infrastructure.Services;
 
 namespace Vodovoz.Additions
 {
@@ -127,7 +128,7 @@ namespace Vodovoz.Additions
                 Text = messageText,
                 HtmlText = messageText,
                 Recipient = new EmailContact("", mailAddress),
-                Sender = new EmailContact("vodovoz-spb.ru", SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+                Sender = new EmailContact("vodovoz-spb.ru", new ParametersProvider().GetParameterValue("email_for_email_delivery")),
             };
 
             return emailService.SendEmail(email);

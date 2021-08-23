@@ -7,6 +7,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -162,9 +163,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool IsValidForOrder(Order order)
+		public virtual bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
 		{
-			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order));
+			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, standartNomenclatures));
 		}
 	}
 

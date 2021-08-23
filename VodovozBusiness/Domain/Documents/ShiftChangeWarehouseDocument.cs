@@ -10,7 +10,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -82,17 +82,25 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
-		public virtual void FillItemsFromStock(IUnitOfWork uow, IList<NomenclatureCategory> categories = null)
+		public virtual void FillItemsFromStock(
+			IUnitOfWork uow, IStockRepository stockRepository, IList<NomenclatureCategory> categories = null)
 		{
 			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
 
 			if(categories != null && categories.Count > 0)
-				foreach(var category in categories) {
-					foreach(var item in Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, category)) {
+			{
+				foreach(var category in categories)
+				{
+					foreach(var item in stockRepository.NomenclatureInStock(uow, Warehouse.Id, null, category))
+					{
 						inStock.Add(item.Key, item.Value);
 					}
-				} else
-				inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
+				}
+			}
+			else
+			{
+				inStock = stockRepository.NomenclatureInStock(uow, Warehouse.Id);
+			}
 
 			if(inStock.Count == 0)
 				return;
@@ -112,17 +120,25 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateItemsFromStock(IUnitOfWork uow, IList<NomenclatureCategory> categories = null)
+		public virtual void UpdateItemsFromStock(
+			IUnitOfWork uow, IStockRepository stockRepository, IList<NomenclatureCategory> categories = null)
 		{
 			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
 
 			if(categories != null && categories.Count > 0)
-				foreach(var category in categories) {
-					foreach(var item in Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, category)) {
+			{
+				foreach(var category in categories)
+				{
+					foreach(var item in stockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, category))
+					{
 						inStock.Add(item.Key, item.Value);
 					}
-				} else
-					inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+				}
+			}
+			else
+			{
+				inStock = stockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+			}
 
 			foreach(var itemInStock in inStock) {
 				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);
@@ -150,7 +166,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void FillItemsFromStock(IUnitOfWork uow,
+		public virtual void FillItemsFromStock(
+			IUnitOfWork uow,
+			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
 			string[] nomenclatureTypeToInclude,
@@ -163,15 +181,16 @@ namespace Vodovoz.Domain.Documents
 			if (Warehouse == null)
 				return;
 			
-			inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
+			inStock = stockRepository.NomenclatureInStock(
+				uow,
+				Warehouse.Id,
 				nomenclaturesToInclude,
 				nomenclaturesToExclude,
 				nomenclatureTypeToInclude,
 				nomenclatureTypeToExclude,
 				productGroupToInclude,
 				productGroupToExclude,
-				TimeStamp
-			);
+				TimeStamp);
 
 			if(inStock.Count == 0)
 				return;
@@ -191,7 +210,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 		
-		public virtual void UpdateItemsFromStock(IUnitOfWork uow,
+		public virtual void UpdateItemsFromStock(
+			IUnitOfWork uow,
+			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
 			string[] nomenclatureTypeToInclude,
@@ -201,15 +222,16 @@ namespace Vodovoz.Domain.Documents
 		{
 			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
 
-			inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id,
-					nomenclaturesToInclude,
-					nomenclaturesToExclude,
-					nomenclatureTypeToInclude,
-					nomenclatureTypeToExclude,
-					productGroupToInclude,
-					productGroupToExclude,
-					TimeStamp
-				);
+			inStock = stockRepository.NomenclatureInStock(
+				uow,
+				Warehouse.Id,
+				nomenclaturesToInclude,
+				nomenclaturesToExclude,
+				nomenclatureTypeToInclude,
+				nomenclatureTypeToExclude,
+				productGroupToInclude,
+				productGroupToExclude,
+				TimeStamp);
 
 			if (Warehouse == null)
 				return;

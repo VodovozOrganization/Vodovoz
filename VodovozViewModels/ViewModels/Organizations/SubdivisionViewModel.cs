@@ -9,6 +9,9 @@ using QS.ViewModels;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewModels.ViewModels.Organizations
@@ -48,17 +51,25 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			IPermissionRepository permissionRepository
+			IPermissionRepository permissionRepository,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			ISubdivisionRepository subdivisionRepository
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
 			var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
 			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
 			WarehousePermissionsVM.CanEdit = PermissionResult.CanUpdate;
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			SalesPlanSelectorFactory = (salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory)))
+				.CreateSalesPlanAutocompleteSelectorFactory(nomenclatureSelectorFactory);
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 		}
+		
+		public ISubdivisionRepository SubdivisionRepository { get; }
 
 		private void ConfigureEntityChangingRelations()
 		{
@@ -98,6 +109,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				Entity.SetChildsGeographicGroup(Entity.GeographicGroup);
 			}
 		}
+
+		public IEntityAutocompleteSelectorFactory SalesPlanSelectorFactory { get; }
 
 		#region Commands
 

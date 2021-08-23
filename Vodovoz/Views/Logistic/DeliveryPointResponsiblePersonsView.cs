@@ -6,14 +6,10 @@ using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Widgets.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -21,7 +17,7 @@ namespace Vodovoz.Views.Logistic
     public partial class DeliveryPointResponsiblePersonsView : Gtk.Bin
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-
+        private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
         private GenericObservableList<DeliveryPointResponsiblePerson> responsiblePersonsList;
         private IList<DeliveryPointResponsiblePersonType> responsiblePersonTypes;
         private IUnitOfWork uow;
@@ -132,8 +128,7 @@ namespace Vodovoz.Views.Logistic
 
             var employeeEntry = new EntityViewModelEntry();
             employeeEntry.WidthRequest = 50;
-            employeeEntry.SetEntityAutocompleteSelectorFactory(
-                new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices));
+            employeeEntry.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
             employeeEntry.Binding.AddBinding(responsiblePerson, e => e.Employee, w => w.Subject).InitializeFromSource();
             datatableResponsiblePersons.Attach(

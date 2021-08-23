@@ -11,7 +11,8 @@ using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz
 {
@@ -22,6 +23,8 @@ namespace Vodovoz
 	[HistoryTrace]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private SalesPlan _defaultSalesPlan;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -107,6 +110,13 @@ namespace Vodovoz
 			get => subdivisionType;
 			set => SetField(ref subdivisionType, value, () => SubdivisionType);
 		}
+
+		public virtual SalesPlan DefaultSalesPlan
+		{
+			get => _defaultSalesPlan;
+			set => SetField(ref _defaultSalesPlan, value);
+		}
+
 		#endregion
 
 		#region Геттеры и методы
@@ -134,11 +144,11 @@ namespace Vodovoz
 			return false;
 		}
 
-		public virtual string GetWarehousesNames(IUnitOfWork uow)
+		public virtual string GetWarehousesNames(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository)
 		{
 			string result = string.Empty;
 			if(Id != 0) {
-				var whs = SubdivisionsRepository.GetWarehouses(uow, this).Select(w => w.Name);
+				var whs = subdivisionRepository.GetWarehouses(uow, this).Select(w => w.Name);
 				result = string.Join(", ", whs);
 			}
 			return result;

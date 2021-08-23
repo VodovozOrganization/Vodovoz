@@ -10,8 +10,8 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
@@ -19,13 +19,14 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
-		SelectableParametersReportFilter filter;
+		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private SelectableParametersReportFilter _filter;
 
 		public NomenclatureForShipment()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			filter = new SelectableParametersReportFilter(UoW);
+			_filter = new SelectableParametersReportFilter(UoW);
 			ydatepicker.Date = DateTime.Today.AddDays(1);
 			ConfigureDlg();
 		}
@@ -34,15 +35,15 @@ namespace Vodovoz.ReportsParameters.Store
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			lstGeoGrp.SetRenderTextFunc<GeographicGroup>(g => string.Format("{0}", g.Name));
-			lstGeoGrp.ItemsList = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 
-			var nomenclatureTypeParam = filter.CreateParameterSet(
+			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",
 				"nomenclature_type",
 				new ParametersEnumFactory<NomenclatureCategory>()
 			);
 
-			var nomenclatureParam = filter.CreateParameterSet(
+			var nomenclatureParam = _filter.CreateParameterSet(
 				"Номенклатуры",
 				"nomenclature",
 				new ParametersFactory(UoW, (filters) => {
@@ -80,7 +81,7 @@ namespace Vodovoz.ReportsParameters.Store
 			//Предзагрузка. Для избежания ленивой загрузки
 			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
 
-			filter.CreateParameterSet(
+			_filter.CreateParameterSet(
 				"Группы товаров",
 				"product_group",
 				new RecursiveParametersFactory<ProductGroup>(UoW,
@@ -97,7 +98,7 @@ namespace Vodovoz.ReportsParameters.Store
 				x => x.Childs)
 			);
 
-			var viewModel = new SelectableParameterReportFilterViewModel(filter);
+			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);
 			vboxParameters.Add(filterWidget);
 			filterWidget.Show();
@@ -120,7 +121,7 @@ namespace Vodovoz.ReportsParameters.Store
 					{ "geo_group_id", (lstGeoGrp.SelectedItem as GeographicGroup)?.Id ?? 0 },
 					{ "creation_date", DateTime.Now}
 			};
-			foreach(var item in filter.GetParameters()) {
+			foreach(var item in _filter.GetParameters()) {
 				parameters.Add(item.Key, item.Value);
 
 			}

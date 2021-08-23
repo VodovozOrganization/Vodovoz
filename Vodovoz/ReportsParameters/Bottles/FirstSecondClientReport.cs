@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -8,8 +7,7 @@ using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.Orders;
+using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -17,18 +15,24 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstSecondClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FirstSecondClientReport()
+		public FirstSecondClientReport(IOrderRepository orderRepository)
 		{
-			this.Build();
+			if(orderRepository == null)
+			{
+				throw new ArgumentNullException(nameof(orderRepository));
+			}
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var reasons = OrderSingletonRepository.GetInstance().GetDiscountReasons(UoW);
+			var reasons = orderRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
-			
-			var filter = new EmployeeFilterViewModel();
-			filter.Status = EmployeeStatus.IsWorking;
-			filter.Category = EmployeeCategory.office;
+
+			var filter = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking, Category = EmployeeCategory.office
+			};
 			yentryEmployer.RepresentationModel = new EmployeesVM(filter);
 		}
 

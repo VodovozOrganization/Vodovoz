@@ -8,9 +8,11 @@ using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -39,10 +41,15 @@ namespace Vodovoz.Views.Complaints
 			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			spLstComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
 
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
-				var filter = new OrderJournalFilterViewModel();
+				var filter = new OrderJournalFilterViewModel(ViewModel.CounterpartyJournalFactory, ViewModel.DeliveryPointJournalFactory);
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
@@ -50,15 +57,28 @@ namespace Vodovoz.Views.Complaints
 												UnitOfWorkFactory.GetDefaultFactory, 
 												ServicesConfig.CommonServices,
 												ViewModel.EmployeeService,
-												ViewModel.NomenclatureSelectorFactory,
-												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository);
+												ViewModel.UserRepository,
+												ViewModel.OrderSelectorFactory,
+												ViewModel.EmployeeJournalFactory,
+												ViewModel.CounterpartyJournalFactory,
+												ViewModel.DeliveryPointJournalFactory,
+												ViewModel.SubdivisionJournalFactory,
+												ViewModel.GtkDialogsOpener,
+												ViewModel.UndeliveredOrdersJournalOpener,
+												ViewModel.NomenclatureSelector,
+												ViewModel.UndeliveredOrdersRepository);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
+			
+			if(ViewModel.UserHasOnlyAccessToWarehouseAndComplaints)
+			{
+				entryCounterparty.CanEditReference = entryOrder.CanEditReference = false;
+			}
 
 			yentryPhone.Binding.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();

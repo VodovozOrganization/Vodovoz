@@ -14,8 +14,9 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using VodovozInfrastructure.Interfaces;
 using QS.Project.Services;
-using Vodovoz.Repository.Cash;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
@@ -39,13 +40,15 @@ namespace Vodovoz
 		{
 			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
 			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
-				ExcludedIds = CategoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
+				ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
 			
 			var commonServices = ServicesConfig.CommonServices;
 			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
 			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			var employeeJournalFactory = new EmployeeJournalFactory();
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			
 			var incomeCategoryAutocompleteSelectorFactory =
 				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
@@ -59,14 +62,18 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									commonServices,
 									chooserIncomeProvider,
-									incomeCategoryFilter
+									incomeCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								node => new IncomeCategoryViewModel(
 									EntityUoWBuilder.ForOpen(node.Id),
 									UnitOfWorkFactory.GetDefaultFactory,
 									commonServices,
 									chooserIncomeProvider,
-									incomeCategoryFilter
+									incomeCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								UnitOfWorkFactory.GetDefaultFactory,
 								commonServices
@@ -90,14 +97,18 @@ namespace Vodovoz
 									UnitOfWorkFactory.GetDefaultFactory,
 									ServicesConfig.CommonServices,
 									chooserExpenseProvider,
-									expenseCategoryFilter
+									expenseCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								node => new ExpenseCategoryViewModel(
 									EntityUoWBuilder.ForOpen(node.Id),
 									UnitOfWorkFactory.GetDefaultFactory,
 									ServicesConfig.CommonServices,
 									chooserExpenseProvider,
-									expenseCategoryFilter
+									expenseCategoryFilter,
+									employeeJournalFactory,
+									subdivisionJournalFactory
 								),
 								UnitOfWorkFactory.GetDefaultFactory,
 								ServicesConfig.CommonServices

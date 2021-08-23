@@ -141,6 +141,30 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			return selectedValues;
 		}
 
+		/// <summary>
+		/// Возвращает выбранные параметры. Если фильтр в Exclude - вернет все, кроме выбранных параметров
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public IEnumerable<SelectableParameter> GetIncludedParameters()
+		{
+			var selectedValues = OutputParameters.SelectMany(x => x.GetAllSelected()).ToList();
+			IEnumerable<SelectableParameter> includedValues;
+			switch (FilterType)
+			{
+				case SelectableFilterType.Include:
+					includedValues = selectedValues;
+					break;
+				case SelectableFilterType.Exclude:
+					includedValues = OutputParameters.Where(x => !selectedValues.Select(sv => sv.Value).Contains(x.Value));
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			return includedValues;
+		}
+
 		public Dictionary<string, object> GetParameters()
 		{
 			Dictionary<string, object> result = new Dictionary<string, object>();

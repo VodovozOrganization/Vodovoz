@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Parameters;
-using NomenclatureRepository = Vodovoz.Repositories.NomenclatureRepository;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools
 {
 	public class WaterFixedPriceGenerator
 	{
-		IUnitOfWork uow;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		decimal priceIncrement;
+		private readonly IUnitOfWork _uow;
+		private readonly decimal _priceIncrement;
 
-		public WaterFixedPriceGenerator(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
+		public WaterFixedPriceGenerator(IUnitOfWork uow, INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
-			this.uow = uow;
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_uow = uow;
+
+			if(nomenclatureParametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			}
+			
 			SemiozeriePrice = 0m;
-			priceIncrement = GetWaterPriceIncrement();
-			SemiozerieWater = nomenclatureRepository.GetWaterSemiozerie(uow);
-			RuchkiWater = nomenclatureRepository.GetWaterRuchki(uow);
-			KislorodnayaWater = nomenclatureRepository.GetWaterKislorodnaya(uow);
-			SnyatogorskayaWater = nomenclatureRepository.GetWaterSnyatogorskaya(uow);
-			KislorodnayaDeluxeWater = nomenclatureRepository.GetWaterKislorodnayaDeluxe(uow);
+			_priceIncrement = nomenclatureParametersProvider.GetWaterPriceIncrement;
+			SemiozerieWater = nomenclatureParametersProvider.GetWaterSemiozerie(uow);
+			RuchkiWater = nomenclatureParametersProvider.GetWaterRuchki(uow);
+			KislorodnayaWater = nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
+			SnyatogorskayaWater = nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
+			KislorodnayaDeluxeWater = nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
 		}
 
 		private Nomenclature SemiozerieWater;
@@ -47,9 +48,9 @@ namespace Vodovoz.Tools
 				if(SemiozeriePrice <= 0m) {
 					return 0m;
 				}
-				return SemiozeriePrice + priceIncrement;
+				return SemiozeriePrice + _priceIncrement;
 			}
-			set { SemiozeriePrice = value - priceIncrement; }
+			set { SemiozeriePrice = value - _priceIncrement; }
 		}
 
 		private Nomenclature SnyatogorskayaWater;
@@ -58,10 +59,10 @@ namespace Vodovoz.Tools
 				if(SemiozeriePrice <= 0m) {
 					return 0m;
 				}
-				return SemiozeriePrice + priceIncrement * 2;
+				return SemiozeriePrice + _priceIncrement * 2;
 
 			}
-			set { SemiozeriePrice = value - priceIncrement * 2; }
+			set { SemiozeriePrice = value - _priceIncrement * 2; }
 		}
 
 		private Nomenclature KislorodnayaDeluxeWater;
@@ -70,9 +71,9 @@ namespace Vodovoz.Tools
 				if(SemiozeriePrice <= 0m) {
 					return 0m;
 				}
-				return SemiozeriePrice + priceIncrement * 3;
+				return SemiozeriePrice + _priceIncrement * 3;
 			}
-			set { SemiozeriePrice = value - priceIncrement * 3; }
+			set { SemiozeriePrice = value - _priceIncrement * 3; }
 		}
 		
 		/// <summary>
@@ -99,7 +100,7 @@ namespace Vodovoz.Tools
 			} else if(baseNomenclatureId == KislorodnayaDeluxeWater.Id) {
 				KislorodnayaDeluxePrice = price;
 			} else {
-				var basedNomenclature = uow.GetById<Nomenclature>(baseNomenclatureId);
+				var basedNomenclature = _uow.GetById<Nomenclature>(baseNomenclatureId);
 				if(basedNomenclature != null) {
 					result.Add(CreateNomenclatureFixedPrice(basedNomenclature, price));
 				}
@@ -120,14 +121,6 @@ namespace Vodovoz.Tools
 			nomenclatureFixedPrice.Nomenclature = nomenclature;
 			nomenclatureFixedPrice.Price = price;
 			return nomenclatureFixedPrice;
-		}
-
-		private decimal GetWaterPriceIncrement()
-		{
-			var waterPriceParam = "water_price_increment";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(waterPriceParam))
-				throw new InvalidProgramException("В параметрах базы не настроено значение инкремента для цен на воду");
-			return decimal.Parse(SingletonParametersProvider.Instance.GetParameterValue(waterPriceParam));
 		}
 	}
 }

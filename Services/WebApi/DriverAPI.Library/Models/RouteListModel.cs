@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 
@@ -26,12 +27,12 @@ namespace DriverAPI.Library.Models
 			IEmployeeRepository employeeRepository,
 			IUnitOfWork unitOfWork)
 		{
-			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this._routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			this._routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			this._routeListConverter = routeListConverter ?? throw new ArgumentNullException(nameof(routeListConverter));
-			this._employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_routeListConverter = routeListConverter ?? throw new ArgumentNullException(nameof(routeListConverter));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		/// <summary>
@@ -42,9 +43,9 @@ namespace DriverAPI.Library.Models
 		public RouteListDto Get(int routeListId)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
-				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
+				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист { routeListId } не найден");
 
-			return _routeListConverter.convertToAPIRouteList(routeList);
+			return _routeListConverter.convertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId));
 		}
 
 		/// <summary>
@@ -61,11 +62,11 @@ namespace DriverAPI.Library.Models
 			{
 				try
 				{
-					routeLists.Add(_routeListConverter.convertToAPIRouteList(routelist));
+					routeLists.Add(_routeListConverter.convertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id)));
 				}
 				catch (ConverterException e)
 				{
-					_logger.LogWarning(e, $"Ошибка конвертирования маршрутного листа {routelist.Id}");
+					_logger.LogWarning(e, $"Ошибка конвертирования маршрутного листа { routelist.Id }");
 				}
 			}
 
@@ -85,7 +86,7 @@ namespace DriverAPI.Library.Models
 			return _routeListRepository.GetDriverRouteListsIds(
 					_unitOfWork,
 					driver,
-					Vodovoz.Domain.Logistic.RouteListStatus.EnRoute
+					RouteListStatus.EnRoute
 				);
 		}
 
@@ -113,6 +114,27 @@ namespace DriverAPI.Library.Models
 		{
 			return _employeeRepository.GetEmployeePushTokenByOrderId(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
+		}
+
+		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId)
+		{
+			if(routeListAddressId <= 0)
+			{
+				throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Идентификатор адреса МЛ не может быть меньше или равен нулю");
+			}
+
+			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
+				?? throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
+
+			if(routeListAddress.Status == RouteListItemStatus.Transfered)
+			{
+				throw new InvalidOperationException("Перенесенный адрес нельзя вернуть в путь");
+			}
+
+			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.EnRoute);
+
+			_unitOfWork.Save(routeListAddress);
+			_unitOfWork.Commit();
 		}
 	}
 }

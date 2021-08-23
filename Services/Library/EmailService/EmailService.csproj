@@ -72,6 +72,10 @@
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Report\QS.Report.csproj">
       <Project>{d30a23bf-c5dc-4a1b-95fc-9c2038d46e8e}</Project>
       <Name>QS.Report</Name>

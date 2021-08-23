@@ -9,13 +9,16 @@ using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using QS.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.JournalFilters;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -32,6 +35,9 @@ namespace Vodovoz
 		private readonly bool canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 
 		protected decimal Debt {
 			get {
@@ -75,14 +81,15 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<AdvanceReport>();
-			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission =
+				permissionService.ValidateUserPermission(typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId);
 			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
@@ -113,7 +120,8 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			var userPermission =
+				permissionService.ValidateUserPermission(typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;
@@ -121,8 +129,11 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			canEditRectroactively = permmissionValidator.Validate(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			canEditRectroactively =
+				permmissionValidator.Validate(
+					typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
@@ -145,13 +156,17 @@ namespace Vodovoz
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
 			}
 
-			var filterEmployee = new EmployeeFilterViewModel();
-			filterEmployee.Status = EmployeeStatus.IsWorking;
+			var filterEmployee = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
 
-			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.Status = EmployeeStatus.IsWorking;
+			var filterCasher = new EmployeeRepresentationFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 
@@ -196,7 +211,7 @@ namespace Vodovoz
 
 		private void UpdateExpenseCategories()
 		{
-			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories(UoW);
+			comboExpense.ItemsList = _categoryRepository.ExpenseCategories(UoW);
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
@@ -302,15 +317,14 @@ namespace Vodovoz
 			logger.Info("Получаем долг {0}...", Entity.Accountable.ShortName);
 			//Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
 
-			var advaces = 
-				Repository.Cash.AccountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, 
-					Entity.Organisation?.Id);
+			var advances =
+				_accountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, Entity.Organisation?.Id);
 
-			Debt = advaces.Sum(a => a.UnclosedMoney);
+			Debt = advances.Sum(a => a.UnclosedMoney);
 
 			advanceList = new List<RecivedAdvance>();
 
-			advaces.ToList().ForEach(adv => advanceList.Add(new RecivedAdvance(adv)));
+			advances.ToList().ForEach(adv => advanceList.Add(new RecivedAdvance(adv)));
 			advanceList.ForEach(i => i.SelectChanged += I_SelectChanged);
 			ytreeviewDebts.ItemsDataSource = advanceList;
 

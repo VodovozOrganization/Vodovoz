@@ -5,13 +5,13 @@ using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz.ViewModel
 {
+	[Obsolete("Следует использовать новые журналы номенклатур, для deliverypoint есть пример GetDefaultWaterSelectorFactory")]
 	public class NomenclatureDependsFromVM : RepresentationModelEntityBase<Nomenclature, NomenclatureDependsFromVMNode>
 	{
 

@@ -13,6 +13,7 @@ namespace Vodovoz.Views.Organization
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SubdivisionView : TabViewBase<SubdivisionViewModel>
 	{
+		
 		public SubdivisionView(SubdivisionViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
@@ -59,10 +60,15 @@ namespace Vodovoz.Views.Organization
 			ytreeviewDocuments.Binding.AddBinding(ViewModel.Entity, e => e.ObservableDocumentTypes, w => w.ItemsDataSource).InitializeFromSource();
 
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
+			
 			if(ViewModel.Entity.Id > 0)
-				lblWarehouses.Text = ViewModel.Entity.GetWarehousesNames(ViewModel.UoW);
+			{
+				lblWarehouses.Text = ViewModel.Entity.GetWarehousesNames(ViewModel.UoW, ViewModel.SubdivisionRepository);
+			}
 			else
+			{
 				frmWarehoses.Visible = false;
+			}
 
 			vboxDocuments.Visible = ViewModel.CurrentUser.IsAdmin;
 			widgetcontainerview2.Visible = ViewModel.CurrentUser.IsAdmin;
@@ -81,6 +87,10 @@ namespace Vodovoz.Views.Organization
 
             widgetcontainerview3.Binding.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel).InitializeFromSource();
 			widgetcontainerview2.Binding.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel).InitializeFromSource();
+
+			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(ViewModel.SalesPlanSelectorFactory);
+			entryDefaultSalesPlan.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
+			entryDefaultSalesPlan.CanEditReference = false;
 		}
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)

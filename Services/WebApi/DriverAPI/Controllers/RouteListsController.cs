@@ -16,18 +16,18 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class RouteListsController : ControllerBase
 	{
-		private readonly IRouteListModel aPIRouteListData;
-		private readonly IOrderModel aPIOrderData;
-		private readonly UserManager<IdentityUser> userManager;
+		private readonly IRouteListModel _aPIRouteListData;
+		private readonly IOrderModel _aPIOrderData;
+		private readonly UserManager<IdentityUser> _userManager;
 
 		public RouteListsController(
 			IRouteListModel aPIRouteListData,
 			IOrderModel aPIOrderData,
 			UserManager<IdentityUser> userManager)
 		{
-			this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
-			this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
-			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
+			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
 		/// <summary>
@@ -40,16 +40,23 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteListsDetails")]
 		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
-			var routeLists = aPIRouteListData.Get(routeListsIds);
+			var routeLists = _aPIRouteListData.Get(routeListsIds);
 			var ordersIds = routeLists.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
 
-			var orders = aPIOrderData.Get(ordersIds.ToArray());
+			var orders = _aPIOrderData.Get(ordersIds.ToArray());
+
+			var resortedOrders = new List<OrderDto>();
+
+			foreach(var orderId in ordersIds)
+			{
+				resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
+			}
 
 			return new GetRouteListsDetailsResponseDto()
 			{
 				RouteLists = routeLists,
-				Orders = orders
+				Orders = resortedOrders
 			};
 		}
 
@@ -64,7 +71,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteList")]
 		public RouteListDto Get(int routeListId)
 		{
-			return aPIRouteListData.Get(routeListId);
+			return _aPIRouteListData.Get(routeListId);
 		}
 
 		/// <summary>
@@ -75,10 +82,22 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteListsIds")]
 		public async Task<IEnumerable<int>> GetIds()
 		{
-			var user = await userManager.GetUserAsync(User);
-			var userName = await userManager.GetUserNameAsync(user);
+			var user = await _userManager.GetUserAsync(User);
+			var userName = await _userManager.GetUserNameAsync(user);
 
-			return aPIRouteListData.GetRouteListsIdsForDriverByAndroidLogin(userName);
+			return _aPIRouteListData.GetRouteListsIdsForDriverByAndroidLogin(userName);
+		}
+
+		/// <summary>
+		/// Эндпоинт возвращения адреса МЛ в Путь
+		/// </summary>
+		/// <param name="routelistAddressId">идентификатор адреса МЛ</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
+		public async Task RollbackRouteListAddressStatusEnRoute([FromBody]int routelistAddressId)
+		{
+			_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(routelistAddressId);
 		}
 	}
 }

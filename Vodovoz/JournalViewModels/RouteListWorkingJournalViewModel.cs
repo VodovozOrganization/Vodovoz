@@ -12,16 +12,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
@@ -148,6 +151,19 @@ namespace Vodovoz.JournalViewModels
             }
 
             #endregion
+
+            if(FilterViewModel.ShowDriversWithTerminal)
+            {
+	            DriverAttachedTerminalDocumentBase baseAlias = null;
+	            DriverAttachedTerminalGiveoutDocument giveoutAlias = null;
+	            var baseQuery = QueryOver.Of(() => baseAlias)
+		            .Where(doc => doc.Driver.Id == routeListAlias.Driver.Id)
+		            .And(doc => doc.CreationDate.Date <= routeListAlias.Date)
+		            .Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
+	            var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
+		            .Select(doc => doc.Driver.Id);
+	            query.WithSubquery.WhereProperty(rl => rl.Driver.Id).In(giveoutQuery);
+            }
 
             switch (FilterViewModel.TransportType)
             {
@@ -276,8 +292,8 @@ namespace Vodovoz.JournalViewModels
             var callTaskWorker = new CallTaskWorker(
                     CallTaskSingletonFactory.GetInstance(),
                     callTaskRepository,
-                    OrderSingletonRepository.GetInstance(),
-                    EmployeeSingletonRepository.GetInstance(),
+                    new OrderRepository(),
+                    new EmployeeRepository(),
                     baseParametersProvider,
                     commonServices.UserService,
                     SingletonErrorReporter.Instance);
@@ -343,9 +359,11 @@ namespace Vodovoz.JournalViewModels
                                 RouteList,
                                 commonServices,
                                 subdivisionRepository,
-                                EmployeeSingletonRepository.GetInstance(),
+                                new EmployeeRepository(),
                                 fuelRepository,
-                                NavigationManagerProvider.NavigationManager
+                                NavigationManagerProvider.NavigationManager,
+                                new TrackRepository(),
+                                new CategoryRepository(new ParametersProvider())
                             )
                         );
                     }

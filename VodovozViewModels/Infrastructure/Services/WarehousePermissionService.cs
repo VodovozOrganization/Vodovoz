@@ -30,7 +30,7 @@ namespace Vodovoz.Services.Permissions
 
 		public IWarehousePermissionValidator GetValidator(IUnitOfWork uow, int userId)
 		{
-			var repository = EmployeeSingletonRepository.GetInstance();
+			var repository = new EmployeeRepository();
 			var employee = repository.GetEmployeeForCurrentUser(uow);
 			return WarehousePermissionValidatorFactory.CreateValidator(employee.Subdivision);
 		}

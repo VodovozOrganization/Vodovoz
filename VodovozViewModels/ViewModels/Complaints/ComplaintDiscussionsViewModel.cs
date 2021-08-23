@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -11,18 +12,24 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		private readonly ITdiTab dialogTab;
-		private readonly IFilePickerService filePickerService;
-		private readonly IEmployeeService employeeService;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly ITdiTab _dialogTab;
+		private readonly IFilePickerService _filePickerService;
+		private readonly IEmployeeService _employeeService;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly IUserRepository _userRepository;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
@@ -31,13 +38,19 @@ namespace Vodovoz.ViewModels.Complaints
 			IFilePickerService filePickerService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			IUserRepository userRepository
 		) : base(entity, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			UoW = uow;
 			CreateCommands();
@@ -78,10 +91,16 @@ namespace Vodovoz.ViewModels.Complaints
 		private ComplaintDiscussionViewModel GetDiscussionViewModel(ComplaintDiscussion complaintDiscussion)
 		{
 			int subdivisionId = complaintDiscussion.Subdivision.Id;
-			if(viewModelsCache.ContainsKey(subdivisionId)) {
+			
+			if(viewModelsCache.ContainsKey(subdivisionId))
+			{
 				return viewModelsCache[subdivisionId];
 			}
-			var viewModel = new ComplaintDiscussionViewModel(complaintDiscussion, filePickerService, employeeService, CommonServices, UoW);
+			
+			var viewModel =
+				new ComplaintDiscussionViewModel(
+					complaintDiscussion, _filePickerService, _employeeService, CommonServices, UoW, _userRepository);
+			
 			viewModelsCache.Add(subdivisionId, viewModel);
 			return viewModel;
 		}
@@ -99,6 +118,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateCommands()
 		{
 			CreateAttachSubdivisionCommand();
+			CreateAttachSubdivisionByComplaintKindCommand();
 		}
 
 		#region AttachSubdivisionCommand
@@ -117,7 +137,9 @@ namespace Vodovoz.ViewModels.Complaints
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						employeeSelectorFactory
+						_employeeSelectorFactory,
+						_salesPlanJournalFactory,
+						_nomenclatureSelectorFactory
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};
@@ -129,7 +151,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Subdivision subdivision = UoW.GetById<Subdivision>(selectedNode.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
-					dialogTab.TabParent.AddSlaveTab(dialogTab, subdivisionSelector);
+					_dialogTab.TabParent.AddSlaveTab(_dialogTab, subdivisionSelector);
 				},
 				() => CanAttachSubdivision
 			);
@@ -137,6 +159,48 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		#endregion AttachSubdivisionCommand
+
+		#region AttachSubdivisionByComplaintKindCommand
+
+		public DelegateCommand AttachSubdivisionByComplaintKindCommand { get; private set; }
+
+		private void CreateAttachSubdivisionByComplaintKindCommand()
+		{
+			AttachSubdivisionByComplaintKindCommand = new DelegateCommand(
+				() =>
+				{
+					if(Entity.ComplaintKind == null)
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Не выбран вид рекламаций");
+						return;
+					}
+
+					if(!Entity.ComplaintKind.Subdivisions.Any())
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+							$"У вида рекламации {Entity.ComplaintKind.Name} отсутствуют подключаемые отделы.");
+						return;
+					}
+
+					string subdivisionString = string.Join(", ", Entity.ComplaintKind.Subdivisions.Select(s => s.Name));
+
+					if(CommonServices.InteractiveService.Question(
+						$"Будут подключены следующие отделы: { subdivisionString }.",
+						"Подключить?")
+					)
+					{
+						foreach(var subdivision in Entity.ComplaintKind.Subdivisions)
+						{
+							Entity.AttachSubdivisionToDiscussions(subdivision);
+						}
+					}
+				},
+				() => CanAttachSubdivision
+			);
+			AttachSubdivisionByComplaintKindCommand.CanExecuteChangedWith(this, x => x.CanAttachSubdivision);
+		}
+
+		#endregion AttachSubdivisionByComplaintKindCommand
 
 		#endregion Commands
 	}

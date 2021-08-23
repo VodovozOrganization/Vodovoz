@@ -8,11 +8,12 @@ using QS.Tdi;
 using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -20,6 +21,11 @@ namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveredOrderDlg : QS.Dialog.Gtk.SingleUowTabBase, ITdiTabAddedNotifier
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
 		UndeliveredOrder UndeliveredOrder { get; set; }
@@ -31,9 +37,9 @@ namespace Vodovoz.Dialogs
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
+						_orderRepository,
+						_employeeRepository,
+						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -47,13 +53,14 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
-			UndeliveredOrder.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			UndeliveredOrder.EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			UndeliveredOrder.Author = UndeliveredOrder.EmployeeRegistrator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+
 			if(UndeliveredOrder.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
 				return;
 			}
+			
 			TabName = "Новый недовоз";
 			UndeliveredOrder.TimeOfCreation = DateTime.Now;
 			ConfigureDlg();
@@ -103,7 +110,7 @@ namespace Vodovoz.Dialogs
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 			if(UndeliveredOrder.Id == 0) {
-				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, new BaseParametersProvider(), CallTaskWorker);
+				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
 			undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
@@ -130,17 +137,29 @@ namespace Vodovoz.Dialogs
 		{
 			if(UndeliveredOrder.Id > 0)
 				return true;
-			var otherUndelivery = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
+			var otherUndelivery =
+				_undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
 			if(otherUndelivery == null)
 				return true;
-			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, UndeliveredOrder.GetUndeliveryInfo());
+			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, UndeliveredOrder.GetUndeliveryInfo(_orderRepository));
 			return false;
 		}
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			Save();
+			if(Save() && UndeliveredOrder.NewOrder != null
+			          && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved 
+			          && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
+			{
+				ProcessSmsNotification();
+			}
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+		}
+	
+		private void ProcessSmsNotification()
+		{
+			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
+			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)

@@ -33,7 +33,7 @@ namespace Vodovoz.Core
 			var userId = ServicesConfig.UserService.CurrentUserId;
 			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(userId))
 			{
-				var employee = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(uow);
+				var employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
 				var subdivision = employee.Subdivision;
 				permissions = uow.Session.QueryOver<WarehousePermission>().Where(x=>(x.Subdivision.Id == subdivision.Id || x.User.Id == userId) && x.ValuePermission == true).List().ToList();
 			}

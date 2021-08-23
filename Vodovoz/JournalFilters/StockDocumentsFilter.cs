@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
@@ -8,7 +9,9 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -22,9 +25,19 @@ namespace Vodovoz
 			
 			var storeDocument = new StoreDocumentHelper();
 			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery();
+
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			{
+				yentryrefWarehouse.Sensitive = yentryrefWarehouse.CanEditReference = false;
+			}
+			
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			{
 				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-			var filter = new EmployeeFilterViewModel();
+			}
+
+			var filter = new EmployeeRepresentationFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking

@@ -15,7 +15,7 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class PushNotificationsController : ControllerBase
 	{
-		private readonly ILogger<PushNotificationsController> logger;
+		private readonly ILogger<PushNotificationsController> _logger;
 		private readonly UserManager<IdentityUser> userManager;
 		private readonly IRouteListModel aPIRouteListData;
 		private readonly IFCMAPIHelper iFCMAPIHelper;
@@ -28,7 +28,7 @@ namespace DriverAPI.Controllers
 			IFCMAPIHelper iFCMAPIHelper,
 			IEmployeeModel employeeData)
 		{
-			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			this.iFCMAPIHelper = iFCMAPIHelper ?? throw new ArgumentNullException(nameof(iFCMAPIHelper));
@@ -70,7 +70,8 @@ namespace DriverAPI.Controllers
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
 			var token = aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-			await iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", "Обновлен статус платежа");
+			_logger.LogInformation($"Sending PUSH message of status changed for order: { orderId }");
+			await iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа { orderId }");
 		}
 	}
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
@@ -12,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.ServiceDialogs.Database
@@ -65,7 +65,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
+			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
 			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures, new RouteListItemRepository(), new CashRepository()));
 			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
 				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",

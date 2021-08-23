@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Gamma.ColumnConfig;
 using System.ComponentModel;
+using Gamma.GtkWidgets;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz
@@ -20,6 +21,9 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListsFilter : RepresentationFilterBase<RouteListsFilter>
 	{
+		private bool _showDriversWithTerminal;
+		private bool _hasAccessToDriverTerminal;
+
 		protected override void ConfigureWithUow()
 		{
 			SetAndRefilterAtOnce(
@@ -39,6 +43,21 @@ namespace Vodovoz
 		public RouteListsFilter()
 		{
 			this.Build();
+
+			_hasAccessToDriverTerminal = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier") ||
+							             ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			checkDriversWithAttachedTerminals.Sensitive = _hasAccessToDriverTerminal;
+			checkDriversWithAttachedTerminals.Toggled += (sender, args) => { ShowDriversWithTerminal = ((yCheckButton)sender).Active; };
+		}
+
+		public bool ShowDriversWithTerminal
+		{
+			get => _showDriversWithTerminal;
+			set
+			{
+				_showDriversWithTerminal = value;
+				OnRefiltered();
+			}
 		}
 
 		public RouteListStatus[] RestrictedStatuses {
@@ -117,7 +136,8 @@ namespace Vodovoz
 
 		private void LoadAddressesTypesDefaults()
 		{
-			var currentUserSettings = UserSingletonRepository.GetInstance().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+			var currentUserSettings = CurrentUserSettings.Settings;
+			
 			foreach(var addressTypeNode in AddressTypes) {
 				switch(addressTypeNode.AddressType) {
 					case AddressType.Delivery:

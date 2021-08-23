@@ -4,18 +4,17 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Validation;
-using QS.Project.Repositories;
 using Vodovoz.DocTemplates;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Dialogs.Employees
@@ -24,6 +23,8 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class CarProxyDlg : QS.Dialog.Gtk.EntityDialogBase<CarProxyDocument>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 
 		public CarProxyDlg()
 		{
@@ -58,7 +59,7 @@ namespace Vodovoz.Dialogs.Employees
 				UpdateStates();
 			};
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel();
+			var filterDefaultForwarder = new EmployeeRepresentationFilterViewModel();
 			filterDefaultForwarder.Status = EmployeeStatus.IsWorking;
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
@@ -125,7 +126,7 @@ namespace Vodovoz.Dialogs.Employees
 				|| !isNewDoc) {
 				return;
 			}
-			templatewidget.AvailableTemplates = Repository.Client.DocTemplateRepository.GetAvailableTemplates(UoW, TemplateType.CarProxy, Entity.Organization);
+			templatewidget.AvailableTemplates = _docTemplateRepository.GetAvailableTemplates(UoW, TemplateType.CarProxy, Entity.Organization);
 			templatewidget.Template = templatewidget.AvailableTemplates.FirstOrDefault();
 		}
 
