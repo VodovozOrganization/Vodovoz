@@ -206,7 +206,10 @@ namespace Vodovoz.JournalViewModels
 
 			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
-			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
+			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
+				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
@@ -317,11 +320,7 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel.GeographicGroup != null)
 			{
-				query
-					.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-					.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
-					.Where(o => !o.SelfDelivery).And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(o => !o.SelfDelivery).And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -349,28 +348,15 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
-
-			if(FilterViewModel.GeographicGroup != null)
-			{
-				query
+			
+			query
 					.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 					.Left.JoinAlias(o => o.Author, () => authorAlias)
 					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 					.Left.JoinAlias(o => o.Contract, () => contractAlias);
-			}
-			else
-			{
-				query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-					.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-					.Left.JoinAlias(o => o.Author, () => authorAlias)
-					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-					.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Left.JoinAlias(o => o.Contract, () => contractAlias);
-			}
 
-			query.Where(GetSearchCriterion(
+				query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
 				() => counterpartyAlias.Name,
 				() => deliveryPointAlias.CompiledAddress,
