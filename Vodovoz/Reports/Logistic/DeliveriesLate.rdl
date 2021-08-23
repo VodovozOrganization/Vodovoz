@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -58,12 +58,16 @@ FROM
         LEFT JOIN employees lo_comment_author ON lo_comment_author.id = route_list_addresses.comment_for_fine_author_id
         LEFT OUTER JOIN fines_to_route_list_addresses fine_route_list_adrs on route_list_addresses.id = fine_route_list_adrs.route_list_address_id
         LEFT OUTER JOIN fines fine on fine_route_list_adrs.fine_id = fine.id
-        LEFT OUTER JOIN geographic_groups_to_entities ggte ON ggte.route_list_id = route_lists.id
+        INNER JOIN 
+        (
+            SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
+            WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
+            GROUP BY ggte.route_list_id
+        ) AS gg ON gg.route_list_id = route_lists.id
 WHERE
     route_lists.`date` BETWEEN @start_date AND @end_date
   AND route_list_addresses.status = 'Completed'
   AND employees.visiting_master = 0
-  AND (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
 GROUP BY route_list_addresses.id
 HAVING delay &gt; 0;</CommandText>
         <QueryParameters>
@@ -78,7 +82,7 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -140,7 +144,7 @@ LEFT JOIN orders o on route_list_addresses.order_id = o.id
 INNER JOIN 
 (
     SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
-    WHERE (ggte.geographic_group_id = @geographic_group_id OR @geographic_group_id = 0)
+    WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
     GROUP BY ggte.route_list_id
 ) AS gg ON gg.route_list_id = route_list_addresses.route_list_id 
 
@@ -179,9 +183,9 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -1246,7 +1250,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>

@@ -75,8 +75,12 @@ FROM
     cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
         LEFT JOIN
     cars ON cars.id = route_lists.car_id
-        LEFT JOIN
-    geographic_groups_to_entities ggte ON ggte.route_list_id = route_lists.id
+        INNER JOIN 
+    (
+        SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
+        WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
+        GROUP BY ggte.route_list_id
+    ) AS gg ON gg.route_list_id = route_lists.id
 WHERE
         route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
   # скрыть сегодняшние МЛ
@@ -87,7 +91,6 @@ WHERE
   AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
   # скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
   AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'CompanyTruck')) OR @RemMercRLs = 0)
-  AND (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
 GROUP BY routeListId
 ORDER BY routeListDate, routeListId
 ;</CommandText>
@@ -949,7 +952,7 @@ ORDER BY routeListDate, routeListId
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="todayRloff">
       <DataType>Boolean</DataType>
       <DefaultValue>
