@@ -64,29 +64,29 @@ namespace Vodovoz.Reports
 		{
 			var info =
 				"<b>1.</b> Подсчет продаж ведется на основе заказов. В отчете учитываются заказы со статусами:" +
-				$"\n\t'{OrderStatus.Accepted.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.InTravelList.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.OnLoading.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.OnTheWay.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.Shipped.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.Closed.GetEnumTitle()}' ИЛИ" +
-				$"\n\t'{OrderStatus.WaitForPayment.GetEnumTitle()}' И заказ - самовывоз с оплатой после отгрузки." +
+				$"\n\t'{OrderStatus.Accepted.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.InTravelList.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.OnLoading.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.OnTheWay.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.Shipped.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.Closed.GetEnumTitle()}'" +
+				$"\n\t'{OrderStatus.WaitForPayment.GetEnumTitle()}' и заказ - самовывоз с оплатой после отгрузки." +
 				"\nВ отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту." +
-				"\nФильтр по дате отсекает заказы по принципу: начальная дата &gt;= дата доставки заказа =&lt; конечная дата." +
+				"\nФильтр по дате отсекает заказы, если дата доставки не входит в выбранный период." +
 
 				"\n\n<b>2.</b> Подсчет тары ведется следующим образом:" +
 				"\n\tПлановое значение - сумма бутылей на возврат попавших в отчет заказов;" +
 				"\n\tФактическое значение - сумма фактически возвращенных бутылей по адресам маршрутного листа." +
-				"\n\t\tФактическое значение возвращенных бутылей по адресу зависит от того, доставлен заказ или нет:" +
-				"\n\t\t\t <b>*</b> Если да - берется кол-во бутылей, которое по факту забрал водитель. " +
+				"\n\t\tФактическое значение возвращенных бутылей по адресу зависит от того, доставлен<b>(*)</b> заказ или нет:" +
+				"\n\t\t\t <b>-</b> Если да - берется кол-во бутылей, которое по факту забрал водитель. " +
 				"Это кол-во может быть вручную указано при закрытии МЛ;" +
 
-				"\n\t\t\t <b>*</b> Если не доставлен - берется кол-во бутылей на возврат из заказа;" +
-				"\n\t\t\t <b>*</b> Если заказ является самовывозом - берется значение возвращенной тары, указанное в отпуске самовывоза;" +
-				$"\n\t\t\t <b>-</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' ИЛИ " +
-				$"'{RouteListItemStatus.EnRoute.GetEnumTitle()}' И статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' " +
-				$"либо '{RouteListStatus.OnClosing.GetEnumTitle()}'." +
+				"\n\t\t\t <b>-</b> Если не доставлен - берется кол-во бутылей на возврат из заказа;" +
+				"\n\t\t\t <b>-</b> Если заказ является самовывозом - берется значение возвращенной тары, указанное в отпуске самовывоза;" +
+				$"\n\t\t <b>*</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' или " +
+				$"'{RouteListItemStatus.EnRoute.GetEnumTitle()}' и статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' " +
+				$"или '{RouteListStatus.OnClosing.GetEnumTitle()}'." +
 				"\n\nДетальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
