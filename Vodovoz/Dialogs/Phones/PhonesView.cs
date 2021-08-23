@@ -69,11 +69,12 @@ namespace Vodovoz.Dialogs.Phones
 			var phoneDataEntry = new yValidatedEntry();
 			phoneDataEntry.ValidationMode = ValidationType.phone;
 			phoneDataEntry.Tag = newPhone;
+			phoneDataEntry.WidthRequest = 125;
 			phoneDataEntry.WidthChars = 19;
 			phoneDataEntry.Binding.AddBinding(newPhone, e => e.Number, w => w.Text).InitializeFromSource();
 			phoneDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(phoneDataEntry);
-			hBox.SetChildPacking(phoneDataEntry,true,true,0,PackType.Start);
+			hBox.SetChildPacking(phoneDataEntry, false, false, 0, PackType.Start);
 
 			HandsetView handset = new HandsetView(newPhone.DigitsNumber);
 			hBox.Add(handset);
