@@ -85,13 +85,13 @@ namespace Vodovoz.Domain.Orders
 
 	public enum OrderAddressType
 	{
-		[Display(Name = "Тип адреса: Обычная доставка.")]
+		[Display(Name = "Обычная доставка.")]
 		Delivery,
-		[Display(Name = "Тип адреса: Сервисное обслуживание.")]
+		[Display(Name = "Сервисное обслуживание.")]
 		Service,
-		[Display(Name = "Тип адреса: Сетевой магазин.")]
+		[Display(Name = "Сетевой магазин.")]
 		ChainStore,
-		[Display(Name = "Тип адреса: Складская логистика.")]
+		[Display(Name = "Складская логистика.")]
 		StorageLogistics
 	}
 	
