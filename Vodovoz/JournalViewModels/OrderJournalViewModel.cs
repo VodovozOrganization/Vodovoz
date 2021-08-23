@@ -244,28 +244,18 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
-			if(FilterViewModel.RestrictStartDate != null) 
+			if(FilterViewModel.RestrictStartDate != null)
 			{
-				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
-				{
-					query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
-				}
-				if(FilterViewModel.FilterDateType == OrdersDateFilterType.CreationDate)
-				{
-					query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
-				}
+				 var s1 = FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+					? query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate)
+					: query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) 
+			if(FilterViewModel.RestrictEndDate != null)
 			{
-				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
-				{
-					query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
-				}
-				if(FilterViewModel.FilterDateType == OrdersDateFilterType.CreationDate)
-				{
-					query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
-				}
+				var s2 = FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+					? query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1))
+					: query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -318,15 +308,6 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => !o.SelfDelivery)
 					.And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
-				//Если дата не выбрана - фильтр по части города идет от сегодня - 2 месяца и + неделя
-				if(FilterViewModel.RestrictStartDate == null)
-				{
-					query.Where(o => o.CreateDate >= DateTime.Today.AddMonths(-2));
-				}
-				if(FilterViewModel.RestrictEndDate == null)
-				{
-					query.Where(o => o.CreateDate <= DateTime.Today.AddDays(7));
-				}
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)

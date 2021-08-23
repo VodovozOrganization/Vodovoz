@@ -61,6 +61,8 @@ namespace Vodovoz.Filters.ViewModels
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
+			RestrictStartDate = DateTime.Today.AddMonths(-2);
+			RestrictEndDate = DateTime.Today.AddDays(7);
 		}
 
 		#region Автосвойства
@@ -377,23 +379,7 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual OrdersDateFilterType FilterDateType 
 		{
 			get => _filterDateType;
-			set
-			{
-				if(value == OrdersDateFilterType.CreationDate && (RestrictStartDate == null || RestrictEndDate == null))
-				{
-					RestrictStartDate = DateTime.Today.AddMonths(-2);
-					RestrictEndDate = DateTime.Today.AddDays(7);
-				}
-				else
-				{
-					if(value == OrdersDateFilterType.DeliveryDate)
-					{
-						RestrictStartDate = null;
-						RestrictEndDate = null;
-					}
-				}
-				UpdateFilterField(ref _filterDateType, value);
-			} 
+			set => UpdateFilterField(ref _filterDateType, value);
 		}
 
 	}
