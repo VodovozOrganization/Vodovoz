@@ -137,6 +137,7 @@ using Vodovoz.Views.Flyers;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Views.Permissions;
+using UserView = Vodovoz.Views.Users.UserView;
 
 namespace Vodovoz
 {
