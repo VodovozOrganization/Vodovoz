@@ -50,7 +50,6 @@ namespace Vodovoz.ViewModels
 
 		private DelegateCommand _revertAllocatedSum = null;
 
-
 		public ManualPaymentMatchingViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
