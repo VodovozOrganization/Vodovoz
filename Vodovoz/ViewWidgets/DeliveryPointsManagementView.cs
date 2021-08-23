@@ -91,7 +91,7 @@ namespace Vodovoz
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
 
 			var client = DeliveryPointUoW.Root;
-			var dpViewModel = new DeliveryPointViewModel(client, new UserRepository(), new GtkTabsOpener(),
+			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(),
 				new PhoneRepository(), ContactParametersProvider.Instance,
 				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 				new HousesDataLoader(OsmWorker.GetOsmService()),
@@ -99,7 +99,7 @@ namespace Vodovoz
 				controller,
 				new DeliveryPointRepository(),
 				new DeliveryScheduleSelectorFactory(),
-				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, client);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
 		}

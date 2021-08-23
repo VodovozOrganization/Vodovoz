@@ -97,7 +97,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		#endregion
 
 		public DeliveryPointViewModel(
-			Domain.Client.Counterparty client,
 			IUserRepository userRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IPhoneRepository phoneRepository,
@@ -109,30 +108,19 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
-			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: this(userRepository, gtkTabsOpener, phoneRepository, contactsParameters, citiesDataLoader, streetsDataLoader,
-				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController,
-				deliveryPointRepository, deliveryScheduleSelectorFactory,
-				uowBuilder, unitOfWorkFactory, commonServices)
-		{
-			Entity.Counterparty = client;
-		}
-
-		public DeliveryPointViewModel(
-			IUserRepository userRepository,
-			IGtkTabsOpener gtkTabsOpener,
-			IPhoneRepository phoneRepository,
-			IContactsParameters contactsParameters,
-			ICitiesDataLoader citiesDataLoader,
-			IStreetsDataLoader streetsDataLoader,
-			IHousesDataLoader housesDataLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			IDeliveryPointRepository deliveryPointRepository,
-			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
-			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
+			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(client != null && uowBuilder.IsNewEntity)
+			{
+				Entity.Counterparty = client;
+			}
+			else if(client == null && uowBuilder.IsNewEntity)
+			{
+				throw new ArgumentNullException(nameof(client), @"Нельзя создать точку доставки без указания клиента");
+			}
+
 			if(phoneRepository == null)
 			{
 				throw new ArgumentNullException(nameof(phoneRepository));
@@ -312,20 +300,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public DelegateCommand OpenCounterpartyCommand => _openCounterpartyCommand ?? (_openCounterpartyCommand = new DelegateCommand(
 			() => _gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id),
 			() => Entity.Counterparty != null
-		));
-
-		private DelegateCommand _showJournalCommand;
-
-		public DelegateCommand ShowJournalCommand => _showJournalCommand ?? (_showJournalCommand = new DelegateCommand(
-			() => ((ITdiSliderTab) TabParent).IsHideJournal = false,
-			() => TabParent is ITdiSliderTab
-		));
-
-		private DelegateCommand _hideJournalCommand;
-
-		public DelegateCommand HideJournalCommand => _hideJournalCommand ?? (_hideJournalCommand = new DelegateCommand(
-			() => ((ITdiSliderTab) TabParent).IsHideJournal = true,
-			() => TabParent is ITdiSliderTab
 		));
 
 		#endregion

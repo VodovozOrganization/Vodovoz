@@ -40,7 +40,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private readonly IDeliveryScheduleSelectorFactory _deliveryScheduleSelectorFactory;
 
 		public DeliveryPointByClientJournalViewModel(
-			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
+			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository,
+			IContactsParameters contactsParameters,
 			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory, IDeliveryPointRepository deliveryPointRepository,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
@@ -63,7 +64,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			_streetsLoader = streetsLoader ?? throw new ArgumentNullException(nameof(streetsLoader));
 			_housesLoader = housesLoader ?? throw new ArgumentNullException(nameof(housesLoader));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_nomenclatureSelectorFactory =
+				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_nomenclatureFixedPriceController = nomenclatureFixedPriceController ??
 			                                    throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			_deliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory ??
@@ -108,9 +110,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			if(FilterViewModel?.RestrictOnlyWithoutStreet == true)
 			{
 				query = query.Where(Restrictions.Eq
-					(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Boolean, "IS_NULL_OR_WHITESPACE(?1)"),
-							NHibernateUtil.String, new IProjection[] {Projections.Property(() => deliveryPointAlias.Street)}
-							), true));
+				(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Boolean, "IS_NULL_OR_WHITESPACE(?1)"),
+					NHibernateUtil.String, Projections.Property(() => deliveryPointAlias.Street)), true));
 			}
 
 			query.Where(GetSearchCriterion(
@@ -129,16 +130,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			return resultQuery;
 		};
 
-		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () =>
-			new DeliveryPointViewModel(
-				FilterViewModel.Counterparty,
-				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
-				_citiesLoader, _streetsLoader, _housesLoader,
-				_nomenclatureSelectorFactory,
-				_nomenclatureFixedPriceController,
-				_deliveryPointRepository,
-				_deliveryScheduleSelectorFactory,
-				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () => new DeliveryPointViewModel(
+			_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
+			_citiesLoader, _streetsLoader, _housesLoader,
+			_nomenclatureSelectorFactory,
+			_nomenclatureFixedPriceController,
+			_deliveryPointRepository,
+			_deliveryScheduleSelectorFactory,
+			EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, FilterViewModel.Counterparty);
 
 		protected override Func<DeliveryPointByClientJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
 			new DeliveryPointViewModel(
