@@ -198,9 +198,7 @@ namespace Vodovoz.Views.Client
 				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 			};
 			_vboxMap.Add(_comboMapType);
-			var childCombo = (Box.BoxChild)_vboxMap[_comboMapType];
-			childCombo.Expand = false;
-			childCombo.Fill = false;
+			_vboxMap.SetChildPacking(_comboMapType, false, false, 0, PackType.Start);
 			_vboxMap.Add(_mapWidget);
 			_vboxMap.ShowAll();
 
