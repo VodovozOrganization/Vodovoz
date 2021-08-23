@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
@@ -60,10 +58,12 @@ FROM
         LEFT JOIN employees lo_comment_author ON lo_comment_author.id = route_list_addresses.comment_for_fine_author_id
         LEFT OUTER JOIN fines_to_route_list_addresses fine_route_list_adrs on route_list_addresses.id = fine_route_list_adrs.route_list_address_id
         LEFT OUTER JOIN fines fine on fine_route_list_adrs.fine_id = fine.id
+        LEFT OUTER JOIN geographic_groups_to_entities ggte ON ggte.route_list_id = route_lists.id
 WHERE
     route_lists.`date` BETWEEN @start_date AND @end_date
   AND route_list_addresses.status = 'Completed'
   AND employees.visiting_master = 0
+  AND (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
 GROUP BY route_list_addresses.id
 HAVING delay &gt; 0;</CommandText>
         <QueryParameters>
@@ -72,6 +72,9 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_id">
+            <Value>={?geographic_group_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -127,17 +130,23 @@ HAVING delay &gt; 0;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="k_adresam">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     count(*) as kadresam
 FROM
     route_list_addresses
 LEFT JOIN orders o on route_list_addresses.order_id = o.id
+INNER JOIN 
+(
+    SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
+    WHERE (ggte.geographic_group_id = @geographic_group_id OR @geographic_group_id = 0)
+    GROUP BY ggte.route_list_id
+) AS gg ON gg.route_list_id = route_list_addresses.route_list_id 
 
 WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
     AND delivery_date &gt;= @start_date
-    AND delivery_date &lt;= @end_date;</CommandText>
+    AND delivery_date &lt;= @end_date</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -145,9 +154,12 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="geographic_group_id">
+            <Value>={?geographic_group_id}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="kadresam">
           <DataField>kadresam</DataField>
           <TypeName>System.Int64</TypeName>
@@ -159,14 +171,17 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
     <Height>38.5pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>.1in</Top>
-        <Left>.1in</Left>
-        <Width>6in</Width>
-        <Height>.25in</Height>
-        <Value>="Отчет по опозданиям за период с " +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " +   Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
+        <Top>7.23pt</Top>
+        <Left>7.23pt</Left>
+        <Width>800pt</Width>
+        <Height>18.07pt</Height>
+        <Value>="Отчет по опозданиям за период с " +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " +   Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy" + " (часть города: " + {?geographic_group_name} + ")")</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
+          <BorderStyle  />
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
       </Textbox>
     </ReportItems>
@@ -238,8 +253,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -255,8 +269,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -272,8 +285,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -289,8 +301,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -338,8 +349,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -355,8 +365,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -562,8 +571,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox14">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style>
                             <BorderStyle>
                               <Default>None</Default>
@@ -636,8 +644,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox28">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -654,8 +661,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox23">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -672,8 +678,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox17">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -690,8 +695,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox11">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -708,16 +712,16 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                   </TableCells>
                 </TableRow>
               </TableRows>
-              <RepeatOnNewPage >false</RepeatOnNewPage>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
             </Footer>
             <Grouping Name="driver_idGroup">
               <GroupExpressions>
-                <GroupExpression >=Fields!driver_id.Value</GroupExpression>
+                <GroupExpression>=Fields!driver_id.Value</GroupExpression>
               </GroupExpressions>
-              <PageBreakAtStart >false</PageBreakAtStart>
-              <PageBreakAtEnd >false</PageBreakAtEnd>
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
             </Grouping>
-            <Sorting >
+            <Sorting>
               <SortBy>
                 <SortExpression>=Iif({?is_driver_sort}, {driver_name}, null)</SortExpression>
                 <Direction>Ascending</Direction>
@@ -890,8 +894,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -966,8 +969,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -985,8 +987,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1004,8 +1005,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1023,8 +1023,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1047,8 +1046,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1066,8 +1064,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1087,8 +1084,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1109,8 +1105,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1132,8 +1127,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1155,8 +1149,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1207,8 +1200,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                         <BorderColor />
                         <BorderWidth />
                         <Format>0.00</Format>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1220,7 +1212,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </Table>
     </ReportItems>
     <Height>148.2pt</Height>
-    <Columns >1</Columns>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -1252,8 +1244,8 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
   <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
@@ -1265,8 +1257,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -1278,16 +1269,28 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="is_driver_sort">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_group_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_group_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
