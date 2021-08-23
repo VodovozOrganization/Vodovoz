@@ -370,6 +370,12 @@ namespace Vodovoz.ViewModels
 			SaveViewModelCommand = new DelegateCommand(
 				() =>
 				{
+					if(Entity.Status != PaymentState.undistributed)
+					{
+						ShowWarningMessage("Невозможно распределять платежи не в статусе 'Нераспределен'");
+						return;
+					}
+
 					if(CurrentBalance < 0)
 					{
 						ShowWarningMessage("Остаток не может быть отрицательным!");
@@ -389,7 +395,7 @@ namespace Vodovoz.ViewModels
 			CloseViewModelCommand = new DelegateCommand(
 				() =>
 				{
-					Close(true, QS.Navigation.CloseSource.Cancel);
+					Close(true, CloseSource.Cancel);
 				},
 				() => true
 			);
@@ -477,7 +483,7 @@ namespace Vodovoz.ViewModels
 						return;
 					}
 
-					if(Entity.Status == PaymentState.distributed || Entity.Status == PaymentState.completed)
+					if(Entity.Status != PaymentState.undistributed)
 					{
 						return;
 					}
