@@ -430,6 +430,7 @@ namespace Vodovoz
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
 			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
+			ylabelOrderAddressType.Binding.AddFuncBinding(Entity, e => e.OrderAddressType.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 			ylabelNumber.Binding.AddFuncBinding(Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp).InitializeFromSource();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
@@ -3083,7 +3084,6 @@ namespace Vodovoz
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
-				ylabelOrderAddressType.Text = "Тип адреса: Складская логистика.";
 			}
 		}
 
@@ -3094,7 +3094,6 @@ namespace Vodovoz
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
-				ylabelOrderAddressType.Text = "Тип адреса: Обычная доставка";
 			}
 		}
 
@@ -3109,31 +3108,26 @@ namespace Vodovoz
 				Entity.OrderAddressType = OrderAddressType.Delivery;
 				ybuttonToDeliveryAddressType.Visible = true;
 				ybuttonToStorageLogicAddressType.Visible = false;
-				ylabelOrderAddressType.Text = "Тип адреса: Обычная доставка";
 			}
 			if(Entity.OrderAddressType == OrderAddressType.Delivery)
 			{
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = true;
-				ylabelOrderAddressType.Text = "Тип адреса: Обычная доставка";
 			}
 			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
 				ybuttonToDeliveryAddressType.Visible = true;
 				ybuttonToStorageLogicAddressType.Visible = false;
-				ylabelOrderAddressType.Text = "Тип адреса: Складская логистика.";
 			}
 			else if(Entity.OrderAddressType == OrderAddressType.Service)
 			{
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = false;
-				ylabelOrderAddressType.Text = "Тип адреса: Сервисное обслуживание.";
 			} 
 			else if(Entity.OrderAddressType == OrderAddressType.ChainStore)
 			{
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = false;
-				ylabelOrderAddressType.Text = "Тип адреса: Сетевой магазин.";
 			}
 		}
 
