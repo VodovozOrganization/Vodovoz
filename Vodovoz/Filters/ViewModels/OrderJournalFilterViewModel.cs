@@ -227,30 +227,14 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual DateTime? RestrictCreatedStartDate
 		{
 			get => _restrictCreatedStartDate;
-			set
-			{
-				if(UpdateFilterField(ref _restrictCreatedStartDate, value))
-				{
-					CanChangeCreatedStartDate = false;
-				}
-			}
+			set => UpdateFilterField(ref _restrictCreatedStartDate, value);
 		}
-
-		public bool CanChangeCreatedStartDate { get; private set; } = true;
 
 		public virtual DateTime? RestrictCreatedEndDate
 		{
 			get => _restrictCreatedEndDate;
-			set
-			{
-				if(UpdateFilterField(ref _restrictCreatedEndDate, value))
-				{
-					CanChangeCreatedEndDate = false;
-				}
-			}
+			set => UpdateFilterField(ref _restrictCreatedEndDate, value);
 		}
-
-		public bool CanChangeCreatedEndDate { get; private set; } = true;
 
 		public virtual bool? RestrictLessThreeHours
 		{
@@ -386,20 +370,9 @@ namespace Vodovoz.Filters.ViewModels
 		public GeographicGroup GeographicGroup
 		{
 			get => _geographicGroup;
-			set
-			{
-				if(SetField(ref _geographicGroup, value))
-				{
-					Update();
-				}
-			}
+			set => UpdateFilterField(ref _geographicGroup, value);
 		}
 
-		private void SetDefaultValues()
-		{
-			RestrictHideService = true;
-		}
-		
 	}
 
 	public enum PaymentOrder
