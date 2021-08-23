@@ -52,13 +52,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			dateperiodOrdersCreated.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
-			dateperiodOrdersCreated.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
-			dateperiodOrdersCreated.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.RestrictCreatedStartDate, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.RestrictCreatedEndDate, w => w.EndDateOrNull)
-				.InitializeFromSource();
-
 			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeOnlySelfDelivery, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter())

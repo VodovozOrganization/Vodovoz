@@ -244,32 +244,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
-			if(FilterViewModel.RestrictStartDate != null) {
+			if(FilterViewModel.RestrictStartDate != null) 
+			{
+				//tut if combobox
 				query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) {
+			if(FilterViewModel.RestrictEndDate != null) 
+			{
+				//tut if combobox
 				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
-			}
-
-			if(FilterViewModel.RestrictCreatedStartDate == null)
-			{
-				FilterViewModel.RestrictCreatedStartDate = DateTime.Today.AddMonths(-2);
-			}
-
-			if(FilterViewModel.RestrictCreatedEndDate == null)
-			{
-				FilterViewModel.RestrictCreatedEndDate = DateTime.Today.AddDays(7);
-			}
-			
-			if(FilterViewModel.RestrictCreatedStartDate != null) 
-			{
-				query.Where(o => o.CreateDate >= FilterViewModel.RestrictCreatedStartDate);
-			}
-
-			if(FilterViewModel.RestrictCreatedEndDate != null) 
-			{
-				query.Where(o => o.CreateDate <= FilterViewModel.RestrictCreatedEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -320,7 +304,17 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel.GeographicGroup != null)
 			{
-				query.Where(o => !o.SelfDelivery).And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(o => !o.SelfDelivery)
+					.And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				//FEDOS opisat eto na russkom
+				if(FilterViewModel.RestrictStartDate == null)
+				{
+					query.Where(o => o.CreateDate >= DateTime.Today.AddMonths(-2));
+				}
+				if(FilterViewModel.RestrictEndDate == null)
+				{
+					query.Where(o => o.CreateDate <= DateTime.Today.AddDays(7));
+				}
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)

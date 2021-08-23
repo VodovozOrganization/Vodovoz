@@ -93,7 +93,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
-			this.entryCounterparty.CanEditReference = false;
+			this.entryCounterparty.CanEditReference = true;
 			this.table4.Add(this.entryCounterparty);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table4[this.entryCounterparty]));
 			w1.TopAttach = ((uint)(2));
