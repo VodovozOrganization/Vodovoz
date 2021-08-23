@@ -430,6 +430,7 @@ namespace Vodovoz
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
 			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
+			ylabelOrderAddressType.Binding.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 			ylabelNumber.Binding.AddFuncBinding(Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp).InitializeFromSource();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
@@ -749,6 +750,7 @@ namespace Vodovoz
 			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
 			{
 				UoW.Session.Refresh(Entity.Client);
+				OrderAddressTypeChanged();
 				return;
 			}
 		}
@@ -3074,7 +3076,7 @@ namespace Vodovoz
 
 			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
 		}
-
+		
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderAddressType == OrderAddressType.Delivery 
