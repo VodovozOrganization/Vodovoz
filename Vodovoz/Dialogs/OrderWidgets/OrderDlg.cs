@@ -749,6 +749,7 @@ namespace Vodovoz
 			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
 			{
 				UoW.Session.Refresh(Entity.Client);
+				OrderAddressTypeChanged();
 				return;
 			}
 		}
@@ -3077,76 +3078,63 @@ namespace Vodovoz
 		
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
-			/*if(Entity.OrderAddressType == OrderAddressType.Delivery 
-			   && !Entity.Client.IsChainStore 
-			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
-			{
-				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
-			}*/
-		}
-
-		/*protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
-		{
 			if(Entity.OrderAddressType == OrderAddressType.Delivery 
 			   && !Entity.Client.IsChainStore 
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+				ylabelOrderAddressType.Text = "Тип адреса: Складская логистика.";
 			}
-		}*/
+		}
 
 		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
-		{
-			/*if(Entity.OrderAddressType == OrderAddressType.StorageLogistics 
-			   && !Entity.Client.IsChainStore 
-			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
-			{
-				Entity.OrderAddressType = OrderAddressType.Delivery;
-			}*/
-		}
-		
-		/*protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics 
 			   && !Entity.Client.IsChainStore 
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
+				ylabelOrderAddressType.Text = "Тип адреса: Обычная доставка";
 			}
-		}*/
+		}
 
 		private void OrderAddressTypeChanged()
 		{
-			/*if(Entity.Client != null && Entity.Client.IsChainStore)
+			if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
 			}
 			if(Entity.Client != null && !Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature) && Entity.OrderAddressType != OrderAddressType.StorageLogistics)
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
-				ybuttonToDeliveryAddressType.Sensitive = true;
-				ybuttonToStorageLogicAddressType.Sensitive = false;
+				ybuttonToDeliveryAddressType.Visible = true;
+				ybuttonToStorageLogicAddressType.Visible = false;
+				ylabelOrderAddressType.Text = "Тип адреса: Обычная доставка";
 			}
 			if(Entity.OrderAddressType == OrderAddressType.Delivery)
 			{
-				ybuttonToDeliveryAddressType.Sensitive = false;
-				ybuttonToStorageLogicAddressType.Sensitive = true;
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = true;
+				ylabelOrderAddressType.Text = "Тип адреса: Обычная доставка";
 			}
 			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
-				ybuttonToDeliveryAddressType.Sensitive = true;
-				ybuttonToStorageLogicAddressType.Sensitive = false;
+				ybuttonToDeliveryAddressType.Visible = true;
+				ybuttonToStorageLogicAddressType.Visible = false;
+				ylabelOrderAddressType.Text = "Тип адреса: Складская логистика.";
 			}
 			else if(Entity.OrderAddressType == OrderAddressType.Service)
 			{
-				ybuttonToDeliveryAddressType.Sensitive = false;
-				ybuttonToStorageLogicAddressType.Sensitive = false;
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+				ylabelOrderAddressType.Text = "Тип адреса: Сервисное обслуживание.";
 			} 
 			else if(Entity.OrderAddressType == OrderAddressType.ChainStore)
 			{
-				ybuttonToDeliveryAddressType.Sensitive = false;
-				ybuttonToStorageLogicAddressType.Sensitive = false;
-			}*/
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+				ylabelOrderAddressType.Text = "Тип адреса: Сетевой магазин.";
+			}
 		}
 
 		#endregion FreeRent
