@@ -246,14 +246,26 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.RestrictStartDate != null) 
 			{
-				//tut if combobox
-				query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				{
+					query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+				}
+				if(FilterViewModel.FilterDateType == OrdersDateFilterType.CreationDate)
+				{
+					query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+				}
 			}
 
 			if(FilterViewModel.RestrictEndDate != null) 
 			{
-				//tut if combobox
-				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				{
+					query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+				}
+				if(FilterViewModel.FilterDateType == OrdersDateFilterType.CreationDate)
+				{
+					query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+				}
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -306,7 +318,7 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => !o.SelfDelivery)
 					.And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
-				//FEDOS opisat eto na russkom
+				//Если дата не выбрана - фильтр по части города идет от сегодня - 2 месяца и + неделя
 				if(FilterViewModel.RestrictStartDate == null)
 				{
 					query.Where(o => o.CreateDate >= DateTime.Today.AddMonths(-2));

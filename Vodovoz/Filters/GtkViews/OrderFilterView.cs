@@ -81,6 +81,9 @@ namespace Vodovoz.Filters.GtkViews
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
 			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
+			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
+
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();

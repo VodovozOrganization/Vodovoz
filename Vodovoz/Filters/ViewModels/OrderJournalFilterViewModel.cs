@@ -372,6 +372,29 @@ namespace Vodovoz.Filters.ViewModels
 			get => _geographicGroup;
 			set => UpdateFilterField(ref _geographicGroup, value);
 		}
+		
+		private OrdersDateFilterType _filterDateType = OrdersDateFilterType.DeliveryDate;
+		public virtual OrdersDateFilterType FilterDateType 
+		{
+			get => _filterDateType;
+			set
+			{
+				if(value == OrdersDateFilterType.CreationDate && (RestrictStartDate == null || RestrictEndDate == null))
+				{
+					RestrictStartDate = DateTime.Today.AddMonths(-2);
+					RestrictEndDate = DateTime.Today.AddDays(7);
+				}
+				else
+				{
+					if(value == OrdersDateFilterType.DeliveryDate)
+					{
+						RestrictStartDate = null;
+						RestrictEndDate = null;
+					}
+				}
+				UpdateFilterField(ref _filterDateType, value);
+			} 
+		}
 
 	}
 
@@ -395,6 +418,14 @@ namespace Vodovoz.Filters.ViewModels
 		OrderWSFAP,
 		[Display(Name = "Счета без отгрузки на постоплату")]
 		OrderWSFP
+	}
+	
+	public enum OrdersDateFilterType
+	{
+		[Display(Name = "По доставке:")]
+		DeliveryDate,
+		[Display(Name = "По созданию:")]
+		CreationDate
 	}
 	
 }
