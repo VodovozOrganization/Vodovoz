@@ -55,7 +55,6 @@ namespace Vodovoz.Filters.GtkViews
 			dateperiodOrdersCreated.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
 			dateperiodOrdersCreated.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
 			dateperiodOrdersCreated.Binding.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.CanChangeCreatedStartDate && vm.CanChangeCreatedEndDate, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictCreatedStartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.RestrictCreatedEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
