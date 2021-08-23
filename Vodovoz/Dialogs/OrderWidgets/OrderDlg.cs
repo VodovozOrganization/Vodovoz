@@ -3074,8 +3074,18 @@ namespace Vodovoz
 
 			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
 		}
-
+		
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
+		{
+			/*if(Entity.OrderAddressType == OrderAddressType.Delivery 
+			   && !Entity.Client.IsChainStore 
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+			}*/
+		}
+
+		/*protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderAddressType == OrderAddressType.Delivery 
 			   && !Entity.Client.IsChainStore 
@@ -3083,9 +3093,19 @@ namespace Vodovoz
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
 			}
-		}
+		}*/
 
 		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
+		{
+			/*if(Entity.OrderAddressType == OrderAddressType.StorageLogistics 
+			   && !Entity.Client.IsChainStore 
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				Entity.OrderAddressType = OrderAddressType.Delivery;
+			}*/
+		}
+		
+		/*protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics 
 			   && !Entity.Client.IsChainStore 
@@ -3093,40 +3113,40 @@ namespace Vodovoz
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
 			}
-		}
+		}*/
 
 		private void OrderAddressTypeChanged()
 		{
-			if(Entity.Client != null && Entity.Client.IsChainStore)
+			/*if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
 			}
 			if(Entity.Client != null && !Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature) && Entity.OrderAddressType != OrderAddressType.StorageLogistics)
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
-				ybuttonToDeliveryAddressType.Visible = true;
-				ybuttonToStorageLogicAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Sensitive = true;
+				ybuttonToStorageLogicAddressType.Sensitive = false;
 			}
 			if(Entity.OrderAddressType == OrderAddressType.Delivery)
 			{
-				ybuttonToDeliveryAddressType.Visible = false;
-				ybuttonToStorageLogicAddressType.Visible = true;
+				ybuttonToDeliveryAddressType.Sensitive = false;
+				ybuttonToStorageLogicAddressType.Sensitive = true;
 			}
 			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
-				ybuttonToDeliveryAddressType.Visible = true;
-				ybuttonToStorageLogicAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Sensitive = true;
+				ybuttonToStorageLogicAddressType.Sensitive = false;
 			}
 			else if(Entity.OrderAddressType == OrderAddressType.Service)
 			{
-				ybuttonToDeliveryAddressType.Visible = false;
-				ybuttonToStorageLogicAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Sensitive = false;
+				ybuttonToStorageLogicAddressType.Sensitive = false;
 			} 
 			else if(Entity.OrderAddressType == OrderAddressType.ChainStore)
 			{
-				ybuttonToDeliveryAddressType.Visible = false;
-				ybuttonToStorageLogicAddressType.Visible = false;
-			}
+				ybuttonToDeliveryAddressType.Sensitive = false;
+				ybuttonToStorageLogicAddressType.Sensitive = false;
+			}*/
 		}
 
 		#endregion FreeRent
