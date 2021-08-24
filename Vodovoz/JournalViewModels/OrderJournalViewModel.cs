@@ -335,15 +335,13 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
-			
-			query
-					.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 					.Left.JoinAlias(o => o.Author, () => authorAlias)
 					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 					.Left.JoinAlias(o => o.Contract, () => contractAlias);
-
-				query.Where(GetSearchCriterion(
+			
+			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
 				() => counterpartyAlias.Name,
 				() => deliveryPointAlias.CompiledAddress,
