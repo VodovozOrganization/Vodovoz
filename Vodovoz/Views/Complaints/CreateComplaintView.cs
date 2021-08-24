@@ -8,6 +8,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
@@ -48,28 +49,25 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
-				var filter = new OrderJournalFilterViewModel();
+				var filter = new OrderJournalFilterViewModel(ViewModel.CounterpartyJournalFactory, ViewModel.DeliveryPointJournalFactory);
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
-				return new OrderJournalViewModel(
-					filter, 
-					UnitOfWorkFactory.GetDefaultFactory, 
-					ServicesConfig.CommonServices,
-					ViewModel.EmployeeService,
-					ViewModel.NomenclatureSelectorFactory,
-					ViewModel.CounterpartySelectorFactory,
-					ViewModel.NomenclatureRepository,
-					ViewModel.UserRepository,
-					ViewModel.OrderSelectorFactory,
-					ViewModel.EmployeeJournalFactory,
-					ViewModel.CounterpartyJournalFactory,
-					ViewModel.DeliveryPointJournalFactory,
-					ViewModel.SubdivisionJournalFactory,
-					ViewModel.GtkDialogsOpener,
-					ViewModel.UndeliveredOrdersJournalOpener,
-					ViewModel.UndeliveredOrdersRepository
-				);
+				return new OrderJournalViewModel(filter, 
+												UnitOfWorkFactory.GetDefaultFactory, 
+												ServicesConfig.CommonServices,
+												ViewModel.EmployeeService,
+												ViewModel.NomenclatureRepository,
+												ViewModel.UserRepository,
+												ViewModel.OrderSelectorFactory,
+												ViewModel.EmployeeJournalFactory,
+												ViewModel.CounterpartyJournalFactory,
+												ViewModel.DeliveryPointJournalFactory,
+												ViewModel.SubdivisionJournalFactory,
+												ViewModel.GtkDialogsOpener,
+												ViewModel.UndeliveredOrdersJournalOpener,
+												ViewModel.NomenclatureSelector,
+												ViewModel.UndeliveredOrdersRepository);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

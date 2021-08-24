@@ -345,9 +345,9 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is ISubdivisionService subdivisionService))
+			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionService)) is ISubdivisionService subdivisionService))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(subdivisionService) }");
+				throw new ArgumentNullException($"Не найден сервис { nameof(subdivisionService) }");
 			}
 			
 			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))

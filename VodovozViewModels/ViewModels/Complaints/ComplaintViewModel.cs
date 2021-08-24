@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IFilePickerService _filePickerService;
@@ -38,9 +40,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private DelegateCommand _changeDeliveryPointCommand;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
@@ -54,7 +56,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
@@ -71,12 +72,11 @@ namespace Vodovoz.ViewModels.Complaints
 			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			SalesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -205,7 +205,7 @@ namespace Vodovoz.ViewModels.Complaints
 						EmployeeService,
 						CommonServices,
 						_employeeSelectorFactory,
-						SalesPlanJournalFactory,
+						_salesPlanJournalFactory,
 						NomenclatureSelector,
 						UserRepository
 					);
@@ -430,12 +430,12 @@ namespace Vodovoz.ViewModels.Complaints
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
-		public ISalesPlanJournalFactory SalesPlanJournalFactory { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
 		public INomenclatureSelectorFactory NomenclatureSelector { get; }
 
 		public override void Close(bool askSave, CloseSource source)
 		{
+			_logger.Debug("Вызываем Close()");
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
 				return;
@@ -446,12 +446,19 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override bool Save(bool close)
 		{
+			_logger.Debug("Вызываем Save()");
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
 				return false;
 			}
 			
 			return base.Save(close);
+		}
+
+		public override void Dispose()
+		{
+			_logger.Debug("Вызываем Dispose()");
+			base.Dispose();
 		}
 	}
 }

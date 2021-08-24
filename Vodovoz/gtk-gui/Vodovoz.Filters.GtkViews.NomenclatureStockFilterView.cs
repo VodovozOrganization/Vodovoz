@@ -10,7 +10,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Label label1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry warehouseEntry;
+		private global::Gamma.GtkWidgets.yHBox yhboxWarehouse;
 
 		protected virtual void Build()
 		{
@@ -45,12 +45,11 @@ namespace Vodovoz.Filters.GtkViews
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.warehouseEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.warehouseEntry.Events = ((global::Gdk.EventMask)(256));
-			this.warehouseEntry.Name = "warehouseEntry";
-			this.warehouseEntry.CanEditReference = false;
-			this.table1.Add(this.warehouseEntry);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.warehouseEntry]));
+			this.yhboxWarehouse = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxWarehouse.Name = "yhboxWarehouse";
+			this.yhboxWarehouse.Spacing = 6;
+			this.table1.Add(this.yhboxWarehouse);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxWarehouse]));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));

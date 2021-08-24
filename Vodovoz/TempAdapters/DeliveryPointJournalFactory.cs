@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
@@ -19,11 +20,16 @@ namespace Vodovoz.TempAdapters
 {
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
-		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
+		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
 
 		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
 		{
 			_deliveryPointJournalFilter = deliveryPointJournalFilter;
+		}
+
+		public void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter)
+		{
+			_deliveryPointJournalFilter = filter;
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory()
@@ -34,6 +40,7 @@ namespace Vodovoz.TempAdapters
 					ContactParametersProvider.Instance,
 					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 					new HousesDataLoader(OsmWorker.GetOsmService()),
+					new DeliveryPointRepository(),
 					new NomenclatureSelectorFactory(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 						new WaterFixedPricesGenerator(
@@ -51,6 +58,7 @@ namespace Vodovoz.TempAdapters
 					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
 					new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
+					new DeliveryPointRepository(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 						new WaterFixedPricesGenerator(
 							new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),

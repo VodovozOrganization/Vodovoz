@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Reports.Logistic
 {
-	public partial class DeliveriesLateReport : Gtk.Bin, IParametersWidget
+	public partial class DeliveriesLateReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public DeliveriesLateReport ()
 		{
 			this.Build ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeographicGroup>();
 		}
 
 		#region IParametersWidget implementation
@@ -40,8 +45,10 @@ namespace Vodovoz.Reports.Logistic
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddHours(3) },
-                    { "is_driver_sort", ychkDriverSort.Active }
-                }
+					{ "is_driver_sort", ychkDriverSort.Active },
+					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Id ?? 0 },
+					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Name ?? "Все" }
+				}
 			};
 		}
 

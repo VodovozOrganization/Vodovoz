@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>280mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -1587,11 +1585,11 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
     SUM(wages_movement_operations.money) AS balance,
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1620,7 +1618,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1640,10 +1638,10 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category,
 	IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1667,7 +1665,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1687,10 +1685,10 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1717,7 +1715,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1737,10 +1735,10 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1767,7 +1765,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1822,10 +1820,10 @@ HAVING balance &lt;&gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1851,7 +1849,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1871,10 +1869,10 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="TruckBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1901,7 +1899,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1934,8 +1932,7 @@ ORDER BY driver
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="drivers">
       <DataType>Integer</DataType>
@@ -1947,8 +1944,7 @@ ORDER BY driver
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

@@ -392,6 +392,8 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
+    <Compile Include="Additions\Logistic\RouteListPrintableDocuments.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
@@ -1650,6 +1652,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
+    <Compile Include="Filters\GtkViews\SalaryByEmployeeFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView.cs" />
     <Compile Include="Views\Suppliers\WarehousesBalanceSummaryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
     <Compile Include="Views\Goods\ProductGroupView.cs" />

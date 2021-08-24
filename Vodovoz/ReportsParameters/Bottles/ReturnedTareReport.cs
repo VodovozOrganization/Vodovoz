@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -15,9 +16,11 @@ namespace Vodovoz.ReportsParameters.Bottles
 	public partial class ReturnedTareReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
-		public ReturnedTareReport(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		private readonly IInteractiveService _interactiveService;
+		public ReturnedTareReport(IEntityAutocompleteSelectorFactory employeeSelectorFactory, IInteractiveService interactiveService)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.Build();
 			btnCreateReport.Clicked += (sender, e) => OnUpdate(true);
@@ -26,6 +29,17 @@ namespace Vodovoz.ReportsParameters.Bottles
 			yenumcomboboxDateType.ItemsEnum = typeof(OrderDateType);
 			yenumcomboboxDateType.SelectedItem = OrderDateType.CreationDate;
 			entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
+			buttonHelp.Clicked += OnButtonHelpClicked;
+		}
+
+		private void OnButtonHelpClicked(object sender, EventArgs e)
+		{
+			var info =
+				"В отчёт попадают заказы с учётом выбранных фильтров, а также следующих условий:\n" +
+				"- есть возвращённые бутыли\n" +
+				"- отстуствуют тмц категории \"Вода\" с объёмом тары 19л.";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
 
 		void Daterangepicker_PeriodChangedByUser(object sender, EventArgs e) =>
@@ -52,7 +66,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 					{"date", DateTime.Now},
 					{"date_type", ((OrderDateType) yenumcomboboxDateType.SelectedItem) == OrderDateType.CreationDate},
 					{"author_employee_id", entityviewmodelentryAuthor.Subject.GetIdOrNull()},
-					{"author_employee_name", (entityviewmodelentryAuthor.Subject as Employee)?.FullName}
+					{"author_employee_name", (entityviewmodelentryAuthor.Subject as Employee)?.FullName},
+					{"is_closed_order_only", chkClosedOrdersOnly.Active}
 				}
 			};
 		}

@@ -214,5 +214,22 @@ namespace Vodovoz.TempAdapters
 					return journal;
 				}
 			);
+
+		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory()
+		{
+			var filter = new NomenclatureFilterViewModel();
+
+			INomenclatureRepository nomenclatureRepository = new NomenclatureRepository(
+				new NomenclatureParametersProvider(
+					new ParametersProvider()));
+			
+			IUserRepository userRepository = new UserRepository();
+
+			var counterpartySelectorFactory = new CounterpartyJournalFactory();
+
+			return new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
+				filter, counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				nomenclatureRepository, userRepository);
+		}
 	}
 }
