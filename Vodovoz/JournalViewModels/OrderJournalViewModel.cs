@@ -246,16 +246,26 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.RestrictStartDate != null)
 			{
-				 var s1 = FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
-					? query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate)
-					: query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				{
+					query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+				}
+				else 
+				{ 
+					query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate); 
+				}
 			}
 
 			if(FilterViewModel.RestrictEndDate != null)
 			{
-				var s2 = FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
-					? query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1))
-					: query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				{ 
+					query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+				}
+				else
+				{ 
+					query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+				}
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
