@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
@@ -45,38 +46,42 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 			checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
 
+			evmeSubdivision.SetEntityAutocompleteSelectorFactory(
+				new SubdivisionJournalFactory()
+				.CreateSubdivisionAutocompleteSelectorFactory());
+
 			evmeSubdivision.Binding
 				.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject)
 				.InitializeFromSource();
 
 			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
 			cmbDriverOf.Binding
-				.AddBinding(ViewModel, vm => vm.DriverOf, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.DriverOf, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);
 			registrationTypeCmb.Binding
-				.AddBinding(ViewModel, vm => vm.RegistrationType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.RegistrationType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			drpHiredDate.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.HiredDatePeriodStart, w => w.StartDate)
-				.AddBinding(vm => vm.HiredDatePeriodEnd, w => w.EndDate)
+				.AddBinding(vm => vm.HiredDatePeriodStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.HiredDatePeriodEnd, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			drpFirstDayOnWork.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.FirstDayOnWorkStart, w => w.StartDate)
-				.AddBinding(vm => vm.FirstDayOnWorkEnd, w => w.EndDate)
+				.AddBinding(vm => vm.FirstDayOnWorkStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FirstDayOnWorkEnd, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			drpFiredDate.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.FiredDatePeriodStart, w => w.StartDate)
-				.AddBinding(vm => vm.FiredDatePeriodEnd, w => w.EndDate)
+				.AddBinding(vm => vm.FiredDatePeriodStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FiredDatePeriodEnd, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			drpSettlementDate.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.SettlementDateStart, w => w.StartDate)
-				.AddBinding(vm => vm.SettlementDateEnd, w => w.EndDate)
+				.AddBinding(vm => vm.SettlementDateStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.SettlementDateEnd, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			ychkVisitingMaster.Binding
@@ -92,7 +97,7 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			ychkRFcitizenship.Binding
-				.AddBinding(ViewModel, vm => vm.IsRFcitizen, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.IsRFCitizen, w => w.Active)
 				.InitializeFromSource();
 		}
 	}

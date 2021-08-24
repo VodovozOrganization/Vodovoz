@@ -1,10 +1,13 @@
 ﻿using QS.Commands;
 using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
@@ -22,22 +25,33 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private WageParameterItemTypes? _restrictWageParameterItemType;
 
 		private Subdivision _subdivision;
-		private CarTypeOfUse _driverOf;
-		private RegistrationType _registrationType;
-		private DateTime _hiredDatePeriodStart;
-		private DateTime _hiredDatePeriodEnd;
-		private DateTime _firstDayOnWorkStart;
-		private DateTime _firstDayOnWorkEnd;
-		private DateTime _firedDatePeriodStart;
-		private DateTime _firedDatePeriodEnd;
-		private DateTime _settlementDateStart;
-		private DateTime _settlementDateEnd;
+		private CarTypeOfUse? _driverOf;
+		private RegistrationType? _registrationType;
+		private DateTime? _hiredDatePeriodStart;
+		private DateTime? _hiredDatePeriodEnd;
+		private DateTime? _firstDayOnWorkStart;
+		private DateTime? _firstDayOnWorkEnd;
+		private DateTime? _firedDatePeriodStart;
+		private DateTime? _firedDatePeriodEnd;
+		private DateTime? _settlementDateStart;
+		private DateTime? _settlementDateEnd;
 		private bool _isVisitingMaster;
 		private bool _isDriverForOneDay;
 		private bool _isChainStoreDriver;
-		private bool _isRFcitizen;
+		private bool _isRFCitizen;
+
+		public EmployeeFilterViewModel()
+		{
+			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			HasAccessToDriverTerminal = cashier || logistician;
+			CanSortByPriority = cashier;
+
+			CreateCommands();
+		}
 
 		#region Свойства
+
 		public DelegateCommand UpdateRestrictions { get; private set; }
 
 		public bool CanChangeCategory
@@ -107,61 +121,61 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 			set => UpdateFilterField(ref _subdivision, value);
 		}
 
-		public CarTypeOfUse DriverOf
+		public CarTypeOfUse? DriverOf
 		{
 			get => _driverOf;
 			set => UpdateFilterField(ref _driverOf, value);
 		}
 
-		public RegistrationType RegistrationType
+		public RegistrationType? RegistrationType
 		{
 			get => _registrationType;
 			set => UpdateFilterField(ref _registrationType, value);
 		}
 
-		public DateTime HiredDatePeriodStart
+		public DateTime? HiredDatePeriodStart
 		{
 			get => _hiredDatePeriodStart;
 			set => UpdateFilterField(ref _hiredDatePeriodStart, value);
 		}
 
-		public DateTime HiredDatePeriodEnd
+		public DateTime? HiredDatePeriodEnd
 		{
 			get => _hiredDatePeriodEnd;
 			set => UpdateFilterField(ref _hiredDatePeriodEnd, value);
 		}
 
-		public DateTime FirstDayOnWorkStart
+		public DateTime? FirstDayOnWorkStart
 		{
 			get => _firstDayOnWorkStart;
 			set => UpdateFilterField(ref _firstDayOnWorkStart, value);
 		}
 
-		public DateTime FirstDayOnWorkEnd
+		public DateTime? FirstDayOnWorkEnd
 		{
 			get => _firstDayOnWorkEnd;
 			set => UpdateFilterField(ref _firstDayOnWorkEnd, value);
 		}
 
-		public DateTime FiredDatePeriodStart
+		public DateTime? FiredDatePeriodStart
 		{
 			get => _firedDatePeriodStart;
 			set => UpdateFilterField(ref _firedDatePeriodStart, value);
 		}
 
-		public DateTime FiredDatePeriodEnd
+		public DateTime? FiredDatePeriodEnd
 		{
 			get => _firedDatePeriodEnd;
 			set => UpdateFilterField(ref _firedDatePeriodEnd, value);
 		}
 
-		public DateTime SettlementDateStart
+		public DateTime? SettlementDateStart
 		{
 			get => _settlementDateStart;
 			set => UpdateFilterField(ref _settlementDateStart, value);
 		}
 
-		public DateTime SettlementDateEnd
+		public DateTime? SettlementDateEnd
 		{
 			get => _settlementDateEnd;
 			set => UpdateFilterField(ref _settlementDateEnd, value);
@@ -185,10 +199,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 			set => UpdateFilterField(ref _isChainStoreDriver, value);
 		}
 
-		public bool IsRFcitizen
+		public bool IsRFCitizen
 		{
-			get => _isRFcitizen;
-			set => UpdateFilterField(ref _isRFcitizen, value);
+			get => _isRFCitizen;
+			set => UpdateFilterField(ref _isRFCitizen, value);
 		}
 
 		public virtual DriverTerminalRelation? DriverTerminalRelation
@@ -209,16 +223,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		}
 
 		#endregion
-
-		public EmployeeFilterViewModel()
-		{
-			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-			HasAccessToDriverTerminal = cashier || logistician;
-			CanSortByPriority = cashier;
-
-			CreateCommands();
-		}
 
 		private void CreateCommands()
 		{
