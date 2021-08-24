@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -357,5 +358,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    }
 
 	    #endregion WriteoffDocument
+
+	    public override bool CanOpen()
+	    {
+		    return false;
+	    }
+
+	    public override ITdiTab GetTabToOpen(JournalEntityNodeBase node)
+	    {
+		    throw new NotImplementedException();
+	    }
     }
 }
