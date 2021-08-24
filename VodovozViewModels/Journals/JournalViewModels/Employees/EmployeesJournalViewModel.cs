@@ -107,7 +107,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
-			Subdivision subdivisionAlias = null;
 
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
@@ -155,78 +154,77 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			if(FilterViewModel?.Subdivision != null)
 			{
-				query.Inner.JoinAlias(e => e.Subdivision, () => subdivisionAlias);
-				query.Where(Restrictions.Eq(Projections.Property(() => subdivisionAlias.Id), FilterViewModel.Subdivision.Id));
+				query.Where(e => e.Subdivision.Id == FilterViewModel.Subdivision.Id);
 			}
 
 			if(FilterViewModel?.DriverOf != null)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => employeeAlias.DriverOf), FilterViewModel.DriverOf));
+				query.Where(e => e.DriverOf == FilterViewModel.DriverOf);
 			}
 
 			if(FilterViewModel?.RegistrationType != null)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => employeeAlias.Registration), FilterViewModel.RegistrationType));
+				query.Where(e => e.Registration == FilterViewModel.RegistrationType);
 			}
 
 			if(FilterViewModel?.HiredDatePeriodStart != null)
 			{
-				query.Where(Restrictions.Ge(Projections.Property(() => employeeAlias.DateHired), FilterViewModel.HiredDatePeriodStart));
+				query.Where(e => e.DateHired >= FilterViewModel.HiredDatePeriodStart);
 			}
 
 			if(FilterViewModel?.HiredDatePeriodEnd != null)
 			{
-				query.Where(Restrictions.Le(Projections.Property(() => employeeAlias.DateHired), FilterViewModel.HiredDatePeriodEnd));
+				query.Where(e => e.DateHired <= FilterViewModel.HiredDatePeriodEnd);
 			}
 
 			if(FilterViewModel?.FirstDayOnWorkStart != null)
 			{
-				query.Where(Restrictions.Ge(Projections.Property(() => employeeAlias.FirstWorkDay), FilterViewModel.FirstDayOnWorkStart));
+				query.Where(e => e.FirstWorkDay >= FilterViewModel.FirstDayOnWorkStart);
 			}
 
 			if(FilterViewModel?.FirstDayOnWorkEnd != null)
 			{
-				query.Where(Restrictions.Le(Projections.Property(() => employeeAlias.FirstWorkDay), FilterViewModel.FirstDayOnWorkEnd));
+				query.Where(e => e.FirstWorkDay <= FilterViewModel.FirstDayOnWorkEnd);
 			}
 
 			if(FilterViewModel?.FiredDatePeriodStart != null)
 			{
-				query.Where(Restrictions.Ge(Projections.Property(() => employeeAlias.DateFired), FilterViewModel.FiredDatePeriodStart));
+				query.Where(e => e.DateFired >= FilterViewModel.FiredDatePeriodStart);
 			}
 
 			if(FilterViewModel?.FiredDatePeriodEnd != null)
 			{
-				query.Where(Restrictions.Le(Projections.Property(() => employeeAlias.DateFired), FilterViewModel.FiredDatePeriodEnd));
+				query.Where(e => e.DateFired <= FilterViewModel.FiredDatePeriodEnd);
 			}
 
 			if(FilterViewModel?.SettlementDateStart != null)
 			{
-				query.Where(Restrictions.Ge(Projections.Property(() => employeeAlias.DateCalculated), FilterViewModel.SettlementDateStart));
+				query.Where(e => e.DateCalculated >= FilterViewModel.SettlementDateStart);
 			}
 
 			if(FilterViewModel?.SettlementDateEnd != null)
 			{
-				query.Where(Restrictions.Le(Projections.Property(() => employeeAlias.DateCalculated), FilterViewModel.SettlementDateEnd));
+				query.Where(e => e.DateCalculated <= FilterViewModel.SettlementDateEnd);
 			}
 
 			if(FilterViewModel?.IsVisitingMaster ?? false)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => employeeAlias.VisitingMaster), true));
+				query.Where(e => e.VisitingMaster);
 			}
 
 			if(FilterViewModel?.IsDriverForOneDay ?? false)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => employeeAlias.IsDriverForOneDay), true));
+				query.Where(e => e.IsDriverForOneDay);
 			}
 
 			if(FilterViewModel?.IsChainStoreDriver ?? false)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => employeeAlias.IsChainStoreDriver), true));
+				query.Where(e => e.IsChainStoreDriver);
 			}
 
 			if(FilterViewModel?.IsRFCitizen ?? false)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => employeeAlias.IsRussianCitizen), true));
+				query.Where(e => e.IsRussianCitizen);
 			}
 
 			var employeeProjection = CustomProjections.Concat_WS(
