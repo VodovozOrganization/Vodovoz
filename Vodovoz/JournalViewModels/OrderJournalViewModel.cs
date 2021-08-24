@@ -319,6 +319,19 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => !o.SelfDelivery)
 					.And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
 			}
+			
+			if(FilterViewModel.SortDeliveryDate != null)
+			{
+				if(FilterViewModel.SortDeliveryDate.Value)
+				{
+					query = query.OrderBy(o => o.DeliveryDate.Value).Desc;
+				}
+
+				if(!FilterViewModel.SortDeliveryDate.Value)
+				{
+					query = query.OrderBy(o => o.Id).Desc;
+				}
+			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
@@ -445,7 +458,8 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.RestrictLessThreeHours == true
 				|| FilterViewModel.OrderPaymentStatus != null
 				|| FilterViewModel.Organisation != null
-				|| FilterViewModel.PaymentByCardFrom != null) 
+				|| FilterViewModel.PaymentByCardFrom != null
+				|| FilterViewModel.SortDeliveryDate == true)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -553,7 +567,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictLessThreeHours == true
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
-			    || FilterViewModel.PaymentByCardFrom != null)
+			    || FilterViewModel.PaymentByCardFrom != null
+			    || FilterViewModel.SortDeliveryDate == true)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -682,7 +697,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictLessThreeHours == true
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
-			    || FilterViewModel.PaymentByCardFrom != null)
+			    || FilterViewModel.PaymentByCardFrom != null
+			    || FilterViewModel.SortDeliveryDate == true)
 			{
 				query.Where(o => o.Id == -1);
 			}
