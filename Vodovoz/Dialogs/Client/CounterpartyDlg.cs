@@ -278,6 +278,15 @@ namespace Vodovoz
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails;
 
 			UpdateCargoReceiver();
+			Entity.PropertyChanged += (sender, args) =>
+			{
+				if(args.PropertyName == nameof(Entity.SalesManager)
+				|| args.PropertyName == nameof(Entity.Accountant)
+				|| args.PropertyName == nameof(Entity.BottlesManager))
+				{
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+				}
+			};
 		}
 
 		private void ConfigureTabInfo()
