@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using System.Linq;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
@@ -9,6 +10,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Domain.Sale;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -27,12 +30,14 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _paymentsFromVisibility;
 		private Counterparty _restrictCounterparty;
 		private DateTime? _restrictEndDate;
+		private DateTime? _restrictCreatedEndDate;
 		private bool? _restrictHideService;
 		private bool? _restrictLessThreeHours;
 		private bool? _restrictOnlySelfDelivery;
 		private bool? _restrictOnlyService;
 		private PaymentType? _restrictPaymentType;
 		private DateTime? _restrictStartDate;
+		private DateTime? _restrictCreatedStartDate;
 		private OrderStatus? _restrictStatus;
 		private bool? _restrictWithoutSelfDelivery;
 		private ViewTypes _viewTypes;
@@ -55,6 +60,9 @@ namespace Vodovoz.Filters.ViewModels
 			                               ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
+			RestrictStartDate = DateTime.Today.AddMonths(-2);
+			RestrictEndDate = DateTime.Today.AddDays(7);
 		}
 
 		#region Автосвойства
@@ -217,6 +225,18 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public bool CanChangeEndDate { get; private set; } = true;
+		
+		public virtual DateTime? RestrictCreatedStartDate
+		{
+			get => _restrictCreatedStartDate;
+			set => UpdateFilterField(ref _restrictCreatedStartDate, value);
+		}
+
+		public virtual DateTime? RestrictCreatedEndDate
+		{
+			get => _restrictCreatedEndDate;
+			set => UpdateFilterField(ref _restrictCreatedEndDate, value);
+		}
 
 		public virtual bool? RestrictLessThreeHours
 		{
@@ -334,6 +354,34 @@ namespace Vodovoz.Filters.ViewModels
 		public bool CanChangeOnlyService { get; private set; } = true;
 
 		#endregion
+		
+		private List<GeographicGroup> _geographicGroups;
+		/// <summary>
+		/// Части города для отображения в фильтре
+		/// </summary>
+		public List<GeographicGroup> GeographicGroups
+		{
+			get => _geographicGroups; 
+			set => _geographicGroups = value;
+		}
+		
+		private GeographicGroup _geographicGroup;
+		/// <summary>
+		/// Часть города
+		/// </summary>
+		public GeographicGroup GeographicGroup
+		{
+			get => _geographicGroup;
+			set => UpdateFilterField(ref _geographicGroup, value);
+		}
+		
+		private OrdersDateFilterType _filterDateType = OrdersDateFilterType.DeliveryDate;
+		public virtual OrdersDateFilterType FilterDateType 
+		{
+			get => _filterDateType;
+			set => UpdateFilterField(ref _filterDateType, value);
+		}
+
 	}
 
 	public enum PaymentOrder
@@ -357,4 +405,13 @@ namespace Vodovoz.Filters.ViewModels
 		[Display(Name = "Счета без отгрузки на постоплату")]
 		OrderWSFP
 	}
+	
+	public enum OrdersDateFilterType
+	{
+		[Display(Name = "По доставке:")]
+		DeliveryDate,
+		[Display(Name = "По созданию:")]
+		CreationDate
+	}
+	
 }
