@@ -479,6 +479,7 @@ namespace Vodovoz
 				entryBottlesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
+			entryBottlesManager.CanEditReference = true;
 			entryBottlesManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
 
 			//FIXME данный виджет создан с Visible = false и нигде не меняется
