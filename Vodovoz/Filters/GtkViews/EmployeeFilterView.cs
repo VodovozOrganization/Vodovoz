@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
@@ -10,7 +11,7 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public EmployeeFilterView(EmployeeFilterViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -44,6 +45,60 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active)
 				.InitializeFromSource();
 			checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
+
+			evmeSubdivision.SetEntityAutocompleteSelectorFactory(
+				new SubdivisionJournalFactory()
+				.CreateSubdivisionAutocompleteSelectorFactory());
+
+			evmeSubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject)
+				.InitializeFromSource();
+
+			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
+			cmbDriverOf.Binding
+				.AddBinding(ViewModel, vm => vm.DriverOf, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);
+			registrationTypeCmb.Binding
+				.AddBinding(ViewModel, vm => vm.RegistrationType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			drpHiredDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HiredDatePeriodStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.HiredDatePeriodEnd, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			drpFirstDayOnWork.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.FirstDayOnWorkStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FirstDayOnWorkEnd, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			drpFiredDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.FiredDatePeriodStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FiredDatePeriodEnd, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			drpSettlementDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SettlementDateStart, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.SettlementDateEnd, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			ychkVisitingMaster.Binding
+				.AddBinding(ViewModel, vm => vm.IsVisitingMaster, w => w.Active)
+				.InitializeFromSource();
+
+			ychkDriverForOneDay.Binding
+				.AddBinding(ViewModel, vm => vm.IsDriverForOneDay, w => w.Active)
+				.InitializeFromSource();
+
+			ychkChainStoreDriver.Binding
+				.AddBinding(ViewModel, vm => vm.IsChainStoreDriver, w => w.Active)
+				.InitializeFromSource();
+
+			ychkRFcitizenship.Binding
+				.AddBinding(ViewModel, vm => vm.IsRFCitizen, w => w.Active)
+				.InitializeFromSource();
 		}
 	}
 }
