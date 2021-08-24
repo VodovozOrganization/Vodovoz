@@ -12,6 +12,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods
 {
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Goods
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices, NavigationManager);
 
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
@@ -198,5 +200,7 @@ namespace Vodovoz.ViewModels.Goods
 		);
 
 		#endregion
+
+		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; set; }
 	}
 }

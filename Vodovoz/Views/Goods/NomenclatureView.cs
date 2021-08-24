@@ -202,6 +202,12 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
+			#region Вкладка Цена закупки
+
+			nomenclaturePurchasePricesView.ViewModel = ViewModel.NomenclaturePurchasePricesViewModel;
+
+			#endregion
+
 			entityViewModelEntryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
 			entityViewModelEntryNomenclature.Binding.AddBinding(ViewModel.Entity, s => s.DependsOnNomenclature, w => w.Subject).InitializeFromSource();
 			entityViewModelEntryNomenclature.CanEditReference = true;
@@ -284,6 +290,14 @@ namespace Vodovoz.Views.Goods
 		{
 			if(radioPrice.Active)
 				notebook1.CurrentPage = 4;
+		}
+
+		protected void OnPurchasePriceToggled(object sender, EventArgs e)
+		{
+			if(radioPurchasePrice.Active)
+			{
+				notebook1.CurrentPage = 5;
+			}
 		}
 
 		#endregion

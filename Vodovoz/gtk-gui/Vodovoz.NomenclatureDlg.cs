@@ -254,6 +254,10 @@ namespace Vodovoz
 
 		private global::Gtk.Label label15;
 
+		private global::Vodovoz.Views.Goods.NomenclaturePurchasePricesView nomenclaturePurchasePricesView;
+
+		private global::Gtk.Label lblPurchasePrice;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -382,6 +386,7 @@ namespace Vodovoz
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
+			this.notebook1.Name = "notebook1";
 			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
@@ -1664,9 +1669,22 @@ namespace Vodovoz
 			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("Цены");
 			this.notebook1.SetTabLabel(this.datatable2, this.label15);
 			this.label15.ShowAll();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.nomenclaturePurchasePricesView = new global::Vodovoz.Views.Goods.NomenclaturePurchasePricesView();
+			this.nomenclaturePurchasePricesView.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclaturePurchasePricesView.Name = "nomenclaturePurchasePricesView";
+			this.notebook1.Add(this.nomenclaturePurchasePricesView);
+			global::Gtk.Notebook.NotebookChild w125 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.nomenclaturePurchasePricesView]));
+			w125.Position = 5;
+			// Notebook tab
+			this.lblPurchasePrice = new global::Gtk.Label();
+			this.lblPurchasePrice.Name = "lblPurchasePrice";
+			this.lblPurchasePrice.LabelProp = global::Mono.Unix.Catalog.GetString("Цена закупки");
+			this.notebook1.SetTabLabel(this.nomenclaturePurchasePricesView, this.lblPurchasePrice);
+			this.lblPurchasePrice.ShowAll();
 			this.vbox1.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w125 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
-			w125.Position = 1;
+			global::Gtk.Box.BoxChild w126 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
+			w126.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
