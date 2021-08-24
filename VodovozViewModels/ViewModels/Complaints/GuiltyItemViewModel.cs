@@ -40,11 +40,13 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public bool CanChooseSubdivision => Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision;
 
-		public bool IsGuiltyCorrect => Entity.GuiltyType != null
-											&& (Entity.GuiltyType == ComplaintGuiltyTypes.Employee && Entity.Employee != null
-												|| Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision && Entity.Subdivision != null
-												|| Entity.GuiltyType == ComplaintGuiltyTypes.Client && Entity.Employee == null && Entity.Subdivision == null
-												|| Entity.GuiltyType == ComplaintGuiltyTypes.None && Entity.Employee == null && Entity.Subdivision == null);
+		public bool IsGuiltyCorrect =>
+			Entity.GuiltyType != null
+			&& (Entity.GuiltyType == ComplaintGuiltyTypes.Employee && Entity.Employee != null
+			   || Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision && Entity.Subdivision != null
+			   || (Entity.GuiltyType == ComplaintGuiltyTypes.Client
+			       || Entity.GuiltyType == ComplaintGuiltyTypes.Supplier
+			       || Entity.GuiltyType == ComplaintGuiltyTypes.None) && Entity.Employee == null && Entity.Subdivision == null);
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
