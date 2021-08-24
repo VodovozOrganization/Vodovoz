@@ -116,6 +116,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_counterparty?.SalesManager != null)
 			{
+				labelSalesManager.Visible = true;
+				prefixSalesManager.Visible = true;
 				labelSalesManager.Markup = _counterparty?.SalesManager.GetPersonNameWithInitials();
 				prefixSalesManager.ModifyFont(FontDescription.FromString("9"));
 				prefixSalesManager.QueueResize();
@@ -128,6 +130,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			if(_counterparty?.Accountant != null)
 			{
+				labelAccountant.Visible = true;
+				prefixAccountant.Visible = true;
 				labelAccountant.Markup = _counterparty?.Accountant.GetPersonNameWithInitials();
 			}
 			else
@@ -138,6 +142,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			if(_counterparty?.BottlesManager != null)
 			{
+				labelBottlesManager.Visible = true;
+				prefixBottlesManager.Visible = true;
 				labelBottlesManager.Markup = _counterparty?.BottlesManager.GetPersonNameWithInitials();
 				prefixBottlesManager.ModifyFont(FontDescription.FromString("9"));
 				prefixBottlesManager.QueueResize();
