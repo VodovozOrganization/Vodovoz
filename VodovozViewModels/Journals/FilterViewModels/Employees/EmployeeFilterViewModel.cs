@@ -1,7 +1,9 @@
 ﻿using QS.Commands;
 using QS.Project.Filter;
 using QS.Project.Services;
+using System;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
@@ -19,34 +21,46 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private DriverTerminalRelation? _driverTerminalRelation;
 		private WageParameterItemTypes? _restrictWageParameterItemType;
 
+		private Subdivision _subdivision;
+		private CarTypeOfUse _driverOf;
+		private RegistrationType _registrationType;
+		private DateTime _hiredDatePeriodStart;
+		private DateTime _hiredDatePeriodEnd;
+		private DateTime _firstDayOnWorkStart;
+		private DateTime _firstDayOnWorkEnd;
+		private DateTime _firedDatePeriodStart;
+		private DateTime _firedDatePeriodEnd;
+		private DateTime _settlementDateStart;
+		private DateTime _settlementDateEnd;
+		private bool _isVisitingMaster;
+		private bool _isDriverForOneDay;
+		private bool _isChainStoreDriver;
+		private bool _isRFcitizen;
+
 		#region Свойства
 		public DelegateCommand UpdateRestrictions { get; private set; }
 
 		public bool CanChangeCategory
 		{
 			get => _canChangeCategory;
-			set => UpdateFilterField(ref _canChangeCategory, value, () => CanChangeCategory);
+			set => SetField(ref _canChangeCategory, value);
 		}
 
 		public virtual EmployeeCategory? Category
 		{
 			get => _category;
-			set {
-				if(SetField(ref _category, value, () => Category)) {
-					Update();
-				}
-			}
+			set => UpdateFilterField(ref _category, value);
 		}
 
 		public virtual EmployeeCategory? RestrictCategory
 		{
 			get => _restrictCategory;
-			set {
-				if(SetField(ref _restrictCategory, value, () => RestrictCategory))
+			set
+			{
+				if(SetField(ref _restrictCategory, value))
 				{
 					CanChangeCategory = !RestrictCategory.HasValue;
 					Category = RestrictCategory;
-					Update();
 				}
 			}
 		}
@@ -54,13 +68,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		public virtual EmployeeStatus? Status
 		{
 			get => _status;
-			set => UpdateFilterField(ref _status, value, () => Status);
+			set => UpdateFilterField(ref _status, value);
 		}
 
 		public bool CanChangeStatus
 		{
 			get => _canChangeStatus;
-			set => UpdateFilterField(ref _canChangeStatus, value, () => CanChangeStatus);
+			set => SetField(ref _canChangeStatus, value);
 		}
 
 		public virtual WageParameterItemTypes? RestrictWageParameterItemType
@@ -72,19 +86,109 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		public bool HasAccessToDriverTerminal
 		{
 			get => _hasAccessToDriverTerminal;
-			set => UpdateFilterField(ref _hasAccessToDriverTerminal, value, () => HasAccessToDriverTerminal);
+			set => SetField(ref _hasAccessToDriverTerminal, value);
 		}
 
 		public bool CanSortByPriority
 		{
 			get => _canSortByPriotity;
-			set => UpdateFilterField(ref _canSortByPriotity, value, () => CanSortByPriority);
+			set => UpdateFilterField(ref _canSortByPriotity, value);
 		}
 
 		public bool SortByPriority
 		{
 			get => _sortByPriority;
-			set => UpdateFilterField(ref _sortByPriority, value, () => SortByPriority);
+			set => UpdateFilterField(ref _sortByPriority, value);
+		}
+
+		public Subdivision Subdivision
+		{
+			get => _subdivision;
+			set => UpdateFilterField(ref _subdivision, value);
+		}
+
+		public CarTypeOfUse DriverOf
+		{
+			get => _driverOf;
+			set => UpdateFilterField(ref _driverOf, value);
+		}
+
+		public RegistrationType RegistrationType
+		{
+			get => _registrationType;
+			set => UpdateFilterField(ref _registrationType, value);
+		}
+
+		public DateTime HiredDatePeriodStart
+		{
+			get => _hiredDatePeriodStart;
+			set => UpdateFilterField(ref _hiredDatePeriodStart, value);
+		}
+
+		public DateTime HiredDatePeriodEnd
+		{
+			get => _hiredDatePeriodEnd;
+			set => UpdateFilterField(ref _hiredDatePeriodEnd, value);
+		}
+
+		public DateTime FirstDayOnWorkStart
+		{
+			get => _firstDayOnWorkStart;
+			set => UpdateFilterField(ref _firstDayOnWorkStart, value);
+		}
+
+		public DateTime FirstDayOnWorkEnd
+		{
+			get => _firstDayOnWorkEnd;
+			set => UpdateFilterField(ref _firstDayOnWorkEnd, value);
+		}
+
+		public DateTime FiredDatePeriodStart
+		{
+			get => _firedDatePeriodStart;
+			set => UpdateFilterField(ref _firedDatePeriodStart, value);
+		}
+
+		public DateTime FiredDatePeriodEnd
+		{
+			get => _firedDatePeriodEnd;
+			set => UpdateFilterField(ref _firedDatePeriodEnd, value);
+		}
+
+		public DateTime SettlementDateStart
+		{
+			get => _settlementDateStart;
+			set => UpdateFilterField(ref _settlementDateStart, value);
+		}
+
+		public DateTime SettlementDateEnd
+		{
+			get => _settlementDateEnd;
+			set => UpdateFilterField(ref _settlementDateEnd, value);
+		}
+
+		public bool IsVisitingMaster
+		{
+			get => _isVisitingMaster;
+			set => UpdateFilterField(ref _isVisitingMaster, value);
+		}
+
+		public bool IsDriverForOneDay
+		{
+			get => _isDriverForOneDay;
+			set => UpdateFilterField(ref _isDriverForOneDay, value);
+		}
+
+		public bool IsChainStoreDriver
+		{
+			get => _isChainStoreDriver;
+			set => UpdateFilterField(ref _isChainStoreDriver, value);
+		}
+
+		public bool IsRFcitizen
+		{
+			get => _isRFcitizen;
+			set => UpdateFilterField(ref _isRFcitizen, value);
 		}
 
 		public virtual DriverTerminalRelation? DriverTerminalRelation
@@ -92,14 +196,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 			get => _driverTerminalRelation;
 			set
 			{
-				UpdateFilterField(ref _driverTerminalRelation, value, () => DriverTerminalRelation);
-				if(value != null)
+				UpdateFilterField(ref _driverTerminalRelation, value);
+				if(value == null)
 				{
-					Category = EmployeeCategory.driver;
+					Category = null;
 				}
 				else
 				{
-					Category = null;
+					Category = EmployeeCategory.driver;
 				}
 			}
 		}
@@ -123,6 +227,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 				{
 					CanChangeStatus = !SortByPriority;
 					CanChangeCategory = !SortByPriority;
+
 					if(SortByPriority)
 					{
 						Category = EmployeeCategory.driver;

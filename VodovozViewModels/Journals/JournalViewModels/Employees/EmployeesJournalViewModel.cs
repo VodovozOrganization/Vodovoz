@@ -141,6 +141,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
 				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
 					.Select(doc => doc.Driver.Id);
+
 				if(relation == DriverTerminalRelation.WithTerminal)
 				{
 					query.WithSubquery.WhereProperty(e => e.Id).In(giveoutQuery);
