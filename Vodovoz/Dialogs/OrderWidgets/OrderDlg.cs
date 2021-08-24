@@ -555,6 +555,7 @@ namespace Vodovoz
 				{
 					OnFormOrderActions();
 				}
+				OrderAddressTypeChanged();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -3099,6 +3100,12 @@ namespace Vodovoz
 
 		private void OrderAddressTypeChanged()
 		{
+			if(Entity.SelfDelivery)
+			{
+				ylabelOrderAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
 			if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
