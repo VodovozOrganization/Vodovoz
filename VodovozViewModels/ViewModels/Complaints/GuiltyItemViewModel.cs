@@ -40,14 +40,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public bool CanChooseSubdivision => Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision;
 
-		public bool IsGuiltyCorrect =>
-			Entity.GuiltyType != null
-			&& (Entity.GuiltyType == ComplaintGuiltyTypes.Employee && Entity.Employee != null
-			   || Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision && Entity.Subdivision != null
-			   || (Entity.GuiltyType == ComplaintGuiltyTypes.Client
-			       || Entity.GuiltyType == ComplaintGuiltyTypes.Supplier
-			       || Entity.GuiltyType == ComplaintGuiltyTypes.None) && Entity.Employee == null && Entity.Subdivision == null);
-
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		void ConfigureEntityPropertyChanges()
@@ -56,21 +48,6 @@ namespace Vodovoz.ViewModels.Complaints
 				e => e.GuiltyType,
 				() => CanChooseEmployee,
 				() => CanChooseSubdivision
-			);
-
-			SetPropertyChangeRelation(
-				e => e.GuiltyType,
-				() => IsGuiltyCorrect
-			);
-
-			SetPropertyChangeRelation(
-				e => e.Employee,
-				() => IsGuiltyCorrect
-			);
-
-			SetPropertyChangeRelation(
-				e => e.Subdivision,
-				() => IsGuiltyCorrect
 			);
 
 			OnEntityPropertyChanged(
