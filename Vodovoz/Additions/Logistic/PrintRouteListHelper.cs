@@ -148,9 +148,10 @@ namespace Vodovoz.Additions.Logistic
 				{
 					SqlSelect += $", orders.comment AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
-						$"SELECT * FROM undelivered_orders uo" +
-						$" WHERE uo.guilty_is IN('{ GuiltyTypes.Driver }','{ GuiltyTypes.Department }')" +
-						" AND uo.new_order_id = orders.id" +
+						$" SELECT * FROM guilty_in_undelivered_orders giuo" +
+						$" INNER JOIN undelivered_orders uo ON giuo.undelivery_id = uo.id" +
+						$" WHERE giuo.guilty_side IN('{ GuiltyTypes.Driver }','{ GuiltyTypes.Department }')" +
+						"  AND uo.new_order_id = orders.id" +
 						$")) AS { _orderPrioritizedTagName }";
 
 					Fields +=
