@@ -2523,7 +2523,8 @@ namespace Vodovoz
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.lblSummaryHeader = new global::Gtk.Label();
 			this.lblSummaryHeader.Name = "lblSummaryHeader";
-			this.lblSummaryHeader.LabelProp = global::Mono.Unix.Catalog.GetString("Резюме заказа");
+			this.lblSummaryHeader.LabelProp = global::Mono.Unix.Catalog.GetString("<span  size=\"larger\">Резюме заказа</span>");
+			this.lblSummaryHeader.UseMarkup = true;
 			this.lblSummaryHeader.Justify = ((global::Gtk.Justification)(2));
 			this.vbox1.Add(this.lblSummaryHeader);
 			global::Gtk.Box.BoxChild w208 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.lblSummaryHeader]));
@@ -2903,6 +2904,8 @@ namespace Vodovoz
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonAcceptOrder = new global::Gtk.Button();
+			this.buttonAcceptOrder.WidthRequest = 150;
+			this.buttonAcceptOrder.HeightRequest = 50;
 			this.buttonAcceptOrder.CanFocus = true;
 			this.buttonAcceptOrder.Name = "buttonAcceptOrder";
 			this.buttonAcceptOrder.UseUnderline = true;
@@ -2917,6 +2920,8 @@ namespace Vodovoz
 			w241.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.btnReturnToEdit = new global::Gtk.Button();
+			this.btnReturnToEdit.WidthRequest = 150;
+			this.btnReturnToEdit.HeightRequest = 50;
 			this.btnReturnToEdit.CanFocus = true;
 			this.btnReturnToEdit.Name = "btnReturnToEdit";
 			this.btnReturnToEdit.UseUnderline = true;
