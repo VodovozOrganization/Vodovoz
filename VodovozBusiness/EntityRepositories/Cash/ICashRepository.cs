@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 
@@ -8,6 +9,11 @@ namespace Vodovoz.EntityRepositories.Cash
 	{
 		decimal CurrentCash(IUnitOfWork uow);
 		decimal CurrentCashForSubdivision(IUnitOfWork uow, Subdivision subdivision);
+		/// <summary>
+		/// Возвращает баланс по предоставленным id касс
+		/// </summary>
+		/// <returns>Item1 - название кассы. Item2 - баланс</returns>
+		IEnumerable<Tuple<string, decimal>> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds);
 		decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId);
 		decimal GetCashInTransfering(IUnitOfWork uow);
 		Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId);

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -96,6 +99,38 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
+		}
+
+		public IEnumerable<Tuple<string, decimal>> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds)
+		{
+			Subdivision subdivisionAlias = null;
+			Income incomeAlias = null;
+			Expense expenseAlias = null;
+			var nodeConstructor = typeof(Tuple<string, decimal>).GetConstructors()[0];
+
+			var expenseSub = QueryOver.Of(() => expenseAlias)
+				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
+				.Select(Projections.Sum<Expense>(o => o.Money));
+
+			var incomeSub = QueryOver.Of(() => incomeAlias)
+				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
+				.Select(Projections.Sum<Expense>(o => o.Money));
+
+			var projection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(incomeSub),
+				Projections.SubQuery(expenseSub)
+			);
+
+			var results = uow.Session
+				.QueryOver(() => subdivisionAlias)
+				.Where(() => subdivisionAlias.Id.IsIn(subdivisionIds)).SelectList(list => list
+					.Select(() => subdivisionAlias.Name)
+					.Select(projection))
+				.TransformUsing(Transformers.AliasToBeanConstructor(nodeConstructor))
+				.List<Tuple<string, decimal>>();
+			return results;
 		}
 
 		public Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId)
