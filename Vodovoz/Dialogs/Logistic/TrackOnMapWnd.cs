@@ -84,7 +84,7 @@ namespace Dialogs.Logistic
 
 		private void ConfigureMap()
 		{
-			gmapWidget.MapProvider = GMapProviders.YandexMap;
+			gmapWidget.MapProvider = GMapProviders.GoogleMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.MinZoom = 0;
@@ -100,7 +100,7 @@ namespace Dialogs.Logistic
 
 			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			comboMapProvider.ItemsEnum = typeof(MapProviders);
-			comboMapProvider.SelectedItem = MapProviders.YandexMap;
+			comboMapProvider.SelectedItem = MapProviders.GoogleMap;
 			comboMapProvider.EnumItemSelected += (sender, args) =>
 				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 
