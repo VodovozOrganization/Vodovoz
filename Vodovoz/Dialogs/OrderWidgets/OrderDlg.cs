@@ -82,6 +82,7 @@ using Vodovoz.Tools.CallTasks;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Vodovoz
 {
@@ -528,8 +529,10 @@ namespace Vodovoz
 
 			buttonViewDocument.Sensitive = false;
 			btnDeleteOrderItem.Sensitive = false;
-			notebook1.ShowTabs = false;
-			notebook1.Page = 0;
+			ntbOrderEdit.ShowTabs = false;
+			ntbOrderEdit.Page = 0;
+			ntbOrder.ShowTabs = false;
+			ntbOrder.Page = 0;
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
@@ -1450,37 +1453,37 @@ namespace Vodovoz
 		protected void OnToggleInformationToggled(object sender, EventArgs e)
 		{
 			if(toggleInformation.Active)
-				notebook1.CurrentPage = 0;
+				ntbOrderEdit.CurrentPage = 0;
 		}
 
 		protected void OnToggleTareControlToggled(object sender, EventArgs e)
 		{
 			if(toggleTareControl.Active)
-				notebook1.CurrentPage = 1;
+				ntbOrderEdit.CurrentPage = 1;
 		}
 
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
-				notebook1.CurrentPage = 2;
+				ntbOrderEdit.CurrentPage = 2;
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
-				notebook1.CurrentPage = 3;
+				ntbOrderEdit.CurrentPage = 3;
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
-				notebook1.CurrentPage = 4;
+				ntbOrderEdit.CurrentPage = 4;
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
-				notebook1.CurrentPage = 5;
+				ntbOrderEdit.CurrentPage = 5;
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
@@ -3137,6 +3140,14 @@ namespace Vodovoz
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = false;
 			}
+		}
+
+		protected void OnBtnFormClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)
+		{
 		}
 
 		#endregion FreeRent
