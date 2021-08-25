@@ -10,6 +10,7 @@
 		CallTaskPanelView,
 		ComplaintPanelView,
 		SmsSendPanelView,
-		FixedPricesPanelView
+		FixedPricesPanelView,
+		CashInfoPanelView
 	}
 }

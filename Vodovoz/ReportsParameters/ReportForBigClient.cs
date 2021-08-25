@@ -6,35 +6,47 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
 using QS.Dialog.GtkUI;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class ReportForBigClient : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+
 		public ReportForBigClient()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
+			_counterpartyJournalFactory = new CounterpartyJournalFactory();
+			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			_deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
+
+			evmeCounterparty
+				.SetEntityAutocompleteSelectorFactory(_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeCounterparty.Changed += OnCounterpartyChanged;
+
+			evmeDeliveryPoint
+				.SetEntityAutocompleteSelectorFactory(_deliveryPointJournalFactory
+					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation
 
-		public string Title {
-			get {
-				return "Отчёт \"Куньголово\"";
-			}
-		}
+		public string Title => "Отчёт \"Куньголово\"";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
 
-		void OnUpdate(bool hide = false)
+		private void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		protected void OnButtonRunClicked(object sender, EventArgs e)
@@ -44,14 +56,15 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
+			return new ReportInfo
+			{
 				Identifier = "Client.SummaryBottlesAndDepositsKungolovo",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "startDate", dateperiodpicker1.StartDateOrNull },
 					{ "endDate", dateperiodpicker1.EndDateOrNull },
-					{ "client_id", referenceCounterparty.GetSubject<Counterparty>().Id},
-					{ "delivery_point_id", referenceDeliveryPoint.Subject == null ? -1 : referenceDeliveryPoint.GetSubject<DeliveryPoint>().Id},
+					{ "client_id", evmeCounterparty.SubjectId },
+					{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId }
 				}
 			};
 		}
@@ -63,21 +76,22 @@ namespace Vodovoz.ReportsParameters
 
 		private void ValidateParameters()
 		{
-			var counterpartySelected = referenceCounterparty.Subject != null;
-			buttonRun.Sensitive = counterpartySelected;
+			buttonRun.Sensitive = evmeCounterparty.Subject != null;
 		}
 
-		protected void OnReferenceCounterpartyChanged(object sender, EventArgs e)
+		private void OnCounterpartyChanged(object sender, EventArgs e)
 		{
 			ValidateParameters();
-			if(referenceCounterparty.Subject == null) {
-				referenceDeliveryPoint.Subject = null;
-				referenceDeliveryPoint.Sensitive = false;
-			} else {
-				referenceDeliveryPoint.Subject = null;
-				referenceDeliveryPoint.Sensitive = true;
-				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW,
-					referenceCounterparty.GetSubject<Counterparty>());
+			if(evmeCounterparty.Subject == null)
+			{
+				evmeDeliveryPoint.Subject = null;
+				evmeDeliveryPoint.Sensitive = false;
+			}
+			else
+			{
+				_deliveryPointJournalFilterViewModel.Counterparty = evmeCounterparty.Subject as Counterparty;
+				evmeDeliveryPoint.Subject = null;
+				evmeDeliveryPoint.Sensitive = true;
 			}
 		}
 	}
