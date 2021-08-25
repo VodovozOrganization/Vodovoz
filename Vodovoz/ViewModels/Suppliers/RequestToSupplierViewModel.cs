@@ -4,7 +4,6 @@ using QS.Commands;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Utilities;
@@ -18,22 +17,21 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>
 	{
-		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly IEmployeeService employeeService;
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly ISupplierPriceItemsRepository _supplierPriceItemsRepository;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
+		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
@@ -43,19 +41,19 @@ namespace Vodovoz.ViewModels.Suppliers
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
 			CreateCommands();
 			RefreshSuppliers();
@@ -97,7 +95,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null)
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				return currentEmployee;
 			}
 		}
@@ -179,7 +177,7 @@ namespace Vodovoz.ViewModels.Suppliers
 
 		void RefreshSuppliers()
 		{
-			Entity.RequestingNomenclaturesListRefresh(UoW, supplierPriceItemsRepository, Entity.SuppliersOrdering);
+			Entity.RequestingNomenclaturesListRefresh(UoW, _supplierPriceItemsRepository, Entity.SuppliersOrdering);
 			MinimalTotalSumText = string.Format("Минимальное ИТОГО: {0}", Entity.MinimalTotalSum.ToShortCurrencyString());
 			ListContentChanged?.Invoke(this, new EventArgs());
 			NeedRefresh = false;
@@ -239,28 +237,20 @@ namespace Vodovoz.ViewModels.Suppliers
 													  .Distinct();
 					var filter = new NomenclatureFilterViewModel
 					{
-						HidenByDefault = true
+						HidenByDefault = true,
+						RestrictedExcludedIds = existingNomenclatures.ToArray()
 					};
-					var journalActions = new EntitiesJournalActionsViewModel(CommonServices.InteractiveService);
+					var journalViewModel = _nomenclatureSelectorFactory.CreateNomenclaturesJournal(filter);
 					
-					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-						journalActions,
-						filter,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						employeeService,
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository
-					) {
-						SelectionMode = JournalSelectionMode.Single,
-						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
-					};
-					journalViewModel.OnEntitySelectedResult += (sender, e) => {
+					journalViewModel.OnEntitySelectedResult += (sender, e) =>
+					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						
 						if(selectedNode == null)
+						{
 							return;
+						}
+
 						Entity.ObservableRequestingNomenclatureItems.Add(
 							new RequestToSupplierItem {
 								Nomenclature = UoW.GetById<Nomenclature>(selectedNode.Id),
@@ -306,14 +296,14 @@ namespace Vodovoz.ViewModels.Suppliers
 
 					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
 						EntityUoWBuilder.ForCreate(),
-						unitOfWorkFactory,
-						commonServices,
-						employeeService,
-						supplierPriceItemsRepository,
-						counterpartySelectorFactory,
-						nomenclatureSelectorFactory,
-						nomenclatureRepository,
-						userRepository
+						_unitOfWorkFactory,
+						_commonServices,
+						_employeeService,
+						_supplierPriceItemsRepository,
+						_counterpartySelectorFactory,
+						_nomenclatureSelectorFactory,
+						_nomenclatureRepository,
+						_userRepository
 					);
 					foreach(var item in array) {
 						if(item is RequestToSupplierItem requestItem) {
@@ -349,8 +339,9 @@ namespace Vodovoz.ViewModels.Suppliers
 					if(item is RequestToSupplierItem requestItem) {
 						var nom = requestItem.Nomenclature;
 						this.TabParent.AddSlaveTab(this, new NomenclatureViewModel(EntityUoWBuilder.ForOpen(nom.Id),
-							UnitOfWorkFactory, commonServices, employeeService, nomenclatureSelectorFactory,
-							counterpartySelectorFactory, nomenclatureRepository, userRepository));
+							UnitOfWorkFactory, _commonServices, _employeeService,
+							_nomenclatureSelectorFactory.CreateNomenclatureAutocompleteSelectorFactory(),
+							_counterpartySelectorFactory, _nomenclatureRepository, _userRepository));
 						return;
 					}
 					if(item is SupplierNode supplierItem) {
@@ -363,10 +354,10 @@ namespace Vodovoz.ViewModels.Suppliers
 					if(array.Count() != 1)
 						return false;
 
-					if(AreNomenclatureNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Nomenclature), UserService.CurrentUserId).CanRead)
+					if(AreNomenclatureNodesSelected && _commonServices.PermissionService.ValidateUserPermission(typeof(Nomenclature), UserService.CurrentUserId).CanRead)
 						return true;
 
-					if(AreSupplierNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Counterparty), UserService.CurrentUserId).CanRead)
+					if(AreSupplierNodesSelected && _commonServices.PermissionService.ValidateUserPermission(typeof(Counterparty), UserService.CurrentUserId).CanRead)
 						return true;
 
 					return false;

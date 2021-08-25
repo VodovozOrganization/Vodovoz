@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
@@ -15,8 +16,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	public class DriverComplaintReasonsJournalViewModel : FilterableSingleEntityJournalViewModelBase<DriverComplaintReason, DriverComplaintReasonViewModel, DriverComplaintReasonJournalNode, DriverComplaintReasonJournalFilterViewModel>
 	{
 		public DriverComplaintReasonsJournalViewModel(
-			DriverComplaintReasonJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			DriverComplaintReasonJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал причин оценки адреса";
 
@@ -52,13 +56,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		protected override Func<DriverComplaintReasonViewModel> CreateDialogFunction => () => new DriverComplaintReasonViewModel(
 			  EntityUoWBuilder.ForCreate(),
 			  UnitOfWorkFactory,
-			  commonServices
+			  CommonServices
 		  );
 
-		protected override Func<DriverComplaintReasonJournalNode, DriverComplaintReasonViewModel> OpenDialogFunction => (node) => new DriverComplaintReasonViewModel(
+		protected override Func<JournalEntityNodeBase, DriverComplaintReasonViewModel> OpenDialogFunction => (node) => new DriverComplaintReasonViewModel(
 			   EntityUoWBuilder.ForOpen(node.Id),
 			   UnitOfWorkFactory,
-			   commonServices
+			   CommonServices
 		   );
 	}
 }

@@ -1,35 +1,25 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetActionWidgetResolver
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		public PromotionalSetActionWidgetResolver(
 			IUnitOfWork uow, 
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository)
+			INomenclatureSelectorFactory nomenclatureSelectorFactory)
 		{
 			_uow = uow;
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 		}
 		
 		public WidgetViewModelBase Resolve(PromotionalSet promotionalSet, PromotionalSetActionType setActionType)
@@ -39,10 +29,7 @@ namespace Vodovoz.ViewModels.Orders
 					var filter = new NomenclatureFilterViewModel();
 					filter.RestrictCategory = NomenclatureCategory.water;
 					
-					var nomenclatureSelectorFactory =
-						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, filter, _counterpartySelectorFactory,
-							 _nomenclatureRepository, _userRepository);
+					var nomenclatureSelectorFactory = _nomenclatureSelectorFactory.CreateNomenclatureAutocompleteSelectorFactory(filter);
 					
 					return new AddFixPriceActionViewModel(_uow, promotionalSet, ServicesConfig.CommonServices, nomenclatureSelectorFactory);
 				default: 

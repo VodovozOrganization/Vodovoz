@@ -15,7 +15,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels

@@ -7,6 +7,7 @@ using QS.Services;
 using System;
 using NHibernate.Criterion;
 using QS.Project.DB;
+using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
@@ -16,8 +17,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
 	public class ComplaintObjectJournalViewModel : FilterableSingleEntityJournalViewModelBase<ComplaintObject, ComplaintObjectViewModel, ComplaintObjectJournalNode, ComplaintObjectJournalFilterViewModel>
 	{
-		public ComplaintObjectJournalViewModel(ComplaintObjectJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public ComplaintObjectJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			ComplaintObjectJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Объекты рекламаций";
 
@@ -69,9 +74,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		};
 
 		protected override Func<ComplaintObjectViewModel> CreateDialogFunction => () =>
-			new ComplaintObjectViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+			new ComplaintObjectViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices);
 
-		protected override Func<ComplaintObjectJournalNode, ComplaintObjectViewModel> OpenDialogFunction =>
-			(node) => new ComplaintObjectViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+		protected override Func<JournalEntityNodeBase, ComplaintObjectViewModel> OpenDialogFunction =>
+			(node) => new ComplaintObjectViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices);
 	}
 }

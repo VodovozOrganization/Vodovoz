@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -15,14 +16,16 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels
 {
+	//TODO Проверить работу журнала
 	public class NomenclatureBalanceByStockJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<Warehouse, WarehouseViewModel, NomenclatureBalanceByStockJournalNode, NomenclatureBalanceByStockFilterViewModel>
 	{
 		public NomenclatureBalanceByStockJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			NomenclatureBalanceByStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			UpdateOnChanges(
 				typeof(Warehouse),
@@ -78,7 +81,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 		protected override Func<WarehouseViewModel> CreateDialogFunction => () =>
 			throw new NotSupportedException("Не поддерживается создание склада из журнала");
 
-		protected override Func<NomenclatureBalanceByStockJournalNode, WarehouseViewModel> OpenDialogFunction => (node) =>
+		protected override Func<JournalEntityNodeBase, WarehouseViewModel> OpenDialogFunction => (node) =>
 			throw new NotSupportedException("Не поддерживается открытие склада из журнала");
 
 		protected override void CreateNodeActions()

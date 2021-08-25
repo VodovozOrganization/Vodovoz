@@ -8,6 +8,7 @@ using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
@@ -36,11 +37,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
 		public DeliveryPointByClientJournalViewModel(
-			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
-			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory, NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			EntitiesJournalActionsViewModel journalActionsViewModel, IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener,
+			IPhoneRepository phoneRepository, IContactsParameters contactsParameters, ICitiesDataLoader citiesLoader,
+			IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader, INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			NomenclatureFixedPriceController nomenclatureFixedPriceController, DeliveryPointJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал точек доставки клиента";
 			if(FilterViewModel.Counterparty == null)
@@ -65,12 +67,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			);
 		}
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			EntitiesJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
+				true, true, true, false);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<DeliveryPoint>> ItemsSourceQueryFunction => (uow) =>
@@ -126,14 +126,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				_citiesLoader, _streetsLoader, _housesLoader,
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
-				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices);
 
-		protected override Func<DeliveryPointByClientJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
+		protected override Func<JournalEntityNodeBase, DeliveryPointViewModel> OpenDialogFunction => (node) =>
 			new DeliveryPointViewModel(
 				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
 				_citiesLoader, _streetsLoader, _housesLoader,
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
-				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices);
 	}
 }

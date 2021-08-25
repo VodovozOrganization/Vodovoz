@@ -57,14 +57,13 @@ namespace Vodovoz.Views.Complaints
 				var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 				
 				return new OrderJournalViewModel(
+					journalActions,
 					filter, 
 					UnitOfWorkFactory.GetDefaultFactory, 
 					ServicesConfig.CommonServices,
 					ViewModel.EmployeeService,
 					ViewModel.NomenclatureSelectorFactory,
-					ViewModel.CounterpartySelectorFactory,
 					ViewModel.NomenclatureRepository,
-					ViewModel.UserRepository,
 					ViewModel.OrderSelectorFactory,
 					ViewModel.EmployeeJournalFactory,
 					ViewModel.CounterpartyJournalFactory,

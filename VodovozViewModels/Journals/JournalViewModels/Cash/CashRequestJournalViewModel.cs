@@ -4,11 +4,9 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services.Interactive;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
@@ -19,8 +17,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
@@ -32,33 +30,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             CashRequestJournalFilterViewModel
         >
     {
-        private readonly IFileChooserProvider fileChooserProvider;
-        private readonly IEmployeeRepository employeeRepository;
-        private readonly CashRepository cashRepository;
-        private readonly ConsoleInteractiveService consoleInteractiveService;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly CashRepository _cashRepository;
         private readonly IEmployeeJournalFactory _employeeJournalFactory;
         private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-        
+        private readonly IExpenseCategoryJournalFactory _expenseCategoryJournalFactory;
+
         public CashRequestJournalViewModel(
 	        EntitiesJournalActionsViewModel journalActionsViewModel,
             CashRequestJournalFilterViewModel filterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
             CashRepository cashRepository,
-            ConsoleInteractiveService consoleInteractiveService,
             IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
-        ) : base(filterViewModel, unitOfWorkFactory, commonServices)
+            ISubdivisionJournalFactory subdivisionJournalFactory,
+	        IExpenseCategoryJournalFactory expenseCategoryJournalFactory
+        ) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
-        {
-            this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-            this.cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-            this.consoleInteractiveService = consoleInteractiveService ?? throw new ArgumentNullException(nameof(consoleInteractiveService));
+            _employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+            _cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
             _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+            _expenseCategoryJournalFactory =
+	            expenseCategoryJournalFactory ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFactory));
 
             TabName = "Журнал заявок ДС";
             
@@ -134,7 +129,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             }
 
             var userId = CommonServices.UserService.CurrentUserId;
-            var currentEmployee = employeeRepository.GetEmployeesForUser(uow, userId).First();
+            var currentEmployee = _employeeRepository.GetEmployeesForUser(uow, userId).First();
             var currentEmployeeId = currentEmployee.Id;
 
             if (!CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
@@ -207,22 +202,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             EntityUoWBuilder.ForCreate(),
             UnitOfWorkFactory,
             CommonServices,
-            fileChooserProvider,
-            employeeRepository,
-            cashRepository,
+            _employeeRepository,
+            _cashRepository,
             _employeeJournalFactory,
-            _subdivisionJournalFactory
+            _subdivisionJournalFactory,
+            _expenseCategoryJournalFactory
         );
         protected override Func<JournalEntityNodeBase, CashRequestViewModel> OpenDialogFunction =>
             node => new CashRequestViewModel(
                 EntityUoWBuilder.ForOpen(node.Id),
                 UnitOfWorkFactory,
                 CommonServices,
-                fileChooserProvider,
-                employeeRepository,
-                cashRepository,
+                _employeeRepository,
+                _cashRepository,
                 _employeeJournalFactory,
-                _subdivisionJournalFactory
+                _subdivisionJournalFactory,
+                _expenseCategoryJournalFactory
             );
     }
 }

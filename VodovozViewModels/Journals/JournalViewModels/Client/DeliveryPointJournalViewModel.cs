@@ -9,6 +9,7 @@ using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
@@ -33,11 +34,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
 		public DeliveryPointJournalViewModel(
-			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
-			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory, NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			EntitiesJournalActionsViewModel journalActionsViewModel, IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener,
+			IPhoneRepository phoneRepository, IContactsParameters contactsParameters, ICitiesDataLoader citiesLoader,
+			IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader, INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			NomenclatureFixedPriceController nomenclatureFixedPriceController, DeliveryPointJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -142,12 +144,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () => throw new NotImplementedException();
 
-		protected override Func<DeliveryPointJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
+		protected override Func<JournalEntityNodeBase, DeliveryPointViewModel> OpenDialogFunction => (node) =>
 			new DeliveryPointViewModel(
-				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
-				_citiesLoader, _streetsLoader, _housesLoader,
-				_nomenclatureSelectorFactory,
-				_nomenclatureFixedPriceController,
-				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters, _citiesLoader, _streetsLoader, _housesLoader,
+				_nomenclatureSelectorFactory, _nomenclatureFixedPriceController, EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory,
+				CommonServices);
 	}
 }

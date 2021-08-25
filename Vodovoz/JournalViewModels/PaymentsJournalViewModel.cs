@@ -18,6 +18,7 @@ using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
@@ -31,6 +32,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly PaymentsJournalActionsViewModel _paymentsJournalActionsViewModel;
 
 		public PaymentsJournalViewModel(
 			PaymentsJournalActionsViewModel journalActionsViewModel,
@@ -41,7 +43,7 @@ namespace Vodovoz.JournalViewModels
 			IOrderRepository orderRepository,
 			IOrganizationParametersProvider organizationParametersProvider,
 			IProfitCategoryProvider profitCategoryProvider,
-			IPaymentsRepository paymentsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IPaymentsRepository paymentsRepository) : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -49,6 +51,7 @@ namespace Vodovoz.JournalViewModels
 			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_paymentsJournalActionsViewModel = journalActionsViewModel;
 			_navigationManager = navigationManager;
 			
 			TabName = "Журнал платежей из банк-клиента";
@@ -165,7 +168,7 @@ namespace Vodovoz.JournalViewModels
 						_paymentsRepository
 					),
 					//функция идентификации документа 
-					(PaymentJournalNode node) => node.EntityType == typeof(Payment),
+					node => node.EntityType == typeof(Payment),
 					"Платежи",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true }
 				);

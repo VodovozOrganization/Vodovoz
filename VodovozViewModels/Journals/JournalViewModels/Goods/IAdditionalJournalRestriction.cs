@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.Entity;
 using System.Linq.Expressions;
+using QS.DomainModel.Entity;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public interface IAdditionalJournalRestriction<T> where T : IDomainObject
 	{

@@ -29,13 +29,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IEmployeeService _employeeService;
 
 		public CarEventJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			CarEventFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
 			IEmployeeService employeeService)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
 
@@ -161,16 +162,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			() => new CarEventViewModel(
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory,
-				commonServices,
+				CommonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
 				_employeeService);
 
-		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
+		protected override Func<JournalEntityNodeBase, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
-				commonServices,
+				CommonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
 				_employeeService);

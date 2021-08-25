@@ -2,7 +2,7 @@
 using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 {
 	public class NomenclatureJournalNode : JournalEntityNodeBase<Nomenclature>
 	{

@@ -493,6 +493,8 @@
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
+    <Compile Include="TempAdapters\ExpenseCategoryJournalFactory.cs" />
+    <Compile Include="TempAdapters\IncomeCategoryJournalFactory.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -1212,8 +1214,6 @@
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
     <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />
-    <Compile Include="JournalViewModels\NomenclaturesJournalViewModel.cs" />
-    <Compile Include="JournalNodes\NomenclatureJournalNode.cs" />
     <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\NomenclaturesFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturesFilterView.cs" />
@@ -1259,8 +1259,6 @@
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
-    <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
-    <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWagePrameterView.cs" />
@@ -1300,8 +1298,6 @@
     <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
     <Compile Include="ViewModels\Orders\ICreationControl.cs" />
     <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
-    <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
-    <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
     <Compile Include="JournalViewModels\CarJournalViewModel.cs" />
     <Compile Include="JournalNodes\CarJournalNode.cs" />
     <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
@@ -1501,7 +1497,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.ProductGroupView.cs" />
     <Compile Include="Views\Warehouse\IncomingInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.IncomingInvoiceView.cs" />
-    <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />
     <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
@@ -1855,6 +1850,7 @@
     <Folder Include="Dialogs\DocumentDialogs\" />
     <Folder Include="Reports\" />
     <Folder Include="Representations\" />
+    <Folder Include="ViewModels\Goods" />
     <Folder Include="ViewWidgets\" />
     <Folder Include="ServiceDialogs\" />
     <Folder Include="ServiceDialogs\LoadFrom1c\" />
@@ -1937,7 +1933,6 @@
     <Folder Include="Views\Orders\" />
     <Folder Include="ViewModels\Orders\" />
     <Folder Include="ViewWidgets\PromoSetAction\" />
-    <Folder Include="JournalSelector\" />
     <Folder Include="Views\Contacts\" />
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />

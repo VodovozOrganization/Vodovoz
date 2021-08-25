@@ -28,10 +28,12 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IList<Subdivision> _subdivisionsOnStart;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 
 		public ComplaintKindViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory, Action updateJournalAction, ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory, Action updateJournalAction,
+			ISalesPlanJournalFactory salesPlanJournalFactory, INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -39,6 +41,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
@@ -63,17 +66,10 @@ namespace Vodovoz.ViewModels.Complaints
 		#region Commands
 
 		public DelegateCommand AttachSubdivisionCommand => _attachSubdivisionCommand ?? (_attachSubdivisionCommand = new DelegateCommand(() =>
-				{
-					var subdivisionFilter = new SubdivisionFilterViewModel();
-					var subdivisionJournalViewModel = new SubdivisionsJournalViewModel(
-						subdivisionFilter,
-						_unitOfWorkFactory,
-						_commonServices,
-						_employeeSelectorFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory
-					);
-					subdivisionJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+			{
+				var subdivisionJournalViewModel =
+					_subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory(_employeeSelectorFactory).CreateSelector();
+				
 					subdivisionJournalViewModel.OnEntitySelectedResult += (sender, e) =>
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();

@@ -25,12 +25,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         private readonly IEmployeeService _employeeService;
         
         public OrganizationCashTransferDocumentJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
 	        OrganizationCashTransferDocumentFilterViewModel filterViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        ICommonServices commonServices,
 	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
 	        IEmployeeService employeeService)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
             _entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
             _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -102,13 +103,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	            EntityUoWBuilder.ForCreate(),
 	            UnitOfWorkFactory,
 	            CommonServices,
-	            entityExtendedPermissionValidator);
+	            _entityExtendedPermissionValidator,
+	            _employeeService);
 
         protected override Func<JournalEntityNodeBase, OrganizationCashTransferDocumentViewModel> OpenDialogFunction =>
             node => new OrganizationCashTransferDocumentViewModel(
 	            EntityUoWBuilder.ForOpen(node.Id),
 	            UnitOfWorkFactory,
 	            CommonServices,
-	            entityExtendedPermissionValidator);
+	            _entityExtendedPermissionValidator,
+	            _employeeService);
     }
 }

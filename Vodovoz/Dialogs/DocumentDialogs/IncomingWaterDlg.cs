@@ -6,7 +6,6 @@ using QS.Validation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories.Employees;
@@ -14,13 +13,7 @@ using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.ViewModels;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -115,22 +108,9 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
-			var nomenclatureRepository = 
-				new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
 			
 			var nomenclatureAutoCompleteSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices,
-					nomenclatureFilter,
-					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
-					counterpartySelectorFactory,
-					nomenclatureRepository,
-					_userRepository
-				);
+				new NomenclatureSelectorFactory().CreateNomenclatureAutocompleteSelectorFactory(nomenclatureFilter);
 			
 			yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
 			yentryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();

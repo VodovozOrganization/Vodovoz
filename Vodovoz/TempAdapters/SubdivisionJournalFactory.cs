@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -13,6 +14,7 @@ namespace Vodovoz.TempAdapters
 		private IEmployeeJournalFactory _employeeJournalFactory;
 		private ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private EntitiesJournalActionsViewModel _entitiesJournalActionsViewModel;
 
 		public SubdivisionJournalFactory(SubdivisionFilterViewModel filterViewModel = null)
 		{
@@ -24,60 +26,82 @@ namespace Vodovoz.TempAdapters
 			_employeeJournalFactory = new EmployeeJournalFactory();
 			_salesPlanJournalFactory = new SalesPlanJournalFactory();
 			_nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+			_entitiesJournalActionsViewModel = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+		}
+		
+		private SubdivisionsJournalViewModel CreateNewInstanceOfSubdivisionsJournal(
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory, SubdivisionFilterViewModel filterViewModel)
+		{
+			return new SubdivisionsJournalViewModel(
+				_entitiesJournalActionsViewModel,
+				filterViewModel ?? new SubdivisionFilterViewModel(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				_salesPlanJournalFactory,
+				_nomenclatureSelectorFactory);
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
 		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
-					_filterViewModel ?? new SubdivisionFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+				() => CreateSubdivisionsJournal(employeeSelectorFactory));
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
 		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel
-					{
-						SubdivisionType = SubdivisionType.Default
-					},
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+				() => CreateDefaultSubdivisionsJournal(employeeSelectorFactory));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
 		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel
-					{
-						SubdivisionType = SubdivisionType.Logistic
-					},
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+				() => CreateLogisticSubdivisionsJournal(employeeSelectorFactory));
+		}
+		
+		public IEntitySelector CreateSubdivisionsSelector(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		{
+			CreateNewDependencies();
+
+			return CreateNewInstanceOfSubdivisionsJournal(employeeSelectorFactory, _filterViewModel);
+		}
+		
+		public SubdivisionsJournalViewModel CreateSubdivisionsJournal(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		{
+			CreateNewDependencies();
+
+			return CreateNewInstanceOfSubdivisionsJournal(employeeSelectorFactory, _filterViewModel);
+		}
+
+		public SubdivisionsJournalViewModel CreateDefaultSubdivisionsJournal(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		{
+			CreateNewDependencies();
+
+			var filter = new SubdivisionFilterViewModel
+			{
+				SubdivisionType = SubdivisionType.Default
+			};
+			
+			return CreateNewInstanceOfSubdivisionsJournal(employeeSelectorFactory, filter);
+		}
+		
+		public SubdivisionsJournalViewModel CreateLogisticSubdivisionsJournal(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+		{
+			CreateNewDependencies();
+			
+			var filter = new SubdivisionFilterViewModel
+			{
+				SubdivisionType = SubdivisionType.Logistic
+			};
+			
+			return CreateNewInstanceOfSubdivisionsJournal(employeeSelectorFactory, filter);
 		}
 	}
 }

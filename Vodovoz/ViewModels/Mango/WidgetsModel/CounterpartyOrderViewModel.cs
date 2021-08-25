@@ -11,20 +11,13 @@ using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.Journals.JournalActionsViewModels;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -46,8 +39,8 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly RouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IParametersProvider _parametersProvider;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
@@ -70,7 +63,7 @@ namespace Vodovoz.ViewModels.Mango
 			IOrderParametersProvider orderParametersProvider,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IParametersProvider parametersProvider,
 			int count = 5)
 		{
@@ -81,7 +74,7 @@ namespace Vodovoz.ViewModels.Mango
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
@@ -208,12 +201,8 @@ namespace Vodovoz.ViewModels.Mango
 			if (order != null)
 			{
 				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
 				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-
-				var nomenclatureSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
+				var nomenclatureSelectorFactory = _nomenclatureSelectorFactory.CreateNomenclatureAutocompleteSelectorFactory();
 
 				var parameters = new Dictionary<string, object> {
 					{"order", order},

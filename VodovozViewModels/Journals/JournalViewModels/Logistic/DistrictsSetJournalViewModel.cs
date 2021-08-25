@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
@@ -110,7 +111,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				UnitOfWorkFactory,
 				CommonServices,
 				entityDeleteWorker,
-				employeeRepository);
+				employeeRepository,
+				new DistrictRuleRepository());
 
 		protected override void InitializeJournalActionsViewModel()
 		{
@@ -189,8 +191,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						TabParent.AddSlaveTab(this, 
 							new DistrictsSetActivationViewModel(
 								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-								commonServices,
+								UnitOfWorkFactory,
+								CommonServices,
 								new EmployeeRepository()
 								)
 						);

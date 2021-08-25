@@ -12,9 +12,7 @@ using Vodovoz.Domain.Sale;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalActionsViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {

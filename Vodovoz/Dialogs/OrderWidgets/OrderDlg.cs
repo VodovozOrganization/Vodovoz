@@ -69,7 +69,6 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -80,6 +79,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -123,6 +123,9 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -132,41 +135,6 @@ namespace Vodovoz
 		
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
-		private  INomenclatureRepository nomenclatureRepository;
-		public virtual INomenclatureRepository NomenclatureRepository {
-			get {
-				if (nomenclatureRepository == null) {
-					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
-				}
-				return nomenclatureRepository;
-			}
-		}
-		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-			get {
-				if(counterpartySelectorFactory == null) {
-					counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-				};
-				return counterpartySelectorFactory;
-			}
-		}
-		
-		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
-			get {
-				if(nomenclatureSelectorFactory == null) {
-					nomenclatureSelectorFactory =
-						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, _userRepository);
-				}
-				return nomenclatureSelectorFactory;
-			}
-		}
-		
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets {
@@ -462,7 +430,7 @@ namespace Vodovoz
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
-				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, NomenclatureRepository, Entity).ToString();
+				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, _nomenclatureRepository, Entity).ToString();
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
 
@@ -1611,24 +1579,11 @@ namespace Vodovoz
 				x => x.RestrictCategory = NomenclatureCategory.master,
 				x => x.RestrictArchive = false
 			);
-			var nomenclaturesJournalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclaturesJournalActions,
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				_employeeService,
-				NomenclatureSelectorFactory,
-				CounterpartySelectorFactory,
-				NomenclatureRepository,
-				_userRepository
-			) {
-				SelectionMode = JournalSelectionMode.Single,
-				AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices),
-				TabName = "Выезд мастера",
-			};
-			
+			var journalViewModel = _nomenclatureSelectorFactory.CreateNomenclaturesJournal(nomenclatureFilter);
+			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+			journalViewModel.TabName = "Выезд мастера";
+
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
@@ -1654,23 +1609,11 @@ namespace Vodovoz
 				x => x.SelectSaleCategory = SaleCategory.forSale,
 				x => x.RestrictArchive = false
 			);
-			var nomenclaturesJournalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclaturesJournalActions,
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				_employeeService,
-				NomenclatureSelectorFactory,
-				CounterpartySelectorFactory,
-				NomenclatureRepository,
-				_userRepository
-			) {
-				SelectionMode = JournalSelectionMode.Single,
-				AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices),
-				TabName = "Номенклатура на продажу",
-			};
+			
+			var journalViewModel = _nomenclatureSelectorFactory.CreateNomenclaturesJournal(nomenclatureFilter);
+			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+			journalViewModel.TabName = "Номенклатура на продажу";
+			
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)

@@ -17,17 +17,18 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{
 		private readonly int currentUserId;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
@@ -38,7 +39,7 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
@@ -51,7 +52,7 @@ namespace Vodovoz.JournalViewModels
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Журнал ТМЦ";
-			this.currentUserId = commonServices.UserService.CurrentUserId;
+			currentUserId = commonServices.UserService.CurrentUserId;
 			SetOrder(x => x.Name);
 			UpdateOnChanges(
 				typeof(Nomenclature),
@@ -61,9 +62,6 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderItem)
 			);
 		}
-
-		[Obsolete("Лучше передавать через фильтр")]
-		public int[] ExcludingNomenclatureIds { get; set; }
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
@@ -109,9 +107,6 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.RestrictedExcludedIds != null && FilterViewModel.RestrictedExcludedIds.Any()) {
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(FilterViewModel.RestrictedExcludedIds.ToArray()));
 			}
-
-			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
-				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
 
 			itemsQuery.Where(
 				GetSearchCriterion(
@@ -172,13 +167,13 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
 			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+				employeeService, nomenclatureSelectorFactory.CreateNomenclatureAutocompleteSelectorFactory(FilterViewModel),
+				counterpartySelectorFactory, nomenclatureRepository, userRepository);
 
 		protected override Func<JournalEntityNodeBase, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(
 				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+				employeeService, nomenclatureSelectorFactory.CreateNomenclatureAutocompleteSelectorFactory(FilterViewModel),
+				counterpartySelectorFactory, nomenclatureRepository, userRepository);
 	}
 }

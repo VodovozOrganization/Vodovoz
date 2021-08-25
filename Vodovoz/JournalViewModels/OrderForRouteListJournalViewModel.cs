@@ -20,6 +20,8 @@ using Vodovoz.JournalNodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
@@ -56,7 +58,8 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -309,7 +312,7 @@ namespace Vodovoz.JournalViewModels
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
 
 						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-							commonServices,
+							CommonServices,
 							_orderSelectorFactory,
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
@@ -323,9 +326,10 @@ namespace Vodovoz.JournalViewModels
 						};
 
 						var dlg = new UndeliveredOrdersJournalViewModel(
+							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 							undeliveredOrdersFilter,
 							UnitOfWorkFactory,
-							commonServices,
+							CommonServices,
 							_gtkDialogsOpener,
 							_employeeJournalFactory,
 							_employeeService,

@@ -664,7 +664,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			_nomenclaturePlanCommand ?? (_nomenclaturePlanCommand = new DelegateCommand(() =>
 			{
 				TabParent.OpenTab(() => new NomenclaturesPlanJournalViewModel(
-					new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
+					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+					new NomenclaturePlanFilterViewModel
+					{
+						HidenByDefault = true
+					},
 					_unitOfWorkFactory,
 					_commonServices)
 				);

@@ -6,10 +6,8 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -19,11 +17,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IFileChooserProvider fileChooserProvider,
-			ExpenseCategoryJournalFilterViewModel journalFilterViewModel,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory
-			) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IExpenseCategoryJournalFactory expenseCategoryJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(employeeJournalFactory == null)
 			{
@@ -35,19 +31,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			}
 			
-			ExpenseCategoryAutocompleteSelectorFactory = 
-				new ExpenseCategoryAutoCompleteSelectorFactory(
-					commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
-
+			if(expenseCategoryJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(expenseCategoryJournalFactory));
+			}
+			
+			ExpenseCategoryAutocompleteSelectorFactory = expenseCategoryJournalFactory.CreateExpenseCategoryAutocompleteSelector();
+			
 			SubdivisionAutocompleteSelectorFactory =
 				subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
 					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			
-			if(uowBuilder.IsNewEntity)
-				TabName = "Создание новой категории расхода";
-			else
-				TabName = $"{Entity.Title}";
-			
+			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";	
 		}
 		
 		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }

@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -14,8 +15,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	public class EquipmentKindJournalViewModel : SingleEntityJournalViewModelBase<EquipmentKind, EquipmentKindViewModel,
 		EquipmentKindJournalNode>
 	{
-		public EquipmentKindJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(unitOfWorkFactory, commonServices)
+		public EquipmentKindJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал видов оборудования";
 
@@ -45,9 +49,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		};
 
 		protected override Func<EquipmentKindViewModel> CreateDialogFunction => () =>
-			new EquipmentKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+			new EquipmentKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices);
 
-		protected override Func<EquipmentKindJournalNode, EquipmentKindViewModel> OpenDialogFunction =>
-			(node) => new EquipmentKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+		protected override Func<JournalEntityNodeBase, EquipmentKindViewModel> OpenDialogFunction =>
+			(node) => new EquipmentKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices);
 	}
 }

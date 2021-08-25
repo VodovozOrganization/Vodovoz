@@ -21,6 +21,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -55,6 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly UserSettings _userSettings;
 		
 		public EmployeesJournalViewModel(
+			EmployeesJournalActionsViewModel employeesJournalActionsViewModel,
 			EmployeeFilterViewModel filterViewModel,
 			IAuthorizationServiceFactory authorizationServiceFactory,
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
@@ -73,10 +75,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IPhonesViewModelFactory phonesViewModelFactory,
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
-			IUnitOfWorkFactory unitOfWorkFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUnitOfWorkFactory unitOfWorkFactory)
+			: base(employeesJournalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
-		
+			
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
@@ -246,16 +249,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			if (string.IsNullOrWhiteSpace(employee.Email))
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
 				return;
 			}
 			if (_authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
 			}
 			else
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
 			}
 		}
 
@@ -279,7 +282,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 						if(employee.User == null)
 						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
 								"К сотруднику не привязан пользователь!");
 
 							return;
@@ -287,13 +290,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 						if(string.IsNullOrEmpty(employee.User.Login))
 						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
 								"У пользователя не заполнен логин!");
 
 							return;
 						}
 
-						if(commonServices.InteractiveService.Question("Вы уверены?"))
+						if(CommonServices.InteractiveService.Question("Вы уверены?"))
 						{
 							ResetPasswordForEmployee(employee);
 						}
@@ -302,7 +305,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			});
 			
 			PopupActionsList.Add(resetPassAction);
-			NodeActionsList.Add(resetPassAction);
 		}
 
 		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(
@@ -317,7 +319,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_wageCalculationRepository,
 			_employeeRepository,
 			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
-			commonServices,
+			CommonServices,
 			_validationContextFactory,
 			_phonesViewModelFactory,
 			_warehouseRepository,
@@ -327,7 +329,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			new UserRepository(),
 			new BaseParametersProvider(new ParametersProvider()));
 
-		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
+		protected override Func<JournalEntityNodeBase, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
 				_authorizationServiceFactory.CreateNewAuthorizationService(),
 				_employeeWageParametersFactory,
@@ -340,7 +342,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_wageCalculationRepository,
 				_employeeRepository,
 				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),
-				commonServices,
+				CommonServices,
 				_validationContextFactory,
 				_phonesViewModelFactory,
 				_warehouseRepository,

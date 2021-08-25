@@ -100,6 +100,7 @@ namespace Vodovoz
 
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				journalActions,

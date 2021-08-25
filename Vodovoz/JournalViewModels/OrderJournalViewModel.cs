@@ -23,10 +23,11 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
-using QS.Tdi;
+using QS.ViewModels;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
@@ -42,9 +43,7 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private bool userHaveAccessToRetail = false;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -62,10 +61,8 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -73,14 +70,12 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
-		{
+			IUndeliveredOrdersRepository undeliveredOrdersRepository)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
@@ -429,7 +424,7 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices,
+						CommonServices,
 						employeeService,
 						new ParametersProvider()
 					),
@@ -437,7 +432,7 @@ namespace Vodovoz.JournalViewModels
 					node => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices,
+						CommonServices,
 						employeeService,
 						new ParametersProvider()
 					),
@@ -560,7 +555,7 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices,
+						CommonServices,
 						employeeService,
 						new ParametersProvider()
 					),
@@ -568,7 +563,7 @@ namespace Vodovoz.JournalViewModels
 					node => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices,
+						CommonServices,
 						employeeService,
 						new ParametersProvider()
 					),
@@ -683,10 +678,7 @@ namespace Vodovoz.JournalViewModels
 						UnitOfWorkFactory,
 						CommonServices,
 						employeeService,
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository,
+						_nomenclatureSelectorFactory,
 						new OrderRepository(),
 						new ParametersProvider()
 					),
@@ -696,10 +688,7 @@ namespace Vodovoz.JournalViewModels
 						UnitOfWorkFactory,
 						CommonServices,
 						employeeService,
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository,
+						_nomenclatureSelectorFactory,
 						new OrderRepository(),
 						new ParametersProvider()
 					),
@@ -761,7 +750,7 @@ namespace Vodovoz.JournalViewModels
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
 
 						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-							commonServices,
+							CommonServices,
 							_orderSelectorFactory,
 							_employeeJournalFactory, 
 							_counterpartyJournalFactory, 
@@ -775,9 +764,10 @@ namespace Vodovoz.JournalViewModels
 						};
 
 						var dlg = new UndeliveredOrdersJournalViewModel(
+							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 							undeliveredOrdersFilter,
 							UnitOfWorkFactory,
-							commonServices,
+							CommonServices,
 							_gtkDialogsOpener,
 							_employeeJournalFactory,
 							employeeService,

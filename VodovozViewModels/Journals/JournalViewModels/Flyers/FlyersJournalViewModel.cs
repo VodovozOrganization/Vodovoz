@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Flyers;
@@ -20,13 +21,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 		private readonly IFlyerRepository _flyerRepository;
 		
 		public FlyersJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IFlyerRepository flyerRepository,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false
-		) : base(uowFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		) : base(journalActionsViewModel, uowFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			_nomenclatureSelectorFactory =
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -69,15 +71,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 			new FlyerViewModel(
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory,
-				commonServices,
+				CommonServices,
 				_nomenclatureSelectorFactory,
 				_flyerRepository);
 		
-		protected override Func<FlyersJournalNode, FlyerViewModel> OpenDialogFunction => n =>
+		protected override Func<JournalEntityNodeBase, FlyerViewModel> OpenDialogFunction => n =>
 			new FlyerViewModel(
 				EntityUoWBuilder.ForOpen(n.Id),
 				UnitOfWorkFactory,
-				commonServices,
+				CommonServices,
 				_nomenclatureSelectorFactory,
 				_flyerRepository);
 	}

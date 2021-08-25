@@ -8,7 +8,6 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -49,7 +48,7 @@ namespace Vodovoz.Representations
             OrderPaymentSettings orderPaymentSettings,
 			OrderParametersProvider orderParametersProvider,
 	        IEmployeeService employeeService) 
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
             _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             _orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
@@ -270,7 +269,7 @@ namespace Vodovoz.Representations
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
                                     UnitOfWorkFactory,
-									commonServices,
+									CommonServices,
                                     _callTaskWorker,
                                     _orderPaymentSettings,
 									_orderParametersProvider,

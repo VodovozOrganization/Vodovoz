@@ -13,19 +13,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.EntityRepositories.Store;
 using QS.Project.Services;
 using QS.Project.Journal;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalSelector;
-using Vodovoz.Domain.Client;
-using QS.Project.Journal.EntitySelector;
 using QS.ViewModels;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.TempAdapters;
 
@@ -35,15 +27,12 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		
 		RegradingOfGoodsDocumentItem newRow;
 		RegradingOfGoodsDocumentItem FineEditItem;
 
 		private readonly EntitiesJournalActionsViewModel _nomenclatureStockBalanceJournalActions = 
-			new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-		private readonly EntitiesJournalActionsViewModel _nomenclaturesJournalActions = 
 			new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 		public RegradingOfGoodsDocumentItemsView()
@@ -194,42 +183,7 @@ namespace Vodovoz
 					AmountInStock = selectedNode.StockAmount
 				};
 
-				var nomenclatureFilter = new NomenclatureFilterViewModel();
-
-				var userRepository = new UserRepository();
-
-				var employeeService = VodovozGtkServicesConfig.EmployeeService;
-
-				var counterpartySelectorFactory =
-					new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-						ServicesConfig.CommonServices);
-
-				var nomenclatureAutoCompleteSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-						ServicesConfig.CommonServices,
-						nomenclatureFilter,
-						new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
-						counterpartySelectorFactory,
-						_nomenclatureRepository,
-						userRepository
-						);
-
-				var nomenclaturesJournalViewModel =
-					new NomenclaturesJournalViewModel(
-						_nomenclaturesJournalActions,
-						nomenclatureFilter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						employeeService,
-						nomenclatureAutoCompleteSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository
-					)
-					{
-						SelectionMode = JournalSelectionMode.Single
-					};
-
+				var nomenclaturesJournalViewModel = _nomenclatureSelectorFactory.CreateNomenclaturesJournal();
 				nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
@@ -297,42 +251,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-
-			var userRepository = new UserRepository();
-
-			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
-
-			var nomenclatureAutoCompleteSelectorFactory = 
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices,
-					filter,
-					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
-					counterpartySelectorFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
-			var nomenclaturesJournalViewModel =
-				new NomenclaturesJournalViewModel(
-					_nomenclaturesJournalActions,
-					filter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					nomenclatureAutoCompleteSelectorFactory,
-					counterpartySelectorFactory,
-					_nomenclatureRepository,
-					userRepository
-				)
-				{
-					SelectionMode = JournalSelectionMode.Single
-				};
-
+			var nomenclaturesJournalViewModel = _nomenclatureSelectorFactory.CreateNomenclaturesJournal();
 			nomenclaturesJournalViewModel.OnEntitySelectedResult += ChangeNewNomenclature_OnEntitySelectedResult;
 
 			MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);

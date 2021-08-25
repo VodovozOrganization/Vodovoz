@@ -9,10 +9,10 @@ using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -137,8 +137,6 @@ namespace Vodovoz.Filters.ViewModels
 
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
+				new NomenclatureSelectorFactory().CreateNomenclatureAutocompleteSelectorFactory());
 	}
 }

@@ -20,8 +20,6 @@ namespace Vodovoz.ViewModels.WageCalculation
 	public class SalesPlanViewModel : EntityTabViewModelBase<SalesPlan>
 	{
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ICommonServices _commonServices;
 		private DelegateCommand _addNomenclatureItemCommand;
 		private DelegateCommand<NomenclatureSalesPlanItem> _removeNomenclatureItemCommand;
 		private DelegateCommand _addEquipmentKindItemCommand;
@@ -30,11 +28,13 @@ namespace Vodovoz.ViewModels.WageCalculation
 		private DelegateCommand<EquipmentTypeSalesPlanItem> _removeEquipmentTypeItemCommand;
 
 
-		public SalesPlanViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		public SalesPlanViewModel(
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 		}
 
 		public Array EquipmentTypes => Enum.GetValues(typeof(EquipmentType));
@@ -85,7 +85,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public DelegateCommand AddEquipmentKindItemCommand =>
 			_addEquipmentKindItemCommand ?? (_addEquipmentKindItemCommand = new DelegateCommand(() =>
 				{
-					var equipmentKindSelector = new EquipmentKindJournalViewModel(_unitOfWorkFactory, _commonServices)
+					var equipmentKindSelector = new EquipmentKindJournalViewModel(
+						new EntitiesJournalActionsViewModel(CommonServices.InteractiveService), UnitOfWorkFactory, CommonServices)
 					{
 						SelectionMode = JournalSelectionMode.Multiple
 					};

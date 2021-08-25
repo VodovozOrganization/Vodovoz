@@ -7,17 +7,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.JournalFilters;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using VodovozInfrastructure.Interfaces;
-using QS.Project.Services;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
 {
@@ -38,92 +31,18 @@ namespace Vodovoz
 
 		private void ConfigureEntityViewModelEntry()
 		{
-			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
 			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
 				ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
 			
-			var commonServices = ServicesConfig.CommonServices;
-			var journalActions = new EntitiesJournalActionsViewModel(commonServices.InteractiveService);
-			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
-			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			
 			var incomeCategoryAutocompleteSelectorFactory =
-				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
-					() =>
-					{
-						var incomeCategoryJournalViewModel =
-							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
-								journalActions,
-								x => x.Name,
-								() => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									chooserIncomeProvider,
-									incomeCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								node => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									chooserIncomeProvider,
-									incomeCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								UnitOfWorkFactory.GetDefaultFactory,
-								commonServices
-							)
-							{
-								SelectionMode = JournalSelectionMode.Single
-							};
-						return incomeCategoryJournalViewModel;
-					});
+				new IncomeCategoryJournalFactory().CreateIncomeCategoryAutocompleteSelector(
+					null, "Приход " + DateTime.Now + ".csv");
 			
-
 			var expenseCategoryAutocompleteSelectorFactory =
-				new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-					() =>
-					{
-						var expenseCategoryJournalViewModel =
-							new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-								journalActions,
-								x => x.Name,
-								() => new ExpenseCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									chooserExpenseProvider,
-									expenseCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								node => new ExpenseCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									chooserExpenseProvider,
-									expenseCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices
-							)
-							{
-								SelectionMode = JournalSelectionMode.Single
-							};
-						expenseCategoryJournalViewModel.SetFilter(expenseCategoryFilter,
-							filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
-
-						return expenseCategoryJournalViewModel;
-					});
+				new ExpenseCategoryJournalFactory().CreateExpenseCategoryAutocompleteSelector(
+					expenseCategoryFilter, "Расход " + DateTime.Now + ".csv");
 			
 			entityVMEntryCashIncomeCategory.SetEntityAutocompleteSelectorFactory(incomeCategoryAutocompleteSelectorFactory);
 			entityVMEntryCashExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategoryAutocompleteSelectorFactory);

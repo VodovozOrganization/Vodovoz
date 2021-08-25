@@ -12,6 +12,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -260,7 +261,8 @@ namespace Vodovoz
 				x => x.RestrictHideService = true
 			);
 
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			var orderSelectDialog = new OrderForRouteListJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
 				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository())

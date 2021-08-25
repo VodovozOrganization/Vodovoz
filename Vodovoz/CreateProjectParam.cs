@@ -84,7 +84,6 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
@@ -102,6 +101,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.JournalFilters.Proposal;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -133,6 +133,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
+using Vodovoz.ViewWidgets.JournalActions;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 
 namespace Vodovoz
@@ -431,6 +432,7 @@ namespace Vodovoz
 			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
 			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
 			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
+			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
 			
 			#endregion
 			
@@ -479,8 +481,6 @@ namespace Vodovoz
 				.AsSelf();
 			builder.Register(x => new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService)).AsSelf();
 			
-			#endregion
-
 			#endregion
 
 			AppDIContainer = builder.Build();

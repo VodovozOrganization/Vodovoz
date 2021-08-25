@@ -5,20 +5,12 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Services;
-using QS.ViewModels;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
-using Vodovoz.Journals.JournalActionsViewModels;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
@@ -31,7 +23,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion _interactive;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly IUnitOfWork _uow;
 		
 		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
@@ -40,13 +32,13 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
+			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(navigation, manager)
 		{
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
@@ -96,12 +88,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public void CreateComplaintCommand()
 		{
 			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
 			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
-
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-					new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
+			var nomenclatureSelectorFactory = _nomenclatureSelectorFactory.CreateNomenclatureAutocompleteSelectorFactory();
 
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},

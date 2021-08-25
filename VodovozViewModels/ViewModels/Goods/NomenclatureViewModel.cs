@@ -13,7 +13,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 
-namespace Vodovoz.ViewModels.Goods
+namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>
 	{

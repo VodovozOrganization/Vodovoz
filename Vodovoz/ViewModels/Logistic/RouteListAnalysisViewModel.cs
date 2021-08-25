@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Project.Journal;
+using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
@@ -158,6 +159,7 @@ namespace Vodovoz.ViewModels.Logistic
 					};
 
 					var dlg = new UndeliveredOrdersJournalViewModel(
+						new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 						undeliveredOrdersFilter,
 						UnitOfWorkFactory,
 						_commonServices,

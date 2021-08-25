@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -284,6 +285,7 @@ namespace Vodovoz
 			};
 
 			var dlg = new UndeliveredOrdersJournalViewModel(
+				new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 				undeliveredOrdersFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,

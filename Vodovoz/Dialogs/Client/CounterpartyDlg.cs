@@ -25,9 +25,7 @@ using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -41,6 +39,7 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -73,6 +72,7 @@ namespace Vodovoz
         private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
         private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
         private readonly IOrderRepository _orderRepository = new OrderRepository();
+        private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 
         private bool currentUserCanEditCounterpartyDetails = false;
 
@@ -222,19 +222,6 @@ namespace Vodovoz
                             CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
                 };
                 return counterpartySelectorFactory;
-            }
-        }
-
-        private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-        public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
-            get {
-                if(nomenclatureSelectorFactory == null) {
-                    nomenclatureSelectorFactory =
-                        new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                            ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-                            NomenclatureRepository, _userRepository);
-                }
-                return nomenclatureSelectorFactory;
             }
         }
 
@@ -651,11 +638,7 @@ namespace Vodovoz
                     UoW,
                     this,
                     ServicesConfig.CommonServices,
-                    _employeeService,
-                    CounterpartySelectorFactory,
-                    NomenclatureSelectorFactory,
-                    NomenclatureRepository,
-                    _userRepository);
+                    _nomenclatureSelectorFactory);
 
         }
 
@@ -665,7 +648,7 @@ namespace Vodovoz
             var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
             var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
             var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-            var nomSelectorFactory = new NomenclatureSelectorFactory();
+            var nomSelectorFactory = _nomenclatureSelectorFactory;
             FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
             fixedpricesview.ViewModel = fixedPricesViewModel;
         }
@@ -723,18 +706,17 @@ namespace Vodovoz
         void AllOrders_Activated(object sender, EventArgs e)
         {
 	        ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
 	        var orderJournalFilter = new OrderJournalFilterViewModel { RestrictCounterparty = Entity };
+	        var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+	        
 	        var orderJournalViewModel = new OrderJournalViewModel(
 		        journalActions,
 		        orderJournalFilter,
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
 		        new EmployeeService(),
-		        nomenclatureSelectorFactory,
-		        counterpartySelectorFactory,
+		        _nomenclatureSelectorFactory,
 		        nomenclatureRepository,
-		        _userRepository,
 		        new OrderSelectorFactory(),
 		        new EmployeeJournalFactory(),
 		        new CounterpartyJournalFactory(),
@@ -756,7 +738,7 @@ namespace Vodovoz
 		        ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory, CounterpartySelectorFactory);
 	        filter.SetAndRefilterAtOnce(x=> x.Counterparty = Entity);
 	        var journalActions = new ComplaintsJournalActionsViewModel(ServicesConfig.InteractiveService, new GtkReportViewOpener());
-	        
+
 	        var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 		        journalActions,
 		        UnitOfWorkFactory.GetDefaultFactory,
@@ -764,13 +746,11 @@ namespace Vodovoz
 		        UndeliveredOrdersJournalOpener,
 		        _employeeService,
 		        CounterpartySelectorFactory,
-		        NomenclatureSelectorFactory,
 		        RouteListItemRepository,
 		        SubdivisionParametersProvider.Instance,
 		        filter,
 		        FilePickerService,
 		        SubdivisionRepository,
-		        new GtkReportViewOpener(),
 		        new GtkTabsOpener(),
 		        NomenclatureRepository,
 		        _userRepository,
@@ -780,7 +760,7 @@ namespace Vodovoz
 		        new DeliveryPointJournalFactory(),
 		        subdivisionJournalFactory,
 				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory(),
+				_nomenclatureSelectorFactory,
 		        new UndeliveredOrdersRepository()
 	        );
 	        

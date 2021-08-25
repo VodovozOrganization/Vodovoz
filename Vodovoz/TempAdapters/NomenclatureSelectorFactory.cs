@@ -9,13 +9,12 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
@@ -26,6 +25,7 @@ namespace Vodovoz.TempAdapters
 			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			nomenclatureStockFilter.ExcludedNomenclatureIds = excludedNomenclatures;
 			nomenclatureStockFilter.RestrictWarehouse = warehouse;
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				journalActions,
@@ -37,7 +37,6 @@ namespace Vodovoz.TempAdapters
 				SelectionMode = JournalSelectionMode.Multiple
 			};
 
-
 			return vm;
 		}
 		
@@ -46,32 +45,8 @@ namespace Vodovoz.TempAdapters
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.RestrictArchive = true;
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
 
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
-			
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
-
-			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				nomenclatureSelectorFactory,
-				counterpartySelectorFactory,
-				nomenclatureRepository,
-				userRepository
-			);
-
-			vm.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
-
-			return vm;
+			return CreateNomenclaturesJournal(nomenclatureFilter, multipleSelect);
 		}
 		
 		public IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(IEnumerable<int> excludedNomenclatures = null)
@@ -79,34 +54,8 @@ namespace Vodovoz.TempAdapters
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.RestrictArchive = true;
 			nomenclatureFilter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
-			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
-			
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
-			
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
-					userRepository);
 
-			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
-				journalActions,
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				nomenclatureSelectorFactory,
-				counterpartySelectorFactory,
-				nomenclatureRepository,
-				userRepository
-			);
-
-			vm.SelectionMode = JournalSelectionMode.Single;
-
-			return vm;
+			return CreateNomenclaturesJournal(nomenclatureFilter);
 		}
 		
 
@@ -115,33 +64,8 @@ namespace Vodovoz.TempAdapters
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
 			nomenclatureFilter.RestrictArchive = false;
-			
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
 
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
-			
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
-
-			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
-				journalActions,
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				nomenclatureSelectorFactory,
-				counterpartySelectorFactory,
-				nomenclatureRepository,
-				userRepository
-			);
-
-			vm.SelectionMode = JournalSelectionMode.Multiple;
-
-			return vm;
+			return CreateNomenclaturesJournal(nomenclatureFilter, true);
 		}
 
 		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory()
@@ -157,68 +81,55 @@ namespace Vodovoz.TempAdapters
 				x => x.RestrictDilers = true
 			);
 
+			return CreateNomenclatureAutocompleteSelectorFactory(nomenclatureFilter);
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory()
+		{
+			var filter = new NomenclatureFilterViewModel
+			{
+				RestrictCategory = NomenclatureCategory.additional, RestrictArchive = false
+			};
+
+			return CreateNomenclatureAutocompleteSelectorFactory(filter);
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateNomenclatureAutocompleteSelectorFactory(
+			NomenclatureFilterViewModel filterViewModel = null, bool multipleSelect = false) =>
+				new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+					typeof(Nomenclature),
+					() => CreateNomenclaturesJournal(filterViewModel, multipleSelect)
+				);
+
+		public NomenclaturesJournalViewModel CreateNomenclaturesJournal(
+			NomenclatureFilterViewModel filterViewModel = null, bool multipleSelect = false)
+		{
+			var filter = filterViewModel ?? new NomenclatureFilterViewModel(); 
+
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
 			var counterpartySelectorFactory =
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
 					ServicesConfig.CommonServices);
-			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
 
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomRep, userRepository);
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
-			var journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
+			var journal = new NomenclaturesJournalViewModel(
+				journalActions,
+				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				this,
 				counterpartySelectorFactory,
-				nomRep,
+				nomenclatureRepository,
 				userRepository)
 			{
-				SelectionMode = JournalSelectionMode.Single,
+				SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single
 			};
-			
-			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(typeof(Nomenclature), () => journalViewModel);
+
+			return journal;
 		}
-		
-		public IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory() =>
-			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
-				typeof(Nomenclature),
-				() =>
-				{
-					var filter = new NomenclatureFilterViewModel
-					{
-						RestrictCategory = NomenclatureCategory.additional, RestrictArchive = false
-					};
-
-					var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-					var userRepository = new UserRepository();
-
-					var counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-							ServicesConfig.CommonServices);
-			
-					var nomenclatureSelectorFactory =
-						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, filter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
-
-					var journal = new NomenclaturesJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						new EmployeeService(),
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository)
-					{
-						SelectionMode = JournalSelectionMode.Single
-					};
-
-					return journal;
-				}
-			);
 	}
 }

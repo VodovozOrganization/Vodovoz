@@ -1,10 +1,10 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
@@ -14,7 +14,14 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		{
 			return new EntityAutocompleteSelectorFactory<ProductGroupJournalViewModel>(typeof(ProductGroup), () =>
 			{
-				return new ProductGroupJournalViewModel(new ProductGroupJournalFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new ProductGroupJournalFactory());
+				var journalActionsViewModel = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+				
+				return new ProductGroupJournalViewModel(
+					journalActionsViewModel,
+					new ProductGroupJournalFilterViewModel(),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					new ProductGroupJournalFactory());
 			});
 		}
 	}

@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -146,16 +147,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				return;
 			}
+			
 			_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(_terminalId);
+			
 			var filter = new NomenclatureBalanceByStockFilterViewModel(_warehouseRepository)
 			{
 				Warehouse = _defaultWarehouse,
 				CanChangeWarehouse = true,
 				Nomenclature = terminal
 			};
+			
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			
 			var writeoffWarehouseJournal =
-				new NomenclatureBalanceByStockJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, _commonServices)
+				new NomenclatureBalanceByStockJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, _commonServices)
 				{
 					TabName = "Выбор склада для списания терминала",
 					SelectionMode = JournalSelectionMode.Single

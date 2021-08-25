@@ -3,16 +3,14 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System.Collections.Generic;
+using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -22,11 +20,14 @@ namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
-		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		
+		public IEntitySelector CreateOrderSelectorForDocument(bool isOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
 			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
-			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;
+			orderFilterVM.IsOnlineStoreOrders = isOnlineStoreOrders;
 			orderFilterVM.OrderStatuses = orderStatuses;
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			OrderForMovDocJournalViewModel vm = new OrderForMovDocJournalViewModel(
 				journalActions,
@@ -52,22 +53,19 @@ namespace Vodovoz.TempAdapters
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
 					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-					new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
-
 			OrderJournalFilterViewModel orderJournalFilterViewModel = new OrderJournalFilterViewModel();
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
-			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
+			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
+				typeof(Order),
 				() => new OrderJournalViewModel(
+					journalActions,
 					orderJournalFilterViewModel,
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					VodovozGtkServicesConfig.EmployeeService,
-					nomenclatureSelectorFactory,
-					counterpartySelectorFactory,
+					_nomenclatureSelectorFactory,
 					nomenclatureRepository,
-					userRepository,
 					new OrderSelectorFactory(),
 					new EmployeeJournalFactory(),
 					new CounterpartyJournalFactory(),

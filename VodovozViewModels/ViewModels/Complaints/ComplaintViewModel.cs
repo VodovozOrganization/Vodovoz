@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private DelegateCommand _changeDeliveryPointCommand;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
+		public INomenclatureSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
@@ -54,7 +54,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
@@ -65,7 +64,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelector,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
@@ -77,7 +76,6 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			SalesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
@@ -206,7 +204,7 @@ namespace Vodovoz.ViewModels.Complaints
 						CommonServices,
 						_employeeSelectorFactory,
 						SalesPlanJournalFactory,
-						NomenclatureSelector,
+						NomenclatureSelectorFactory,
 						UserRepository
 					);
 				}
@@ -434,7 +432,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 		public ISalesPlanJournalFactory SalesPlanJournalFactory { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
-		public INomenclatureSelectorFactory NomenclatureSelector { get; }
 
 		public override void Close(bool askSave, CloseSource source)
 		{

@@ -18,10 +18,13 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 	{
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
-		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
-			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
+		public SalesPlanJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices, 
+			INomenclatureSelectorFactory nomenclatureSelectorFactory)
+			: base(journalActionsViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			TabName = "Журнал планов продаж";
@@ -60,15 +63,15 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			_nomenclatureSelectorFactory
 		);
 
 		protected override Func<JournalEntityNodeBase, SalesPlanViewModel> OpenDialogFunction => node => new SalesPlanViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices,
+			UnitOfWorkFactory,
+			CommonServices,
 			_nomenclatureSelectorFactory
 	   	);
 	}

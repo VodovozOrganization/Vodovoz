@@ -10,6 +10,7 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
+using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -28,6 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
+	//TODO Создать собственную journalActions
 	public class UndeliveredOrdersJournalViewModel : FilterableMultipleEntityJournalViewModelBase<UndeliveredOrderJournalNode, UndeliveredOrdersFilterViewModel>, IUndeliveredOrdersInfoProvider
 	{
 		private readonly IGtkTabsOpener _gtkDlgOpener;
@@ -41,11 +43,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		private Employee _currentEmployee;
 
-		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
+		public UndeliveredOrdersJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			UndeliveredOrdersFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IGtkTabsOpener gtkDialogsOpener,
+			IEmployeeJournalFactory driverEmployeeJournalFactory,
+			IEmployeeService employeeService,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
+			IOrderSelectorFactory orderSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
@@ -82,9 +91,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					//функция диалога создания документа
 					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this),
 					//функция диалога открытия документа
-					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, node.Id),
+					node => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, node.Id),
 					//функция идентификации документа 
-					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
+					node => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"
 				);
 

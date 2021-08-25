@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
+using QS.ViewModels;
 using QSProjectsLib;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
@@ -288,6 +289,7 @@ namespace Vodovoz.ViewModel
 						};
 
 						var dlg = new UndeliveredOrdersJournalViewModel(
+							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 							undeliveredOrdersFilter,
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,

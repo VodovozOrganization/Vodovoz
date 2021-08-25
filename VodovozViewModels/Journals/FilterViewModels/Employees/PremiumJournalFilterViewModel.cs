@@ -11,13 +11,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private DateTime? _endDate;
 		private Subdivision _subdivision;
 
-		public PremiumJournalFilterViewModel(EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> subdivisionAutocompleteSelectorFactory)
+		public PremiumJournalFilterViewModel(IEntityAutocompleteSelectorFactory subdivisionAutocompleteSelectorFactory)
 		{
 			_startDate = _endDate = DateTime.Today;
 			SubdivisionAutocompleteSelectorFactory = subdivisionAutocompleteSelectorFactory;
 		}
 
-		public EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> SubdivisionAutocompleteSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
 
 		public virtual DateTime? StartDate
 		{

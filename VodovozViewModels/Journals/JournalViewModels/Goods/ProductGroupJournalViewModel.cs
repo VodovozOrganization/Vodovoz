@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -16,8 +17,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	public class ProductGroupJournalViewModel : FilterableSingleEntityJournalViewModelBase<ProductGroup, ProductGroupViewModel, ProductGroupJournalNode, ProductGroupJournalFilterViewModel>
 	{
 		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
-        public ProductGroupJournalViewModel(ProductGroupJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory)
-            : base(filterViewModel, unitOfWorkFactory, commonServices)
+        public ProductGroupJournalViewModel(
+	        EntitiesJournalActionsViewModel journalActionsViewModel,
+	        ProductGroupJournalFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices,
+	        IProductGroupJournalFactory productGroupJournalFactory)
+            : base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
         {
 	        _productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
 			TabName = "Журнал групп продуктов";
@@ -55,9 +61,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
         };
 
         protected override Func<ProductGroupViewModel> CreateDialogFunction => () =>
-	        new ProductGroupViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _productGroupJournalFactory);
+	        new ProductGroupViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices, _productGroupJournalFactory);
 
-        protected override Func<ProductGroupJournalNode, ProductGroupViewModel> OpenDialogFunction =>
-	        (node) => new ProductGroupViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _productGroupJournalFactory);
+        protected override Func<JournalEntityNodeBase, ProductGroupViewModel> OpenDialogFunction =>
+	        (node) => new ProductGroupViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _productGroupJournalFactory);
 	}
 }

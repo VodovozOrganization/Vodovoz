@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
+using QS.ViewModels;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -100,6 +101,7 @@ namespace Vodovoz
 
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				journalActions,

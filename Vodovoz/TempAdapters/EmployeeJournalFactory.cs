@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -29,6 +30,7 @@ namespace Vodovoz.TempAdapters
 	{
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly EmployeeFilterViewModel _employeeJournalFilter;
+		private EmployeesJournalActionsViewModel _employeesJournalActionsViewModel;
 		private IAuthorizationServiceFactory _authorizationServiceFactory;
 		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
 		private IEmployeeJournalFactory _employeeJournalFactory;
@@ -44,8 +46,7 @@ namespace Vodovoz.TempAdapters
 		private IWarehouseRepository _warehouseRepository;
 		private IRouteListRepository _routeListRepository;
 
-		public EmployeeJournalFactory(
-			EmployeeFilterViewModel employeeJournalFilter = null)
+		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
 			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
 
@@ -78,6 +79,8 @@ namespace Vodovoz.TempAdapters
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_warehouseRepository = new WarehouseRepository();
 			_routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+			_employeesJournalActionsViewModel = new EmployeesJournalActionsViewModel(
+				ServicesConfig.InteractiveService, UnitOfWorkFactory.GetDefaultFactory);
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
@@ -95,6 +98,7 @@ namespace Vodovoz.TempAdapters
 			CreateNewDependencies();
 			
 			return new EmployeesJournalViewModel(
+				_employeesJournalActionsViewModel,
 				_employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
 				_employeeWageParametersFactory,
@@ -137,6 +141,7 @@ namespace Vodovoz.TempAdapters
 			};
 					
 			return new EmployeesJournalViewModel(
+				_employeesJournalActionsViewModel,
 				driverFilter,
 				_authorizationServiceFactory,
 				_employeeWageParametersFactory,
@@ -175,6 +180,7 @@ namespace Vodovoz.TempAdapters
 					};
 					
 					return new EmployeesJournalViewModel(
+						_employeesJournalActionsViewModel,
 						officeFilter,
 						_authorizationServiceFactory,
 						_employeeWageParametersFactory,
@@ -221,6 +227,7 @@ namespace Vodovoz.TempAdapters
 				x => x.Category = EmployeeCategory.forwarder);
 					
 			return new EmployeesJournalViewModel(
+				_employeesJournalActionsViewModel,
 				forwarderFilter,
 				_authorizationServiceFactory,
 				_employeeWageParametersFactory,

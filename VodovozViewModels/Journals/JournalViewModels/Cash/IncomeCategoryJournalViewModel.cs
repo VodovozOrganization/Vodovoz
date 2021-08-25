@@ -10,11 +10,13 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -31,6 +33,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         private readonly IFileChooserProvider fileChooserProvider;
         private readonly IEmployeeJournalFactory _employeeJournalFactory;
         private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+        private readonly IIncomeCategoryJournalFactory _incomeCategoryJournalFactory;
 
         public IncomeCategoryJournalViewModel(
 	        IncomeCategoryJournalActionsViewModel journalActionsViewModel,
@@ -39,13 +42,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider,
             IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
-        ) : base(journalFilterViewModel, unitOfWorkFactory, commonServices)
-        {
+            ISubdivisionJournalFactory subdivisionJournalFactory,
+	        IIncomeCategoryJournalFactory incomeCategoryJournalFactory
+        ) : base(journalActionsViewModel, journalFilterViewModel, unitOfWorkFactory, commonServices)
         {
             this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
             _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+            _incomeCategoryJournalFactory =
+	            incomeCategoryJournalFactory ?? throw new ArgumentNullException(nameof(incomeCategoryJournalFactory));
 
             TabName = "Категории прихода";
             
@@ -133,10 +138,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             EntityUoWBuilder.ForCreate(),
             UnitOfWorkFactory,
             CommonServices,
-            fileChooserProvider,
-            FilterViewModel,
             _employeeJournalFactory,
-            _subdivisionJournalFactory
+            _subdivisionJournalFactory,
+            _incomeCategoryJournalFactory
         );
         
         protected override Func<JournalEntityNodeBase, IncomeCategoryViewModel> OpenDialogFunction =>
@@ -144,10 +148,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 EntityUoWBuilder.ForOpen(node.Id),
                 UnitOfWorkFactory, 
                 CommonServices, 
-                fileChooserProvider, 
-                FilterViewModel,
                 _employeeJournalFactory,
-                _subdivisionJournalFactory
+                _subdivisionJournalFactory,
+                _incomeCategoryJournalFactory
         );
 
         protected override void CreatePopupActions()

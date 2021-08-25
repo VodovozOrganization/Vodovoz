@@ -4,6 +4,7 @@ using QS.Osm;
 using QS.Osm.Loaders;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -30,10 +31,9 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
 				() => new DeliveryPointJournalViewModel(
-					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
-					ContactParametersProvider.Instance,
-					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-					new HousesDataLoader(OsmWorker.GetOsmService()),
+					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService), new UserRepository(), new GtkTabsOpener(),
+					new PhoneRepository(), ContactParametersProvider.Instance, new CitiesDataLoader(OsmWorker.GetOsmService()),
+					new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 						new WaterFixedPricesGenerator(
@@ -46,10 +46,9 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<DeliveryPointByClientJournalViewModel>(typeof(DeliveryPoint),
 				() => new DeliveryPointByClientJournalViewModel(
-					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
-					ContactParametersProvider.Instance,
-					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-					new HousesDataLoader(OsmWorker.GetOsmService()),
+					new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService), new UserRepository(), new GtkTabsOpener(),
+					new PhoneRepository(), ContactParametersProvider.Instance, new CitiesDataLoader(OsmWorker.GetOsmService()),
+					new StreetsDataLoader(OsmWorker.GetOsmService()), new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 						new WaterFixedPricesGenerator(

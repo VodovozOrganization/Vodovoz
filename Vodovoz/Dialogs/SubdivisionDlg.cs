@@ -20,6 +20,7 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using QS.Project.Services;
 using Vodovoz.TempAdapters;
 using QS.Project.Journal;
+using QS.ViewModels;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 
@@ -99,8 +100,10 @@ namespace Vodovoz
 			subdivisionentitypermissionwidget.ViewModel.ObservableTypeOfEntitiesList.ListContentChanged += (sender, e) => HasChanges = true;
 
 			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(
-				new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(typeof(SalesPlan),
+				new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(
+					typeof(SalesPlan),
 					() => new SalesPlanJournalViewModel(
+						new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
 						new NomenclatureSelectorFactory())

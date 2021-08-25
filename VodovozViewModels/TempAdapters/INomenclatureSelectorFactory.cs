@@ -1,6 +1,8 @@
 ﻿using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
 using Vodovoz.Domain.Store;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
@@ -13,5 +15,9 @@ namespace Vodovoz.TempAdapters
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
+		IEntityAutocompleteSelectorFactory CreateNomenclatureAutocompleteSelectorFactory(
+			NomenclatureFilterViewModel filterViewModel = null, bool multipleSelect = false);
+		NomenclaturesJournalViewModel CreateNomenclaturesJournal(
+			NomenclatureFilterViewModel filterViewModel = null, bool multipleSelect = false);
 	}
 }

@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.ViewModels;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
@@ -15,9 +16,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	public class UndeliveryTransferAbsenceReasonJournalViewModel : FilterableSingleEntityJournalViewModelBase<UndeliveryTransferAbsenceReason,
 		UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonJournalNode, UndeliveryTransferAbsenceReasonJournalFilterViewModel>
 	{
-		public UndeliveryTransferAbsenceReasonJournalViewModel(UndeliveryTransferAbsenceReasonJournalFilterViewModel filterViewModel,
-			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+		public UndeliveryTransferAbsenceReasonJournalViewModel(
+			EntitiesJournalActionsViewModel journalActionsViewModel,
+			UndeliveryTransferAbsenceReasonJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(journalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал причин отсутствий переноса";
 			UpdateOnChanges(typeof(UndeliveryTransferAbsenceReason));
@@ -58,10 +62,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		};
 
 		protected override Func<UndeliveryTransferAbsenceReasonViewModel> CreateDialogFunction =>
-			() => new UndeliveryTransferAbsenceReasonViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+			() => new UndeliveryTransferAbsenceReasonViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices);
 
-		protected override Func<UndeliveryTransferAbsenceReasonJournalNode, UndeliveryTransferAbsenceReasonViewModel> OpenDialogFunction =>
-			node => new UndeliveryTransferAbsenceReasonViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+		protected override Func<JournalEntityNodeBase, UndeliveryTransferAbsenceReasonViewModel> OpenDialogFunction =>
+			node => new UndeliveryTransferAbsenceReasonViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices);
 
 	}
 }

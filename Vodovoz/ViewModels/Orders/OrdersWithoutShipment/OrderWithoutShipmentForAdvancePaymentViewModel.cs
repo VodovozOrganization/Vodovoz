@@ -3,12 +3,9 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -20,22 +17,18 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForAdvancePaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForAdvancePayment>, ITdiTabAddedNotifier
 	{
-		private readonly IEmployeeService _employeeService;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly IParametersProvider _parametersProvider;
 
 		private object selectedItem;
@@ -56,20 +49,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IOrderRepository orderRepository,
 			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
 			bool canCreateBillsWithoutShipment = 
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
@@ -123,27 +109,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					x => x.SelectSaleCategory = SaleCategory.forSale,
 					x => x.RestrictArchive = false
 				);
-				var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-
-				NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-					journalActions,
-					nomenclatureFilter,
-					UnitOfWorkFactory,
-					ServicesConfig.CommonServices,
-					_employeeService,
-					_nomenclatureSelectorFactory,
-					_counterpartySelectorFactory,
-					_nomenclatureRepository,
-					_userRepository
-				) {
-					SelectionMode = JournalSelectionMode.Single,
-				};
+				
+				var journalViewModel = _nomenclatureSelectorFactory.CreateNomenclaturesJournal(nomenclatureFilter);
 				journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
 				journalViewModel.TabName = "Номенклатура на продажу";
-				journalViewModel.OnEntitySelectedResult += (s, ea) => {
+				
+				journalViewModel.OnEntitySelectedResult += (s, ea) =>
+				{
 					var selectedNode = ea.SelectedNodes.FirstOrDefault();
 					if(selectedNode == null)
+					{
 						return;
+					}
+
 					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 				};
 				TabParent.AddSlaveTab(this, journalViewModel);
@@ -205,9 +183,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
-			if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
-				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
-				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+			if(nomenclature.OnlineStore != null && !CommonServices.CurrentPermissionService
+				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order"))
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning, "У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
 				return;
 			}
 

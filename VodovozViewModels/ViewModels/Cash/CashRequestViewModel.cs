@@ -7,9 +7,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Gamma.Utilities;
-using NHibernate.Criterion;
 using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
@@ -22,7 +20,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using VodovozInfrastructure.Interfaces;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -42,61 +40,33 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
             IEmployeeRepository employeeRepository,
             ICashRepository cashRepository,
             IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
+            ISubdivisionJournalFactory subdivisionJournalFactory,
+            IExpenseCategoryJournalFactory expenseCategoryJournalFactory
         ) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
+	        if(expenseCategoryJournalFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(expenseCategoryJournalFactory));
+	        }
+	        
             this.uowBuilder = uowBuilder ?? throw new ArgumentNullException(nameof(uowBuilder));
             _cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
             EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+            
             var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
                 ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
                 HidenByDefault = true
             };
 
+            //TODO Проверить подойдет ли здесь такой журнал
             ExpenseCategoryAutocompleteSelectorFactory =
-                new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-                    () =>
-                    {
-                        var expenseCategoryJournalViewModel =
-                            new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-	                            new EntitiesJournalActionsViewModel(commonServices.InteractiveService),
-                                x => x.Name,
-                                () => new ExpenseCategoryViewModel(
-                                    EntityUoWBuilder.ForCreate(),
-                                    unitOfWorkFactory,
-                                    ServicesConfig.CommonServices,
-                                    fileChooserProvider,
-                                    filterViewModel,
-                                    EmployeeJournalFactory,
-                                    SubdivisionJournalFactory
-                                ),
-                                node => new ExpenseCategoryViewModel(
-                                    EntityUoWBuilder.ForOpen(node.Id),
-                                    unitOfWorkFactory,
-                                    ServicesConfig.CommonServices,
-                                    fileChooserProvider,
-                                    filterViewModel,
-                                    EmployeeJournalFactory,
-                                    SubdivisionJournalFactory
-                                ),
-                                unitOfWorkFactory,
-                                ServicesConfig.CommonServices
-                            )
-                            {
-                                SelectionMode = JournalSelectionMode.Single
-                            };
-                        expenseCategoryJournalViewModel.SetFilter(filterViewModel,
-                            filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
+	            expenseCategoryJournalFactory.CreateExpenseCategoryAutocompleteSelector(filterViewModel);
 
-                        return expenseCategoryJournalViewModel;
-                    });
-                
-            var expenseCategorySelectorFactory = CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+	        var expenseCategorySelectorFactory = CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
             if(uowBuilder.IsNewEntity)
                 TabName = "Создание новой заявки на выдачу ДС";

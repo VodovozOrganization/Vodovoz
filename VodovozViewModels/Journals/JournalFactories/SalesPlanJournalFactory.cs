@@ -1,11 +1,10 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Logistic;
+using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
@@ -13,10 +12,12 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 	{
 		public IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureSelectorFactory nomenclatureSelectorFactory)
 		{
-			return new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(typeof(SalesPlan), () =>
-			{
-				return new SalesPlanJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,  nomenclatureSelectorFactory);
-			});
+			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			
+			return new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(
+				typeof(SalesPlan),
+				() => new SalesPlanJournalViewModel(
+					journalActions, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,  nomenclatureSelectorFactory));
 		}
 	}
 }

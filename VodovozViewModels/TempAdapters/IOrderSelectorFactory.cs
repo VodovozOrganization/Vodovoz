@@ -8,7 +8,7 @@ namespace Vodovoz.TempAdapters
 {
 	public interface IOrderSelectorFactory
 	{
-		IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses);
+		IEntitySelector CreateOrderSelectorForDocument(bool isOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses);
 
 		IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory();
 	}

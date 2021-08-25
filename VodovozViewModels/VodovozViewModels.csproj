@@ -114,6 +114,7 @@
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\EquipmentKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NomenclatureJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\ProductGroupJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
@@ -133,10 +134,8 @@
     <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\UndeliveredOrderJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\NomenclatureBalanceByStockJournalNode.cs" />
-    <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
-    <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
-    <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
-    <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\IExpenseCategoryJournalFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\IIncomeCategoryJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\CashRequestJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
@@ -153,6 +152,9 @@
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Flyers\FlyersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\IAdditionalJournalRestriction.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
@@ -178,6 +180,7 @@
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />

@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.JournalFilters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 
 namespace Vodovoz
 {
@@ -47,6 +48,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IWagesMovementRepository _wagesMovementRepository = new WagesMovementRepository();
+		private readonly IExpenseCategoryJournalFactory _expenseCategoryJournalFactory = new ExpenseCategoryJournalFactory();
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -161,47 +163,15 @@ namespace Vodovoz
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 			ydateDocument.Sensitive = canEditDate;
 
-			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
+			//TODO проверить работоспособность
 			var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
 				ExcludedIds = _categoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
-			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
-			
-			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-				() => {
-					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-						journalActions,
-						x => x.Name,
-						() => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							fileChooserProvider,
-							filterViewModel,
-							_employeeJournalFactory,
-							_subdivisionJournalFactory
-						),
-						node => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForOpen(node.Id),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							fileChooserProvider,
-							filterViewModel,
-							_employeeJournalFactory,
-							_subdivisionJournalFactory
-						),
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices
-					) {
-						SelectionMode = JournalSelectionMode.Single
-					};
-					expenseCategoryJournalViewModel.SetFilter(filterViewModel,
-						filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
-					
-					return expenseCategoryJournalViewModel;
-				}
-			);
+
+			var expenseCategorySelectorFactory =
+				_expenseCategoryJournalFactory.CreateExpenseCategoryAutocompleteSelector(
+					filterViewModel, "Расход " + DateTime.Now + ".csv");
 			entityVMEntryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
 			entityVMEntryExpenseCategory.Binding.AddBinding(Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 

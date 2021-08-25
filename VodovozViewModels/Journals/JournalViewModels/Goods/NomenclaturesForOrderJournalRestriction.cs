@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using QS.Services;
 using Vodovoz.Domain.Goods;
-namespace Vodovoz.JournalViewModels
+
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class NomenclaturesForOrderJournalRestriction : IAdditionalJournalRestriction<Nomenclature>
 	{
