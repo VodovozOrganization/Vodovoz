@@ -33,6 +33,9 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
 using Vodovoz.EntityRepositories.Counterparties;
+using Gamma.Widgets;
+using Gtk;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -49,6 +52,8 @@ namespace Vodovoz
 		IPhoneRepository phoneRepository = new PhoneRepository();
 
 		GMapControl MapWidget;
+		private VBox _vboxMap;
+		private yEnumComboBox _comboMapProvider;
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
 		GMapMarker addressMarker;
 		public DeliveryPoint DeliveryPoint => Entity;
@@ -242,11 +247,24 @@ namespace Vodovoz
 				WidthRequest = 450,
 				HasFrame = true
 			};
+
+			_vboxMap = new VBox();
+			_comboMapProvider = new yEnumComboBox();
+			_comboMapProvider.ItemsEnum = typeof(MapProviders);
+			_comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			_comboMapProvider.EnumItemSelected += (sender, args) =>
+				MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+			_comboMapProvider.SelectedItem = MapProviders.GoogleMap;
+			_vboxMap.Add(_comboMapProvider);
+			_vboxMap.SetChildPacking(_comboMapProvider, false, false, 0, PackType.Start);
+
 			MapWidget.Overlays.Add(addressOverlay);
 			MapWidget.ButtonPressEvent += MapWidget_ButtonPressEvent;
 			MapWidget.ButtonReleaseEvent += MapWidget_ButtonReleaseEvent;
 			MapWidget.MotionNotifyEvent += MapWidget_MotionNotifyEvent;
-			rightsidepanel1.Panel = MapWidget;
+			_vboxMap.Add(MapWidget);
+			_vboxMap.ShowAll();
+			rightsidepanel1.Panel = _vboxMap;
 			rightsidepanel1.PanelOpened += Rightsidepanel1_PanelOpened;
 			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
 			Entity.PropertyChanged += Entity_PropertyChanged;
