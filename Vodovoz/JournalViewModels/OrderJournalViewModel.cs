@@ -326,8 +326,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query = query.OrderBy(o => o.DeliveryDate.Value).Desc;
 				}
-
-				if(!FilterViewModel.SortDeliveryDate.Value)
+				else
 				{
 					query = query.OrderBy(o => o.Id).Desc;
 				}
