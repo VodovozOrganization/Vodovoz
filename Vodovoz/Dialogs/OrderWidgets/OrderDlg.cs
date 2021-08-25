@@ -2973,7 +2973,7 @@ namespace Vodovoz
 								? $"{ Entity.Trifle ?? 0 } руб."
 								: "";
 
-			ylblCommentForDriver.Text = Entity.Comment;
+			ylblCommentForDriver.Text = Entity.HasCommentForDriver ? Entity.Comment : "";
 
 			ylblCommentForLogist.Text = Entity.CommentLogist;
 
