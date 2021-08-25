@@ -3100,12 +3100,7 @@ namespace Vodovoz
 
 		private void OrderAddressTypeChanged()
 		{
-			if(Entity.SelfDelivery)
-			{
-				ylabelOrderAddressType.Visible = false;
-				ybuttonToDeliveryAddressType.Visible = false;
-				ybuttonToStorageLogicAddressType.Visible = false;
-			}
+			ylabelOrderAddressType.Visible = true;
 			if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
@@ -3116,11 +3111,17 @@ namespace Vodovoz
 				ybuttonToDeliveryAddressType.Visible = true;
 				ybuttonToStorageLogicAddressType.Visible = false;
 			}
-			if(Entity.OrderAddressType == OrderAddressType.Delivery)
+			if(Entity.SelfDelivery)
+			{
+				ylabelOrderAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.Delivery)
 			{
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = true;
-			}
+			} 
 			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
 				ybuttonToDeliveryAddressType.Visible = true;
