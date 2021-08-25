@@ -2685,13 +2685,13 @@ namespace Vodovoz
 			}
 
 			if(Entity.CanSetOrderAsAccepted) {
-				buttonAcceptOrder.Visible = true;
+				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;
 			} else if(Entity.CanSetOrderAsEditable) {
 				buttonEditOrder.Visible = true;
-				buttonAcceptOrder.Visible = false;
+				btnForm.Visible = false;
 			} else {
-				buttonAcceptOrder.Visible = false;
+				btnForm.Visible = false;
 				buttonEditOrder.Visible = false;
 			}
 
@@ -2904,6 +2904,88 @@ namespace Vodovoz
 		protected void OnYBtnAddCurrentContractClicked(object sender, EventArgs e)
 		{
 			Order.AddContractDocument(Order.Contract);
+		}
+
+		protected void OnBtnFormClicked(object sender, EventArgs e)
+		{
+			ylblCounterpartyFIO.Text = Entity.Client.FullName;
+			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
+
+			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
+				? string.Join(", ", Entity.DeliveryPoint.Phones.Select(p => p.DigitsNumber))
+				: string.Join(", ", Entity.Client.Phones.Select(p => p.DigitsNumber));
+
+			ylblDeliveryDate.Text = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
+			ylblDeliveryInterval.Text = Entity.DeliverySchedule?.DeliveryTime;
+
+			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.cashless;
+			ylblDocumentSigning.Visible = isPaymentTypeCashless;
+			lblDocumentSigning.Visible = isPaymentTypeCashless;
+			ylblDocumentSigning.Text = isPaymentTypeCashless
+				? Entity.SignatureType?.GetEnumTitle() ?? ""
+				: "";
+
+			var hasOrderItems = Entity.OrderItems.Count > 0;
+			ylblGoods.Visible = hasOrderItems;
+			lblGoods.Visible = hasOrderItems;
+			ylblGoods.Text = hasOrderItems
+				? string.Join("\n",
+					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count }{ oi.Nomenclature.Unit.Name }"))
+				: "";
+
+			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
+			ylblEquipment.Visible = hasOrderEquipments;
+			lblEquipment1.Visible = hasOrderEquipments;
+			ylblEquipment.Text = hasOrderEquipments
+				? string.Join("\n",
+					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count }{ oe.Nomenclature.Unit.Name }"))
+				: "";
+
+			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
+
+				ylblReturns.Visible = hasDepositItems;
+				lblReturns.Visible = hasDepositItems;
+				ylblReturns.Text = hasDepositItems
+					? string.Join("\n",
+						Entity.OrderDepositItems.Select(odi =>
+						{
+							if(odi.EquipmentNomenclature != null)
+							{
+								return $"{ odi.EquipmentNomenclature.Name } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
+							}
+							else
+							{
+								return $"{ odi.DepositTypeString } - { odi.Count }";
+							}
+						}))
+					: "";
+
+			ylblBottlesPlannedToReturn.Text = $"{ Entity.BottlesReturn ?? 0 } бут.";
+
+			ylblPaymentType.Text = Entity.PaymentType.GetEnumTitle();
+
+			ylblPlannedSum.Text = $"{ Entity.OrderSum } руб.";
+
+			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
+			ylblTrifleFrom.Visible = isPaymentTypeCash;
+			lblTrifleFrom.Visible = isPaymentTypeCash;
+			ylblTrifleFrom.Text = isPaymentTypeCash 
+								? $"{ Entity.Trifle ?? 0 } руб."
+								: "";
+
+			ylblCommentForDriver.Text = Entity.Comment;
+
+			ylblCommentForLogist.Text = Entity.CommentLogist;
+
+			ntbOrder.GetNthPage(1).Hide();
+			ntbOrder.GetNthPage(1).Show();
+
+			ntbOrder.CurrentPage = 1;
+		}
+
+		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)
+		{
+			ntbOrder.CurrentPage = 0;
 		}
 
 		#region Аренда
@@ -3142,13 +3224,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnBtnFormClicked(object sender, EventArgs e)
-		{
-		}
-
-		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)
-		{
-		}
 
 		#endregion FreeRent
 
