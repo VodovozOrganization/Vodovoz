@@ -8,6 +8,8 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -16,7 +18,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
     public class NomenclaturesPlanJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclaturePlanViewModel, NomenclaturePlanJournalNode, NomenclaturePlanFilterViewModel>
     {
-        public NomenclaturesPlanJournalViewModel(NomenclaturePlanFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+        public NomenclaturesPlanJournalViewModel(
+	        NomenclaturePlanFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал План продаж для КЦ";
@@ -80,10 +85,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
             return itemsQuery;
         };
 
-        protected override Func<NomenclaturePlanViewModel> CreateDialogFunction => () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
+        protected override Func<NomenclaturePlanViewModel> CreateDialogFunction =>
+	        () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
 
         protected override Func<NomenclaturePlanJournalNode, NomenclaturePlanViewModel> OpenDialogFunction =>
-            node => new NomenclaturePlanViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
-
+            node => new NomenclaturePlanViewModel(
+	            EntityUoWBuilder.ForOpen(node.Id),
+	            UnitOfWorkFactory,
+	            commonServices,
+	            new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())));
     }
 }
