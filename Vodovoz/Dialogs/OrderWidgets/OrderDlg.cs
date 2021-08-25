@@ -430,6 +430,7 @@ namespace Vodovoz
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
 			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
+			ylabelOrderAddressType.Binding.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 			ylabelNumber.Binding.AddFuncBinding(Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp).InitializeFromSource();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
@@ -554,6 +555,7 @@ namespace Vodovoz
 				{
 					OnFormOrderActions();
 				}
+				OrderAddressTypeChanged();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -749,6 +751,7 @@ namespace Vodovoz
 			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
 			{
 				UoW.Session.Refresh(Entity.Client);
+				OrderAddressTypeChanged();
 				return;
 			}
 		}
@@ -3074,7 +3077,7 @@ namespace Vodovoz
 
 			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
 		}
-
+		
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderAddressType == OrderAddressType.Delivery 
@@ -3097,6 +3100,7 @@ namespace Vodovoz
 
 		private void OrderAddressTypeChanged()
 		{
+			ylabelOrderAddressType.Visible = true;
 			if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
@@ -3107,11 +3111,17 @@ namespace Vodovoz
 				ybuttonToDeliveryAddressType.Visible = true;
 				ybuttonToStorageLogicAddressType.Visible = false;
 			}
-			if(Entity.OrderAddressType == OrderAddressType.Delivery)
+			if(Entity.SelfDelivery)
+			{
+				ylabelOrderAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.Delivery)
 			{
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = true;
-			}
+			} 
 			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
 				ybuttonToDeliveryAddressType.Visible = true;
