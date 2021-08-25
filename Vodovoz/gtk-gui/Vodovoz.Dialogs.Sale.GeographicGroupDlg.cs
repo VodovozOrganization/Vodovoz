@@ -24,6 +24,10 @@ namespace Vodovoz.Dialogs.Sale
 
 		private global::Gamma.GtkWidgets.yEntry yEntryName;
 
+		private global::Gtk.HBox hbox2;
+
+		private global::Gamma.Widgets.yEnumComboBox comboMapProvider;
+
 		private global::GMap.NET.GtkSharp.GMapControl gMapWidget;
 
 		protected virtual void Build()
@@ -132,6 +136,27 @@ namespace Vodovoz.Dialogs.Sale
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.comboMapProvider = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboMapProvider.Name = "comboMapProvider";
+			this.comboMapProvider.ShowSpecialStateAll = false;
+			this.comboMapProvider.ShowSpecialStateNot = false;
+			this.comboMapProvider.UseShortTitle = false;
+			this.comboMapProvider.DefaultFirst = false;
+			this.hbox2.Add(this.comboMapProvider);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.comboMapProvider]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.vbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.gMapWidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.gMapWidget.Name = "gMapWidget";
 			this.gMapWidget.MaxZoom = 0;
@@ -148,11 +173,11 @@ namespace Vodovoz.Dialogs.Sale
 			this.gMapWidget.MarkersEnabled = true;
 			this.gMapWidget.CanDragMap = true;
 			this.vbox3.Add(this.gMapWidget);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gMapWidget]));
-			w11.Position = 1;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gMapWidget]));
+			w13.Position = 2;
 			this.vbox2.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox3]));
-			w12.Position = 1;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox3]));
+			w14.Position = 1;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
