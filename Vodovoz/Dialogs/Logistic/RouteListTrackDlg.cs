@@ -60,6 +60,7 @@ namespace Vodovoz
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
+			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.SelectedItem = MapProviders.YandexMap;
 		}
 

@@ -318,7 +318,9 @@ namespace Vodovoz.Views.Logistic
 			};
 
 			cmbMapType.ItemsEnum = typeof(MapProviders);
-			cmbMapType.EnumItemSelected += (sender, args) => gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders) args.SelectedItem);
+			cmbMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			cmbMapType.EnumItemSelected += (sender, args) =>
+				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 			cmbMapType.SelectedItem = MapProviders.YandexMap;
 
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);

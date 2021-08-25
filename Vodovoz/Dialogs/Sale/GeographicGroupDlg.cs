@@ -58,6 +58,13 @@ namespace Vodovoz.Dialogs.Sale
 				gMapWidget.ButtonReleaseEvent += GMapWidget_ButtonReleaseEvent;
 				gMapWidget.MotionNotifyEvent += GMapWidget_MotionNotifyEvent;
 			}
+
+			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			comboMapProvider.ItemsEnum = typeof(MapProviders);
+			comboMapProvider.SelectedItem = MapProviders.YandexMap;
+			comboMapProvider.EnumItemSelected += (sender, args) =>
+				gMapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
 		}

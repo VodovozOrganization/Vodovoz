@@ -87,7 +87,9 @@ namespace Vodovoz.Views.Logistic
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.SelectedItem = MapProviders.YandexMap;
-			yenumcomboMapType.EnumItemSelected += (sender, e) => gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
+			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			yenumcomboMapType.EnumItemSelected += (sender, args) =>
+				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 
 			LoadDistrictsGeometry();
 

@@ -52,7 +52,8 @@ namespace Vodovoz.Dialogs.Sale
 			MapWidget.Overlays.Add(addressOverlay);
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
-			yenumcomboMapType.ChangedByUser += (sender, e) => MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
+			yenumcomboMapType.EnumItemSelected += (sender, args) =>
+				MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 		}
 
 		public DeliveryPriceDlg(DeliveryPoint deliveryPoint) : this()

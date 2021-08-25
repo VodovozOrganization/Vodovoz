@@ -97,6 +97,13 @@ namespace Dialogs.Logistic
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
+
+			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			comboMapProvider.ItemsEnum = typeof(MapProviders);
+			comboMapProvider.SelectedItem = MapProviders.YandexMap;
+			comboMapProvider.EnumItemSelected += (sender, args) =>
+				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+
 		}
 
 		private void OpenMap()
