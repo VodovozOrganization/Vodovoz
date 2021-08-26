@@ -1,4 +1,5 @@
-﻿using EmailService;
+﻿using Autofac;
+using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -34,7 +35,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Autofac;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -82,11 +82,10 @@ using Vodovoz.Tools.CallTasks;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Vodovoz
 {
-    public partial class OrderDlg : EntityDialogBase<Order>,
+	public partial class OrderDlg : EntityDialogBase<Order>,
 		ICounterpartyInfoProvider,
 		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
 		IContractInfoProvider,
