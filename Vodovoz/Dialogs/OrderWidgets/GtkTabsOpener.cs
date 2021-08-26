@@ -1,7 +1,7 @@
 ﻿using QS.Dialog.Gtk;
 using QS.Tdi;
-using System;
-using FluentNHibernate.Data;
+using QS.Services;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -49,6 +49,19 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			return master.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
 				() => new CounterpartyDlg(counterpartyId));
+		}
+
+		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, IPermissionService permissionService,
+			bool canChangeEmployee, ExpenseType expenseType)
+		{
+			var dlg = new CashExpenseDlg(permissionService);
+			if(dlg.FailInitialize)
+			{
+				return;
+			}
+
+			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
+			master.TabParent.AddTab(dlg, master);
 		}
 	}
 }

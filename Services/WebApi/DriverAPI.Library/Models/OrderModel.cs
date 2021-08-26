@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -109,7 +110,7 @@ namespace DriverAPI.Library.Models
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Vodovoz.Domain.Orders.Order order)
+		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order)
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
@@ -144,7 +145,7 @@ namespace DriverAPI.Library.Models
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public OrderAdditionalInfoDto GetAdditionalInfo(Vodovoz.Domain.Orders.Order order)
+		public OrderAdditionalInfoDto GetAdditionalInfo(Order order)
 		{
 			return new OrderAdditionalInfoDto()
 			{
@@ -159,7 +160,7 @@ namespace DriverAPI.Library.Models
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <param name="smsPaymentStatus">Статус оплаты СМС</param>
 		/// <returns></returns>
-		private bool CanSendSmsForPayment(Vodovoz.Domain.Orders.Order order, SmsPaymentStatus? smsPaymentStatus)
+		private bool CanSendSmsForPayment(Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
 			return !_smsNotPayable.Contains(order.PaymentType)
 				&& order.OrderTotalSum > 0;
@@ -169,6 +170,11 @@ namespace DriverAPI.Library.Models
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+
+			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
+			{
+				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: { orderId }, заказ не в пути.");
+			}
 
 			vodovozOrder.PaymentType = paymentType;
 			_unitOfWork.Save(vodovozOrder);

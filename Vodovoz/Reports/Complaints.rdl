@@ -728,6 +728,7 @@
     complaints.arrangement_text AS arrangement_text,
     GROUP_CONCAT(DISTINCT
         CASE complaint_guilty_items.guilty_type
+            WHEN 'Supplier' THEN 'Поставщик'
             WHEN 'Client' THEN 'Клиент'
             WHEN 'None'	THEN 'Нет'
             WHEN 'Employee' THEN GET_PERSON_NAME_WITH_INITIALS(guiltyEmployee.last_name, guiltyEmployee.name, guiltyEmployee.patronymic)

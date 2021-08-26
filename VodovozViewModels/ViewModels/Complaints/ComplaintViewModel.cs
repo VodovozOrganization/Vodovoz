@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IFilePickerService _filePickerService;
@@ -433,6 +435,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override void Close(bool askSave, CloseSource source)
 		{
+			_logger.Debug("Вызываем Close()");
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
 				return;
@@ -443,12 +446,19 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override bool Save(bool close)
 		{
+			_logger.Debug("Вызываем Save()");
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
 				return false;
 			}
 			
 			return base.Save(close);
+		}
+
+		public override void Dispose()
+		{
+			_logger.Debug("Вызываем Dispose()");
+			base.Dispose();
 		}
 	}
 }

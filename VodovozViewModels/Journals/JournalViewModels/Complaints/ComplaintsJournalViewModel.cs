@@ -253,6 +253,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN CONCAT('(',?5,')', ?2)" +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN ?3 " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Supplier)}' THEN 'Поставщик' " +
 						"ELSE '' " +
 					"END" +
 					" SEPARATOR ?4)"),
@@ -356,6 +357,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
 						case ComplaintGuiltyTypes.None:
 						case ComplaintGuiltyTypes.Client:
+						case ComplaintGuiltyTypes.Supplier:
 							break;
 						case ComplaintGuiltyTypes.Employee:
 							if(FilterViewModel.GuiltyItemVM.Entity.Employee != null)

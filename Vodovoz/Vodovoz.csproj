@@ -392,6 +392,8 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
+    <Compile Include="Additions\Logistic\RouteListPrintableDocuments.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
@@ -487,6 +489,7 @@
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportNodes\TableNode.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportNodes\TableRecordNode.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportOperation.cs" />
+    <Compile Include="SidePanel\InfoProviders\ICashInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
@@ -1651,6 +1654,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
+    <Compile Include="Filters\GtkViews\SalaryByEmployeeFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView.cs" />
     <Compile Include="Views\Suppliers\WarehousesBalanceSummaryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
     <Compile Include="Views\Goods\ProductGroupView.cs" />
@@ -1663,6 +1668,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryTransferAbsenceReasonView.cs" />
     <Compile Include="Filters\GtkViews\UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
+    <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

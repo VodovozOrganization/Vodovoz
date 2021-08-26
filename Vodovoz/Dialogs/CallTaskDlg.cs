@@ -100,7 +100,9 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.ValidationMode = ValidationType.numeric;
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			textViewCommentAboutClient.Buffer.Text = Entity?.Counterparty?.Comment;
+			textViewCommentAboutClient.Binding
+				.AddFuncBinding(Entity, e => e.Counterparty != null ? e.Counterparty.Comment : "",
+				w => w.Buffer.Text).InitializeFromSource();
 			vboxOldComments.Visible = true;
 
 			var employeeFilterViewModel = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.office };

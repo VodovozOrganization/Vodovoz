@@ -54,7 +54,11 @@
     <Compile Include="Factories\IValidationContextFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
-    <Compile Include="Journals\FilterViewModels\CashRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\CashRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\ExpenseCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\IncomeCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\OrganizationCashTransferDocumentFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\SalaryByEmployeeJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\DriverComplaintReasonJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintObjectJournalFilterViewModel.cs" />
@@ -63,10 +67,8 @@
     <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
-    <Compile Include="Journals\FilterViewModels\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\ProductGroupJournalFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
@@ -77,7 +79,6 @@
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryTransferAbsenceReasonJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\NomenclaturePlanFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveredOrdersFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\OrganizationCashTransferDocumentFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Proposal\ApplicationDevelopmentProposalsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\OrganizationCashTransferDocumentJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\SalaryByEmployeeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointByClientJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
