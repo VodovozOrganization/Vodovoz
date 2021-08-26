@@ -358,15 +358,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    }
 
 	    #endregion WriteoffDocument
-
-	    public override bool CanOpen()
-	    {
-		    return false;
-	    }
-
-	    public override ITdiTab GetTabToOpen(JournalEntityNodeBase node)
-	    {
-		    throw new NotImplementedException();
-	    }
     }
 }
