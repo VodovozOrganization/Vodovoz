@@ -101,12 +101,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			return income - expense;
 		}
 
-		public IEnumerable<Tuple<string, decimal>> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds)
+		public IEnumerable<OperationNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds)
 		{
 			Subdivision subdivisionAlias = null;
 			Income incomeAlias = null;
 			Expense expenseAlias = null;
-			var nodeConstructor = typeof(Tuple<string, decimal>).GetConstructors()[0];
+			OperationNode resultAlias = null;
 
 			var expenseSub = QueryOver.Of(() => expenseAlias)
 				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
@@ -126,10 +126,11 @@ namespace Vodovoz.EntityRepositories.Cash
 			var results = uow.Session
 				.QueryOver(() => subdivisionAlias)
 				.Where(() => subdivisionAlias.Id.IsIn(subdivisionIds)).SelectList(list => list
-					.Select(() => subdivisionAlias.Name)
-					.Select(projection))
-				.TransformUsing(Transformers.AliasToBeanConstructor(nodeConstructor))
-				.List<Tuple<string, decimal>>();
+					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(projection).WithAlias(() => resultAlias.Balance)
+				)
+				.TransformUsing(Transformers.AliasToBean<OperationNode>())
+				.List<OperationNode>();
 			return results;
 		}
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Gdk;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using Vodovoz.EntityRepositories.Cash;
@@ -52,10 +51,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			var allCashString = "";
 			var distinctBalances = _cashRepository
 				.CurrentCashForGivenSubdivisions(_uow, filter.SelectedSubdivisions.Select(x => x.Id).ToArray());
-			foreach(var (name, balance) in distinctBalances)
+			foreach(var node in distinctBalances)
 			{
-				totalCash += balance;
-				allCashString += $"\r\n{name}: {CurrencyWorks.GetShortCurrencyString(balance)}";
+				totalCash += node.Balance;
+				allCashString += $"\r\n{node.Name}: {CurrencyWorks.GetShortCurrencyString(node.Balance)}";
 			}
 
 			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";

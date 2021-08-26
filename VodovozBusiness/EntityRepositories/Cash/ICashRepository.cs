@@ -12,8 +12,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// <summary>
 		/// Возвращает баланс по предоставленным id касс
 		/// </summary>
-		/// <returns>Item1 - название кассы. Item2 - баланс</returns>
-		IEnumerable<Tuple<string, decimal>> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds);
+		IEnumerable<OperationNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds);
 		decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId);
 		decimal GetCashInTransfering(IUnitOfWork uow);
 		Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId);
