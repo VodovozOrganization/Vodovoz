@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DriverAPI.Controllers
 {
@@ -16,15 +17,18 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class RouteListsController : ControllerBase
 	{
+		private readonly ILogger<RouteListsController> _logger;
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly IOrderModel _aPIOrderData;
 		private readonly UserManager<IdentityUser> _userManager;
 
 		public RouteListsController(
+			ILogger<RouteListsController> logger,
 			IRouteListModel aPIRouteListData,
 			IOrderModel aPIOrderData,
 			UserManager<IdentityUser> userManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -95,8 +99,10 @@ namespace DriverAPI.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
-		public async Task RollbackRouteListAddressStatusEnRoute([FromBody]int routelistAddressId)
+		public void RollbackRouteListAddressStatusEnRoute([FromBody]int routelistAddressId)
 		{
+			_logger.LogInformation($"Попытка вернуть в путь адрес МЛ: { routelistAddressId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			
 			_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(routelistAddressId);
 		}
 	}

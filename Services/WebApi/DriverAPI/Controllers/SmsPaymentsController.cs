@@ -65,6 +65,8 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
+			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId } на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
 			_smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
 		}
 	}
