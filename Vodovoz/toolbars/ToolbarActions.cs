@@ -1096,7 +1096,7 @@ public partial class MainWindow : Window
 			IsForRetail = false
 		};
 
-		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter);
+		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
