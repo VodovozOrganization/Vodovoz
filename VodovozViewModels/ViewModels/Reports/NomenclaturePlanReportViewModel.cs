@@ -655,7 +655,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			get => _nomenclaturePlans ?? (_nomenclaturePlans = UoW.Session.QueryOver<Nomenclature>()
 				.Where(x => x.Id.IsIn(SelectedNomenclatures.Select(n => n.Id).ToArray()))
 				.List());
-			set {; }
+			set => _nomenclaturePlans = value;
 		}
 
 		#region Commands
