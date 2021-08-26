@@ -1,12 +1,32 @@
 ﻿using System;
+using Gtk;
+using QS.Views;
+using QS.Views.GtkUI;
+using Vodovoz.Journals.JournalActionsViewModels;
+
 namespace Vodovoz.ViewWidgets.JournalActions
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrdersJournalActionsView : Gtk.Bin
+	public partial class UndeliveredOrdersJournalActionsView : ViewBase<UndeliveredOrdersJournalActionsViewModel>
 	{
-		public UndeliveredOrdersJournalActionsView()
+		public UndeliveredOrdersJournalActionsView(
+			UndeliveredOrdersJournalActionsViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			CreateDefaultButtons();
+
+			btnPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
+		}
+
+		private void CreateDefaultButtons()
+		{
+			Widget entitiesJournalActions = new EntitiesJournalActionsView(ViewModel);
+			hboxDefaultBtns.Add(entitiesJournalActions);
+			entitiesJournalActions.Show();
 		}
 	}
 }

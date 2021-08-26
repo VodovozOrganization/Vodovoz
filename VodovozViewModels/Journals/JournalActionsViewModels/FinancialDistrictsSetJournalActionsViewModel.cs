@@ -8,7 +8,6 @@ using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.Journals.JournalActionsViewModels
@@ -79,13 +78,13 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 
 					if(alreadyCopiedDistrict != null)
 					{
-						interactiveService.ShowMessage(ImportanceLevel.Warning,
+						InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"Выбранная версия районов уже была скопирована\n" +
 							$"Копия: {alreadyCopiedDistrict.FinancialDistrictsSet.Id} {alreadyCopiedDistrict.FinancialDistrictsSet.Name}");
 						return;
 					}
 
-					if(interactiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\""))
+					if(InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\""))
 					{
 						var copy = districtsSetToCopy.Clone() as FinancialDistrictsSet;
 						copy.Name += " - копия";
@@ -95,7 +94,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 
 						_uow.Save(copy);
 						_uow.Commit();
-						interactiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
+						InteractiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
 					}
 				},
 			() => CanCopyFinancialDistrictSet

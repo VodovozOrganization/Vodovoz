@@ -1124,14 +1124,16 @@ public partial class MainWindow : Window
 			RestrictNotIsProblematicCases = true
 		};
 
-		var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+		var gtkDlgOpener = new GtkTabsOpener();
+		var journalActions = new UndeliveredOrdersJournalActionsViewModel(
+			undeliveredOrdersFilter, ServicesConfig.InteractiveService, gtkDlgOpener);
 
 		tdiMain.OpenTab(() => new UndeliveredOrdersJournalViewModel(
 			journalActions,
 			undeliveredOrdersFilter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			new GtkTabsOpener(),
+			gtkDlgOpener,
 			new EmployeeJournalFactory(),
 			VodovozGtkServicesConfig.EmployeeService,
 			new UndeliveredOrdersJournalOpener(),
@@ -1184,12 +1186,15 @@ public partial class MainWindow : Window
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		var journalActions = new DistrictsSetJournalActionsViewModel(
-			ServicesConfig.CommonServices, VodovozGtkServicesConfig.EmployeeService, UnitOfWorkFactory.GetDefaultFactory);
+		var journalActions =
+			new DistrictsSetJournalActionsViewModel(
+				ServicesConfig.CommonServices,
+				VodovozGtkServicesConfig.EmployeeService,
+				UnitOfWorkFactory.GetDefaultFactory,
+				new DeliveryRulesParametersProvider(new ParametersProvider()));
 		
 		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
+			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(), true, true));
 	}
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)

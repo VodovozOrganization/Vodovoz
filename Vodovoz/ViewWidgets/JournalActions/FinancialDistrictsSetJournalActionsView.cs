@@ -5,7 +5,6 @@ using Vodovoz.Journals.JournalActionsViewModels;
 
 namespace Vodovoz.ViewWidgets.JournalActions
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FinancialDistrictsSetJournalActionsView : ViewBase<FinancialDistrictsSetJournalActionsViewModel>
 	{
 		public FinancialDistrictsSetJournalActionsView(FinancialDistrictsSetJournalActionsViewModel viewModel) : base(viewModel)

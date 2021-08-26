@@ -66,12 +66,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             ExpenseCategoryAutocompleteSelectorFactory =
 	            expenseCategoryJournalFactory.CreateExpenseCategoryAutocompleteSelector(filterViewModel);
 
-	        var expenseCategorySelectorFactory = CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+	        CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
             if(uowBuilder.IsNewEntity)
-                TabName = "Создание новой заявки на выдачу ДС";
+            {
+	            TabName = "Создание новой заявки на выдачу ДС";
+            }
             else
-                TabName = $"{Entity.Title}";
+            {
+	            TabName = $"{Entity.Title}";
+            }
 
             int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
             

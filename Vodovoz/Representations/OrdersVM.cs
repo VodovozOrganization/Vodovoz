@@ -25,6 +25,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -288,12 +289,15 @@ namespace Vodovoz.ViewModel
 							RestrictOldOrderEndDate = order.DeliveryDate
 						};
 
+						var gtkDlgOpener = new GtkTabsOpener();
+
 						var dlg = new UndeliveredOrdersJournalViewModel(
-							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+							new UndeliveredOrdersJournalActionsViewModel(
+								undeliveredOrdersFilter, ServicesConfig.InteractiveService, gtkDlgOpener),
 							undeliveredOrdersFilter,
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
-							new GtkTabsOpener(),
+							gtkDlgOpener,
 							new EmployeeJournalFactory(),
 							VodovozGtkServicesConfig.EmployeeService,
 							new UndeliveredOrdersJournalOpener(),

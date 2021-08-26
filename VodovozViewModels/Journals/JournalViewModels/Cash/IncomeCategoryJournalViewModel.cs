@@ -1,7 +1,5 @@
 using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -18,7 +16,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
@@ -30,7 +27,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IncomeCategoryJournalFilterViewModel
         >
     {
-        private readonly IFileChooserProvider fileChooserProvider;
         private readonly IEmployeeJournalFactory _employeeJournalFactory;
         private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
         private readonly IIncomeCategoryJournalFactory _incomeCategoryJournalFactory;
@@ -40,13 +36,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IncomeCategoryJournalFilterViewModel journalFilterViewModel,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
             IEmployeeJournalFactory employeeJournalFactory,
             ISubdivisionJournalFactory subdivisionJournalFactory,
 	        IIncomeCategoryJournalFactory incomeCategoryJournalFactory
         ) : base(journalActionsViewModel, journalFilterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
             _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
             _incomeCategoryJournalFactory =
@@ -156,35 +150,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         protected override void CreatePopupActions()
         {
             base.CreatePopupActions();
-            NodeActionsList.Add(new JournalAction(
-                "Экспорт", 
-                x => true, 
-                x => true, 
-                selectedItems => {
-                    var selectedNodes = selectedItems.Cast<IncomeCategoryJournalNode>();
-                    StringBuilder CSVbuilder = new StringBuilder();
-                    foreach (IncomeCategoryJournalNode incomeCategoryJournalNode in Items)
-                    {
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level1 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level2 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level3 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level4 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Level5 + ", ");
-                        CSVbuilder.Append(incomeCategoryJournalNode.Subdivision + "\n");
-                    }
-
-                    var fileChooserPath = fileChooserProvider.GetExportFilePath();
-                    var res = CSVbuilder.ToString();
-                    if (fileChooserPath == "") return;
-                    Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
-                    using (StreamWriter writer = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding("Windows-1251")))  
-                    {  
-                        writer.Write("\"sep=,\"\n");
-                        writer.Write(res.ToString());
-                    }               
-                    fileChooserProvider.CloseWindow(); 
-                })
-            );
 
             PopupActionsList.Add(new JournalAction(
                 "Архивировать",

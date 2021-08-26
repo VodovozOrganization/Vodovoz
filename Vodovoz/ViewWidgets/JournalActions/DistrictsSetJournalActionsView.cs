@@ -5,7 +5,6 @@ using Vodovoz.Journals.JournalActionsViewModels;
 
 namespace Vodovoz.ViewWidgets.JournalActions
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DistrictsSetJournalActionsView : ViewBase<DistrictsSetJournalActionsViewModel>
 	{
 		public DistrictsSetJournalActionsView(DistrictsSetJournalActionsViewModel viewModel) : base(viewModel)
@@ -19,6 +18,12 @@ namespace Vodovoz.ViewWidgets.JournalActions
 			CreateDefaultButtons();
 
 			btnDistrictSetCopy.Clicked += (sender, args) => ViewModel.CopyDistrictSetCommand.Execute();
+			ybtnUpdateOnlines.Clicked += (sender, args) => ViewModel.UpdateOnlinesCommand.Execute();
+			
+			ybtnUpdateOnlines.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OnlinesText, w => w.Label)
+				.AddBinding(vm => vm.CanChangeOnlineDeliveriesToday, w => w.Visible)
+				.InitializeFromSource();
 		}
 
 		private void CreateDefaultButtons()

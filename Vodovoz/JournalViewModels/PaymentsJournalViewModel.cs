@@ -141,8 +141,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void InitializeJournalActionsViewModel()
 		{
-			_paymentsJournalActionsViewModel.Initialize(SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
-				false, true, true, false);
+			_paymentsJournalActionsViewModel.Initialize(EntityConfigs, this, HideJournal, false, true, true, false);
 		}
 
 		private void RegisterPayments()

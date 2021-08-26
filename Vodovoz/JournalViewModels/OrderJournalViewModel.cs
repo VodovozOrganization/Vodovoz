@@ -30,6 +30,7 @@ using Vodovoz.Infrastructure.Services;
 using QS.ViewModels;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -764,7 +765,8 @@ namespace Vodovoz.JournalViewModels
 						};
 
 						var dlg = new UndeliveredOrdersJournalViewModel(
-							new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+							new UndeliveredOrdersJournalActionsViewModel(
+								undeliveredOrdersFilter, ServicesConfig.InteractiveService, _gtkDialogsOpener),
 							undeliveredOrdersFilter,
 							UnitOfWorkFactory,
 							CommonServices,

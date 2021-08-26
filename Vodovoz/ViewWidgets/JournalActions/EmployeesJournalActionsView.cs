@@ -5,7 +5,6 @@ using Vodovoz.Journals.JournalActionsViewModels;
 
 namespace Vodovoz.ViewWidgets.JournalActions
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EmployeesJournalActionsView : ViewBase<EmployeesJournalActionsViewModel>
 	{
 		public EmployeesJournalActionsView(EmployeesJournalActionsViewModel viewModel) : base(viewModel)

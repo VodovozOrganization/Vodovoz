@@ -10,7 +10,6 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
-using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -19,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(
-			EntitiesJournalActionsViewModel journalActionsViewModel,
+			UndeliveredOrdersJournalActionsViewModel journalActionsViewModel,
 			UndeliveredOrdersFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -390,65 +390,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			return itemsQuery;
 		}
 
-		private void CreateCustomAddActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			var createAction = new JournalAction("Создать",
-				(selected) =>
-				{
-					var config = EntityConfigs[typeof(UndeliveredOrder)];
-					return config.PermissionResult.CanCreate;
-				},
-				(selected) => true,
-				(selected) =>
-				{
-					var config = EntityConfigs[typeof(UndeliveredOrder)];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault();
-					foundDocumentConfig?.GetCreateEntityDlgConfigs().FirstOrDefault()?.OpenEntityDialogFunction();
-				}
-			);
-
-			NodeActionsList.Add(createAction);
-		}
-
-		private void CreateCustomEditAction()
-		{
-			var editAction = new JournalAction("Изменить",
-				(selected) =>
-				{
-					var selectedNodes = selected.OfType<UndeliveredOrderJournalNode>();
-					var selectedNode = selectedNodes.FirstOrDefault();
-
-					if(selectedNode == null || !EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return false;
-					}
-
-					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
-				},
-				(selected) => true,
-				(selected) =>
-				{
-					var selectedNodes = selected.OfType<UndeliveredOrderJournalNode>();
-					var selectedNode = selectedNodes.FirstOrDefault();
-
-					if(selectedNode == null || !EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return;
-					}
-
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-					foundDocumentConfig?.GetOpenEntityDlgFunction().Invoke(selectedNode);
-				}
-			);
-
-			if(SelectionMode == JournalSelectionMode.None)
-			{
-				RowActivatedAction = editAction;
-			}
-
-			NodeActionsList.Add(editAction);
+			EntitiesJournalActionsViewModel.Initialize(EntityConfigs, this, HideJournal, true, true, true, false);
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
@@ -561,26 +505,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						fineViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
 						TabParent.AddSlaveTab(this, fineViewModel);
 					}
-				)
-			);
-		}
-
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateCustomAddActions();
-			CreateCustomEditAction();
-			CreatePrintAction();
-		}
-
-		private void CreatePrintAction()
-		{
-			NodeActionsList.Add(new JournalAction(
-				"Печать", 
-				x => true, 
-				x => true,
-				x => _gtkDlgOpener.OpenUndeliveriesWithCommentsPrintDlg(this, FilterViewModel)
 				)
 			);
 		}

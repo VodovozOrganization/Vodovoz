@@ -62,14 +62,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 		protected override void InitializeJournalActionsViewModel()
 		{
-			EntitiesJournalActionsViewModel.Initialize(
-				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected, true,false);
+			EntitiesJournalActionsViewModel.Initialize(EntityConfigs, this, HideJournal, true,false);
 			ConfigureDeleteAction();
 		}
 
 		private void ConfigureDeleteAction()
 		{
-			var deleteAction = EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Delete);
+			var deleteAction =
+				EntitiesJournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Delete);
 			
 			deleteAction.SensitiveFunc =
 				() =>

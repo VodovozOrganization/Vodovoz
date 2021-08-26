@@ -58,19 +58,19 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 
 						if(employee.User == null)
 						{
-							interactiveService.ShowMessage(ImportanceLevel.Error, "К сотруднику не привязан пользователь!");
+							InteractiveService.ShowMessage(ImportanceLevel.Error, "К сотруднику не привязан пользователь!");
 
 							return;
 						}
 
 						if(string.IsNullOrEmpty(employee.User.Login))
 						{
-							interactiveService.ShowMessage(ImportanceLevel.Error, "У пользователя не заполнен логин!");
+							InteractiveService.ShowMessage(ImportanceLevel.Error, "У пользователя не заполнен логин!");
 
 							return;
 						}
 
-						if(interactiveService.Question("Вы уверены?"))
+						if(InteractiveService.Question("Вы уверены?"))
 						{
 							_resetPasswordForEmployeeAction?.Invoke(employee);
 						}

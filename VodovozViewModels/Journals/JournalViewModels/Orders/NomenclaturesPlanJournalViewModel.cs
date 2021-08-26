@@ -33,9 +33,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	        bool canEdit = 
 		        ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_save_callcenter_motivation_report_filter");
 
-	        EntitiesJournalActionsViewModel.Initialize(
-		        SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
-		        true, true, canEdit);
+	        EntitiesJournalActionsViewModel.Initialize(EntityConfigs, this, HideJournal, true, true, canEdit);
         }
 
         protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) =>

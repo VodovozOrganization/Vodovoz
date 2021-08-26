@@ -158,7 +158,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Nomenclature = terminal
 			};
 			
-			var journalActions = new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService);
+			var journalActions = new JournalActionsViewModel();
 			
 			var writeoffWarehouseJournal =
 				new NomenclatureBalanceByStockJournalViewModel(journalActions, filter, UnitOfWorkFactory.GetDefaultFactory, _commonServices)

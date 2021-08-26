@@ -16,12 +16,11 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels
 {
-	//TODO Проверить работу журнала
 	public class NomenclatureBalanceByStockJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<Warehouse, WarehouseViewModel, NomenclatureBalanceByStockJournalNode, NomenclatureBalanceByStockFilterViewModel>
 	{
 		public NomenclatureBalanceByStockJournalViewModel(
-			EntitiesJournalActionsViewModel journalActionsViewModel,
+			JournalActionsViewModel journalActionsViewModel,
 			NomenclatureBalanceByStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
@@ -84,26 +83,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 		protected override Func<JournalEntityNodeBase, WarehouseViewModel> OpenDialogFunction => (node) =>
 			throw new NotSupportedException("Не поддерживается открытие склада из журнала");
 
-		protected override void CreateNodeActions()
+		protected override void InitializeJournalActionsViewModel()
 		{
-			NodeActionsList.Clear();
-			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any() && selected.All(x => ((NomenclatureBalanceByStockJournalNode)x).NomenclatureAmount > 0),
-				(selected) => SelectionMode != JournalSelectionMode.None,
-				(selected) =>
-				{
-					if(selected.All(x => ((NomenclatureBalanceByStockJournalNode)x).NomenclatureAmount > 0))
-					{
-						OnItemsSelected(selected);
-					}
-				}
-			);
-			if(SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
-			{
-				RowActivatedAction = selectAction;
-			}
+			base.InitializeJournalActionsViewModel();
 
-			NodeActionsList.Add(selectAction);
+			var selectAction = JournalActionsViewModel.JournalActions.Single(a => a.ActionType == ActionType.Select);
+
+			selectAction.SensitiveFunc =
+				() => SelectedItems.Any() && SelectedItems.All(x => ((NomenclatureBalanceByStockJournalNode)x).NomenclatureAmount > 0);
+
+			selectAction.ExecuteAction = () =>
+			{
+				if(SelectedItems.All(x => ((NomenclatureBalanceByStockJournalNode)x).NomenclatureAmount > 0))
+				{
+					OnItemsSelected();
+				}
+			};
 		}
 	}
 }

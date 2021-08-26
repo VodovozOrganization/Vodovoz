@@ -53,7 +53,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			OpenPrintingFormAction = openPrintingFormAction;
 			CreateTasksFunc = createTaskFunc;
 			
-			CreateDefaultSelectAction(selectionMode, null, false);
+			CreateDefaultSelectAction(false);
 		}
 	}
 }

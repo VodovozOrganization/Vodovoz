@@ -90,6 +90,7 @@
     <Compile Include="Journals\JournalActionsViewModels\FinancialDistrictsSetJournalActionsViewModel.cs" />
     <Compile Include="Journals\JournalActionsViewModels\IncomeCategoryJournalActionsViewModel.cs" />
     <Compile Include="Journals\JournalActionsViewModels\PaymentsJournalActionsViewModel.cs" />
+    <Compile Include="Journals\JournalActionsViewModels\UndeliveredOrdersJournalActionsViewModel.cs" />
     <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />

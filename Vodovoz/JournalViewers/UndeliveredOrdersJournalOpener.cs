@@ -2,14 +2,12 @@
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
-using QS.ViewModels;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.JournalViewers
@@ -34,12 +32,14 @@ namespace Vodovoz.JournalViewers
 				RestrictUndeliveryStatus = undeliveryStatus
 			};
 
+			var gtkDlgOpener = new GtkTabsOpener();
+
 			var dlg = new UndeliveredOrdersJournalViewModel(
-				new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+				new UndeliveredOrdersJournalActionsViewModel(undeliveredOrdersFilter, ServicesConfig.InteractiveService, gtkDlgOpener),
 				undeliveredOrdersFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new GtkTabsOpener(),
+				gtkDlgOpener,
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),

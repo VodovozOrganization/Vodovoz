@@ -28,8 +28,7 @@ namespace Vodovoz.Journals
         protected override void InitializeJournalActionsViewModel()
         {
 	        EntitiesJournalActionsViewModel.Initialize(
-		        SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
-		        true, false, false, false);
+		        EntityConfigs, this, HideJournal, true, false, false, false);
         }
 
         protected override Func<IUnitOfWork, IQueryOver<User>> ItemsSourceQueryFunction => (uow) =>

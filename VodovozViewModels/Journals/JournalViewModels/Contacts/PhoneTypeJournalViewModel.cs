@@ -68,9 +68,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		protected override void InitializeJournalActionsViewModel()
 		{
-			EntitiesJournalActionsViewModel.Initialize(
-				SelectionMode, EntityConfigs, this, HideJournal, OnItemsSelected,
-				true, true, true, false);
+			EntitiesJournalActionsViewModel.Initialize(EntityConfigs, this, HideJournal, true, true, true, false);
 		}
 	}
 

@@ -24,7 +24,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 		public DelegateCommand OpenReportCommand => _openReportCommand ?? (_openReportCommand = new DelegateCommand(
 				() =>
 				{
-					_reportViewOpener.OpenReportInSlaveTab(journalTab, _getReportInfoFunc?.Invoke());
+					_reportViewOpener.OpenReportInSlaveTab(JournalTab, _getReportInfoFunc?.Invoke());
 				},
 				() => _getReportInfoFunc != null
 			)

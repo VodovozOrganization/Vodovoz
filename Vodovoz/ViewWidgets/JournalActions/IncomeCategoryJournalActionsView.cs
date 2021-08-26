@@ -5,7 +5,6 @@ using QS.Views.GtkUI;
 
 namespace Vodovoz.ViewWidgets.JournalActions
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class IncomeCategoryJournalActionsView : ViewBase<IncomeCategoryJournalActionsViewModel>
 	{
 		public IncomeCategoryJournalActionsView(IncomeCategoryJournalActionsViewModel viewModel) : base(viewModel)

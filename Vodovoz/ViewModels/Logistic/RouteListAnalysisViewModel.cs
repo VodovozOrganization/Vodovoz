@@ -159,7 +159,8 @@ namespace Vodovoz.ViewModels.Logistic
 					};
 
 					var dlg = new UndeliveredOrdersJournalViewModel(
-						new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+						new UndeliveredOrdersJournalActionsViewModel(
+							undeliveredOrdersFilter, ServicesConfig.InteractiveService, _gtkDialogsOpener),
 						undeliveredOrdersFilter,
 						UnitOfWorkFactory,
 						_commonServices,

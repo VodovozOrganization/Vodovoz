@@ -17,6 +17,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Journals.JournalActionsViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -284,12 +285,14 @@ namespace Vodovoz
 				RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
 			};
 
+			var gtkDlgOpener = new GtkTabsOpener();
+
 			var dlg = new UndeliveredOrdersJournalViewModel(
-				new EntitiesJournalActionsViewModel(ServicesConfig.InteractiveService),
+				new UndeliveredOrdersJournalActionsViewModel(undeliveredOrdersFilter, ServicesConfig.InteractiveService, gtkDlgOpener),
 				undeliveredOrdersFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new GtkTabsOpener(),
+				gtkDlgOpener,
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),

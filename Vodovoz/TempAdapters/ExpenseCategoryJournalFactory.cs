@@ -23,8 +23,8 @@ namespace Vodovoz.TempAdapters
         public ExpenseCategoryJournalViewModel CreateExpenseCategoryJournal(
 	        ExpenseCategoryJournalFilterViewModel filterViewModel = null, string fileName = null, bool multipleSelect = false)
         {
-	        var journalActions = new ExpenseCategoryJournalActionsViewModel(ServicesConfig.InteractiveService);
 	        var fileChooserProvider = new FileChooser(fileName ?? "Категории расхода.csv");
+	        var journalActions = new ExpenseCategoryJournalActionsViewModel(ServicesConfig.InteractiveService, fileChooserProvider);
 	        var employeeJournalFactory = new EmployeeJournalFactory();
 	        var subdivisionJournalFactory = new SubdivisionJournalFactory();
 	        
@@ -33,7 +33,6 @@ namespace Vodovoz.TempAdapters
 		        filterViewModel ?? new ExpenseCategoryJournalFilterViewModel(),
 		        UnitOfWorkFactory.GetDefaultFactory,
 		        ServicesConfig.CommonServices,
-		        fileChooserProvider,
 		        employeeJournalFactory,
 		        subdivisionJournalFactory,
 		        this)
