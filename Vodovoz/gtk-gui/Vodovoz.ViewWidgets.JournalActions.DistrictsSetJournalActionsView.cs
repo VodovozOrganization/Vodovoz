@@ -12,6 +12,8 @@ namespace Vodovoz.ViewWidgets.JournalActions
 
 		private global::Gamma.GtkWidgets.yButton btnDistrictSetCopy;
 
+		private global::Gamma.GtkWidgets.yButton ybtnUpdateOnlines;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -48,6 +50,17 @@ namespace Vodovoz.ViewWidgets.JournalActions
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
+			// Container child yhboxBtns.Gtk.Box+BoxChild
+			this.ybtnUpdateOnlines = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnUpdateOnlines.CanFocus = true;
+			this.ybtnUpdateOnlines.Name = "ybtnUpdateOnlines";
+			this.ybtnUpdateOnlines.UseUnderline = true;
+			this.ybtnUpdateOnlines.Label = global::Mono.Unix.Catalog.GetString("Онлайны");
+			this.yhboxBtns.Add(this.ybtnUpdateOnlines);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxBtns[this.ybtnUpdateOnlines]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.yhboxBtns);
 			if ((this.Child != null))
 			{
