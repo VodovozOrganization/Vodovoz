@@ -227,7 +227,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureReportColumn nomenclatureResultAlias = null;
 
-			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias);
+			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias)
+				.Where(n => !n.IsArchive);
 
 			itemsQuery.Where(GetNomenclatureSearchCriterion(
 					() => nomenclatureAlias.Id,
@@ -447,6 +448,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.Inner.JoinAlias(() => subQueryEmployeeWageParameter.WageParameterItem, () => subQuerySalesPlanWageParameterItem)
 				.Where(() => subQuerySalesPlanWageParameterItem.WageParameterItemType == WageParameterItemTypes.SalesPlan)
 				.Where(() => subQueryEmployeeWageParameter.Employee.Id == employeeWageParameterAlias.Employee.Id)
+				.Where(() => subQueryEmployeeWageParameter.StartDate <= EndDate && 
+				             (subQueryEmployeeWageParameter.EndDate == null || subQueryEmployeeWageParameter.EndDate >= StartDate))
 				.SelectList(list => list
 					.Select(() => subQuerySalesPlanWageParameterItem.SalesPlan.Id))
 				.OrderBy(x => x.EndDate.Coalesce(DateTime.MaxValue)).Desc
@@ -484,9 +487,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var column in _selectedReportColumns)
 				{
 					decimal plan = GetSalesPlan(column, salesPlan);
-					decimal fact = GetSalesFact(column, employee);
+					int fact = (int) GetSalesFact(column, employee);
 					decimal percent = plan > 0 ? fact * 100 / plan : 100;
-					row.Columns.AddRange(new List<decimal> { decimal.Round(fact, 2), decimal.Round(plan, 2), decimal.Round(percent, 2) });
+					row.Columns.AddRange(new List<decimal> { fact, decimal.Round(plan, 2), decimal.Round(percent, 2) });
 				}
 
 				rows.Add(row);
