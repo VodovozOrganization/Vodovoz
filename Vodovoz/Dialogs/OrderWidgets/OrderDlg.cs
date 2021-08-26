@@ -2943,22 +2943,22 @@ namespace Vodovoz
 
 			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
 
-				ylblReturns.Visible = hasDepositItems;
-				lblReturns.Visible = hasDepositItems;
-				ylblReturns.Text = hasDepositItems
-					? string.Join("\n",
-						Entity.OrderDepositItems.Select(odi =>
+			ylblReturns.Visible = hasDepositItems;
+			lblReturns.Visible = hasDepositItems;
+			ylblReturns.Text = hasDepositItems
+				? string.Join("\n",
+					Entity.OrderDepositItems.Select(odi =>
+					{
+						if(odi.EquipmentNomenclature != null)
 						{
-							if(odi.EquipmentNomenclature != null)
-							{
-								return $"{ odi.EquipmentNomenclature.Name } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
-							}
-							else
-							{
-								return $"{ odi.DepositTypeString } - { odi.Count }";
-							}
-						}))
-					: "";
+							return $"{ odi.EquipmentNomenclature.Name } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
+						}
+						else
+						{
+							return $"{ odi.DepositTypeString } - { odi.Count }";
+						}
+					}))
+				: "";
 
 			ylblBottlesPlannedToReturn.Text = $"{ Entity.BottlesReturn ?? 0 } бут.";
 
@@ -3223,7 +3223,6 @@ namespace Vodovoz
 				ybuttonToStorageLogicAddressType.Visible = false;
 			}
 		}
-
 
 		#endregion FreeRent
 
