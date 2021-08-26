@@ -116,6 +116,7 @@ using QS.Osm.Loaders;
 using QS.Osm.Osrm;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.Core.Journal;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
@@ -326,31 +327,68 @@ public partial class MainWindow : Gtk.Window
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
     {
-        if (args.Tab is IInfoProvider dialogTab)
-            dialogTab.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
-        else if (args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
-            journal.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+	    switch (args.Tab)
+	    {
+		    case IInfoProvider dialogTab:
+			    dialogTab.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+			    break;
+		    case TdiSliderTab journalTab when journalTab.Journal is IInfoProvider journal:
+			    journal.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+			    break;
+		    case TdiSliderTab tdiSliderTab
+			    when (tdiSliderTab.Journal as MultipleEntityJournal)?.RepresentationModel is IInfoProvider provider:
+		    {
+			    provider.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+			    break;
+		    }
+	    }
     }
 
     public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
     {
-        if (args.Tab is IInfoProvider dialogTab)
-            infopanel.OnInfoProviderDisposed(dialogTab);
-        else if (args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
-            infopanel.OnInfoProviderDisposed(journal);
-        if (tdiMain.NPages == 0)
-            infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+	    switch (args.Tab)
+	    {
+		    case IInfoProvider dialogTab:
+			    infopanel.OnInfoProviderDisposed(dialogTab);
+			    break;
+		    case TdiSliderTab journalTab when journalTab.Journal is IInfoProvider journal:
+			    infopanel.OnInfoProviderDisposed(journal);
+			    break;
+		    case TdiSliderTab tdiSliderTab
+			    when (tdiSliderTab.Journal as MultipleEntityJournal)?.RepresentationModel is IInfoProvider provider:
+		    {
+			    infopanel.OnInfoProviderDisposed(provider);
+			    break;
+		    }
+	    }
+
+	    if (tdiMain.NPages == 0)
+	    {
+		    infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+	    }
     }
 
     public void OnTdiMainTabSwitched(object sender, TabSwitchedEventArgs args)
     {
-        var currentTab = args.Tab;
-        if (currentTab is IInfoProvider)
-            infopanel.SetInfoProvider(currentTab as IInfoProvider);
-        else if (currentTab is TdiSliderTab && (currentTab as TdiSliderTab).Journal is IInfoProvider)
-            infopanel.SetInfoProvider((currentTab as TdiSliderTab).Journal as IInfoProvider);
-        else
-            infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+	    var currentTab = args.Tab;
+	    switch (currentTab)
+	    {
+		    case IInfoProvider provider:
+			    infopanel.SetInfoProvider(provider);
+			    break;
+		    case TdiSliderTab tdiSliderTab when tdiSliderTab.Journal is IInfoProvider provider:
+			    infopanel.SetInfoProvider(provider);
+			    break;
+		    case TdiSliderTab tdiSliderTab when
+			    (tdiSliderTab.Journal as MultipleEntityJournal)?.RepresentationModel is IInfoProvider provider:
+		    {
+			    infopanel.SetInfoProvider(provider);
+			    break;
+		    }
+		    default:
+			    infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+			    break;
+	    }
     }
 
     protected void OnDeleteEvent(object sender, DeleteEventArgs a)

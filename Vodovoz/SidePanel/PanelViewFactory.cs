@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gtk;
-using QS.DomainModel.NotifyChange;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Parameters;
@@ -16,7 +17,8 @@ namespace Vodovoz.SidePanel
 	{
 		public static Widget Create(PanelViewType type)
 		{
-			switch(type) {
+			switch(type)
+			{
 				case PanelViewType.CounterpartyView:
 					return new CounterpartyPanelView();
 				case PanelViewType.DeliveryPointView:
@@ -35,8 +37,10 @@ namespace Vodovoz.SidePanel
 					return new SmsSendPanelView();
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
-					FixedPricesPanelViewModel fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener);
+					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener);
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
+				case PanelViewType.CashInfoPanelView:
+					return new CashInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new CashRepository());
 				default:
 					throw new NotSupportedException();
 			}
@@ -44,10 +48,13 @@ namespace Vodovoz.SidePanel
 
 		public static IEnumerable<Widget> CreateAll(IEnumerable<PanelViewType> types)
 		{
-			var iterator = types.GetEnumerator();
-			while(iterator.MoveNext())
-				yield return Create(iterator.Current);
+			using(var iterator = types.GetEnumerator())
+			{
+				while(iterator.MoveNext())
+				{
+					yield return Create(iterator.Current);
+				}
+			}
 		}
 	}
 }
-
