@@ -15,10 +15,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IUnitOfWork _uow;
 		private readonly ICashRepository _cashRepository;
 
-		public CashInfoPanelView(IUnitOfWork uow, ICashRepository cashRepository)
+		public CashInfoPanelView(IUnitOfWorkFactory uowFactory, ICashRepository cashRepository)
 		{
 			this.Build();
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 		}
 

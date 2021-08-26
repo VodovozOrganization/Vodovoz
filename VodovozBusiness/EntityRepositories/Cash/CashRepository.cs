@@ -114,7 +114,7 @@ namespace Vodovoz.EntityRepositories.Cash
 
 			var incomeSub = QueryOver.Of(() => incomeAlias)
 				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
-				.Select(Projections.Sum<Expense>(o => o.Money));
+				.Select(Projections.Sum<Income>(o => o.Money));
 
 			var projection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),

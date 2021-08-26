@@ -40,7 +40,7 @@ namespace Vodovoz.SidePanel
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener);
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
-					return new CashInfoPanelView(UnitOfWorkFactory.CreateWithoutRoot("Панель информации по кассам"), new CashRepository());
+					return new CashInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new CashRepository());
 				default:
 					throw new NotSupportedException();
 			}
