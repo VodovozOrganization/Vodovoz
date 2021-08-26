@@ -1,6 +1,6 @@
 ﻿using DriverAPI.Data;
-using DriverAPI.Library.Models;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,7 +37,7 @@ namespace DriverAPI
 {
 	public class Startup
 	{
-		private ILogger<Startup> logger;
+		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -56,7 +56,7 @@ namespace DriverAPI
 					logging.AddNLogWeb();
 				});
 
-			logger = new Logger<Startup>(LoggerFactory.Create(logging => 
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging => 
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
 			// Подключение к БД
@@ -73,7 +73,7 @@ namespace DriverAPI
 			}
 			catch (Exception e)
 			{
-				logger.LogCritical(e, e.Message);
+				_logger.LogCritical(e, e.Message);
 				throw;
 			}
 
@@ -169,7 +169,7 @@ namespace DriverAPI
 
 		private void CreateBaseConfig()
 		{
-			logger.LogInformation("Настройка параметров Nhibernate...");
+			_logger.LogInformation("Настройка параметров Nhibernate...");
 
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -193,7 +193,8 @@ namespace DriverAPI
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
-				new System.Reflection.Assembly[] {
+				new System.Reflection.Assembly[]
+				{
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
@@ -242,10 +243,12 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 
 			// Конвертеры
-			foreach (var type in typeof(Library.AssemblyFinder).Assembly.GetTypes()
-										  .Where(type => type.IsClass)
-										  .Where(type => type.Name.EndsWith("Converter"))
-										  .ToList())
+			foreach (var type in typeof(Library.AssemblyFinder)
+									.Assembly
+									.GetTypes()
+									.Where(type => type.IsClass)
+									.Where(type => type.Name.EndsWith("Converter"))
+									.ToList())
 			{
 				services.AddScoped(type);
 			}
