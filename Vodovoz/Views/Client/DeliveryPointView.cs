@@ -118,6 +118,9 @@ namespace Vodovoz.Views.Client
 			hboxOrganisation.Binding.AddFuncBinding(ViewModel.Entity,
 					e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
 				.InitializeFromSource();
+			ylabelOrganisation.Binding.AddFuncBinding(ViewModel.Entity,
+					e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
+				.InitializeFromSource();
 			yentryOrganisation.Binding.AddBinding(ViewModel.Entity, e => e.Organization, w => w.Text).InitializeFromSource();
 			yentryKPP.Binding.AddBinding(ViewModel.Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 			textAddressAddition.Binding.AddBinding(ViewModel.Entity, e => e.АddressAddition, w => w.Buffer.Text).InitializeFromSource();
