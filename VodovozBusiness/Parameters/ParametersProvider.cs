@@ -34,9 +34,14 @@ namespace Vodovoz.Parameters
 
 			if(!_parameters.TryGetValue(parameterName, out var parameter))
 			{
+				RefreshParameter(parameterName);
+			}
+			
+			if(!_parameters.TryGetValue(parameterName, out var param))
+			{
 				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
 			}
-
+			
 			if(parameter.IsExpired)
 			{
 				RefreshParameter(parameterName);
