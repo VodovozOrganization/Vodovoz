@@ -969,44 +969,41 @@ public partial class MainWindow : Gtk.Window
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
         IFilePickerService filePickerService = new GtkFilePicker();
-
-        tdiMain.OpenTab(
-            () =>
-            {
-                return new ComplaintsJournalViewModel(
-                    UnitOfWorkFactory.GetDefaultFactory,
-                    ServicesConfig.CommonServices,
-                    undeliveredOrdersJournalOpener,
-                    VodovozGtkServicesConfig.EmployeeService,
-                    counterpartySelectorFactory,
-                    routeListItemRepository,
-                    SubdivisionParametersProvider.Instance,
-                    new ComplaintFilterViewModel(
-                        ServicesConfig.CommonServices,
-                        subdivisionRepository,
-                        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        counterpartySelectorFactory
-                    )
-                    {
-	                    HidenByDefault = true
-                    },
-                    filePickerService,
-                    subdivisionRepository,
-                    new GtkReportViewOpener(),
-                    new GtkTabsOpener(),
-                    nomenclatureRepository,
-                    userRepository,
-                    new OrderSelectorFactory(),
-                    employeeJournalFactory,
-                    new CounterpartyJournalFactory(),
-                    new DeliveryPointJournalFactory(),
-                    subdivisionJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory(),
-                    new UndeliveredOrdersRepository()
-                );
-            }
+        
+        var journal = new ComplaintsJournalViewModel(
+	        UnitOfWorkFactory.GetDefaultFactory,
+	        ServicesConfig.CommonServices,
+	        undeliveredOrdersJournalOpener,
+	        VodovozGtkServicesConfig.EmployeeService,
+	        counterpartySelectorFactory,
+	        routeListItemRepository,
+	        SubdivisionParametersProvider.Instance,
+	        new ComplaintFilterViewModel(
+		        ServicesConfig.CommonServices,
+		        subdivisionRepository,
+		        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+		        counterpartySelectorFactory
+	        )
+	        {
+		        HidenByDefault = true
+	        },
+	        filePickerService,
+	        subdivisionRepository,
+	        new GtkReportViewOpener(),
+	        new GtkTabsOpener(),
+	        nomenclatureRepository,
+	        userRepository,
+	        new OrderSelectorFactory(),
+	        employeeJournalFactory,
+	        new CounterpartyJournalFactory(),
+	        new DeliveryPointJournalFactory(),
+	        subdivisionJournalFactory,
+	        new SalesPlanJournalFactory(),
+	        new NomenclatureSelectorFactory(),
+	        new UndeliveredOrdersRepository()
         );
+        
+        tdiMain.AddTab(journal);
     }
 
     protected void OnActionSalesReportActivated(object sender, EventArgs e)
