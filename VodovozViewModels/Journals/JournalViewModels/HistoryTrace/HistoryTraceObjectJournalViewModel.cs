@@ -34,6 +34,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
                     new JournalSelectedNodesNodesEventArgs(e.SelectedObjects.OfType<JournalNodeBase>().ToArray())
                 );
             };
+            
+            InitializeJournalActionsViewModel();
         }
 
         public Func<CancellationToken, IList<HistoryTraceObjectNode>> GetItems => token => 

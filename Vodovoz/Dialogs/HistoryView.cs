@@ -22,6 +22,7 @@ using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals;
 using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using VodovozInfrastructure.Attributes;
 
@@ -39,21 +40,17 @@ namespace Vodovoz.Dialogs
         private bool takenAll = false;
         private bool needToHideProperties = true;
         private IDiffFormatter diffFormatter = new PangoDiffFormater();
-        private HistoryTracePropertyJournalViewModel historyTracePropertyJournalViewModel;
+        private HistoryTracePropertyJournalFilterViewModel _historyTracePropertyJournalFilterViewModel;
 
         public IUnitOfWork UoW { get; private set; }
 
         public HistoryView()
         {
-            this.Build();
+            Build();
 
             needToHideProperties = !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_history_view_restricted_properties");
 
-            historyTracePropertyJournalViewModel = 
-	            new HistoryTracePropertyJournalViewModel(
-		            new JournalActionsViewModel(),
-		            UnitOfWorkFactory.GetDefaultFactory,
-		            ServicesConfig.CommonServices.InteractiveService);
+            _historyTracePropertyJournalFilterViewModel = new HistoryTracePropertyJournalFilterViewModel();
 
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -73,7 +70,11 @@ namespace Vodovoz.Dialogs
 
             entryProperty.SetNodeAutocompleteSelectorFactory(
                 new NodeAutocompleteSelectorFactory<HistoryTracePropertyJournalViewModel>(typeof(HistoryTracePropertyNode),
-                () => historyTracePropertyJournalViewModel));
+                () =>  new HistoryTracePropertyJournalViewModel(
+	                _historyTracePropertyJournalFilterViewModel,
+	                new JournalActionsViewModel(),
+	                UnitOfWorkFactory.GetDefaultFactory,
+	                ServicesConfig.CommonServices.InteractiveService)));
 
             entryProperty.ChangedByUser += (sender, e) => UpdateJournal();
 
@@ -241,7 +242,7 @@ namespace Vodovoz.Dialogs
 
         private void OnObjectChangedByUser(object sender, EventArgs e)
         {
-            historyTracePropertyJournalViewModel.ObjectType = entryObject3.Subject is HistoryTraceObjectNode node ? node.ObjectType : null;
+            _historyTracePropertyJournalFilterViewModel.ObjectType = entryObject3.Subject is HistoryTraceObjectNode node ? node.ObjectType : null;
             UpdateJournal();
         }
 

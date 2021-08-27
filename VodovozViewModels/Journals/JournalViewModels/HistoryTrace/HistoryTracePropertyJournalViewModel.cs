@@ -3,7 +3,6 @@ using QS.HistoryLog;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,19 +11,25 @@ using QS.Dialog;
 using QS.ViewModels;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
+using Vodovoz.ViewModels.Journals.FilterViewModels.HistoryTrace;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
 {
     public class HistoryTracePropertyJournalViewModel : JournalViewModelBase, INodeAutocompleteSelector
     {
+	    private readonly HistoryTracePropertyJournalFilterViewModel _journalFilterViewModel;
+	    
         public HistoryTracePropertyJournalViewModel(
+	        HistoryTracePropertyJournalFilterViewModel journalFilterViewModel,
 	        JournalActionsViewModel journalActionsViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        IInteractiveService interactiveService,
 	        INavigationManager navigation = null) 
             : base(journalActionsViewModel, unitOfWorkFactory, interactiveService, navigation)
         {
-            TabName = "Журнал полей объектов изменений";
+	        _journalFilterViewModel = journalFilterViewModel;
+	        
+	        TabName = "Журнал полей объектов изменений";
 
             DataLoader = new AnyDataLoader<HistoryTracePropertyNode>(GetItems);
 
@@ -34,17 +39,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
                     new JournalSelectedNodesNodesEventArgs(e.SelectedObjects.OfType<JournalNodeBase>().ToArray())
                 );
             };
+            
+            InitializeJournalActionsViewModel();
         }
 
-        public Type ObjectType { get; set; }
-
-        public Func<CancellationToken, IList<HistoryTracePropertyNode>> GetItems => (token) => {
-            if (ObjectType != null)
+        public Func<CancellationToken, IList<HistoryTracePropertyNode>> GetItems => token =>
+        {
+            if (_journalFilterViewModel?.ObjectType != null)
             {
-                var tracedClass = HistoryMain.TraceClasses.Where(x => x.ObjectType == ObjectType).FirstOrDefault();
-                var result = tracedClass.TracedProperties.OrderBy(x => x.DisplayName)?
+                var tracedClass =
+	                HistoryMain.TraceClasses.FirstOrDefault(x => x.ObjectType == _journalFilterViewModel.ObjectType);
+                
+                var result = tracedClass.TracedProperties.OrderBy(x => x.DisplayName)
                     .Select(x =>
-                    new HistoryTracePropertyNode(ObjectType, x.DisplayName)
+                    new HistoryTracePropertyNode(_journalFilterViewModel.ObjectType, x.DisplayName)
                     {
                         PropertyPath = x.FieldName
                     });
