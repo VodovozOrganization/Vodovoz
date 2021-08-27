@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -72,12 +73,12 @@ namespace Vodovoz.Domain.Employees
 			return uow;
 		}
 
-		public virtual void UpdateCarProxyDocumentTemplate(IUnitOfWork uow)
+		public virtual void UpdateCarProxyDocumentTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(Id > 0 || Organization == null) {
 				return;
 			}
-			DocumentTemplate = Repository.Client.DocTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
+			DocumentTemplate = docTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
 		}
 
 		#region IValidatableObject implementation

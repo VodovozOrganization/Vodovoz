@@ -9,12 +9,12 @@ using QS.Navigation;
 using Vodovoz.Services;
 using Vodovoz.Domain.Payments;
 using NLog;
-using Vodovoz.Repositories.Payments;
 using QS.Commands;
-using Vodovoz.Repositories;
 using Vodovoz.Domain.Orders;
 using System.Threading.Tasks;
 using QS.Dialog;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.ViewModels
 {
@@ -22,6 +22,8 @@ namespace Vodovoz.ViewModels
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
+		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly int _vodovozId;
 		private readonly int _vodovozSouthId;
 		private IReadOnlyList<Domain.Organizations.Organization> _organisations;		
@@ -39,7 +41,9 @@ namespace Vodovoz.ViewModels
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
 			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider) 
+			IProfitCategoryProvider profitCategoryProvider,
+			IPaymentsRepository paymentsRepository,
+			ICounterpartyRepository counterpartyRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -48,6 +52,8 @@ namespace Vodovoz.ViewModels
 			}
 
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 
 			if(organizationParametersProvider == null)
 			{
@@ -163,7 +169,7 @@ namespace Vodovoz.ViewModels
 					&& x.CounterpartyInn == doc.PayerInn
 					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
 
-				if(PaymentsRepository.PaymentFromBankClientExists(
+				if(_paymentsRepository.PaymentFromBankClientExists(
 					UoW,
 					doc.Date,
 					int.Parse(doc.DocNum),
@@ -177,7 +183,7 @@ namespace Vodovoz.ViewModels
 					continue;
 				}
 
-				var counterparty = CounterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
+				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
 				var curPayment = new Payment(doc, org, counterparty);
 
 				if(!autoPaymentMatching.IncomePaymentMatch(curPayment))

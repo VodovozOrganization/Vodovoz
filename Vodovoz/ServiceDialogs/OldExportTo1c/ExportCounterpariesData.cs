@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using Vodovoz.ExportTo1c;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.OldExportTo1c
 {

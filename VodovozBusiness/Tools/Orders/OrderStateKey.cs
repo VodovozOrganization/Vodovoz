@@ -116,7 +116,7 @@ namespace Vodovoz.Tools.Orders
 
 			if(!Order.ObservableOrderItems.Any() || 
 			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
-				   x.Nomenclature.Id == int.Parse(SingletonParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+				   x.Nomenclature.Id == int.Parse(new ParametersProvider().GetParameterValue("paid_delivery_nomenclature_id"))))) 
 			{
 				HasOrderItems = false;
 			}

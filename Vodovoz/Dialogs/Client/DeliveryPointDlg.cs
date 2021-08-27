@@ -35,9 +35,9 @@ using System.Collections.Generic;
 using Gamma.Widgets;
 using Gtk;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
-using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz
 {
@@ -46,6 +46,8 @@ namespace Vodovoz
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
 		IPhoneRepository phoneRepository = new PhoneRepository();
 
@@ -111,7 +113,7 @@ namespace Vodovoz
 
 			ShowResidue();
 
-			ySpecCmbCategory.ItemsList = UoW.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
+			ySpecCmbCategory.ItemsList = _deliveryPointRepository.GetActiveDeliveryPointCategories(UoW);
 			ySpecCmbCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			comboRoomType.ItemsEnum = typeof(RoomType);
@@ -158,7 +160,7 @@ namespace Vodovoz
 			lblId.LabelProp = Entity.Id.ToString();
 
 			radioFixedPrices.Toggled += OnRadioFixedPricesToggled;
-			var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+			var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 			var nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
 			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(nomenclatureRepository);
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
@@ -216,6 +218,12 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			chkAddCertificatesAlways.Binding.AddBinding(Entity, e => e.AddCertificatesAlways, w => w.Active).InitializeFromSource();
+
+			entryLunchTimeFrom.Binding.AddBinding(Entity, e => e.LunchTimeFrom, w => w.Time).InitializeFromSource();
+			entryLunchTimeTo.Binding.AddBinding(Entity, e => e.LunchTimeTo, w => w.Time).InitializeFromSource();
+
+			chkBeforeIntervalDelivery.RenderMode = QS.Widgets.RenderMode.Icon;
+			chkBeforeIntervalDelivery.Binding.AddBinding(Entity, e => e.IsBeforeIntervalDelivery, w => w.Active).InitializeFromSource();
 
 			cityBeforeChange = entryCity.City;
 			streetBeforeChange = entryStreet.Street;
@@ -530,7 +538,7 @@ namespace Vodovoz
 				return;
 
 			Entity.SetСoordinates(latitude, longitude, UoW);
-			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
+			Entity.СoordsLastChangeUser = _userRepository.GetCurrentUser(UoW);
 		}
 
 		/// <summary>

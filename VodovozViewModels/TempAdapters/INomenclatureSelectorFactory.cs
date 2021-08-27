@@ -1,6 +1,8 @@
 ﻿using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.TempAdapters
 {
@@ -13,5 +15,6 @@ namespace Vodovoz.TempAdapters
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
+		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory();
 	}
 }

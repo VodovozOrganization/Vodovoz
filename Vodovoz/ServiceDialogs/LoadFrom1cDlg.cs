@@ -7,7 +7,6 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QSBanks;
 using QSBanks.Repositories;
 using QS.BusinessCommon.Domain;
 using QS.BusinessCommon.Repository;
@@ -19,14 +18,14 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Client;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -34,8 +33,11 @@ namespace Vodovoz
 	public partial class LoadFrom1cDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
+		IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<string> IncludeParents = new List<string>{
 			"00000002",
@@ -76,9 +78,9 @@ namespace Vodovoz
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
+						_orderRepository,
+						new EmployeeRepository(),
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -93,7 +95,7 @@ namespace Vodovoz
 			get {
 				if(banks == null)
 				{
-					banks = BankRepository.ActiveBanks (uow);
+					banks = BankRepository.ActiveBanks (_uow);
 				}
 				return banks;
 			}
@@ -335,9 +337,9 @@ namespace Vodovoz
 			Filter.AddPattern("*.xml");
 			filechooserXML.Filter = Filter;
 
-			DeliverySchedules  = uow.GetAll<DeliverySchedule>().ToList();
-			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(uow);
-			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(uow);
+			DeliverySchedules  = _uow.GetAll<DeliverySchedule>().ToList();
+			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(_uow);
+			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(_uow);
 
 			vboxChanges.Visible = false;
 			ytreeEntites.ColumnsConfig = ColumnsConfigFactory.Create<ChangedItem>()
@@ -738,7 +740,7 @@ namespace Vodovoz
 			if(client == null)
 				return;
 
-			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(uow, client, addressCodeNode?.InnerText, addressNode?.InnerText);
+			DeliveryPoint deliveryPoint = _deliveryPointRepository.GetByAddress1c(_uow, client, addressCodeNode?.InnerText, addressNode?.InnerText);
 
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
 			if(!LoadedOrderDates.Contains(deliveryDate))
@@ -759,7 +761,7 @@ namespace Vodovoz
 					paymentType = PaymentType.cashless;
 			}
 
-			var reasons = uow.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
+			var reasons = _uow.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
 			NonReturnReason reasonType = reasons.FirstOrDefault(x => x.Name.ToUpper() == "ПРИЧИНА НЕИЗВЕСТНА");
 			if(commentNode != null) {
 				if(commentNode.InnerText.ToUpper().Contains(newAddressString) && reasons.Any(x => x.Name.ToUpper() == newAddressString))
@@ -829,7 +831,7 @@ namespace Vodovoz
 			{
 				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))
 				{
-					order.IsService = true;
+					order.OrderAddressType = OrderAddressType.Service;
 				}
 			}
 
@@ -948,7 +950,7 @@ namespace Vodovoz
 
 			progressbar.Text = "Записываем данные в базу...";
 			logger.Info("Записываем данные в базу...");
-			uow.Commit ();
+			_uow.Commit ();
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = false;
 		}
@@ -960,7 +962,7 @@ namespace Vodovoz
 			progressbar.Text = "Загружаем таблицу существующих контрагентов.";
 			QSMain.WaitRedraw ();
 			var counterpartyCodes1c = CounterpatiesList.Select(c => c.Code1c).ToArray();
-			var ExistCouterpaties = Repositories.CounterpartyRepository.GetCounterpartiesByCode1c (uow, counterpartyCodes1c);
+			var ExistCouterpaties = _counterpartyRepository.GetCounterpartiesByCode1c (_uow, counterpartyCodes1c);
 
 			progressbar.Text = "Сверяем контрагентов...";
 			progressbar.Adjustment.Value = 0;
@@ -981,7 +983,7 @@ namespace Vodovoz
 					if (change != null) {
 						ChangedCounterparties++;
 						Changes.Add(change);
-						uow.Save(exist);
+						_uow.Save(exist);
 					}
 					//FIXME Если понадобится тут нужно реклизовать проверку счетов на изменения.
 					continue;
@@ -1000,7 +1002,7 @@ namespace Vodovoz
 					if (loaded.DefaultAccount != null && !loaded.Accounts.Contains (loaded.DefaultAccount))
 						loaded.AddAccount (loaded.DefaultAccount);
 					
-					uow.Save (loaded);
+					_uow.Save (loaded);
 				}
 					
 			}
@@ -1008,7 +1010,7 @@ namespace Vodovoz
 			if (!checkOnlyAddress.Active)
 			{
 				progressbar.Text = "Загружаем таблицу существующих номенклатур.";
-				ExistNomenclatures = uow.GetAll<Nomenclature>().ToList<Nomenclature>();
+				ExistNomenclatures = _uow.GetAll<Nomenclature>().ToList<Nomenclature>();
 
 				progressbar.Text = "Сверяем номенклатуры...";
 				progressbar.Adjustment.Value = 0;
@@ -1032,13 +1034,13 @@ namespace Vodovoz
 					}
 					else
 						NewNomenclatures++;
-					uow.Save(loaded);
+					_uow.Save(loaded);
 				}
 			}
 
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
-			var ExistOrders = OrderRepository.GetOrdersByCode1c(uow, orderCodes1c);
+			var ExistOrders = _orderRepository.GetOrdersByCode1c(_uow, orderCodes1c);
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -1047,8 +1049,10 @@ namespace Vodovoz
 
 			List<Order> OrdersInDataBase = new List<Order>();
 			foreach (var date in LoadedOrderDates)
-				OrdersInDataBase.AddRange(OrderRepository.GetOrdersBetweenDates(uow, date, date));
-			
+			{
+				OrdersInDataBase.AddRange(_orderRepository.GetOrdersBetweenDates(_uow, date, date));
+			}
+
 
 			//Проверка заказов
 			foreach (var loaded in OrdersList)
@@ -1071,7 +1075,7 @@ namespace Vodovoz
 				if(!String.IsNullOrWhiteSpace(loaded.Address1cCode) && loaded.DeliveryPoint != null && String.IsNullOrWhiteSpace(loaded.DeliveryPoint.Code1c))
 				{
 					loaded.DeliveryPoint.Code1c = loaded.Address1cCode;
-					uow.Save(loaded.DeliveryPoint);
+					_uow.Save(loaded.DeliveryPoint);
 				}
 					
 				if (checkOnlyAddress.Active)
@@ -1083,7 +1087,7 @@ namespace Vodovoz
 						var newPoint = DeliveryPoint.Create(loaded.Client);
 						newPoint.Address1c = loaded.Address1c;
 						newPoint.Code1c = loaded.Address1cCode;
-						uow.Save(newPoint);
+						_uow.Save(newPoint);
 						NewAddresses++;
 					}
 					continue;
@@ -1123,13 +1127,13 @@ namespace Vodovoz
 
 							change.Title = $"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше подтвержденного";
 							Changes.Add(change);
-							uow.Session.Evict(exist);
+							_uow.Session.Evict(exist);
 							continue;
 						}
 
 						ChangedOrders++;
 						Changes.Add(change);
-						uow.Save(exist);
+						_uow.Save(exist);
 					}
 
 					if(exist.OrderStatus == OrderStatus.Canceled) {
@@ -1138,7 +1142,7 @@ namespace Vodovoz
 						} else {
 							exist.OrderStatus = OrderStatus.NewOrder;
 						}
-						uow.Save(exist);
+						_uow.Save(exist);
 					}
 				}
 				else
@@ -1151,7 +1155,7 @@ namespace Vodovoz
 						&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
 						loaded.ChangeStatusAndCreateTasks(OrderStatus.Accepted, CallTaskWorker);
 
-					uow.Save (loaded);
+					_uow.Save (loaded);
 				}
 			}
 			var notLoaded = GetNotLoadedOrders(OrdersInDataBase);
@@ -1192,7 +1196,7 @@ namespace Vodovoz
 				   && !String.IsNullOrWhiteSpace(order.Code1c))
 				{
 					order.ChangeStatusAndCreateTasks (OrderStatus.Canceled, CallTaskWorker);
-					uow.Save (order);
+					_uow.Save (order);
 				}
 			}
 
@@ -1212,7 +1216,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			uow?.Dispose();
+			_uow?.Dispose();
 			base.Destroy();
 		}
 	}

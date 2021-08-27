@@ -28,10 +28,6 @@ using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
@@ -93,7 +89,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -128,13 +124,17 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
+using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
+using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 
 namespace Vodovoz
 {
@@ -225,6 +225,7 @@ namespace Vodovoz
                 .RegisterWidgetForTabViewModel<SalesChannelViewModel, SalesChannelView>()
                 .RegisterWidgetForTabViewModel<DeliveryPointResponsiblePersonTypeViewModel, DeliveryPointResponsiblePersonTypeView>()
                 .RegisterWidgetForTabViewModel<NomenclaturePlanViewModel, NomenclaturePlanView>()
+                .RegisterWidgetForTabViewModel<NomenclaturePlanReportViewModel, NomenclaturePlanReportView>()
                 .RegisterWidgetForTabViewModel<OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<PremiumViewModel, PremiumView>()
 				.RegisterWidgetForTabViewModel<PremiumRaskatGAZelleViewModel, PremiumRaskatGAZelleView>()
@@ -239,6 +240,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DriverAttachedTerminalViewModel, DriverAttachedTerminalView>()
 				.RegisterWidgetForTabViewModel<DeliveryPointViewModel, DeliveryPointView>()
 				.RegisterWidgetForTabViewModel<EquipmentKindViewModel, EquipmentKindView>()
+				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
+				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
 				;
 
             //Регистрация виджетов
@@ -299,8 +302,11 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DriverComplaintReasonJournalFilterViewModel, DriverComplaintReasonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintObjectJournalFilterViewModel, ComplaintObjectJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesBalanceSummaryViewModel, WarehousesBalanceSummaryView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<SalaryByEmployeeJournalFilterViewModel, SalaryByEmployeeFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProductGroupJournalFilterViewModel, ProductGroupJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -371,7 +377,7 @@ namespace Vodovoz
 
 			#region База
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-			builder.RegisterType<BaseParametersProvider>().AsSelf();
+			builder.RegisterType<BaseParametersProvider>().As<ITerminalNomenclatureProvider>().AsSelf();
 			#endregion
 
 			#region Сервисы
@@ -397,11 +403,13 @@ namespace Vodovoz
 			
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
-			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
+			builder.Register(c => PermissionExtensionSingletonStore.GetInstance()).As<IPermissionExtensionStore>();
+			builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
 			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
+			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 
 			#endregion
 			
@@ -418,16 +426,14 @@ namespace Vodovoz
 			
 			#endregion
 			
-			#region Интерфейсы репозиториев
-			
-			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
-			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
-			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
-			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
-			builder.RegisterType<NomenclatureRepository>().As<INomenclatureRepository>();
-			
+			#region Репозитории
+
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
+				.Where(t => t.Name.EndsWith("Repository"))
+				.AsImplementedInterfaces();
+
 			#endregion
-			
+
 			#region Mango
 			
 			builder.RegisterType<MangoManager>().AsSelf();
@@ -461,12 +467,6 @@ namespace Vodovoz
 					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
-				.AsSelf();
-			#endregion
-
-			#region Repository
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
-				.Where(t => t.Name.EndsWith("Repository"))
 				.AsSelf();
 			#endregion
 

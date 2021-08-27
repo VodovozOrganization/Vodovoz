@@ -8,19 +8,14 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.JournalViewModels;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.JournalFilters
 {
@@ -34,7 +29,8 @@ namespace Vodovoz.JournalFilters
 			enumCMBUndeliveryStatus.ItemsEnum = typeof(UndeliveryStatus);
 			enumCMBUndeliveryStatus.SelectedItem = UndeliveryStatus.InProcess;
 			yEnumCMBActionWithInvoice.ItemsEnum = typeof(ActionsWithInvoice);
-			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList = EmployeeRepository.Subdivisions(UoW);
+			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList =
+				new SubdivisionRepository(new ParametersProvider()).GetAllDepartmentsOrderedByName(UoW);
 
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 			refOldOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");

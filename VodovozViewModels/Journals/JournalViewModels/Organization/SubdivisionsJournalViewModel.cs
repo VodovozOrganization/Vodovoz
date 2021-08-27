@@ -11,8 +11,10 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -84,11 +86,14 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 
 		};
 
-		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory,
-			commonServices, employeeSelectorFactory, new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory);
+		protected override Func<SubdivisionViewModel> CreateDialogFunction =>
+			() => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory,
+				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
+				new SubdivisionRepository(new ParametersProvider()));
 
-		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => 
-			new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory, new PermissionRepository(), 
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
+		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction =>
+			node => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory,
+				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
+				new SubdivisionRepository(new ParametersProvider()));
 	}
 }

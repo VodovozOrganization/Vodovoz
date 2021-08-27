@@ -14,7 +14,7 @@ namespace Vodovoz.ViewModels.Warehouses
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
             TabName = Entity?.Id == 0 ? "Новый склад" : Entity?.Name;
-            Subdivisions = subdivisionRepository.GetAllDepartments(UoW);
+            Subdivisions = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
             CanArchiveWarehouse = commonServices.CurrentPermissionService.ValidatePresetPermission("can_archive_warehouse");
         }
 

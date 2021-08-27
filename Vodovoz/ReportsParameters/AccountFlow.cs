@@ -6,20 +6,25 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Repository.Cash;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Reports
 {
 	public partial class AccountFlow : SingleUoWWidgetBase, IParametersWidget
 	{
-		public AccountFlow ()
+		public AccountFlow (ICategoryRepository categoryRepository)
 		{
-			this.Build ();
+			if(categoryRepository == null)
+			{
+				throw new ArgumentNullException(nameof(categoryRepository));
+			}
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			comboPart.ItemsEnum = typeof(ReportParts);
-			comboExpenseCategory.ItemsList = CategoryRepository.ExpenseCategories (UoW);
+			comboExpenseCategory.ItemsList = categoryRepository.ExpenseCategories (UoW);
 			comboExpenseCategory.SelectedItem = Gamma.Widgets.SpecialComboState.All;
-			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (UoW);
+			comboIncomeCategory.ItemsList = categoryRepository.IncomeCategories (UoW);
 			comboIncomeCategory.SelectedItem = Gamma.Widgets.SpecialComboState.All;
 
 		}

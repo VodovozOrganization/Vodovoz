@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.OldExportTo1c.Catalogs
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.OldExportTo1c.Catalogs
 			
 		public override ReferenceNode CreateReferenceTo(Counterparty counterparty)
 		{
-			if(exportData.ExportMode == Repositories.Orders.Export1cMode.BuhgalteriaOOO && String.IsNullOrWhiteSpace(counterparty.INN))
+			if(exportData.ExportMode == Export1cMode.BuhgalteriaOOO && String.IsNullOrWhiteSpace(counterparty.INN))
 				exportData.Errors.Add($"Для контрагента {counterparty.Id} - '{counterparty.Name}' не заполнен ИНН.");
 
 			int id = GetReferenceId(counterparty);

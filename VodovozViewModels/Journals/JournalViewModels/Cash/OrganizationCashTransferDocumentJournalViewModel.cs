@@ -11,6 +11,7 @@ using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -19,11 +20,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
     public class OrganizationCashTransferDocumentJournalViewModel : FilterableSingleEntityJournalViewModelBase<OrganizationCashTransferDocument, OrganizationCashTransferDocumentViewModel, OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentFilterViewModel>
     {
-        private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
-        public OrganizationCashTransferDocumentJournalViewModel(OrganizationCashTransferDocumentFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
+        private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
+        private readonly IEmployeeService _employeeService;
+        
+        public OrganizationCashTransferDocumentJournalViewModel(
+	        OrganizationCashTransferDocumentFilterViewModel filterViewModel,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices,
+	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
+	        IEmployeeService employeeService)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
+            _entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
+            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+
             TabName = "Журнал перемещения д/с для юр.лиц";
             UpdateOnChanges(typeof(OrganizationCashTransferDocument));
         }
@@ -87,9 +97,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         };
 
         protected override Func<OrganizationCashTransferDocumentViewModel> CreateDialogFunction =>
-            () => new OrganizationCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, entityExtendedPermissionValidator);
+            () => new OrganizationCashTransferDocumentViewModel(
+	            EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _entityExtendedPermissionValidator, _employeeService);
 
         protected override Func<OrganizationCashTransferDocumentJournalNode, OrganizationCashTransferDocumentViewModel> OpenDialogFunction =>
-            node => new OrganizationCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, entityExtendedPermissionValidator);
+            node => new OrganizationCashTransferDocumentViewModel(
+	            EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _entityExtendedPermissionValidator, _employeeService);
     }
 }

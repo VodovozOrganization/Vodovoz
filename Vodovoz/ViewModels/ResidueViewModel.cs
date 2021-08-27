@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 
@@ -62,7 +63,8 @@ namespace Vodovoz.ViewModels
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
-			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, new SubdivisionRepository(), employeeSelectorFactory);
+			GuiltyItemsVM = new GuiltyItemsViewModel(
+				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
 		}

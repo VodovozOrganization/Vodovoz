@@ -11,7 +11,7 @@ using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz
 {
@@ -143,11 +143,11 @@ namespace Vodovoz
 			return false;
 		}
 
-		public virtual string GetWarehousesNames(IUnitOfWork uow)
+		public virtual string GetWarehousesNames(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository)
 		{
 			string result = string.Empty;
 			if(Id != 0) {
-				var whs = SubdivisionsRepository.GetWarehouses(uow, this).Select(w => w.Name);
+				var whs = subdivisionRepository.GetWarehouses(uow, this).Select(w => w.Name);
 				result = string.Join(", ", whs);
 			}
 			return result;

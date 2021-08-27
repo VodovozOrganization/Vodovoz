@@ -3,12 +3,14 @@ using Microsoft.Extensions.Configuration.Memory;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Core.DataService;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -26,7 +28,7 @@ namespace Vodovoz.TempAdapters
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
-		private readonly EmployeeFilterViewModel _employeeJournalFilter;
+		private EmployeeFilterViewModel _employeeJournalFilter;
 		private IAuthorizationServiceFactory _authorizationServiceFactory;
 		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
 		private IEmployeeJournalFactory _employeeJournalFactory;
@@ -70,13 +72,17 @@ namespace Vodovoz.TempAdapters
 		
 			_subdivisionService = SubdivisionParametersProvider.Instance;
 			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
-			_wageCalculationRepository = WageSingletonRepository.GetInstance();
-			_employeeRepository = EmployeeSingletonRepository.GetInstance();
+			_wageCalculationRepository = new WageCalculationRepository();
+			_employeeRepository = new EmployeeRepository();
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_warehouseRepository = new WarehouseRepository();
-			_routeListRepository = new RouteListRepository();
+			_routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		}
 
+		public void SetEmployeeFilterViewModel(EmployeeFilterViewModel filter)
+		{
+			_employeeJournalFilter = filter;
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()

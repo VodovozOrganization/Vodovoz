@@ -229,7 +229,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             fileChooserProvider,
             employeeRepository,
             cashRepository,
-            consoleInteractiveService,
             _employeeJournalFactory,
             _subdivisionJournalFactory
         );
@@ -241,7 +240,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                 fileChooserProvider,
                 employeeRepository,
                 cashRepository,
-                consoleInteractiveService,
                 _employeeJournalFactory,
                 _subdivisionJournalFactory
             );

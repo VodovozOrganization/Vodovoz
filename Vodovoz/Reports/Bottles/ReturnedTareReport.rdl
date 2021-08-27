@@ -1192,6 +1192,7 @@ WHERE
     )
     AND (IF(@date_type, orders.create_date BETWEEN @start_date AND @end_date, orders.delivery_date BETWEEN @start_date AND @end_date))
     AND (@author_employee_id = '' OR  orders.author_employee_id = @author_employee_id)
+    AND orders.order_status = IF(@is_closed_order_only, 'Closed', orders.order_status) 
 GROUP BY orders.id
 ORDER BY orders.id DESC;
 </CommandText>
@@ -1210,6 +1211,9 @@ ORDER BY orders.id DESC;
           </QueryParameter>
           <QueryParameter Name="author_employee_id">
             <Value>={?author_employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_closed_order_only">
+            <Value>={?is_closed_order_only}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1290,6 +1294,7 @@ WHERE
     )
   AND (IF(@date_type, o.create_date BETWEEN @start_date AND @end_date, o.delivery_date BETWEEN @start_date AND @end_date))
   AND (@author_employee_id = '' OR  o.author_employee_id = @author_employee_id)
+  AND o.order_status = IF(@is_closed_order_only, 'Closed', o.order_status)
 GROUP BY rtr.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1303,6 +1308,9 @@ GROUP BY rtr.name</CommandText>
           </QueryParameter>
           <QueryParameter Name="author_employee_id">
             <Value>={?author_employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_closed_order_only">
+            <Value>={?is_closed_order_only}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1339,6 +1347,7 @@ WHERE
     )
   AND (IF(@date_type, o.create_date BETWEEN @start_date AND @end_date, o.delivery_date BETWEEN @start_date AND @end_date))
   AND (@author_employee_id = '' OR  o.author_employee_id = @author_employee_id)
+  AND o.order_status = IF(@is_closed_order_only, 'Closed', o.order_status)
 GROUP BY rtrc.name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1352,6 +1361,9 @@ GROUP BY rtrc.name</CommandText>
           </QueryParameter>
           <QueryParameter Name="author_employee_id">
             <Value>={?author_employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_closed_order_only">
+            <Value>={?is_closed_order_only}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1420,6 +1432,13 @@ GROUP BY rtrc.name</CommandText>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_closed_order_only">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

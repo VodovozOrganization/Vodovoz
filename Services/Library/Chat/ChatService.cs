@@ -5,15 +5,19 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Chats;
+using Vodovoz.EntityRepositories.Chats;
+using Vodovoz.EntityRepositories.Employees;
 using ChatClass = Vodovoz.Domain.Chats.Chat;
 
 namespace Chats
 {
 	public class ChatService : IChatService
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly IChatMessageRepository _chatMessageRepository = new ChatMessageRepository();
+		private static readonly IChatRepository _chatRepository = new ChatRepository();
+		
 		public static string UserNameOfServer = "Электронный друг";
 
 		#region IChatService implementation
@@ -23,11 +27,11 @@ namespace Chats
 			try {
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[CS]Отправка сообщения логисту"))
 				{
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					var driver = new EmployeeRepository().GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
 						return false;
 
-					var chat = ChatRepository.GetChatForDriver(uow, driver);
+					var chat = _chatRepository.GetChatForDriver(uow, driver);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -60,7 +64,7 @@ namespace Chats
 				{
 					var recipient = senderUoW.GetById<Employee>(recipientId);
 
-					var chat = ChatRepository.GetChatForDriver(senderUoW, recipient);
+					var chat = _chatRepository.GetChatForDriver(senderUoW, recipient);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -92,15 +96,15 @@ namespace Chats
 			try {
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot($"[CS]Получение сообщений чата"))
 				{
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					var driver = new EmployeeRepository().GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
 						return null;
 
-					var chat = ChatRepository.GetChatForDriver(uow, driver);
+					var chat = _chatRepository.GetChatForDriver(uow, driver);
 					if (chat == null)
 						return null;
 					var messages = new List<MessageDTO>();
-					var chatMessages = ChatMessageRepository.GetChatMessagesForPeriod(uow, chat, days);
+					var chatMessages = _chatMessageRepository.GetChatMessagesForPeriod(uow, chat, days);
 					foreach (var m in chatMessages)
 					{
 						messages.Add(new MessageDTO(m, driver));
@@ -123,7 +127,7 @@ namespace Chats
 					if (driver == null)
 						return false;
 
-					var chat = ChatRepository.GetChatForDriver(senderUoW, driver);
+					var chat = _chatRepository.GetChatForDriver(senderUoW, driver);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -165,7 +169,7 @@ namespace Chats
 					if (driver == null)
 						return false;
 
-					var chat = ChatRepository.GetChatForDriver(senderUoW, driver);
+					var chat = _chatRepository.GetChatForDriver(senderUoW, driver);
 					if (chat == null)
 					{
 						chat = new ChatClass();
@@ -207,7 +211,7 @@ namespace Chats
 				if (driver == null)
 					return false;
 
-				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				var chat = _chatRepository.GetChatForDriver(uow, driver);
 				if (chat == null) {
 					chat = new ChatClass ();
 					chat.ChatType = ChatType.DriverAndLogists;

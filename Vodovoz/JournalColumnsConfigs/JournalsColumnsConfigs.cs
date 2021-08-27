@@ -45,6 +45,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -59,6 +60,18 @@ namespace Vodovoz.JournalColumnsConfigs
 
 		public static void RegisterColumns()
 		{
+			TreeViewColumnsConfigFactory.Register<SalaryByEmployeeJournalViewModel>(
+				() => FluentColumnsConfig<EmployeeJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Ф.И.О.").AddTextRenderer(node => node.FullName)
+					.AddColumn("Категория").AddEnumRenderer(node => node.EmpCatEnum)
+					.AddColumn("Статус").AddEnumRenderer(node => node.Status)
+					.AddColumn("Подразделение").AddTextRenderer(node => node.SubdivisionTitle)
+					.AddColumn("Баланс").AddNumericRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Balance)).Digits(2)
+					.AddColumn("")
+					.Finish()
+			);
+
             //WarehouseJournalViewModel
             TreeViewColumnsConfigFactory.Register<WarehouseJournalViewModel>(
                 () => FluentColumnsConfig<WarehouseJournalNode>.Create()
@@ -1260,6 +1273,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Гарантийный талон").AddTextRenderer(node => node.WarrantyCardType.GetEnumTitle())
+					.Finish()
+			);
+
+			//ProductGroupJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ProductGroupJournalViewModel>(
+				() => FluentColumnsConfig<ProductGroupJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsArchive ? "grey" : "black")
+					.Finish()
+			);
+
+			//UndeliveryTransferAbsenceReasonViewModel
+			TreeViewColumnsConfigFactory.Register<UndeliveryTransferAbsenceReasonJournalViewModel>(
+				() => FluentColumnsConfig<UndeliveryTransferAbsenceReasonJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id.ToString())
+					.AddColumn("Причина отсутствия переноса").AddTextRenderer(node => node.Name)
+					.AddColumn("Дата создания").AddTextRenderer(node => node.CreateDate.ToShortDateString())
 					.Finish()
 			);
 		}

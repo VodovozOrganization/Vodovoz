@@ -2,6 +2,7 @@
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using Pango;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -9,8 +10,7 @@ using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewWidgets.Mango;
 
@@ -18,8 +18,9 @@ namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyPanelView : Gtk.Bin, IPanelView
-	{		
-		Counterparty Counterparty{get;set;}
+	{
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private Counterparty _counterparty;
 
 		public CounterpartyPanelView()
 		{
@@ -27,7 +28,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			Configure();
 		}
 
-		void Configure()
+		private void Configure()
 		{
 			labelName.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
@@ -35,31 +36,35 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Номер")
 					.AddNumericRenderer(node => node.Id)
 				.AddColumn("Дата")
-				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : String.Empty)
+				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Статус")
 					.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
-				.Finish();			
+				.Finish();
 		}
 
 		#region IPanelView implementation
-		public IInfoProvider InfoProvider{ get; set; }
+
+		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
 		{
-			Counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
-			if(Counterparty == null) {
+			_counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
+			if(_counterparty == null)
+			{
 				buttonSaveComment.Sensitive = false;
 				return;
 			}
-			buttonSaveComment.Sensitive = true;
-			labelName.Text = Counterparty.FullName;
-			textviewComment.Buffer.Text = Counterparty.Comment;
 
-			var latestOrder = OrderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, Counterparty);
-			if (latestOrder != null)
+			buttonSaveComment.Sensitive = true;
+			labelName.Text = _counterparty.FullName;
+			SetupPersonalManagers();
+			textviewComment.Buffer.Text = _counterparty.Comment;
+
+			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
+			if(latestOrder != null)
 			{
 				var daysFromLastOrder = (DateTime.Today - latestOrder.DeliveryDate.Value).Days;
-				labelLatestOrderDate.Text = String.Format(
+				labelLatestOrderDate.Text = string.Format(
 					"{0} ({1} {2} назад)",
 					latestOrder.DeliveryDate.Value.ToShortDateString(),
 					daysFromLastOrder,
@@ -70,23 +75,26 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				labelLatestOrderDate.Text = "(Выполненных заказов нет)";
 			}
-			var currentOrders = OrderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
+
+			var currentOrders = _orderRepository.GetCurrentOrders(InfoProvider.UoW, _counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
 
-			foreach(var child in PhonesTable.Children) {
+			foreach(var child in PhonesTable.Children)
+			{
 				PhonesTable.Remove(child);
 				child.Destroy();
 			}
 
-			uint rowsCount = Convert.ToUInt32(Counterparty.Phones.Count)+1;
+			uint rowsCount = Convert.ToUInt32(_counterparty.Phones.Count) + 1;
 			PhonesTable.Resize(rowsCount, 2);
-			for(uint row = 0; row < rowsCount - 1; row++) {
+			for(uint row = 0; row < rowsCount - 1; row++)
+			{
 				Label label = new Label();
 				label.Selectable = true;
-				label.Markup = $"{Counterparty.Phones[Convert.ToInt32(row)].LongText}";
+				label.Markup = $"{_counterparty.Phones[Convert.ToInt32(row)].LongText}";
 
-				HandsetView handsetView = new HandsetView(Counterparty.Phones[Convert.ToInt32(row)].DigitsNumber);
+				HandsetView handsetView = new HandsetView(_counterparty.Phones[Convert.ToInt32(row)].DigitsNumber);
 
 				PhonesTable.Attach(label, 0, 1, row, row + 1);
 				PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
@@ -104,17 +112,54 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.ShowAll();
 		}
 
-		public bool VisibleOnPanel
+		private void SetupPersonalManagers()
 		{
-			get
+			if(_counterparty?.SalesManager != null)
 			{
-				return Counterparty != null;
+				labelSalesManager.Visible = true;
+				prefixSalesManager.Visible = true;
+				labelSalesManager.Markup = _counterparty?.SalesManager.GetPersonNameWithInitials();
+				prefixSalesManager.ModifyFont(FontDescription.FromString("9"));
+				prefixSalesManager.QueueResize();
+			}
+			else
+			{
+				labelSalesManager.Visible = false;
+				prefixSalesManager.Visible = false;
+			}
+
+			if(_counterparty?.Accountant != null)
+			{
+				labelAccountant.Visible = true;
+				prefixAccountant.Visible = true;
+				labelAccountant.Markup = _counterparty?.Accountant.GetPersonNameWithInitials();
+			}
+			else
+			{
+				labelAccountant.Visible = false;
+				prefixAccountant.Visible = false;
+			}
+
+			if(_counterparty?.BottlesManager != null)
+			{
+				labelBottlesManager.Visible = true;
+				prefixBottlesManager.Visible = true;
+				labelBottlesManager.Markup = _counterparty?.BottlesManager.GetPersonNameWithInitials();
+				prefixBottlesManager.ModifyFont(FontDescription.FromString("9"));
+				prefixBottlesManager.QueueResize();
+			}
+			else
+			{
+				labelBottlesManager.Visible = false;
+				prefixBottlesManager.Visible = false;
 			}
 		}
-			
+
+		public bool VisibleOnPanel => _counterparty != null;
+
 		public void OnCurrentObjectChanged(object changedObject)
-		{			
-			if (changedObject is Counterparty)
+		{
+			if(changedObject is Counterparty)
 			{
 				Refresh();
 			}
@@ -122,7 +167,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<Counterparty>(Counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
+			using(var uow =
+				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
@@ -132,15 +178,18 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
 			TDIMain.MainNotebook.OpenTab(
-				DialogHelper.GenerateDialogHashName<Counterparty>(Counterparty.Id),
-				() => {
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(Counterparty.Id, InfoProvider.UoW), UnitOfWorkFactory.GetDefaultFactory);
+				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
+				() =>
+				{
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(_counterparty.Id, InfoProvider.UoW),
+						UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
 					dlg.TabClosed += (senderObject, eventArgs) => { this.Refresh(); };
 					return dlg;
 				}
 			);
 		}
+
 		#endregion
 	}
 }

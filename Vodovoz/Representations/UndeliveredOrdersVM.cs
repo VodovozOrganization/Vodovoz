@@ -20,15 +20,16 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
 using NLog;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.Representations
 {
 	public class UndeliveredOrdersVM
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 
 		public UndeliveredOrdersFilter Filter { get; set; }
 		public IUnitOfWork UoW { get; set; }
@@ -169,7 +170,7 @@ namespace Vodovoz.Representations
 						   .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
 
 			if(Filter?.RestrictDriver != null){
-				var oldOrderIds = UndeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(UoW, Filter.RestrictDriver);
+				var oldOrderIds = _undeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(UoW, Filter.RestrictDriver);
 				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
 			}
 
@@ -496,7 +497,7 @@ namespace Vodovoz.Representations
 		public UndeliveredOrdersVM(IUnitOfWork uow) : base()
 		{
 			this.UoW = uow;
-			var currEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			var currEmployee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
 			if(currEmployee != null)
 				currUser = currEmployee.Id;
 		}

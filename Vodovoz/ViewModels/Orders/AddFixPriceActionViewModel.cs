@@ -16,10 +16,11 @@ namespace Vodovoz.ViewModels.Orders
 	{
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		
-		public AddFixPriceActionViewModel(IUnitOfWork UoW, 
-		                                  PromotionalSet promotionalSet, 
-		                                  ICommonServices commonServices,
-		                                  IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) 
+		public AddFixPriceActionViewModel(
+			IUnitOfWork uow, 
+			PromotionalSet promotionalSet, 
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) 
 		{
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ??
 			                              throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -27,7 +28,7 @@ namespace Vodovoz.ViewModels.Orders
 			CreateCommands();
 			PromotionalSet = promotionalSet;
 			CommonServices = commonServices;
-			this.UoW = UoW;
+			UoW = uow;
 		}
 
 		public PromotionalSet PromotionalSet { get; set; }
@@ -76,8 +77,8 @@ namespace Vodovoz.ViewModels.Orders
 					if(!CommonServices.ValidationService.Validate(validatableAction))
 						return;
 
-					NomenclatureRepository nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureRepository);
+					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
+					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureParametersProvider);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
 					foreach(var fixedPrice in fixedPrices) {
 						var newAction = new PromotionalSetActionFixPrice {

@@ -21,6 +21,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
@@ -47,11 +48,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
-		private readonly ValidationContext _validationContext;
+
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
+		private readonly IUserRepository _userRepository;
+		private readonly BaseParametersProvider _baseParametersProvider;
 
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -61,6 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private Employee _employeeForCurrentUser;
 		private IEnumerable<EmployeeDocument> _selectedEmployeeDocuments = new EmployeeDocument[0];
 		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
+		private ValidationContext _validationContext;
 		private TerminalManagementViewModel _terminalManagementViewModel;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
@@ -99,6 +103,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IRouteListRepository routeListRepository,
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
+			IUserRepository userRepository,
+			BaseParametersProvider baseParametersProvider,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null
 			) : base(commonServices?.InteractiveService, navigationManager)
@@ -125,10 +131,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_validationContext = 
-				(validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory)))
-					.CreateNewValidationContext(Entity);
-			
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+
+			if(validationContextFactory == null)
+			{
+				throw new ArgumentNullException(nameof(validationContextFactory));
+			}
+
+			ConfigureValidationContext(validationContextFactory);
+
 			if(phonesViewModelFactory == null)
 			{
 				throw new ArgumentNullException(nameof(phonesViewModelFactory));
@@ -233,7 +245,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				                                                                  _employeeRepository,
 				                                                                  _warehouseRepository,
 				                                                                  _routeListRepository,
-				                                                                  _commonServices, UoW));
+				                                                                  _commonServices,
+				                                                                  UoW,
+				                                                                  _baseParametersProvider));
 
 		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }
@@ -355,7 +369,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							UnitOfWorkFactory.GetDefaultFactory,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -380,7 +394,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							UnitOfWorkFactory.GetDefaultFactory,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -438,7 +452,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							UnitOfWorkFactory.GetDefaultFactory,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -512,7 +526,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							newDriverWorkScheduleSet,
 							UoW,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 			
@@ -534,7 +548,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							SelectedDriverScheduleSet,
 							UoW,
 							_commonServices,
-							new BaseParametersProvider(),
+							_baseParametersProvider,
 							_employeeRepository
 						);
 						TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
@@ -631,14 +645,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			return true;
 		}
 
-		private void TryAddServiceToValidationContext()
-		{
-			if(!_validationContext.Items.ContainsKey("Reason"))
-			{
-				_validationContext.Items.Add("Reason", _subdivisionService);
-			}
-		}
-		
 		private void FillHiddenCategories(bool traineeToEmployee)
 		{
 			var allCategories = (EmployeeCategory[])Enum.GetValues(typeof(EmployeeCategory));
@@ -651,6 +657,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				HiddenCategories.AddRange(allCategories.Except(new[] {EmployeeCategory.office}));
 			}
+		}
+		
+		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
+		{
+			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
+			
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
+			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}
 		
 		public void SaveAndClose()
@@ -695,8 +710,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Entity.AndroidLogin = null;
 				Entity.AndroidPassword = null;
 			}
-
-			TryAddServiceToValidationContext();
 
 			if(!Validate())
 			{
@@ -748,10 +761,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(
-				_wageCalculationRepository,
-				new BaseParametersProvider(),
-				_commonServices.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _baseParametersProvider, _commonServices.InteractiveService);
 
 			UoWGeneric.Save(Entity);
 

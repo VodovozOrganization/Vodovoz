@@ -10,14 +10,17 @@ using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NonSerialEquipmentReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		GenericObservableList<ReceptionNonSerialEquipmentItemNode> ReceptionNonSerialEquipmentList = new GenericObservableList<ReceptionNonSerialEquipmentItemNode>();
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private GenericObservableList<ReceptionNonSerialEquipmentItemNode> ReceptionNonSerialEquipmentList = new GenericObservableList<ReceptionNonSerialEquipmentItemNode>();
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 
 		public IList<ReceptionNonSerialEquipmentItemNode> Items {
@@ -88,7 +91,7 @@ namespace Vodovoz.ViewWidgets.Store
 
 		protected void OnButtonAddEquipmentClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(NomenclatureRepository.NomenclatureByCategory(NomenclatureCategory.equipment));
+			OrmReference refWin = new OrmReference(_nomenclatureRepository.NomenclatureByCategory(NomenclatureCategory.equipment));
 			refWin.FilterClass = null;
 			refWin.Mode = OrmReferenceMode.Select;
 			
