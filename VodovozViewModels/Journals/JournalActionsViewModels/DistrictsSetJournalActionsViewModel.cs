@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
 using QS.Dialog;
@@ -52,7 +53,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 		
 		private bool IsStoppedOnlineDeliveriesToday { get; set; }
 
-		public override object[] SelectedItems 
+		public override IList<object> SelectedItems 
 		{
 			get => selectedItems;
 			set 

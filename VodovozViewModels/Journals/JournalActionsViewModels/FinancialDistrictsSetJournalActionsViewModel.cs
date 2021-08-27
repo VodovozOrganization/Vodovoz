@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
 using QS.Dialog;
@@ -38,7 +39,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			_canCreate = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrictsSet)).CanCreate;
 		}
 
-		public override object[] SelectedItems
+		public override IList<object> SelectedItems
 		{
 			get => selectedItems;
 			set

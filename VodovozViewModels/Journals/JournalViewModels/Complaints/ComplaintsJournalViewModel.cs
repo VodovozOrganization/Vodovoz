@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -526,7 +527,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			Complaint GetComplaint(object[] objs)
+			Complaint GetComplaint(IList<object> objs)
 			{
 				var selectedNodes = objs.Cast<ComplaintJournalNode>();
 				if(selectedNodes.Count() != 1)
@@ -535,13 +536,13 @@ namespace Vodovoz.Journals.JournalViewModels
 				return complaint;
 			}
 
-			Order GetOrder(object[] objs)
+			Order GetOrder(IList<object> objs)
 			{
 				var complaint = GetComplaint(objs);
 				return GetComplaint(objs)?.Order;
 			}
 
-			RouteList GetRouteList(object[] objs)
+			RouteList GetRouteList(IList<object> objs)
 			{
 				var order = GetOrder(objs);
 				if(order == null)
@@ -550,9 +551,9 @@ namespace Vodovoz.Journals.JournalViewModels
 				return rl;
 			}
 
-			bool HasOrder(object[] objs) => GetOrder(objs) != null;
+			bool HasOrder(IList<object> objs) => GetOrder(objs) != null;
 
-			bool HasRouteList(object[] objs) => GetRouteList(objs) != null;
+			bool HasRouteList(IList<object> objs) => GetRouteList(objs) != null;
 
 			PopupActionsList.Add(
 				new JournalAction(

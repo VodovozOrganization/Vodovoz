@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -356,7 +357,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			object GetTask(object[] objs)
+			object GetTask(IList<object> objs)
 			{
 				var selectedNodes = objs.Cast<BusinessTaskJournalNode>();
 
@@ -371,7 +372,7 @@ namespace Vodovoz.JournalViewModels
 				return null;
 			}
 
-			bool HasTask(object[] objs) => GetTask(objs) != null;
+			bool HasTask(IList<object> objs) => GetTask(objs) != null;
 
 			PopupActionsList.Add(
 				new JournalAction(
@@ -391,14 +392,6 @@ namespace Vodovoz.JournalViewModels
 					}
 				)
 			);
-		}
-
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			//CreateDefaultAddActions2();
-			//CreateDefaultEditAction2();
-			//CreateDefaultDeleteAction();
 		}
 
 		public void ChangeAssignedEmployee(object[] selectedObjs, Employee employee)

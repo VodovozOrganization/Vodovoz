@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
@@ -28,7 +28,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
-		public override object[] SelectedItems 
+		public override IList<object> SelectedItems 
 		{ 
 			get => selectedItems;
 			set
@@ -80,6 +80,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			)
 		);
 
+		//TODO проверить работу
 		public void SetResetPasswordForEmployeeAction(Action<Employee> resetPasswordForEmployeeAction)
 		{
 			_resetPasswordForEmployeeAction = resetPasswordForEmployeeAction;

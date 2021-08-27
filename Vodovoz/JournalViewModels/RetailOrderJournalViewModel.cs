@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NHibernate;
@@ -691,7 +692,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			bool IsOrder(object[] objs) 
+			bool IsOrder(IList<object> objs) 
 			{
 				var selectedNodes = objs.Cast<RetailOrderJournalNode>();
 				if(selectedNodes.Count() != 1)

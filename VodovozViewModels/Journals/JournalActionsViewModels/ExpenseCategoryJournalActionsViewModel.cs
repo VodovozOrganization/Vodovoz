@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using QS.Commands;
 using QS.Dialog;
@@ -18,7 +19,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 			IInteractiveService interactiveService,
 			IFileChooserProvider fileChooserProvider) : base(interactiveService)
 		{
-			_fileChooserProvider = fileChooserProvider;
+			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 		}
 		
 		public DelegateCommand ExportDataCommand => _exportDataCommand ?? (_exportDataCommand = new DelegateCommand(
