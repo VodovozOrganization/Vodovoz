@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModel
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			SectorVersion sectorVersionAlias = null;
-			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 
 			var query = UoW.Session.QueryOver(() => orderAlias);
 
@@ -104,9 +104,12 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictOnlyWithoutCoodinates)
 			{
-				query.JoinEntityAlias(() => deliveryPointSectorVersion,
-					() => deliveryPointSectorVersion.DeliveryPoint == orderAlias.DeliveryPoint &&
-					      deliveryPointSectorVersion.Status == SectorsSetStatus.Active && deliveryPointSectorVersion.Latitude == null && deliveryPointSectorVersion.Longitude == null, JoinType.InnerJoin);
+				query.JoinEntityAlias(() => deliveryPointSectorVersionAlias,
+					() => deliveryPointSectorVersionAlias.DeliveryPoint == orderAlias.DeliveryPoint &&
+					      deliveryPointSectorVersionAlias.StartDate <= Filter.RestrictStartDate &&
+					      (deliveryPointSectorVersionAlias.EndDate == null || deliveryPointSectorVersionAlias.EndDate <=
+						      Filter.RestrictEndDate.Value.Date.AddDays(1)) && deliveryPointSectorVersionAlias.Latitude == null &&
+					      deliveryPointSectorVersionAlias.Longitude == null, JoinType.InnerJoin);
 			}
 
 			if(Filter.RestrictLessThreeHours == true) {
@@ -177,9 +180,10 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias,
-					() => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector &&
-					      sectorVersionAlias.Status == SectorsSetStatus.Active,
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				                                                 sectorVersionAlias.StartDate <= Filter.RestrictStartDate &&
+				                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
+					                                                 Filter.RestrictEndDate.Value.Date.AddDays(1)),
 					JoinType.LeftOuterJoin);
 
 			if(Filter.IncludeSectorsIds != null && Filter.IncludeSectorsIds.Any())
@@ -207,8 +211,8 @@ namespace Vodovoz.ViewModel
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
 				   .Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)
-				   .Select(() => deliveryPointSectorVersion.Latitude).WithAlias(() => resultAlias.Latitude)
-				   .Select(() => deliveryPointSectorVersion.Longitude).WithAlias(() => resultAlias.Longitude)
+				   .Select(() => deliveryPointSectorVersionAlias.Latitude).WithAlias(() => resultAlias.Latitude)
+				   .Select(() => deliveryPointSectorVersionAlias.Longitude).WithAlias(() => resultAlias.Longitude)
 				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)

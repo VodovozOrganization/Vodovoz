@@ -202,7 +202,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			SectorVersion sectorVersionAlias = null;
 			RouteList routeListAlias2 = null;
 			WagesMovementOperations driverWageOperationAlias2 = null;
-			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 
 			#endregion
 
@@ -214,14 +214,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.JoinEntityAlias(
 					() => driverWageOperationAlias,
 					() => routeListAlias.Status == RouteListStatus.Closed
-						&& routeListAlias.DriverWageOperation.Id == driverWageOperationAlias.Id,
+					      && routeListAlias.DriverWageOperation.Id == driverWageOperationAlias.Id,
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
+						deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+						deliveryPointSectorVersionAlias.StartDate <= routeListAlias.Date &&
+						(deliveryPointSectorVersionAlias.EndDate == null ||
+						 deliveryPointSectorVersionAlias.EndDate <= routeListAlias.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				                                                 sectorVersionAlias.StartDate <= routeListAlias.Date &&
+				                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
+					                                                 routeListAlias.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => sectorVersionAlias.Sector, () => sectorAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
 
@@ -500,7 +509,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Inner.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => driverAlias.DriverDistrictPrioritySets, () => driverDistrictPrioritySetAlias)
 				.Inner.JoinAlias(() => driverDistrictPrioritySetAlias.DriverDistrictPriorities, () => driverDistrictPriorityAlias)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == driverDistrictPriorityAlias.Sector, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => sectorVersionAlias,
+					() => sectorVersionAlias.Sector == driverDistrictPriorityAlias.Sector &&
+					      sectorVersionAlias.StartDate <= routeListAlias.Date && (sectorVersionAlias.EndDate == null ||
+					                                                              sectorVersionAlias.EndDate <=
+					                                                              routeListAlias.Date.AddDays(1)), JoinType.LeftOuterJoin)
 				.WhereRestrictionOn(() => routeListAlias.Id).IsIn(driverInfoNodes.Select(x => x.RouteListId).ToArray())
 				.And(() => driverDistrictPrioritySetAlias.DateActivated <= routeListAlias.Date)
 				.And(Restrictions.Disjunction()

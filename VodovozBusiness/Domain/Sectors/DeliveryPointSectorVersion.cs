@@ -142,11 +142,7 @@ namespace Vodovoz.Domain.Sectors
 			{
 				return false;
 			}
-
-			if(Sector != foundSectorVersion.Sector)
-			{
-				var newDeliveryPointSectorVersions = new DeliveryPointSectorVersion();
-			}
+			
 			Sector = foundSectorVersion.Sector;
 			return true;
 		}

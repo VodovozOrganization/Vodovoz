@@ -956,7 +956,7 @@
                     lrl.date as last_rl,
                     concat_ws('', concat(works_with.last_name, ' '), if(works_with.name = '', '', concat(left(works_with.name, 1),'.')), if(works_with.patronymic = '', '', concat(left(works_with.patronymic, 1),'.')))
                     as works_with_name,
-                    group_concat(dicts.district_name SEPARATOR ', ') as districts,
+                    group_concat(sector_versions.sector_name SEPARATOR ', ') as districts,
                     empl.min_route_addresses as min_addresses,
                     empl.max_route_addresses as max_addresses
                 from employees empl
@@ -965,7 +965,10 @@
                     left join cars c on c.driver_id = empl.id
                     left join driver_district_priority_sets ddps   on (ddps.driver_id = empl.id and ddps.is_active=1)
                     left join driver_district_priorities ddp 	   on ddp.driver_district_priority_set_id = ddps.id
-                    left join districts dicts 					   on dicts.id = ddp.district_id
+                    LEFT JOIN sectors ON sectors.id = ddp.district_id
+                    LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+                         AND sector_versions.start_date &gt;= @create_date
+                         AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                     left join route_lists frl on frl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.driver_id order by sub_rl.date limit 1)
                     left join route_lists lrl on lrl.id = (select sub_rl.id from route_lists as sub_rl where empl.id = sub_rl.driver_id order by sub_rl.date desc limit 1)
                 where (@empl_category = 'driver'
@@ -1194,6 +1197,14 @@
     </DataSets>
     <ReportParameters>
         <ReportParameter Name="report_date">
+            <DataType>DateTime</DataType>
+            <Nullable>false</Nullable>
+            <AllowBlank>false</AllowBlank>
+            <MultiValue>false</MultiValue>
+            <Prompt>
+            </Prompt>
+        </ReportParameter>
+        <ReportParameter Name="report_end_date">
             <DataType>DateTime</DataType>
             <Nullable>false</Nullable>
             <AllowBlank>false</AllowBlank>

@@ -810,7 +810,7 @@
     date(orders.create_date) AS orderdate,
 	delivery_point_categories.name AS entrance,
     orders.id AS order_id,
-	districts.district_name AS district,
+	sector_versions.sector_name AS district,
 	counterparty.name AS client,
 	delivery_points.compiled_address AS address,
 	sales_channels.name AS channel_name,
@@ -838,7 +838,13 @@ FROM orders
 
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN districts ON districts.id = delivery_points.district_id
+LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &gt;= @create_date
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+LEFT JOIN sectors ON sectors.id = geodata.sector_id
+LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+     AND sector_versions.start_date &gt;= @create_date
+     AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
 LEFT JOIN sales_channel_to_counterparty ON  sales_channel_to_counterparty.counterparty_id = orders.client_id
 LEFT JOIN sales_channels ON sales_channels.id = sales_channel_to_counterparty.sales_channel_id
 LEFT JOIN delivery_points_responsible_persons points ON points.delivery_point_id = delivery_points.id

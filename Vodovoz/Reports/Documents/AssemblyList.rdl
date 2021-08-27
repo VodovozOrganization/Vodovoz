@@ -87,14 +87,26 @@ LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN phones AS client_phones ON client_phones.counterparty_id = counterparty.id AND client_phones.number IS NOT NULL AND client_phones.number != ''
 LEFT JOIN phones AS dp_phones ON dp_phones.delivery_point_id = delivery_points.id AND dp_phones.number IS NOT NULL AND dp_phones.number != ''
 LEFT JOIN delivery_schedule sch ON sch.id = orders.delivery_schedule_id
-LEFT JOIN districts ON districts.id = delivery_points.district_id
-LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
+LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &gt;= @start_date
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+LEFT JOIN sectors ON sectors.id = geodata.sector_id
+LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+     AND sector_versions.start_date &gt;= @start_date
+     AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
 WHERE orders.id = @order_id
 LIMIT 1
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1829,6 +1841,22 @@ WHERE orders.id = @order_id
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>

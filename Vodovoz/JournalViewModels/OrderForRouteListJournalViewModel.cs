@@ -107,7 +107,7 @@ namespace Vodovoz.JournalViewModels
 			Nomenclature sanitizationNomenclature =
 				new NomenclatureParametersProvider(new ParametersProvider()).GetSanitisationNomenclature(uow);
 
-			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
+			var query = uow.Session.QueryOver(() => orderAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
@@ -215,12 +215,21 @@ namespace Vodovoz.JournalViewModels
 											   );
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				 .Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-				 .Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				 .Left.JoinAlias(o => o.Author, () => authorAlias)
-				 .Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				 .JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
-				 .JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector, JoinType.LeftOuterJoin);
+				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.Left.JoinAlias(o => o.Author, () => authorAlias)
+				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
+					deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+					deliveryPointSectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
+					(deliveryPointSectorVersionAlias.EndDate == null ||
+					 deliveryPointSectorVersionAlias.EndDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1)), JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				                                                 sectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
+				                                                 (sectorVersionAlias.EndDate == null ||
+				                                                  sectorVersionAlias.EndDate <=
+				                                                  FilterViewModel.RestrictEndDate.Value.AddDays(1)),
+					JoinType.LeftOuterJoin);
 
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,

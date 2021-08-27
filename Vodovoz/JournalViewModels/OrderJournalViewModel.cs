@@ -212,9 +212,15 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointAlias.Id == deliveryPointSectorVersionAlias.DeliveryPoint.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointAlias.Id == deliveryPointSectorVersionAlias.DeliveryPoint.Id &&
+				                                                              deliveryPointSectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
+				                                                              (deliveryPointSectorVersionAlias.EndDate == null ||
+				                                                               deliveryPointSectorVersionAlias.EndDate <= FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
+				                                                 sectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate && (sectorVersionAlias.EndDate == null ||
+					                                                 sectorVersionAlias.EndDate <=
+					                                                 FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicalGroupAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
@@ -369,8 +375,15 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointAlias.Id == deliveryPointSectorVersionAlias.DeliveryPoint.Id &&
+				                                                              deliveryPointSectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
+				                                                              (deliveryPointSectorVersionAlias.EndDate == null ||
+				                                                               deliveryPointSectorVersionAlias.EndDate <= FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
+				                                                 sectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate && (sectorVersionAlias.EndDate == null ||
+					                                                 sectorVersionAlias.EndDate <=
+					                                                 FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias);
 
 			query.Where(GetSearchCriterion(

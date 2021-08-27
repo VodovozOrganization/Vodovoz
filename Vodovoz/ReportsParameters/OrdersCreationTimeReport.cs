@@ -104,12 +104,12 @@ namespace Vodovoz.ReportsParameters
 					SelectableEntityParameter<Sector> resultAlias = null;
 
 					var query = UoW.Session.QueryOver(() => sectorAlias)
-						.JoinEntityAlias(() => sectorVersionAlias,
-							() => sectorVersionAlias.Sector == sectorAlias && sectorVersionAlias.Status == SectorsSetStatus.Active,
+						.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == sectorAlias &&
+						                                                 sectorVersionAlias.StartDate <= datepicker.Date &&
+						                                                 (sectorVersionAlias.EndDate == null ||
+						                                                  sectorVersionAlias.EndDate <= datepicker.Date.AddDays(1)),
 							JoinType.LeftOuterJoin)
-						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geoGroupAlias)
-						.Where(() => sectorVersionAlias.Status == SectorsSetStatus.Active);
-
+						.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geoGroupAlias);
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {
 							var filterCriterion = f();
@@ -205,7 +205,8 @@ namespace Vodovoz.ReportsParameters
 		{
 			var parameters = new Dictionary<string, object>
 			{
-				{ "date", datepicker.Date }
+				{"date", datepicker.Date},
+				{"end_date", datepicker.Date.AddDays(1)}
 			};
 			foreach(var item in filter.GetParameters()) {
 				parameters.Add(item.Key, item.Value);

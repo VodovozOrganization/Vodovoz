@@ -49,22 +49,24 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			DeliveryPoint point = null;
 			
-			// var sectorsRepository = new SectorsRepository();
-			// var sectorVersion = sectorsRepository.GetSectorVersions(uow, date, SectorsSetStatus.Active).Single(x=> x.Sector.Id == sector.Id);
-			
-			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 			return uow.Session.QueryOver<VodovozOrder>()
-							  .JoinAlias(o => o.DeliveryPoint, () => point)
-							  .JoinAlias(() => point, () => deliveryPointSectorVersion.DeliveryPoint)
-							  .Where(
-							  		o => o.DeliveryDate == date.Date
-									&& deliveryPointSectorVersion.Sector.Id == sector.Id
-									&& !o.SelfDelivery
-									&& o.OrderStatus == OrderStatus.Accepted
-									&& deliveryPointSectorVersion.Status == SectorsSetStatus.Active
-							  )
-							  .List<VodovozOrder>()
-							  ;
+					.JoinAlias(o => o.DeliveryPoint, () => point)
+					.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == point &&
+					                                                              deliveryPointSectorVersionAlias.StartDate <= date.Date &&
+					                                                              (deliveryPointSectorVersionAlias.EndDate == null ||
+					                                                               deliveryPointSectorVersionAlias.EndDate <=
+					                                                               date.Date.AddDays(1)),
+						JoinType.LeftOuterJoin)
+					.Where(
+						o => o.DeliveryDate == date.Date
+						     && deliveryPointSectorVersionAlias.Sector.Id == sector.Id
+						     && !o.SelfDelivery
+						     && o.OrderStatus == OrderStatus.Accepted
+						     && deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active
+					)
+					.List<VodovozOrder>()
+				;
 		}
 
 		public VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
@@ -860,8 +862,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			WarehouseMovementOperation operationRemoveAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
-			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
-			SectorVersion sectorVersion = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
+			SectorVersion sectorVersionAlias = null;
 			Sector sectorAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
@@ -886,12 +888,17 @@ namespace Vodovoz.EntityRepositories.Orders
 			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersion.DeliveryPoint)
-				.Where(() => deliveryPointSectorVersion.Status == SectorsSetStatus.Active)
-				.JoinEntityAlias(() => sectorVersion,
-					() => sectorVersion.Sector == deliveryPointSectorVersion.Sector && sectorVersion.Status == SectorsSetStatus.Active &&
-					      sectorVersion.GeographicGroup.Id == geographicGroupId,
-					JoinType.InnerJoin)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
+						deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+						deliveryPointSectorVersionAlias.StartDate <= orderAlias.DeliveryDate &&
+						(deliveryPointSectorVersionAlias.EndDate == null ||
+						 deliveryPointSectorVersionAlias.EndDate <= orderAlias.DeliveryDate.Value.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				                                                 sectorVersionAlias.StartDate <= orderAlias.DeliveryDate &&
+				                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
+					                                                 orderAlias.DeliveryDate.Value.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
 				.Where(() => orderEquipmentAlias.Nomenclature.Id == flyerId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
 				             || orderAlias.OrderStatus == OrderStatus.InTravelList

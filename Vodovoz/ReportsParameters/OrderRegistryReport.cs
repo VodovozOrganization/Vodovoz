@@ -54,6 +54,7 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", ydatepicker.Date },
+					{ "end_date", ydatepicker.Date.AddDays(1)},
 					{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
 				}
 			};

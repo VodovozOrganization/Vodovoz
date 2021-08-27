@@ -245,16 +245,18 @@ namespace Vodovoz
 				SectorVersion sectorVersionAlias = null;
 				Sector sectorAlias = null;
 				var districtIds = RouteListUoW.Session.QueryOver(() => sectorAlias)
-					.JoinEntityAlias(() => sectorVersionAlias,
-						() => sectorVersionAlias.Sector == sectorAlias && sectorVersionAlias.Status == SectorsSetStatus.Active,
+					.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == sectorAlias &&
+					                                                 sectorVersionAlias.StartDate <= filter.RestrictStartDate &&
+					                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
+						                                                 filter.RestrictEndDate.Value.Date.AddDays(1)),
 						JoinType.LeftOuterJoin)
 					.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
 					.Select
-					  (
-						  Projections.Distinct(
-						  Projections.Property<Sector>(x => x.Id)
-					  )
+					(
+						Projections.Distinct(
+							Projections.Property<Sector>(x => x.Id)
+						)
 					)
 					.List<int>()
 					.ToArray();

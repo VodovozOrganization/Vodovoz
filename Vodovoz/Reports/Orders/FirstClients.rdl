@@ -767,7 +767,7 @@
     cc.name as came_from ,
     o.comment AS comment ,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
-    districts.district_name as delivery_district
+    sector_versions.sector_name as delivery_district
 FROM 
     orders o
     INNER JOIN order_items i ON o.id = i.order_id
@@ -777,14 +777,20 @@ FROM
     INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
     LEFT JOIN employees e ON e.id = o.author_employee_id
     LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
-    INNER JOIN districts ON districts.id = dp.district_id
-    LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
+    INNER JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = dp.id
+        AND geodata.start_date &gt;= @start_date
+        AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+    INNER JOIN sectors ON sectors.id = geodata.sector_id
+    INNER JOIN sector_versions ON sector_versions.sector_id = sectors.id
+         AND sector_versions.start_date &gt;= @start_date
+         AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+    LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
     LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
     LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
 WHERE 
     o.delivery_date BETWEEN @start_date AND @end_date
     AND (@discount_id = 0 OR d.id = @discount_id)
-    AND (@district_id = '' OR districts.id = @district_id)
+    AND (@district_id = '' OR sectors.id = @district_id)
 GROUP BY o.id DESC
 ;</CommandText>
         <QueryParameters>
@@ -877,14 +883,20 @@ FROM
         INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
         INNER JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
         LEFT JOIN employees e ON e.id = o.author_employee_id
-        INNER JOIN districts ON districts.id = dp.district_id
-        LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
+        INNER JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = dp.id
+            AND geodata.start_date &gt;= @start_date
+            AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+        INNER JOIN sectors ON sectors.id = geodata.sector_id
+        INNER JOIN sector_versions ON sector_versions.sector_id = sectors.id
+            AND sector_versions.start_date &gt;= @start_date
+            AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+        LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
         LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
         LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
     WHERE 
         o.delivery_date BETWEEN @start_date AND @end_date
         AND (@discount_id = 0 OR d.id = @discount_id)
-        AND (@district_id = '' OR districts.id = @district_id)
+        AND (@district_id = '' OR sectors.id = @district_id)
     GROUP BY cc.id DESC 
 ) as stats
 ;</CommandText>

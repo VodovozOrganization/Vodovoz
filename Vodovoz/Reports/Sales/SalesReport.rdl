@@ -554,10 +554,18 @@ FROM
          counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
              LEFT JOIN
          employees ON orders.author_employee_id = employees.id
+             LEFT JOIN 
+         delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+             AND geodata.start_date &gt;= @start_date
+             AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+             LEFT JOIN 
+         sectors ON sectors.id = geodata.sector_id
+             LEFT JOIN 
+         sector_versions ON sector_versions.sector_id = sectors.id
+              AND sector_versions.start_date &gt;= @start_date
+              AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
              LEFT JOIN
-         districts distr ON delivery_points.district_id = distr.id
-             LEFT JOIN
-         geographic_groups gg ON gg.id = distr.geographic_group_id
+         geographic_groups gg ON gg.id = sector_versions.geographic_group_id
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -1049,8 +1057,14 @@ FROM
                 LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.transfered_to_id IS NULL
                 LEFT JOIN counterparty ON counterparty.id = orders.client_id
                 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-                LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-                LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+                LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+                    AND geodata.start_date &gt;= @start_date
+                    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+                LEFT JOIN sectors ON sectors.id = geodata.sector_id
+                LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+                     AND sector_versions.start_date &gt;= @start_date
+                     AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+                LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
                 LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
                 LEFT JOIN employees ON employees.id = orders.author_employee_id
                 LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
@@ -1236,10 +1250,18 @@ FROM
     counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
         LEFT JOIN
     employees ON orders.author_employee_id = employees.id
+         LEFT JOIN 
+    delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+        AND geodata.start_date &gt;= @start_date
+        AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+        LEFT JOIN 
+    sectors ON sectors.id = geodata.sector_id
+        LEFT JOIN 
+    sector_versions ON sector_versions.sector_id = sectors.id
+         AND sector_versions.start_date &gt;= @start_date
+         AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
         LEFT JOIN
-    districts distr ON delivery_points.district_id = distr.id
-        LEFT JOIN
-    geographic_groups gg ON gg.id = distr.geographic_group_id
+    geographic_groups gg ON gg.id = sector_versions.geographic_group_id
 WHERE
     (order_status = 'Accepted'
         OR order_status = 'InTravelList'

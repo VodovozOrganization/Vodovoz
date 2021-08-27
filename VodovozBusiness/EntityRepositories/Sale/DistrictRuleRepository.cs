@@ -39,7 +39,7 @@ namespace Vodovoz.EntityRepositories.Sale
 			var res = uow.Session.QueryOver(() => commonDistrictRuleItemAlias)
 				.JoinAlias(() => sectorDeliveryRuleVersionAlias, () => commonDistrictRuleItemAlias.SectorDeliveryRuleVersion)
 				.JoinEntityAlias(() => sectorVersionAlias,
-					() => sectorVersionAlias.Sector == sectorDeliveryRuleVersionAlias.Sector &&
+					() => sectorVersionAlias.Sector.Id == sectorDeliveryRuleVersionAlias.Sector.Id &&
 					      sectorVersionAlias.Status == SectorsSetStatus.Active,
 					JoinType.LeftOuterJoin)
 				.Where(d => d.DeliveryPriceRule.Id == rule.Id)

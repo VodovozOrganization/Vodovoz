@@ -106,9 +106,10 @@ namespace Vodovoz.Models
 					.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersionAlias.DeliveryPoint)
 					.Where(() => deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active)
 					.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-					.JoinEntityAlias(() => sectorVersionAlias,
-						() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
-						      sectorVersionAlias.Status == SectorsSetStatus.Active, JoinType.InnerJoin)
+					.JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+					                                                sectorVersionAlias.StartDate <= orderAlias.DeliveryDate && 
+					                                                (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <= orderAlias.DeliveryDate.Value.Date.AddDays(1)),
+						JoinType.LeftOuterJoin)
 					.Where(() => sectorVersionAlias.WageSector.Id == wageParametersProvider.GetSuburbWageDistrictId &&
 					             routeListAdressesAlias.RouteList.Id == routeList.Id)
 					.Take(1).SingleOrDefault();

@@ -171,14 +171,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
-			DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 			SectorVersion sectorVersionAlias = null;
 
 			var query = Uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.InnerJoin)
-				.Inner.JoinAlias(() => deliveryPointSectorVersion.Sector, () => sectorAlias)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+				                                                              deliveryPointSectorVersionAlias.StartDate <= StartDeliveryDate &&
+				                                                              (deliveryPointSectorVersionAlias.EndDate == null || deliveryPointSectorVersionAlias.EndDate <= EndDeliveryDate.Value.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				                                                sectorVersionAlias.StartDate <= StartDeliveryDate && 
+				                                                (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <= EndDeliveryDate.Value.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
+				.Inner.JoinAlias(() => sectorVersionAlias.Sector, () => sectorAlias)
 				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
 				.Left.JoinAlias(() => sectorVersionAlias.WageSector, () => wageSectorAlias)
 				.Left.JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)

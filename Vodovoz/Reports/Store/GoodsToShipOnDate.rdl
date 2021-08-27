@@ -598,8 +598,14 @@ FROM (
 	FROM order_items i
 	JOIN orders o ON o.id = i.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-	LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-	LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+    LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+        AND geodata.start_date &gt;= @date
+        AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+    LEFT JOIN sectors ON sectors.id = geodata.sector_id
+    LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+         AND sector_versions.start_date &gt;= @date
+         AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+	LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
 	WHERE DATE(o.delivery_date) = @date
 		AND o.order_status IN(
 			'Accepted',
@@ -622,8 +628,14 @@ FROM (
 	FROM order_equipment eq
 	JOIN orders o ON o.id = eq.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-	LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-	LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+	LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+         AND geodata.start_date &gt;= @date
+         AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+    LEFT JOIN sectors ON sectors.id = geodata.sector_id
+    LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+         AND sector_versions.start_date &gt;= @date
+         AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+    LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
 	WHERE DATE(o.delivery_date) = @date
 		AND eq.direction = 'Deliver'
 		AND o.order_status IN(
@@ -687,6 +699,9 @@ WHERE n.category NOT IN('water','deposit','service','master')
         <QueryParameters>
           <QueryParameter Name="@date">
             <Value>=Format({?date}, "yyyy-MM-dd")</Value>
+          </QueryParameter>
+          <QueryParameter Name="@end_date">
+            <Value>=Format({?end_date}, "yyyy-MM-dd")</Value>
           </QueryParameter>
           <QueryParameter Name="@geo_group_id">
             <Value>={?geo_group_id}</Value>
@@ -763,8 +778,14 @@ FROM orders o
 JOIN order_equipment eq ON eq.order_id = o.id
 JOIN nomenclature n ON n.id = eq.nomenclature_id
 LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &gt;= @date
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+LEFT JOIN sectors ON sectors.id = geodata.sector_id
+LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+     AND sector_versions.start_date &gt;= @date
+     AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
 JOIN counterparty c ON c.id = o.client_id 
 LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
 WHERE DATE(o.delivery_date) = @date
@@ -800,6 +821,9 @@ GROUP BY o.id
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Format({?date}, "yyyy-MM-dd")</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Format({?end_date}, "yyyy-MM-dd")</Value>
           </QueryParameter>
           <QueryParameter Name="geo_group_id">
             <Value>={?geo_group_id}</Value>
@@ -873,6 +897,19 @@ GROUP BY o.id
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="end_date">
+          <DataType>DateTime</DataType>
+          <DefaultValue>
+            <Values>
+              <Value>2019-10-30</Value>
+            </Values>
+          </DefaultValue>
+          <Nullable>false</Nullable>
+          <AllowBlank>false</AllowBlank>
+          <MultiValue>false</MultiValue>
+          <Prompt>
+          </Prompt>
+        </ReportParameter>
     <ReportParameter Name="geo_group_id">
       <DataType>String</DataType>
       <DefaultValue>

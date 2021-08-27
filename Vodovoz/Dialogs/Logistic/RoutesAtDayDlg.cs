@@ -685,18 +685,24 @@ namespace Vodovoz
 			var baseOrderQuery = _orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session);
 			var selectedGeographicGroup = geographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
-			if(selectedGeographicGroup.Any()) {
+			if(selectedGeographicGroup.Any())
+			{
 				baseOrderQuery
-				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersionAlias,
+					.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+					.JoinEntityAlias(() => deliveryPointSectorVersionAlias,
 						() => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
-						      deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias,
-					() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
-					      sectorVersionAlias.Status == SectorsSetStatus.Active,
-					JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
-				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+						      deliveryPointSectorVersionAlias.StartDate <= ydateForRoutes.Date &&
+						      (deliveryPointSectorVersionAlias.EndDate == null ||
+						       deliveryPointSectorVersionAlias.EndDate <= ydateForRoutes.Date.AddDays(1)), JoinType.LeftOuterJoin)
+					.JoinEntityAlias(() => sectorVersionAlias,
+						() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+						      sectorVersionAlias.StartDate <= ydateForRoutes.Date && (sectorVersionAlias.EndDate == null ||
+						                                                              sectorVersionAlias.EndDate <=
+						                                                              ydateForRoutes.Date.AddDays(1)),
+						JoinType.LeftOuterJoin)
+					.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
+					.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
+						selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 
 			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)

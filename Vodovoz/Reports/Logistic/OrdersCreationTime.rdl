@@ -991,8 +991,14 @@ FROM
 	            ) as delivery_schedules ON orders.delivery_schedule_id = delivery_schedules.id
 	            
 	        LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
-	        LEFT JOIN districts ON delivery_points.district_id = districts.id
-	        LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
+	        LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
+                AND geodata.start_date &gt;= @date
+                AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+            LEFT JOIN sectors ON sectors.id = geodata.sector_id
+            LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
+                 AND sector_versions.start_date &gt;= @date
+                 AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
+	        LEFT JOIN geographic_groups ON geographic_groups.id = sector_versions.geographic_group_id
 	    WHERE
 	        delivery_date = @date
 	        AND !orders.is_contract_closer
@@ -1002,9 +1008,9 @@ FROM
 	        AND orders.delivery_point_id IS NOT NULL
 	        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
 	        AND (
-	                ((districts.id IN (@districts_include) AND 0 IN (@districts_exclude) )
+	                ((sectors.id IN (@districts_include) AND 0 IN (@districts_exclude) )
 	                OR
-	                (districts.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
+	                (sectors.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
 	                OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
 	            )
 	        AND (
@@ -1049,6 +1055,9 @@ GROUP BY source.delivery_interval
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
           </QueryParameter>
           <QueryParameter Name="creation_time1">
             <Value>={?creation_time1}</Value>
@@ -1241,12 +1250,20 @@ FROM
         #Районы
         IF(
             0 NOT IN (@districts_include),
-            (SELECT CONCAT('Вкл. районы: ', GROUP_CONCAT(srd.district_name SEPARATOR ', ')) FROM districts srd WHERE srd.id IN(@districts_include)),
+            (SELECT CONCAT('Вкл. районы: ', GROUP_CONCAT(srv.sector_name SEPARATOR ', ')) FROM sectors srd 
+            JOIN sector_versions srv ON srv.sector_id = sectors.id
+                 AND srv.start_date &gt;= @date
+                 AND (srv.end_date IS NULL OR srv.end_date &lt;= @end_date)
+                  WHERE srd.id IN(@districts_include)),
             null
         ) AS included_districts,
         IF(
             0 NOT IN (@districts_exclude),
-            (SELECT CONCAT('Искл. районы: ', GROUP_CONCAT(srd.district_name SEPARATOR ', ')) FROM districts srd WHERE srd.id IN(@districts_exclude)),
+            (SELECT CONCAT('Искл. районы: ', GROUP_CONCAT(srv.sector_name SEPARATOR ', ')) FROM sectors srd 
+             JOIN sector_versions srv ON srv.sector_id = sectors.id
+                             AND srv.start_date &gt;= @date
+                             AND (srv.end_date IS NULL OR srv.end_date &lt;= @end_date)
+                     WHERE srd.id IN(@districts_exclude)),
             null
         ) AS excluded_districts
 
@@ -1276,6 +1293,14 @@ FROM
   </DataSets>
   <ReportParameters>
     <ReportParameter Name="date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

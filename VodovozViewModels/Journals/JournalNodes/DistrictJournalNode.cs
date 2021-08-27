@@ -8,7 +8,7 @@ namespace Vodovoz.Journals.JournalNodes
 {
 	public class DistrictJournalNode : JournalEntityNodeBase<Sector>
 	{
-		public override string Title => Name;
+		public override string Title => Id.ToString();
 		public string Name { get; set; }
 		public string WageDistrict { get; set; }
 		public SectorsSetStatus SectorsSetStatus { get; set; }

@@ -50,6 +50,7 @@ namespace Vodovoz.ReportsParameters.Employees
                 Parameters = new Dictionary<string, object>
                 {
                     {"report_date", DateTime.Now},
+                    {"report_end_date", DateTime.Now.AddDays(1)},
                     {"selected_filters", GetSelectedFilters()},
                     {"empl_category", enumCategory.SelectedItem},
                     {"empl_status", GetStatuses()},

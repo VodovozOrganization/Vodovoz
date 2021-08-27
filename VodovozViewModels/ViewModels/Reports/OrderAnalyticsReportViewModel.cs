@@ -235,7 +235,7 @@ namespace Vodovoz.ViewModels.Reports
             DeliveryPoint deliveryPointAlias = null;
             Sector sectorAlias = null;
             SectorVersion sectorVersionAlias = null;
-            DeliveryPointSectorVersion deliveryPointSectorVersion = null;
+            DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
             WageSector wageSectorAlias = null;
             RouteListItem routeListItemAlias = null;
             RouteListItem routeListItemAlias2 = null;
@@ -251,9 +251,14 @@ namespace Vodovoz.ViewModels.Reports
                 .JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)
                 .JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
                 .JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-                .JoinEntityAlias(() => deliveryPointSectorVersion, () => deliveryPointSectorVersion.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
-                .JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersion.Sector, JoinType.LeftOuterJoin)
-                .Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
+                .JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+                                                                              deliveryPointSectorVersionAlias.StartDate <= StartDeliveryDate &&
+                                                                              (deliveryPointSectorVersionAlias.EndDate == null || deliveryPointSectorVersionAlias.EndDate <= EndDeliveryDate.Value.Date.AddDays(1)),
+	                JoinType.LeftOuterJoin)
+                .JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+                                                                sectorVersionAlias.StartDate <= StartDeliveryDate && 
+                                                                (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <= EndDeliveryDate.Value.Date.AddDays(1)),
+	                JoinType.LeftOuterJoin).Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicGroupAlias)
                 .Left.JoinAlias(() => sectorVersionAlias.WageSector, () => wageSectorAlias)
                 .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
                 .Left.JoinAlias(() => routeListAlias.Car, () => carAlias)

@@ -1173,10 +1173,13 @@ namespace Vodovoz.ViewModels.Logistic
 				if(selectedGeographicGroup.Any())
 				{
 					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
+						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
+							deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+							deliveryPointSectorVersionAlias.StartDate <= DateForRouting.Date &&
+							(deliveryPointSectorVersionAlias.EndDate == null ||
+							 deliveryPointSectorVersionAlias.EndDate <= DateForRouting.Date.AddDays(1)), JoinType.LeftOuterJoin)
 						.JoinEntityAlias(() => sectorVersionAlias,
 							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
-							      sectorVersionAlias.Status == SectorsSetStatus.Active &&
 							      sectorVersionAlias.StartDate >= DateForRouting.Date && (sectorVersionAlias.EndDate != null ||
 							                                                              sectorVersionAlias.EndDate <=
 							                                                              DateForRouting.Date.AddDays(1)),
@@ -1415,10 +1418,13 @@ namespace Vodovoz.ViewModels.Logistic
 				if(selectedGeographicGroup.Any())
 				{
 					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias, JoinType.LeftOuterJoin)
+						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
+							deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+							deliveryPointSectorVersionAlias.StartDate <= DateForRouting.Date &&
+							(deliveryPointSectorVersionAlias.EndDate == null ||
+							 deliveryPointSectorVersionAlias.EndDate <= DateForRouting.Date.AddDays(1)), JoinType.LeftOuterJoin)
 						.JoinEntityAlias(() => sectorVersionAlias,
 							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
-							      sectorVersionAlias.Status == SectorsSetStatus.Active &&
 							      sectorVersionAlias.StartDate >= DateForRouting.Date && (sectorVersionAlias.EndDate != null ||
 							                                                              sectorVersionAlias.EndDate <=
 							                                                              DateForRouting.Date.AddDays(1)),
