@@ -265,11 +265,14 @@ namespace Vodovoz.ViewWidgets
 				&& _undelivery.OldOrder != null
 			);
 
+			guiltyInUndeliveryView.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed
+				&& (ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_guilty_in_undeliveries") || _undelivery.Id == 0)
+				;
+
 			//кнопки для выбора/создания нового заказа и группа "В работе у отдела"
-			//доступны всегда, если статус недовоза не "Закрыт"
-			guiltyInUndeliveryView.Sensitive = 
-				hbxInProcessAtDepartment.Sensitive =
-					hbxForNewOrder.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
+			//доступны всегда, если статус недовоза не "Закрыт"			 
+			hbxInProcessAtDepartment.Sensitive =
+				hbxForNewOrder.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
 		}
 
 		void AddAutocomment()
