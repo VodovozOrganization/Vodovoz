@@ -32,10 +32,10 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.TempAdapters;
 using System.Collections.Generic;
-using Vodovoz.EntityRepositories.Counterparties;
 using Gamma.Widgets;
 using Gtk;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 

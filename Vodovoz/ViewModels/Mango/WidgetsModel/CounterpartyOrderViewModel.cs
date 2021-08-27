@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Mango
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
-		private readonly RouteListRepository _routedListRepository;
+		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Mango
 		public CounterpartyOrderViewModel(Counterparty client,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
-			RouteListRepository routedListRepository,
+			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderParametersProvider orderParametersProvider,
 			IEmployeeJournalFactory employeeJournalFactory,

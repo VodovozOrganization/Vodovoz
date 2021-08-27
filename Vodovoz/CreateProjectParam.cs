@@ -377,7 +377,7 @@ namespace Vodovoz
 
 			#region База
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-			builder.RegisterType<BaseParametersProvider>().AsSelf();
+			builder.RegisterType<BaseParametersProvider>().As<ITerminalNomenclatureProvider>().AsSelf();
 			#endregion
 
 			#region Сервисы
