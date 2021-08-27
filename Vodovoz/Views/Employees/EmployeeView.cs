@@ -230,8 +230,11 @@ namespace Vodovoz.Views.Employees
 			ViewModel.HasAttachmentFilesChangesFunc += HasAttachmentsFilesChanges;
 
 			//Вкладка Документы
-			ConfigureDocumentsTabButtons();
-			ConfigureTreeEmployeeDocuments();
+			if(radioTabEmployeeDocument.Sensitive = ViewModel.CanReadEmployeeDocuments)
+			{
+				ConfigureDocumentsTabButtons();
+				ConfigureTreeEmployeeDocuments();
+			}
 			
 			//Вкладка Договора
 			ConfigureContractsTabButtons();
