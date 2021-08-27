@@ -5,10 +5,12 @@ namespace Vodovoz.Services
 {
     public interface INomenclatureParametersProvider
     {
+	    int PaidDeliveryNomenclatureId { get; }
         int Folder1cForOnlineStoreNomenclatures { get; }
         int MeasurementUnitForOnlineStoreNomenclatures { get; }
         int RootProductGroupForOnlineStoreNomenclatures { get; }
         int CurrentOnlineStoreId { get; }
+        decimal GetWaterPriceIncrement { get; }
         string OnlineStoreExportFileUrl { get; }
 
         Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
@@ -17,7 +19,11 @@ namespace Vodovoz.Services
         Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow);
         Nomenclature GetWaterStroika(IUnitOfWork uow);
         Nomenclature GetWaterRuchki(IUnitOfWork uow);
-        decimal GetWaterPriceIncrement { get; }
-        int PaidDeliveryNomenclatureId { get; }
+        Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow);
+        Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
+        Nomenclature GetSanitisationNomenclature(IUnitOfWork uow);
+        Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
+
+        int GetIdentifierOfOnlineShopGroup();
     }
 }

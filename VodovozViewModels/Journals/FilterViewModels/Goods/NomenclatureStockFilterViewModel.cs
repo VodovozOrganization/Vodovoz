@@ -4,20 +4,28 @@ using QS.Services;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using System.Collections.Generic;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 
 namespace Vodovoz.FilterViewModels.Goods
 {
 	public class NomenclatureStockFilterViewModel : FilterViewModelBase<NomenclatureStockFilterViewModel>
 	{
-		public NomenclatureStockFilterViewModel(IWarehouseRepository warehouseRepository)
+		public NomenclatureStockFilterViewModel(IEntityAutocompleteSelectorFactory warehouseSelectorFactory)
 		{
-			if(warehouseRepository == null) {
-				throw new ArgumentNullException(nameof(warehouseRepository));
-			}
-			AvailableWarehouses = warehouseRepository.GetActiveWarehouse(UoW);
+			WarehouseSelectorFactory = warehouseSelectorFactory ?? throw new ArgumentNullException(nameof(warehouseSelectorFactory));
+			UserHasOnlyAccessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+
+			AvailableWarehouses = new WarehouseRepository().GetActiveWarehouse(UoW);
 		}
 
+		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
+
 		public IEnumerable<Warehouse> AvailableWarehouses { get; set; }
+
+		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory { get; }
 
 		public IEnumerable<int> ExcludedNomenclatureIds { get; set; }
 

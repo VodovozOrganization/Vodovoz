@@ -7,6 +7,8 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSOrmProject;
@@ -14,10 +16,8 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Core.DataService;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -29,7 +29,9 @@ using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -37,6 +39,13 @@ namespace Vodovoz
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
+
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -45,7 +54,7 @@ namespace Vodovoz
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
-			Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -53,7 +62,7 @@ namespace Vodovoz
 			}
 
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
-			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
 				FailInitialize = true;
@@ -74,7 +83,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
-			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
 				FailInitialize = true;
@@ -89,24 +98,22 @@ namespace Vodovoz
 		{
 		}
 
-		private IPermissionResult CheckPermission(Employee employee)
+		private IPermissionResult CheckPermission()
 		{
 			IPermissionService permissionService = ServicesConfig.CommonServices.PermissionService;
-			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
+			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId);
 		}
 
 		private bool canEditDocument;
 
 		void ConfigureDlg()
 		{
-			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
-
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()));
+			Entity.InitializeDefaultValues(UoW, _nomenclatureRepository);
 			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
@@ -130,8 +137,8 @@ namespace Vodovoz
 			yentryrefOrder.ChangedByUser += (sender, e) => { FillTrees(); };
 
 			UpdateOrderInfo();
-			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
@@ -183,8 +190,13 @@ namespace Vodovoz
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			Entity.CanEdit = permmissionValidator.Validate(typeof(SelfDeliveryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(
+					typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefOrder.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -251,7 +263,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
@@ -259,15 +271,15 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
-			Entity.UpdateReceptions(UoW, GoodsReceptionList, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
+			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
 			var callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
+						new OrderRepository(),
+						_employeeRepository,
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
@@ -301,16 +313,16 @@ namespace Vodovoz
 		{
 			UpdateOrderInfo();
 			Entity.FillByOrder();
-			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			UpdateAmounts();
 		}
 
 		protected void OnWarehouseSelected(object sender, EventArgs e)
 		{
 			Entity.FillByOrder();
-			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(new NomenclatureParametersProvider()), new BottlesRepository());
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			UpdateAmounts();
 			UpdateWidgets();
 			FillTrees();
@@ -332,33 +344,38 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(new NomenclatureRepository(new NomenclatureParametersProvider()).NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
-				FilterClass = null,
-				Mode = OrmReferenceMode.Select
-			};
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			this.TabParent.AddTab(refWin, this);
+			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector();
+			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
+			TabParent.AddTab(nomenclatureSelector, this);
 		}
 
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			Nomenclature nomenclature = (e.Subject as Nomenclature);
-			if(nomenclature == null) {
+			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
+			
+			if(nomenclatureNode == null)
+			{
 				return;
 			}
-			var node = new GoodsReceptionVMNode {
+
+			var nomenclature = UoW.GetById<Nomenclature>(nomenclatureNode.Id);
+			
+			var node = new GoodsReceptionVMNode
+			{
 				Category = nomenclature.Category,
 				NomenclatureId = nomenclature.Id,
 				Name = nomenclature.Name
 			};
 
-			if (node.Category == NomenclatureCategory.equipment)
-            {
+			if(node.Category == NomenclatureCategory.equipment)
+			{
 				node.Direction = Domain.Orders.Direction.PickUp;
-            }
+			}
 
 			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))
+			{
 				GoodsReceptionList.Add(node);
+			}
 		}
 	}
 }

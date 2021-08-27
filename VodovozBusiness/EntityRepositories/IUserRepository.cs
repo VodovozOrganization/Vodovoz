@@ -9,5 +9,7 @@ namespace Vodovoz.EntityRepositories
 		UserSettings GetCurrentUserSettings(IUnitOfWork uow);
 		string GetTempDirForCurrentUser(IUnitOfWork uow);
 		UserSettings GetUserSettings(IUnitOfWork uow, int userId);
+		User GetUserByLogin(IUnitOfWork uow, string login);
+		bool MySQLUserWithLoginExists(IUnitOfWork uow, string login);
 	}
 }

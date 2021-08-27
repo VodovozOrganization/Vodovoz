@@ -10,7 +10,6 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Utilities;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
@@ -20,8 +19,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 	{
 		public OrderWithoutShipmentForAdvancePaymentView(OrderWithoutShipmentForAdvancePaymentViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			Configure();
 		}
 
@@ -104,7 +102,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(OrderSingletonRepository.GetInstance().GetDiscountReasons(ViewModel.UoW))
+					.FillItems(ViewModel.OrderRepository.GetDiscountReasons(ViewModel.UoW))
 					.AddSetter((c, n) => c.Editable = n.Discount > 0)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null

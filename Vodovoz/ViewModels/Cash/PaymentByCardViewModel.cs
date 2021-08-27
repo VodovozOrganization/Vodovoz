@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
@@ -15,34 +15,43 @@ namespace Vodovoz.ViewModels.Cash
 {
     public class PaymentByCardViewModel: EntityTabViewModelBase<Order> 
     {
-        private readonly IOrderPaymentSettings orderPaymentSettings;
-        private readonly IOrderParametersProvider _orderParametersProvider;
-
-        private readonly CallTaskWorker callTaskWorker;
+        private readonly Employee _currentEmployee;
+        private readonly CallTaskWorker _callTaskWorker;
 
         public PaymentByCardViewModel(
-            IEntityUoWBuilder uowBuilder, 
-            IUnitOfWorkFactory unitOfWorkFactory, 
-            ICommonServices commonServices, 
-            CallTaskWorker callTaskWorker, 
+            IEntityUoWBuilder uowBuilder,
+            IUnitOfWorkFactory unitOfWorkFactory,
+            ICommonServices commonServices,
+            CallTaskWorker callTaskWorker,
             IOrderPaymentSettings orderPaymentSettings,
-            IOrderParametersProvider orderParametersProvider
-        ) 
-            : base(uowBuilder, unitOfWorkFactory, commonServices) {
-            this.orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
-            this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-            this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+            IOrderParametersProvider orderParametersProvider,
+            Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
+        {
+	        if(orderPaymentSettings == null)
+	        {
+		        throw new ArgumentNullException(nameof(orderPaymentSettings));
+	        }
+	        
+	        if(orderParametersProvider == null)
+	        {
+		        throw new ArgumentNullException(nameof(orderParametersProvider));
+	        }
+	        
+            _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+            _currentEmployee = currentEmployee;
+
             TabName = "Оплата по карте";
 
             ItemsList = UoW.GetAll<PaymentFrom>().ToList();
 
-            if (PaymentByCardFrom==null){
+            if (PaymentByCardFrom == null)
+            {
                 PaymentByCardFrom = ItemsList.FirstOrDefault(p => p.Id == orderPaymentSettings.DefaultSelfDeliveryPaymentFromId);
             }
 
             Entity.PropertyChanged += Entity_PropertyChanged;
             
-            ValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), this._orderParametersProvider);
+            ValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
         }
 
         void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -62,11 +71,11 @@ namespace Vodovoz.ViewModels.Cash
 
         protected override void BeforeValidation()
         {
-	        Entity.ChangePaymentTypeToByCard(callTaskWorker);
+	        Entity.ChangePaymentTypeToByCard(_callTaskWorker);
 
 	        if(!Entity.PayAfterShipment)
 	        {
-		        Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, callTaskWorker);
+		        Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
 	        }
 
 	        if(Entity.SelfDelivery)

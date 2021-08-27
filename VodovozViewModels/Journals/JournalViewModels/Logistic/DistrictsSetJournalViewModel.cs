@@ -11,6 +11,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Services;
@@ -98,7 +99,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				unitOfWorkFactory,
 				commonServices,
 				entityDeleteWorker,
-				employeeRepository);
+				employeeRepository,
+				new DistrictRuleRepository());
 
 		protected override Func<DistrictsSetJournalNode, DistrictsSetViewModel> OpenDialogFunction => node =>
 			new DistrictsSetViewModel(
@@ -106,7 +108,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				unitOfWorkFactory,
 				commonServices,
 				entityDeleteWorker,
-				employeeRepository);
+				employeeRepository,
+				new DistrictRuleRepository());
 		
 		protected override void CreateNodeActions()
 		{
@@ -229,7 +232,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(selectedNode.Id),
 								QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 								commonServices,
-								EmployeeSingletonRepository.GetInstance()
+								new EmployeeRepository()
 								)
 						);
 						

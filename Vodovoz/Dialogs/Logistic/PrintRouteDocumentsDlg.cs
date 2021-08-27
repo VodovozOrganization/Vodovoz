@@ -14,15 +14,22 @@ using QSProjectsLib;
 using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 
 		Gdk.Pixbuf vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
@@ -150,7 +157,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			gtkScrollWndWarnings.Visible = false;
 			var ggIds = geographicGroups.Select(x => x.Id).ToList();
-			var routeQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(uow.Session);
+			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(uow.Session);
 			Routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
 							   .Fetch(SelectMode.Fetch, x => x.Car)
 							   .List()

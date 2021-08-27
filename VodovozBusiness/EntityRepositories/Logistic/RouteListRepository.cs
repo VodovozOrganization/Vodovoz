@@ -7,7 +7,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -19,14 +18,25 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repositories;
+using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class RouteListRepository : IRouteListRepository
 	{
+		private readonly IStockRepository _stockRepository;
+		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		
+		public RouteListRepository(IStockRepository stockRepository, ITerminalNomenclatureProvider terminalNomenclatureProvider)
+		{
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_terminalNomenclatureProvider =
+				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+		}
+		
 		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date)
 		{
 			RouteList routeListAlias = null;
@@ -331,7 +341,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null) {
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 			
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
@@ -356,8 +366,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-
-				if(StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
+				if(_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount
@@ -382,7 +391,7 @@ namespace Vodovoz.EntityRepositories.Logistic
         {
             CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
-            var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+            var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
             var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
             var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
@@ -409,7 +418,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal) && transferedCount == 0;
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
@@ -432,9 +441,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 						Amount = amount
 					};
 				}
-
-
-				if (StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
+				
+				if (_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{
@@ -555,8 +563,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			{
 				throw new ArgumentNullException(nameof(routeList));
 			}
-
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
 
 			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
 				.Where(dttd => dttd.RouteListTo.Id == routeList.Id

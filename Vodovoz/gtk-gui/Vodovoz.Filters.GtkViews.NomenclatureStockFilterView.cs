@@ -8,9 +8,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton checkShowArchive;
 
-		private global::Gamma.Widgets.ySpecComboBox comboWarehouse;
-
 		private global::Gtk.Label label1;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxWarehouse;
 
 		protected virtual void Build()
 		{
@@ -37,25 +37,21 @@ namespace Vodovoz.Filters.GtkViews
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.comboWarehouse = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboWarehouse.Name = "comboWarehouse";
-			this.comboWarehouse.AddIfNotExist = false;
-			this.comboWarehouse.DefaultFirst = false;
-			this.comboWarehouse.ShowSpecialStateAll = true;
-			this.comboWarehouse.ShowSpecialStateNot = false;
-			this.table1.Add(this.comboWarehouse);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.comboWarehouse]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yhboxWarehouse = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxWarehouse.Name = "yhboxWarehouse";
+			this.yhboxWarehouse.Spacing = 6;
+			this.table1.Add(this.yhboxWarehouse);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxWarehouse]));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))

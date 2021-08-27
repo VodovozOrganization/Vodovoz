@@ -1,23 +1,19 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSDocTemplates;
-using QSProjectsLib;
-using QS.Validation;
 using Vodovoz.DocTemplates;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EmployeeContractDlg : SingleUowTabBase
 	{
-
+		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 
 		public event EventHandler Save;
 
@@ -69,18 +65,25 @@ namespace Vodovoz.Dialogs.Employees
 
 		void UpdateStates()
 		{
-			savetemplatewidget1.AvailableTemplates = Repository.Client.DocTemplateRepository.GetAvailableTemplates(UoW, TemplateType.EmployeeContract, Entity.Organization);
+			savetemplatewidget1.AvailableTemplates = _docTemplateRepository.GetAvailableTemplates(UoW, TemplateType.EmployeeContract, Entity.Organization);
 			savetemplatewidget1.Template = savetemplatewidget1.AvailableTemplates.FirstOrDefault();
+			
 			if(savetemplatewidget1.Template != null)
-			labelTem.Text = savetemplatewidget1.Template.Name != null ? savetemplatewidget1.Template.Name : "Без названия";
+			{
+				labelTem.Text = savetemplatewidget1.Template.Name != null ? savetemplatewidget1.Template.Name : "Без названия";
+			}
 			else
-			labelTem.Text = "Шаблон отсутствует";
+			{
+				labelTem.Text = "Шаблон отсутствует";
+			}
 		}
 
 		void RefreshParserRootObject()
 		{
 			if(Entity.EmployeeContractTemplate != null)
+			{
 				(Entity.EmployeeContractTemplate.DocParser as EmployeeContractParser).RootObject = Entity;
+			}
 		}
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)

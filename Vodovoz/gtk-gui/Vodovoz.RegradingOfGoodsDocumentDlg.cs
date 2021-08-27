@@ -24,7 +24,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label5;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry warehouseEntry;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 
@@ -133,14 +133,14 @@ namespace Vodovoz
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryrefWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.yentryrefWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.yentryrefWarehouse.Name = "yentryrefWarehouse";
-			this.tableWriteoff.Add(this.yentryrefWarehouse);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
+			this.warehouseEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.warehouseEntry.Events = ((global::Gdk.EventMask)(256));
+			this.warehouseEntry.Name = "warehouseEntry";
+			this.warehouseEntry.CanEditReference = false;
+			this.tableWriteoff.Add(this.warehouseEntry);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.warehouseEntry]));
 			w11.LeftAttach = ((uint)(3));
 			w11.RightAttach = ((uint)(4));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.ylabelDate = new global::Gamma.GtkWidgets.yLabel();

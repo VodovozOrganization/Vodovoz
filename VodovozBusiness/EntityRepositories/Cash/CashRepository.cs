@@ -144,13 +144,6 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
 				.SingleOrDefault<decimal>();
 		}
-		
-		public class OperationNode
-		{
-			public decimal Balance { get; set; }
-			public string Name { get; set; }
-		}
-		
 	}
 }
 

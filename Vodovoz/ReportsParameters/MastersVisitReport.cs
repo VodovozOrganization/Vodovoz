@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersVisitReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MastersVisitReport()
+		public MastersVisitReport(IEmployeeRepository employeeRepository)
 		{
-			this.Build();
+			if(employeeRepository == null)
+			{
+				throw new ArgumentNullException(nameof(employeeRepository));
+			}
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefEmployee.ItemsQuery = EmployeeRepository.DriversQuery();
+			yentryrefEmployee.ItemsQuery = employeeRepository.DriversQuery();
 			ButtonSensivity();
 		}
 

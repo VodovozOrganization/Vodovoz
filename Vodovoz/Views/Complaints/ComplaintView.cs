@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
@@ -59,7 +60,7 @@ namespace Vodovoz.Views.Complaints
 			lblAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
-				var filter = new OrderJournalFilterViewModel();
+				var filter = new OrderJournalFilterViewModel(ViewModel.CounterpartyJournalFactory, ViewModel.DeliveryPointJournalFactory);
 				
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
@@ -69,8 +70,6 @@ namespace Vodovoz.Views.Complaints
 												UnitOfWorkFactory.GetDefaultFactory, 
 												ServicesConfig.CommonServices,
 												ViewModel.EmployeeService,
-												ViewModel.NomenclatureSelectorFactory,
-												ViewModel.CounterpartySelectorFactory,
 												ViewModel.NomenclatureRepository,
 												ViewModel.UserRepository,
 												ViewModel.OrderSelectorFactory,
@@ -80,9 +79,8 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.SubdivisionJournalFactory,
 												ViewModel.GtkDialogsOpener,
 												ViewModel.UndeliveredOrdersJournalOpener,
-												ViewModel.SalesPlanJournalFactory,
-												ViewModel.NomenclatureSelector
-												);
+												ViewModel.NomenclatureSelector,
+												ViewModel.UndeliveredOrdersRepository);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);

@@ -10,18 +10,14 @@ using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Logistics;
 using QS.DomainModel.Tracking;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Services;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Core.DataService;
 using Android.DTO;
 using SmsPaymentService;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Android
 {
@@ -29,22 +25,36 @@ namespace Android
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
-		private readonly WageParameterService wageParameterService;
-		private readonly IDriverServiceParametersProvider parameters;
-		private readonly ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory;
-		private readonly IDriverNotificator driverNotificator;
+		private readonly WageParameterService _wageParameterService;
+		private readonly IDriverServiceParametersProvider _parameters;
+		private readonly ChannelFactory<ISmsPaymentService> _smsPaymentChannelFactory;
+		private readonly IDriverNotificator _driverNotificator;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ITrackRepository _trackRepository;
+		private readonly IOrderRepository _orderRepository;
 
 		public AndroidDriverService(
 			WageParameterService wageParameterService, 
 			IDriverServiceParametersProvider parameters,
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
-			IDriverNotificator driverNotificator
-			)
+			IDriverNotificator driverNotificator,
+			IEmployeeRepository employeeRepository,
+			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository,
+			ITrackRepository trackRepository,
+			IOrderRepository orderRepository)
 		{
-			this.wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-			this.smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
-			this.driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+			_smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
+			_driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		/// <summary>
@@ -98,7 +108,7 @@ namespace Android
 			{
 				using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot("[ADS]Авторизация пользователя"))
 				{
-					var employee = EmployeeRepository.GetDriverByAndroidLogin(uow, login);
+					var employee = _employeeRepository.GetDriverByAndroidLogin(uow, login);
 
 					if (employee == null)
 						return null;
@@ -151,7 +161,7 @@ namespace Android
 
 		private bool CheckAuth(IUnitOfWork uow, string authKey)
 		{
-			var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+			var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
 			if (driver == null)
 				logger.Warn("Неудачная попытка авторизации по ключу {0}", authKey);
 			return driver != null;
@@ -175,8 +185,8 @@ namespace Android
 						return null;
 					
 					var result = new List<RouteListDTO>();
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
-					var routeLists = RouteListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
+					var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
+					var routeLists = _routeListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
 
 					foreach (RouteList rl in routeLists)
 					{
@@ -238,9 +248,9 @@ namespace Android
 				{
 					if (orderUoW == null || orderUoW.Root == null)
 						return null;
-					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					OrderDTO orderDTO = new OrderDTO(routeListItem);
-					SmsPaymentStatus? smsPaymentStatus = OrderSingletonRepository.GetInstance().GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
+					SmsPaymentStatus? smsPaymentStatus = _orderRepository.GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
 					if(smsPaymentStatus == null) {
 						orderDTO.PaymentStatus = PaymentStatus.None;
 					} else {
@@ -276,7 +286,7 @@ namespace Android
 					if (!CheckAuth(authKey))
 						return null;
 
-					var track = TrackRepository.GetTrackForRouteList(uow, routeListId);
+					var track = _trackRepository.GetTrackByRouteListId(uow, routeListId);
 
 					if (track != null)
 						return track.Id;
@@ -284,7 +294,7 @@ namespace Android
 					track = new Track();
 
 					track.RouteList = uow.GetById<RouteList>(routeListId);
-					track.Driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					track.Driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
 					track.StartDate = DateTime.Now;
 					uow.Save(track);
 					uow.Commit();
@@ -326,7 +336,7 @@ namespace Android
 					if(orderUoW == null || orderUoW.Root == null)
 						return false;
 
-					var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
+					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					if(routeListItem == null)
 						return false;
 
@@ -370,7 +380,7 @@ namespace Android
 				{
 					if (!CheckAuth(uow, authKey))
 						return false;
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
 						return false;
 					driver.AndroidToken = token;
@@ -394,7 +404,7 @@ namespace Android
 				{
 					if (!CheckAuth(uow, authKey))
 						return false;
-					var driver = EmployeeRepository.GetDriverByAuthKey(uow, authKey);
+					var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
 					if (driver == null)
 						return false;
 					driver.AndroidToken = null;
@@ -435,7 +445,7 @@ namespace Android
 						return false;
 					}
 
-					routeList.CompleteRoute(wageParameterService);
+					routeList.CompleteRoute(_wageParameterService, _trackRepository);
 					uow.Save(routeList);
 					uow.Commit();
 					return true;
@@ -451,7 +461,7 @@ namespace Android
 		public bool ServiceStatus()
 		{
 			int activeUoWCount = UowWatcher.GetActiveUoWCount();
-			if(activeUoWCount > parameters.MaxUoWAllowed) {
+			if(activeUoWCount > _parameters.MaxUoWAllowed) {
 				return false;
 			}
 			return true;
@@ -466,7 +476,7 @@ namespace Android
 					return result;
 
 
-				ISmsPaymentService smsPaymentService = smsPaymentChannelFactory.CreateChannel();
+				ISmsPaymentService smsPaymentService = _smsPaymentChannelFactory.CreateChannel();
 				if(smsPaymentService == null) {
 					logger.Warn($"Невозможно получить статус платежа. {nameof(smsPaymentService)} is null");
 					return result;
@@ -502,7 +512,7 @@ namespace Android
 
 		public PaymentInfoDTO CreateOrderPayment(string authKey, int orderId, string phoneNumber)
 		{
-			ISmsPaymentService smsPaymentService = smsPaymentChannelFactory.CreateChannel();
+			ISmsPaymentService smsPaymentService = _smsPaymentChannelFactory.CreateChannel();
 			if(smsPaymentService == null) {
 				logger.Warn($"Невозможно создать платеж для заказа {orderId}. {nameof(smsPaymentService)} is null");
 				return new PaymentInfoDTO(orderId, PaymentStatus.None);
@@ -561,7 +571,7 @@ namespace Android
 						logger.Warn($"Водителю ({rl.Driver.GetPersonNameWithInitials()}. Id:{rl.Driver.Id}) не присвоен Token для уведомлений.");
 						return false;
 					}
-					driverNotificator.SendOrderPaymentStatusChangedMessage(token, "Веселый водовоз", "Обновлен статус платежа");
+					_driverNotificator.SendOrderPaymentStatusChangedMessage(token, "Веселый водовоз", "Обновлен статус платежа");
 				}
 				return true;
 			}

@@ -14,6 +14,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
     public class CounterpartyFilesViewModel : EntityWidgetViewModelBase<Domain.Client.Counterparty>
     {
         private readonly IFilePickerService filePicker;
+        private readonly IUserRepository _userRepository;
         private bool readOnly;
 
         public virtual bool ReadOnly
@@ -22,10 +23,16 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
             set => SetField(ref readOnly, value, () => ReadOnly);
         }
 
-        public CounterpartyFilesViewModel(Domain.Client.Counterparty entity, IUnitOfWork uow, IFilePickerService filePicker, ICommonServices commonServices) 
+        public CounterpartyFilesViewModel(
+	        Domain.Client.Counterparty entity,
+	        IUnitOfWork uow,
+	        IFilePickerService filePicker,
+	        ICommonServices commonServices,
+	        IUserRepository userRepository) 
             : base(entity, commonServices)
         {
             this.filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             UoW = uow;
             CreateCommands();
         }
@@ -88,15 +95,19 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
             OpenItemCommand = new DelegateCommand<CounterpartyFile>(
                 (file) => {
 
-                    var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
+                    var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
 
                     if (string.IsNullOrWhiteSpace(vodUserTempDir))
-                        return;
+                    {
+	                    return;
+                    }
 
                     var tempFilePath = Path.Combine(Path.GetTempPath(), vodUserTempDir, file.FileStorageId);
 
                     if (!File.Exists(tempFilePath))
-                        File.WriteAllBytes(tempFilePath, file.ByteFile);
+                    {
+	                    File.WriteAllBytes(tempFilePath, file.ByteFile);
+                    }
 
                     var process = new Process();
                     process.StartInfo.FileName = Path.Combine(vodUserTempDir, file.FileStorageId);

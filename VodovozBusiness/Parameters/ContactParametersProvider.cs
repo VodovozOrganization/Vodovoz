@@ -10,7 +10,7 @@ namespace Vodovoz.Parameters
 
 		static ContactParametersProvider()
 		{	
-			parameters = new BaseParametersProvider();
+			parameters = new BaseParametersProvider(new ParametersProvider());
 			Instance = new ContactParametersProvider();
 		}
 

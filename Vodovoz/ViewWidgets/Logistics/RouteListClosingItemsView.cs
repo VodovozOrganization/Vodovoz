@@ -11,18 +11,23 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -37,7 +42,7 @@ namespace Vodovoz
 		private IList<RouteColumn> columnsInfo {
 			get {
 				if(_columnsInfo == null && UoW != null)
-					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns(UoW);
+					_columnsInfo = _routeColumnRepository.ActiveColumns(UoW);
 				return _columnsInfo;
 			}
 		}
@@ -291,7 +296,7 @@ namespace Vodovoz
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
 			if (item.WasTransfered) {
-				var transferedFrom = Repository.Logistics.RouteListItemRepository.GetTransferedFrom (UoW, item);
+				var transferedFrom = _routeListItemRepository.GetTransferedFrom(UoW, item);
 				if (transferedFrom != null)
 					return String.Format ("Заказ из МЛ №{0} водителя {1}.",
 										 transferedFrom.RouteList.Id,
@@ -307,7 +312,7 @@ namespace Vodovoz
 		{
 			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path)) as RouteListItem;
 
-			node.CashierCommentAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			node.CashierCommentAuthor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if (node.CashierCommentCreateDate.HasValue)
 				node.CashierCommentLastUpdate = DateTime.Now.Date;
