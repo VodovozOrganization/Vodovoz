@@ -2974,7 +2974,6 @@ namespace Vodovoz
 			this.toggleEquipment.Hide();
 			this.toggleService.Hide();
 			this.labelProxyInfo.Hide();
-			this.ycheckPaymentBySms.Hide();
 			this.lblTareReturned.Hide();
 			this.entryTareReturned.Hide();
 			this.hboxReasons.Hide();
