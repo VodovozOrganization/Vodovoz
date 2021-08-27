@@ -12,7 +12,7 @@ using Vodovoz.EntityRepositories.Sectors;
 
 namespace Vodovoz.Domain.Sectors
 {
-	public class DeliveryPointSectorVersion : PropertyChangedBase, IDomainObject
+	public class DeliveryPointSectorVersion : PropertyChangedBase, IDomainObject, ICloneable
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		public virtual int Id { get; set; }
@@ -143,6 +143,10 @@ namespace Vodovoz.Domain.Sectors
 				return false;
 			}
 
+			if(Sector != foundSectorVersion.Sector)
+			{
+				var newDeliveryPointSectorVersions = new DeliveryPointSectorVersion();
+			}
 			Sector = foundSectorVersion.Sector;
 			return true;
 		}
@@ -197,6 +201,20 @@ namespace Vodovoz.Domain.Sectors
 
 			DistanceFromBaseMeters = result.Routes[0].TotalDistance;
 			return true;
+		}
+
+		public virtual object Clone()
+		{
+			return new DeliveryPointSectorVersion
+			{
+				StartDate = DateTime.Today.AddDays(1),
+				Sector = Sector,
+				DeliveryPoint = DeliveryPoint,
+				Latitude = Latitude,
+				Longitude = Longitude,
+				DistanceFromBaseMeters = DistanceFromBaseMeters,
+				Status = Status,
+			};
 		}
 	}
 }

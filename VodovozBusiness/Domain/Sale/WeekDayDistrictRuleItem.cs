@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Sectors;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.Domain.Sale
         Nominative = "стоимость доставки дня недели района")]
     public class WeekDayDistrictRuleItem : DistrictRuleItemBase
     {
-        public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}";
+        public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}, на {WeekDay.GetEnumTitle()}";
         
         SectorWeekDayDeliveryRuleVersion _sectorWeekDayDeliveryRuleVersion;
         [Display(Name = "Район доставки")]

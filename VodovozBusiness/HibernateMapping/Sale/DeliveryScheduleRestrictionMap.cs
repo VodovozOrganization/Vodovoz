@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Sale
     {
         public DeliveryScheduleRestrictionMap()
         {
-            Table("delivery_schedule_restrictions");
+            Table("sector_delivery_schedule_restrictions");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 

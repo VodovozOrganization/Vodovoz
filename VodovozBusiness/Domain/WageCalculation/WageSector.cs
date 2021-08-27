@@ -53,5 +53,10 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		#endregion Вычисляемые
+
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
@@ -71,16 +72,13 @@ namespace Vodovoz.Domain.Sectors
 		{
 			
 			var weekDayDeliveryRuleClone = new List<WeekDayDistrictRuleItem>();
-			foreach(var item in WeekDayDistrictRules)
-				weekDayDeliveryRuleClone.Add(item.Clone() as WeekDayDistrictRuleItem);
+			WeekDayDistrictRules.ForEach(x => weekDayDeliveryRuleClone.Add(x.Clone() as WeekDayDistrictRuleItem));
 
 			return new SectorWeekDayDeliveryRuleVersion
 			{
 				Sector = Sector,
 				WeekDayDistrictRules = weekDayDeliveryRuleClone,
-				StartDate = StartDate,
-				Status = Status,
-				EndDate = EndDate
+				Status = SectorsSetStatus.Draft
 			};
 		}
 

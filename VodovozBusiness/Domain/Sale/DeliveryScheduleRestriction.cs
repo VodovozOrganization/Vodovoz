@@ -54,7 +54,8 @@ namespace Vodovoz.Domain.Sale
             var newDeliveryScheduleRestriction = new DeliveryScheduleRestriction {
                 AcceptBefore = AcceptBefore,
                 DeliverySchedule = DeliverySchedule,
-                WeekDay = WeekDay
+                WeekDay = WeekDay,
+                SectorWeekDayScheduleVersion = SectorWeekDayScheduleVersion
             };
             return newDeliveryScheduleRestriction;
         }

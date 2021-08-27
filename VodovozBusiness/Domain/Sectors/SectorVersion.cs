@@ -112,27 +112,20 @@ namespace Vodovoz.Domain.Sectors
 
 		public virtual object Clone()
 		{
-			var wageSector = new WageSector{Name = WageSector.Name, IsArchive = WageSector.IsArchive};
-			
-			var geographicGroup = new GeographicGroup {Name = GeographicGroup.Name};
-			geographicGroup.SetСoordinates(GeographicGroup.BaseLatitude, GeographicGroup.BaseLongitude);
-
-			var polygonString = JsonConvert.SerializeObject(Polygon);
-			var copyPolygon = JsonConvert.DeserializeObject<Geometry>(polygonString);
-
-			var tariff = new TariffZone {Name = TariffZone.Name};
+			var polygonClone = Polygon.Copy();
 
 			return new SectorVersion
 			{
 				Status = SectorsSetStatus.Draft,
 				SectorName = SectorName,
-				StartDate = StartDate,
-				EndDate = EndDate,
-				WageSector = wageSector,
-				GeographicGroup = geographicGroup,
-				Polygon = copyPolygon,
-				TariffZone = tariff,
-				Sector = Sector
+				WageSector = WageSector,
+				GeographicGroup = GeographicGroup,
+				Polygon = polygonClone,
+				TariffZone = TariffZone,
+				Sector = Sector,
+				MinBottles = MinBottles,
+				WaterPrice = WaterPrice,
+				PriceType = PriceType
 			};
 		}
 

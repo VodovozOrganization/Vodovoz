@@ -40,7 +40,8 @@ namespace Vodovoz.Domain.Logistic
                     yield return new ValidationResult ("Такое время уже присутствует в справочнике",
                         new[] { this.GetPropertyName (o => o.Time) });
             }
-           
         }
+
+        public override string ToString() => $"Прием до {Name}";
     }
 }

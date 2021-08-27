@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
@@ -51,7 +52,7 @@ namespace Vodovoz.Domain.Sectors
 
 		private GenericObservableList<DeliveryScheduleRestriction> _observableSectorSchedules;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableSectorSchedules =>
+		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableDeliveryScheduleRestriction =>
 			_observableSectorSchedules ?? (_observableSectorSchedules =
 				new GenericObservableList<DeliveryScheduleRestriction>(SectorSchedules));
 
@@ -70,16 +71,13 @@ namespace Vodovoz.Domain.Sectors
 		public virtual object Clone()
 		{
 			var sectorSchedulesClone = new List<DeliveryScheduleRestriction>();
-			foreach(var schedule in SectorSchedules)
-				sectorSchedulesClone.Add(schedule.Clone() as DeliveryScheduleRestriction);
+			SectorSchedules.ForEach(x => sectorSchedulesClone.Add(x.Clone() as DeliveryScheduleRestriction));
 			
 			return new SectorWeekDayScheduleVersion
 			{
 				Sector = Sector,
 				SectorSchedules = sectorSchedulesClone,
-				StartDate = StartDate,
-				Status = Status,
-				EndDate = EndDate
+				Status = SectorsSetStatus.Draft
 			};
 		}
 
@@ -89,7 +87,7 @@ namespace Vodovoz.Domain.Sectors
 			{
 				yield return new ValidationResult($"Необходимо поставить дату активации", new[] {nameof(StartDate)});
 			}
-			if(ObservableSectorSchedules.Any(i => i.AcceptBefore == null))
+			if(ObservableDeliveryScheduleRestriction.Any(i => i.AcceptBefore == null))
 			{
 				yield return new ValidationResult(
 					$"Для графиков доставки для района \"{Sector.Id}\" должно быть указано время приема до");

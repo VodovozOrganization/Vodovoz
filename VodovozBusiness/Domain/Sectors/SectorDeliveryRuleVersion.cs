@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Sectors
 		[Display(Name = "Правила и цены доставки района")]
 		public virtual IList<CommonDistrictRuleItem> CommonDistrictRuleItems {
 			get => _commonDistrictRuleItems;
-			set => SetField(ref _commonDistrictRuleItems, value, () => CommonDistrictRuleItems);
+			set => SetField(ref _commonDistrictRuleItems, value);
 		}
 
 		private GenericObservableList<CommonDistrictRuleItem> _observableCommonDistrictRuleItems;
@@ -71,10 +71,8 @@ namespace Vodovoz.Domain.Sectors
 			CommonDistrictRuleItems.ForEach(x => commonDistrictRuleItemsClone.Add(x.Clone() as CommonDistrictRuleItem));
 			return new SectorDeliveryRuleVersion
 			{
-				StartDate = StartDate,
-				EndDate = EndDate,
 				Sector = Sector,
-				Status = Status,
+				Status = SectorsSetStatus.Draft,
 				CommonDistrictRuleItems = commonDistrictRuleItemsClone
 			};
 		}

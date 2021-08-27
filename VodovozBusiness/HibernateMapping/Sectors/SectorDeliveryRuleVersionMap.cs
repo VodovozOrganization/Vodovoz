@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Sectors
 	{
 		public SectorDeliveryRuleVersionMap()
 		{
-			Table("sector_delivery_rule_versions");
+			Table("sector_delivery_rule_version");
 			
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

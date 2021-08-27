@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Sale
 	{
 		public DistrictRuleItemBaseMap()
 		{
-			Table("district_rule_items");
+			Table("sectors_rule_items");
 
 			DiscriminateSubClassesOnColumn("rule_type").AlwaysSelectWithValue();
 			

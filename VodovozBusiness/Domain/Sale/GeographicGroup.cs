@@ -82,5 +82,10 @@ namespace Vodovoz.Domain.Sale
 					}
 				);
 		}
+
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 }

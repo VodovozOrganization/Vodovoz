@@ -91,6 +91,8 @@ namespace Vodovoz.Domain.Logistic
 				IsArchive = IsArchive
 			};
 		}
+
+		public override string ToString() => $"Доставка {DeliveryTime}";
 	}
 }
 

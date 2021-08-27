@@ -22,7 +22,8 @@ namespace Vodovoz.Domain.Sale
 		{
 			var newCommonDistrictRuleItem = new CommonDistrictRuleItem {
 				Price = Price,
-				DeliveryPriceRule = DeliveryPriceRule
+				DeliveryPriceRule = DeliveryPriceRule,
+				SectorDeliveryRuleVersion = SectorDeliveryRuleVersion
 			};
 			return newCommonDistrictRuleItem;
 		}

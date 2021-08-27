@@ -66,7 +66,7 @@ namespace Vodovoz.Domain.Sectors
 
 		private GenericObservableList<SectorWeekDayScheduleVersion> _observableSectorWeekDayRulesVersions;
 
-		public virtual GenericObservableList<SectorWeekDayScheduleVersion> ObservableSectorWeekDaySchedulesVersions =>
+		public virtual GenericObservableList<SectorWeekDayScheduleVersion> ObservableSectorWeekDayScheduleVersions =>
 			_observableSectorWeekDayRulesVersions ??
 			(_observableSectorWeekDayRulesVersions = new GenericObservableList<SectorWeekDayScheduleVersion>(SectorWeekDaySchedulesVersions));
 		
@@ -102,20 +102,11 @@ namespace Vodovoz.Domain.Sectors
 		{
 			if(activationTime.HasValue)
 				return ObservableSectorVersions.SingleOrDefault(x =>
-					x.Status == SectorsSetStatus.Active && x.StartDate >= activationTime &&
+					x.Status == SectorsSetStatus.Active && x.StartDate <= activationTime &&
 					(x.EndDate == null || x.EndDate <= activationTime.Value.Date.AddDays(1)));
 			return ObservableSectorVersions.SingleOrDefault(x =>
-					x.Status == SectorsSetStatus.Active && x.StartDate >= DateTime.Today.Date &&
+					x.Status == SectorsSetStatus.Active && x.StartDate <= DateTime.Today.Date &&
 					(x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
-			// 	get => _activeSectorVersion;
-			// set
-			// {
-			// 	var active = ObservableSectorVersions.Single(x => x.Status == SectorsSetStatus.Active);
-			// 	if(active != null)
-			// 		_activeSectorVersion = active;
-			// 	else
-			// 		_activeSectorVersion = null;
-			// }
 		}
 		
 		private SectorDeliveryRuleVersion _activeDeliveryRuleVersion;
@@ -124,9 +115,9 @@ namespace Vodovoz.Domain.Sectors
 		{
 			if(activationTime.HasValue)
 				return ObservableSectorDeliveryRuleVersions.SingleOrDefault(x =>
-					x.StartDate >= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
 			return ObservableSectorDeliveryRuleVersions.SingleOrDefault(x =>
-				x.StartDate >= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 		
 		private SectorWeekDayScheduleVersion _activeWeekDayScheduleVersion;
@@ -134,10 +125,10 @@ namespace Vodovoz.Domain.Sectors
 		public virtual SectorWeekDayScheduleVersion GetActiveWeekDayScheduleVersion(DateTime? activationTime = null)
 		{
 			if(activationTime.HasValue)
-				return ObservableSectorWeekDaySchedulesVersions.SingleOrDefault(x =>
-					x.StartDate >= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
-			return ObservableSectorWeekDaySchedulesVersions.SingleOrDefault(x =>
-				x.StartDate >= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+				return ObservableSectorWeekDayScheduleVersions.SingleOrDefault(x =>
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+			return ObservableSectorWeekDayScheduleVersions.SingleOrDefault(x =>
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 		
 		private SectorWeekDayDeliveryRuleVersion _activeWeekDayDeliveryRuleVersion;
@@ -146,9 +137,9 @@ namespace Vodovoz.Domain.Sectors
 		{
 			if(activationTime.HasValue)
 				return ObservableSectorWeekDayDeliveryRuleVersions.SingleOrDefault(x =>
-					x.StartDate >= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
 			return ObservableSectorWeekDayDeliveryRuleVersions.SingleOrDefault(x =>
-				x.StartDate >= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 		
 		private DeliveryPointSectorVersion _activeDeliveryPointVersion;
@@ -157,9 +148,9 @@ namespace Vodovoz.Domain.Sectors
 		{
 			if(activationTime.HasValue)
 				return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
-					x.StartDate >= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
 			return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
-				x.StartDate >= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 		#endregion
 

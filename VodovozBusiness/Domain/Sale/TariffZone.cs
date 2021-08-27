@@ -18,5 +18,10 @@ namespace Vodovoz.Domain.Sale
 			get => name;
 			set => SetField(ref name, value, () => Name);
 		}
+
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 }
