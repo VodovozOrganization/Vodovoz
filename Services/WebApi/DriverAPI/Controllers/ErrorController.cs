@@ -30,7 +30,7 @@ namespace DriverAPI.Controllers
 		{
 			var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
 			var exception = context?.Error;
-			var code = 500;
+			var code = StatusCodes.Status500InternalServerError;
 
 			if (exception != null)
 			{
@@ -43,9 +43,9 @@ namespace DriverAPI.Controllers
 
 			if(exception is UnauthorizedAccessException)
 			{
-				code = 403;
+				code = StatusCodes.Status401Unauthorized;
 			}
-
+			
 			Response.StatusCode = code;
 
 			return new ErrorResponseDto(exception.Message);
