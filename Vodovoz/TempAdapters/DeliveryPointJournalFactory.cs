@@ -60,9 +60,9 @@ namespace Vodovoz.TempAdapters
 					new HousesDataLoader(OsmWorker.GetOsmService()),
 					new NomenclatureSelectorFactory(),
 					new DeliveryPointRepository(),
+					new SectorsRepository(),
 					new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 						new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-					new SectorsRepository(),
 					_deliveryPointJournalFilter
 					?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
 					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));

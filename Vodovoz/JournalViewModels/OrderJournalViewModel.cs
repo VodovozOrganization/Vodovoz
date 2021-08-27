@@ -201,6 +201,7 @@ namespace Vodovoz.JournalViewModels
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Sector sectorAlias = null;
 			SectorVersion sectorVersionAlias = null;
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
@@ -211,8 +212,10 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias);
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointAlias.Id == deliveryPointSectorVersionAlias.DeliveryPoint.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => sectorVersionAlias.GeographicGroup, () => geographicalGroupAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{

@@ -133,8 +133,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				_citiesLoader, _streetsLoader, _housesLoader,
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
-				_deliveryPointRepository,
 				_sectorsRepository,
+				_deliveryPointRepository,
 				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 
 		protected override Func<DeliveryPointByClientJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>

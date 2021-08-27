@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			IDeliveryPointRepository deliveryPointRepository,
 			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: this(userRepository, gtkTabsOpener, phoneRepository, contactsParameters, citiesDataLoader, streetsDataLoader,
-				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController, deliveryPointRepository,
+				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController, deliveryPointRepository, sectorsRepository,
 				uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			Entity.Counterparty = client;

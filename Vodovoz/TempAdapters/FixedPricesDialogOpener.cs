@@ -32,8 +32,8 @@ namespace Vodovoz.TempAdapters
 		        new NomenclatureSelectorFactory(),
 		        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 			        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-				new SectorsRepository(),
 		        new DeliveryPointRepository(),
+		        new SectorsRepository(),
 		        EntityUoWBuilder.ForOpen(deliveryPointId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
             TDIMain.MainNotebook.AddTab(dpViewModel);
             dpViewModel.OpenFixedPrices();

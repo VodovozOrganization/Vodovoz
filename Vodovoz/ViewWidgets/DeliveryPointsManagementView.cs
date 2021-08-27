@@ -95,8 +95,8 @@ namespace Vodovoz
 				new NomenclatureSelectorFactory(),
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)))),
-				new DeliveryPointRepository(),
 				new SectorsRepository(),
+				new DeliveryPointRepository(),
 				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
