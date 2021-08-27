@@ -21,17 +21,16 @@ using QS.Project.DB;
 using System;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
-using QSProjectsLib;
-using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.Stock;
 
 namespace DriverAPI
 {
@@ -243,7 +242,7 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 
 			// Конвертеры
-			foreach (var type in typeof(Library.AssemblyFinder)
+			foreach(var type in typeof(Library.AssemblyFinder)
 									.Assembly
 									.GetTypes()
 									.Where(type => type.IsClass)

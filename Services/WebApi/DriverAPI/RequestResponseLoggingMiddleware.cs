@@ -61,7 +61,8 @@ namespace DriverAPI
 												   0,
 												   readChunkBufferLength);
 				textWriter.Write(readChunk, 0, readChunkLength);
-			} while(readChunkLength > 0);
+			}
+			while(readChunkLength > 0);
 
 			return textWriter.ToString();
 		}
