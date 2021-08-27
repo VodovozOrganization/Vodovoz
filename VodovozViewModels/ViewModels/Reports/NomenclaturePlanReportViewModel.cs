@@ -448,8 +448,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.Inner.JoinAlias(() => subQueryEmployeeWageParameter.WageParameterItem, () => subQuerySalesPlanWageParameterItem)
 				.Where(() => subQuerySalesPlanWageParameterItem.WageParameterItemType == WageParameterItemTypes.SalesPlan)
 				.Where(() => subQueryEmployeeWageParameter.Employee.Id == employeeWageParameterAlias.Employee.Id)
-				.Where(() => subQueryEmployeeWageParameter.StartDate <= EndDate && 
-				             (subQueryEmployeeWageParameter.EndDate == null || subQueryEmployeeWageParameter.EndDate >= StartDate))
+				.Where(() => subQueryEmployeeWageParameter.StartDate <= EndDate &&
+							 (subQueryEmployeeWageParameter.EndDate == null || subQueryEmployeeWageParameter.EndDate >= StartDate))
 				.SelectList(list => list
 					.Select(() => subQuerySalesPlanWageParameterItem.SalesPlan.Id))
 				.OrderBy(x => x.EndDate.Coalesce(DateTime.MaxValue)).Desc
@@ -487,9 +487,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				foreach(var column in _selectedReportColumns)
 				{
 					decimal plan = GetSalesPlan(column, salesPlan);
-					int fact = (int) GetSalesFact(column, employee);
-					decimal percent = plan > 0 ? fact * 100 / plan : 100;
-					row.Columns.AddRange(new List<decimal> { fact, decimal.Round(plan, 2), decimal.Round(percent, 2) });
+					decimal fact = GetSalesFact(column, employee);
+					decimal percent = plan > 0 ? fact * 100 / decimal.Round(plan, 2) : 100;
+					row.Columns.AddRange(new List<decimal> { (int)fact, decimal.Round(plan, 2), decimal.Round(percent, 2) });
 				}
 
 				rows.Add(row);
