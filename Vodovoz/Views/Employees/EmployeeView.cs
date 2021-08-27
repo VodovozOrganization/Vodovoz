@@ -281,7 +281,8 @@ namespace Vodovoz.Views.Employees
 			btnAddDocument.Clicked += OnButtonAddDocumentClicked;
 			btnEditDocument.Clicked += OnButtonEditDocumentClicked;
 			btnRemoveDocument.Clicked += (s, e) => ViewModel.RemoveEmployeeDocumentsCommand.Execute();
-			
+
+			btnAddDocument.Sensitive = ViewModel.CanAddEmployeeDocument;
 			btnEditDocument.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditEmployeeDocument, w => w.Sensitive).InitializeFromSource();
 			btnRemoveDocument.Binding

@@ -183,6 +183,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
 
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -255,6 +256,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				                                                                  _baseParametersProvider));
 
 		public bool CanReadEmployeeDocuments { get; private set; }
+		public bool CanAddEmployeeDocument { get; private set; }
 		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }
 		public bool CanManageOfficeWorkers { get; private set; }
