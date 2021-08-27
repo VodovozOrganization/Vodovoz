@@ -18,7 +18,7 @@ namespace Vodovoz.ReportsParameters.Store
 	public partial class ProductionRequestReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
-		private IEmployeeRepository _employeeRepository;
+		private IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public ProductionRequestReport(IEmployeeRepository employeeRepository)
 		{
