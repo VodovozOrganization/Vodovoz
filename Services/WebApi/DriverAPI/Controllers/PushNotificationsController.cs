@@ -16,10 +16,10 @@ namespace DriverAPI.Controllers
 	public class PushNotificationsController : ControllerBase
 	{
 		private readonly ILogger<PushNotificationsController> _logger;
-		private readonly UserManager<IdentityUser> userManager;
-		private readonly IRouteListModel aPIRouteListData;
-		private readonly IFCMAPIHelper iFCMAPIHelper;
-		private readonly IEmployeeModel employeeData;
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly IRouteListModel _aPIRouteListData;
+		private readonly IFCMAPIHelper _iFCMAPIHelper;
+		private readonly IEmployeeModel _employeeData;
 
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
@@ -29,10 +29,10 @@ namespace DriverAPI.Controllers
 			IEmployeeModel employeeData)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
-			this.iFCMAPIHelper = iFCMAPIHelper ?? throw new ArgumentNullException(nameof(iFCMAPIHelper));
-			this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
+			_iFCMAPIHelper = iFCMAPIHelper ?? throw new ArgumentNullException(nameof(iFCMAPIHelper));
+			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 		}
 
 		/// <summary>
@@ -43,9 +43,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/EnablePushNotifications")]
 		public void EnablePushNotifications([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
-			var user = userManager.GetUserAsync(User).Result;
-			var driver = employeeData.GetByAPILogin(user.UserName);
-			employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
 		}
 
 		/// <summary>
@@ -55,9 +55,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/DisablePushNotifications")]
 		public void DisablePushNotifications()
 		{
-			var user = userManager.GetUserAsync(User).Result;
-			var driver = employeeData.GetByAPILogin(user.UserName);
-			employeeData.DisablePushNotifications(driver);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+			_employeeData.DisablePushNotifications(driver);
 		}
 
 		/// <summary>
@@ -69,9 +69,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
-			var token = aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 			_logger.LogInformation($"Sending PUSH message of status changed for order: { orderId }");
-			await iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа { orderId }");
+			await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа { orderId }");
 		}
 	}
 }
