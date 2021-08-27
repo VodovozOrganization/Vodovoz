@@ -78,7 +78,7 @@ namespace DriverAPI.Controllers
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			_logger.LogInformation($"Смена типа оплаты заказа: { orderId }");
+			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType } на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime }");
 
 			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 

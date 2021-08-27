@@ -5,18 +5,16 @@ using QS.Project.Services;
 using System.Collections.Generic;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
@@ -43,18 +41,12 @@ namespace Vodovoz.TempAdapters
 		{
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-					new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
-
-			OrderJournalFilterViewModel orderJournalFilterViewModel = new OrderJournalFilterViewModel();
+			var orderJournalFilterViewModel = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
 				() => new OrderJournalViewModel(
@@ -62,17 +54,16 @@ namespace Vodovoz.TempAdapters
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					VodovozGtkServicesConfig.EmployeeService,
-					nomenclatureSelectorFactory,
-					counterpartySelectorFactory,
 					nomenclatureRepository,
 					userRepository,
 					new OrderSelectorFactory(),
 					new EmployeeJournalFactory(),
-					new CounterpartyJournalFactory(),
+					counterpartyJournalFactory,
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new GtkTabsOpener(),
 					new UndeliveredOrdersJournalOpener(),
+					new NomenclatureSelectorFactory(),
 					new UndeliveredOrdersRepository()
 				)
 			);

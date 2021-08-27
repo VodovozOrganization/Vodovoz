@@ -126,6 +126,8 @@ using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -299,6 +301,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesBalanceSummaryViewModel, WarehousesBalanceSummaryView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<SalaryByEmployeeJournalFilterViewModel, SalaryByEmployeeFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductGroupJournalFilterViewModel, ProductGroupJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				;
@@ -371,7 +374,7 @@ namespace Vodovoz
 
 			#region База
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-			builder.RegisterType<BaseParametersProvider>().AsSelf();
+			builder.RegisterType<BaseParametersProvider>().As<ITerminalNomenclatureProvider>().AsSelf();
 			#endregion
 
 			#region Сервисы
@@ -403,6 +406,7 @@ namespace Vodovoz
 			builder.RegisterType<ParametersProvider>().As<IParametersProvider>();
 			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
+			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 
 			#endregion
 			

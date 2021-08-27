@@ -4,7 +4,6 @@ using System.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QS.Services;
@@ -15,13 +14,13 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -109,10 +108,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			ISectorsRepository sectorsRepository,
+			
+			IDeliveryPointRepository deliveryPointRepository,
 			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: this(userRepository, gtkTabsOpener, phoneRepository, contactsParameters, citiesDataLoader, streetsDataLoader,
-				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController, sectorsRepository, uowBuilder, unitOfWorkFactory,
-				commonServices)
+				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController, deliveryPointRepository,
+				uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			Entity.Counterparty = client;
 		}
@@ -127,6 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			IHousesDataLoader housesDataLoader,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
+			IDeliveryPointRepository deliveryPointRepository,
 			ISectorsRepository sectorsRepository,
 			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
@@ -164,7 +166,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			CanSetFreeDelivery = commonServices.CurrentPermissionService.ValidatePresetPermission("can_set_free_delivery");
 			CanEditOrderLimits = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
 
-			DeliveryPointCategories = UoW.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
+			DeliveryPointCategories =
+				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
+				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				var activeVersion = Entity.GetActiveVersion();

@@ -28,7 +28,7 @@ namespace Vodovoz.TempAdapters
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
-		private readonly EmployeeFilterViewModel _employeeJournalFilter;
+		private EmployeeFilterViewModel _employeeJournalFilter;
 		private IAuthorizationServiceFactory _authorizationServiceFactory;
 		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
 		private IEmployeeJournalFactory _employeeJournalFactory;
@@ -78,6 +78,11 @@ namespace Vodovoz.TempAdapters
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_warehouseRepository = new WarehouseRepository();
 			_routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		}
+
+		public void SetEmployeeFilterViewModel(EmployeeFilterViewModel filter)
+		{
+			_employeeJournalFilter = filter;
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()

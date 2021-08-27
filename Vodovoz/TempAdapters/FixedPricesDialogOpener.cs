@@ -8,6 +8,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Parameters;
@@ -32,8 +33,9 @@ namespace Vodovoz.TempAdapters
 		        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
 			        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
 				new SectorsRepository(),
-				EntityUoWBuilder.ForOpen(deliveryPointId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-				TDIMain.MainNotebook.AddTab(dpViewModel);
+		        new DeliveryPointRepository(),
+		        EntityUoWBuilder.ForOpen(deliveryPointId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+            TDIMain.MainNotebook.AddTab(dpViewModel);
             dpViewModel.OpenFixedPrices();
         }
     }

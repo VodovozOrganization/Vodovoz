@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 	public partial class CounterpartyTalkViewModel : TalkViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
-		private readonly RouteListRepository _routedListRepository;
+		private readonly IRouteListRepository _routedListRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			RouteListRepository routedListRepository,
+			IRouteListRepository routedListRepository,
 			IInteractiveService interactiveService,
 			IOrderParametersProvider orderParametersProvider, 
 			MangoManager manager,
@@ -192,10 +192,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-					new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
-
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
@@ -204,7 +200,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},
 				//Autofac: ICommonServices
-				{"nomenclatureSelectorFactory", nomenclatureSelectorFactory},
 				//Autofac: IUserRepository
 				{"phone", "+7" + ActiveCall.Phone.Number }
 			};

@@ -11,6 +11,7 @@ using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
@@ -33,6 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private readonly ICitiesDataLoader _citiesLoader;
 		private readonly IStreetsDataLoader _streetsLoader;
 		private readonly IHousesDataLoader _housesLoader;
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly ISectorsRepository _sectorsRepository;
@@ -40,8 +42,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		public DeliveryPointByClientJournalViewModel(
 			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
 			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory, NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			ISectorsRepository sectorsRepository,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory, IDeliveryPointRepository deliveryPointRepository,ISectorsRepository sectorsRepository,
+			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			_citiesLoader = citiesLoader ?? throw new ArgumentNullException(nameof(citiesLoader));
 			_streetsLoader = streetsLoader ?? throw new ArgumentNullException(nameof(streetsLoader));
 			_housesLoader = housesLoader ?? throw new ArgumentNullException(nameof(housesLoader));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_nomenclatureFixedPriceController = nomenclatureFixedPriceController ??
 			                                    throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
@@ -130,6 +133,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				_citiesLoader, _streetsLoader, _housesLoader,
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
+				_deliveryPointRepository,
 				_sectorsRepository,
 				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 
@@ -139,6 +143,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				_citiesLoader, _streetsLoader, _housesLoader,
 				_nomenclatureSelectorFactory,
 				_nomenclatureFixedPriceController,
+				_deliveryPointRepository,
 				_sectorsRepository,
 				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}

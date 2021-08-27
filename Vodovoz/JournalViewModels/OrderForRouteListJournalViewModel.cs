@@ -138,8 +138,8 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
 
-			if(FilterViewModel.RestrictDeliveryPoint != null) {
-				query.Where(o => o.DeliveryPoint == FilterViewModel.RestrictDeliveryPoint);
+			if(FilterViewModel.DeliveryPoint != null) {
+				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
 			if(FilterViewModel.RestrictStartDate != null) {

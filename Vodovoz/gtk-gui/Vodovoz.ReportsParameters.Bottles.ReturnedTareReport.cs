@@ -8,6 +8,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Table table1;
 
+		private global::Gtk.Button buttonHelp;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkClosedOrdersOnly;
+
 		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryAuthor;
@@ -15,6 +19,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 		private global::Gtk.Label label1;
 
 		private global::Gtk.Label label2;
+
+		private global::Gtk.VSeparator vseparator1;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxDateType;
 
@@ -31,10 +37,40 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(5)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.buttonHelp = new global::Gtk.Button();
+			this.buttonHelp.CanFocus = true;
+			this.buttonHelp.Name = "buttonHelp";
+			this.buttonHelp.UseUnderline = true;
+			this.buttonHelp.Label = global::Mono.Unix.Catalog.GetString("Справка");
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.buttonHelp.Image = w1;
+			this.table1.Add(this.buttonHelp);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonHelp]));
+			w2.LeftAttach = ((uint)(4));
+			w2.RightAttach = ((uint)(5));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.chkClosedOrdersOnly = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkClosedOrdersOnly.CanFocus = true;
+			this.chkClosedOrdersOnly.Name = "chkClosedOrdersOnly";
+			this.chkClosedOrdersOnly.Label = global::Mono.Unix.Catalog.GetString("Закрытые заказы");
+			this.chkClosedOrdersOnly.DrawIndicator = true;
+			this.chkClosedOrdersOnly.UseUnderline = true;
+			this.table1.Add(this.chkClosedOrdersOnly);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.chkClosedOrdersOnly]));
+			w3.TopAttach = ((uint)(2));
+			w3.BottomAttach = ((uint)(3));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
@@ -42,43 +78,52 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.daterangepicker.StartDate = new global::System.DateTime(0);
 			this.daterangepicker.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.daterangepicker);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.daterangepicker]));
-			w1.LeftAttach = ((uint)(2));
-			w1.RightAttach = ((uint)(3));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.daterangepicker]));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entityviewmodelentryAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityviewmodelentryAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryAuthor.Name = "entityviewmodelentryAuthor";
 			this.entityviewmodelentryAuthor.CanEditReference = false;
 			this.table1.Add(this.entityviewmodelentryAuthor);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryAuthor]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryAuthor]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата доставки: ");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Автор:");
 			this.table1.Add(this.label2);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.table1.Add(this.vseparator1);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.vseparator1]));
+			w8.LeftAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(4));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumcomboboxDateType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxDateType.Name = "yenumcomboboxDateType";
@@ -87,16 +132,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.yenumcomboboxDateType.UseShortTitle = false;
 			this.yenumcomboboxDateType.DefaultFirst = false;
 			this.table1.Add(this.yenumcomboboxDateType);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboboxDateType]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboboxDateType]));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.btnCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.btnCreateReport.CanFocus = true;
@@ -104,10 +149,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.btnCreateReport.UseUnderline = true;
 			this.btnCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.btnCreateReport);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnCreateReport]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnCreateReport]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

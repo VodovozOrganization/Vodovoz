@@ -141,6 +141,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					.Select(doc => doc.Id).OrderBy(doc => doc.CreationDate).Desc.Take(1);
 				var giveoutQuery = QueryOver.Of(() => giveoutAlias).WithSubquery.WhereProperty(giveout => giveout.Id).Eq(baseQuery)
 					.Select(doc => doc.Driver.Id);
+
 				if(relation == DriverTerminalRelation.WithTerminal)
 				{
 					query.WithSubquery.WhereProperty(e => e.Id).In(giveoutQuery);
@@ -150,7 +151,82 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 					query.WithSubquery.WhereProperty(e => e.Id).NotIn(giveoutQuery);
 				}
 			}
-			
+
+			if(FilterViewModel?.Subdivision != null)
+			{
+				query.Where(e => e.Subdivision.Id == FilterViewModel.Subdivision.Id);
+			}
+
+			if(FilterViewModel?.DriverOf != null)
+			{
+				query.Where(e => e.DriverOf == FilterViewModel.DriverOf);
+			}
+
+			if(FilterViewModel?.RegistrationType != null)
+			{
+				query.Where(e => e.Registration == FilterViewModel.RegistrationType);
+			}
+
+			if(FilterViewModel?.HiredDatePeriodStart != null)
+			{
+				query.Where(e => e.DateHired >= FilterViewModel.HiredDatePeriodStart);
+			}
+
+			if(FilterViewModel?.HiredDatePeriodEnd != null)
+			{
+				query.Where(e => e.DateHired <= FilterViewModel.HiredDatePeriodEnd);
+			}
+
+			if(FilterViewModel?.FirstDayOnWorkStart != null)
+			{
+				query.Where(e => e.FirstWorkDay >= FilterViewModel.FirstDayOnWorkStart);
+			}
+
+			if(FilterViewModel?.FirstDayOnWorkEnd != null)
+			{
+				query.Where(e => e.FirstWorkDay <= FilterViewModel.FirstDayOnWorkEnd);
+			}
+
+			if(FilterViewModel?.FiredDatePeriodStart != null)
+			{
+				query.Where(e => e.DateFired >= FilterViewModel.FiredDatePeriodStart);
+			}
+
+			if(FilterViewModel?.FiredDatePeriodEnd != null)
+			{
+				query.Where(e => e.DateFired <= FilterViewModel.FiredDatePeriodEnd);
+			}
+
+			if(FilterViewModel?.SettlementDateStart != null)
+			{
+				query.Where(e => e.DateCalculated >= FilterViewModel.SettlementDateStart);
+			}
+
+			if(FilterViewModel?.SettlementDateEnd != null)
+			{
+				query.Where(e => e.DateCalculated <= FilterViewModel.SettlementDateEnd);
+			}
+
+			if(FilterViewModel?.IsVisitingMaster ?? false)
+			{
+				query.Where(e => e.VisitingMaster);
+			}
+
+			if(FilterViewModel?.IsDriverForOneDay ?? false)
+			{
+				query.Where(e => e.IsDriverForOneDay);
+			}
+
+			if(FilterViewModel?.IsChainStoreDriver ?? false)
+			{
+				query.Where(e => e.IsChainStoreDriver);
+			}
+
+			if(FilterViewModel?.IsRFCitizen ?? false)
+			{
+				query.Where(e => e.IsRussianCitizen);
+			}
+
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
 				() => employeeAlias.LastName,

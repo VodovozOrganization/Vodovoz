@@ -32,11 +32,12 @@ namespace Vodovoz.Parameters
 				throw new ArgumentNullException(nameof(parameterName));
 			}
 
-			if(!_parameters.TryGetValue(parameterName, out var parameter))
+			if(!ContainsParameter(parameterName))
 			{
 				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
 			}
 
+			var parameter = _parameters[parameterName];
 			if(parameter.IsExpired)
 			{
 				RefreshParameter(parameterName);

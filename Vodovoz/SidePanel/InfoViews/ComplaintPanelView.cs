@@ -220,6 +220,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				switch(filter.GuiltyItemVM.Entity.GuiltyType) {
 					case ComplaintGuiltyTypes.None:
 					case ComplaintGuiltyTypes.Client:
+					case ComplaintGuiltyTypes.Supplier:
 						break;
 					case ComplaintGuiltyTypes.Employee:
 						if(filter.GuiltyItemVM.Entity.Employee != null)
@@ -239,21 +240,27 @@ namespace Vodovoz.SidePanel.InfoViews
 				query.Where(() => complaintAlias.ComplaintKind.Id == filter.ComplaintKind.Id);
 
 			var result = query.SelectList(list => list
-			 .SelectGroup(c => c.Complaint.Id)
-			 .Select(() => complaintAlias.Status).WithAlias(() => queryNodeAlias.Status)
-			 .Select(() => complaintResultAlias.Name).WithAlias(() => queryNodeAlias.ResultText)
-			 .Select(
-			  Projections.SqlFunction(
-				  new SQLFunctionTemplate(
-					  NHibernateUtil.String, "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не рекламация)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
-					 ),
-				  NHibernateUtil.String,
-				  Projections.Property(() => guiltyItemAlias.GuiltyType),
-				  Projections.Property(() => subdivisionForEmployeeAlias.Name),
-				  Projections.Property(() => subdivisionAlias.Name)
-				 )
-			 ).WithAlias(() => queryNodeAlias.GuiltyName)
-			)
+				.SelectGroup(c => c.Complaint.Id)
+				.Select(() => complaintAlias.Status).WithAlias(() => queryNodeAlias.Status)
+				.Select(() => complaintResultAlias.Name).WithAlias(() => queryNodeAlias.ResultText)
+				.Select(Projections.SqlFunction(
+					new SQLFunctionTemplate(
+						NHibernateUtil.String,
+						"GROUP_CONCAT(" +
+						"CASE ?1 " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Supplier)}' THEN 'Поставщик' " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет (не рекламация)' " +
+						"ELSE ?1 " +
+						"END " +
+						"ORDER BY ?1 ASC SEPARATOR '\n')"),
+					NHibernateUtil.String,
+					Projections.Property(() => guiltyItemAlias.GuiltyType),
+					Projections.Property(() => subdivisionForEmployeeAlias.Name),
+					Projections.Property(() => subdivisionAlias.Name)))
+				.WithAlias(() => queryNodeAlias.GuiltyName))
 			.TransformUsing(Transformers.AliasToBean<QueryNode>())
 			.List<QueryNode>();
 

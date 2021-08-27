@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -21,83 +18,117 @@ namespace Vodovoz.Filters.GtkViews
 			InitializeRestrictions();
 		}
 
-		void Configure()
+		private void Configure()
 		{
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
-			enumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.RestrictStatus, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumcomboStatus.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictStatus, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			enumcomboPaymentType.ItemsEnum = typeof(PaymentType);
-			enumcomboPaymentType.Binding.AddBinding(ViewModel, vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumcomboPaymentType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangePaymentType, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
-			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject).InitializeFromSource();
+			entryCounterparty.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CounterpartySelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.AddBinding(vm => vm.CanChangeCounterparty, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictCounterparty, w => w.Subject)
+				.InitializeFromSource();
 
-			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.RepresentationModel).InitializeFromSource();
-			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.Sensitive, new NullToBooleanConverter()).InitializeFromSource();
+			entryDeliveryPoint.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.DeliveryPoint, w => w.Subject)
+				.AddFuncBinding(vm => vm.CanChangeDeliveryPoint && vm.RestrictCounterparty != null, w => w.Sensitive)
+				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.InitializeFromSource();
 
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
-			dateperiodOrders.Binding.AddBinding(ViewModel, vm => vm.RestrictStartDate, w => w.StartDateOrNull).InitializeFromSource();
-			dateperiodOrders.Binding.AddBinding(ViewModel, vm => vm.RestrictEndDate, w => w.EndDateOrNull).InitializeFromSource();
+			dateperiodOrders.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RestrictStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.RestrictEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-			ycheckOnlySelfdelivery.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
-			ycheckWithoutSelfdelivery.Binding.AddBinding(ViewModel, vm => vm.RestrictWithoutSelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
-			ycheckOnlyServices.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
-			ycheckHideServices.Binding.AddBinding(ViewModel, vm => vm.RestrictHideService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
-			ycheckLessThreeHours.Binding.AddBinding(ViewModel, vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
+			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeOnlySelfDelivery, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter())
+				.InitializeFromSource();
+			ycheckWithoutSelfdelivery.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeWithoutSelfDelivery, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictWithoutSelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter())
+				.InitializeFromSource();
+			ycheckOnlyServices.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeOnlyService, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictOnlyService, w => w.Active, new NullableBooleanToBooleanConverter())
+				.InitializeFromSource();
+			ycheckHideServices.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeHideService, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictHideService, w => w.Active, new NullableBooleanToBooleanConverter())
+				.InitializeFromSource();
+			ycheckLessThreeHours.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeLessThreeHours, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter())
+				.InitializeFromSource();
+			ycheckSortDeliveryDate.Binding
+				.AddBinding(ViewModel, vm => vm.SortDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter())
+				.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible)
+				.InitializeFromSource();
 
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);
-			yenumcomboboxPaymentOrder.Binding.AddBinding(ViewModel, vm => vm.PaymentOrder, w => w.SelectedItemOrNull).InitializeFromSource();
+			yenumcomboboxPaymentOrder.Binding.AddBinding(ViewModel, vm => vm.PaymentOrder, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			yenumcomboboxViewTypes.ItemsEnum = typeof(ViewTypes);
 			yenumcomboboxViewTypes.Binding.AddBinding(ViewModel, vm => vm.ViewTypes, w => w.SelectedItem).InitializeFromSource();
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
-			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull).InitializeFromSource();
+			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
+			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
+
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();
 			speciallistCmbPaymentsFrom.ItemsList = ViewModel.PaymentsFrom;
-			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
-			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible).InitializeFromSource();
+			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentByCardFrom, w => w.SelectedItem)
+				.InitializeFromSource();
+			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible)
+				.InitializeFromSource();
 			ylblPaymentFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible).InitializeFromSource();
+			
+			ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
+			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
 		}
 
-		void InitializeRestrictions()
+		private void InitializeRestrictions()
 		{
-			enumcomboStatus.Sensitive = ViewModel.CanChangeStatus;
-			enumcomboPaymentType.Sensitive = ViewModel.CanChangePaymentType;
-			entryCounterparty.Sensitive = ViewModel.CanChangeCounterparty;
-			representationentryDeliveryPoint.Sensitive = ViewModel.CanChangeDeliveryPoint && ViewModel.RestrictCounterparty != null;
-			dateperiodOrders.Sensitive = ViewModel.CanChangeStartDate && ViewModel.CanChangeEndDate;
-			ycheckOnlySelfdelivery.Sensitive = ViewModel.CanChangeOnlySelfDelivery;
-			ycheckWithoutSelfdelivery.Sensitive = ViewModel.CanChangeWithoutSelfDelivery;
-			ycheckOnlyServices.Sensitive = ViewModel.CanChangeOnlyService;
-			ycheckHideServices.Sensitive = ViewModel.CanChangeHideService;
-			ycheckLessThreeHours.Sensitive = ViewModel.CanChangeLessThreeHours;
-
 			#region OrderStatusRestriction
-			if(ViewModel.AllowStatuses != null) {
-				List<object> hideStatuses = new List<object>();
-				foreach(OrderStatus item in Enum.GetValues(typeof(OrderStatus))) {
-					if(!ViewModel.AllowStatuses.Contains(item))
-						hideStatuses.Add(item);
-				}
+
+			if(ViewModel.AllowStatuses != null)
+			{
 				enumcomboStatus.ClearEnumHideList();
-				enumcomboStatus.AddEnumToHideList(hideStatuses.ToArray());
+				enumcomboStatus.AddEnumToHideList(Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>()
+					.Where(item => !ViewModel.AllowStatuses.Contains(item)).Cast<object>().ToArray());
 			}
+
 			if(ViewModel.HideStatuses != null)
+			{
 				enumcomboStatus.AddEnumToHideList(ViewModel.HideStatuses);
+			}
+
 			#endregion OrderStatusRestriction
 
 			#region PaymentTypeRestriction
-			if(ViewModel.AllowPaymentTypes != null) {
-				List<object> hidePayments = new List<object>();
-				foreach(PaymentType item in Enum.GetValues(typeof(PaymentType))) {
-					if(!ViewModel.AllowPaymentTypes.Contains(item))
-						hidePayments.Add(item);
-				}
+
+			if(ViewModel.AllowPaymentTypes != null)
+			{
 				enumcomboPaymentType.ClearEnumHideList();
-				enumcomboPaymentType.AddEnumToHideList(hidePayments.ToArray());
+				enumcomboPaymentType.AddEnumToHideList(
+					Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>()
+					.Where(item => !ViewModel.AllowPaymentTypes.Contains(item)).Cast<object>().ToArray());
 			}
+
 			#endregion PaymentTypeRestriction
 		}
 	}

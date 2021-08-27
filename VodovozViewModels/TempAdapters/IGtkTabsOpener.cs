@@ -1,4 +1,6 @@
-﻿using QS.Tdi;
+﻿using QS.Services;
+using QS.Tdi;
+using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.TempAdapters
@@ -14,5 +16,8 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);
 
 		ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId);
+
+		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, IPermissionService permissionService,
+			bool canChangeEmployee, ExpenseType expenseType);
 	}
 }

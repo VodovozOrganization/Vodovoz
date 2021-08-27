@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Mango
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
-		private readonly RouteListRepository _routedListRepository;
+		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Mango
 		public CounterpartyOrderViewModel(Counterparty client,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
-			RouteListRepository routedListRepository,
+			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderParametersProvider orderParametersProvider,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -210,17 +210,12 @@ namespace Vodovoz.ViewModels.Mango
 
 				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
-				var nomenclatureSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-						new NomenclatureFilterViewModel(), counterpartySelectorFactory, _nomenclatureRepository, new UserRepository());
-
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
 					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
 					{"employeeSelectorFactory", employeeSelectorFactory},
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
-					{"nomenclatureSelectorFactory" , nomenclatureSelectorFactory},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
 				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);

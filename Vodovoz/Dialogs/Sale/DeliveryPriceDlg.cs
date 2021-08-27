@@ -42,7 +42,7 @@ namespace Vodovoz.Dialogs.Sale
 			entryBuilding.Changed += EntryBuilding_Changed;
 
 			//Configure map
-			MapWidget.MapProvider = GMapProviders.YandexMap;
+			MapWidget.MapProvider = GMapProviders.GoogleMap;
 			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			MapWidget.MinZoom = 0;
 			MapWidget.MaxZoom = 24;
@@ -52,7 +52,8 @@ namespace Vodovoz.Dialogs.Sale
 			MapWidget.Overlays.Add(addressOverlay);
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
-			yenumcomboMapType.ChangedByUser += (sender, e) => MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
+			yenumcomboMapType.EnumItemSelected += (sender, args) =>
+				MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 		}
 
 		public DeliveryPriceDlg(DeliveryPoint deliveryPoint) : this()

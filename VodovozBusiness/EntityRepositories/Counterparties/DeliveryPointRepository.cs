@@ -89,6 +89,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			return list.Count > 0 ? list.Average(x => (decimal) x[1]) : 0;
 		}
+
+		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
+		}
 	}
 }
-

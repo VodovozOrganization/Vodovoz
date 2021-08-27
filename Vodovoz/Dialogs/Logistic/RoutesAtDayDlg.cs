@@ -177,6 +177,7 @@ namespace Vodovoz
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
+			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 
 			LoadDistrictsGeometry();
 
