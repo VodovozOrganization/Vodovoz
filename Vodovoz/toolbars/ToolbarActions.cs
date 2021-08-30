@@ -88,6 +88,7 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
+using QS.Project.Journal.Actions.ViewModels;
 
 public partial class MainWindow : Window
 {

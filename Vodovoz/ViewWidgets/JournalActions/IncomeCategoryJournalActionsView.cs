@@ -1,7 +1,7 @@
 ﻿using Gtk;
 using QS.Views;
 using Vodovoz.Journals.JournalActionsViewModels;
-using QS.Views.GtkUI;
+using QS.Project.Journal.Actions.Views;
 
 namespace Vodovoz.ViewWidgets.JournalActions
 {

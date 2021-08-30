@@ -18,7 +18,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Resolve;
-using QS.Views.GtkUI;
 using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
@@ -136,6 +135,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
 using Vodovoz.ViewWidgets.JournalActions;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using QS.Project.Journal.Actions.Views;
 
 namespace Vodovoz
 {
