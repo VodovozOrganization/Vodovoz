@@ -1,5 +1,5 @@
 node('Vod6'){
-	echo "${JENKINS_HOME}"
+	echo "${JENKINS_HOME_WIN}"
 	// stage('Checkout'){
 	// 	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
 
