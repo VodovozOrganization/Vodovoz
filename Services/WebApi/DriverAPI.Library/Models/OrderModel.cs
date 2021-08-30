@@ -53,7 +53,7 @@ namespace DriverAPI.Library.Models
 			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
 			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-		}
+	}
 
 		/// <summary>
 		/// Получение заказа в требуемом формате из заказа программы ДВ (использует функцию ниже)
@@ -188,7 +188,7 @@ namespace DriverAPI.Library.Models
 			int rating,
 			int driverComplaintReasonId,
 			string otherDriverComplaintReasonComment,
-			DateTime actionTime)
+			DateTime recievedTime)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
 			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
@@ -201,6 +201,26 @@ namespace DriverAPI.Library.Models
 			if(vodovozOrder == null)
 			{
 				var error = $"Заказ не найден: { orderId }";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			if(routeList == null)
+			{
+				var error = $"МЛ для заказа: { orderId } не найден";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning($"Водитель {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				var error = $"Нельзя завершить заказ: { orderId }, адрес МЛ не в пути";
 				_logger.LogWarning(error);
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
@@ -220,8 +240,8 @@ namespace DriverAPI.Library.Models
 					Order = vodovozOrder,
 					DriverRating = rating,
 					DeliveryPoint = vodovozOrder.DeliveryPoint,
-					CreationDate = actionTime,
-					ChangedDate = actionTime,
+					CreationDate = recievedTime,
+					ChangedDate = recievedTime,
 					CreatedBy = driver,
 					ChangedBy = driver,
 					ComplaintText = $"Заказ номер { orderId }\n" +
@@ -245,7 +265,7 @@ namespace DriverAPI.Library.Models
 				new DriverActionDto()
 				{
 					ActionType = ActionDtoType.CompleteOrderClicked,
-					ActionTime = actionTime
+					ActionTime = recievedTime
 				});
 		}
 
