@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
 	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
+		private readonly EmployeesJournalActionsViewModel _employeesJournalActionsViewModel;
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory;
@@ -80,7 +81,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			: base(employeesJournalActionsViewModel, filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
-			
+
+			_employeesJournalActionsViewModel =
+				employeesJournalActionsViewModel ?? throw new ArgumentNullException(nameof(employeesJournalActionsViewModel));
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
@@ -261,6 +264,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Ошибка при отправке Email");
 			}
+		}
+
+		protected override void InitializeJournalActionsViewModel()
+		{
+			base.InitializeJournalActionsViewModel();
+			_employeesJournalActionsViewModel.SetResetPasswordForEmployeeAction(ResetPasswordForEmployee);
 		}
 
 		protected override void CreatePopupActions()

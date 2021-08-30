@@ -44,7 +44,6 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 		);
 
 		public void Initialize(
-			JournalSelectionMode selectionMode,
 			Action<int, int> openReportAction,
 			Action openPrintingFormAction,
 			Func<DebtorJournalNode[], int> createTaskFunc)

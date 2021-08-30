@@ -79,8 +79,7 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 				() => CanResetPassword
 			)
 		);
-
-		//TODO проверить работу
+		
 		public void SetResetPasswordForEmployeeAction(Action<Employee> resetPasswordForEmployeeAction)
 		{
 			_resetPasswordForEmployeeAction = resetPasswordForEmployeeAction;

@@ -49,7 +49,6 @@ namespace Vodovoz.Journals.JournalActionsViewModels
 					foreach(var action in JournalActions)
 					{
 						action.OnPropertyChanged(nameof(action.Sensitive));
-						action.OnPropertyChanged(nameof(action.Visible)); //TODO удостовериться, что действительно надо дергать visible
 					}
 					OnPropertyChanged(nameof(CanCopyFinancialDistrictSet));
 				}

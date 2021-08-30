@@ -426,7 +426,7 @@ namespace Vodovoz.Representations
 
 		protected override void InitializeJournalActionsViewModel()
 		{
-			_actionsViewModel?.Initialize(SelectionMode, OpenReport, OpenPrintingForm, CreateTask);
+			_actionsViewModel?.Initialize(OpenReport, OpenPrintingForm, CreateTask);
 		}
 
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();

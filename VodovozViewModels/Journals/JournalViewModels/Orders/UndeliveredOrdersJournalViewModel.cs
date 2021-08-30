@@ -29,7 +29,6 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
-	//TODO Создать собственную journalActions
 	public class UndeliveredOrdersJournalViewModel : FilterableMultipleEntityJournalViewModelBase<UndeliveredOrderJournalNode, UndeliveredOrdersFilterViewModel>, IUndeliveredOrdersInfoProvider
 	{
 		private readonly IGtkTabsOpener _gtkDlgOpener;
