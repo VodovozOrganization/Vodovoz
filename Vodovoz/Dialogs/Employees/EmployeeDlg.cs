@@ -144,6 +144,7 @@ namespace Vodovoz
 		private bool canEditOrganisationForSalary;
 		private bool _canEditWage;
 		private bool _canEditWageBySelfSubdivision;
+		private IPermissionResult _employeeDocumentsPermissionsSet;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly MySQLUserRepository mySQLUserRepository;
@@ -168,6 +169,12 @@ namespace Vodovoz
 			if (Entity.Id == 0) {
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 			}
+
+			_employeeDocumentsPermissionsSet = ServicesConfig.CommonServices.PermissionService
+				.ValidateUserPermission(typeof(EmployeeDocument), ServicesConfig.CommonServices.UserService.CurrentUserId);
+
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 
 			_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
@@ -361,11 +368,17 @@ namespace Vodovoz
 				_employeeRepository,
 				_wageCalculationRepository
 			);
-			
+
+			radioTabEmployeeDocument.Sensitive = CanReadEmployeeDocuments;
+			buttonAddDocument.Sensitive = CanAddEmployeeDocument;
+
 			ConfigureValidationContext();
 
 			logger.Info("Ok");
 		}
+
+		public bool CanReadEmployeeDocuments { get; private set; }
+		public bool CanAddEmployeeDocument { get; private set; }
 
 		#region DriverDistrictPriorities
 
@@ -974,7 +987,7 @@ namespace Vodovoz
 		#region Document
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen, ServicesConfig.CommonServices);
 			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -988,7 +1001,7 @@ namespace Vodovoz
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
 			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) {
-				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
+				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices);
 				TabParent.AddSlaveTab(this, dlg);
 			}
 		}

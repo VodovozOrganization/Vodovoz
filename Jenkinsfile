@@ -1,6 +1,6 @@
 node('Vod6'){
 	stage('Checkout'){
-		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
+		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_WIN}/workspace/Vodovoz_Vodovoz_master"
 
 		echo "checkout Gtk.DataBindings"	
 		checkout changelog: false, poll: false, scm:([

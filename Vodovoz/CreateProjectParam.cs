@@ -239,6 +239,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EquipmentKindViewModel, EquipmentKindView>()
 				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
+				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
 				.RegisterWidgetForTabViewModel<SectorsViewModel, SectorsView>()
 				;
 

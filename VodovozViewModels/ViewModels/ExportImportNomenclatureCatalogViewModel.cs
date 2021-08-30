@@ -258,7 +258,6 @@ namespace Vodovoz.ViewModels
 						.Select(x => x.OfficialName).WithAlias(() => resultAlias.Name)
 						.Select(x => x.ShipperCounterparty.Id).WithAlias(() => resultAlias.ShipperCounterpartyId)
 						.Select(x => x.ProductGroup.Id).WithAlias(() => resultAlias.GroupId)
-						.Select(x => x.PurchasePrice).WithAlias(() => resultAlias.PurchasePrice)
 						.Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 						.Select(() => folder1CAlias.Name).WithAlias(() => resultAlias.Folder1cName)
 						.Select(() => measurementUnitsAlias.Name).WithAlias(() => resultAlias.MeasurementUnit)
@@ -366,7 +365,6 @@ namespace Vodovoz.ViewModels
 							node.AddWrongDataErrorMessage($"Не найдена подкатегория залогов с названием \"{node.TypeOfDepositCategory}\"");
 						else
 							newNomenclature.TypeOfDepositCategory = typeOfDepositCategories[node.TypeOfDepositCategory];
-					newNomenclature.PurchasePrice = node.PurchasePrice;
 
 					if(!String.IsNullOrWhiteSpace(node.Folder1cName)) {
 						var folder = folders1C.FirstOrDefault(x => x.Name.Trim() == node.Folder1cName);
@@ -826,7 +824,6 @@ namespace Vodovoz.ViewModels
 							nomToUpdate.ShortName = null;
 							nomToUpdate.Name = newNom.Name;
 							nomToUpdate.OfficialName = newNom.Name;
-							nomToUpdate.PurchasePrice = newNom.PurchasePrice;
 							if(!DontChangeSellPrice) {
 								nomToUpdate.NomenclaturePrice.Clear();
 								nomToUpdate.NomenclaturePrice.Add(newNom.NomenclaturePrice.First());
@@ -848,7 +845,6 @@ namespace Vodovoz.ViewModels
 							nomToUpdate.OfficialName = newNom.Name;
 							break;
 						case ConfirmUpdateAction.UpdatePrices:
-							nomToUpdate.PurchasePrice = newNom.PurchasePrice;
 							if(!DontChangeSellPrice) {
 								nomToUpdate.NomenclaturePrice.Clear();
 								nomToUpdate.NomenclaturePrice.Add(newNom.NomenclaturePrice.First());
@@ -941,7 +937,6 @@ namespace Vodovoz.ViewModels
 		public string TareVolume { get; set; }
 		public string SaleCategory { get; set; }
 		public string TypeOfDepositCategory { get; set; }
-		public decimal PurchasePrice { get; set; }
 		public decimal SellPrice { get; set; }
 
 		public Nomenclature Nomenclature { get; set; }
@@ -989,16 +984,15 @@ namespace Vodovoz.ViewModels
 			Map(x => x.Name).Index(1).Name("Наименование");
 			Map(x => x.GroupId).Index(2).Name("ID группы товаров");
 			Map(x => x.ShipperCounterpartyId).Index(3).Name("ID поставщика");
-			Map(x => x.PurchasePrice).Index(4).Name("Цена закупки").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.SellPrice).Index(5).Name("Цена продажи").Default(0).TypeConverter<DecimalConverter>();
-			Map(x => x.MeasurementUnit).Index(6).Name("Ед. измерения");
-			Map(x => x.Folder1cName).Index(7).Name("Имя папки 1С");
-			Map(x => x.NomenclatureCategory).Index(8).Name("Категория");
-			Map(x => x.TareVolume).Index(9).Name("Объем тары");
-			Map(x => x.EquipmentKindName).Index(10).Name("Вид оборудования");
-			Map(x => x.SaleCategory).Index(11).Name("Доступность для продажи");
-			Map(x => x.TypeOfDepositCategory).Index(12).Name("Тип залога");
-			Map(x => x.FuelTypeName).Index(13).Name("Тип топлива");
+			Map(x => x.SellPrice).Index(4).Name("Цена продажи").Default(0).TypeConverter<DecimalConverter>();
+			Map(x => x.MeasurementUnit).Index(5).Name("Ед. измерения");
+			Map(x => x.Folder1cName).Index(6).Name("Имя папки 1С");
+			Map(x => x.NomenclatureCategory).Index(7).Name("Категория");
+			Map(x => x.TareVolume).Index(8).Name("Объем тары");
+			Map(x => x.EquipmentKindName).Index(9).Name("Вид оборудования");
+			Map(x => x.SaleCategory).Index(10).Name("Доступность для продажи");
+			Map(x => x.TypeOfDepositCategory).Index(11).Name("Тип залога");
+			Map(x => x.FuelTypeName).Index(12).Name("Тип топлива");
 		}
 	}
 

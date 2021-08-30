@@ -3,6 +3,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Services;
 using QS.Validation;
 using Vodovoz.Domain.Employees;
 
@@ -12,42 +13,47 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class EmployeeDocDlg : SingleUowTabBase
 	{
 		public EmployeeDocument Entity;
-		IUnitOfWork unitOfWork ;
-		public EmployeeDocDlg(IUnitOfWork uow, EmployeeDocumentType[] hiddenDocument)
+		IUnitOfWork _unitOfWork;
+		private readonly ICommonServices _commonServices;
+		private IPermissionResult _employeeDocumentsPermissionsSet;
+
+		public EmployeeDocDlg(IUnitOfWork uow, EmployeeDocumentType[] hiddenDocument, ICommonServices commonServices)
 		{
-			this.Build();
-			unitOfWork = uow;
+			Build();
+			_unitOfWork = uow;
+			_commonServices = commonServices;
 			if(hiddenDocument != null)
+			{
 				comboCategory.AddEnumToHideList(hiddenDocument.Cast<object>().ToArray());
+			}
+
 			Entity = new EmployeeDocument();
 			TabName = "Новый документ";
 			ConfigureDlg();
-			this.ShowAll();
+			ShowAll();
 		}
 
 		public event EventHandler Save;
 
-		public EmployeeDocDlg(int id, IUnitOfWork uow)
+		public EmployeeDocDlg(int id, IUnitOfWork uow, ICommonServices commonServices)
 		{
-			this.Build();
-			unitOfWork = uow;
-			Entity = (EmployeeDocument)unitOfWork.GetById(typeof(EmployeeDocument), id);
+			Build();
+			_unitOfWork = uow;
+			_commonServices = commonServices;
+			Entity = (EmployeeDocument)_unitOfWork.GetById(typeof(EmployeeDocument), id);
 			TabName = Entity.Document.GetEnumTitle();
 			ConfigureDlg();
 		}
 
-		public EmployeeDocDlg(EmployeeDocument sub,IUnitOfWork uow) : this(sub.Id, uow)
-		{
-
-		}
+		public EmployeeDocDlg(EmployeeDocument sub, IUnitOfWork uow, ICommonServices commonServices) : this(sub.Id, uow, commonServices) { }
 
 		private bool SaveDoc()
 		{
 			var valid = new QSValidator<EmployeeDocument>(Entity);
-			valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
-			if(valid.IsValid) 
+			valid.RunDlgIfNotValid((Gtk.Window)Toplevel);
+			if(valid.IsValid)
 			{
-				unitOfWork.Save(Entity);
+				_unitOfWork.Save(Entity);
 				OnCloseTab(false);
 			}
 			return valid.IsValid;
@@ -55,6 +61,30 @@ namespace Vodovoz.Dialogs.Employees
 
 		private void ConfigureDlg()
 		{
+			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
+				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
+
+			if(Entity.Id != 0 && !_employeeDocumentsPermissionsSet.CanRead)
+			{
+				_commonServices.InteractiveService
+					.ShowMessage(QS.Dialog.ImportanceLevel.Error, "Недостаточно прав для просмотра документов", "Недостаточно прав");
+				FailInitialize = true;
+				TabParent?.ForceCloseTab(this, QS.Navigation.CloseSource.Self);
+			}
+
+			var canUpdate = _employeeDocumentsPermissionsSet.CanUpdate
+						 || (Entity.Id == 0 && _employeeDocumentsPermissionsSet.CanCreate);
+
+			foreach(var widget in table1.Children)
+			{
+				if(widget != GtkScrolledWindow)
+				{
+					widget.Sensitive = canUpdate;
+				}
+			}
+			buttonSave.Sensitive = canUpdate;
+			ytextviewIssueOrg.Sensitive = canUpdate;
+
 			comboCategory.ItemsEnum = typeof(EmployeeDocumentType);
 			comboCategory.Binding.AddBinding(Entity, e => e.Document, w => w.SelectedItemOrNull).InitializeFromSource();
 
@@ -66,7 +96,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			ytextviewIssueOrg.Binding.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text).InitializeFromSource();
 			ydatePassportIssuedDate.Binding.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull).InitializeFromSource();
-			ycheckMainDoc.Binding.AddBinding(Entity,e=>e.MainDocument, w => w.Active).InitializeFromSource();
+			ycheckMainDoc.Binding.AddBinding(Entity, e => e.MainDocument, w => w.Active).InitializeFromSource();
 			OnDocumentTypeSelected(this, null);
 		}
 
@@ -74,17 +104,17 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			var docType = (EmployeeDocumentType)comboCategory.SelectedItem;
 
-			if(Entity.MainDocument==true && docType==EmployeeDocumentType.Passport) 
+			if(Entity.MainDocument == true && docType == EmployeeDocumentType.Passport)
 			{
 				ycheckMainDoc.Visible = true;
 				return;
 			}
 
-			if(docType== EmployeeDocumentType.Passport) 
+			if(docType == EmployeeDocumentType.Passport)
 			{
 				ycheckMainDoc.Visible = true;
-			} 
-			else 
+			}
+			else
 			{
 				ycheckMainDoc.Active = false;
 				ycheckMainDoc.Visible = false;
@@ -93,9 +123,11 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnSaveButtonClicked(object sender, EventArgs e)
 		{
-			bool isValid=SaveDoc();
+			bool isValid = SaveDoc();
 			if(isValid)
+			{
 				Save?.Invoke(sender, e);
+			}
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
