@@ -1,6 +1,7 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Logging;
+using NHibernate.Driver;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -166,14 +167,27 @@ namespace DriverAPI.Library.Models
 				&& order.OrderTotalSum > 0;
 		}
 
-		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType)
+		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
 		{
+			if(driver is null)
+			{
+				throw new ArgumentNullException(nameof(driver));
+			}
+
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
 			{
 				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: { orderId }, заказ не в пути.");
+			}
+
+			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning($"Водитель {driver.Id} попытался сменить тип оплаты заказа {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя сменить тип оплаты заказа другого водителя");
 			}
 
 			vodovozOrder.PaymentType = paymentType;

@@ -98,6 +98,8 @@ namespace DriverAPI.Controllers
 		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
 			var recievedTime = DateTime.Now;
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			if(changeOrderPaymentTypeRequestModel.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
 			{
@@ -140,7 +142,7 @@ namespace DriverAPI.Controllers
 				throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
 			}
 
-			_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType);
+			_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver);
 		}
 	}
 }
