@@ -161,9 +161,6 @@ namespace Vodovoz.Views.Goods
 			yentryStorageCell.Binding.AddBinding(ViewModel.Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
 			yentryStorageCell.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
 			labelStorageCell.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
-			yspinbuttonPurchasePrice.Binding.AddBinding(ViewModel.Entity, s => s.PurchasePrice, w => w.ValueAsDecimal).InitializeFromSource();
-			yspinbuttonPurchasePrice.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
-			labelPurchasePrice.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
 
 			#region Вкладка Оборудование
 
@@ -199,6 +196,12 @@ namespace Vodovoz.Views.Goods
 
 			ytextDescription.Binding.AddBinding(ViewModel.Entity, e => e.Description, w => w.Buffer.Text).InitializeFromSource();
 			nomenclaturecharacteristicsview1.Uow = ViewModel.UoWGeneric;
+
+			#endregion
+
+			#region Вкладка Цена закупки
+
+			nomenclaturePurchasePricesView.ViewModel = ViewModel.NomenclaturePurchasePricesViewModel;
 
 			#endregion
 
@@ -284,6 +287,14 @@ namespace Vodovoz.Views.Goods
 		{
 			if(radioPrice.Active)
 				notebook1.CurrentPage = 4;
+		}
+
+		protected void OnPurchasePriceToggled(object sender, EventArgs e)
+		{
+			if(radioPurchasePrice.Active)
+			{
+				notebook1.CurrentPage = 5;
+			}
 		}
 
 		#endregion

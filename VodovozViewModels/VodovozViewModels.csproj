@@ -170,6 +170,8 @@
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
