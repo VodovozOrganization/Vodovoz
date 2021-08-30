@@ -102,7 +102,7 @@ namespace Vodovoz.ReportsParameters.Store
 			var warehouse = yentryrefWarehouse.Subject as Warehouse;
 			var parameters = new Dictionary<string, object>
 			{
-				{ "start_date", dateperiodpickerMaxSales.StartDateOrNull ?? new DateTime() },
+				{ "start_date", dateperiodpickerMaxSales.StartDateOrNull },
 				{ "end_date", dateperiodpickerMaxSales.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59) },
 				{ "today", DateTime.Today },
 				{ "currently", DateTime.Now },
