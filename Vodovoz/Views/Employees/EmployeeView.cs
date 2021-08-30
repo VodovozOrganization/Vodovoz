@@ -11,6 +11,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
+using QS.Project.Services;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
 using QSOrmProject;
@@ -310,14 +311,15 @@ namespace Vodovoz.Views.Employees
 		{
 			var dlg = new EmployeeDocDlg(
 				ViewModel.UoW,
-				ViewModel.Entity.IsRussianCitizen ? ViewModel.HiddenForRussianDocument : ViewModel.HiddenForForeignCitizen);
+				ViewModel.Entity.IsRussianCitizen ? ViewModel.HiddenForRussianDocument : ViewModel.HiddenForForeignCitizen,
+				ServicesConfig.CommonServices);
 			dlg.Save += (s, args) => ViewModel.Entity.ObservableDocuments.Add(dlg.Entity);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
 		}
 
 		private void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			var dlg = new EmployeeDocDlg(ViewModel.SelectedEmployeeDocuments.ElementAt(0).Id, ViewModel.UoW);
+			var dlg = new EmployeeDocDlg(ViewModel.SelectedEmployeeDocuments.ElementAt(0).Id, ViewModel.UoW, ServicesConfig.CommonServices);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
 		}
 

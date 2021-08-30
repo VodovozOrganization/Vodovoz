@@ -973,7 +973,7 @@ namespace Vodovoz
 		#region Document
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen, ServicesConfig.CommonServices);
 			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -987,7 +987,7 @@ namespace Vodovoz
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
 			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) {
-				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
+				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices);
 				TabParent.AddSlaveTab(this, dlg);
 			}
 		}

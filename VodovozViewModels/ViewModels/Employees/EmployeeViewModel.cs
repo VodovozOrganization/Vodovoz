@@ -339,7 +339,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
-		public bool CanEditEmployeeDocument => _employeeDocumentsPermissionsSet.CanUpdate && SelectedEmployeeDocuments.Any();
+		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
+												|| _employeeDocumentsPermissionsSet.CanUpdate) 
+											&& SelectedEmployeeDocuments.Any();
 		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any();
 
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
@@ -618,7 +620,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
-
 
 		private void SetPermissions()
 		{
