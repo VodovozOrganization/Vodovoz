@@ -105,6 +105,13 @@ namespace DriverAPI.Library.Models
 				throw new AccessViolationException("Нельзя записать координаты точки доставки для МЛ другого водителя");
 			}
 
+			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute && routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning($"Попытка записи координаты точки доставки в МЛ {routeListAddress.RouteList.Id} в статусе {routeListAddress.RouteList.Status}" +
+					$" адреса {routeListAddressId} в статусе {routeListAddress.Status} водителем {driverId}");
+				throw new AccessViolationException("Нельзя записать координаты точки доставки для этого адреса");
+			}
+
 			var coordinate = new DeliveryPointEstimatedCoordinate()
 			{
 				DeliveryPointId = deliveryPoint.Id,
