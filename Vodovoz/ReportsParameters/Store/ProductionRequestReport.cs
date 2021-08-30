@@ -18,11 +18,12 @@ namespace Vodovoz.ReportsParameters.Store
 	public partial class ProductionRequestReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
-		private IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEmployeeRepository _employeeRepository;
 
 		public ProductionRequestReport(IEmployeeRepository employeeRepository)
 		{
-			this.Build();
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
@@ -99,17 +100,14 @@ namespace Vodovoz.ReportsParameters.Store
 		private ReportInfo GetReportInfo()
 		{
 			var warehouse = yentryrefWarehouse.Subject as Warehouse;
-
-			var gGroups = GeographicGroupNodes.Where(x => x.Selected);
-
 			var parameters = new Dictionary<string, object>
 			{
-				{"start_date", dateperiodpickerMaxSales.StartDateOrNull.Value},
-				{"end_date", dateperiodpickerMaxSales.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59)},
-				{"today", DateTime.Today},
-				{"currently", DateTime.Now},
-				{"warehouse_id", warehouse?.Id ?? -1},
-				{"creation_date", DateTime.Now},
+				{ "start_date", dateperiodpickerMaxSales.StartDateOrNull ?? new DateTime() },
+				{ "end_date", dateperiodpickerMaxSales.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "today", DateTime.Today },
+				{ "currently", DateTime.Now },
+				{ "warehouse_id", warehouse?.Id ?? -1 },
+				{ "creation_date", DateTime.Now },
 				{
 					"geographic_group_id", GeographicGroupNodes.Where(x => x.Selected)
 						.Select(x => x.GeographicGroup.Id)
