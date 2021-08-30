@@ -73,6 +73,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			var canUpdate = _employeeDocumentsPermissionsSet.CanUpdate
 						 || (Entity.Id == 0 && _employeeDocumentsPermissionsSet.CanCreate);
+
 			foreach(var widget in table1.Children)
 			{
 				if(widget != GtkScrolledWindow)

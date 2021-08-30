@@ -178,12 +178,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(!permissionResult.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
 			}
-
-			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
-				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
-
-			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
-			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -638,6 +632,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverDistrictPrioritySet));
 			DriverWorkScheduleSetPermission =
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverWorkScheduleSet));
+
+			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
+				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
+
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
