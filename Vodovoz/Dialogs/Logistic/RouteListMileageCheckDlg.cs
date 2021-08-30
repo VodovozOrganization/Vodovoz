@@ -84,8 +84,10 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
+			referenceDriver.RepresentationModel = new EmployeesVM();
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
+			referenceForwarder.RepresentationModel = new EmployeesVM();
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 		
 			referenceLogistican.RepresentationModel = new EmployeesVM();
