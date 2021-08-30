@@ -143,6 +143,7 @@ namespace Vodovoz
 		private bool canEditOrganisationForSalary;
 		private bool _canEditWage;
 		private bool _canEditWageBySelfSubdivision;
+		private IPermissionResult _employeeDocumentsPermissionsSet;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly MySQLUserRepository mySQLUserRepository;
@@ -167,6 +168,12 @@ namespace Vodovoz
 			if (Entity.Id == 0) {
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 			}
+
+			_employeeDocumentsPermissionsSet = ServicesConfig.CommonServices.PermissionService
+				.ValidateUserPermission(typeof(EmployeeDocument), ServicesConfig.CommonServices.UserService.CurrentUserId);
+
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 
 			_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
@@ -360,11 +367,17 @@ namespace Vodovoz
 				_employeeRepository,
 				_wageCalculationRepository
 			);
-			
+
+			radioTabEmployeeDocument.Sensitive = CanReadEmployeeDocuments;
+			buttonAddDocument.Sensitive = CanAddEmployeeDocument;
+
 			ConfigureValidationContext();
 
 			logger.Info("Ok");
 		}
+
+		public bool CanReadEmployeeDocuments { get; private set; }
+		public bool CanAddEmployeeDocument { get; private set; }
 
 		#region DriverDistrictPriorities
 

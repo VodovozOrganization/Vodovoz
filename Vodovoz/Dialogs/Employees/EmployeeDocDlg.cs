@@ -68,7 +68,8 @@ namespace Vodovoz.Dialogs.Employees
 			{
 				_commonServices.InteractiveService
 					.ShowMessage(QS.Dialog.ImportanceLevel.Error, "Недостаточно прав для просмотра документов", "Недостаточно прав");
-				TabParent.ForceCloseTab(this, QS.Navigation.CloseSource.Self);
+				FailInitialize = true;
+				TabParent?.ForceCloseTab(this, QS.Navigation.CloseSource.Self);
 			}
 
 			var canUpdate = _employeeDocumentsPermissionsSet.CanUpdate
