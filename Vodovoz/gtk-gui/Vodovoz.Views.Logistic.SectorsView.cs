@@ -429,7 +429,7 @@ namespace Vodovoz.Views.Logistic
 			this.sectorVersionStartDate.WithTime = false;
 			this.sectorVersionStartDate.HideCalendarButton = false;
 			this.sectorVersionStartDate.Date = new global::System.DateTime(0);
-			this.sectorVersionStartDate.IsEditable = true;
+			this.sectorVersionStartDate.IsEditable = false;
 			this.sectorVersionStartDate.AutoSeparation = false;
 			this.hbox6.Add(this.sectorVersionStartDate);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.sectorVersionStartDate]));
@@ -459,13 +459,9 @@ namespace Vodovoz.Views.Logistic
 			this.vbox6.Add(this.hbox17);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.hbox17]));
 			w31.Position = 1;
-			w31.Expand = false;
-			w31.Fill = false;
 			this.vbox3.Add(this.vbox6);
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.vbox6]));
 			w32.Position = 0;
-			w32.Expand = false;
-			w32.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -524,7 +520,7 @@ namespace Vodovoz.Views.Logistic
 			this.deliveryRuleStartDate.WithTime = false;
 			this.deliveryRuleStartDate.HideCalendarButton = false;
 			this.deliveryRuleStartDate.Date = new global::System.DateTime(0);
-			this.deliveryRuleStartDate.IsEditable = true;
+			this.deliveryRuleStartDate.IsEditable = false;
 			this.deliveryRuleStartDate.AutoSeparation = false;
 			this.hbox10.Add(this.deliveryRuleStartDate);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.deliveryRuleStartDate]));
@@ -780,7 +776,7 @@ namespace Vodovoz.Views.Logistic
 			this.weekDayScheduleStartDate.WithTime = false;
 			this.weekDayScheduleStartDate.HideCalendarButton = false;
 			this.weekDayScheduleStartDate.Date = new global::System.DateTime(0);
-			this.weekDayScheduleStartDate.IsEditable = true;
+			this.weekDayScheduleStartDate.IsEditable = false;
 			this.weekDayScheduleStartDate.AutoSeparation = false;
 			this.hbox13.Add(this.weekDayScheduleStartDate);
 			global::Gtk.Box.BoxChild w68 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.weekDayScheduleStartDate]));
@@ -852,7 +848,7 @@ namespace Vodovoz.Views.Logistic
 			this.weekDayDeliveryStartDate.WithTime = false;
 			this.weekDayDeliveryStartDate.HideCalendarButton = false;
 			this.weekDayDeliveryStartDate.Date = new global::System.DateTime(0);
-			this.weekDayDeliveryStartDate.IsEditable = true;
+			this.weekDayDeliveryStartDate.IsEditable = false;
 			this.weekDayDeliveryStartDate.AutoSeparation = false;
 			this.hbox16.Add(this.weekDayDeliveryStartDate);
 			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.weekDayDeliveryStartDate]));
