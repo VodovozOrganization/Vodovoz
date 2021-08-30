@@ -715,7 +715,9 @@ namespace Vodovoz
 			{
 				return;
 			}
-			var geographicGroupId = Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).Sector.GetActiveSectorVersion(Entity.DeliveryDate).GeographicGroup.Id;
+
+			var sector = Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).Sector;
+			var geographicGroupId = sector.GetActiveSectorVersion(Entity.DeliveryDate).GeographicGroup.Id;
 			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW);
 
 			if(activeFlyers.Any())
@@ -1220,7 +1222,7 @@ namespace Vodovoz
 
 			ISectorsRepository sectorsRepository = new SectorsRepository();
 			
-			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).CalculateDistricts(UoW, sectorsRepository).Any())
+			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).CalculateSectors(UoW, sectorsRepository).Any())
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 
 			OnFormOrderActions();

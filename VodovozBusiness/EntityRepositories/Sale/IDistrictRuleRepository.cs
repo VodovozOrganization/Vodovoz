@@ -10,7 +10,7 @@ namespace Vodovoz.EntityRepositories.Sale
 	{
 		QueryOver<DeliveryPriceRule> GetQueryOverWithAllDeliveryPriceRules();
 		IList<DeliveryPriceRule> GetAllDeliveryPriceRules(IUnitOfWork uow);
-		IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, SectorDeliveryRuleVersion deliveryRuleVersion);
-		IList<SectorVersion> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule);
+		IList<CommonSectorsRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, SectorDeliveryRuleVersion deliveryRuleVersion);
+		IList<SectorVersion> GetSectorsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule);
 	}
 }

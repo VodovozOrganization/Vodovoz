@@ -104,7 +104,7 @@ namespace Vodovoz.ReportsParameters
 					SelectableEntityParameter<Sector> resultAlias = null;
 
 					var query = UoW.Session.QueryOver(() => sectorAlias)
-						.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == sectorAlias &&
+						.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
 						                                                 sectorVersionAlias.StartDate <= datepicker.Date &&
 						                                                 (sectorVersionAlias.EndDate == null ||
 						                                                  sectorVersionAlias.EndDate <= datepicker.Date.AddDays(1)),

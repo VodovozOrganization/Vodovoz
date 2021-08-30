@@ -65,13 +65,21 @@
            AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')) AS water6_amount,
     GROUP_CONCAT(DISTINCT ' ',
                  (SELECT
-                      GROUP_CONCAT(d.district_name SEPARATOR ' пересечение с ')
+                      GROUP_CONCAT(sector_versions.name SEPARATOR ' пересечение с ')
                   FROM
                       orders o
                           LEFT JOIN
                       delivery_points dp ON o.delivery_point_id = dp.id
-                          LEFT JOIN
-                      districts d ON d.id = dp.district_id
+                          LEFT JOIN 
+                      delivery_points_geodata_versions geodata ON geodata.delivery_point_id = dp.id
+                      AND geodata.start_date &lt;= @start_date
+                      AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+                          LEFT JOIN 
+                      sectors ON sectors.id = geodata.sector_id
+                          LEFT JOIN 
+                      sector_versions ON sector_versions.sector_id = sectors.id
+                      AND sector_versions.start_date &lt;= @start_date
+                      AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                   WHERE
                           o.id = route_list_addresses.order_id
                  )

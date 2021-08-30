@@ -849,7 +849,7 @@
     compiled_address AS address,
     last_name,
     employees.name AS first_name,
-    districts.district_name AS district,
+    sector_versions.name AS district,
     counterparty.full_name AS client_name
 FROM
     orders
@@ -857,8 +857,16 @@ FROM
     delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
         LEFT JOIN
     delivery_points ON delivery_point_id = delivery_points.id
-        LEFT JOIN
-    districts ON districts.id = delivery_points.district_id
+        LEFT JOIN 
+    delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &lt;= @start_date
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+        LEFT JOIN 
+    sectors ON sectors.id = geodata.sector_id
+        LEFT JOIN 
+    sector_versions ON sector_versions.sector_id = sectors.id
+    AND sector_versions.start_date &lt;= @start_date
+    AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
         LEFT JOIN
     route_list_addresses ON orders.id = route_list_addresses.order_id
         LEFT JOIN
@@ -869,7 +877,7 @@ FROM
     counterparty ON counterparty.id = orders.client_id
 WHERE
     (delivery_date BETWEEN @start_date AND @end_date)
-  AND districts.id = @id_district
+  AND sectors.id = @id_district
   AND (orders.order_status &lt;&gt;  'Canceled' OR orders.order_status &lt;&gt; 'DeliveryCanceled')
   AND (route_list_addresses.status &lt;&gt; 'Transfered' OR route_list_addresses.status IS NULL)
   AND NOT orders.self_delivery

@@ -16,9 +16,9 @@ using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
-    public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<Sector, DistrictViewModel, DistrictJournalNode, SectorJournalFilterViewModel>
+    public sealed class SectorJournalViewModel: FilterableSingleEntityJournalViewModelBase<Sector, DistrictViewModel, SectorJournalNode, SectorJournalFilterViewModel>
     {
-        public DistrictJournalViewModel(SectorJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
+        public SectorJournalViewModel(SectorJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
             filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал районов";
@@ -33,7 +33,7 @@ namespace Vodovoz.Journals.JournalViewModels
         public bool EnableEditButton { get; set; }
 
         protected override Func<IUnitOfWork, IQueryOver<Sector>> ItemsSourceQueryFunction => uow => {
-            DistrictJournalNode districtJournalNode = null;
+            SectorJournalNode _sectorJournalNode = null;
             Sector sectorAlias = null;
             SectorVersion sectorVersion = null;
             WageSector wageSectorAlias = null;
@@ -58,20 +58,20 @@ namespace Vodovoz.Journals.JournalViewModels
 
             var result = query
                 .SelectList(list => list
-                    .Select(c => c.Id).WithAlias(() => districtJournalNode.Id)
-                    .Select(() => sectorVersion.SectorName).WithAlias(() => districtJournalNode.Name)
-                    .Select(() => wageSectorAlias.Name).WithAlias(() => districtJournalNode.WageDistrict)
-                    .Select(() => sectorVersion.Status).WithAlias(() => districtJournalNode.SectorsSetStatus)
-                    .Select(() => sectorVersion.Id).WithAlias(() => districtJournalNode.DistrictsSetId))
+                    .Select(c => c.Id).WithAlias(() => _sectorJournalNode.Id)
+                    .Select(() => sectorVersion.SectorName).WithAlias(() => _sectorJournalNode.Name)
+                    .Select(() => wageSectorAlias.Name).WithAlias(() => _sectorJournalNode.WageDistrict)
+                    .Select(() => sectorVersion.Status).WithAlias(() => _sectorJournalNode.SectorsSetStatus)
+                    .Select(() => sectorVersion.Id).WithAlias(() => _sectorJournalNode.SectorVersionId))
                 .OrderBy(() => sectorVersion.Id).Desc
-                .TransformUsing(Transformers.AliasToBean<DistrictJournalNode>());
+                .TransformUsing(Transformers.AliasToBean<SectorJournalNode>());
 
             return result;
         };
         protected override Func<DistrictViewModel> CreateDialogFunction => () => 
             new DistrictViewModel(EntityUoWBuilder.ForCreate(), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices);
 
-        protected override Func<DistrictJournalNode, DistrictViewModel> OpenDialogFunction => node => 
+        protected override Func<SectorJournalNode, DistrictViewModel> OpenDialogFunction => node => 
             new DistrictViewModel(EntityUoWBuilder.ForOpen(node.Id), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices);
 
         protected override void CreateNodeActions()

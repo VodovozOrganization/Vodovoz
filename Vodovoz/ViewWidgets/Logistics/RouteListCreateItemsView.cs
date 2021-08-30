@@ -245,7 +245,7 @@ namespace Vodovoz
 				SectorVersion sectorVersionAlias = null;
 				Sector sectorAlias = null;
 				var districtIds = RouteListUoW.Session.QueryOver(() => sectorAlias)
-					.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == sectorAlias &&
+					.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
 					                                                 sectorVersionAlias.StartDate <= filter.RestrictStartDate &&
 					                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
 						                                                 filter.RestrictEndDate.Value.Date.AddDays(1)),
@@ -305,7 +305,7 @@ namespace Vodovoz
 		protected void AddOrdersFromRegion()
 		{
 			var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+			var journalViewModel = new SectorJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 				SelectionMode = JournalSelectionMode.Single, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {

@@ -31,7 +31,8 @@ namespace Vodovoz.ReportsParameters.Sales
 				ParameterDatesWithTime = false,
 				Parameters = new Dictionary<string, object>
 				{
-					{ "report_date", ydatepicker.Date }
+					{ "report_date", ydatepicker.Date },
+					{ "report_end_date", ydatepicker.Date.AddDays(1)}
 				}
 			};
 		}

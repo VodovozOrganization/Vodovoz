@@ -21,9 +21,9 @@ namespace Vodovoz.ReportsParameters
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(Sector), () => {
+			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<SectorJournalViewModel>(typeof(Sector), () => {
 				var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active };
-				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				return new SectorJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 					EnableDeleteButton = false,
 					EnableAddButton = false,
 					EnableEditButton = false

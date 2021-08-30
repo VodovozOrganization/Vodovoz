@@ -48,12 +48,12 @@ FROM
                     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
                     LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
                     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-                    LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
-                        AND geodata.start_date &gt;= @date
+                    LEFT JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+                        AND geodata.start_date &lt;= @date
                         AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
                     LEFT JOIN sectors ON sectors.id = geodata.sector_id
                     LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
-                         AND sector_versions.start_date &gt;= @date
+                         AND sector_versions.start_date &lt;= @date
                          AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                     LEFT JOIN geographic_groups ON geographic_groups.id = sector_versions.geographic_group_id
             WHERE
@@ -72,12 +72,12 @@ FROM
                      LEFT JOIN orders ON orders.id = order_equipment.order_id
                      LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
                      LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-                     LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
-                         AND geodata.start_date &gt;= @date
+                     LEFT JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+                         AND geodata.start_date &lt;= @date
                          AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
                      LEFT JOIN sectors ON sectors.id = geodata.sector_id
                      LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
-                          AND sector_versions.start_date &gt;= @date
+                          AND sector_versions.start_date &lt;= @date
                           AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                      LEFT JOIN geographic_groups ON geographic_groups.id = sector_versions.geographic_group_id
             WHERE
@@ -260,12 +260,12 @@ FROM
                     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
                     LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
                     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-                    LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
-                        AND geodata.start_date &gt;= @date
+                    LEFT JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+                        AND geodata.start_date &lt;= @date
                         AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
                     LEFT JOIN sectors ON sectors.id = geodata.sector_id
                     LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
-                         AND sector_versions.start_date &gt;= @date
+                         AND sector_versions.start_date &lt;= @date
                          AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                     LEFT JOIN geographic_groups ON geographic_groups.id = sector_versions.geographic_group_id
             WHERE
@@ -284,12 +284,12 @@ FROM
                      LEFT JOIN orders ON orders.id = order_equipment.order_id
                      LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
                      LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-                     LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
-                         AND geodata.start_date &gt;= @date
+                     LEFT JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+                         AND geodata.start_date &lt;= @date
                          AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
                      LEFT JOIN sectors ON sectors.id = geodata.sector_id
                      LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
-                          AND sector_versions.start_date &gt;= @date
+                          AND sector_versions.start_date &lt;= @date
                           AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                      LEFT JOIN geographic_groups ON geographic_groups.id = sector_versions.geographic_group_id
             WHERE

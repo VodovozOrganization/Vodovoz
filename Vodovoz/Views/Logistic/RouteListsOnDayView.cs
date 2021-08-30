@@ -38,8 +38,8 @@ namespace Vodovoz.Views.Logistic
 		}
 
 		#region Поля
-		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
-		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
+		private readonly GMapOverlay _sectorsOverlay = new GMapOverlay("sectors");
+		private readonly GMapOverlay _driverSectorssOverlay = new GMapOverlay("driverSectors");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -65,13 +65,13 @@ namespace Vodovoz.Views.Logistic
 				progressOrders.Adjustment = new Adjustment(0, 0, 0, 1, 1, 0);
 
 			//Configure map
-			districtsOverlay.IsVisibile = false;
+			_sectorsOverlay.IsVisibile = false;
 			gmapWidget.MapProvider = GMapProviders.GoogleMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
-			gmapWidget.Overlays.Add(districtsOverlay);
-			gmapWidget.Overlays.Add(driverDistrictsOverlay);
+			gmapWidget.Overlays.Add(_sectorsOverlay);
+			gmapWidget.Overlays.Add(_driverSectorssOverlay);
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
@@ -193,7 +193,7 @@ namespace Vodovoz.Views.Logistic
 			timeDrvShiftRngpicker.Binding.AddBinding(ViewModel, vm => vm.DriverEndTime, t => t.TimeEnd).InitializeFromSource();
 			timeDrvShiftRngpicker.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 
-			checkShowDistricts.Toggled += (sender, e) => districtsOverlay.IsVisibile = checkShowDistricts.Active;
+			checkShowDistricts.Toggled += (sender, e) => _sectorsOverlay.IsVisibile = checkShowDistricts.Active;
 
 			ViewModel.AutoroutingResultsSaved += (sender, e) => FillDialogAtDay();
 
@@ -690,7 +690,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			if(checkShowOnlyDriverOrders.Active) {
 				checkShowOnlyDriverOrders.Active = false;
-				driverDistrictsOverlay.IsVisibile = false;
+				_driverSectorssOverlay.IsVisibile = false;
 				driverAddressesOverlay.IsVisibile = false;
 				addressesOverlay.IsVisibile = true;
 			}
@@ -728,14 +728,14 @@ namespace Vodovoz.Views.Logistic
 		void LoadDistrictsGeometry()
 		{
 			logger.Info("Загружаем районы...");
-			districtsOverlay.Clear();
+			_sectorsOverlay.Clear();
 			ViewModel.LogisticanDistricts = ViewModel.ScheduleRestrictionRepository.GetSectorVersion(ViewModel.UoW, ViewModel.DateForRouting);
 			foreach(var sector in ViewModel.LogisticanDistricts) {
 				var poligon = new GMapPolygon(
 					sector.Polygon.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
 					sector.SectorName
 				);
-				districtsOverlay.Polygons.Add(poligon);
+				_sectorsOverlay.Polygons.Add(poligon);
 			}
 			logger.Info("Ок.");
 		}
@@ -743,7 +743,7 @@ namespace Vodovoz.Views.Logistic
 		void LoadDriverDistrictsGeometry(Employee driver)
 		{
 			if(driver != ViewModel.DriverFromRouteList) {
-				driverDistrictsOverlay.Clear();
+				_driverSectorssOverlay.Clear();
 
 				var driverDistricts = driver.DriverDistrictPrioritySets
 					.SingleOrDefault(x => x.IsActive)
@@ -770,7 +770,7 @@ namespace Vodovoz.Views.Logistic
 							poligon.Fill = new SolidBrush(System.Drawing.Color.FromArgb(155, System.Drawing.Color.Orange));
 							break;
 					}
-					driverDistrictsOverlay.Polygons.Add(poligon);
+					_driverSectorssOverlay.Polygons.Add(poligon);
 				}
 			}
 		}
@@ -783,11 +783,11 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			if(ViewModel.ShowOnlyDriverOrders) {
-				driverDistrictsOverlay.IsVisibile = true;
+				_driverSectorssOverlay.IsVisibile = true;
 				driverAddressesOverlay.IsVisibile = true;
 				addressesOverlay.IsVisibile = false;
 			} else {
-				driverDistrictsOverlay.IsVisibile = false;
+				_driverSectorssOverlay.IsVisibile = false;
 				driverAddressesOverlay.IsVisibile = false;
 				addressesOverlay.IsVisibile = true;
 			}

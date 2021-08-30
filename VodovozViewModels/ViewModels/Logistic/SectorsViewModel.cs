@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private GenericObservableList<Sector> _observableSectorsInSession;
 		private GenericObservableList<SectorVersion> _observableSectorVersionsInSession;
 		private GenericObservableList<SectorDeliveryRuleVersion> _observableSectorDeliveryRuleVersionsInSession;
-		private GenericObservableList<CommonDistrictRuleItem> _observableCommonDistrictRuleItemsInSession;
+		private GenericObservableList<CommonSectorsRuleItem> _observableCommonDistrictRuleItemsInSession;
 		private GenericObservableList<SectorWeekDayScheduleVersion> _observableSectorWeekDayScheduleVersionsInSession;
 		private GenericObservableList<SectorWeekDayDeliveryRuleVersion> _observableSectorWeekDayDeliveryRuleVersionsInSession;
 		private GenericObservableList<WeekDayDistrictRuleItem> _observableWeekDayDistrictRuleItemsInSession;
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private SectorDeliveryRuleVersion _selectedSectorDeliveryRuleVersion;
 		private SectorWeekDayScheduleVersion _selectedSectorWeekDayScheduleVersion;
 		private SectorWeekDayDeliveryRuleVersion _selectedSectorWeekDayDeliveryRuleVersion;
-		private CommonDistrictRuleItem _selectedCommonDistrictRuleItem;
+		private CommonSectorsRuleItem _selectedCommonSectorsRuleItem;
 		private WeekDayDistrictRuleItem _selectedWeekDayDistrictRuleItem;
 		private DeliveryScheduleRestriction _selectedDeliveryScheduleRestriction;
 		
@@ -101,14 +101,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
 
 			ObservableSectors = new GenericObservableList<Sector>(UoW.GetAll<Sector>().ToList());
+
+			var allSectors = UoW.GetAll<Sector>().Select(x => new {x.Id, x.DateCreated, SectorVersions = x.SectorVersions.Select(y => new {y.Status, y.SectorName})});
 			
-			ObservableSectors.ForEach(x =>
+			allSectors.ForEach(x =>
 			{
-				var sectorVersionForNode = x.GetActiveSectorVersion() ??
-				                   x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
-				                   x.SectorVersions.LastOrDefault(z => z.Status == SectorsSetStatus.Draft);
+				var sectorVersionForNode = x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.Active) ??
+				                           x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
+				                           x.SectorVersions.LastOrDefault(z => z.Status == SectorsSetStatus.Draft);
 				ObservableSectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated, sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
+			
 			});
+
+			ObservablePriceRule = new GenericObservableList<DeliveryPriceRule>(UoW.GetAll<DeliveryPriceRule>().ToList());
 			
 			SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>();
 			NewBorderVertices = new GenericObservableList<PointLatLng>();
@@ -187,6 +192,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 			}
 		}
+		
+		public GenericObservableList<DeliveryPriceRule> ObservablePriceRule { get; set; }
 
 		#region Операции над секторами
 		public GenericObservableList<Sector> ObservableSectors
@@ -341,26 +348,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		public GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems
+		public GenericObservableList<CommonSectorsRuleItem> ObservableCommonDistrictRuleItems
 		{
 			get
 			{
 				if(SelectedSectorDeliveryRuleVersion != null)
 					return SelectedSectorDeliveryRuleVersion.ObservableCommonDistrictRuleItems;
-				return new GenericObservableList<CommonDistrictRuleItem>();
+				return new GenericObservableList<CommonSectorsRuleItem>();
 			}
 		}
 
-		private GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItemsInSession =>
+		private GenericObservableList<CommonSectorsRuleItem> ObservableCommonDistrictRuleItemsInSession =>
 			_observableCommonDistrictRuleItemsInSession ??
-			(_observableCommonDistrictRuleItemsInSession = new GenericObservableList<CommonDistrictRuleItem>());
+			(_observableCommonDistrictRuleItemsInSession = new GenericObservableList<CommonSectorsRuleItem>());
 
-		public CommonDistrictRuleItem SelectedCommonDistrictRuleItem
+		public CommonSectorsRuleItem SelectedCommonSectorsRuleItem
 		{
-			get => _selectedCommonDistrictRuleItem;
+			get => _selectedCommonSectorsRuleItem;
 			set
 			{
-				if(!SetField(ref _selectedCommonDistrictRuleItem, value))
+				if(!SetField(ref _selectedCommonSectorsRuleItem, value))
 					return;
 				
 				OnPropertyChanged(nameof(ObservableCommonDistrictRuleItems));
@@ -414,10 +421,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddCommonDistrictRule => _addCommonDistrictRule ?? (_addCommonDistrictRule = new DelegateCommand(
 			() =>
 			{
-				var commonDistrictRule = new CommonDistrictRuleItem {SectorDeliveryRuleVersion = SelectedSectorDeliveryRuleVersion};
+				var commonDistrictRule = new CommonSectorsRuleItem {SectorDeliveryRuleVersion = SelectedSectorDeliveryRuleVersion};
 				ObservableCommonDistrictRuleItems.Add(commonDistrictRule);
 				ObservableCommonDistrictRuleItemsInSession.Add(commonDistrictRule);
-				SelectedCommonDistrictRuleItem = commonDistrictRule;
+				SelectedCommonSectorsRuleItem = commonDistrictRule;
 			}));
 
 		private DelegateCommand _removeCommonDistrictRule;
@@ -425,16 +432,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RemoveCommonDistrictRule => _removeCommonDistrictRule ?? (_removeCommonDistrictRule = new DelegateCommand(
 			() =>
 			{
-				if(CheckRemoveCommonDistrictRule(SelectedCommonDistrictRuleItem))
+				if(CheckRemoveCommonDistrictRule(SelectedCommonSectorsRuleItem))
 				{
-					ObservableCommonDistrictRuleItemsInSession.Remove(SelectedCommonDistrictRuleItem);
-					ObservableCommonDistrictRuleItems.Remove(SelectedCommonDistrictRuleItem);
-					SelectedCommonDistrictRuleItem = null;
+					ObservableCommonDistrictRuleItemsInSession.Remove(SelectedCommonSectorsRuleItem);
+					ObservableCommonDistrictRuleItems.Remove(SelectedCommonSectorsRuleItem);
+					SelectedCommonSectorsRuleItem = null;
 				}
 			}));
 
-		private bool CheckRemoveCommonDistrictRule(CommonDistrictRuleItem districtRuleItem) =>
-			ObservableCommonDistrictRuleItemsInSession.Contains(districtRuleItem);
+		private bool CheckRemoveCommonDistrictRule(CommonSectorsRuleItem sectorsRuleItem) =>
+			ObservableCommonDistrictRuleItemsInSession.Contains(sectorsRuleItem);
 
 		#endregion
 

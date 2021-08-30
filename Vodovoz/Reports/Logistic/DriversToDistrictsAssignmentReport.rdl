@@ -43,17 +43,25 @@
 		IF(employees.patronymic = '',
 			NULL,
 			employees.patronymic)) AS driver_name,
-	COALESCE((SELECT GROUP_CONCAT(d2.district_name ORDER BY d2.id SEPARATOR ', ')
-	 FROM districts d2 
-	 LEFT JOIN driver_district_priorities ddp ON ddp.district_id = d2.id
+	COALESCE((SELECT GROUP_CONCAT(secver.name ORDER BY sec.id SEPARATOR ', ')
+	 FROM sectors sec 
+	 LEFT JOIN 
+        sector_versions secver ON secver.sector_id = sec.id
+        AND secver.start_date &lt;= @start_date
+        AND (secver.end_date IS NULL OR secver.end_date &lt;= @end_date)
+	 LEFT JOIN driver_district_priorities ddp ON ddp.district_id = sec.id
 	 LEFT JOIN driver_district_priority_sets ddps ON ddps.id = ddp.driver_district_priority_set_id
 	 WHERE ddps.driver_id = route_lists.driver_id
 	   AND ddps.date_activated &lt;= route_lists.date
 	   AND IF(ddps.date_deactivated IS NULL, TRUE, DATE_ADD(ddps.date_deactivated, INTERVAL 1 DAY ) &gt; route_lists.date)
 	),'') AS planned_district,
 	(SELECT GROUP_CONCAT(DISTINCT d.district_name ORDER BY d.id SEPARATOR ', ')
-	 FROM districts d
-	 LEFT JOIN delivery_points dp ON dp.district_id = d.id
+	 FROM sectors sec
+     LEFT JOIN 
+         delivery_points_geodata_versions geodata ON geodata.delivery_point_id = sec.id
+         AND geodata.start_date &lt;= @start_date
+         AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+	 LEFT JOIN delivery_points dp ON dp.id = geodata.delivery_point_id
 	 LEFT JOIN orders o ON o.delivery_point_id = dp.id
 	 LEFT JOIN route_list_addresses rla2 ON rla2.order_id = o.id
 	 WHERE rla2.route_list_id = route_lists.id

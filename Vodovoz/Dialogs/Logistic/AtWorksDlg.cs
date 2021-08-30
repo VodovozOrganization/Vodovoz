@@ -123,7 +123,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
 				.AddTextRenderer(x => string.Join(", ",
-					x.DistrictsPriorities.Select(d =>
+					x.SectorsPriorities.Select(d =>
 						d.Sector.SectorVersions
 							.Where(s => s.Status == SectorsSetStatus.Active && DialogAtDate >= s.StartDate &&
 							            (s.EndDate != null || s.EndDate <= DialogAtDate.Date.AddDays(1))).Select(m => m.SectorName))))
@@ -335,7 +335,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.Where(dr =>
 						dr.Car != null
 						&& dr.Car.TypeOfUse != CarTypeOfUse.CompanyLargus
-						&& dr.DistrictsPriorities.Any(dd2 => dd2.Sector.Id == districtId)
+						&& dr.SectorsPriorities.Any(dd2 => dd2.Sector.Id == districtId)
 					)
 					.Sum(dr => dr.WithForwarder == null ? 1 : 2);
 
@@ -644,7 +644,7 @@ namespace Vodovoz.Dialogs.Logistic
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
 		private void CheckAndCorrectDistrictPriorities()
 		{
-			var activeSectors = UoW.Session.QueryOver<SectorVersion>().Where(x => x.StartDate >= DialogAtDate).List();
+			var activeSectors = UoW.Session.QueryOver<SectorVersion>().Where(x => x.StartDate <= DialogAtDate && (x.EndDate == null || x.EndDate <= DialogAtDate.AddDays(1))).List();
 			if(!activeSectors.Any()) {
 				throw new ArgumentNullException(nameof(activeSectors), @"Не найдены нужные версии районов");
 			}
@@ -661,7 +661,7 @@ namespace Vodovoz.Dialogs.Logistic
 				if(DialogAtDate.Date >= sectorVersion.StartDate.Value.Date)
 				{
 					var outDatedPriorities = DriversAtDay
-						.SelectMany(atWorkDriver => atWorkDriver.DistrictsPriorities.Where(atWorkDriverDistrictPriority =>
+						.SelectMany(atWorkDriver => atWorkDriver.SectorsPriorities.Where(atWorkDriverDistrictPriority =>
 							atWorkDriverDistrictPriority.Sector.GetActiveSectorVersion().Id != sectorVersion.Id));
 					if(!outDatedPriorities.Any()) 
 						return;

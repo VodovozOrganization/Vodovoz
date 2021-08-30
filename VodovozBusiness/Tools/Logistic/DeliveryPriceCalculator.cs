@@ -114,14 +114,9 @@ namespace Vodovoz.Tools.Logistic
 				else if(sectorVersion?.PriceType == SectorWaterPrice.Standart)
 					result.Price = "прайс";
 				result.MinBottles = sectorVersion?.MinBottles.ToString();
-
-				SectorsRepository sectorsRepository = new SectorsRepository();
-				var sectorSchedule = sectorsRepository.GetSectorDeliveryRules(uow, sectorVersion?.Sector);
-				var sectorScheduleWeekDay = sectorsRepository.GetSectorWeekDayRules(uow, sectorVersion?.Sector);
-				
-				// result.Schedule = sectorVersion != null && sectorVersion.HaveRestrictions
-				// 	? string.Join(", ", sectorVersion.GetSchedulesString(true))
-				// 	: "любой день";
+				result.Schedule = sectorVersion != null && sectorVersion.Sector.HaveRestrictions(activationTime)
+				 	? string.Join(", ", sectorVersion.Sector.GetSchedulesString(true))
+				 	: "любой день";
 			}
 
 			return result;

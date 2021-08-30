@@ -52,7 +52,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			DeliveryPointSectorVersion deliveryPointSectorVersionAlias = null;
 			return uow.Session.QueryOver<VodovozOrder>()
 					.JoinAlias(o => o.DeliveryPoint, () => point)
-					.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == point &&
+					.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint.Id == point.Id &&
 					                                                              deliveryPointSectorVersionAlias.StartDate <= date.Date &&
 					                                                              (deliveryPointSectorVersionAlias.EndDate == null ||
 					                                                               deliveryPointSectorVersionAlias.EndDate <=
@@ -889,12 +889,12 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
-						deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+						deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 						deliveryPointSectorVersionAlias.StartDate <= orderAlias.DeliveryDate &&
 						(deliveryPointSectorVersionAlias.EndDate == null ||
 						 deliveryPointSectorVersionAlias.EndDate <= orderAlias.DeliveryDate.Value.Date.AddDays(1)),
 					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 				                                                 sectorVersionAlias.StartDate <= orderAlias.DeliveryDate &&
 				                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
 					                                                 orderAlias.DeliveryDate.Value.Date.AddDays(1)),

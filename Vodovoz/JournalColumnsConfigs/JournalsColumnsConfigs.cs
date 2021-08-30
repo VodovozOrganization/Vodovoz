@@ -100,13 +100,13 @@ namespace Vodovoz.JournalColumnsConfigs
             );
 
             //DistrictJournalViewModel
-			TreeViewColumnsConfigFactory.Register<DistrictJournalViewModel>(
-				() => FluentColumnsConfig<DistrictJournalNode>.Create()
+			TreeViewColumnsConfigFactory.Register<SectorJournalViewModel>(
+				() => FluentColumnsConfig<SectorJournalNode>.Create()
 					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Зарплатный район").AddTextRenderer(node => node.WageDistrict)
 					.AddColumn("Статус версии районов").AddTextRenderer(node => node.SectorsSetStatus.GetEnumTitle())
-					.AddColumn("Код версии").AddNumericRenderer(node => node.DistrictsSetId)
+					.AddColumn("Код версии").AddNumericRenderer(node => node.SectorVersionId)
 					.AddColumn("")
 					.Finish()
 			);
@@ -437,8 +437,8 @@ namespace Vodovoz.JournalColumnsConfigs
 			);
 
 			//WageDistrictsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<WageDistrictsJournalViewModel>(
-				() => FluentColumnsConfig<WageDistrictJournalNode>.Create()
+			TreeViewColumnsConfigFactory.Register<WageSectorsJournalViewModel>(
+				() => FluentColumnsConfig<WageSectorJournalNode>.Create()
 					.AddColumn("Код")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())

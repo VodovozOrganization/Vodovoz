@@ -635,10 +635,10 @@ namespace Vodovoz
 				.AddDeleteDependence<DriverDistrictPriority>(i => i.Sector)
 				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.Sector)
 				.AddClearDependence<DeliveryPointSectorVersion>(i => i.Sector)
-				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.SectorDeliveryRuleVersion)
+				.AddDeleteDependence<CommonSectorsRuleItem>(item => item.SectorDeliveryRuleVersion)
 				.AddRemoveFromDependence<SectorVersion>(x => x.Sector);
 
-			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
+			DeleteConfig.AddHibernateDeleteInfo<CommonSectorsRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();
 			
@@ -646,7 +646,7 @@ namespace Vodovoz
 				.AddClearDependence<SectorVersion>(i => i.TariffZone);
 			
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>()
-				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.DeliveryPriceRule)
+				.AddDeleteDependence<CommonSectorsRuleItem>(item => item.DeliveryPriceRule)
 				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.DeliveryPriceRule);
 
 			DeleteConfig.AddHibernateDeleteInfo<DeliverySchedule>()

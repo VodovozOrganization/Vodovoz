@@ -23,21 +23,21 @@ namespace Vodovoz.EntityRepositories.Sale
 			return res;
 		}
 		
-		public IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, SectorDeliveryRuleVersion deliveryRuleVersion)
+		public IList<CommonSectorsRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, SectorDeliveryRuleVersion deliveryRuleVersion)
 		{
-			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
+			var res = uow.Session.QueryOver<CommonSectorsRuleItem>()
 				.Where(i => i.SectorDeliveryRuleVersion.Id == deliveryRuleVersion.Id)
 				.List();
 			return res;
 		}
 		
-		public IList<SectorVersion> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
+		public IList<SectorVersion> GetSectorsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
 			SectorVersion sectorVersionAlias = null;
-			CommonDistrictRuleItem commonDistrictRuleItemAlias = null;
+			CommonSectorsRuleItem commonSectorsRuleItemAlias = null;
 			SectorDeliveryRuleVersion sectorDeliveryRuleVersionAlias = null;
-			var res = uow.Session.QueryOver(() => commonDistrictRuleItemAlias)
-				.JoinAlias(() => sectorDeliveryRuleVersionAlias, () => commonDistrictRuleItemAlias.SectorDeliveryRuleVersion)
+			var res = uow.Session.QueryOver(() => commonSectorsRuleItemAlias)
+				.JoinAlias(() => sectorDeliveryRuleVersionAlias, () => commonSectorsRuleItemAlias.SectorDeliveryRuleVersion)
 				.JoinEntityAlias(() => sectorVersionAlias,
 					() => sectorVersionAlias.Sector.Id == sectorDeliveryRuleVersionAlias.Sector.Id &&
 					      sectorVersionAlias.Status == SectorsSetStatus.Active,

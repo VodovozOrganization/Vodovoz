@@ -481,9 +481,9 @@ namespace Vodovoz.Domain.Client
 		{
 			if(activationTime.HasValue)
 				return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
-					x.StartDate >= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
 			return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
-				x.StartDate >= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с

@@ -40,18 +40,18 @@ namespace Vodovoz.Domain.Sectors
 			set => SetField(ref _sector, value);
 		}
 		
-		private IList<CommonDistrictRuleItem> _commonDistrictRuleItems = new List<CommonDistrictRuleItem>();
+		private IList<CommonSectorsRuleItem> _commonDistrictRuleItems = new List<CommonSectorsRuleItem>();
 		[Display(Name = "Правила и цены доставки района")]
-		public virtual IList<CommonDistrictRuleItem> CommonDistrictRuleItems {
+		public virtual IList<CommonSectorsRuleItem> CommonDistrictRuleItems {
 			get => _commonDistrictRuleItems;
 			set => SetField(ref _commonDistrictRuleItems, value);
 		}
 
-		private GenericObservableList<CommonDistrictRuleItem> _observableCommonDistrictRuleItems;
+		private GenericObservableList<CommonSectorsRuleItem> _observableCommonDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems =>
+		public virtual GenericObservableList<CommonSectorsRuleItem> ObservableCommonDistrictRuleItems =>
 			_observableCommonDistrictRuleItems ?? (_observableCommonDistrictRuleItems =
-				new GenericObservableList<CommonDistrictRuleItem>(CommonDistrictRuleItems));
+				new GenericObservableList<CommonSectorsRuleItem>(CommonDistrictRuleItems));
 		
 		private SectorsSetStatus _status;
 		public virtual SectorsSetStatus Status
@@ -67,8 +67,8 @@ namespace Vodovoz.Domain.Sectors
 
 		public virtual object Clone()
 		{
-			var commonDistrictRuleItemsClone = new List<CommonDistrictRuleItem>();
-			CommonDistrictRuleItems.ForEach(x => commonDistrictRuleItemsClone.Add(x.Clone() as CommonDistrictRuleItem));
+			var commonDistrictRuleItemsClone = new List<CommonSectorsRuleItem>();
+			CommonDistrictRuleItems.ForEach(x => commonDistrictRuleItemsClone.Add(x.Clone() as CommonSectorsRuleItem));
 			return new SectorDeliveryRuleVersion
 			{
 				Sector = Sector,

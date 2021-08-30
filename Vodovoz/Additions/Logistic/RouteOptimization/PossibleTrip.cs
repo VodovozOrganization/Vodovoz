@@ -54,7 +54,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		{
 			atWorkDriver = driver;
 			Shift = shift;
-			Districts = atWorkDriver.DistrictsPriorities.Cast<IDistrictPriority>().ToArray();
+			Districts = atWorkDriver.SectorsPriorities.Cast<IDistrictPriority>().ToArray();
 		}
 	
 		/// <summary>

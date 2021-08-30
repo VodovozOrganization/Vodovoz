@@ -103,10 +103,14 @@ namespace Vodovoz.Models
 				var wageDistrictQuery = uow.Session.QueryOver(() => routeListAdressesAlias)
 					.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.JoinAlias(() => deliveryPointAlias.Id, () => deliveryPointSectorVersionAlias.DeliveryPoint)
-					.Where(() => deliveryPointSectorVersionAlias.Status == SectorsSetStatus.Active)
+					.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
+							deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
+							deliveryPointSectorVersionAlias.StartDate <= orderAlias.DeliveryDate &&
+							(deliveryPointSectorVersionAlias.EndDate == null ||
+							 deliveryPointSectorVersionAlias.EndDate <= orderAlias.DeliveryDate.Value.Date.AddDays(1)),
+						JoinType.LeftOuterJoin)
 					.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
-					.JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+					.JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 					                                                sectorVersionAlias.StartDate <= orderAlias.DeliveryDate && 
 					                                                (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <= orderAlias.DeliveryDate.Value.Date.AddDays(1)),
 						JoinType.LeftOuterJoin)

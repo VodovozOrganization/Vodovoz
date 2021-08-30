@@ -269,7 +269,7 @@ namespace Vodovoz.JournalViewModels
 				                                                              deliveryPointSectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
 				                                                              (deliveryPointSectorVersionAlias.EndDate == null ||
 				                                                               deliveryPointSectorVersionAlias.EndDate <= FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector, () => sectorAlias)
+				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector.Id, () => sectorAlias.Id)
 				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
 				                                                 sectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate && (sectorVersionAlias.EndDate == null ||
 					                                                 sectorVersionAlias.EndDate <=

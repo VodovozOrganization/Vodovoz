@@ -4,15 +4,14 @@ using System.Drawing;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
-using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using Gtk;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
@@ -99,6 +98,14 @@ namespace Vodovoz.Views.Logistic
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList(), "Нет")
 					.AddSetter((c, n) => c.Editable = n.Status != SectorsSetStatus.Active)
+				.AddColumn("Мин. бутылей")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x =>
+						x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Any()
+							? x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Min(c => c.DeliveryPriceRule.Water19LCount).ToString()
+							: "-"
+					)
+					.XAlign(0.5f)
 				.AddColumn("Часть города")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
@@ -106,7 +113,7 @@ namespace Vodovoz.Views.Logistic
 					.AddSetter((c, n) => c.Editable = n.Status != SectorsSetStatus.Active)
 				.AddColumn("Зарплатный тип")
 					.AddEnumRenderer(x => x.PriceType)
-					.AddColumn("Город/пригород")
+				.AddColumn("Город/пригород")
 					.AddComboRenderer(x => x.WageSector)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<WageSector>().ToList(), "Нет")
@@ -161,7 +168,7 @@ namespace Vodovoz.Views.Logistic
 			treeViewRulesDelivery.Selection.Changed += (sender, args) =>
 				ViewModel.SelectedSectorDeliveryRuleVersion = treeViewRulesDelivery.GetSelectedObject<SectorDeliveryRuleVersion>();
 
-			treeViewRules.ColumnsConfig = FluentColumnsConfig<CommonDistrictRuleItem>
+			treeViewRules.ColumnsConfig = FluentColumnsConfig<CommonSectorsRuleItem>
 				.Create()
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
@@ -179,12 +186,12 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(p => p.DeliveryPriceRule)
 					.SetDisplayFunc(x=>x.Title)
-					.FillItems(ViewModel.UoW.GetAll<DeliveryPriceRule>().ToList(), "Нет")
+					.FillItems(ViewModel.ObservablePriceRule, "Нет")
 					.AddSetter((c, r) => c.Editable = ViewModel.SelectedSectorDeliveryRuleVersion?.Status != SectorsSetStatus.Active)
 				.Finish();
 			treeViewRules.Binding.AddBinding(ViewModel, s => s.ObservableCommonDistrictRuleItems, t => t.ItemsDataSource);
 			treeViewRules.Selection.Changed += (sender, args) =>
-				ViewModel.SelectedCommonDistrictRuleItem = treeViewRules.GetSelectedObject<CommonDistrictRuleItem>();
+				ViewModel.SelectedCommonSectorsRuleItem = treeViewRules.GetSelectedObject<CommonSectorsRuleItem>();
 
 			
 			treeViewScheduleVersions.ColumnsConfig = FluentColumnsConfig<SectorWeekDayScheduleVersion>
@@ -281,7 +288,7 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(p => p.DeliveryPriceRule)
 					.SetDisplayFunc(x=>x.Title)
-					.FillItems(ViewModel.UoW.GetAll<DeliveryPriceRule>().ToList(), "Нет")
+					.FillItems(ViewModel.ObservablePriceRule, "Нет")
 					.Editing()
 				.Finish();
 			treeViewSpecialRules.Binding.AddBinding(ViewModel, s => s.ObservableWeekDayDistrictRuleItems, t => t.ItemsDataSource);
@@ -346,7 +353,7 @@ namespace Vodovoz.Views.Logistic
 			btnAddRules.Clicked += (sender, args) => ViewModel.AddCommonDistrictRule.Execute();
 
 			btnRemoveRules.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedCommonDistrictRuleItem != null && vm.CanEditSector && vm.SelectedSectorDeliveryRuleVersion != null && vm.SelectedSectorDeliveryRuleVersion.Status != SectorsSetStatus.Active, t => t.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.SelectedCommonSectorsRuleItem != null && vm.CanEditSector && vm.SelectedSectorDeliveryRuleVersion != null && vm.SelectedSectorDeliveryRuleVersion.Status != SectorsSetStatus.Active, t => t.Sensitive)
 				.InitializeFromSource();
 			btnRemoveRules.Clicked += (sender, args) => ViewModel.RemoveCommonDistrictRule.Execute();
 			
@@ -635,9 +642,9 @@ namespace Vodovoz.Views.Logistic
 							if(ViewModel.SelectedSectorDeliveryRuleVersion != null)
 								treeViewRulesDelivery.SelectObject(ViewModel.SelectedSectorDeliveryRuleVersion);
 							break;
-						case nameof(ViewModel.SelectedCommonDistrictRuleItem):
-							if(ViewModel.SelectedCommonDistrictRuleItem != null)
-								treeViewRules.SelectObject(ViewModel.SelectedCommonDistrictRuleItem);
+						case nameof(ViewModel.SelectedCommonSectorsRuleItem):
+							if(ViewModel.SelectedCommonSectorsRuleItem != null)
+								treeViewRules.SelectObject(ViewModel.SelectedCommonSectorsRuleItem);
 							break;
 						case nameof(ViewModel.SelectedSectorWeekDayScheduleVersion):
 							if(ViewModel.SelectedSectorWeekDayScheduleVersion != null)
@@ -688,6 +695,9 @@ namespace Vodovoz.Views.Logistic
 			#region SaveAndCancelButton
 
 			btnSave.Clicked += (sender, args) => ViewModel.Save();
+			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditSector || vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			
+			btnCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 
 			#endregion
 		}

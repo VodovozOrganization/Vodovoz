@@ -139,10 +139,13 @@ namespace Vodovoz.Views.Client
 			lblCounterparty.LabelProp = ViewModel.Entity.Counterparty.FullName;
 			lblId.LabelProp = ViewModel.Entity.Id.ToString();
 
+			var activeGeodata = ViewModel.Entity.GetActiveVersion();
+			var labelProp = activeGeodata.CoordinatesExist
+				? string.Format("<span foreground='{1}'>{0}</span>", activeGeodata.CoordinatesText,
+					ViewModel.Entity.FoundOnOsm ? "green" : "blue")
+				: "<span foreground='red'>Не найден на карте.</span>";
 			ylabelFoundOnOsm.Binding.AddFuncBinding(ViewModel.Entity,
-				e => e.GetActiveVersion(DateTime.Now).CoordinatesExist
-					? string.Format("<span foreground='{1}'>{0}</span>", e.GetActiveVersion(DateTime.Now).CoordinatesText, e.FoundOnOsm ? "green" : "blue")
-					: "<span foreground='red'>Не найден на карте.</span>",
+				e => labelProp,
 				w => w.LabelProp).InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(ViewModel,
 				vm => vm.CoordsWasChanged

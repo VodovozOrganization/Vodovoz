@@ -465,7 +465,7 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
-    districts.district_name AS district,
+    sector_versions.name AS district,
     IFNULL(order_sum.count_group, 4) as count_group_result,
     SUM(order_sum.count) AS bottles,
     COUNT(compiled_address) AS address
@@ -484,8 +484,16 @@ FROM
      GROUP BY order_items.order_id) AS order_sum ON order_sum.order_id = orders.id
         LEFT JOIN
     delivery_points ON delivery_point_id = delivery_points.id
-        LEFT JOIN
-    districts ON districts.id = delivery_points.district_id
+        LEFT JOIN 
+    delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &lt;= @start_date
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+        LEFT JOIN 
+    sectors ON sectors.id = geodata.sector_id
+        LEFT JOIN 
+    sector_versions ON sector_versions.sector_id = sectors.id
+    AND sector_versions.start_date &lt;= @start_date
+    AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
         LEFT JOIN
     route_list_addresses ON orders.id = route_list_addresses.order_id
         LEFT JOIN
@@ -498,8 +506,8 @@ WHERE
   AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
   AND NOT orders.self_delivery
   AND delivery_points.city &lt;&gt; 'Семиозерье'
-GROUP BY districts.id, count_group_result
-ORDER BY districts.district_name, count_group_result</CommandText>
+GROUP BY sectors.id, count_group_result
+ORDER BY sector_versions.name, count_group_result</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

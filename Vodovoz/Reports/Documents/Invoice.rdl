@@ -77,7 +77,7 @@
 	FROM phones
 	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
 
-	districts.district_name AS logistics_area,
+	sector_versions.name AS logistics_area,
 	delivery_points.compiled_address AS del_point_address,
 	orders.daily_number_1c AS daily_number,
 	CONCAT_WS('',
@@ -106,8 +106,16 @@ FROM
 	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
 		LEFT JOIN
 	delivery_points ON orders.delivery_point_id = delivery_points.id
-		LEFT JOIN
-	districts ON delivery_points.district_id = districts.id
+        LEFT JOIN 
+    delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &lt;= @start_date
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
+        LEFT JOIN 
+    sectors ON sectors.id = geodata.sector_id
+        LEFT JOIN 
+    sector_versions ON sector_versions.sector_id = sectors.id
+    AND sector_versions.start_date &lt;= @start_date
+    AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
 WHERE
@@ -116,6 +124,13 @@ WHERE
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -3872,6 +3887,22 @@ WHERE stored_resource.id = @id1</CommandText>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="without_advertising">
       <DataType>Boolean</DataType>

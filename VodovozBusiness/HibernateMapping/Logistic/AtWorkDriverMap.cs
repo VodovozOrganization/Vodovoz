@@ -30,7 +30,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CommentLastEditedAuthor).Column("comment_last_edited_author_id");
 
 
-			HasMany(x => x.DistrictsPriorities).Cascade.AllDeleteOrphan().Inverse()
+			HasMany(x => x.SectorsPriorities).Cascade.AllDeleteOrphan().Inverse()
 									 .KeyColumn("at_work_driver_id")
 									 .AsList(x => x.Column("priority"));
 		}

@@ -41,7 +41,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
 			var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+			var journalViewModel = new SectorJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 				EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false, SelectionMode = JournalSelectionMode.Multiple
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {

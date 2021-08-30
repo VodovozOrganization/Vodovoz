@@ -6,12 +6,12 @@ using Vodovoz.Domain.Sectors;
 
 namespace Vodovoz.Journals.JournalNodes
 {
-	public class DistrictJournalNode : JournalEntityNodeBase<Sector>
+	public class SectorJournalNode : JournalEntityNodeBase<Sector>
 	{
 		public override string Title => Id.ToString();
 		public string Name { get; set; }
 		public string WageDistrict { get; set; }
 		public SectorsSetStatus SectorsSetStatus { get; set; }
-		public int DistrictsSetId { get; set; }
+		public int SectorVersionId { get; set; }
 	}
 }

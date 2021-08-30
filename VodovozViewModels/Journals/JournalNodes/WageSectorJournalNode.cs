@@ -3,7 +3,7 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Journals.JournalNodes
 {
-	public class WageDistrictJournalNode : JournalEntityNodeBase<WageSector>
+	public class WageSectorJournalNode : JournalEntityNodeBase<WageSector>
 	{
 		public string IsArchiveString => IsArchive ? "Да" : "Нет";
 		public string RowColor => IsArchive ? "grey" : "black";

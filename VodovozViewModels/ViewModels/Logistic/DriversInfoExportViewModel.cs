@@ -220,12 +220,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
-						deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+						deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 						deliveryPointSectorVersionAlias.StartDate <= routeListAlias.Date &&
 						(deliveryPointSectorVersionAlias.EndDate == null ||
 						 deliveryPointSectorVersionAlias.EndDate <= routeListAlias.Date.AddDays(1)),
 					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 				                                                 sectorVersionAlias.StartDate <= routeListAlias.Date &&
 				                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
 					                                                 routeListAlias.Date.AddDays(1)),
@@ -510,7 +510,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Inner.JoinAlias(() => driverAlias.DriverDistrictPrioritySets, () => driverDistrictPrioritySetAlias)
 				.Inner.JoinAlias(() => driverDistrictPrioritySetAlias.DriverDistrictPriorities, () => driverDistrictPriorityAlias)
 				.JoinEntityAlias(() => sectorVersionAlias,
-					() => sectorVersionAlias.Sector == driverDistrictPriorityAlias.Sector &&
+					() => sectorVersionAlias.Sector.Id == driverDistrictPriorityAlias.Sector.Id &&
 					      sectorVersionAlias.StartDate <= routeListAlias.Date && (sectorVersionAlias.EndDate == null ||
 					                                                              sectorVersionAlias.EndDate <=
 					                                                              routeListAlias.Date.AddDays(1)), JoinType.LeftOuterJoin)

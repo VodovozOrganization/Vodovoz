@@ -16,11 +16,11 @@ namespace Vodovoz.ReportsParameters.Orders
 	public partial class FirstClientsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public FirstClientsReport(
-			IEntityAutocompleteSelectorFactory districtAutocompleteSelectorFactory,
+			IEntityAutocompleteSelectorFactory sectorsAutocompleteSelectorFactory,
 			IOrderRepository orderRepository)
 		{
-			var districtSelector = districtAutocompleteSelectorFactory ??
-			                       throw new ArgumentNullException(nameof(districtAutocompleteSelectorFactory));
+			var sectorsSelector = sectorsAutocompleteSelectorFactory ??
+			                       throw new ArgumentNullException(nameof(sectorsAutocompleteSelectorFactory));
 			
 			if(orderRepository == null)
 			{
@@ -34,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
-			entryDistrict.SetEntityAutocompleteSelectorFactory(districtSelector);
+			entryDistrict.SetEntityAutocompleteSelectorFactory(sectorsSelector);
 			entryDistrict.CanEditReference = false;
 		}
 

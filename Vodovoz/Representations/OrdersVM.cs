@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModel
 			if(Filter.RestrictOnlyWithoutCoodinates)
 			{
 				query.JoinEntityAlias(() => deliveryPointSectorVersionAlias,
-					() => deliveryPointSectorVersionAlias.DeliveryPoint == orderAlias.DeliveryPoint &&
+					() => deliveryPointSectorVersionAlias.DeliveryPoint.Id == orderAlias.DeliveryPoint.Id &&
 					      deliveryPointSectorVersionAlias.StartDate <= Filter.RestrictStartDate &&
 					      (deliveryPointSectorVersionAlias.EndDate == null || deliveryPointSectorVersionAlias.EndDate <=
 						      Filter.RestrictEndDate.Value.Date.AddDays(1)) && deliveryPointSectorVersionAlias.Latitude == null &&
@@ -180,7 +180,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 				                                                 sectorVersionAlias.StartDate <= Filter.RestrictStartDate &&
 				                                                 (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <=
 					                                                 Filter.RestrictEndDate.Value.Date.AddDays(1)),

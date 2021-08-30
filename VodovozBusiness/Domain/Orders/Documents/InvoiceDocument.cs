@@ -21,6 +21,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Identifier = "Documents.Invoice",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
+					{ "start_date", DocumentDate},
+					{ "end_date", DocumentDate?.AddDays(1)},
 					{ "without_advertising", WithoutAdvertising },
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },

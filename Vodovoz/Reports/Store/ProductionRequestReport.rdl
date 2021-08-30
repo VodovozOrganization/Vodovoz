@@ -96,12 +96,12 @@ FROM
                                  LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
                                  LEFT JOIN measurement_units On n.unit_id = measurement_units.id
                                  LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-                                 LEFT JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = delivery_points.id
-                                     AND geodata.start_date &gt;= @start_date
+                                 LEFT JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+                                     AND geodata.start_date &lt;= @start_date
                                      AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
                                  LEFT JOIN sectors ON sectors.id = geodata.sector_id
                                  LEFT JOIN sector_versions ON sector_versions.sector_id = sectors.id
-                                      AND sector_versions.start_date &gt;= @start_date
+                                      AND sector_versions.start_date &lt;= @start_date
                                       AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
                                  LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
                         WHERE

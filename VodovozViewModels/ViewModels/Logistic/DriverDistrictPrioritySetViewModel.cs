@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.Logistic
         public DelegateCommand AddDistrictsCommand => addDistrictCommand ?? (addDistrictCommand = new DelegateCommand(
             () => {
                 var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active, OnlyWithBorders = true };
-                var journalViewModel = new DistrictJournalViewModel(filter, unitOfWorkFactory, commonServices) {
+                var journalViewModel = new SectorJournalViewModel(filter, unitOfWorkFactory, commonServices) {
                     EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false,
                     SelectionMode = JournalSelectionMode.Multiple
                 };

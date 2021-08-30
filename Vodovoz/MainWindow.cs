@@ -226,7 +226,7 @@ public partial class MainWindow : Gtk.Window
 
         ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
         ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-        // ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+        ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Sector)).CanRead;
 
         //Читаем настройки пользователя
         switch (CurrentUserSettings.Settings.ToolbarStyle)
@@ -1592,8 +1592,8 @@ public partial class MainWindow : Gtk.Window
     {
 	    var sectorsFilter = new SectorJournalFilterViewModel{Status = SectorsSetStatus.Active};
 
-	    var sectorsSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(Sector),
-		    () => new DistrictJournalViewModel(sectorsFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+	    var sectorsSelectorFactory = new EntityAutocompleteSelectorFactory<SectorJournalViewModel>(typeof(Sector),
+		    () => new SectorJournalViewModel(sectorsFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 	    
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
@@ -1794,7 +1794,7 @@ public partial class MainWindow : Gtk.Window
     protected void OnActionWageDistrictActivated(object sender, EventArgs e)
     {
         tdiMain.AddTab(
-            new WageDistrictsJournalViewModel(
+            new WageSectorsJournalViewModel(
                  UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices
             )
@@ -2276,8 +2276,8 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
     {
-        IEntityAutocompleteSelectorFactory districtSelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Sector, DistrictJournalViewModel,
+        IEntityAutocompleteSelectorFactory sectorsSelectorFactory =
+            new DefaultEntityAutocompleteSelectorFactory<Sector, SectorJournalViewModel,
                 SectorJournalFilterViewModel>(ServicesConfig.CommonServices);
 
         IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
@@ -2286,7 +2286,7 @@ public partial class MainWindow : Gtk.Window
 
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory,
+            () => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, sectorsSelectorFactory,
                 UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
     }
 
@@ -2403,9 +2403,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(Sector), () => {
+		var sectorsSelectorFactory = new EntityAutocompleteSelectorFactory<SectorJournalViewModel>(typeof(Sector), () => {
 			var filter = new SectorJournalFilterViewModel { Status = SectorsSetStatus.Active };
-			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+			return new SectorJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 				EnableDeleteButton = true,
 				EnableAddButton = true,
 				EnableEditButton = true
@@ -2417,7 +2417,7 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService,
 				NavigationManager,
-				districtSelectorFactory)
+				sectorsSelectorFactory)
 		);
 	}
 	

@@ -18,7 +18,9 @@ namespace Vodovoz.Domain.Orders.Documents
 				Title = String.Format("Накладная №{0} от {1:d} (безденежно)", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.InvoiceBarter",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id }
+					{ "order_id",  Order.Id },
+					{ "start_date", DocumentDate},
+					{ "end_date", DocumentDate?.AddDays(1)}
 				}
 			};
 		}

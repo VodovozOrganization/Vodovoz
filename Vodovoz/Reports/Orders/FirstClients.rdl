@@ -767,7 +767,7 @@
     cc.name as came_from ,
     o.comment AS comment ,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
-    sector_versions.sector_name as delivery_district
+    sector_versions.name as delivery_district
 FROM 
     orders o
     INNER JOIN order_items i ON o.id = i.order_id
@@ -777,12 +777,12 @@ FROM
     INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
     LEFT JOIN employees e ON e.id = o.author_employee_id
     LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
-    INNER JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = dp.id
-        AND geodata.start_date &gt;= @start_date
+    INNER JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = dp.id
+        AND geodata.start_date &lt;= @start_date
         AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
     INNER JOIN sectors ON sectors.id = geodata.sector_id
     INNER JOIN sector_versions ON sector_versions.sector_id = sectors.id
-         AND sector_versions.start_date &gt;= @start_date
+         AND sector_versions.start_date &lt;= @start_date
          AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
     LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
     LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
@@ -883,12 +883,12 @@ FROM
         INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
         INNER JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
         LEFT JOIN employees e ON e.id = o.author_employee_id
-        INNER JOIN delivery_point_geodata_version geodata ON geodata.delivery_point_id = dp.id
-            AND geodata.start_date &gt;= @start_date
+        INNER JOIN delivery_points_geodata_versions geodata ON geodata.delivery_point_id = dp.id
+            AND geodata.start_date &lt;= @start_date
             AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @end_date)
         INNER JOIN sectors ON sectors.id = geodata.sector_id
         INNER JOIN sector_versions ON sector_versions.sector_id = sectors.id
-            AND sector_versions.start_date &gt;= @start_date
+            AND sector_versions.start_date &lt;= @start_date
             AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @end_date)
         LEFT JOIN geographic_groups gg ON gg.id = sector_versions.geographic_group_id
         LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id

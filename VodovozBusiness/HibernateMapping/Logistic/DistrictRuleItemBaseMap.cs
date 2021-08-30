@@ -18,7 +18,7 @@ namespace Vodovoz.HibernateMapping.Sale
 		}
 	}
 	
-	public class CommonDistrictRuleItemMap : SubclassMap<CommonDistrictRuleItem>
+	public class CommonDistrictRuleItemMap : SubclassMap<CommonSectorsRuleItem>
 	{
 		public CommonDistrictRuleItemMap()
 		{

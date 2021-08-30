@@ -128,12 +128,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
 
-		private IList<AtWorkDriverDistrictPriority> districtsPriorities = new List<AtWorkDriverDistrictPriority>();
+		private IList<AtWorkDriverDistrictPriority> _sectorsPriorities = new List<AtWorkDriverDistrictPriority>();
 
 		[Display(Name = "Районы")]
-		public virtual IList<AtWorkDriverDistrictPriority> DistrictsPriorities {
-			get => districtsPriorities;
-			set => SetField(ref districtsPriorities, value, () => DistrictsPriorities);
+		public virtual IList<AtWorkDriverDistrictPriority> SectorsPriorities {
+			get => _sectorsPriorities;
+			set => SetField(ref _sectorsPriorities, value, () => SectorsPriorities);
 		}
 
 		GenericObservableList<AtWorkDriverDistrictPriority> observableDistrictsPriorities;
@@ -141,7 +141,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual GenericObservableList<AtWorkDriverDistrictPriority> ObservableDistrictsPriorities {
 			get {
 				if(observableDistrictsPriorities == null) {
-					observableDistrictsPriorities = new GenericObservableList<AtWorkDriverDistrictPriority>(districtsPriorities);
+					observableDistrictsPriorities = new GenericObservableList<AtWorkDriverDistrictPriority>(_sectorsPriorities);
 					observableDistrictsPriorities.ElementAdded += ObservableDistrictsPrioritiesElementAdded;
 					observableDistrictsPriorities.ElementRemoved += ObservableDistrictsPrioritiesElementRemoved;
 				}
@@ -161,7 +161,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var activePrioritySet = driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
 			if(activePrioritySet != null && activePrioritySet.DriverDistrictPriorities.Any()) {
-				districtsPriorities = new List<AtWorkDriverDistrictPriority>(
+				_sectorsPriorities = new List<AtWorkDriverDistrictPriority>(
 					activePrioritySet.DriverDistrictPriorities.Select(x => x.CreateAtDay(this))
 				);
 			}
@@ -174,15 +174,15 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CheckDistrictsPriorities()
 		{
-			for(int i = 0; i < DistrictsPriorities.Count; i++) {
-				if(DistrictsPriorities[i] == null) {
-					DistrictsPriorities.RemoveAt(i);
+			for(int i = 0; i < SectorsPriorities.Count; i++) {
+				if(SectorsPriorities[i] == null) {
+					SectorsPriorities.RemoveAt(i);
 					i--;
 					continue;
 				}
 
-				if(DistrictsPriorities[i].Priority != i)
-					DistrictsPriorities[i].Priority = i;
+				if(SectorsPriorities[i].Priority != i)
+					SectorsPriorities[i].Priority = i;
 			}
 		}
 

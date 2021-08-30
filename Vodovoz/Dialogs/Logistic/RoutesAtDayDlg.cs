@@ -690,12 +690,12 @@ namespace Vodovoz
 				baseOrderQuery
 					.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 					.JoinEntityAlias(() => deliveryPointSectorVersionAlias,
-						() => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+						() => deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 						      deliveryPointSectorVersionAlias.StartDate <= ydateForRoutes.Date &&
 						      (deliveryPointSectorVersionAlias.EndDate == null ||
 						       deliveryPointSectorVersionAlias.EndDate <= ydateForRoutes.Date.AddDays(1)), JoinType.LeftOuterJoin)
 					.JoinEntityAlias(() => sectorVersionAlias,
-						() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+						() => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 						      sectorVersionAlias.StartDate <= ydateForRoutes.Date && (sectorVersionAlias.EndDate == null ||
 						                                                              sectorVersionAlias.EndDate <=
 						                                                              ydateForRoutes.Date.AddDays(1)),

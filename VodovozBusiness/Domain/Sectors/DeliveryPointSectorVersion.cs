@@ -148,7 +148,7 @@ namespace Vodovoz.Domain.Sectors
 		}
 
 
-		public virtual IList<SectorVersion> CalculateDistricts(IUnitOfWork uow, ISectorsRepository sectorsRepository)
+		public virtual IList<SectorVersion> CalculateSectors(IUnitOfWork uow, ISectorsRepository sectorsRepository)
 		{
 			if(!CoordinatesExist)
 			{

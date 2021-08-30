@@ -31,7 +31,7 @@
 		orders.delivery_point_id = items.delivery_point_id
 		AND order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled'
 		AND category = 'water' AND NOT is_disposable_tare) AS lastorder,
-    districts.district_name,
+    sector_versions.name,
 	(SELECT
 		SUM(delivered) - SUM(returned)
 	FROM
@@ -50,10 +50,18 @@ LEFT JOIN
 	counterparty ON items.counterparty_id = counterparty.id
 LEFT JOIN
 	delivery_points ON items.delivery_point_id = delivery_points.id
-LEFT JOIN
-	districts ON districts.id = delivery_points.district_id
+LEFT JOIN 
+    delivery_points_geodata_versions geodata ON geodata.delivery_point_id = delivery_points.id
+    AND geodata.start_date &lt;= @date_from
+    AND (geodata.end_date IS NULL OR geodata.end_date &lt;= @date_to)
+LEFT JOIN 
+    sectors ON sectors.id = geodata.sector_id
+LEFT JOIN 
+    sector_versions ON sector_versions.sector_id = sectors.id
+    AND sector_versions.start_date &lt;= @date_from
+    AND (sector_versions.end_date IS NULL OR sector_versions.end_date &lt;= @date_to)
 WHERE	
-	districts.tariff_zone_id = @tariff_zone_id
+	sector_versions.tariff_zone_id = @tariff_zone_id
 GROUP BY delivery_points.id
 HAVING
 	delivery_point_debt &gt; @debt_from AND delivery_point_debt &lt; @debt_to

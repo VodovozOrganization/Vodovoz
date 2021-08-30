@@ -220,11 +220,11 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
-					deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+					deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 					deliveryPointSectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
 					(deliveryPointSectorVersionAlias.EndDate == null ||
 					 deliveryPointSectorVersionAlias.EndDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1)), JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 				                                                 sectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
 				                                                 (sectorVersionAlias.EndDate == null ||
 				                                                  sectorVersionAlias.EndDate <=

@@ -18,7 +18,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		public QueryOver<SectorVersion> GetSectorVersion(DateTime? activationTime) {
 			if(activationTime.HasValue)
 				return QueryOver.Of<SectorVersion>()
-				.Where(x => x.StartDate >= activationTime.Value && (x.EndDate < activationTime.Value.Date.AddDays(1) || x.EndDate == null))
+				.Where(x => x.StartDate <= activationTime.Value && (x.EndDate == null || x.EndDate <= activationTime.Value.Date.AddDays(1) ))
 				.And(x => x.Polygon != null);
 			return QueryOver.Of<SectorVersion>()
 				.Where(x => x.Status == SectorsSetStatus.Active)

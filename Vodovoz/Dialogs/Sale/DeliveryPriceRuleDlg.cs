@@ -52,7 +52,7 @@ namespace Vodovoz.Dialogs.Sale
 					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.SectorName)
 					.Finish();
 
-				treeDistricts.ItemsDataSource = _districtRuleRepository.GetDistrictsHavingRule(UoW, Entity);
+				treeDistricts.ItemsDataSource = _districtRuleRepository.GetSectorsHavingRule(UoW, Entity);
 			}
 		}
 

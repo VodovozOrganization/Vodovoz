@@ -20,13 +20,13 @@ namespace Vodovoz.ReportsParameters.Retail
         private readonly IInteractiveService interactiveService;
         
         public CounterpartyReport(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory, IUnitOfWorkFactory unitOfWorkFactory,
+            IEntityAutocompleteSelectorFactory sectorsSelectorFactory, IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
             this.Build();
             this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             UoW = unitOfWorkFactory.CreateWithoutRoot();
-            ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
+            ConfigureView(salesChannelSelectorFactory, sectorsSelectorFactory);
         }
 
         public string Title => $"Отчет по контрагентам розницы";
@@ -34,11 +34,11 @@ namespace Vodovoz.ReportsParameters.Retail
         public event EventHandler<LoadReportEventArgs> LoadReport;
 
         private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory)
+            IEntityAutocompleteSelectorFactory sectorsSelectorFactory)
         {
             buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
-            yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
+            yEntityDistrict.SetEntityAutocompleteSelectorFactory(sectorsSelectorFactory);
             yenumPaymentType.ItemsEnum = typeof(PaymentType);
             yenumPaymentType.SelectedItem = PaymentType.cash;
         }
@@ -49,7 +49,7 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "create_date", ydateperiodpickerCreate.StartDateOrNull },
                 { "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
                 { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
-                { "district", (yEntityDistrict.Subject as Sector)?.Id ?? 0 },
+                { "sector", (yEntityDistrict.Subject as Sector)?.Id ?? 0 },
                 { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
                 { "all_types", (ycheckpaymentform.Active)}
             };

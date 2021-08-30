@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Sale
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "стоимости доставки района",
 		Nominative = "стоимость доставки района")]
-	public class CommonDistrictRuleItem : DistrictRuleItemBase
+	public class CommonSectorsRuleItem : DistrictRuleItemBase
 	{
 		public virtual string Title => $"{DeliveryPriceRule}, то цена {Price.ToString("C0", CultureInfo.CreateSpecificCulture("ru-RU"))}";
 
@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Sale
 		}
 		public override object Clone()
 		{
-			var newCommonDistrictRuleItem = new CommonDistrictRuleItem {
+			var newCommonDistrictRuleItem = new CommonSectorsRuleItem {
 				Price = Price,
 				DeliveryPriceRule = DeliveryPriceRule,
 				SectorDeliveryRuleVersion = SectorDeliveryRuleVersion

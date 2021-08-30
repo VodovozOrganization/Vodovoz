@@ -176,11 +176,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			var query = Uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 				                                                              deliveryPointSectorVersionAlias.StartDate <= StartDeliveryDate &&
 				                                                              (deliveryPointSectorVersionAlias.EndDate == null || deliveryPointSectorVersionAlias.EndDate <= EndDeliveryDate.Value.Date.AddDays(1)),
 					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+				.JoinEntityAlias(() => sectorVersionAlias,() => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 				                                                sectorVersionAlias.StartDate <= StartDeliveryDate && 
 				                                                (sectorVersionAlias.EndDate == null || sectorVersionAlias.EndDate <= EndDeliveryDate.Value.Date.AddDays(1)),
 					JoinType.LeftOuterJoin)

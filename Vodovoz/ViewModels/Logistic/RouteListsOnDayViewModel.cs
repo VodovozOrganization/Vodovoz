@@ -1174,12 +1174,12 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
-							deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+							deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 							deliveryPointSectorVersionAlias.StartDate <= DateForRouting.Date &&
 							(deliveryPointSectorVersionAlias.EndDate == null ||
 							 deliveryPointSectorVersionAlias.EndDate <= DateForRouting.Date.AddDays(1)), JoinType.LeftOuterJoin)
 						.JoinEntityAlias(() => sectorVersionAlias,
-							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+							() => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 							      sectorVersionAlias.StartDate >= DateForRouting.Date && (sectorVersionAlias.EndDate != null ||
 							                                                              sectorVersionAlias.EndDate <=
 							                                                              DateForRouting.Date.AddDays(1)),
@@ -1419,12 +1419,12 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
 						.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () =>
-							deliveryPointSectorVersionAlias.DeliveryPoint == deliveryPointAlias &&
+							deliveryPointSectorVersionAlias.DeliveryPoint.Id == deliveryPointAlias.Id &&
 							deliveryPointSectorVersionAlias.StartDate <= DateForRouting.Date &&
 							(deliveryPointSectorVersionAlias.EndDate == null ||
 							 deliveryPointSectorVersionAlias.EndDate <= DateForRouting.Date.AddDays(1)), JoinType.LeftOuterJoin)
 						.JoinEntityAlias(() => sectorVersionAlias,
-							() => sectorVersionAlias.Sector == deliveryPointSectorVersionAlias.Sector &&
+							() => sectorVersionAlias.Sector.Id == deliveryPointSectorVersionAlias.Sector.Id &&
 							      sectorVersionAlias.StartDate >= DateForRouting.Date && (sectorVersionAlias.EndDate != null ||
 							                                                              sectorVersionAlias.EndDate <=
 							                                                              DateForRouting.Date.AddDays(1)),
