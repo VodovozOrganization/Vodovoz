@@ -1,86 +1,93 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "документы",
-		Nominative = "документ")]
+		NominativePlural = "документы сотрудника",
+		Nominative = "документ сотрудника")]
+	[EntityPermission]
 	public class EmployeeDocument: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
-		EmployeeDocumentType document;
+		private EmployeeDocumentType _document;
 
 		[Display(Name = "Тип документа")]
 		public virtual EmployeeDocumentType Document {
-			get { return document; }
-			set { SetField(ref document, value, () => Document); }
+			get { return _document; }
+			set { SetField(ref _document, value); }
 		}
 
-		String title ="Документы";
+		private string _title ="Документы";
 
-		public virtual String Title {
-			get { return title; }
-			set { SetField(ref title, value, () => Title); }
+		public virtual string Title {
+			get { return _title; }
+			set { SetField(ref _title, value); }
 		}
 
-		String name;
+		private string _name;
 
 		[Display(Name = "Название")]
-		public virtual String Name {
-			get { return name; }
-			set { SetField(ref name, value, () => Name); }
+		public virtual string Name {
+			get { return _name; }
+			set { SetField(ref _name, value); }
 		}
 
-		bool? mainDoc;
+		private bool? _mainDoc;
 
 		[Display(Name = "Главный документ")]
 		public virtual bool? MainDocument{
-			get { return mainDoc; }
-			set { SetField(ref mainDoc, value, () => MainDocument); }
+			get { return _mainDoc; }
+			set { SetField(ref _mainDoc, value); }
 		}
 
-		string passportSeria;
+		private string _passportSeria;
 
 		[Display(Name = "Серия паспорта")]
 		public virtual string PassportSeria {
-			get { return passportSeria; }
-			set { SetField(ref passportSeria, value, () => PassportSeria); }
+			get { return _passportSeria; }
+			set { SetField(ref _passportSeria, value); }
 		}
 
-		string passportNumber;
+		private string _passportNumber;
 
 		[Display(Name = "Номер паспорта")]
 		public virtual string PassportNumber {
-			get { return passportNumber; }
-			set { SetField(ref passportNumber, value, () => PassportNumber); }
+			get { return _passportNumber; }
+			set { SetField(ref _passportNumber, value); }
 		}
 
-		string passportIssuedOrg;
+		private string _passportIssuedOrg;
 
 		[Display(Name = "Кем выдан паспорт")]
 		public virtual string PassportIssuedOrg {
-			get { return passportIssuedOrg; }
-			set { SetField(ref passportIssuedOrg, value, () => PassportIssuedOrg); }
+			get { return _passportIssuedOrg; }
+			set { SetField(ref _passportIssuedOrg, value); }
 		}
 
-		private DateTime? passportIssuedDate;
+		private DateTime? _passportIssuedDate;
 
 		[Display(Name = "Дата выдачи паспорта")]
 		public virtual DateTime? PassportIssuedDate {
-			get { return passportIssuedDate; }
-			set { SetField(ref passportIssuedDate, value, () => PassportIssuedDate); }
+			get { return _passportIssuedDate; }
+			set { SetField(ref _passportIssuedDate, value); }
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(String.IsNullOrEmpty(PassportSeria))
+			if(string.IsNullOrEmpty(PassportSeria))
+			{
 				yield return new ValidationResult("Серия должна быть заполнена", new[] { "PassportSeria" });
-			if(String.IsNullOrEmpty(PassportNumber))
+			}
+
+			if(string.IsNullOrEmpty(PassportNumber))
+			{
 				yield return new ValidationResult("Номер должен быть заполнен", new[] { "PassportNumber" });
+			}
 		}
 
 	}
