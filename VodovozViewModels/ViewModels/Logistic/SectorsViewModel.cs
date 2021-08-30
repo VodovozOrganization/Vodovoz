@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DocumentFormat.OpenXml.Drawing;
 using Gamma.Utilities;
 using GMap.NET;
 using MoreLinq;
@@ -857,28 +858,61 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public DelegateCommand FilterableSectors => _filterableSectors ?? (_filterableSectors = new DelegateCommand(() =>
 		{
-			var sectors = UoW.GetAll<Sector>().ToList();
-			sectors.ForEach(s =>
-			{
-				if(Status.HasValue)
-				{
-					sectors = s.SectorVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList();
-					sectors = s.SectorDeliveryRuleVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList();
-					sectors = s.SectorWeekDaySchedulesVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList();
-					sectors = s.SectorWeekDayDeliveryRuleVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList();
-				}
+			ObservableSectorNodeViewModels.Clear();
+			ObservableSectors.Clear();
+			var querySectors = UoW.GetAll<Sector>()
+				.Select(x =>
+					new
+					{
+						a = x.SectorVersions.Where(b =>
+							(Status.HasValue && b.Status == Status) || (StartDateSector.HasValue && b.StartDate >= StartDateSector)).Select(c => c.Sector),
+						b = x.SectorDeliveryRuleVersions.Where(b =>
+							(Status.HasValue && b.Status == Status) || (StartDateSector.HasValue && b.StartDate >= StartDateSector)).Select(c => c.Sector),
+						c = x.SectorWeekDaySchedulesVersions.Where(b =>
+							(Status.HasValue && b.Status == Status) || (StartDateSector.HasValue && b.StartDate >= StartDateSector)).Select(c => c.Sector),
+						d = x.SectorWeekDayDeliveryRuleVersions.Where(b =>
+							(Status.HasValue && b.Status == Status) || (StartDateSector.HasValue && b.StartDate >= StartDateSector)).Select(c => c.Sector),
+					}).ToList();
 
-				if(StartDateSector.HasValue)
-				{
-					sectors = s.SectorVersions.Where(x => x.StartDate >= StartDateSector).Select(x => x.Sector).ToList();
-					sectors = s.SectorDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector).ToList();
-					sectors = s.SectorWeekDaySchedulesVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector)
-						.ToList();
-					sectors = s.SectorWeekDayDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector)
-						.ToList();
-				}
+			var filterableSectors = new List<Sector>();
+			querySectors.ForEach(x =>
+			{
+				filterableSectors.AddRange(x.a);
+				filterableSectors.AddRange(x.b);
+				filterableSectors.AddRange(x.c);
+				filterableSectors.AddRange(x.d);
 			});
-			ObservableSectors = new GenericObservableList<Sector>(sectors);
+
+			filterableSectors = filterableSectors.Distinct().ToList();
+			// sectors.ForEach(s =>
+			// {
+			// 	if(Status.HasValue)
+			// 	{
+			// 		sectors.Concat() = s.SectorVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList();
+			// 		sectors.Concat(s.SectorDeliveryRuleVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList());
+			// 		sectors.Concat(s.SectorWeekDaySchedulesVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList());
+			// 		sectors.Concat(s.SectorWeekDayDeliveryRuleVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList());
+			// 	}
+			//
+			// 	if(StartDateSector.HasValue)
+			// 	{
+			// 		sectors = s.SectorVersions.Where(x => x.StartDate >= StartDateSector).Select(x => x.Sector).ToList();
+			// 		sectors = s.SectorDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector).ToList();
+			// 		sectors = s.SectorWeekDaySchedulesVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector)
+			// 			.ToList();
+			// 		sectors = s.SectorWeekDayDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector)
+			// 			.ToList();
+			// 	}
+			// });
+			ObservableSectors = new GenericObservableList<Sector>(filterableSectors);
+			ObservableSectors.ForEach(x =>
+			{
+				var sectorVersionForNode = x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.Active) ??
+				                           x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
+				                           x.SectorVersions.LastOrDefault(z => z.Status == SectorsSetStatus.Draft);
+				ObservableSectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated,
+					sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
+			});
 			OnPropertyChanged(nameof(ObservableSectors));
 		}));
 

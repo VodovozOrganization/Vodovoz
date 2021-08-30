@@ -101,9 +101,9 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Мин. бутылей")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x =>
-						x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Any()
+						x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now) != null ? x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Any()
 							? x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Min(c => c.DeliveryPriceRule.Water19LCount).ToString()
-							: "-"
+							: "-" : "-"
 					)
 					.XAlign(0.5f)
 				.AddColumn("Часть города")
