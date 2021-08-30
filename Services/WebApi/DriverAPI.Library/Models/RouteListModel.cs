@@ -90,10 +90,20 @@ namespace DriverAPI.Library.Models
 				);
 		}
 
-		public void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime)
+		public void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId)
 		{
-			var deliveryPoint = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)?.Order?.DeliveryPoint
+			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
+				?? throw new ArgumentOutOfRangeException(nameof(routeListAddressId), $"Адрес МЛ {routeListAddressId} не нейден");
+
+			var deliveryPoint = routeListAddress.Order?.DeliveryPoint
 				?? throw new DataNotFoundException(nameof(routeListAddressId), $"Точка доставки для адреса не найдена");
+
+			if(routeListAddress.RouteList.Driver.Id != driverId)
+			{
+				_logger.LogWarning($"Попытка записи координаты точки доставки {routeListAddressId} МЛ водителя {routeListAddress.RouteList.Driver.Id}," +
+					$" водителем {driverId}");
+				throw new AccessViolationException("Нельзя записать координаты точки доставки для МЛ другого водителя");
+			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
 			{
@@ -135,6 +145,13 @@ namespace DriverAPI.Library.Models
 
 			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
+		}
+
+		public bool IsRouteListBelongToDriver(int routeListId, int driverId)
+		{
+			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId);
+
+			return routeList?.Driver.Id == driverId;
 		}
 	}
 }

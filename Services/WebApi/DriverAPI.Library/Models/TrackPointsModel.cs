@@ -28,11 +28,18 @@ namespace DriverAPI.Library.Models
 		{
 			var track = _trackRepository.GetTrackByRouteListId(_unitOfWork, routeListId);
 
-			if (track == null)
-			{
-				var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
+			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 					?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
+			if(routeList.Status != RouteListStatus.EnRoute
+			&& routeList.Status != RouteListStatus.Delivered)
+			{
+				_logger.LogWarning($"Попытка записать трек для МЛ {routeListId}, МЛ в статусе '{routeList.Status}'");
+				throw new InvalidOperationException($"Нельзя записать трек для МЛ {routeListId}, МЛ в статусе недоступном для записи трека");
+			}
+
+			if (track == null)
+			{
 				track = new Track()
 				{
 					RouteList = routeList,
