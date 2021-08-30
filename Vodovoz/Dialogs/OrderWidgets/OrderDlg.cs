@@ -36,6 +36,7 @@ using System.IO;
 using System.Linq;
 using QS.ViewModels;
 using Autofac;
+using QS.Project.Journal.Actions.ViewModels;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;

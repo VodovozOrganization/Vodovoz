@@ -7,6 +7,7 @@ using Vodovoz.Domain.Orders;
 using QS.Commands;
 using Vodovoz.JournalViewModels;
 using System.Linq;
+using QS.Project.Journal.Actions.ViewModels;
 
 namespace Vodovoz.ViewModels.Orders
 {

@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;

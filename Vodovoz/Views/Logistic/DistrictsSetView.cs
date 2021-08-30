@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Services;
 using QS.Utilities;
 using QS.ViewModels;

@@ -6,6 +6,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;

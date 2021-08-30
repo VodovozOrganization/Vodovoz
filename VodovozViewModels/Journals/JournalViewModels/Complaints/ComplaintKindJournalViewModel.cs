@@ -6,6 +6,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using QS.Project.DB;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;

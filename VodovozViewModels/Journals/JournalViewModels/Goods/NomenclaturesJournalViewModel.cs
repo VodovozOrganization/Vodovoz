@@ -7,6 +7,7 @@ using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;

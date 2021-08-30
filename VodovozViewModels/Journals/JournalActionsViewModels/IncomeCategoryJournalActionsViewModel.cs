@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using QS.Commands;
 using QS.Dialog;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;

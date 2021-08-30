@@ -4,6 +4,7 @@ using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Journal.GtkUI;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.RepresentationModel;
 using QS.Tdi;
 using QS.ViewModels;

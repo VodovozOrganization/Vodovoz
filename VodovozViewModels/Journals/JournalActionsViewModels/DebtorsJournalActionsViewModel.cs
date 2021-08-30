@@ -2,6 +2,7 @@
 using System.Linq;
 using QS.Commands;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.ViewModels;
 using Vodovoz.ViewModels.Journals.Nodes;
 

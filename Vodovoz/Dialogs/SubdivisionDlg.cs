@@ -20,6 +20,7 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using QS.Project.Services;
 using Vodovoz.TempAdapters;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.ViewModels;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;

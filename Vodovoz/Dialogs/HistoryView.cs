@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.HistoryLog.Domain;
 using QS.Project.DB;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Utilities;

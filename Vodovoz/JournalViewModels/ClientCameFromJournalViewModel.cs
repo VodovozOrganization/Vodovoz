@@ -4,6 +4,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Dialogs.Client;

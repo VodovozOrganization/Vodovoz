@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.ViewModels;
 using Vodovoz.Domain.Retail;
 

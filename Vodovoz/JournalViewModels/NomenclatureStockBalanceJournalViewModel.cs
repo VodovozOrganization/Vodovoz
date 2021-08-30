@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;

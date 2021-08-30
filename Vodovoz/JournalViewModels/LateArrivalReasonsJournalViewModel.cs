@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.JournalNodes;
 using NHibernate;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.ViewModels;
 
 namespace Vodovoz.JournalViewModels

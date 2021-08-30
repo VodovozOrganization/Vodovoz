@@ -113,6 +113,7 @@ using QS.Dialog;
 using QS.Osm;
 using QS.Osm.Loaders;
 using QS.Osm.Osrm;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Repositories;
 using QS.ViewModels;
 using Vodovoz.Domain.EntityFactories;

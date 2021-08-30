@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Commands;
 using QS.Dialog;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;

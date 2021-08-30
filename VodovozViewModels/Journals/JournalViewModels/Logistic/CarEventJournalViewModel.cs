@@ -8,6 +8,7 @@ using QS.Services;
 using System;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;

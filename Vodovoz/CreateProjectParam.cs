@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Permissions;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Services;

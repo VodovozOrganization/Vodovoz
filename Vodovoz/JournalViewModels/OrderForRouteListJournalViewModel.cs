@@ -9,6 +9,7 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

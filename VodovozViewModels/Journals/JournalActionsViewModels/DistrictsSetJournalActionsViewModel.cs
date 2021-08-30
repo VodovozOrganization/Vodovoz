@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;

@@ -7,6 +7,7 @@ using QS.Services;
 using System;
 using NHibernate.Criterion;
 using QS.Project.DB;
+using QS.Project.Journal.Actions.ViewModels;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;

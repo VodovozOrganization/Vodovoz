@@ -15,6 +15,7 @@ using QS.Project.Journal.EntitySelector;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.Actions.ViewModels;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Employees
