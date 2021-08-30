@@ -1682,6 +1682,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
     <Compile Include="Views\ReportsParameters\Cash\DayOfSalaryGiveoutReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Cash.DayOfSalaryGiveoutReportView.cs" />
+    <Compile Include="Views\Reports\ProductionWarehouseMovementReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.ProductionWarehouseMovementReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
