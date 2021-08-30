@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Goods
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices, NavigationManager);
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices);
 
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();

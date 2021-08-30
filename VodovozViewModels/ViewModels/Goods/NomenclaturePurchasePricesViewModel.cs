@@ -14,7 +14,6 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	public class NomenclaturePurchasePricesViewModel : EntityWidgetViewModelBase<Nomenclature>
 	{
 		private readonly ITdiTab _tab;
-		private readonly ICommonServices _commonServices;
 		private DateTime? _startDate;
 		private DelegateCommand _changePurchasePriceCommand;
 		private DelegateCommand<NomenclaturePurchasePrice> _changePurchasePriceStartDateCommand;
@@ -24,15 +23,13 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			Nomenclature entity,
 			ITdiTab tab,
 			IUnitOfWork uow,
-			ICommonServices commonServices,
-			INavigationManager navigationManager) : base(entity, commonServices)
+			ICommonServices commonServices) : base(entity, commonServices)
 		{
 			_tab = tab ?? throw new ArgumentNullException(nameof(tab));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 		}
 
-		private NomenclaturePurchasePrice GetPreviousPurchhasePrice(DateTime date) =>
+		private NomenclaturePurchasePrice GetPreviousPurchasePrice(DateTime date) =>
 			Entity.ObservablePurchasePrices
 			.Where(x => x.EndDate != null)
 			.Where(x => x.EndDate <= date)
@@ -82,14 +79,14 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 					_changePurchasePriceStartDateCommand = new DelegateCommand<NomenclaturePurchasePrice>(
 						(node) =>
 						{
-							if(!_commonServices.InteractiveService.Question(
+							if(!CommonServices.InteractiveService.Question(
 								"Внимание! Будет произведено изменение даты цены закупки." +
-								"Продолжить?", "Внимание!"))
+								" Продолжить?", "Внимание!"))
 							{
 								return;
 							}
 
-							var previousPurchasePrice = GetPreviousPurchhasePrice(node.StartDate);
+							var previousPurchasePrice = GetPreviousPurchasePrice(node.StartDate);
 							if(previousPurchasePrice != null)
 							{
 								previousPurchasePrice.EndDate = StartDate.Value.AddTicks(-1);
@@ -102,8 +99,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 							{
 								return false;
 							}
-							var previousPurchasePriceByDate = GetPreviousPurchhasePrice(StartDate.Value);
-							var previousPurchasePriceBySelectedParameter = GetPreviousPurchhasePrice(node.StartDate);
+							var previousPurchasePriceByDate = GetPreviousPurchasePrice(StartDate.Value);
+							var previousPurchasePriceBySelectedParameter = GetPreviousPurchasePrice(node.StartDate);
 
 							bool noConflictWithEndDate = !node.EndDate.HasValue || node.EndDate.Value > StartDate;
 							bool noConflictWithPreviousStartDate = (previousPurchasePriceByDate == null && previousPurchasePriceBySelectedParameter == null) || (previousPurchasePriceBySelectedParameter != null && previousPurchasePriceBySelectedParameter.StartDate < StartDate);

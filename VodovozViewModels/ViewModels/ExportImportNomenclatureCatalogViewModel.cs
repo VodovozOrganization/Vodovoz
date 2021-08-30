@@ -824,7 +824,6 @@ namespace Vodovoz.ViewModels
 							nomToUpdate.ShortName = null;
 							nomToUpdate.Name = newNom.Name;
 							nomToUpdate.OfficialName = newNom.Name;
-							nomToUpdate.PurchasePrice = newNom.PurchasePrice;
 							if(!DontChangeSellPrice) {
 								nomToUpdate.NomenclaturePrice.Clear();
 								nomToUpdate.NomenclaturePrice.Add(newNom.NomenclaturePrice.First());
@@ -846,7 +845,6 @@ namespace Vodovoz.ViewModels
 							nomToUpdate.OfficialName = newNom.Name;
 							break;
 						case ConfirmUpdateAction.UpdatePrices:
-							nomToUpdate.PurchasePrice = newNom.PurchasePrice;
 							if(!DontChangeSellPrice) {
 								nomToUpdate.NomenclaturePrice.Clear();
 								nomToUpdate.NomenclaturePrice.Add(newNom.NomenclaturePrice.First());

@@ -161,9 +161,6 @@ namespace Vodovoz.Views.Goods
 			yentryStorageCell.Binding.AddBinding(ViewModel.Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
 			yentryStorageCell.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
 			labelStorageCell.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
-			yspinbuttonPurchasePrice.Binding.AddBinding(ViewModel.Entity, s => s.PurchasePrice, w => w.ValueAsDecimal).InitializeFromSource();
-			yspinbuttonPurchasePrice.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
-			labelPurchasePrice.Binding.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible).InitializeFromSource();
 
 			#region Вкладка Оборудование
 

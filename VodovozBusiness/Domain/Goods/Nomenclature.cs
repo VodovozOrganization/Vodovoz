@@ -447,13 +447,6 @@ namespace Vodovoz.Domain.Goods
 			get => onlineStoreExternalId;
 			set => SetField(ref onlineStoreExternalId, value);
 		}
-		
-		private decimal purchasePrice;
-		[Display(Name = "Цена закупки")]
-		public virtual decimal PurchasePrice {
-			get => purchasePrice;
-			set => SetField(ref purchasePrice, value);
-		}
 
 		private Counterparty shipperCounterparty;
 		[Display(Name = "Поставщик")]

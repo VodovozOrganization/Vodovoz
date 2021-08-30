@@ -8,7 +8,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	//Наследуется от TabViewModelBase потому что должен и открываться во вкладке и иметь существующий UoW, а не создавать новый
 	public class NomenclaturePurchasePriceViewModel : TabViewModelBase, ISingleUoWDialog
 	{
 		private readonly bool _isNewEntity;
@@ -38,7 +37,6 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			NomenclaturePurchasePrice nomenclaturePurchasePrice,
 			ICommonServices commonServices)
 			: base((commonServices ?? throw new ArgumentNullException(nameof(commonServices))).InteractiveService, null)
-
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			Entity = nomenclaturePurchasePrice ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePrice));
