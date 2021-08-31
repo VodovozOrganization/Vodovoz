@@ -31,6 +31,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Representations;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -166,6 +167,8 @@ namespace Vodovoz
 			entityviewmodelentryShipperCounterparty.CanEditReference = true;
 			yentryStorageCell.Binding.AddBinding(Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
 			UpdateVisibilityForEshopParam();
+
+			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, ServicesConfig.CommonServices);
 
 			#region Вкладка характиристики
 
@@ -346,6 +349,14 @@ namespace Vodovoz
 		{
 			if(radioPrice.Active)
 				notebook1.CurrentPage = 4;
+		}
+
+		protected void OnPurchasePriceToggled(object sender, EventArgs e)
+		{
+			if(radioPurchasePrice.Active)
+			{
+				notebook1.CurrentPage = 5;
+			}
 		}
 
 		#endregion
