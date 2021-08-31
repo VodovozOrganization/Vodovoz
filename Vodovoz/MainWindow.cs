@@ -2473,4 +2473,10 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.AddTab(journal);
 	}
+
+	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
+	{
+
+	}
+
 }
