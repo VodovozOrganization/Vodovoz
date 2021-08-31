@@ -23,6 +23,17 @@ namespace Vodovoz.Reports
 				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
+			yentryreferenceDriver.Changed += (sender, args) =>
+			{
+				if(dateperiodpicker.StartDateOrNull.HasValue)
+					OnUpdate(true);
+			};
+			
+			dateperiodpicker.PeriodChanged += (sender, args) =>
+			{
+				if((yentryreferenceDriver.Subject as Employee) != null)
+					OnUpdate(true);
+			};
 		}
 
 		#region IParametersWidget implementation
