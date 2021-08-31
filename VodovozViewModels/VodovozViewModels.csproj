@@ -66,6 +66,10 @@
     <Compile Include="Journals\FilterViewModels\Employees\EmployeeFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
+    <Compile Include="Factories\INonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\IRentPackagesJournalsViewModelsFactory.cs" />
+    <Compile Include="Factories\NonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\RentPackagesJournalsViewModelsFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\ProductGroupJournalFilterViewModel.cs" />
@@ -180,6 +184,7 @@
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\NonSerialEquipmentsForRentJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Rent\PaidRentPackagesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Security\RegisteredRMJournalViewModel.cs" />

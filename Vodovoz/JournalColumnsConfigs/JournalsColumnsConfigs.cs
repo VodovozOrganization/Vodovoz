@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Proposal;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -1299,9 +1300,12 @@ namespace Vodovoz.JournalColumnsConfigs
 			//FreeRentPackagesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<FreeRentPackagesJournalViewModel>(
 				() => FluentColumnsConfig<FreeRentPackagesJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
-					.AddColumn("Название").AddTextRenderer(n => n.Name)
-					.AddColumn("Тип оборудования").AddTextRenderer(n => n.EquipmentTypeName)
+					.AddColumn("Код")
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Тип оборудования")
+						.AddTextRenderer(n => n.EquipmentTypeName)
 					.AddColumn("")
 					.Finish()
 			);
@@ -1309,11 +1313,36 @@ namespace Vodovoz.JournalColumnsConfigs
 			//PaidRentPackagesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PaidRentPackagesJournalViewModel>(
 				() => FluentColumnsConfig<PaidRentPackagesJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
-					.AddColumn("Название").AddTextRenderer(n => n.Name)
-					.AddColumn("Тип оборудования").AddTextRenderer(n => n.EquipmentTypeName)
-					.AddColumn("Цена в сутки").AddTextRenderer(n => n.PriceDailyString)
-					.AddColumn("Цена в месяц").AddTextRenderer(n => n.PriceMonthlyString)
+					.AddColumn("Код")
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Тип оборудования")
+						.AddTextRenderer(n => n.EquipmentTypeName)
+					.AddColumn("Цена в сутки")
+						.AddTextRenderer(n => n.PriceDailyString)
+					.AddColumn("Цена в месяц")
+						.AddTextRenderer(n => n.PriceMonthlyString)
+					.AddColumn("")
+					.Finish()
+			);
+			
+			//EquipmentsNonSerialForRentJournalViewModel
+			TreeViewColumnsConfigFactory.Register<NonSerialEquipmentsForRentJournalViewModel>(
+				() => FluentColumnsConfig<NomenclatureForRentNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Оборудование")
+						.AddTextRenderer (node => node.NomenclatureName)
+					.AddColumn("Тип оборудования")
+						.AddTextRenderer (node => node.Kind != null ? node.Kind.Name : "")
+					.AddColumn("Кол-во")
+						.AddTextRenderer (node => node.InStockText)
+					.AddColumn("Зарезервировано")
+						.AddTextRenderer (node => node.ReservedText)
+					.AddColumn("Доступно")
+						.AddTextRenderer (node => node.AvailableText)
+						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
 					.AddColumn("")
 					.Finish()
 			);

@@ -3053,7 +3053,7 @@ namespace Vodovoz
 					.Distinct()
 					.ToArray();
 				
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
+				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
 				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
 			}
 			else {
@@ -3141,8 +3141,8 @@ namespace Vodovoz
 					.Select(x => x.Nomenclature.Id)
 					.Distinct()
 					.ToArray();
-
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
+				
+				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
 				AddFreeRent(freeRentPackage, anyNomenclature);
 			}
 			else
