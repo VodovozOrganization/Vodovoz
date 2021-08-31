@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Navigation;
+using QS.Views.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Rent;
@@ -15,6 +16,9 @@ namespace Vodovoz.Views.Rent
 
         private void Configure()
         {
+	        buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
+	        buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+	        
             dataentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
             spinDeposit.Binding.AddBinding(ViewModel.Entity, e => e.Deposit, w => w.ValueAsDecimal).InitializeFromSource();
             spinPriceDaily.Binding.AddBinding(ViewModel.Entity, e => e.PriceDaily, w => w.ValueAsDecimal).InitializeFromSource();

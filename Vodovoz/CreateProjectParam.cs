@@ -2,6 +2,9 @@
 using System.Data.Common;
 using System.IO;
 using Autofac;
+using QS.Deletion;
+using QS.Deletion.Configuration;
+using QS.Deletion.ViewModels;
 using QS.Deletion.Views;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -16,6 +19,7 @@ using QS.Project.Services.GtkUI;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
 using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
@@ -386,13 +390,19 @@ namespace Vodovoz
 			#endregion
 
 			#region Сервисы
+			
 			#region GtkUI
 			builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 			builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
 			#endregion GtkUI
+			
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 			builder.RegisterType<UserService>().As<IUserService>();
+			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
+			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
+			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
+			
 			#endregion
 
 			#region Vodovoz
@@ -467,12 +477,16 @@ namespace Vodovoz
 			#endregion
 
 			#region ViewModels
+			
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
 			builder.RegisterAssemblyTypes(
 					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 				 	System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
+			builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
+			builder.RegisterType<DeletionProcessViewModel>().As<IOnCloseActionViewModel>().AsSelf();
+
 			#endregion
 
 			AppDIContainer = builder.Build();

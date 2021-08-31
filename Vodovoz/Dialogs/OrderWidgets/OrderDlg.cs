@@ -35,6 +35,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using QS.Deletion;
+using QS.Services;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -68,6 +70,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
+using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
@@ -79,6 +82,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -3016,17 +3020,28 @@ namespace Vodovoz
 		
 		private void SelectPaidRentPackage(RentType rentType)
 		{
-			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
-				Mode = OrmReferenceMode.Select
+			var paidRentJournal = new PaidRentPackagesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, MainClass.MainWin.NavigationManager)
+			{
+				SelectionMode = JournalSelectionMode.Single,
+				VisibleCreateAction = false,
+				VisibleEditAction = false,
+				VisibleDeleteAction = false
 			};
-			ormReference.ObjectSelected += (sender, e) => {
-				if (!(e.Subject is PaidRentPackage selectedRentPackage)) {
+			
+			paidRentJournal.OnSelectResult += (sender, e) =>
+			{
+				var selectedRent = e.GetSelectedObjects<PaidRentPackagesJournalNode>().FirstOrDefault();
+				
+				if (selectedRent == null)
+				{
 					return;
 				}
-				var paidRentPackage = UoW.GetById<PaidRentPackage>(selectedRentPackage.Id);
+
+				var paidRentPackage = UoW.GetById<PaidRentPackage>(selectedRent.Id);
 				SelectEquipmentForPaidRentPackage(rentType, paidRentPackage);
 			};
-			TabParent.AddTab(ormReference, this);
+			TabParent.AddTab(paidRentJournal, this);
 		}
 
 		private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
@@ -3093,20 +3108,28 @@ namespace Vodovoz
 
 		private void SelectFreeRentPackage()
 		{
-			var ormReference = new OrmReference(typeof(FreeRentPackage))
+			var freeRentJournal = new FreeRentPackagesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, MainClass.MainWin.NavigationManager)
 			{
-				Mode = OrmReferenceMode.Select
+				SelectionMode = JournalSelectionMode.Single,
+				VisibleCreateAction = false,
+				VisibleEditAction = false,
+				VisibleDeleteAction = false
 			};
-			ormReference.ObjectSelected += (sender, e) =>
+			
+			freeRentJournal.OnSelectResult += (sender, e) =>
 			{
-				if(!(e.Subject is FreeRentPackage selectedRentPackage))
+				var selectedRent = e.GetSelectedObjects<FreeRentPackagesJournalNode>().FirstOrDefault();
+				
+				if (selectedRent == null)
 				{
 					return;
 				}
-				var rentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
-				SelectEquipmentForFreeRentPackage(rentPackage);
+
+				var freeRentPackage = UoW.GetById<FreeRentPackage>(selectedRent.Id);
+				SelectEquipmentForFreeRentPackage(freeRentPackage);
 			};
-			TabParent.AddTab(ormReference, this);
+			TabParent.AddTab(freeRentJournal, this);
 		}
 
 		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)

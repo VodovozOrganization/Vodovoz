@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Journals;
+using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
@@ -46,6 +47,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -1291,6 +1293,28 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id.ToString())
 					.AddColumn("Причина отсутствия переноса").AddTextRenderer(node => node.Name)
 					.AddColumn("Дата создания").AddTextRenderer(node => node.CreateDate.ToShortDateString())
+					.Finish()
+			);
+			
+			//FreeRentPackagesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FreeRentPackagesJournalViewModel>(
+				() => FluentColumnsConfig<FreeRentPackagesJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Тип оборудования").AddTextRenderer(n => n.EquipmentTypeName)
+					.AddColumn("")
+					.Finish()
+			);
+			
+			//PaidRentPackagesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PaidRentPackagesJournalViewModel>(
+				() => FluentColumnsConfig<PaidRentPackagesJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Тип оборудования").AddTextRenderer(n => n.EquipmentTypeName)
+					.AddColumn("Цена в сутки").AddTextRenderer(n => n.PriceDailyString)
+					.AddColumn("Цена в месяц").AddTextRenderer(n => n.PriceMonthlyString)
+					.AddColumn("")
 					.Finish()
 			);
 		}
