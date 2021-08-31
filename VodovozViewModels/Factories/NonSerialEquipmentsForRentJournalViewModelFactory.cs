@@ -7,16 +7,16 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.Factories
 {
-    public class NonSerialEquipmentsForRentJournalViewModelFactory : INonSerialEquipmentsForRentJournalViewModelFactory
-    {
-       public NonSerialEquipmentsForRentJournalViewModel CreateNonSerialEquipmentsForRentJournalViewModel(EquipmentKind equipmentKind)
-        {
-            return new NonSerialEquipmentsForRentJournalViewModel(
-	            equipmentKind,
-	            UnitOfWorkFactory.GetDefaultFactory,
-	            ServicesConfig.InteractiveService,
-	            new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())),
-	            null);
-        }
-    }
+	public class NonSerialEquipmentsForRentJournalViewModelFactory : INonSerialEquipmentsForRentJournalViewModelFactory
+	{
+	   public NonSerialEquipmentsForRentJournalViewModel CreateNonSerialEquipmentsForRentJournalViewModel(EquipmentKind equipmentKind)
+		{
+			return new NonSerialEquipmentsForRentJournalViewModel(
+				equipmentKind,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())),
+				null);
+		}
+	}
 }
