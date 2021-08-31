@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Rent
                 .SelectList(list => list
                     .Select(x => x.Id).WithAlias(() => resultAlias.Id)
                     .Select(x => x.Name).WithAlias(() => resultAlias.Name)
-                    .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentTypeName))
+                    .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName))
                 .OrderBy(x => x.Name).Asc
                 .TransformUsing(Transformers.AliasToBean<FreeRentPackagesJournalNode>());
         }

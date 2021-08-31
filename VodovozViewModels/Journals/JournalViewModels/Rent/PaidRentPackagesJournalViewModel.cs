@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Rent
                     .Select(x => x.Name).WithAlias(() => resultAlias.Name)
                     .Select(x => x.PriceDaily).WithAlias(() => resultAlias.PriceDaily)
                     .Select(x => x.PriceMonthly).WithAlias(() => resultAlias.PriceMonthly)
-                    .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentTypeName))
+                    .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName))
                 .OrderBy(x => x.Name).Asc
                 .TransformUsing(Transformers.AliasToBean<PaidRentPackagesJournalNode>());
         }

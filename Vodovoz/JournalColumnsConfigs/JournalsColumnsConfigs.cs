@@ -1305,7 +1305,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название")
 						.AddTextRenderer(n => n.Name)
 					.AddColumn("Вид оборудования")
-						.AddTextRenderer(n => n.EquipmentTypeName)
+						.AddTextRenderer(n => n.EquipmentKindName)
 					.AddColumn("")
 					.Finish()
 			);
@@ -1318,7 +1318,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название")
 						.AddTextRenderer(n => n.Name)
 					.AddColumn("Вид оборудования")
-						.AddTextRenderer(n => n.EquipmentTypeName)
+						.AddTextRenderer(n => n.EquipmentKindName)
 					.AddColumn("Цена в сутки")
 						.AddTextRenderer(n => n.PriceDailyString)
 					.AddColumn("Цена в месяц")

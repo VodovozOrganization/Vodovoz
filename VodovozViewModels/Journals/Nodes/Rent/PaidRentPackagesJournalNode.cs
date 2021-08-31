@@ -4,7 +4,7 @@ namespace Vodovoz.Journals.Nodes.Rent
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string EquipmentTypeName { get; set; }
+        public string EquipmentKindName { get; set; }
         public decimal PriceDaily { get; set; }
         public decimal PriceMonthly { get; set; }
         public string PriceDailyString => $"{PriceDaily:N2} ₽";

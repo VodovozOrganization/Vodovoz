@@ -4,6 +4,6 @@ namespace Vodovoz.Journals.Nodes.Rent
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string EquipmentTypeName { get; set; }
+        public string EquipmentKindName { get; set; }
     }
 }
