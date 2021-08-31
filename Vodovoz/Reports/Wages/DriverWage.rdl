@@ -22,7 +22,7 @@
       <Textbox Name="Textbox1">
         <Height>21.10pt</Height>
         <Width>563.88pt</Width>
-        <Value>=First(Fields!name, "DriverName") + " " + First(Fields!last_name, "DriverName") + " "+ CDate({?start_date}) + " по " + CDate({?end_date})</Value>
+        <Value>=First(Fields!last_name, "DriverName") + " " + First(Fields!name, "DriverName") + " "+ CDate({?start_date}) + " по " + CDate({?end_date})</Value>
         <ZIndex>1</ZIndex>
         <Left>2.40pt</Left>
         <Top>3.70pt</Top>
