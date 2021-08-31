@@ -265,8 +265,9 @@ namespace Vodovoz.EntityRepositories.Goods
 							 .JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 							 .JoinAlias(() => nomenclatureAlias.Kind, () => equipmentKindAlias);
 			
-			if(kind != null){
-				query = query.Where(() => nomenclatureAlias.Kind.Id == kind.Id);
+			if(kind != null)
+			{
+				query = query.Where(() => equipmentKindAlias.Id == kind.Id);
 			}
 
 			query = query.SelectList(
@@ -274,7 +275,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 		            .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 		            .Select(() => equipmentKindAlias.Id).WithAlias(() => resultAlias.TypeId)
-		            .Select(() => equipmentKindAlias).WithAlias(() => resultAlias.Kind)
+		            .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 					.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)

@@ -35,8 +35,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QS.Deletion;
-using QS.Services;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -61,10 +59,12 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
@@ -82,7 +82,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -126,6 +125,10 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
+			= new RentPackagesJournalsViewModelsFactory(MainClass.MainWin.NavigationManager);
+		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
+			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -3020,14 +3023,7 @@ namespace Vodovoz
 		
 		private void SelectPaidRentPackage(RentType rentType)
 		{
-			var paidRentJournal = new PaidRentPackagesJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, MainClass.MainWin.NavigationManager)
-			{
-				SelectionMode = JournalSelectionMode.Single,
-				VisibleCreateAction = false,
-				VisibleEditAction = false,
-				VisibleDeleteAction = false
-			};
+			var paidRentJournal = _rentPackagesJournalsViewModelsFactory.CreatePaidRentPackagesJournalViewModel(false, false, false, false);
 			
 			paidRentJournal.OnSelectResult += (sender, e) =>
 			{
@@ -3056,19 +3052,23 @@ namespace Vodovoz
 				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
 				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
 			}
-			else {
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentKind));
-				selectDialog.Mode = JournalSelectMode.Single;
-				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) => {
-					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null) {
+			else
+			{
+				var equipmentForRentJournal =
+					_nonSerialEquipmentsForRentJournalViewModelFactory.CreateNonSerialEquipmentsForRentJournalViewModel(paidRentPackage.EquipmentKind);
+				
+				equipmentForRentJournal.OnSelectResult += (sender, e) =>
+				{
+					var nomenclature = TryGetSelectedNomenclature(e);
+					
+					if(nomenclature == null)
+					{
 						return;
 					}
-					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+
 					AddPaidRent(rentType, paidRentPackage, nomenclature);
 				};
-				TabParent.AddSlaveTab(this, selectDialog);
+				TabParent.AddSlaveTab(this, equipmentForRentJournal);
 			}
 		}
 		
@@ -3108,14 +3108,7 @@ namespace Vodovoz
 
 		private void SelectFreeRentPackage()
 		{
-			var freeRentJournal = new FreeRentPackagesJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, MainClass.MainWin.NavigationManager)
-			{
-				SelectionMode = JournalSelectionMode.Single,
-				VisibleCreateAction = false,
-				VisibleEditAction = false,
-				VisibleDeleteAction = false
-			};
+			var freeRentJournal = _rentPackagesJournalsViewModelsFactory.CreateFreeRentPackagesJournalViewModel(false, false, false, false);
 			
 			freeRentJournal.OnSelectResult += (sender, e) =>
 			{
@@ -3147,20 +3140,21 @@ namespace Vodovoz
 			}
 			else
 			{
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentKind));
-				selectDialog.Mode = JournalSelectMode.Single;
-				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) =>
+				var equipmentForRentJournal =
+					_nonSerialEquipmentsForRentJournalViewModelFactory.CreateNonSerialEquipmentsForRentJournalViewModel(freeRentPackage.EquipmentKind);
+				
+				equipmentForRentJournal.OnSelectResult += (sender, e) =>
 				{
-					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null)
+					var nomenclature = TryGetSelectedNomenclature(e);
+					
+					if(nomenclature == null)
 					{
 						return;
 					}
-					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					
 					AddFreeRent(freeRentPackage, nomenclature);
 				};
-				TabParent.AddSlaveTab(this, selectDialog);
+				TabParent.AddSlaveTab(this, equipmentForRentJournal);
 			}
 		}
 
@@ -3248,6 +3242,13 @@ namespace Vodovoz
 
 		#endregion FreeRent
 
+		private Nomenclature TryGetSelectedNomenclature(JournalSelectedEventArgs e)
+		{
+			var selectedNode = e.GetSelectedObjects<NomenclatureForRentNode>().FirstOrDefault();
+					
+			return selectedNode == null ? null : UoW.GetById<Nomenclature>(selectedNode.Id);
+		}
+		
 		#endregion
 	}
 }

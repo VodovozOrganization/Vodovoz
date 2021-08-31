@@ -1,6 +1,3 @@
-using System;
-using Vodovoz.Domain;
-
 namespace Vodovoz.EntityRepositories.Nodes
 {
     public class NomenclatureForRentNode
@@ -8,7 +5,7 @@ namespace Vodovoz.EntityRepositories.Nodes
         public int Id { get; set; }
         public string NomenclatureName { get; set; }
         public int TypeId { get; set; }
-        public EquipmentKind Kind { get; set; }
+        public string EquipmentKindName { get; set; }
         public decimal InStock => Added - Removed;
         public int? Reserved { get; set; }
         public decimal Available => InStock - Reserved.GetValueOrDefault();
