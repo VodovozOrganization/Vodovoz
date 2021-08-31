@@ -132,8 +132,10 @@ using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Flyers;
+using Vodovoz.ViewModels.ViewModels.Rent;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
+using Vodovoz.Views.Rent;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 
 namespace Vodovoz
@@ -243,6 +245,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
+				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
+				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
 				;
 
             //Регистрация виджетов

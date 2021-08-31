@@ -1601,6 +1601,10 @@
     <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
+    <Compile Include="Views\Rent\FreeRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.FreeRentPackageView.cs" />
+    <Compile Include="Views\Rent\PaidRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.PaidRentPackageView.cs" />
     <Compile Include="Filters\GtkViews\NomenclaturePlanFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturePlanFilterView.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
@@ -1971,6 +1975,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Rent\" />
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
     <Folder Include="JournalViewers\Complaints\" />
