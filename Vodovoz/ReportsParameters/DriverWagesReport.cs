@@ -25,13 +25,13 @@ namespace Vodovoz.Reports
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			yentryreferenceDriver.Changed += (sender, args) =>
 			{
-				if(dateperiodpicker.StartDateOrNull.HasValue)
+				if(dateperiodpicker.StartDateOrNull.HasValue && yentryreferenceDriver.Subject is Employee)
 					OnUpdate(true);
 			};
 			
 			dateperiodpicker.PeriodChanged += (sender, args) =>
 			{
-				if((yentryreferenceDriver.Subject as Employee) != null)
+				if(yentryreferenceDriver.Subject is Employee && dateperiodpicker.StartDateOrNull.HasValue)
 					OnUpdate(true);
 			};
 		}
