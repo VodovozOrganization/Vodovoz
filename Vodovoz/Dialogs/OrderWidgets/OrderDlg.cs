@@ -1,4 +1,5 @@
-﻿using EmailService;
+﻿using Autofac;
+using EmailService;
 using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -34,7 +35,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Autofac;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -85,7 +85,7 @@ using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz
 {
-    public partial class OrderDlg : EntityDialogBase<Order>,
+	public partial class OrderDlg : EntityDialogBase<Order>,
 		ICounterpartyInfoProvider,
 		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
 		IContractInfoProvider,
@@ -430,6 +430,7 @@ namespace Vodovoz
 			labelCreationDateValue.Binding.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
 
 			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
+			ylabelOrderAddressType.Binding.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 			ylabelNumber.Binding.AddFuncBinding(Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp).InitializeFromSource();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
@@ -527,8 +528,10 @@ namespace Vodovoz
 
 			buttonViewDocument.Sensitive = false;
 			btnDeleteOrderItem.Sensitive = false;
-			notebook1.ShowTabs = false;
-			notebook1.Page = 0;
+			ntbOrderEdit.ShowTabs = false;
+			ntbOrderEdit.Page = 0;
+			ntbOrder.ShowTabs = false;
+			ntbOrder.Page = 0;
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
@@ -554,6 +557,7 @@ namespace Vodovoz
 				{
 					OnFormOrderActions();
 				}
+				OrderAddressTypeChanged();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -749,6 +753,7 @@ namespace Vodovoz
 			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
 			{
 				UoW.Session.Refresh(Entity.Client);
+				OrderAddressTypeChanged();
 				return;
 			}
 		}
@@ -1447,37 +1452,37 @@ namespace Vodovoz
 		protected void OnToggleInformationToggled(object sender, EventArgs e)
 		{
 			if(toggleInformation.Active)
-				notebook1.CurrentPage = 0;
+				ntbOrderEdit.CurrentPage = 0;
 		}
 
 		protected void OnToggleTareControlToggled(object sender, EventArgs e)
 		{
 			if(toggleTareControl.Active)
-				notebook1.CurrentPage = 1;
+				ntbOrderEdit.CurrentPage = 1;
 		}
 
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
-				notebook1.CurrentPage = 2;
+				ntbOrderEdit.CurrentPage = 2;
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
-				notebook1.CurrentPage = 3;
+				ntbOrderEdit.CurrentPage = 3;
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
-				notebook1.CurrentPage = 4;
+				ntbOrderEdit.CurrentPage = 4;
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
-				notebook1.CurrentPage = 5;
+				ntbOrderEdit.CurrentPage = 5;
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
@@ -2679,13 +2684,13 @@ namespace Vodovoz
 			}
 
 			if(Entity.CanSetOrderAsAccepted) {
-				buttonAcceptOrder.Visible = true;
+				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;
 			} else if(Entity.CanSetOrderAsEditable) {
 				buttonEditOrder.Visible = true;
-				buttonAcceptOrder.Visible = false;
+				btnForm.Visible = false;
 			} else {
-				buttonAcceptOrder.Visible = false;
+				btnForm.Visible = false;
 				buttonEditOrder.Visible = false;
 			}
 
@@ -2900,6 +2905,88 @@ namespace Vodovoz
 			Order.AddContractDocument(Order.Contract);
 		}
 
+		protected void OnBtnFormClicked(object sender, EventArgs e)
+		{
+			ylblCounterpartyFIO.Text = Entity.Client.FullName;
+			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
+
+			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
+				? string.Join(", ", Entity.DeliveryPoint.Phones.Select(p => p.DigitsNumber))
+				: string.Join(", ", Entity.Client.Phones.Select(p => p.DigitsNumber));
+
+			ylblDeliveryDate.Text = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
+			ylblDeliveryInterval.Text = Entity.DeliverySchedule?.DeliveryTime;
+
+			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.cashless;
+			ylblDocumentSigning.Visible = isPaymentTypeCashless;
+			lblDocumentSigning.Visible = isPaymentTypeCashless;
+			ylblDocumentSigning.Text = isPaymentTypeCashless
+				? Entity.SignatureType?.GetEnumTitle() ?? ""
+				: "";
+
+			var hasOrderItems = Entity.OrderItems.Count > 0;
+			ylblGoods.Visible = hasOrderItems;
+			lblGoods.Visible = hasOrderItems;
+			ylblGoods.Text = hasOrderItems
+				? string.Join("\n",
+					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count }{ oi.Nomenclature.Unit.Name }"))
+				: "";
+
+			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
+			ylblEquipment.Visible = hasOrderEquipments;
+			lblEquipment1.Visible = hasOrderEquipments;
+			ylblEquipment.Text = hasOrderEquipments
+				? string.Join("\n",
+					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count }{ oe.Nomenclature.Unit.Name }"))
+				: "";
+
+			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
+
+			ylblReturns.Visible = hasDepositItems;
+			lblReturns.Visible = hasDepositItems;
+			ylblReturns.Text = hasDepositItems
+				? string.Join("\n",
+					Entity.OrderDepositItems.Select(odi =>
+					{
+						if(odi.EquipmentNomenclature != null)
+						{
+							return $"{ odi.EquipmentNomenclature.Name } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
+						}
+						else
+						{
+							return $"{ odi.DepositTypeString } - { odi.Count }";
+						}
+					}))
+				: "";
+
+			ylblBottlesPlannedToReturn.Text = $"{ Entity.BottlesReturn ?? 0 } бут.";
+
+			ylblPaymentType.Text = Entity.PaymentType.GetEnumTitle();
+
+			ylblPlannedSum.Text = $"{ Entity.OrderSum } руб.";
+
+			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
+			ylblTrifleFrom.Visible = isPaymentTypeCash;
+			lblTrifleFrom.Visible = isPaymentTypeCash;
+			ylblTrifleFrom.Text = isPaymentTypeCash 
+								? $"{ Entity.Trifle ?? 0 } руб."
+								: "";
+
+			ylblCommentForDriver.Text = Entity.HasCommentForDriver ? Entity.Comment : "";
+
+			ylblCommentForLogist.Text = Entity.CommentLogist;
+
+			ntbOrder.GetNthPage(1).Hide();
+			ntbOrder.GetNthPage(1).Show();
+
+			ntbOrder.CurrentPage = 1;
+		}
+
+		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)
+		{
+			ntbOrder.CurrentPage = 0;
+		}
+
 		#region Аренда
 
 		private void AddRent(RentType rentType)
@@ -3074,7 +3161,7 @@ namespace Vodovoz
 
 			Entity.AddFreeRent(freeRentPackage, equipmentNomenclature);
 		}
-
+		
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
 			if(Entity.OrderAddressType == OrderAddressType.Delivery 
@@ -3097,6 +3184,7 @@ namespace Vodovoz
 
 		private void OrderAddressTypeChanged()
 		{
+			ylabelOrderAddressType.Visible = true;
 			if(Entity.Client != null && Entity.Client.IsChainStore)
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
@@ -3107,11 +3195,17 @@ namespace Vodovoz
 				ybuttonToDeliveryAddressType.Visible = true;
 				ybuttonToStorageLogicAddressType.Visible = false;
 			}
-			if(Entity.OrderAddressType == OrderAddressType.Delivery)
+			if(Entity.SelfDelivery)
+			{
+				ylabelOrderAddressType.Visible = false;
+				ybuttonToDeliveryAddressType.Visible = false;
+				ybuttonToStorageLogicAddressType.Visible = false;
+			}
+			else if(Entity.OrderAddressType == OrderAddressType.Delivery)
 			{
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = true;
-			}
+			} 
 			else if(Entity.OrderAddressType == OrderAddressType.StorageLogistics)
 			{
 				ybuttonToDeliveryAddressType.Visible = true;

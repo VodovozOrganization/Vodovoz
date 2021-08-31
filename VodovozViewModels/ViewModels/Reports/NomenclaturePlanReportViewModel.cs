@@ -227,7 +227,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureReportColumn nomenclatureResultAlias = null;
 
-			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias);
+			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias)
+				.Where(n => !n.IsArchive);
 
 			itemsQuery.Where(GetNomenclatureSearchCriterion(
 					() => nomenclatureAlias.Id,
@@ -447,6 +448,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.Inner.JoinAlias(() => subQueryEmployeeWageParameter.WageParameterItem, () => subQuerySalesPlanWageParameterItem)
 				.Where(() => subQuerySalesPlanWageParameterItem.WageParameterItemType == WageParameterItemTypes.SalesPlan)
 				.Where(() => subQueryEmployeeWageParameter.Employee.Id == employeeWageParameterAlias.Employee.Id)
+				.Where(() => subQueryEmployeeWageParameter.StartDate <= EndDate &&
+							 (subQueryEmployeeWageParameter.EndDate == null || subQueryEmployeeWageParameter.EndDate >= StartDate))
 				.SelectList(list => list
 					.Select(() => subQuerySalesPlanWageParameterItem.SalesPlan.Id))
 				.OrderBy(x => x.EndDate.Coalesce(DateTime.MaxValue)).Desc
@@ -485,8 +488,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				{
 					decimal plan = GetSalesPlan(column, salesPlan);
 					decimal fact = GetSalesFact(column, employee);
-					decimal percent = plan > 0 ? fact * 100 / plan : 100;
-					row.Columns.AddRange(new List<decimal> { decimal.Round(fact, 2), decimal.Round(plan, 2), decimal.Round(percent, 2) });
+					decimal percent = plan > 0 ? fact * 100 / decimal.Round(plan, 2) : 100;
+					row.Columns.AddRange(new List<decimal> { (int)fact, decimal.Round(plan, 2), decimal.Round(percent, 2) });
 				}
 
 				rows.Add(row);
@@ -655,7 +658,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			get => _nomenclaturePlans ?? (_nomenclaturePlans = UoW.Session.QueryOver<Nomenclature>()
 				.Where(x => x.Id.IsIn(SelectedNomenclatures.Select(n => n.Id).ToArray()))
 				.List());
-			set {; }
+			set => _nomenclaturePlans = value;
 		}
 
 		#region Commands

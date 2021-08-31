@@ -171,25 +171,32 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 
 			int position = 0;
-			var result = query.SelectList(list => list
-										.SelectGroup(u => u.Id)
-										.Select(
-											  Projections.SqlFunction(
-												  new SQLFunctionTemplate(
-													  NHibernateUtil.String,
-													  "GROUP_CONCAT(CASE ?1 WHEN 'Department' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'Driver' THEN 'Водитель' WHEN 'ServiceMan' THEN 'Мастер СЦ' WHEN 'None' THEN 'Нет (не недовоз)' WHEN 'Unknown' THEN 'Неизвестно' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
-													 ),
-												  NHibernateUtil.String,
-												  Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
-												  Projections.Property(() => subdivisionAlias.ShortName)
-												 )
-											 )
-										 .SelectSubQuery(subquery19LWatterQty)
-										 )
-							  .List<object[]>()
-							  .GroupBy(x => x[1])
-							  .Select(r => new[] { r.Key, r.Count(), position++, r.Sum(x => x[2] == null ? 0 : (decimal)x[2]) })
-							  .ToList();
+			var result = 
+				query.SelectList(list => list
+					.SelectGroup(u => u.Id)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(
+							NHibernateUtil.String,
+							"GROUP_CONCAT(" +
+							"CASE ?1 " +
+							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
+							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN 'Клиент' " +
+							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN 'Водитель' " +
+							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
+							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
+							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
+							$"WHEN '{nameof(GuiltyTypes.Unknown)}' THEN 'Неизвестно' " +
+							"ELSE ?1 " +
+							"END ORDER BY ?1 ASC SEPARATOR '\n')"
+						 ),
+						NHibernateUtil.String,
+						Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
+						Projections.Property(() => subdivisionAlias.ShortName)))
+					.SelectSubQuery(subquery19LWatterQty))
+				.List<object[]>()
+				.GroupBy(x => x[1])
+				.Select(r => new[] { r.Key, r.Count(), position++, r.Sum(x => x[2] == null ? 0 : (decimal)x[2]) })
+				.ToList();
 			return result;
 		}
 

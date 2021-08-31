@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 	public partial class CounterpartyTalkViewModel : TalkViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
-		private readonly RouteListRepository _routedListRepository;
+		private readonly IRouteListRepository _routedListRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			RouteListRepository routedListRepository,
+			IRouteListRepository routedListRepository,
 			IInteractiveService interactiveService,
 			IOrderParametersProvider orderParametersProvider, 
 			MangoManager manager,

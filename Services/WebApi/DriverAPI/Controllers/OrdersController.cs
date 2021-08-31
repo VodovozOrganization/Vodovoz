@@ -42,7 +42,6 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
-			_logger.LogInformation($"Получение заказа: { orderId }");
 			return _aPIOrderData.Get(orderId);
 		}
 
@@ -51,7 +50,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/CompleteOrderDelivery")]
 		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
-			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId }");
+			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
@@ -78,7 +77,7 @@ namespace DriverAPI.Controllers
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			_logger.LogInformation($"Смена типа оплаты заказа: { orderId }");
+			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType } на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
