@@ -61,6 +61,8 @@ namespace DriverAPI.Controllers
 		[Route("/api/CompleteOrderDelivery")]
 		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
+			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
 			var recievedTime = DateTime.Now;
 
 			if(completedOrderRequestModel.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
@@ -72,8 +74,6 @@ namespace DriverAPI.Controllers
 			{
 				throw new InvalidOperationException("Таймаут запроса операции");
 			}
-
-			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);

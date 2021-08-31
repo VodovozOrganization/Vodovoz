@@ -133,7 +133,7 @@ namespace DriverAPI.Library.Models
 				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
 		}
 
-		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId)
+		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId)
 		{
 			if(routeListAddressId <= 0)
 			{
@@ -143,9 +143,16 @@ namespace DriverAPI.Library.Models
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
 				?? throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
 
-			if(routeListAddress.Status == RouteListItemStatus.Transfered)
+			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
 			{
-				throw new InvalidOperationException("Перенесенный адрес нельзя вернуть в путь");
+				_logger.LogWarning($"Попытка вернуть в путь адрес МЛ {routeListAddressId} водителем {driverId}, водитель МЛ: {routeListAddress.RouteList.Driver?.Id}");
+				throw new AccessViolationException("Нельзя вернуть в путь адрес не вашего МЛ");
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.Completed
+			|| routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
+			{
+				throw new InvalidOperationException("Адрес нельзя вернуть в путь");
 			}
 
 			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.EnRoute);
@@ -158,7 +165,7 @@ namespace DriverAPI.Library.Models
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId);
 
-			return routeList?.Driver.Id == driverId;
+			return routeList?.Driver?.Id == driverId;
 		}
 	}
 }

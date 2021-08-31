@@ -1,5 +1,6 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.Logging;
 using NHibernate.Driver;
 using QS.DomainModel.UoW;
@@ -27,7 +28,8 @@ namespace DriverAPI.Library.Models
 		private readonly OrderConverter _orderConverter;
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 		private readonly IComplaintsRepository _complaintsRepository;
-		private readonly ISmsPaymentModel _aPISmsPaymentData;
+		private readonly ISmsPaymentModel _aPISmsPaymentModel;
+		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -40,7 +42,8 @@ namespace DriverAPI.Library.Models
 			OrderConverter orderConverter,
 			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
-			ISmsPaymentModel aPISmsPaymentData,
+			ISmsPaymentModel aPISmsPaymentModel,
+			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
 			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IUnitOfWork unitOfWork
 			)
@@ -51,7 +54,8 @@ namespace DriverAPI.Library.Models
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
+			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
+			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
 			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 	}
@@ -66,7 +70,7 @@ namespace DriverAPI.Library.Models
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
-			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentModel.GetOrderPaymentStatus(orderId));
 			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 
 			return order;
@@ -84,7 +88,7 @@ namespace DriverAPI.Library.Models
 
 			foreach(var vodovozOrder in vodovozOrders)
 			{
-				var smsPaymentStatus = _aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
+				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderPaymentStatus(vodovozOrder.Id);
 				var order = _orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
@@ -151,7 +155,7 @@ namespace DriverAPI.Library.Models
 			return new OrderAdditionalInfoDto()
 			{
 				AvailablePaymentTypes = GetAvailableToChangePaymentTypes(order),
-				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentData.GetOrderPaymentStatus(order.Id)),
+				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentModel.GetOrderPaymentStatus(order.Id)),
 			};
 		}
 
@@ -283,5 +287,27 @@ namespace DriverAPI.Library.Models
 				});
 		}
 
+		public void SendSmsPaymentRequest(
+			int orderId,
+			string phoneNumber,
+			int driverId)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).FirstOrDefault();
+
+			if(vodovozOrder is null || routeList is null || routeListAddress is null)
+			{
+				throw new DataNotFoundException(nameof(orderId), "Не найден или не находится в МЛ");
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute
+			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				throw new InvalidOperationException("Нельзя отправлять СМС на оплату для адреса МЛ не в пути");
+			}
+
+			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
+		}
 	}
 }
