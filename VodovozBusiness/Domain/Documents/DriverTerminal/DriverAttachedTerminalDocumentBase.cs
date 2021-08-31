@@ -12,7 +12,6 @@ namespace Vodovoz.Domain.Documents.DriverTerminal
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "документ терминала водителя",
 		NominativePlural = "документы терминалов водителей")]
-	[HistoryTrace]
 	public class DriverAttachedTerminalDocumentBase : PropertyChangedBase, IDomainObject
 	{
 		private Employee _author;

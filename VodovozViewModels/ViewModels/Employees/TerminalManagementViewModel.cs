@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
-		private Fine _fine;
 		private string _title;
 		private int _terminalId;
 		private DriverAttachedTerminalDocumentBase _entity;
@@ -99,7 +98,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		#region Методы
 		/// <summary>
-		/// Сохраняет сущности этой viewModel и передвижения зарплат по штрафу в UoW
+		/// Сохраняет сущности этой viewModel
 		/// </summary>
 		public void SaveChanges()
 		{
@@ -108,13 +107,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				return;
 			}
 			UoW.Save(_entity);
-			if(!(_entity is DriverAttachedTerminalGiveoutDocument))
-			{
-				return;
-			}
-
-			UoW.Save(_fine);
-			_fine.UpdateWageOperations(UoW);
 		}
 
 		public void ReturnTerminal()
@@ -180,19 +172,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 				giveoutDocument.CreateMovementOperations(writeoff, terminal);
 
-				var fine = new Fine {Author = _author};
-				fine.Fill(terminal.SumOfDamage, null, "Выдача терминала", creationDate, _driver);
-				var fineNomList = new Dictionary<Nomenclature, decimal> {{terminal, 1}};
-				fine.AddNomenclature(fineNomList);
-				var err = fine.RaiseValidationAndGetResult();
-				if(!string.IsNullOrWhiteSpace(err))
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, err,
-						"Ошибка валидации при создании штрафа во время привязки терминала");
-					return;
-				}
-
-				_fine = fine;
 				UpdateEntityAndRelatedProperties(giveoutDocument, true);
 			}
 		}
