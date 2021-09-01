@@ -3,12 +3,12 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Domain.Permissions.Warehouse
+namespace Vodovoz.Domain.Permissions.Warehouses
 {
     [EntityPermission]
     public class UserWarehousePermission : WarehousePermission, IDomainObject
     {
-        public override TypePermissions TypePermissions => TypePermissions.User;
+        public override PermissionType PermissionType => PermissionType.User;
         
         private User user;
         [Display(Name = "Пользователь")]

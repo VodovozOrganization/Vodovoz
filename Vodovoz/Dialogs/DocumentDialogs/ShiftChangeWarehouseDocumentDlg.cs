@@ -23,7 +23,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -52,9 +52,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			var storeDocument = new StoreDocumentHelper();
 			if(UoW.IsNew)
-				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeCreate);
+				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
-				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeEdit);
+				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeEdit);
 
 			ConfigureDlg(storeDocument);
 		}
@@ -79,7 +79,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		void ConfigureDlg(StoreDocumentHelper storeDocument)
 		{
-			canEdit = !UoW.IsNew && storeDocument.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
+			canEdit = !UoW.IsNew && storeDocument.CanEditDocument(WarehousePermissionsType.ShiftChangeEdit, Entity.Warehouse);
 
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
 			{
@@ -90,7 +90,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			}
 
-			canCreate = UoW.IsNew && !storeDocument.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
+			canCreate = UoW.IsNew && !storeDocument.CheckCreateDocument(WarehousePermissionsType.ShiftChangeCreate, Entity.Warehouse);
 
 			if(!canCreate && UoW.IsNew){
 				FailInitialize = true;
@@ -111,9 +111,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
-				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeCreate);
+				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
-				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeEdit);
+				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.ShiftChangeEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			yentryrefWarehouse.Changed += OnWarehouseChanged;
 

@@ -17,7 +17,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -64,7 +64,7 @@ namespace Vodovoz
 
 			
 			var storeDocument = new StoreDocumentHelper();
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.SelfDeliveryEdit);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -114,7 +114,7 @@ namespace Vodovoz
 		{
 			var validationResult = CheckPermission();
 
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
@@ -123,12 +123,12 @@ namespace Vodovoz
 			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
-			var editing = storeDocument.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse);
 			yentryrefOrder.IsEditable = lstWarehouse.Sensitive = ytextviewCommnet.Editable = editing && canEditDocument;
 			selfdeliverydocumentitemsview1.Sensitive = hbxTareToReturn.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			lstWarehouse.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissions.SelfDeliveryEdit);
+			lstWarehouse.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.SelfDeliveryEdit);
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();

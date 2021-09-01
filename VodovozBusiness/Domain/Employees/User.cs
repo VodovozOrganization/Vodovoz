@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Security;
 
 namespace Vodovoz.Domain.Employees

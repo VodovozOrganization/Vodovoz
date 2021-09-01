@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.UoW;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.Infrastructure.Services
 {

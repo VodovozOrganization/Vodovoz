@@ -1,5 +1,5 @@
 using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.HibernateMapping.Permissions
 {
@@ -13,8 +13,8 @@ namespace Vodovoz.HibernateMapping.Permissions
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             DiscriminateSubClassesOnColumn("type_permission");
             
-            Map(x => x.ValuePermission).Column("value");
-            Map(x => x.WarehousePermissionType).Column("warehouse_permission_type");
+            Map(x => x.PermissionValue).Column("value");
+            Map(x => x.WarehousePermissionTypeType).Column("warehouse_permission_type");
             References(x => x.Warehouse).Column("warehouse_id");
         }
     }

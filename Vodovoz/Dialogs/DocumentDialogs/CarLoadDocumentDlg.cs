@@ -20,7 +20,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -93,14 +93,14 @@ namespace Vodovoz
 			}
 
 			var storeDocument = new StoreDocumentHelper();
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.CarLoadEdit);
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
 		}
 
 		void ConfigureDlg()
 		{
 			
 			var storeDocument = new StoreDocumentHelper();
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarLoadEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
@@ -110,13 +110,13 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_change_car_load_and_unload_docs", currentUserId);
 			
-			var editing = storeDocument.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarLoadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit);
+			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit);
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);

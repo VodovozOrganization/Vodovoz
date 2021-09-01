@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.UoW;
-using QS.Permissions;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Core
@@ -19,30 +15,30 @@ namespace Vodovoz.Core
 			this.subdivisionWarehousePermissions = subdivisionWarehousePermissions;
 		}
 
-		public IEnumerable<Warehouse> GetAllowedWarehouses(WarehousePermissions permission, Subdivision subdivision)
+		public IEnumerable<Warehouse> GetAllowedWarehouses(WarehousePermissionsType permissionType, Subdivision subdivision)
 		{
 			var warehouse = new List<SubdivisionWarehousePermission>();
 			while (subdivision != null)
 			{
 				var permissions = subdivisionWarehousePermissions.Where(x =>
-						x.WarehousePermissionType == permission
+						x.WarehousePermissionTypeType == permissionType
 						&& x.Subdivision.Id == subdivision.Id);
 				warehouse.AddRange(permissions);
 				subdivision = subdivision.ParentSubdivision;
 			}
-			return warehouse.GroupBy(x => x.Warehouse.Id).Where(x=>x.First().ValuePermission == true).Select(x => x.First().Warehouse);
+			return warehouse.GroupBy(x => x.Warehouse.Id).Where(x=>x.First().PermissionValue == true).Select(x => x.First().Warehouse);
 		}
 
-		public bool Validate(WarehousePermissions warehousePermissions, Warehouse warehouse, User user)
+		public bool Validate(WarehousePermissionsType warehousePermissionsType, Warehouse warehouse, User user)
 		{
 			if (warehouse is null) return false;
 			if (user.IsAdmin) return true;
-			return Validate(warehousePermissions, warehouse.Id);
+			return Validate(warehousePermissionsType, warehouse.Id);
 		}
 
-		public bool Validate(WarehousePermissions warehousePermissions, int warehouseId)
+		public bool Validate(WarehousePermissionsType warehousePermissionsType, int warehouseId)
 			=> subdivisionWarehousePermissions.SingleOrDefault(x =>
-					x.Warehouse.Id == warehouseId && x.WarehousePermissionType == warehousePermissions).ValuePermission
+					x.Warehouse.Id == warehouseId && x.WarehousePermissionTypeType == warehousePermissionsType).PermissionValue
 				.Value;
 	}
 }

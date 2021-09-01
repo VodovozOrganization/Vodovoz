@@ -2,9 +2,8 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QSProjectsLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Core
@@ -22,11 +21,6 @@ namespace Vodovoz.Core
 				return permissions;
 			}
 		}
-
-		public CurrentPermissions()
-		{
-			
-		}
 		
 		private void Load()
 		{
@@ -35,7 +29,7 @@ namespace Vodovoz.Core
 			{
 				var employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
 				var subdivision = employee.Subdivision;
-				permissions = uow.Session.QueryOver<WarehousePermission>().Where(x=>(x.Subdivision.Id == subdivision.Id || x.User.Id == userId) && x.ValuePermission == true).List().ToList();
+				permissions = uow.Session.QueryOver<WarehousePermission>().Where(x=>(x.Subdivision.Id == subdivision.Id || x.User.Id == userId) && x.PermissionValue == true).List().ToList();
 			}
 		}
 	}

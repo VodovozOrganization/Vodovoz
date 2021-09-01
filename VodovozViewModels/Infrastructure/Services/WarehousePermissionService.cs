@@ -1,7 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Core;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Services;
 

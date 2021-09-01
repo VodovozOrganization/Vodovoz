@@ -14,7 +14,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Services;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz
 {
@@ -36,7 +36,7 @@ namespace Vodovoz
 			}
 
 			var storeDocument = new StoreDocumentHelper();
-			Entity.WriteoffWarehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.WriteoffEdit);
+			Entity.WriteoffWarehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.WriteoffEdit);
 			
 			ConfigureDlg(storeDocument);
 		}
@@ -56,12 +56,12 @@ namespace Vodovoz
 
 		void ConfigureDlg (StoreDocumentHelper storeDocument)
 		{
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.WriteoffEdit, Entity.WriteoffWarehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = storeDocument.CanEditDocument(WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.WriteoffEdit, Entity.WriteoffWarehouse);
 			repEntryEmployee.IsEditable = textComment.Editable = editing;
 			writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
 
@@ -71,7 +71,7 @@ namespace Vodovoz
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
 
-			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissions.WriteoffEdit);
+			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WriteoffEdit);
 			ySpecCmbWarehouses.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.SelectedItem).InitializeFromSource ();
 			ySpecCmbWarehouses.ItemSelected += (sender, e) => {
 				writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);

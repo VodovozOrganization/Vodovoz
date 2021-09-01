@@ -12,7 +12,7 @@ case $case in
     *5*)
 cd ../
 find . -type d -regex '.*\(bin\|obj\)' -exec rm -rv {} + 
-cd Vodovoz2
+cd Vodovoz
 ;;&
     *3*)
 rm -v -f -R ./packages/*
@@ -39,7 +39,7 @@ nuget restore ../QSProjects/QSProjectsLib.sln;
 nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
 ;;&
     *4*)
-msbuild /p:Configuration=Debug /p:Platform=x86 ~/"Рабочий стол"/Work/Vodovoz2/Vodovoz.sln
+msbuild /p:Configuration=Debug /p:Platform=x86 Vodovoz.sln
 ;;&
 esac
 

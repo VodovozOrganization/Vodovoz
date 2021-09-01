@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
@@ -32,7 +32,7 @@ namespace Vodovoz
 			}
 			
 			var storeDocument = new StoreDocumentHelper();
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.RegradingOfGoodsEdit);
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
 
 			ConfigureDlg(storeDocument);
 		}
@@ -52,12 +52,12 @@ namespace Vodovoz
 
 		void ConfigureDlg (StoreDocumentHelper storeDocument)
 		{
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = storeDocument.CanEditDocument(WarehousePermissions.RegradingOfGoodsEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
 			regradingofgoodsitemsview.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
@@ -14,7 +14,7 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             get => warehouse;
             set => SetField(ref warehouse, value);
         }
-        public WarehouseAllNodeViewModel(Warehouse warehouse, IEnumerable<WarehousePermissions> permissionTypes, WarehousePermissionModel warehousePermissionModel)
+        public WarehouseAllNodeViewModel(Warehouse warehouse, IEnumerable<WarehousePermissionsType> permissionTypes, WarehousePermissionModelBase warehousePermissionModelBase)
         {
             this.warehouse = warehouse;
             Title = warehouse.Name;
@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             SubNodeViewModel = new List<WarehousePermissionNodeViewModel>();
             foreach (var permission in permissionTypes)
             {
-                var warehouseNode = new WarehousePermissionNodeViewModel(Warehouse, permission, warehousePermissionModel);
+                var warehouseNode = new WarehousePermissionNodeViewModel(Warehouse, permission, warehousePermissionModelBase);
                 warehouseNode.ItemChangeValue += IsAllWarehousesSeted;
                 SubNodeViewModel.Add(warehouseNode);
             }
@@ -33,8 +33,8 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             var warehousePermissionNodeViewModel = sender as WarehousePermissionNodeViewModel;
             if(warehousePermissionNodeViewModel.UnSubscribe) return;
             UnSetAll = true;
-            var collection = SubNodeViewModel.Where(x => x.WarehousePermissions !=
-                                                         warehousePermissionNodeViewModel.WarehousePermissions);
+            var collection = SubNodeViewModel.Where(x => x.WarehousePermissionsType !=
+                                                         warehousePermissionNodeViewModel.WarehousePermissionsType);
             if (collection.All(x => x.PermissionValue == true) && warehousePermissionNodeViewModel.PermissionValue == true)
             {
                 PermissionValue = warehousePermissionNodeViewModel.PermissionValue;

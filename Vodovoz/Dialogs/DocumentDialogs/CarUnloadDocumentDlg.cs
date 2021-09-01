@@ -21,7 +21,7 @@ using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Equipments;
@@ -100,7 +100,7 @@ namespace Vodovoz
 			}
 
 			var storeDocument = new StoreDocumentHelper();
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.CarUnloadEdit);
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarUnloadEdit);
 		}
 
 		void ConfigureDlg()
@@ -115,7 +115,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance);
 
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarUnloadEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
@@ -125,7 +125,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_change_car_load_and_unload_docs", currentUserId);
 			
-			var editing = storeDocument.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
@@ -138,7 +138,7 @@ namespace Vodovoz
 				returnsreceptionview.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarUnloadEdit);
+			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarUnloadEdit);
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);

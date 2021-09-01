@@ -8,7 +8,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Core;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -27,7 +27,7 @@ namespace Vodovoz.JournalViewModels
         {
             TabName = "Журнал складов";
             this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-            warehousePermissions = new[] { WarehousePermissions.WarehouseView };
+            warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
             UpdateOnChanges(
                 typeof(Warehouse)
@@ -35,7 +35,7 @@ namespace Vodovoz.JournalViewModels
         }
 
         private readonly ISubdivisionRepository subdivisionRepository;
-        private WarehousePermissions[] warehousePermissions;
+        private WarehousePermissionsType[] warehousePermissions;
 
         protected override void CreateNodeActions()
         {
@@ -55,7 +55,7 @@ namespace Vodovoz.JournalViewModels
             var permission = new CurrentPermissions();
             foreach (var p in warehousePermissions)
             {
-                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.Warehouse.Where(x=>x.WarehousePermissionType == p).Select(x => x.Id).ToArray()));
+                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.Warehouse.Where(x=>x.WarehousePermissionTypeType == p).Select(x => x.Id).ToArray()));
             }
             query.Where(disjunction);
 

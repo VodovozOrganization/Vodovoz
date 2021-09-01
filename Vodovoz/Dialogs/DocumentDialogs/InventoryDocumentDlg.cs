@@ -28,7 +28,7 @@ using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
@@ -57,7 +57,7 @@ namespace Vodovoz
 				return;
 			}
 			var storeDocument = new StoreDocumentHelper();
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissions.InventoryEdit);
+			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.InventoryEdit);
 
 			ConfigureDlg (storeDocument);
 		}
@@ -76,12 +76,12 @@ namespace Vodovoz
 
 		void ConfigureDlg (StoreDocumentHelper storeDocument)
 		{
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissions.InventoryEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.InventoryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = storeDocument.CanEditDocument(WarehousePermissions.InventoryEdit, Entity.Warehouse);
+			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.InventoryEdit, Entity.Warehouse);
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 
 			ytreeviewItems.Sensitive =
@@ -91,7 +91,7 @@ namespace Vodovoz
 				buttonDeleteFine.Sensitive = editing;
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissions.InventoryEdit);
+			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.InventoryEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();

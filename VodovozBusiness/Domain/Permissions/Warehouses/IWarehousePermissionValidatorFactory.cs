@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Domain.Permissions.Warehouse
+﻿namespace Vodovoz.Domain.Permissions.Warehouses
 {
 	public interface IWarehousePermissionValidatorFactory
 	{

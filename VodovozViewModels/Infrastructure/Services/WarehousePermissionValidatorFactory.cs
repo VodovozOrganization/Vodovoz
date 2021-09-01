@@ -3,7 +3,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Permissions;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 namespace Vodovoz.Core
 {

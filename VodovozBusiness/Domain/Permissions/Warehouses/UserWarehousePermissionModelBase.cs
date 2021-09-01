@@ -3,48 +3,48 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Domain.Permissions.Warehouse
+namespace Vodovoz.Domain.Permissions.Warehouses
 {
-    public class UserWarehousePermissionModel : WarehousePermissionModel
+    public class UserWarehousePermissionModelBase : WarehousePermissionModelBase
     {
 		private IUnitOfWork _uow;
 		private User _user;
 
-		public UserWarehousePermissionModel(IUnitOfWork uow, User user)
+		public UserWarehousePermissionModelBase(IUnitOfWork uow, User user)
 		{
 			this._uow = uow;
 			this._user = user;
 			AllPermission = GetEnumerator().ToList();
 		}
 
-		public override void AddOnUpdatePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse, bool? permissionValue)
+		public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse, bool? permissionValue)
 		{
 			var findPermission = AllPermission.SingleOrDefault(x =>
 				x.Warehouse == warehouse &&
-				x.WarehousePermissionType == warehousePermission);
+				x.WarehousePermissionTypeType == warehousePermissionType);
 
 			if(findPermission is null)
 			{
 				var userWarehousePermission = new UserWarehousePermission
 				{
 					User = _user,
-					TypePermissions = TypePermissions.User,
+					PermissionType = PermissionType.User,
 					Warehouse = warehouse,
-					ValuePermission = permissionValue,
-					WarehousePermissionType = warehousePermission
+					PermissionValue = permissionValue,
+					WarehousePermissionTypeType = warehousePermissionType
 				};
 				_uow.Save(userWarehousePermission);
 			}
 			else
 			{
-				findPermission.ValuePermission = permissionValue;
+				findPermission.PermissionValue = permissionValue;
 				_uow.Save(findPermission);
 			}
 		}
 
-		public override void DeletePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse)
+		public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse)
 		{
-			var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermission);
+			var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionTypeType == warehousePermissionType);
 			if(permissionForDelete != null)
 			{
 				_uow.Delete(permissionForDelete);

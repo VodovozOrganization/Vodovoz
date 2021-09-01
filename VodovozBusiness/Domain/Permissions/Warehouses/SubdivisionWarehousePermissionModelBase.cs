@@ -3,46 +3,46 @@ using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 
-namespace Vodovoz.Domain.Permissions.Warehouse
+namespace Vodovoz.Domain.Permissions.Warehouses
 {
-    public class SubdivisionWarehousePermissionModel : WarehousePermissionModel
+    public class SubdivisionWarehousePermissionModelBase : WarehousePermissionModelBase
     {
         private IUnitOfWork _uow;
         private Subdivision _subdivision;
-        public SubdivisionWarehousePermissionModel(IUnitOfWork unitOfWork, Subdivision subdivision)
+        public SubdivisionWarehousePermissionModelBase(IUnitOfWork unitOfWork, Subdivision subdivision)
         {
             this._uow = unitOfWork;
             this._subdivision = subdivision;
             AllPermission = GetEnumerator().ToList();
         }
 
-        public override void AddOnUpdatePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse, bool? permissionValue)
+        public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse, bool? permissionValue)
         {
             var findPermission = AllPermission.SingleOrDefault(x =>
                 x.Warehouse == warehouse &&
-                x.WarehousePermissionType == warehousePermission);
+                x.WarehousePermissionTypeType == warehousePermissionType);
             if (findPermission is null)
             {
                 var subdivisionWarehousePermission = new SubdivisionWarehousePermission
                 {
                     Subdivision = _subdivision,
-                    TypePermissions = TypePermissions.Subdivision,
+                    PermissionType = PermissionType.Subdivision,
                     Warehouse = warehouse,
-                    ValuePermission = permissionValue,
-                    WarehousePermissionType = warehousePermission
+                    PermissionValue = permissionValue,
+                    WarehousePermissionTypeType = warehousePermissionType
                 };
                 _uow.Save(subdivisionWarehousePermission);
             }
             else
             {
-                findPermission.ValuePermission = permissionValue;
+                findPermission.PermissionValue = permissionValue;
                 _uow.Save(findPermission);
             }
         }
 
-        public override void DeletePermission(WarehousePermissions warehousePermission, Store.Warehouse warehouse)
+        public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse)
         {
-            var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermission);
+            var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionTypeType == warehousePermissionType);
             if (permissionForDelete != null)
                 _uow.TryDelete(permissionForDelete);
         }

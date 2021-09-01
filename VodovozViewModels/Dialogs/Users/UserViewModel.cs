@@ -7,7 +7,7 @@ using Vodovoz.Domain.Employees;
 using QS.Commands;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.ViewModels
 {
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels
 			{
 				if(_warehousePermissionsViewModel == null)
 				{
-					var model = new UserWarehousePermissionModel(UoW, Entity);
+					var model = new UserWarehousePermissionModelBase(UoW, Entity);
 					_warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, model);
 					_warehousePermissionsViewModel.CanEdit = true;
 				}

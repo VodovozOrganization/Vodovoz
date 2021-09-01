@@ -12,7 +12,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
@@ -204,7 +204,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		private void ReloadAllowedWarehousesFrom()
 		{
-			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissions.MovementEdit, CurrentEmployee.Subdivision);
+			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissionsType.MovementEdit, CurrentEmployee.Subdivision);
 			allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
 				.Where(x => !x.IsArchive)
 				.WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
@@ -278,7 +278,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanSend => CanEdit
 			&& Entity.CanSend
-			&& warehousePermissionValidator.Validate(WarehousePermissions.MovementEdit, Entity.FromWarehouse, CurrentEmployee.User);
+			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee.User);
 
 		private DelegateCommand sendCommand;
 		public DelegateCommand SendCommand {
@@ -303,7 +303,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanReceive => CanEdit
 			&& Entity.CanReceive
-			&& warehousePermissionValidator.Validate(WarehousePermissions.MovementEdit, Entity.ToWarehouse, CurrentEmployee.User);
+			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee.User);
 
 		private DelegateCommand receiveCommand;
 		public DelegateCommand ReceiveCommand {
@@ -328,7 +328,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanAcceptDiscrepancy => CanEdit
 			&& Entity.CanAcceptDiscrepancy
 			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_accept_movement_document_dicrepancy", CommonServices.UserService.CurrentUserId)
-			&& warehousePermissionValidator.Validate(WarehousePermissions.MovementEdit, Entity.FromWarehouse, CurrentEmployee.User);
+			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee.User);
 
 		private DelegateCommand acceptDiscrepancyCommand;
 		public DelegateCommand AcceptDiscrepancyCommand {

@@ -19,7 +19,7 @@ using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Store;
@@ -51,7 +51,7 @@ namespace Vodovoz
 			CurrentPermissions permissions = new CurrentPermissions();
 			var allPermissions = permissions.Warehouse;
 			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {
-				if(allPermissions.Any(x => x.WarehousePermissionType.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
+				if(allPermissions.Any(x => x.WarehousePermissionTypeType.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
 					continue;
 				buttonAdd.SetSensitive(doctype, false);
 			}
@@ -73,7 +73,7 @@ namespace Vodovoz
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
 					var doc = uow.GetById<ShiftChangeWarehouseDocument>(node.Id);
-					isSelected = isSelected && storeDocument.CanEditDocument(WarehousePermissions.ShiftChangeEdit, doc.Warehouse);
+					isSelected = isSelected && storeDocument.CanEditDocument(WarehousePermissionsType.ShiftChangeEdit, doc.Warehouse);
 				}
 
 				var item = tableDocuments.GetSelectedObject<DocumentVMNode>();

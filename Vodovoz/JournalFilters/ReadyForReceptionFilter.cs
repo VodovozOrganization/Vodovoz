@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
 
@@ -19,7 +19,7 @@ namespace Vodovoz
         protected override void ConfigureWithUow()
         {
 	        var storeDocument = new StoreDocumentHelper();
-            var warehousesList = storeDocument.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
+            var warehousesList = storeDocument.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissionsType.WarehouseView })
                                     .OrderBy(w => w.Name).ToList();
             
             bool accessToWarehouseAndComplaints =

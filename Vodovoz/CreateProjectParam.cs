@@ -90,7 +90,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -135,7 +135,6 @@ using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
-using Vodovoz.Domain.Permissions.Warehouse;
 using Vodovoz.Views.Permissions;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -156,7 +155,7 @@ namespace Vodovoz
 			UserDialog.PermissionViewsCreator = () => new List<IPermissionsView>
 			{
 				new PermissionMatrixView(
-					new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access")
+					new PermissionMatrix<WarehousePermissionsType, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
 			WarehousePermissionService warehousePermissionService = new WarehousePermissionService

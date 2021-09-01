@@ -2,28 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {
     public class PermissionTypeAllNodeViewModel : WarehousePermissionAllNodeViewModelBase
     {
-        private WarehousePermissions warehousePermissions;
-        public WarehousePermissions WarehousePermissions
+        private WarehousePermissionsType _warehousePermissionsType;
+        public WarehousePermissionsType WarehousePermissionsType
         {
-            get => warehousePermissions;
-            set => SetField(ref warehousePermissions, value);
+            get => _warehousePermissionsType;
+            set => SetField(ref _warehousePermissionsType, value);
         }
 
-        public PermissionTypeAllNodeViewModel(WarehousePermissions warehousePermissions, IEnumerable<Warehouse> warehouses, WarehousePermissionModel warehousePermissionModel)
+        public PermissionTypeAllNodeViewModel(WarehousePermissionsType warehousePermissionsType, IEnumerable<Warehouse> warehouses, WarehousePermissionModelBase warehousePermissionModelBase)
         {
-            WarehousePermissions = warehousePermissions;
-            Title = WarehousePermissions.GetEnumTitle();
+            WarehousePermissionsType = warehousePermissionsType;
+            Title = WarehousePermissionsType.GetEnumTitle();
             SubNodeViewModel = new List<WarehousePermissionNodeViewModel>();
             foreach (var warehouse in warehouses)
             {
-                var permissionNode = new WarehousePermissionNodeViewModel(warehouse, warehousePermissions, warehousePermissionModel);
+                var permissionNode = new WarehousePermissionNodeViewModel(warehouse, warehousePermissionsType, warehousePermissionModelBase);
                 permissionNode.ItemChangeValue += IsAllPermissionSeted;
                 SubNodeViewModel.Add(permissionNode);
             }

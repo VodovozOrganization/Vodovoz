@@ -1,35 +1,35 @@
 using System;
 using System.Linq;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Permissions.Warehouse;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {
     public class WarehousePermissionNodeViewModel : PropertyChangedBase
     {
-        private WarehousePermissionModel warehousePermissionModel { get; set; }
+        private WarehousePermissionModelBase WarehousePermissionModelBase { get; set; }
 
-        public WarehousePermissionNodeViewModel(Warehouse warehouse, WarehousePermissions warehousePermissions, WarehousePermissionModel warehousePermissionModel)
+        public WarehousePermissionNodeViewModel(Warehouse warehouse, WarehousePermissionsType warehousePermissionsType, WarehousePermissionModelBase warehousePermissionModelBase)
         {
             this.warehouse = warehouse;
-            this.warehousePermissions = warehousePermissions;
-            this.warehousePermissionModel = warehousePermissionModel;
-            var permissions = warehousePermissionModel.AllPermission;
+            this._warehousePermissionsType = warehousePermissionsType;
+            this.WarehousePermissionModelBase = warehousePermissionModelBase;
+            var permissions = warehousePermissionModelBase.AllPermission;
             if (permissions.Any())
             {
                 this.permissionValue = permissions
-                    .Where(x => x.Warehouse == Warehouse && x.WarehousePermissionType == WarehousePermissions)
-                    .Select(x=>x.ValuePermission).SingleOrDefault();
+                    .Where(x => x.Warehouse == Warehouse && x.WarehousePermissionTypeType == WarehousePermissionsType)
+                    .Select(x=>x.PermissionValue).SingleOrDefault();
             }
             UnSubscribe = false;
         }
 
-        private WarehousePermissions warehousePermissions;
-        public WarehousePermissions WarehousePermissions
+        private WarehousePermissionsType _warehousePermissionsType;
+        public WarehousePermissionsType WarehousePermissionsType
         {
-            get => warehousePermissions;
-            set => SetField(ref warehousePermissions, value);
+            get => _warehousePermissionsType;
+            set => SetField(ref _warehousePermissionsType, value);
         }
 
         private Warehouse warehouse;
