@@ -47,7 +47,6 @@ namespace Vodovoz.Filters.GtkViews
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
 			dateperiodOrders.Binding.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictStartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.RestrictEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
@@ -72,6 +71,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanChangeLessThreeHours, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter())
 				.InitializeFromSource();
+			ycheckSortDeliveryDate.Binding
+				.AddBinding(ViewModel, vm => vm.SortDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter())
+				.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible)
+				.InitializeFromSource();
 
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);
 			yenumcomboboxPaymentOrder.Binding.AddBinding(ViewModel, vm => vm.PaymentOrder, w => w.SelectedItemOrNull)
@@ -81,6 +84,9 @@ namespace Vodovoz.Filters.GtkViews
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
 			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
+			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
+
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();
@@ -90,6 +96,9 @@ namespace Vodovoz.Filters.GtkViews
 			speciallistCmbPaymentsFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible)
 				.InitializeFromSource();
 			ylblPaymentFrom.Binding.AddBinding(ViewModel, vm => vm.PaymentsFromVisibility, w => w.Visible).InitializeFromSource();
+			
+			ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
+			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		private void InitializeRestrictions()

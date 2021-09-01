@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using NLog;
+﻿using NLog;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -56,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 
+		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
 		private bool _canRegisterMobileUser;
@@ -249,6 +249,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				                                                                  UoW,
 				                                                                  _baseParametersProvider));
 
+		public bool CanReadEmployeeDocuments { get; private set; }
+		public bool CanAddEmployeeDocument { get; private set; }
 		public bool CanManageUsers { get; private set; }
 		public bool CanManageDriversAndForwarders { get; private set; }
 		public bool CanManageOfficeWorkers { get; private set; }
@@ -331,9 +333,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
-		public bool CanEditEmployeeDocument => SelectedEmployeeDocuments.Any();
-		public bool CanRemoveEmployeeDocument => SelectedEmployeeDocuments.Any();
-		
+		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
+												|| _employeeDocumentsPermissionsSet.CanUpdate) 
+											&& SelectedEmployeeDocuments.Any();
+		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any();
+
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
 		{
 			get => _selectedEmployeeContracts;
@@ -628,6 +632,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverDistrictPrioritySet));
 			DriverWorkScheduleSetPermission =
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverWorkScheduleSet));
+
+			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
+				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
+
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
