@@ -4,7 +4,6 @@ using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -21,27 +20,17 @@ namespace DriverAPI.Controllers
 		private readonly IEmployeeModel _employeeData;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IOrderModel _aPIOrderData;
-		private readonly int _timeout;
-		private readonly int _futureTimeout;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
-			IConfiguration configuration,
 			IEmployeeModel employeeData,
 			UserManager<IdentityUser> userManager,
 			IOrderModel aPIOrderData)
 		{
-			if(configuration is null)
-			{
-				throw new ArgumentNullException(nameof(configuration));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
-			_timeout = configuration.GetValue<int>("PostActionTimeTimeOut");
-			_futureTimeout = configuration.GetValue<int>("FutureAtionTimeTimeOut");
 		}
 
 		/// <summary>
@@ -63,18 +52,6 @@ namespace DriverAPI.Controllers
 		{
 			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			var recievedTime = DateTime.Now;
-
-			if(completedOrderRequestModel.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
-			{
-				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
-			}
-
-			if(recievedTime - completedOrderRequestModel.ActionTime > new TimeSpan(0, _timeout, 0))
-			{
-				throw new InvalidOperationException("Таймаут запроса операции");
-			}
-
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
@@ -85,7 +62,7 @@ namespace DriverAPI.Controllers
 				completedOrderRequestModel.Rating,
 				completedOrderRequestModel.DriverComplaintReasonId,
 				completedOrderRequestModel.OtherDriverComplaintReasonComment,
-				recievedTime
+				DateTime.Now
 			);
 		}
 
@@ -97,24 +74,14 @@ namespace DriverAPI.Controllers
 		[Route("/api/ChangeOrderPaymentType")]
 		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
-			var recievedTime = DateTime.Now;
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
-
-			if(changeOrderPaymentTypeRequestModel.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
-			{
-				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
-			}
-
-			if(recievedTime - changeOrderPaymentTypeRequestModel.ActionTime > new TimeSpan(0, _timeout, 0))
-			{
-				throw new InvalidOperationException("Таймаут запроса операции");
-			}
 
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType } на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType }" +
+				$" на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 

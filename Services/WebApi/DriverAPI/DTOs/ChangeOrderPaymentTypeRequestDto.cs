@@ -3,7 +3,7 @@ using System;
 
 namespace DriverAPI.DTOs
 {
-	public class ChangeOrderPaymentTypeRequestDto
+	public class ChangeOrderPaymentTypeRequestDto : IDelayedAction
 	{
 		public int OrderId { get; set; }
 		public PaymentDtoType NewPaymentType { get; set; }

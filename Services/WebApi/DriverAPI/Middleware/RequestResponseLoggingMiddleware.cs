@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace DriverAPI
+namespace DriverAPI.Middleware
 {
 	public class RequestResponseLoggingMiddleware
 	{

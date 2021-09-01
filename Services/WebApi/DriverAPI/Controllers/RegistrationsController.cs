@@ -66,19 +66,8 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public void RegisterRouteListAddressCoordinate([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
-			var recievedTime = DateTime.Now;
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
-
-			if(routeListAddressCoordinate.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
-			{
-				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
-			}
-
-			if(recievedTime - routeListAddressCoordinate.ActionTime > new TimeSpan(0, _timeout, 0))
-			{
-				throw new InvalidOperationException("Таймаут запроса операции");
-			}
 
 			_logger.LogInformation($"Регистрация предположительных координат точки доставки { routeListAddressCoordinate.RouteListAddressId }" +
 				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");

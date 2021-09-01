@@ -1,6 +1,7 @@
 ﻿using DriverAPI.Data;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
+using DriverAPI.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -144,7 +145,7 @@ namespace DriverAPI
 			}
 			else
 			{
-				app.UseExceptionHandler("/api/error");
+				app.UseJsonExceptionsHandler();
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
@@ -156,6 +157,8 @@ namespace DriverAPI
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseActionTimeValidation();
 
 			app.UseEndpoints(endpoints =>
 			{

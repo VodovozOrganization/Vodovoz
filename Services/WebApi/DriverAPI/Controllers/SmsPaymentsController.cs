@@ -85,18 +85,6 @@ namespace DriverAPI.Controllers
 			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
 				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");
 
-			var recievedTime = DateTime.Now;
-
-			if(payBySmsRequestModel.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
-			{
-				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
-			}
-
-			if(recievedTime - payBySmsRequestModel.ActionTime > new TimeSpan(0, _timeout, 0))
-			{
-				throw new InvalidOperationException("Таймаут запроса операции");
-			}
-
 			_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
 		}
 	}
