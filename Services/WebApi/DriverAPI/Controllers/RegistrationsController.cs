@@ -1,6 +1,7 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace DriverAPI.Controllers
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly ITrackPointsModel _trackPointsData;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
@@ -28,14 +30,17 @@ namespace DriverAPI.Controllers
 			IEmployeeModel employeeData,
 			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IRouteListModel aPIRouteListData,
-			ITrackPointsModel trackPointsData)
+			ITrackPointsModel trackPointsData,
+			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
-			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+			_driverMobileAppActionRecordData = driverMobileAppActionRecordData
+				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_trackPointsData = trackPointsData ?? throw new ArgumentNullException(nameof(trackPointsData));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		/// <summary>
@@ -60,17 +65,22 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public void RegisterRouteListAddressCoordinate([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
 			_logger.LogInformation($"Регистрация предположительных координат точки доставки { routeListAddressCoordinate.RouteListAddressId }" +
 				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			var user = _userManager.GetUserAsync(User).Result;
-			var driver = _employeeData.GetByAPILogin(user.UserName);
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, routeListAddressCoordinate.ActionTime);
 
 			_aPIRouteListData.RegisterCoordinateForRouteListItem(
 				routeListAddressCoordinate.RouteListAddressId,
 				routeListAddressCoordinate.Latitude,
 				routeListAddressCoordinate.Longitude,
-				routeListAddressCoordinate.ActionTime);
+				routeListAddressCoordinate.ActionTime,
+				driver.Id);
 
 			_driverMobileAppActionRecordData.RegisterAction(
 				driver,
@@ -90,10 +100,17 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterTrackCoordinates")]
 		public void RegisterTrackCoordinates([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
 			_logger.LogInformation($"Регистрация треков для МЛ { registerTrackCoordinateRequestModel.RouteListId }" +
 				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			_trackPointsData.RegisterForRouteList(registerTrackCoordinateRequestModel.RouteListId, registerTrackCoordinateRequestModel.TrackList);
+			_trackPointsData.RegisterForRouteList(
+				registerTrackCoordinateRequestModel.RouteListId,
+				registerTrackCoordinateRequestModel.TrackList,
+				driver.Id
+				);
 		}
 	}
 }

@@ -59,15 +59,18 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
+using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
@@ -122,6 +125,10 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
+			= new RentPackagesJournalsViewModelsFactory(MainClass.MainWin.NavigationManager);
+		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
+			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
@@ -3016,17 +3023,21 @@ namespace Vodovoz
 		
 		private void SelectPaidRentPackage(RentType rentType)
 		{
-			var ormReference = new OrmReference(typeof(PaidRentPackage)) {
-				Mode = OrmReferenceMode.Select
-			};
-			ormReference.ObjectSelected += (sender, e) => {
-				if (!(e.Subject is PaidRentPackage selectedRentPackage)) {
+			var paidRentJournal = _rentPackagesJournalsViewModelsFactory.CreatePaidRentPackagesJournalViewModel(false, false, false, false);
+			
+			paidRentJournal.OnSelectResult += (sender, e) =>
+			{
+				var selectedRent = e.GetSelectedObjects<PaidRentPackagesJournalNode>().FirstOrDefault();
+				
+				if (selectedRent == null)
+				{
 					return;
 				}
-				var paidRentPackage = UoW.GetById<PaidRentPackage>(selectedRentPackage.Id);
+
+				var paidRentPackage = UoW.GetById<PaidRentPackage>(selectedRent.Id);
 				SelectEquipmentForPaidRentPackage(rentType, paidRentPackage);
 			};
-			TabParent.AddTab(ormReference, this);
+			TabParent.AddTab(paidRentJournal, this);
 		}
 
 		private void SelectEquipmentForPaidRentPackage(RentType rentType, PaidRentPackage paidRentPackage)
@@ -3038,22 +3049,26 @@ namespace Vodovoz
 					.Distinct()
 					.ToArray();
 				
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
+				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
 				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
 			}
-			else {
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, paidRentPackage.EquipmentKind));
-				selectDialog.Mode = JournalSelectMode.Single;
-				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) => {
-					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null) {
+			else
+			{
+				var equipmentForRentJournal =
+					_nonSerialEquipmentsForRentJournalViewModelFactory.CreateNonSerialEquipmentsForRentJournalViewModel(paidRentPackage.EquipmentKind);
+				
+				equipmentForRentJournal.OnSelectResult += (sender, e) =>
+				{
+					var nomenclature = TryGetSelectedNomenclature(e);
+					
+					if(nomenclature == null)
+					{
 						return;
 					}
-					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+
 					AddPaidRent(rentType, paidRentPackage, nomenclature);
 				};
-				TabParent.AddSlaveTab(this, selectDialog);
+				TabParent.AddSlaveTab(this, equipmentForRentJournal);
 			}
 		}
 		
@@ -3093,20 +3108,21 @@ namespace Vodovoz
 
 		private void SelectFreeRentPackage()
 		{
-			var ormReference = new OrmReference(typeof(FreeRentPackage))
+			var freeRentJournal = _rentPackagesJournalsViewModelsFactory.CreateFreeRentPackagesJournalViewModel(false, false, false, false);
+			
+			freeRentJournal.OnSelectResult += (sender, e) =>
 			{
-				Mode = OrmReferenceMode.Select
-			};
-			ormReference.ObjectSelected += (sender, e) =>
-			{
-				if(!(e.Subject is FreeRentPackage selectedRentPackage))
+				var selectedRent = e.GetSelectedObjects<FreeRentPackagesJournalNode>().FirstOrDefault();
+				
+				if (selectedRent == null)
 				{
 					return;
 				}
-				var rentPackage = UoW.GetById<FreeRentPackage>(selectedRentPackage.Id);
-				SelectEquipmentForFreeRentPackage(rentPackage);
+
+				var freeRentPackage = UoW.GetById<FreeRentPackage>(selectedRent.Id);
+				SelectEquipmentForFreeRentPackage(freeRentPackage);
 			};
-			TabParent.AddTab(ormReference, this);
+			TabParent.AddTab(freeRentJournal, this);
 		}
 
 		private void SelectEquipmentForFreeRentPackage(FreeRentPackage freeRentPackage)
@@ -3118,26 +3134,27 @@ namespace Vodovoz
 					.Select(x => x.Nomenclature.Id)
 					.Distinct()
 					.ToArray();
-
-				var anyNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
+				
+				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
 				AddFreeRent(freeRentPackage, anyNomenclature);
 			}
 			else
 			{
-				var selectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(UoW, freeRentPackage.EquipmentKind));
-				selectDialog.Mode = JournalSelectMode.Single;
-				selectDialog.CustomTabName("Оборудование для аренды");
-				selectDialog.ObjectSelected += (sender, e) =>
+				var equipmentForRentJournal =
+					_nonSerialEquipmentsForRentJournalViewModelFactory.CreateNonSerialEquipmentsForRentJournalViewModel(freeRentPackage.EquipmentKind);
+				
+				equipmentForRentJournal.OnSelectResult += (sender, e) =>
 				{
-					var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
-					if(selectedNode == null)
+					var nomenclature = TryGetSelectedNomenclature(e);
+					
+					if(nomenclature == null)
 					{
 						return;
 					}
-					var nomenclature = UoW.GetById<Nomenclature>(selectedNode.Nomenclature.Id);
+					
 					AddFreeRent(freeRentPackage, nomenclature);
 				};
-				TabParent.AddSlaveTab(this, selectDialog);
+				TabParent.AddSlaveTab(this, equipmentForRentJournal);
 			}
 		}
 
@@ -3225,6 +3242,13 @@ namespace Vodovoz
 
 		#endregion FreeRent
 
+		private Nomenclature TryGetSelectedNomenclature(JournalSelectedEventArgs e)
+		{
+			var selectedNode = e.GetSelectedObjects<NomenclatureForRentNode>().FirstOrDefault();
+					
+			return selectedNode == null ? null : UoW.GetById<Nomenclature>(selectedNode.Id);
+		}
+		
 		#endregion
 	}
 }

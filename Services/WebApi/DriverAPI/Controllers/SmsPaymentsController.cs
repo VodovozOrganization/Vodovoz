@@ -1,9 +1,11 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
+using DriverAPI.Library.Converters;
 using DriverAPI.Library.Helpers;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -15,22 +17,34 @@ namespace DriverAPI.Controllers
 	public class SmsPaymentsController : ControllerBase
 	{
 		private readonly ILogger<SmsPaymentsController> _logger;
+		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly ISmsPaymentModel _aPISmsPaymentData;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
-		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
 		private readonly IOrderModel _aPIOrderData;
+		private readonly IEmployeeModel _employeeData;
+		private readonly UserManager<IdentityUser> _userManager;
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
+			IConfiguration configuration,
+			IActionTimeHelper actionTimeHelper,
 			ISmsPaymentModel aPISmsPaymentData,
 			SmsPaymentStatusConverter smsPaymentConverter,
-			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
-			IOrderModel aPIOrderData)
+			IOrderModel aPIOrderData,
+			IEmployeeModel employeeData,
+			UserManager<IdentityUser> userManager)
 		{
+			if(configuration is null)
+			{
+				throw new ArgumentNullException(nameof(configuration));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
 			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
-			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
 		/// <summary>
@@ -65,9 +79,17 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
-			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId } на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			_smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
+
+			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
+				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");
+
+			_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
 		}
 	}
 }
