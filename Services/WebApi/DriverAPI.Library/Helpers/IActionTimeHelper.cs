@@ -4,6 +4,6 @@ namespace DriverAPI.Library.Helpers
 {
 	public interface IActionTimeHelper
 	{
-		void Validate(DateTime recievedTime, DateTime actionTime);
+		void ThrowIfNotValid(DateTime recievedTime, DateTime actionTime);
 	}
 }

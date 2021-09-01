@@ -84,7 +84,7 @@ namespace DriverAPI.Controllers
 
 			var recievedTime = DateTime.Now;
 
-			_actionTimeHelper.Validate(recievedTime, payBySmsRequestModel.ActionTime);
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
 
 			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
 				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");

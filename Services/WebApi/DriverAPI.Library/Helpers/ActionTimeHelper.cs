@@ -17,12 +17,12 @@ namespace DriverAPI.Library.Helpers
 				throw new ArgumentNullException(nameof(configuration));
 			}
 
-			_timeout = configuration.GetValue<int>("PostActionTimeTimeOut");
-			_futureTimeout = configuration.GetValue<int>("FutureAtionTimeTimeOut");
+			_timeout = configuration.GetValue<int>("PostActionTimeTimeOutMinutes");
+			_futureTimeout = configuration.GetValue<int>("FutureActionTimeTimeOutMinutes");
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public void Validate(DateTime recievedTime, DateTime actionTime)
+		public void ThrowIfNotValid(DateTime recievedTime, DateTime actionTime)
 		{
 			if(actionTime > recievedTime.AddMinutes(_futureTimeout))
 			{

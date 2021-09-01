@@ -62,7 +62,7 @@ namespace DriverAPI.Controllers
 
 			var recievedTime = DateTime.Now;
 
-			_actionTimeHelper.Validate(recievedTime, completedOrderRequestModel.ActionTime);
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, completedOrderRequestModel.ActionTime);
 
 			_aPIOrderData.CompleteOrderDelivery(
 				driver,
@@ -94,7 +94,7 @@ namespace DriverAPI.Controllers
 			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType }" +
 				$" на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			_actionTimeHelper.Validate(recievedTime, changeOrderPaymentTypeRequestModel.ActionTime);
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, changeOrderPaymentTypeRequestModel.ActionTime);
 
 			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 

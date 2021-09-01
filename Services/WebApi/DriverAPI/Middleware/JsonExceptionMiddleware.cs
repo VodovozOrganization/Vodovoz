@@ -15,7 +15,6 @@ namespace DriverAPI.Middleware
 
 		public JsonExceptionMiddleware(ILogger<JsonExceptionMiddleware> logger, RequestDelegate next)
 		{
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_next = next ?? throw new ArgumentNullException(nameof(next));
 		}

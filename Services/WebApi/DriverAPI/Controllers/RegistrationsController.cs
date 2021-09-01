@@ -5,7 +5,6 @@ using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -74,7 +73,7 @@ namespace DriverAPI.Controllers
 
 			var recievedTime = DateTime.Now;
 
-			_actionTimeHelper.Validate(recievedTime, routeListAddressCoordinate.ActionTime);
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, routeListAddressCoordinate.ActionTime);
 
 			_aPIRouteListData.RegisterCoordinateForRouteListItem(
 				routeListAddressCoordinate.RouteListAddressId,
@@ -104,17 +103,14 @@ namespace DriverAPI.Controllers
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			if(!_aPIRouteListData.IsRouteListBelongToDriver(registerTrackCoordinateRequestModel.RouteListId, driver.Id))
-			{
-				_logger.LogWarning($"Водитель {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver.Id})" +
-					$" попытался зарегистрировать трек для МЛ {registerTrackCoordinateRequestModel.RouteListId}");
-				throw new AccessViolationException("Нельзя регистрировать координаты трека к чужому МЛ");
-			}
-
 			_logger.LogInformation($"Регистрация треков для МЛ { registerTrackCoordinateRequestModel.RouteListId }" +
 				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			_trackPointsData.RegisterForRouteList(registerTrackCoordinateRequestModel.RouteListId, registerTrackCoordinateRequestModel.TrackList);
+			_trackPointsData.RegisterForRouteList(
+				registerTrackCoordinateRequestModel.RouteListId,
+				registerTrackCoordinateRequestModel.TrackList,
+				driver.Id
+				);
 		}
 	}
 }

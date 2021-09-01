@@ -114,7 +114,7 @@ namespace DriverAPI.Controllers
 
 			var recievedTime = DateTime.Now;
 
-			_actionTimeHelper.Validate(recievedTime, requestDto.ActionTime);
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, requestDto.ActionTime);
 
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);

@@ -314,6 +314,12 @@ namespace DriverAPI.Library.Models
 				throw new InvalidOperationException("Нельзя отправлять СМС на оплату для адреса МЛ не в пути");
 			}
 
+			if(routeList.Driver.Id != driverId)
+			{
+				_logger.LogWarning($"Водитель {driverId} попытался запросить оплату по СМС для заказа {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя запросить оплату по СМС для заказа другого водителя");
+			}
+
 			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
 		}
 	}
