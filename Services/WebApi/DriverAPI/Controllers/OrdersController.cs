@@ -1,9 +1,11 @@
 ﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,17 +22,20 @@ namespace DriverAPI.Controllers
 		private readonly IEmployeeModel _employeeData;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IOrderModel _aPIOrderData;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			IEmployeeModel employeeData,
 			UserManager<IdentityUser> userManager,
-			IOrderModel aPIOrderData)
+			IOrderModel aPIOrderData,
+			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_actionTimeHelper = actionTimeHelper;
 		}
 
 		/// <summary>
@@ -55,6 +60,10 @@ namespace DriverAPI.Controllers
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.Validate(recievedTime, completedOrderRequestModel.ActionTime);
+
 			_aPIOrderData.CompleteOrderDelivery(
 				driver,
 				completedOrderRequestModel.OrderId,
@@ -62,7 +71,7 @@ namespace DriverAPI.Controllers
 				completedOrderRequestModel.Rating,
 				completedOrderRequestModel.DriverComplaintReasonId,
 				completedOrderRequestModel.OtherDriverComplaintReasonComment,
-				DateTime.Now
+				recievedTime
 			);
 		}
 
@@ -74,6 +83,8 @@ namespace DriverAPI.Controllers
 		[Route("/api/ChangeOrderPaymentType")]
 		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
+			var recievedTime = DateTime.Now;
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
@@ -82,6 +93,8 @@ namespace DriverAPI.Controllers
 
 			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType }" +
 				$" на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
+			_actionTimeHelper.Validate(recievedTime, changeOrderPaymentTypeRequestModel.ActionTime);
 
 			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 

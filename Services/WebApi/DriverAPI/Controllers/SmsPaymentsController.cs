@@ -1,5 +1,6 @@
 ﻿using DriverAPI.DTOs;
 using DriverAPI.Library.Converters;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,16 +17,16 @@ namespace DriverAPI.Controllers
 	public class SmsPaymentsController : ControllerBase
 	{
 		private readonly ILogger<SmsPaymentsController> _logger;
+		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly ISmsPaymentModel _aPISmsPaymentData;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly IOrderModel _aPIOrderData;
 		private readonly IEmployeeModel _employeeData;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly int _timeout;
-		private readonly int _futureTimeout;
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
 			IConfiguration configuration,
+			IActionTimeHelper actionTimeHelper,
 			ISmsPaymentModel aPISmsPaymentData,
 			SmsPaymentStatusConverter smsPaymentConverter,
 			IOrderModel aPIOrderData,
@@ -38,13 +39,12 @@ namespace DriverAPI.Controllers
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
 			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_timeout = configuration.GetValue<int>("PostActionTimeTimeOut");
-			_futureTimeout = configuration.GetValue<int>("FutureAtionTimeTimeOut");
 		}
 
 		/// <summary>
@@ -81,6 +81,10 @@ namespace DriverAPI.Controllers
 		{
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.Validate(recievedTime, payBySmsRequestModel.ActionTime);
 
 			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
 				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");

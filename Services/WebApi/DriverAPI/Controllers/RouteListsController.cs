@@ -1,5 +1,6 @@
 ﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,30 +23,24 @@ namespace DriverAPI.Controllers
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly IOrderModel _aPIOrderData;
 		private readonly IEmployeeModel _employeeData;
+		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly int _timeout;
-		private readonly int _futureTimeout;
+
 
 		public RouteListsController(
 			ILogger<RouteListsController> logger,
-			IConfiguration configuration,
 			IRouteListModel aPIRouteListData,
 			IOrderModel aPIOrderData,
 			IEmployeeModel employeeData,
+			IActionTimeHelper actionTimeHelper,
 			UserManager<IdentityUser> userManager)
 		{
-			if(configuration is null)
-			{
-				throw new ArgumentNullException(nameof(configuration));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_timeout = configuration.GetValue<int>("PostActionTimeTimeOut");
-			_futureTimeout = configuration.GetValue<int>("FutureAtionTimeTimeOut");
 		}
 
 		/// <summary>
@@ -119,15 +114,7 @@ namespace DriverAPI.Controllers
 
 			var recievedTime = DateTime.Now;
 
-			if(requestDto.ActionTime < recievedTime.AddMinutes(-_futureTimeout))
-			{
-				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
-			}
-
-			if(recievedTime - requestDto.ActionTime > new TimeSpan(0, _timeout, 0))
-			{
-				throw new InvalidOperationException("Таймаут запроса операции");
-			}
+			_actionTimeHelper.Validate(recievedTime, requestDto.ActionTime);
 
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);

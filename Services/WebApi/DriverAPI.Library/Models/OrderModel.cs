@@ -236,6 +236,13 @@ namespace DriverAPI.Library.Models
 				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
 			}
 
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				var error = $"Нельзя завершить заказ: { orderId }, МЛ не в пути";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				var error = $"Нельзя завершить заказ: { orderId }, адрес МЛ не в пути";

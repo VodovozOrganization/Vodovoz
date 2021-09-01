@@ -2,7 +2,7 @@
 
 namespace DriverAPI.DTOs
 {
-	public class CompletedOrderRequestDto : IDelayedAction
+	public class CompletedOrderRequestDto
 	{
 		public int OrderId { get; set; }
 		public int BottlesReturnCount { get; set; }

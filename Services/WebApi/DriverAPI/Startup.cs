@@ -158,8 +158,6 @@ namespace DriverAPI
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.UseActionTimeValidation();
-
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(
@@ -258,6 +256,7 @@ namespace DriverAPI
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
 			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
+			services.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
 			// DAL обертки
 			services.AddScoped<ITrackPointsModel, TrackPointsModel>();

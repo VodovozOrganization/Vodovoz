@@ -1,5 +1,6 @@
 ﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,26 +23,25 @@ namespace DriverAPI.Controllers
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly ITrackPointsModel _trackPointsData;
-		private readonly int _timeout;
-		private readonly int _futureTimeout;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
 			UserManager<IdentityUser> userManager,
-			IConfiguration configuration,
 			IEmployeeModel employeeData,
 			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IRouteListModel aPIRouteListData,
-			ITrackPointsModel trackPointsData)
+			ITrackPointsModel trackPointsData,
+			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
-			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+			_driverMobileAppActionRecordData = driverMobileAppActionRecordData
+				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_trackPointsData = trackPointsData ?? throw new ArgumentNullException(nameof(trackPointsData));
-			_timeout = configuration.GetValue<int>("PostActionTimeTimeOut");
-			_futureTimeout = configuration.GetValue<int>("FutureAtionTimeTimeOut");
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		/// <summary>
@@ -71,6 +71,10 @@ namespace DriverAPI.Controllers
 
 			_logger.LogInformation($"Регистрация предположительных координат точки доставки { routeListAddressCoordinate.RouteListAddressId }" +
 				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.Validate(recievedTime, routeListAddressCoordinate.ActionTime);
 
 			_aPIRouteListData.RegisterCoordinateForRouteListItem(
 				routeListAddressCoordinate.RouteListAddressId,
