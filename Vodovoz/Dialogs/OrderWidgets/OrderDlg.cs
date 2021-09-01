@@ -23,10 +23,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
-using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
-using QSReport;
 using QSWidgetLib;
 using RdlEngine;
 using System;
@@ -35,6 +33,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -66,6 +65,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalSelector;
@@ -79,6 +79,8 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -108,7 +110,10 @@ namespace Vodovoz
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
-		
+
+		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
+			new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -1362,7 +1367,7 @@ namespace Vodovoz
 				rdlDocs.ForEach(
 					doc => {
 						if(doc is IPrintableRDLDocument)
-							TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
+							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
 					}
 				);
 			}
@@ -1407,8 +1412,9 @@ namespace Vodovoz
 		/// <param name="docList">Лист документов.</param>
 		private void PrintDocuments(IList<OrderDocument> docList)
 		{
-			if(docList.Any()) {
-				new DocumentPrinter().PrintAll(docList.OfType<PrintableOrderDocument>());
+			if(docList.Any())
+			{
+				_documentPrinter.PrintAllDocuments(docList.OfType<PrintableOrderDocument>());
 			}
 		}
 
@@ -2074,14 +2080,17 @@ namespace Vodovoz
 
 				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>()
 					.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
-				if(selectedPrintableRDLDocuments.Any()) {
-					new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
+				if(selectedPrintableRDLDocuments.Any())
+				{
+					_documentPrinter.PrintAllDocuments(selectedPrintableRDLDocuments);
 				}
 
 				var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
 					.OfType<IPrintableOdtDocument>().ToList();
-				if(selectedPrintableODTDocuments.Any()) {
-					TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+				
+				if(selectedPrintableODTDocuments.Any())
+				{
+					_documentPrinter.PrintAllODTDocuments(selectedPrintableODTDocuments);
 				}
 			} finally {
 				SetSensetivity(true);
@@ -2090,8 +2099,15 @@ namespace Vodovoz
 
 		protected void OnBtnOpnPrnDlgClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderDocuments.OfType<PrintableOrderDocument>().Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
-				TabParent.AddSlaveTab(this, new DocumentsPrinterDlg(Entity));
+			if(Entity.OrderDocuments.OfType<PrintableOrderDocument>().Any(
+				doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT))
+			{
+				TabParent.AddSlaveTab(this, new DocumentsPrinterViewModel(
+					_entityDocumentsPrinterFactory,
+					ServicesConfig.InteractiveService,
+					MainClass.MainWin.NavigationManager,
+					Entity));
+			}
 		}
 
 		protected void OnEnumPaymentTypeChanged(object sender, EventArgs e)
