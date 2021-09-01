@@ -97,7 +97,7 @@ namespace Vodovoz.Views.Warehouse
 
 			buttonReceive.Clicked += (sender, e) => ViewModel.ReceiveCommand.Execute();
 			ViewModel.ReceiveCommand.CanExecuteChanged += (sender, e) => buttonReceive.Sensitive = ViewModel.ReceiveCommand.CanExecute();
-			buttonReceive.Sensitive = ViewModel.ReceiveCommand.CanExecute();
+			buttonReceive.Sensitive = ViewModel.ReceiveCommand.CanExecute() && ViewModel.Entity.Status != MovementDocumentStatus.Accepted;
 
 			buttonAcceptDiscrepancy.Clicked += (sender, e) => ViewModel.AcceptDiscrepancyCommand.Execute();
 			ViewModel.AcceptDiscrepancyCommand.CanExecuteChanged += (sender, e) => buttonAcceptDiscrepancy.Sensitive = ViewModel.AcceptDiscrepancyCommand.CanExecute();
@@ -106,7 +106,7 @@ namespace Vodovoz.Views.Warehouse
 			buttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
 			ViewModel.PrintCommand.CanExecuteChanged += (sender, e) =>  buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
-
+			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 
