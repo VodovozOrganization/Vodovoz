@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -17,8 +16,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
     {
         private readonly Order _currentOrder;
 		private readonly RouteList _currentRouteList;
-		private SelectablePrintDocument _selectedDocument;
-		private DelegateCommand _printSelectedCommand;
 		
 		public event Action PreviewDocument;
 		public event EventHandler DocumentsPrinted;
@@ -61,28 +58,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_currentRouteList = routeList;
 			Configure();
 		}
-
-		public DelegateCommand PrintSelectedCommand => _printSelectedCommand ?? (_printSelectedCommand = new DelegateCommand(
-			() => EntityDocumentsPrinter.Print(SelectedDocument),
-			() => CanPrint
-			)
-		);
 		
 		public IEntityDocumentsPrinter EntityDocumentsPrinter { get; }
 
-		public SelectablePrintDocument SelectedDocument
-		{
-			get => _selectedDocument;
-			set
-			{
-				if(SetField(ref _selectedDocument, value))
-				{
-					OnPropertyChanged(nameof(CanPrint));
-				}
-			}
-		}
-
-		public bool CanPrint => SelectedDocument != null;
+		public SelectablePrintDocument SelectedDocument { get; set; }
 
 		private void Configure()
 		{

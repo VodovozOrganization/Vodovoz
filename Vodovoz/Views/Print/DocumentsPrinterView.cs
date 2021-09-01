@@ -22,12 +22,8 @@ namespace Vodovoz.Views.Print
             ConfigureTree();
 
             buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-            ybtnPrint.Clicked += (sender, args) => ViewModel.PrintSelectedCommand.Execute();
             ybtnPrintAll.Clicked += (sender, args) => ViewModel.PrintAll();
 
-            ybtnPrint.Binding.AddBinding(ViewModel, vm => vm.CanPrint, w => w.Sensitive);
-            ybtnPrint.Visible = false;
-            
             ViewModel.PreviewDocument += PreviewDocument;
         }
 

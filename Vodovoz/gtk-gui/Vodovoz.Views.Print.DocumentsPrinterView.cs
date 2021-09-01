@@ -18,8 +18,6 @@ namespace Vodovoz.Views.Print
 
 		private global::Gamma.GtkWidgets.yButton ybtnPrintAll;
 
-		private global::Gamma.GtkWidgets.yButton ybtnPrint;
-
 		private global::Gtk.Button buttonCancel;
 
 		private global::fyiReporting.RdlGtkViewer.ReportViewer reportviewer;
@@ -73,43 +71,29 @@ namespace Vodovoz.Views.Print
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.ybtnPrint = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnPrint.CanFocus = true;
-			this.ybtnPrint.Name = "ybtnPrint";
-			this.ybtnPrint.UseUnderline = true;
-			this.ybtnPrint.Label = global::Mono.Unix.Catalog.GetString("Печать");
-			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.ybtnPrint.Image = w7;
-			this.hbox2.Add(this.ybtnPrint);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ybtnPrint]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
-			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w9;
+			global::Gtk.Image w7 = new global::Gtk.Image();
+			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w7;
 			this.hbox2.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonCancel]));
-			w10.Position = 2;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonCancel]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.hboxMain.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w10.Position = 0;
 			w10.Expand = false;
 			w10.Fill = false;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			this.hboxMain.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
-			w12.Position = 0;
-			w12.Expand = false;
-			w12.Fill = false;
 			// Container child hboxMain.Gtk.Box+BoxChild
 			this.reportviewer = new global::fyiReporting.RdlGtkViewer.ReportViewer();
 			this.reportviewer.WidthRequest = 0;
@@ -119,8 +103,8 @@ namespace Vodovoz.Views.Print
 			this.reportviewer.ShowErrors = false;
 			this.reportviewer.ShowParameters = false;
 			this.hboxMain.Add(this.reportviewer);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.reportviewer]));
-			w13.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.reportviewer]));
+			w11.Position = 1;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
