@@ -25,6 +25,7 @@ namespace Vodovoz.Views.Print
             ybtnPrintAll.Clicked += (sender, args) => ViewModel.PrintAll();
 
             ViewModel.PreviewDocument += PreviewDocument;
+            ViewModel.DefaultPreviewDocument();
         }
 
         private void ConfigureTree()
@@ -82,5 +83,11 @@ namespace Vodovoz.Views.Print
 
         private void ReportViewerOnReportPrinted(object sender, EventArgs e) =>
             ViewModel.ReportViewerOnReportPrinted(this, new EndPrintArgs {Args = new object[] {ViewModel.SelectedDocument.Document}});
+
+        public override void Destroy()
+        {
+	        ViewModel.PreviewDocument -= PreviewDocument;
+	        base.Destroy();
+        }
     }
 }

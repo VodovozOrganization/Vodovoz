@@ -65,11 +65,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		private void Configure()
 		{
-			DefaultPreviewDocument();
 			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 		}
 		
-		private void DefaultPreviewDocument()
+		public void DefaultPreviewDocument()
 		{
 			var printDocuments = EntityDocumentsPrinter.DocumentsToPrint;
 			if(_currentOrder != null) 
