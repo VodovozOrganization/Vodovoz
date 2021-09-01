@@ -501,7 +501,6 @@
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
-    <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="TempAdapters\FixedPricesDialogOpener.cs" />
     <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
     <Compile Include="TempAdapters\WaterJournalFactory.cs" />
@@ -874,7 +873,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
     <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
-    <Compile Include="Representations\EquipmentsNonSerialForRentVM.cs" />
     <Compile Include="JournalFilters\NomenclatureEquipTypeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
     <Compile Include="Dialogs\AddExistingDocumentsDlg.cs" />
@@ -1597,6 +1595,10 @@
     <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
+    <Compile Include="Views\Rent\FreeRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.FreeRentPackageView.cs" />
+    <Compile Include="Views\Rent\PaidRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.PaidRentPackageView.cs" />
     <Compile Include="Views\Permissions\WarehousePermissionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Permissions.WarehousePermissionView.cs" />
     <Compile Include="Filters\GtkViews\NomenclaturePlanFilterView.cs" />
@@ -1971,6 +1973,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Rent\" />
     <Folder Include="Views\Permissions\" />
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />

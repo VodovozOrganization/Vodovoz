@@ -141,7 +141,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Rent;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.EntityRepositories.Permissions;
@@ -642,14 +644,12 @@ public partial class MainWindow : Gtk.Window
     
     protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
     {
-	    OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
-	    tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<FreeRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(PaidRentPackage));
-        tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<PaidRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionEquipmentActivated(object sender, EventArgs e)
