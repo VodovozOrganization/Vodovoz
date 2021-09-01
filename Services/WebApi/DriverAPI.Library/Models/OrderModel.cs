@@ -2,7 +2,6 @@
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.Logging;
-using NHibernate.Driver;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -30,7 +29,6 @@ namespace DriverAPI.Library.Models
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentModel _aPISmsPaymentModel;
 		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
-		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
 		private readonly IUnitOfWork _unitOfWork;
 
 		private readonly int _maxClosingRating = 5;
@@ -44,7 +42,6 @@ namespace DriverAPI.Library.Models
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentModel aPISmsPaymentModel,
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
-			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IUnitOfWork unitOfWork
 			)
 		{
@@ -56,7 +53,6 @@ namespace DriverAPI.Library.Models
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
-			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 	}
 
@@ -284,14 +280,6 @@ namespace DriverAPI.Library.Models
 
 			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
-
-			_driverMobileAppActionRecordData.RegisterAction(
-				driver,
-				new DriverActionDto()
-				{
-					ActionType = ActionDtoType.CompleteOrderClicked,
-					ActionTime = recievedTime
-				});
 		}
 
 		public void SendSmsPaymentRequest(

@@ -5,7 +5,6 @@ using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,6 +21,7 @@ namespace DriverAPI.Controllers
 		private readonly IEmployeeModel _employeeData;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IOrderModel _aPIOrderData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
 		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public OrdersController(
@@ -29,13 +29,15 @@ namespace DriverAPI.Controllers
 			IEmployeeModel employeeData,
 			UserManager<IdentityUser> userManager,
 			IOrderModel aPIOrderData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
-			_actionTimeHelper = actionTimeHelper;
+			_driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		/// <summary>
@@ -73,6 +75,14 @@ namespace DriverAPI.Controllers
 				completedOrderRequestModel.OtherDriverComplaintReasonComment,
 				recievedTime
 			);
+
+			_driverMobileAppActionRecordData.RegisterAction(
+				driver,
+				new DriverActionDto()
+				{
+					ActionType = ActionDtoType.CompleteOrderClicked,
+					ActionTime = completedOrderRequestModel.ActionTime
+				});
 		}
 
 		/// <summary>
