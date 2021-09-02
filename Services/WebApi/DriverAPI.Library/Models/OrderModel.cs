@@ -182,7 +182,7 @@ namespace DriverAPI.Library.Models
 				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: { orderId }, заказ не в пути.");
 			}
 
-			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
 
 			if(routeList.Driver.Id != driver.Id)
 			{
@@ -205,26 +205,31 @@ namespace DriverAPI.Library.Models
 			DateTime recievedTime)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
-			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
-			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId
-															   && x.Status != RouteListItemStatus.Transfered)
-													  .SingleOrDefault();
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).SingleOrDefault();
 
-			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
-
-			if(vodovozOrder == null)
+			if(vodovozOrder is null)
 			{
 				var error = $"Заказ не найден: { orderId }";
 				_logger.LogWarning(error);
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
-			if(routeList == null)
+			if(routeList is null)
 			{
 				var error = $"МЛ для заказа: { orderId } не найден";
 				_logger.LogWarning(error);
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
+
+			if(routeListAddress is null)
+			{
+				var error = $"адрес МЛ для заказа: { orderId } не найден";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
 
 			if(routeList.Driver.Id != driver.Id)
 			{
@@ -288,10 +293,12 @@ namespace DriverAPI.Library.Models
 			int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
-			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
 			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).FirstOrDefault();
 
-			if(vodovozOrder is null || routeList is null || routeListAddress is null)
+			if(vodovozOrder is null
+			|| routeList is null
+			|| routeListAddress is null)
 			{
 				throw new DataNotFoundException(nameof(orderId), "Не найден или не находится в МЛ");
 			}

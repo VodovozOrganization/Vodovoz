@@ -270,7 +270,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				).WithAlias(() => resultAlias.ExpireDatePercent)
 				.Select(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
-			    .TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
 		}
 
@@ -345,10 +345,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
-			                        .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
-			                        .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-			                        .And(x => x.RouteList.Id == routeList.Id)
-			                        .List();
+									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+									.Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+									.And(x => x.RouteList.Id == routeList.Id)
+									.List();
 
 			if(GetLastTerminalDocumentForEmployee(uow, routeList.Driver) is DriverAttachedTerminalGiveoutDocument)
 			{
@@ -387,25 +387,25 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.SingleOrDefault();
 		}
 
-        public bool IsTerminalRequired(IUnitOfWork uow, int routeListId)
-        {
-            CarLoadDocumentItem carLoadDocumentItemAlias = null;
+		public bool IsTerminalRequired(IUnitOfWork uow, int routeListId)
+		{
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
-            var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
-            var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
-            var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
+			var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
-            var giveoutDoc = GetLastTerminalDocumentForEmployee(uow, routeList.Driver) as DriverAttachedTerminalGiveoutDocument;
+			var giveoutDoc = GetLastTerminalDocumentForEmployee(uow, routeList.Driver) as DriverAttachedTerminalGiveoutDocument;
 
-            var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
-                                    .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
-                                    .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-                                    .And(() => carLoadDocumentItemAlias.Amount > 0)
-                                    .And(x => x.RouteList.Id == routeList.Id)
-                                    .List();
+			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
+									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+									.Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+									.And(() => carLoadDocumentItemAlias.Amount > 0)
+									.And(x => x.RouteList.Id == routeList.Id)
+									.List();
 
-            return anyAddressesRequireTerminal && !loadedTerminal.Any() && giveoutDoc == null;
-        }
+			return anyAddressesRequireTerminal && !loadedTerminal.Any() && giveoutDoc == null;
+		}
 
 		public GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
@@ -474,9 +474,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList(list => list
 					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
-				    .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
-				    .SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
-				    .SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
+					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+					.SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
+					.SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
 				.List<GoodsInRouteListResultToDivide>();
 			return loadedlist;
@@ -784,6 +784,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 							  .FirstOrDefault();
 		}
 
+		public RouteList GetActualRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
+		{
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			return uow.Session.QueryOver(() => routeListAlias)
+							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
+							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .And(() => routeListItemAlias.Status != RouteListItemStatus.Transfered)
+							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
+							  .List()
+							  .FirstOrDefault();
+		}
+
 		public bool RouteListWasChanged(RouteList routeList)
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
@@ -806,8 +819,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.List();
 		}
 
-        public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
-        {
+		public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
+		{
 			return uow.GetById<RouteList>(routeListsId);
 		}
 
@@ -849,7 +862,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
-    }
+	}
 
 	#region DTO
 
