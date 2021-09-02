@@ -2003,10 +2003,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
     {
-        var cashRequestFilterViewModel = new CashRequestJournalFilterViewModel(
-	        new EmployeeJournalFactory(), new CounterpartyJournalFactory());
-        IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
-
+        var cashRequestFilterViewModel = autofacScope.Resolve<CashRequestJournalFilterViewModel>();
         var employeeFilter = new EmployeeFilterViewModel
         {
 	        Status = EmployeeStatus.IsWorking,
@@ -2014,11 +2011,8 @@ public partial class MainWindow : Gtk.Window
         
         var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-        NavigationManager.OpenViewModel<
-	        CashRequestJournalViewModel,
-	        CashRequestJournalFilterViewModel,
-	        IFileChooserProvider,
-	        IEmployeeJournalFactory>(null, cashRequestFilterViewModel, chooserProvider, employeeJournalFactory, OpenPageOptions.IgnoreHash);
+        NavigationManager.OpenViewModel<CashRequestJournalViewModel, CashRequestJournalFilterViewModel, IEmployeeJournalFactory>
+	        (null, cashRequestFilterViewModel, employeeJournalFactory, OpenPageOptions.IgnoreHash);
     }
 
     protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)

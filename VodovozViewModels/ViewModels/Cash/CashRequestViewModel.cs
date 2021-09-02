@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Gamma.Utilities;
-using NHibernate.Criterion;
 using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
@@ -18,501 +15,508 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using VodovozInfrastructure.Interfaces;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-    public class CashRequestViewModel: EntityTabViewModelBase<CashRequest>
-    {
-        public Action UpdateNodes;
-        public Employee CurrentEmployee { get; }
-        public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
-        public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+	public class CashRequestViewModel : EntityTabViewModelBase<CashRequest>
+	{
+		public Employee CurrentEmployee { get; }
+		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
+		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+		public string StateName => Entity.PayoutRequestState.GetEnumTitle();
 
-        private readonly IEntityUoWBuilder uowBuilder;
-        private readonly ICashRepository _cashRepository;
-        public HashSet<CashRequestSumItem> SumsGiven = new HashSet<CashRequestSumItem>();
-        
-        public string StateName => Entity.PayoutRequestState.GetEnumTitle();
-        public CashRequestViewModel(
-            IEntityUoWBuilder uowBuilder,
-            IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
-            IEmployeeRepository employeeRepository,
-            ICashRepository cashRepository,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
-        ) : base(uowBuilder, unitOfWorkFactory, commonServices)
-        {
-            this.uowBuilder = uowBuilder ?? throw new ArgumentNullException(nameof(uowBuilder));
-            _cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-            EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-            SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-            var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
-                ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
-                HidenByDefault = true
-            };
+		private readonly ICashRepository _cashRepository;
+		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 
-            ExpenseCategoryAutocompleteSelectorFactory =
-                new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-                    () =>
-                    {
-                        var expenseCategoryJournalViewModel =
-                            new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-                                x => x.Name,
-                                () => new ExpenseCategoryViewModel(
-                                    EntityUoWBuilder.ForCreate(),
-                                    unitOfWorkFactory,
-                                    ServicesConfig.CommonServices,
-                                    fileChooserProvider,
-                                    filterViewModel,
-                                    EmployeeJournalFactory,
-                                    SubdivisionJournalFactory
-                                ),
-                                node => new ExpenseCategoryViewModel(
-                                    EntityUoWBuilder.ForOpen(node.Id),
-                                    unitOfWorkFactory,
-                                    ServicesConfig.CommonServices,
-                                    fileChooserProvider,
-                                    filterViewModel,
-                                    EmployeeJournalFactory,
-                                    SubdivisionJournalFactory
-                                ),
-                                unitOfWorkFactory,
-                                ServicesConfig.CommonServices
-                            )
-                            {
-                                SelectionMode = JournalSelectionMode.Single
-                            };
-                        expenseCategoryJournalViewModel.SetFilter(filterViewModel,
-                            filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
+		public CashRequestViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeRepository employeeRepository,
+			ICashRepository cashRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
+		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		{
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
-                        return expenseCategoryJournalViewModel;
-                    });
-                
-                var expenseCategorySelectorFactory = 
-            CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
+			ExpenseCategoryAutocompleteSelectorFactory =
+				expenseCategorySelectorFactory?.CreateExpenseCategoryAutocompleteSelectorFactory()
+				?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+			CurrentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)
+			                  ?? throw new ArgumentNullException(nameof(employeeRepository));
 
-            if(uowBuilder.IsNewEntity)
-                TabName = "Создание новой заявки на выдачу ДС";
-            else
-                TabName = $"{Entity.Title}";
+			TabName = IsNewEntity ? "Создание новой заявки на выдачу ДС" : $"{Entity.Title}";
 
-            int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-            
-            UserRoles = getUserRoles(userId);
-            IsRoleChooserSensitive = UserRoles.Count() > 1;
-            UserRole = UserRoles.First();
+			var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
 
-            IsNewEntity = uowBuilder.IsNewEntity;
-            ConfigureEntityChangingRelations();
-        }
-        
-        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-        public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
+			UserRoles = GetUserRoles(userId);
+			IsRoleChooserSensitive = UserRoles.Count() > 1;
+			UserRole = UserRoles.First();
 
-        protected void ConfigureEntityChangingRelations()
-        {
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => StateName);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanEditOnlyCoordinator);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => SensitiveForFinancier);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => ExpenseCategorySensitive);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanEditSumSensitive);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => VisibleOnlyForStatusUpperThanCreated);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanGiveSum);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanAccept);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanApprove);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConveyForResults);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanReturnToRenegotiation);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanCancel);
-            SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConfirmPossibilityNotToReconcilePayments);
-        }
+			ConfigureEntityChangingRelations();
+		}
 
-        #region Commands
+		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
-        private DelegateCommand addSumCommand;
-        public DelegateCommand AddSumCommand => addSumCommand ?? (addSumCommand = new DelegateCommand(
-            () =>
-            {
-                var cashRequestItemViewModel = new CashRequestItemViewModel(
-                    UoW,
-                    CommonServices.InteractiveService,
-                    NavigationManager,
-                    UserRole,
-                    EmployeeJournalFactory
-                );
+		private void ConfigureEntityChangingRelations()
+		{
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => StateName);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanEditOnlyCoordinator);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => SensitiveForFinancier);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => ExpenseCategorySensitive);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanEditSumSensitive);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => VisibleOnlyForStatusUpperThanCreated);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanGiveSum);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanAccept);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanApprove);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConveyForResults);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanReturnToRenegotiation);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanCancel);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConfirmPossibilityNotToReconcilePayments);
+		}
 
-                cashRequestItemViewModel.Entity = new CashRequestSumItem() { AccountableEmployee = CurrentEmployee };
+		#region Commands
 
-                cashRequestItemViewModel.EntityAccepted += (sender, args) =>
-                {
-                    if (args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
-                    {
-                        Entity.AddItem(acceptedArgs.AcceptedEntity);
-                        acceptedArgs.AcceptedEntity.CashRequest = Entity;
-                    }
-                };
+		private DelegateCommand _addSumCommand;
 
-                TabParent.AddSlaveTab(
-                    this, cashRequestItemViewModel
-                );
-            }, () => true
-        ));
-        
-        private DelegateCommand editSumCommand;
-        public DelegateCommand EditSumCommand => editSumCommand ?? (editSumCommand = new DelegateCommand(
-            () =>
-            {
-                var cashRequestItemViewModel = new CashRequestItemViewModel(
-                    UoW,
-                    CommonServices.InteractiveService,
-                    NavigationManager,
-                    UserRole,
-                    EmployeeJournalFactory
-                );
+		public DelegateCommand AddSumCommand => _addSumCommand ?? (_addSumCommand = new DelegateCommand(
+			() =>
+			{
+				var cashRequestItemViewModel = new CashRequestItemViewModel(
+					UoW,
+					CommonServices.InteractiveService,
+					NavigationManager,
+					UserRole,
+					EmployeeJournalFactory
+				);
 
-                cashRequestItemViewModel.Entity = SelectedItem;
+				cashRequestItemViewModel.Entity = new CashRequestSumItem() { AccountableEmployee = CurrentEmployee };
 
-                TabParent.AddSlaveTab(
-                    this,
-                    cashRequestItemViewModel);
-            }, () => true
-        ));
-        
-        private DelegateCommand deleteSumCommand;
-        public DelegateCommand DeleteSumCommand => deleteSumCommand ?? (deleteSumCommand = new DelegateCommand(
-            () => {
-                if (Entity.ObservableSums.Contains(SelectedItem))
-                {	
-                    Entity.ObservableSums.Remove(SelectedItem);
-                }
-            }, () => true
-        ));
-        
-        private DelegateCommand afterSaveCommand;
-        public DelegateCommand AfterSaveCommand => afterSaveCommand ?? (afterSaveCommand = new DelegateCommand(
-            () => {
-                if (Entity.ExpenseCategory == null && UserRole == PayoutRequestUserRole.Cashier)
-                {
-                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Необходимо заполнить статью расхода");
-                    return;
-                }
-                SaveAndClose();
-                if (AfterSave(out var messageText))
-                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,$"Cоздан следующие аванс:\n{messageText}" );
-            }, () => true
-        ));
-            
-        private DelegateCommand<CashRequestSumItem> giveSumCommand;
-        public DelegateCommand<CashRequestSumItem> GiveSumCommand => 
-            giveSumCommand ?? (giveSumCommand = new DelegateCommand<CashRequestSumItem>(
-                (CashRequestSumItem sumItem) => GiveSum(sumItem),
-                CanExecuteGive
-        ));
+				cashRequestItemViewModel.EntityAccepted += (sender, args) =>
+				{
+					if(args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
+					{
+						Entity.AddItem(acceptedArgs.AcceptedEntity);
+						acceptedArgs.AcceptedEntity.CashRequest = Entity;
+					}
+				};
 
-        private DelegateCommand<(CashRequestSumItem, decimal)> giveSumPartiallyCommand;
-        public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand => 
-            giveSumPartiallyCommand ?? (giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
-                ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => GiveSum(parameters.CashRequestSumItem, parameters.Sum),
-                ((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => CanExecuteGive(parameters.CashRequestSumItem)
-        ));
+				TabParent.AddSlaveTab(this, cashRequestItemViewModel);
+			}, () => true
+		));
 
-        public bool CanExecuteGive(CashRequestSumItem sumItem)
-        {
-            return sumItem != null
-                && sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
-                && (Entity.PossibilityNotToReconcilePayments
-                    || sumItem.Expenses.Any()
-                    || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
-                    );
-        }
+		private DelegateCommand _editSumCommand;
 
-        private void GiveSum(CashRequestSumItem sumItem, decimal? sumToGive = null) 
-        {
-            if (!Entity.Sums.Any())
-            {
-                return;
-            }
+		public DelegateCommand EditSumCommand => _editSumCommand ?? (_editSumCommand = new DelegateCommand(
+			() =>
+			{
+				var cashRequestItemViewModel = new CashRequestItemViewModel(
+					UoW,
+					CommonServices.InteractiveService,
+					NavigationManager,
+					UserRole,
+					EmployeeJournalFactory
+				);
 
-            if (Entity.ExpenseCategory == null)
-            {
-                CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"У данной заявки не заполнена статья расхода");
-                return;
-            }
+				cashRequestItemViewModel.Entity = SelectedItem;
 
-            var cashRequestSumItem = sumItem ?? Entity.ObservableSums.FirstOrDefault(x => !x.ObservableExpenses.Any());
+				TabParent.AddSlaveTab(this, cashRequestItemViewModel); 
+			}, () => true
+		));
 
-            if (cashRequestSumItem == null)
-            {
-                return;
-            }
+		private DelegateCommand _deleteSumCommand;
 
-            var alreadyGiven = cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
+		public DelegateCommand DeleteSumCommand => _deleteSumCommand ?? (_deleteSumCommand = new DelegateCommand(
+			() =>
+			{
+				if(Entity.ObservableSums.Contains(SelectedItem))
+				{
+					Entity.ObservableSums.Remove(SelectedItem);
+				}
+			}, () => true
+		));
 
-            var decimalSumToGive = sumToGive ?? cashRequestSumItem.Sum - alreadyGiven;
+		private DelegateCommand _afterSaveCommand;
 
-            if (decimalSumToGive <= 0)
-            {
-                return;
-            }
+		public DelegateCommand AfterSaveCommand => _afterSaveCommand ?? (_afterSaveCommand = new DelegateCommand(
+			() =>
+			{
+				if(Entity.ExpenseCategory == null && UserRole == PayoutRequestUserRole.Cashier)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Необходимо заполнить статью расхода");
+					return;
+				}
 
-            CreateNewExpenseForItem(cashRequestSumItem, decimalSumToGive);
-            if(!Entity.PossibilityNotToReconcilePayments
-                && alreadyGiven > 0
-                && (alreadyGiven + decimalSumToGive) == cashRequestSumItem.Sum
-                && Entity.ObservableSums.Count(x => x.Expenses.Sum(e => e.Money) != x.Sum) > 0)
-            {
-                Entity.ChangeState(PayoutRequestState.OnClarification);
-            } else
-            {
-                Entity.ChangeState(PayoutRequestState.Closed);
-            }
-            AfterSaveCommand.Execute();
-        }
+				SaveAndClose();
+				if(AfterSave(out var messageText))
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Cоздан следующие аванс:\n{messageText}");
+				}
+			}, () => true
+		));
 
-        #endregion Commands
+		private DelegateCommand<CashRequestSumItem> _giveSumCommand;
 
-        #region Properties
+		public DelegateCommand<CashRequestSumItem> GiveSumCommand =>
+			_giveSumCommand ?? (_giveSumCommand = new DelegateCommand<CashRequestSumItem>(
+				(sumItem) => GiveSum(sumItem),
+				CanExecuteGive
+			));
 
-        private PayoutRequestUserRole userRole;
-        public PayoutRequestUserRole UserRole
-        {
-            get { 
-                return userRole; 
-            }
-            set {
-                SetField(ref userRole, value);
-                OnPropertyChanged(() => CanEditOnlyCoordinator);
-                OnPropertyChanged(() => SensitiveForFinancier);
-                OnPropertyChanged(() => ExpenseCategorySensitive);
-                OnPropertyChanged(() => CanEditSumVisible);
-                OnPropertyChanged(() => VisibleOnlyForFinancer);
-                OnPropertyChanged(() => CanGiveSum);
-                OnPropertyChanged(() => CanApprove);
-                OnPropertyChanged(() => CanConveyForResults);
-                OnPropertyChanged(() => CanCancel);
-                OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
-                OnPropertyChanged(() => ExpenseCategoryVisibility);
-            }
-        }
+		private DelegateCommand<(CashRequestSumItem, decimal)> _giveSumPartiallyCommand;
+
+		public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand =>
+			_giveSumPartiallyCommand ?? (_giveSumPartiallyCommand = new DelegateCommand<(CashRequestSumItem, decimal)>(
+				((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => GiveSum(parameters.CashRequestSumItem, parameters.Sum),
+				((CashRequestSumItem CashRequestSumItem, decimal Sum) parameters) => CanExecuteGive(parameters.CashRequestSumItem)
+			));
+
+		public bool CanExecuteGive(CashRequestSumItem sumItem)
+		{
+			return sumItem != null
+			       && sumItem.Sum > sumItem.Expenses.Sum(e => e.Money)
+			       && (Entity.PossibilityNotToReconcilePayments
+			           || sumItem.Expenses.Any()
+			           || Entity.ObservableSums.All(x => !x.Expenses.Any() || x.Sum == x.Expenses.Sum(e => e.Money))
+			       );
+		}
+
+		private void GiveSum(CashRequestSumItem sumItem, decimal? sumToGive = null)
+		{
+			if(!Entity.Sums.Any())
+			{
+				return;
+			}
+
+			if(Entity.ExpenseCategory == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"У данной заявки не заполнена статья расхода");
+				return;
+			}
+
+			var cashRequestSumItem = sumItem ?? Entity.ObservableSums.FirstOrDefault(x => !x.ObservableExpenses.Any());
+
+			if(cashRequestSumItem == null)
+			{
+				return;
+			}
+
+			var alreadyGiven = cashRequestSumItem.ObservableExpenses.Sum(x => x.Money);
+
+			var decimalSumToGive = sumToGive ?? cashRequestSumItem.Sum - alreadyGiven;
+
+			if(decimalSumToGive <= 0)
+			{
+				return;
+			}
+
+			CreateNewExpenseForItem(cashRequestSumItem, decimalSumToGive);
+			if(!Entity.PossibilityNotToReconcilePayments
+			   && alreadyGiven > 0
+			   && (alreadyGiven + decimalSumToGive) == cashRequestSumItem.Sum
+			   && Entity.ObservableSums.Count(x => x.Expenses.Sum(e => e.Money) != x.Sum) > 0)
+			{
+				Entity.ChangeState(PayoutRequestState.OnClarification);
+			}
+			else
+			{
+				Entity.ChangeState(PayoutRequestState.Closed);
+			}
+
+			AfterSaveCommand.Execute();
+		}
+
+		#endregion Commands
+
+		#region Properties
+
+		private PayoutRequestUserRole _userRole;
+
+		public PayoutRequestUserRole UserRole
+		{
+			get => _userRole;
+			set
+			{
+				SetField(ref _userRole, value);
+				OnPropertyChanged(() => CanEditOnlyCoordinator);
+				OnPropertyChanged(() => SensitiveForFinancier);
+				OnPropertyChanged(() => ExpenseCategorySensitive);
+				OnPropertyChanged(() => VisibleOnlyForFinancer);
+				OnPropertyChanged(() => CanGiveSum);
+				OnPropertyChanged(() => CanApprove);
+				OnPropertyChanged(() => CanConveyForResults);
+				OnPropertyChanged(() => CanCancel);
+				OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
+				OnPropertyChanged(() => ExpenseCategoryVisibility);
+			}
+		}
 
 
-        public bool IsNewEntity { get; private set; }
-        public bool IsRoleChooserSensitive { get; set; }
+		public bool IsNewEntity { get; private set; }
+		public bool IsRoleChooserSensitive { get; set; }
 
-        CashRequestSumItem selectedItem;
-        public CashRequestSumItem SelectedItem 
-        { 
-            get => selectedItem;
-            set
-            {
-                SetField(ref selectedItem, value);
-                OnPropertyChanged(() => CanEditSumSensitive);
-            }
-        }
-        
-        #region Editability
+		private CashRequestSumItem _selectedItem;
 
-        public bool CanEditOnlyCoordinator => UserRole == PayoutRequestUserRole.Coordinator;
+		public CashRequestSumItem SelectedItem
+		{
+			get => _selectedItem;
+			set
+			{
+				SetField(ref _selectedItem, value);
+				OnPropertyChanged(() => CanEditSumSensitive);
+			}
+		}
 
-        
-        public bool SensitiveForFinancier => (Entity.PayoutRequestState == PayoutRequestState.New ||
-                                                              Entity.PayoutRequestState == PayoutRequestState.Agreed ||
-                                                              Entity.PayoutRequestState == PayoutRequestState.GivenForTake) &&
-                                                             UserRole == PayoutRequestUserRole.Financier;
+		#region Editability
 
-        public bool ExpenseCategorySensitive => (Entity.PayoutRequestState == PayoutRequestState.New
-                                             || Entity.PayoutRequestState == PayoutRequestState.Agreed
-                                             || Entity.PayoutRequestState == PayoutRequestState.GivenForTake)
-                                             && (UserRole == PayoutRequestUserRole.Financier || UserRole == PayoutRequestUserRole.Cashier);
-
-        public bool CanEditSumVisible => UserRole == PayoutRequestUserRole.RequestCreator || UserRole == PayoutRequestUserRole.Coordinator;
-        //редактировать можно только не выданные
-        public bool CanEditSumSensitive => SelectedItem != null && !SelectedItem.ObservableExpenses.Any();
+		public bool CanEditOnlyCoordinator => UserRole == PayoutRequestUserRole.Coordinator;
 
 
-        #endregion Editability
+		public bool SensitiveForFinancier => (Entity.PayoutRequestState == PayoutRequestState.New ||
+		                                      Entity.PayoutRequestState == PayoutRequestState.Agreed ||
+		                                      Entity.PayoutRequestState == PayoutRequestState.GivenForTake) &&
+		                                     UserRole == PayoutRequestUserRole.Financier;
 
-        #region Visibility
+		public bool ExpenseCategorySensitive => (Entity.PayoutRequestState == PayoutRequestState.New
+		                                         || Entity.PayoutRequestState == PayoutRequestState.Agreed
+		                                         || Entity.PayoutRequestState == PayoutRequestState.GivenForTake)
+		                                        && (UserRole == PayoutRequestUserRole.Financier ||
+		                                            UserRole == PayoutRequestUserRole.Cashier);
 
-        public bool VisibleOnlyForFinancer => UserRole == PayoutRequestUserRole.Financier;
-        public bool VisibleOnlyForStatusUpperThanCreated => Entity.PayoutRequestState != PayoutRequestState.New;
-        public bool ExpenseCategoryVisibility => UserRole == PayoutRequestUserRole.Cashier || UserRole == PayoutRequestUserRole.Financier;
-        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
-        #endregion Visibility
+		//редактировать можно только не выданные
+		public bool CanEditSumSensitive => SelectedItem != null && !SelectedItem.ObservableExpenses.Any();
 
-        #region Permissions
+		#endregion Editability
 
-        public bool CanEdit => PermissionResult.CanUpdate;
-        public bool CanAddItems => CanEdit;
-        public bool CanDeleteItems => CanEdit && SelectedItem != null;
-        
-        public bool CanGiveSum => UserRole == PayoutRequestUserRole.Cashier && (Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
-                                                                              Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed);
+		#region Visibility
 
-        public bool CanDeleteSum => uowBuilder.IsNewEntity;
-        //Подтвердить
-        public bool CanAccept =>
-            (Entity.PayoutRequestState == PayoutRequestState.New || Entity.PayoutRequestState == PayoutRequestState.OnClarification);
+		public bool VisibleOnlyForFinancer => UserRole == PayoutRequestUserRole.Financier;
+		public bool VisibleOnlyForStatusUpperThanCreated => Entity.PayoutRequestState != PayoutRequestState.New;
+		public bool ExpenseCategoryVisibility => UserRole == PayoutRequestUserRole.Cashier || UserRole == PayoutRequestUserRole.Financier;
 
-        //Согласовать
-        public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
-        public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier && Entity.PayoutRequestState == PayoutRequestState.Agreed;
-        public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.Agreed ||
-                                                Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
-                                                Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed ||
-                                                Entity.PayoutRequestState == PayoutRequestState.Canceled;
+		public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 &&
+		                                                           Entity.PayoutRequestState == PayoutRequestState.Submited &&
+		                                                           UserRole == PayoutRequestUserRole.Coordinator;
 
-        public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited ||
-                                 Entity.PayoutRequestState == PayoutRequestState.OnClarification ||
-                                 (Entity.PayoutRequestState == PayoutRequestState.Agreed && UserRole == PayoutRequestUserRole.Coordinator) ||
-                                 (Entity.PayoutRequestState == PayoutRequestState.GivenForTake && UserRole == PayoutRequestUserRole.Coordinator);
-        
+		#endregion Visibility
 
-        #endregion Permissions
-        
-        #endregion Properties
+		#region Permissions
 
-        #region Methods
+		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanAddItems => CanEdit;
+		public bool CanDeleteItems => CanEdit && SelectedItem != null;
 
-        private IEnumerable<PayoutRequestUserRole> getUserRoles(int userId)
-        {
-            var roles = new List<PayoutRequestUserRole>();
-            if (checkRole("role_financier_cash_request", userId))
-                roles.Add(PayoutRequestUserRole.Financier);
-            if (checkRole("role_coordinator_cash_request", userId))
-                roles.Add(PayoutRequestUserRole.Coordinator);
-            if (checkRole("role_сashier", userId))
-                roles.Add(PayoutRequestUserRole.Cashier);
-            if (Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
-                roles.Add(PayoutRequestUserRole.RequestCreator);
+		public bool CanGiveSum => UserRole == PayoutRequestUserRole.Cashier &&
+		                          (Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
+		                           Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed);
 
-            if (roles.Count == 0)
-                throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
-            return roles;
-        }
+		public bool CanDeleteSum => IsNewEntity;
 
-        public static bool checkRole(string roleName, int userId) => ServicesConfig.CommonServices.PermissionService
-            .ValidateUserPresetPermission(roleName, userId);
-        
-        
-        private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)
-        {
-            sumItem?.CreateNewExpense(
-                UoW, 
-                CurrentEmployee,
-                Entity.Subdivision,
-                Entity.ExpenseCategory,
-                Entity.Basis,
-                Entity.Organization,
-                sum
-            );
-            if (sumItem != null)
-                SumsGiven.Add(sumItem);
-        }
+		//Подтвердить
+		public bool CanAccept =>
+			(Entity.PayoutRequestState == PayoutRequestState.New || Entity.PayoutRequestState == PayoutRequestState.OnClarification);
 
-        public string LoadOrganizationsSums()
-        {
-            var builder = new StringBuilder();
+		//Согласовать
+		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
 
-            var balanceList = _cashRepository.GetCashBalanceForOrganizations(UoW);
-            foreach (var operationNode in balanceList)
-            {
-                builder.Append(operationNode.Name + ": ");
-                builder.Append(operationNode.Balance + "\n");
-            }
-            return builder.ToString();
-        }
+		public bool CanConveyForResults =>
+			UserRole == PayoutRequestUserRole.Financier && Entity.PayoutRequestState == PayoutRequestState.Agreed;
 
-        public bool AfterSave(out string messageText)
-        {
-            if (SumsGiven.Count != 0) {
-                var builder = new StringBuilder();
-                builder.Append("Подотчетное лицо\tСумма\n");
-                foreach (CashRequestSumItem sum in SumsGiven)
-                {
-                    builder.Append(sum.AccountableEmployee.Name + "\t" + sum.ObservableExpenses.Last().Money + "\n");
-                }
-                messageText = builder.ToString();
-                return true;
-            } else {
-                messageText = "";
-                return false;
-            }
-        }
+		public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.Agreed ||
+		                                        Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
+		                                        Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed ||
+		                                        Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
-        //Подтвердить
-        private DelegateCommand acceptCommand;
-        public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
-            () =>
-            {
-                Entity.ChangeState(PayoutRequestState.Submited);
-                AfterSaveCommand.Execute();
-            }, () => true
-        ));
-        //Согласовать
-        private DelegateCommand approveCommand;
-        public DelegateCommand ApproveCommand => approveCommand ?? (approveCommand = new DelegateCommand(
-            () =>
-            {
-                Entity.ChangeState(PayoutRequestState.Agreed);
-                AfterSaveCommand.Execute();
-            }, () => true
-        ));
-        //Отменить
-        private DelegateCommand cancelCommand;
-        public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-            () =>
-            {
-                if (string.IsNullOrEmpty(Entity.CancelReason) && UserRole == PayoutRequestUserRole.Coordinator) {
-                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Причина отмены должна быть заполнена");
-                } else {
-                    Entity.ChangeState(PayoutRequestState.Canceled);
-                    AfterSaveCommand.Execute();
-                }
-            }, () => true
-        ));
-        //Передать на выдачу
-        private DelegateCommand conveyForResultsCommand;
-        public DelegateCommand ConveyForResultsCommand => conveyForResultsCommand ?? (conveyForResultsCommand = new DelegateCommand(
-            () =>
-            {
-                if (Entity.PayoutRequestState == PayoutRequestState.Agreed && Entity.ExpenseCategory == null && UserRole == PayoutRequestUserRole.Cashier)
-                {
-                    CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-                        "Необходимо заполнить статью расхода");
-                }
-                else
-                {
-                    Entity.ChangeState(PayoutRequestState.GivenForTake);
-                    AfterSaveCommand.Execute();
-                }
-               
-            }, () => true
-        ));
-        
-        //Отправить на пересогласование((вернуть)на уточнение)
-        private DelegateCommand returnToRenegotiationCommand;
-        public DelegateCommand ReturnToRenegotiationCommand => returnToRenegotiationCommand ?? (returnToRenegotiationCommand = new DelegateCommand(
-            () =>
-            {
-                if (string.IsNullOrEmpty(Entity.ReasonForSendToReappropriate)){
-                    CommonServices.InteractiveService.ShowMessage(
-                        ImportanceLevel.Warning,
-                        "Причина отправки на пересогласование должна быть заполнена"
-                    );
-                } else {
-                    Entity.ChangeState(PayoutRequestState.OnClarification);
-                    AfterSaveCommand.Execute();
-                }
-            }, () => true
-        ));
-        
-        #endregion
-    }
+		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited ||
+		                         Entity.PayoutRequestState == PayoutRequestState.OnClarification ||
+		                         (Entity.PayoutRequestState == PayoutRequestState.Agreed &&
+		                          UserRole == PayoutRequestUserRole.Coordinator) ||
+		                         (Entity.PayoutRequestState == PayoutRequestState.GivenForTake &&
+		                          UserRole == PayoutRequestUserRole.Coordinator);
+
+		#endregion Permissions
+
+		#endregion Properties
+
+		#region Methods
+
+		private IEnumerable<PayoutRequestUserRole> GetUserRoles(int userId)
+		{
+			bool CheckRole(string roleName, int id) =>
+				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(roleName, id);
+
+			var roles = new List<PayoutRequestUserRole>();
+			if(CheckRole("role_financier_cash_request", userId))
+			{
+				roles.Add(PayoutRequestUserRole.Financier);
+			}
+
+			if(CheckRole("role_coordinator_cash_request", userId))
+			{
+				roles.Add(PayoutRequestUserRole.Coordinator);
+			}
+
+			if(CheckRole("role_сashier", userId))
+			{
+				roles.Add(PayoutRequestUserRole.Cashier);
+			}
+
+			if(Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
+			{
+				roles.Add(PayoutRequestUserRole.RequestCreator);
+			}
+
+			if(roles.Count == 0)
+			{
+				throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
+			}
+
+			return roles;
+		}
+
+		private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)
+		{
+			sumItem?.CreateNewExpense(
+				UoW,
+				CurrentEmployee,
+				Entity.Subdivision,
+				Entity.ExpenseCategory,
+				Entity.Basis,
+				Entity.Organization,
+				sum
+			);
+			if(sumItem != null)
+			{
+				_sumsGiven.Add(sumItem);
+			}
+		}
+
+		public string LoadOrganizationsSums()
+		{
+			var builder = new StringBuilder();
+
+			var balanceList = _cashRepository.GetCashBalanceForOrganizations(UoW);
+			foreach(var operationNode in balanceList)
+			{
+				builder.Append(operationNode.Name + ": ");
+				builder.Append(operationNode.Balance + "\n");
+			}
+
+			return builder.ToString();
+		}
+
+		private bool AfterSave(out string messageText)
+		{
+			if(_sumsGiven.Any())
+			{
+				var builder = new StringBuilder();
+				builder.Append("Подотчетное лицо\tСумма\n");
+				foreach(CashRequestSumItem sum in _sumsGiven)
+				{
+					builder.Append(sum.AccountableEmployee.Name + "\t" + sum.ObservableExpenses.Last().Money + "\n");
+				}
+
+				messageText = builder.ToString();
+				return true;
+			}
+			else
+			{
+				messageText = "";
+				return false;
+			}
+		}
+
+		//Подтвердить
+		private DelegateCommand _acceptCommand;
+
+		public DelegateCommand AcceptCommand => _acceptCommand ?? (_acceptCommand = new DelegateCommand(
+			() =>
+			{
+				Entity.ChangeState(PayoutRequestState.Submited);
+				AfterSaveCommand.Execute();
+			}, () => true
+		));
+
+		//Согласовать
+		private DelegateCommand _approveCommand;
+
+		public DelegateCommand ApproveCommand => _approveCommand ?? (_approveCommand = new DelegateCommand(
+			() =>
+			{
+				Entity.ChangeState(PayoutRequestState.Agreed);
+				AfterSaveCommand.Execute();
+			}, () => true
+		));
+
+		//Отменить
+		private DelegateCommand _cancelCommand;
+
+		public DelegateCommand CancelCommand => _cancelCommand ?? (_cancelCommand = new DelegateCommand(
+			() =>
+			{
+				if(string.IsNullOrEmpty(Entity.CancelReason) && UserRole == PayoutRequestUserRole.Coordinator)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Причина отмены должна быть заполнена");
+				}
+				else
+				{
+					Entity.ChangeState(PayoutRequestState.Canceled);
+					AfterSaveCommand.Execute();
+				}
+			}, () => true
+		));
+
+		//Передать на выдачу
+		private DelegateCommand _conveyForResultsCommand;
+
+		public DelegateCommand ConveyForResultsCommand => _conveyForResultsCommand ?? (_conveyForResultsCommand = new DelegateCommand(
+			() =>
+			{
+				if(Entity.PayoutRequestState == PayoutRequestState.Agreed && Entity.ExpenseCategory == null &&
+				   UserRole == PayoutRequestUserRole.Cashier)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						"Необходимо заполнить статью расхода");
+				}
+				else
+				{
+					Entity.ChangeState(PayoutRequestState.GivenForTake);
+					AfterSaveCommand.Execute();
+				}
+			}, () => true
+		));
+
+		//Отправить на пересогласование((вернуть)на уточнение)
+		private DelegateCommand _returnToRenegotiationCommand;
+
+		public DelegateCommand ReturnToRenegotiationCommand => _returnToRenegotiationCommand ?? (_returnToRenegotiationCommand =
+			new DelegateCommand(
+				() =>
+				{
+					if(string.IsNullOrEmpty(Entity.ReasonForSendToReappropriate))
+					{
+						CommonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							"Причина отправки на пересогласование должна быть заполнена"
+						);
+					}
+					else
+					{
+						Entity.ChangeState(PayoutRequestState.OnClarification);
+						AfterSaveCommand.Execute();
+					}
+				}, () => true
+			));
+
+		#endregion
+	}
 }

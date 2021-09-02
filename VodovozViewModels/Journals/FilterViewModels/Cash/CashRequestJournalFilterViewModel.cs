@@ -114,24 +114,27 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 
 		public PayoutRequestUserRole GetUserRole()
 		{
+			bool CheckRole(string roleName, int id) =>
+				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(roleName, id);
+
 			var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
 
-			if(CashRequestViewModel.checkRole("role_financier_cash_request", userId))
+			if(CheckRole("role_financier_cash_request", userId))
 			{
 				return PayoutRequestUserRole.Financier;
 			}
 
-			if(CashRequestViewModel.checkRole("role_coordinator_cash_request", userId))
+			if(CheckRole("role_coordinator_cash_request", userId))
 			{
 				return PayoutRequestUserRole.Coordinator;
 			}
 
-			if(CashRequestViewModel.checkRole("role_сashier", userId))
+			if(CheckRole("role_сashier", userId))
 			{
 				return PayoutRequestUserRole.Cashier;
 			}
 
-			if(CashRequestViewModel.checkRole("role_cashless_payout_accountant", userId))
+			if(CheckRole("role_cashless_payout_accountant", userId))
 			{
 				return PayoutRequestUserRole.Accountant;
 			}
