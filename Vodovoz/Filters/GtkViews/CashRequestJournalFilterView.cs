@@ -1,7 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -16,49 +15,56 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
+			evmeAuthor.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+			evmeAuthor.Binding.AddBinding(ViewModel, vm => vm.Author, w => w.Subject).InitializeFromSource();
 
-			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull);
-			daterangepicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull);
-			
-			AuthorEntityviewmodelentry.Binding.AddBinding(
-				ViewModel, 
-				vm => vm.Author,
-				w => w.Subject
-			).InitializeFromSource();
-			
-			AccountableEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
+			daterangepicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull);
+
+			evmeAccountable.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			
-			AccountableEntityviewmodelentry.Binding.AddBinding(
-				ViewModel,
-				vm => vm.AccountableEmployee,
-				w => w.Subject
-			).InitializeFromSource();
+			evmeAccountable.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.AccountableEmployee, w => w.Subject)
+				.AddBinding(vm => vm.CanSetAccountable, w => w.Sensitive)
+				.InitializeFromSource();
 
-			yenumcomboStatus.ItemsEnum = typeof(CashRequest.States);
-			yenumcomboStatus.Binding.AddBinding(
-				ViewModel,
-				e => e.State,
-				w => w.SelectedItemOrNull);
+			yenumcomboStatus.ItemsEnum = typeof(PayoutRequestState);
+			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.State, w => w.SelectedItemOrNull).InitializeFromSource();
 			yenumcomboStatus.ShowSpecialStateAll = true;
-			
 
-			CashRequestUserRole? userRole = ViewModel.GetUserRole();
+			comboRequestType.ItemsEnum = typeof(PayoutRequestDocumentType);
+			comboRequestType.Binding.AddBinding(ViewModel, vm => vm.DocumentType, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			evmeCounterparty.SetEntityAutocompleteSelectorFactory(
+				ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeCounterparty.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Counterparty, w => w.Subject)
+				.AddBinding(vm => vm.CanSetCounterparty, w => w.Sensitive)
+				.InitializeFromSource();
+
+			PayoutRequestUserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,
 			//для Роли Финансиста - Согласована,
 			//для Кассира - Передана на Выдачу,
-			
+
 			//Иные роли - только видят только свои заявки, поэтому нужно скрытиь фильтр по авторам
-			if (userRole == CashRequestUserRole.Coordinator){
-				yenumcomboStatus.SelectedItem = CashRequest.States.Submited;
-			} else if (userRole == CashRequestUserRole.Financier){
-				yenumcomboStatus.SelectedItem = CashRequest.States.Agreed;
-			} else if (userRole == CashRequestUserRole.Cashier){
-				yenumcomboStatus.SelectedItem = CashRequest.States.GivenForTake;
-			} else if (userRole == CashRequestUserRole.Other){
-				AuthorEntityviewmodelentry.Visible = false;
+			if(userRole == PayoutRequestUserRole.Coordinator)
+			{
+				yenumcomboStatus.SelectedItem = PayoutRequestState.Submitted;
+			}
+			else if(userRole == PayoutRequestUserRole.Financier)
+			{
+				yenumcomboStatus.SelectedItem = PayoutRequestState.Agreed;
+			}
+			else if(userRole == PayoutRequestUserRole.Cashier || userRole == PayoutRequestUserRole.Accountant)
+			{
+				yenumcomboStatus.SelectedItem = PayoutRequestState.GivenForTake;
+			}
+			else if(userRole == PayoutRequestUserRole.Other)
+			{
+				evmeAuthor.Visible = false;
 				label3.Visible = false;
 			}
 		}

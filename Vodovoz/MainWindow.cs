@@ -2003,33 +2003,22 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
     {
-        var cashRequestFilterViewModel = new CashRequestJournalFilterViewModel(new EmployeeJournalFactory());
+        var cashRequestFilterViewModel = new CashRequestJournalFilterViewModel(
+	        new EmployeeJournalFactory(), new CounterpartyJournalFactory());
         IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
-        IEmployeeRepository employeeRepository = new EmployeeRepository();
-        CashRepository cashRepository = new CashRepository();
-        ConsoleInteractiveService consoleInteractiveService = new ConsoleInteractiveService();
-        
+
         var employeeFilter = new EmployeeFilterViewModel
         {
 	        Status = EmployeeStatus.IsWorking,
         };
         
         var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-        var subdivisionJournalFactory = new SubdivisionJournalFactory();
-        
-        tdiMain.AddTab(
-            new CashRequestJournalViewModel(
-                cashRequestFilterViewModel,
-                UnitOfWorkFactory.GetDefaultFactory,
-                ServicesConfig.CommonServices,
-                chooserProvider,
-                employeeRepository,
-                cashRepository,
-                consoleInteractiveService,
-                employeeJournalFactory,
-                subdivisionJournalFactory
-            )
-        );
+
+        NavigationManager.OpenViewModel<
+	        CashRequestJournalViewModel,
+	        CashRequestJournalFilterViewModel,
+	        IFileChooserProvider,
+	        IEmployeeJournalFactory>(null, cashRequestFilterViewModel, chooserProvider, employeeJournalFactory, OpenPageOptions.IgnoreHash);
     }
 
     protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)

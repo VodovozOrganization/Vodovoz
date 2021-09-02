@@ -76,7 +76,7 @@ namespace Vodovoz.Dialogs.Cash
 			}
 
             //Смена ролей
-            comboRoleChooser.SetRenderTextFunc<CashRequestUserRole>(ur => ur.GetEnumTitle());
+            comboRoleChooser.SetRenderTextFunc<PayoutRequestUserRole>(ur => ur.GetEnumTitle());
             comboRoleChooser.ItemsList = ViewModel.UserRoles;
             comboRoleChooser.Binding.AddBinding(ViewModel, vm => vm.UserRole, w => w.SelectedItem).InitializeFromSource();
 			comboRoleChooser.Sensitive = ViewModel.IsRoleChooserSensitive;
@@ -175,7 +175,7 @@ namespace Vodovoz.Dialogs.Cash
             yentryCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
             labelCancelReason.Visible = ViewModel.VisibleOnlyForStatusUpperThanCreated;
 
-			if (ViewModel.Entity.State == CashRequest.States.New)
+			if (ViewModel.Entity.PayoutRequestState == PayoutRequestState.New)
 			{
 				hseparator1.Visible = false;
 				hseparator2.Visible = false;
@@ -189,9 +189,9 @@ namespace Vodovoz.Dialogs.Cash
 			ycheckHaveReceipt.Binding.AddBinding(ViewModel.Entity, e => e.HaveReceipt, w => w.Active).InitializeFromSource();
 			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
 			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StateName, w => w.Text).InitializeFromSource();
-			ylabelStatus.Text = ViewModel.Entity.State.GetEnumTitle();
+			ylabelStatus.Text = ViewModel.Entity.PayoutRequestState.GetEnumTitle();
 
-			if (ViewModel.Entity.State == CashRequest.States.Closed)
+			if (ViewModel.Entity.PayoutRequestState == PayoutRequestState.Closed)
 			{
 				ytreeviewSums.Sensitive = false;
 				ybtnAddSumm.Sensitive = false;

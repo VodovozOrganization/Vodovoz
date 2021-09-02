@@ -243,6 +243,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
+				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
 				;
 
             //Регистрация виджетов
@@ -424,7 +425,8 @@ namespace Vodovoz
 			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
 			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
 			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
-			
+			builder.RegisterType<ExpenseCategorySelectorFactory>().As<IExpenseCategorySelectorFactory>();
+
 			#endregion
 			
 			#region Репозитории
