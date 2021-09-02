@@ -3,7 +3,7 @@ using System;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace ApiHelper
+namespace ApiClientProvider
 {
 	public class ApiBasicAuthClientProvider : ApiClientProvider
 	{

@@ -13,13 +13,13 @@ using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Services;
-using QS.Validation;
 using QS.Widgets.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.Tdi;
@@ -36,6 +36,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure;
@@ -47,24 +48,29 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
 	[Obsolete("Используйте EmployeeViewModel")]
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>, INotifyPropertyChanged
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
+				new OrganizationParametersProvider(new ParametersProvider()));
 
-		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
 		private TerminalManagementViewModel _terminalManagementViewModel;
 		private Employee _employeeForCurrentUser;
+		private ValidationContext _validationContext;
 
 		public EmployeeDlg()
 		{
@@ -137,6 +143,7 @@ namespace Vodovoz
 		private bool canEditOrganisationForSalary;
 		private bool _canEditWage;
 		private bool _canEditWageBySelfSubdivision;
+		private IPermissionResult _employeeDocumentsPermissionsSet;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly MySQLUserRepository mySQLUserRepository;
@@ -162,7 +169,13 @@ namespace Vodovoz
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 			}
 
-			_employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			_employeeDocumentsPermissionsSet = ServicesConfig.CommonServices.PermissionService
+				.ValidateUserPermission(typeof(EmployeeDocument), ServicesConfig.CommonServices.UserService.CurrentUserId);
+
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
+
+			_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			canActivateDriverDistrictPrioritySetPermission = ServicesConfig.CommonServices
 				.CurrentPermissionService.ValidatePresetPermission("can_activate_driver_district_priority_set");
@@ -346,16 +359,25 @@ namespace Vodovoz
 				this, 
 				UoW, 
 				new HierarchicalPresetPermissionValidator(
-					EmployeeSingletonRepository.GetInstance(),
+					_employeeRepository,
 					new PermissionRepository()),
-				UserSingletonRepository.GetInstance(),
+				_userRepository,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager,
-				EmployeeSingletonRepository.GetInstance()
+				_employeeRepository,
+				_wageCalculationRepository
 			);
+
+			radioTabEmployeeDocument.Sensitive = CanReadEmployeeDocuments;
+			buttonAddDocument.Sensitive = CanAddEmployeeDocument;
+
+			ConfigureValidationContext();
 
 			logger.Info("Ok");
 		}
+
+		public bool CanReadEmployeeDocuments { get; private set; }
+		public bool CanAddEmployeeDocument { get; private set; }
 
 		#region DriverDistrictPriorities
 
@@ -502,8 +524,8 @@ namespace Vodovoz
 				UoW,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_baseParametersProvider,
+				_employeeRepository
 			);
 
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -527,8 +549,8 @@ namespace Vodovoz
 				UoW,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_baseParametersProvider,
+				_employeeRepository
 			);
 
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -565,8 +587,8 @@ namespace Vodovoz
 				UoW,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_baseParametersProvider,
+				_employeeRepository
 			);
 
 			driverDistrictPrioritySetViewModel.EntityAccepted += (o, eventArgs) => {
@@ -692,8 +714,8 @@ namespace Vodovoz
 				workScheduleSet,
 				UoW,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_baseParametersProvider,
+				_employeeRepository
 			);
 			TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
 		}
@@ -709,8 +731,8 @@ namespace Vodovoz
 				newDriverWorkScheduleSet,
 				UoW,
 				ServicesConfig.CommonServices,
-				new BaseParametersProvider(),
-				EmployeeSingletonRepository.GetInstance()
+				_baseParametersProvider,
+				_employeeRepository
 			);
 			driverWorkScheduleSetViewModel.EntityAccepted += (o, eventArgs) => {
 				Entity.AddActiveDriverWorkScheduleSet(newDriverWorkScheduleSet);
@@ -809,22 +831,21 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("У вас недостаточно прав для создания сотрудника");
 				return false;
 			}
+			
 			//Проверяем, чтобы в БД не попала пустая строка
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
+			{
 				Entity.AndroidLogin = null;
+			}
 
-			var valid = new QSValidator<Employee>(UoWGeneric.Root,
-				Entity.GetValidationContextItems(subdivisionService));
-
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 			{
 				return false;
 			}
 
 			if (Entity.User != null) {
 				Entity.User.Deactivated = Entity.Status == EmployeeStatus.IsFired;
-				var associatedEmployees = EmployeeSingletonRepository.GetInstance()
-					.GetEmployeesForUser(UoW, Entity.User.Id);
+				var associatedEmployees = _employeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
 				if(associatedEmployees.Any(e => e.Id != Entity.Id)) {
 					string mes = string.Format("Пользователь {0} уже связан с сотрудником {1}, " +
 						"при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
@@ -854,9 +875,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), 
-				new BaseParametersProvider(),
-				ServicesConfig.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _baseParametersProvider, ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
 			UoWGeneric.Save(Entity);
@@ -887,6 +906,15 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
+		}
+
+		private void ConfigureValidationContext()
+		{
+			_validationContext = new ValidationContext(Entity);
+
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
+			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)
@@ -930,11 +958,12 @@ namespace Vodovoz
 						                                   CurrentUserSettings.Settings.DefaultWarehouse,
 						                                   Entity,
 						                                   this as ITdiTab,
-						                                   employeeRepository,
+						                                   _employeeRepository,
 						                                   new WarehouseRepository(),
-						                                   new RouteListRepository(),
+						                                   new RouteListRepository(new StockRepository(), _baseParametersProvider),
 						                                   ServicesConfig.CommonServices,
-						                                   UoW));
+						                                   UoW,
+						                                   _baseParametersProvider));
 			}
 
 			if(radioTabLogistic.Active)
@@ -957,7 +986,7 @@ namespace Vodovoz
 		#region Document
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen, ServicesConfig.CommonServices);
 			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -971,7 +1000,7 @@ namespace Vodovoz
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
 			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) {
-				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
+				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices);
 				TabParent.AddSlaveTab(this, dlg);
 			}
 		}

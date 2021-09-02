@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AccountableSlipsView : QS.Dialog.Gtk.TdiTabBase
 	{
-		private IUnitOfWork uow;
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
+		private IUnitOfWork _uow;
 
 		public IUnitOfWork UoW {
 			get {
-				return uow;
+				return _uow;
 			}
 			set {
-				if (uow == value)
+				if (_uow == value)
 					return;
-				uow = value;
+				_uow = value;
 				accountableslipfilter1.UoW = value;
 				var vm = new ViewModel.AccountableSlipsVM (accountableslipfilter1);
 				vm.ItemsListUpdated += Vm_ItemsListUpdated;
@@ -61,14 +61,18 @@ namespace Vodovoz
 
 		void Calculate()
 		{
-			if (accountableslipfilter1.RestrictAccountable != null)
-				labelCurrentDebt.LabelProp = String.Format ("Текущий долг: {0}",
-					CurrencyWorks.GetShortCurrencyString (
-						Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, accountableslipfilter1.RestrictAccountable))
+			if(accountableslipfilter1.RestrictAccountable != null)
+			{
+				labelCurrentDebt.LabelProp = String.Format("Текущий долг: {0}",
+					CurrencyWorks.GetShortCurrencyString(
+						_accountableDebtsRepository.EmployeeDebt(UoW, accountableslipfilter1.RestrictAccountable))
 				);
+			}
 			else
+			{
 				labelCurrentDebt.LabelProp = String.Empty;
-			
+			}
+
 			decimal Recived = 0, Closed = 0;
 			foreach(var node in representationSlips.RepresentationModel.ItemsList.Cast<ViewModel.AccountableSlipsVMNode> ())
 			{

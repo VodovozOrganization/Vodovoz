@@ -22,11 +22,13 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using GC = System.GC;
@@ -37,12 +39,14 @@ namespace Vodovoz
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly WageParameterService _wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
+		private readonly ICategoryRepository _categoryRepository;
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -56,11 +60,13 @@ namespace Vodovoz
 
 		#region Конструкторы
 
-		public RouteListAddressesTransferringDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository, 
-		                                         ITerminalNomenclatureProvider terminalNomenclatureProvider,
-		                                         IRouteListRepository routeListRepository,
-												 IEmployeeService employeeService,
-												 ICommonServices commonServices)
+		public RouteListAddressesTransferringDlg(
+			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
+			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			IRouteListRepository routeListRepository,
+			IEmployeeService employeeService,
+			ICommonServices commonServices,
+			ICategoryRepository categoryRepository)
 		{
 			Build();
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
@@ -70,6 +76,8 @@ namespace Vodovoz
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			
 			TabName = "Перенос адресов маршрутных листов";
 			ConfigureDlg();
 		}
@@ -81,8 +89,15 @@ namespace Vodovoz
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
 			IEmployeeService employeeService,
-			ICommonServices commonServices)
-			: this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider, routeListRepository, employeeService, commonServices)
+			ICommonServices commonServices,
+			ICategoryRepository categoryRepository)
+			: this(
+				employeeNomenclatureMovementRepository,
+				terminalNomenclatureProvider,
+				routeListRepository,
+				employeeService,
+				commonServices,
+				categoryRepository)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
 
@@ -407,12 +422,12 @@ namespace Vodovoz
 
 			if(routeListFrom.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListFrom.UpdateMovementOperations());
+				messages.AddRange(routeListFrom.UpdateMovementOperations(_categoryRepository));
 			}
 
 			if(routeListTo.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListTo.UpdateMovementOperations());
+				messages.AddRange(routeListTo.UpdateMovementOperations(_categoryRepository));
 			}
 
 			UoW.Save(routeListTo);
@@ -502,7 +517,7 @@ namespace Vodovoz
 
 		private void UpdateTranferDocuments(RouteList from, RouteList to)
 		{
-			var addressTransferController = new AddressTransferController(EmployeeSingletonRepository.GetInstance());
+			var addressTransferController = new AddressTransferController(new EmployeeRepository());
 			addressTransferController.UpdateDocuments(from, to, UoW);
 		}
 

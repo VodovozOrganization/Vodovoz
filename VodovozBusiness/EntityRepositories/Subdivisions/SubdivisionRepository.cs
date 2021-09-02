@@ -13,6 +13,13 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 {
 	public class SubdivisionRepository : ISubdivisionRepository
 	{
+		private readonly IParametersProvider _parametersProvider;
+
+		public SubdivisionRepository(IParametersProvider parametersProvider)
+		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+		}
+		
 		/// <summary>
 		/// Список подразделений в которых произодится работа с указанными документами
 		/// </summary>
@@ -51,9 +58,13 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		public Subdivision GetQCDepartment(IUnitOfWork uow)
 		{
 			var qcDep = "номер_отдела_ОКК";
-			if(!SingletonParametersProvider.Instance.ContainsParameter(qcDep))
+			
+			if(!_parametersProvider.ContainsParameter(qcDep))
+			{
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
-			return uow.GetById<Subdivision>(int.Parse(SingletonParametersProvider.Instance.GetParameterValue(qcDep)));
+			}
+
+			return uow.GetById<Subdivision>(int.Parse(_parametersProvider.GetParameterValue(qcDep)));
 		}
 
 		/// <summary>
@@ -62,7 +73,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		/// <returns>Список подразделений</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		public IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false)
+		public IList<Subdivision> GetAllDepartmentsOrderedByName(IUnitOfWork uow, bool orderByDescending = false)
 		{
 			var query = uow.Session.QueryOver<Subdivision>()
 			   .OrderBy(i => i.Name);
@@ -78,7 +89,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
 		public IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false)
 		{
-			return GetAllDepartments(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
+			return GetAllDepartmentsOrderedByName(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
 		}
 
 		/// <summary>

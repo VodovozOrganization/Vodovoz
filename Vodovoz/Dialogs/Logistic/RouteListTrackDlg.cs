@@ -13,8 +13,9 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Chats;
+using Vodovoz.EntityRepositories.Chats;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
 
@@ -22,9 +23,14 @@ namespace Vodovoz
 {
 	public partial class RouteListTrackDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IChatRepository _chatRepository;
+		private readonly ITrackRepository _trackRepository;
+
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-		private Employee currentEmployee;
+		private Employee _currentEmployee;
 		private uint timerId;
 		private const uint carRefreshInterval = 10000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay("cars");
@@ -34,23 +40,28 @@ namespace Vodovoz
 		private Gtk.Window mapWindow;
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
-		public RouteListTrackDlg()
+		public RouteListTrackDlg(IEmployeeRepository employeeRepository, IChatRepository chatRepository, ITrackRepository trackRepository)
 		{
-			this.Build();
-			this.TabName = "Мониторинг";
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+
+			Build();
+			TabName = "Мониторинг";
 			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM(uow);
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Visible = buttonSendMessage.Visible = false;
-			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
-			if (currentEmployee == null)
+			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
+			
+			if (_currentEmployee == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
 			}
 
 			//Configure map
-			gmapWidget.MapProvider = GMapProviders.YandexMap;
+			gmapWidget.MapProvider = GMapProviders.GoogleMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
@@ -60,7 +71,8 @@ namespace Vodovoz
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
-			yenumcomboMapType.SelectedItem = MapProviders.YandexMap;
+			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			yenumcomboMapType.SelectedItem = MapProviders.GoogleMap;
 		}
 
 		void GmapWidget_ExposeEvent (object o, Gtk.ExposeEventArgs args)
@@ -128,7 +140,7 @@ namespace Vodovoz
 			var drivers = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedIds());
 			foreach (var driver in drivers) {
 
-				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				var chat = _chatRepository.GetChatForDriver(uow, driver);
 				if (chat == null) {
 					var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<Chat> ();
 					chatUoW.Root.ChatType = ChatType.DriverAndLogists;
@@ -136,8 +148,8 @@ namespace Vodovoz
 					chatUoW.Save ();
 					chat = chatUoW.Root;
 				}
-				TabParent.OpenTab (ChatWidget.GenerateHashName (chat.Id),
-					() => new ChatWidget (chat.Id)
+				TabParent.OpenTab (ChatWidget.GenerateHashName(chat.Id),
+					() => new ChatWidget(chat.Id, _employeeRepository)
 				);
 			}
 		}
@@ -158,10 +170,10 @@ namespace Vodovoz
 				var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 				.SelectMany(x => x.RouteListsIds.Keys).ToArray();
 				var start = DateTime.Now;
-				var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, routesIds);
+				var lastPoints = _trackRepository.GetLastPointForRouteLists(uow, routesIds);
 
 				var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.RouteListId).ToArray();
-				var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
+				var ere20Minuts = _trackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
 				logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
 				carsOverlay.Clear();
 				carMarkers = new Dictionary<int, CarMarker>();
@@ -218,7 +230,7 @@ namespace Vodovoz
 				int colorIter = 0;
 			foreach(var routeId in driverRow.RouteListsIds)
 			{
-				var pointList = Repository.Logistics.TrackRepository.GetPointsForRouteList(uow, routeId.Key);
+				var pointList = _trackRepository.GetPointsForRouteList(uow, routeId.Key);
 				if (pointList.Count == 0)
 					continue;
 
@@ -371,8 +383,8 @@ namespace Vodovoz
 		protected void OnButtonSendMessageClicked (object sender, EventArgs e)
 		{
 			var selected = yTreeViewDrivers.GetSelectedObjects<WorkingDriverVMNode> ();
-			var drivers = selected.Select (x => x.Id).ToArray();
-			var sendDlg = new SendMessageDlg (drivers);
+			var drivers = selected.Select(x => x.Id).ToArray();
+			var sendDlg = new SendMessageDlg(drivers, _employeeRepository);
 
 			if(sendDlg.Run () == (int)Gtk.ResponseType.Ok)
 			{

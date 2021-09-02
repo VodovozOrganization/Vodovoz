@@ -38,7 +38,19 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Label label3;
 
+		private global::Vodovoz.WrapLabel labelAccountant;
+
+		private global::Vodovoz.WrapLabel labelBottlesManager;
+
 		private global::Vodovoz.WrapLabel labelName;
+
+		private global::Vodovoz.WrapLabel labelSalesManager;
+
+		private global::Vodovoz.WrapLabel prefixAccountant;
+
+		private global::Vodovoz.WrapLabel prefixBottlesManager;
+
+		private global::Vodovoz.WrapLabel prefixSalesManager;
 
 		private global::Gtk.Table PhonesTable;
 
@@ -187,7 +199,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(5)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -202,6 +214,36 @@ namespace Vodovoz.SidePanel.InfoViews
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.labelAccountant = new global::Vodovoz.WrapLabel();
+			this.labelAccountant.Name = "labelAccountant";
+			this.labelAccountant.Xalign = 0F;
+			this.labelAccountant.LabelProp = global::Mono.Unix.Catalog.GetString("фио сотрудника");
+			this.labelAccountant.Wrap = true;
+			this.labelAccountant.Selectable = true;
+			this.table1.Add(this.labelAccountant);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.labelAccountant]));
+			w17.TopAttach = ((uint)(2));
+			w17.BottomAttach = ((uint)(3));
+			w17.LeftAttach = ((uint)(2));
+			w17.RightAttach = ((uint)(5));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelBottlesManager = new global::Vodovoz.WrapLabel();
+			this.labelBottlesManager.Name = "labelBottlesManager";
+			this.labelBottlesManager.Xalign = 0F;
+			this.labelBottlesManager.Yalign = 1F;
+			this.labelBottlesManager.LabelProp = global::Mono.Unix.Catalog.GetString("фио сотрудника");
+			this.labelBottlesManager.Selectable = true;
+			this.table1.Add(this.labelBottlesManager);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.labelBottlesManager]));
+			w18.TopAttach = ((uint)(3));
+			w18.BottomAttach = ((uint)(4));
+			w18.LeftAttach = ((uint)(2));
+			w18.RightAttach = ((uint)(5));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.labelName = new global::Vodovoz.WrapLabel();
 			this.labelName.Name = "labelName";
 			this.labelName.Xalign = 0F;
@@ -210,23 +252,86 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.labelName.Wrap = true;
 			this.labelName.Selectable = true;
 			this.table1.Add(this.labelName);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(3));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
+			w19.LeftAttach = ((uint)(1));
+			w19.RightAttach = ((uint)(5));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelSalesManager = new global::Vodovoz.WrapLabel();
+			this.labelSalesManager.Name = "labelSalesManager";
+			this.labelSalesManager.Xalign = 0F;
+			this.labelSalesManager.Yalign = 1F;
+			this.labelSalesManager.LabelProp = global::Mono.Unix.Catalog.GetString("фио сотрудника");
+			this.labelSalesManager.Wrap = true;
+			this.labelSalesManager.Selectable = true;
+			this.table1.Add(this.labelSalesManager);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSalesManager]));
+			w20.TopAttach = ((uint)(1));
+			w20.BottomAttach = ((uint)(2));
+			w20.LeftAttach = ((uint)(2));
+			w20.RightAttach = ((uint)(5));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.prefixAccountant = new global::Vodovoz.WrapLabel();
+			this.prefixAccountant.Name = "prefixAccountant";
+			this.prefixAccountant.Xalign = 1F;
+			this.prefixAccountant.LabelProp = global::Mono.Unix.Catalog.GetString("Бухгалтер: ");
+			this.prefixAccountant.Wrap = true;
+			this.prefixAccountant.Selectable = true;
+			this.prefixAccountant.Text = "Бухгалтер: ";
+			this.table1.Add(this.prefixAccountant);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.prefixAccountant]));
+			w21.TopAttach = ((uint)(2));
+			w21.BottomAttach = ((uint)(3));
+			w21.RightAttach = ((uint)(2));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.prefixBottlesManager = new global::Vodovoz.WrapLabel();
+			this.prefixBottlesManager.Name = "prefixBottlesManager";
+			this.prefixBottlesManager.Xalign = 1F;
+			this.prefixBottlesManager.LabelProp = "Менеджер\nпо бутылям:";
+			this.prefixBottlesManager.Wrap = true;
+			this.prefixBottlesManager.Selectable = true;
+			this.prefixBottlesManager.WidthChars = 0;
+			this.prefixBottlesManager.MaxWidthChars = 0;
+			this.prefixBottlesManager.Text = "Менеджер\nпо бутылям:";
+			this.table1.Add(this.prefixBottlesManager);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.prefixBottlesManager]));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.prefixSalesManager = new global::Vodovoz.WrapLabel();
+			this.prefixSalesManager.Name = "prefixSalesManager";
+			this.prefixSalesManager.Xalign = 1F;
+			this.prefixSalesManager.LabelProp = global::Mono.Unix.Catalog.GetString("Менеджер\nпо продажам:");
+			this.prefixSalesManager.Wrap = true;
+			this.prefixSalesManager.Selectable = true;
+			this.prefixSalesManager.Text = "Менеджер\nпо продажам:";
+			this.table1.Add(this.prefixSalesManager);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.prefixSalesManager]));
+			w23.TopAttach = ((uint)(1));
+			w23.BottomAttach = ((uint)(2));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w18.PackType = ((global::Gtk.PackType)(1));
-			w18.Position = 8;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w24.PackType = ((global::Gtk.PackType)(1));
+			w24.Position = 8;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.PhonesTable = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.PhonesTable.Name = "PhonesTable";
 			this.PhonesTable.RowSpacing = ((uint)(6));
 			this.PhonesTable.ColumnSpacing = ((uint)(6));
 			this.vbox1.Add(this.PhonesTable);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.PhonesTable]));
-			w19.PackType = ((global::Gtk.PackType)(1));
-			w19.Position = 9;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.PhonesTable]));
+			w25.PackType = ((global::Gtk.PackType)(1));
+			w25.Position = 9;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

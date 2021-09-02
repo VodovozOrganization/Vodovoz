@@ -1,31 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -36,46 +25,9 @@ namespace Vodovoz.Dialogs.Logistic
 	public partial class RouteListControlDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
-		private readonly IEmployeeService employeeService = VodovozGtkServicesConfig.EmployeeService;
-		private readonly IUserRepository userRepository = UserSingletonRepository.GetInstance();
-		private readonly IRouteListRepository routeListRepository = new RouteListRepository();
-		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 		
-		private  INomenclatureRepository nomenclatureRepository;
-		public virtual INomenclatureRepository NomenclatureRepository {
-			get {
-				if (nomenclatureRepository == null) {
-					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-				}
-				return nomenclatureRepository;
-			}
-		}
-		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-			get {
-				if(counterpartySelectorFactory == null) {
-					counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-				};
-				return counterpartySelectorFactory;
-			}
-		}
-		
-		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
-			get {
-				if(nomenclatureSelectorFactory == null) {
-					nomenclatureSelectorFactory =
-						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, userRepository);
-				}
-				return nomenclatureSelectorFactory;
-			}
-		}
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
@@ -87,9 +39,9 @@ namespace Vodovoz.Dialogs.Logistic
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
+						new OrderRepository(),
+						new EmployeeRepository(),
+						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -139,7 +91,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var goods = routeListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
+			var goods = _routeListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
 			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true);
 			
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);

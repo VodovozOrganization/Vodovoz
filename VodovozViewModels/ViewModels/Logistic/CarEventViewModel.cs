@@ -7,7 +7,7 @@ using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
@@ -16,10 +16,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
 		private DelegateCommand _changeDriverCommand;
-		public CarEventViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
+		public CarEventViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ICarJournalFactory carJournalFactory,
+			ICarEventTypeJournalFactory carEventTypeJournalFactory,
+			IEmployeeService employeeService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(employeeService == null)
+			{
+				throw new ArgumentNullException(nameof(employeeService));
+			}
+			
 			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
 
@@ -27,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				Entity.Author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				Entity.CreateDate = DateTime.Now;
 			}
 		}

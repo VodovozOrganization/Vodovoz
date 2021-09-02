@@ -3,7 +3,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace ApiHelper
+namespace ApiClientProvider
 {
 	public class ApiClientProvider : IApiClientProvider
 	{

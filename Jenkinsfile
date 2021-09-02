@@ -1,6 +1,6 @@
 node('Vod6'){
 	stage('Checkout'){
-		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
+		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_WIN}/workspace/Vodovoz_Vodovoz_master"
 
 		echo "checkout Gtk.DataBindings"	
 		checkout changelog: false, poll: false, scm:([
@@ -11,17 +11,6 @@ node('Vod6'){
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
 			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
-		])
-
-		echo "checkout GammaBinding"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/master']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GammaBinding']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GammaBinding"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GammaBinding.git']]
 		])
 
 		echo "checkout GMap.NET"	

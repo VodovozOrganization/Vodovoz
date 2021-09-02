@@ -34,11 +34,11 @@ using QS.Project.Versioning;
 using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Configuration;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
@@ -102,10 +102,12 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
-			SingletonParametersProvider.Instance.RefreshParameters();
+			
+			var parametersProvider = new ParametersProvider();
+			parametersProvider.RefreshParameters();
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
-			var baseParameters = new BaseParametersProvider();
+			var baseParameters = new BaseParametersProvider(parametersProvider);
 			SingletonErrorReporter.Initialize(
 				ReportWorker.GetReportService(),
 				applicationInfo,
@@ -164,7 +166,9 @@ namespace Vodovoz
 
 			AutofacClassConfig();
 			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
-			if(QSMain.User.Login == "root") {
+			
+			if(QSMain.User.Login == "root")
+			{
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
 				MessageDialog md = new MessageDialog(null, DialogFlags.Modal,
 									   MessageType.Info,
@@ -177,13 +181,15 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-			} else {
-                if (ChangePassword(applicationConfigurator) && CanLogin())
-                {
-					StartMainWindow(LoginDialog.BaseName, applicationConfigurator);
-				}
-				else
-					return;
+			} 
+			
+			if(ChangePassword(applicationConfigurator) && CanLogin())
+			{
+				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, parametersProvider);
+			}
+			else
+			{
+				return;
 			}
 
 			PerformanceHelper.EndPointsGroup ();
@@ -215,7 +221,7 @@ namespace Vodovoz
 			IChangePasswordModel changePasswordModel;
 			
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var userRepository = new UserSingletonRepository();
+				var userRepository = new UserRepository();
 				var currentUser = userRepository.GetCurrentUser(uow);
 				if(currentUser is null) {
 					throw new InvalidOperationException("CurrentUser is null");
@@ -259,26 +265,30 @@ namespace Vodovoz
 			return false;
 		}
 
-		private static void StartMainWindow(string loginDialogName, IApplicationConfigurator applicationConfigurator)
+		private static void StartMainWindow(
+			string loginDialogName,
+			IApplicationConfigurator applicationConfigurator,
+			IParametersProvider parametersProvider)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
+			
 			//Настройка сервисов
-			if(SingletonParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("email_service_address")) {
-				if(SingletonParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("email_service_address"));
+			if(parametersProvider.ContainsParameter("email_send_enabled_database") && parametersProvider.ContainsParameter("email_service_address")) {
+				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName) {
+					EmailServiceSetting.Init(parametersProvider.GetParameterValue("email_service_address"));
 				}
 			}
-			if(SingletonParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("sms_service_address")) {
-				if(SingletonParametersProvider.Instance.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
-					InstantSmsServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("sms_service_address"));
+			if(parametersProvider.ContainsParameter("instant_sms_enabled_database") && parametersProvider.ContainsParameter("sms_service_address")) {
+				if(parametersProvider.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
+					InstantSmsServiceSetting.Init(parametersProvider.GetParameterValue("sms_service_address"));
 				}
 			}
 			
-			if(SingletonParametersProvider.Instance.ContainsParameter("sms_payment_send_enabled_database") && SingletonParametersProvider.Instance.ContainsParameter("sms_payment_send_service_address")) {
-				if(SingletonParametersProvider.Instance.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
-					SmsPaymentServiceSetting.Init(SingletonParametersProvider.Instance.GetParameterValue("sms_payment_send_service_address"));
+			if(parametersProvider.ContainsParameter("sms_payment_send_enabled_database") && parametersProvider.ContainsParameter("sms_payment_send_service_address")) {
+				if(parametersProvider.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
+					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));
 				}
 			}
 
@@ -292,7 +302,7 @@ namespace Vodovoz
 		}
 
 		private static bool CanLogin()
-        {
+		{
 			using (var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
 			{
 				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;

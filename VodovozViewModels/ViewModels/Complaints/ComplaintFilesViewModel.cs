@@ -15,18 +15,23 @@ namespace Vodovoz.ViewModels.Complaints
 	public class ComplaintFilesViewModel : EntityWidgetViewModelBase<Complaint>
 	{
 		private readonly IFilePickerService _filePicker;
-		private bool _readOnly;
+		private readonly IUserRepository _userRepository;
+		private bool readOnly;
 
-		public virtual bool ReadOnly
-		{
-			get => _readOnly;
-			set => SetField(ref _readOnly, value, () => ReadOnly);
+		public virtual bool ReadOnly {
+			get => readOnly;
+			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public ComplaintFilesViewModel(Complaint entity, IUnitOfWork uow, IFilePickerService filePicker, ICommonServices commonServices)
-			: base(entity, commonServices)
+		public ComplaintFilesViewModel(
+			Complaint entity,
+			IUnitOfWork uow,
+			IFilePickerService filePicker,
+			ICommonServices commonServices,
+			IUserRepository userRepository) : base(entity, commonServices)
 		{
 			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			UoW = uow;
 			CreateCommands();
 		}
@@ -104,7 +109,8 @@ namespace Vodovoz.ViewModels.Complaints
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
 				(file) =>
 				{
-					var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
+
+					var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
 
 					if(string.IsNullOrWhiteSpace(vodUserTempDir))
 					{

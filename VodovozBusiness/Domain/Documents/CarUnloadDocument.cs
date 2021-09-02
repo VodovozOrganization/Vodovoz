@@ -113,7 +113,7 @@ namespace Vodovoz.Domain.Documents
 			if(nomenclatureRepository == null)
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
 
-			DefBottleId = nomenclatureRepository.GetDefaultBottle(uow).Id;
+			DefBottleId = nomenclatureRepository.GetDefaultBottleNomenclature(uow).Id;
 		}
 
 		public virtual void AddItem(CarUnloadDocumentItem item)

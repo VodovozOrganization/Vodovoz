@@ -6,7 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Dialogs
@@ -14,12 +14,13 @@ namespace Vodovoz.Dialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NuanceDlg : QS.Dialog.Gtk.EntityDialogBase<Comments>
 	{
-		object UoWforeign;
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private object _uowForeign;
 
 		public NuanceDlg(object uow)
 		{
-			UoWforeign = uow;
-			this.Build();
+			_uowForeign = uow;
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Comments>();
 
 			ConfigureDlg();
@@ -27,8 +28,8 @@ namespace Vodovoz.Dialogs
 
 		public NuanceDlg(object uow, int id)
 		{
-			UoWforeign = uow;
-			this.Build();
+			_uowForeign = uow;
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Comments>(id);
 
 			ConfigureDlg();
@@ -36,7 +37,7 @@ namespace Vodovoz.Dialogs
 
 		protected void ConfigureDlg()
 		{
-			referenceAuthor.ItemsQuery = EmployeeRepository.ActiveEmployeeOrderedQuery();
+			referenceAuthor.ItemsQuery = _employeeRepository.ActiveEmployeeOrderedQuery();
 			referenceAuthor.SetObjectDisplayFunc<Employee>(e => e.ShortName);
 			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			referenceAuthor.Sensitive = false;
@@ -64,11 +65,11 @@ namespace Vodovoz.Dialogs
 			referenceOrder.SubjectType = typeof(Order);
 			referenceOrder.Binding.AddBinding(Entity, s => s.Order, w => w.Subject).InitializeFromSource();
 
-			var uowDeliveryPoint = UoWforeign as DeliveryPoint;
+			var uowDeliveryPoint = _uowForeign as DeliveryPoint;
 			if(uowDeliveryPoint != null)
 				Entity.DeliveryPoint = uowDeliveryPoint;
 
-			var uowCounterparty = UoWforeign as Counterparty;
+			var uowCounterparty = _uowForeign as Counterparty;
 			if(uowCounterparty != null)
 				Entity.Counterparty = uowCounterparty;
 
@@ -87,7 +88,7 @@ namespace Vodovoz.Dialogs
 		public override bool Save()
 		{
 
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать , так как некого указывать в качестве автора документа.");
 				FailInitialize = true;

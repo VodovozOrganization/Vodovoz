@@ -1,9 +1,12 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,17 +19,27 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class RouteListsController : ControllerBase
 	{
+		private readonly ILogger<RouteListsController> _logger;
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly IOrderModel _aPIOrderData;
+		private readonly IEmployeeModel _employeeData;
+		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly UserManager<IdentityUser> _userManager;
 
+
 		public RouteListsController(
+			ILogger<RouteListsController> logger,
 			IRouteListModel aPIRouteListData,
 			IOrderModel aPIOrderData,
+			IEmployeeModel employeeData,
+			IActionTimeHelper actionTimeHelper,
 			UserManager<IdentityUser> userManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
@@ -46,10 +59,17 @@ namespace DriverAPI.Controllers
 
 			var orders = _aPIOrderData.Get(ordersIds.ToArray());
 
+			var resortedOrders = new List<OrderDto>();
+
+			foreach(var orderId in ordersIds)
+			{
+				resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
+			}
+
 			return new GetRouteListsDetailsResponseDto()
 			{
 				RouteLists = routeLists,
-				Orders = orders
+				Orders = resortedOrders
 			};
 		}
 
@@ -88,9 +108,18 @@ namespace DriverAPI.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
-		public async Task RollbackRouteListAddressStatusEnRoute([FromBody]int routelistAddressId)
+		public void RollbackRouteListAddressStatusEnRoute([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
-			_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(routelistAddressId);
+			_logger.LogInformation($"Попытка вернуть в путь адрес МЛ: { requestDto.RoutelistAddressId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, requestDto.ActionTime);
+
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
 		}
 	}
 }

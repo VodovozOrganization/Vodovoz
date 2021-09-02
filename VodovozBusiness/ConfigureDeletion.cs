@@ -175,6 +175,14 @@ namespace Vodovoz
 				;
 			#endregion
 
+			#region Rent
+
+			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>();
+
+			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
+
+			#endregion
+
 			#region Organization
 
 			DeleteConfig.AddHibernateDeleteInfo<Organization>()
@@ -724,6 +732,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<PaymentFrom>()
 						.AddClearDependence<Order>(x => x.PaymentByCardFrom)
 						;
+
+			DeleteConfig.AddHibernateDeleteInfo<UndeliveryTransferAbsenceReason>();
 
 			#endregion
 

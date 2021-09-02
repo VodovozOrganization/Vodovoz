@@ -11,9 +11,16 @@ namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class RatesLevelWageParameterItemViewModel : EntityWidgetViewModelBase<RatesLevelWageParameterItem>
 	{
+		private readonly IWageCalculationRepository _wageCalculationRepository;
 		public event EventHandler LevelChanged;
-		public RatesLevelWageParameterItemViewModel(IUnitOfWork uow, RatesLevelWageParameterItem entity, bool canEdit, ICommonServices commonServices) : base(entity, commonServices)
+		public RatesLevelWageParameterItemViewModel(
+			IUnitOfWork uow,
+			RatesLevelWageParameterItem entity,
+			bool canEdit,
+			ICommonServices commonServices,
+			IWageCalculationRepository wageCalculationRepository) : base(entity, commonServices)
 		{
+			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			UoW = uow;
 			CanEdit = canEdit;
 			Configure();
@@ -30,7 +37,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		void Configure()
 		{
-			WageLevels = WageSingletonRepository.GetInstance().AllLevelRates(UoW).ToList();
+			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).ToList();
 		}
 
 		public bool CanEdit { get; }

@@ -56,7 +56,7 @@ namespace DriverAPI.Controllers
 		private async Task<bool> IsValidCredentials(string username, string password)
 		{
 			var user = await _userManager.FindByNameAsync(username);
-			if(!_loginCaseSensitive || user.UserName == username)
+			if(!_loginCaseSensitive || user?.UserName == username)
 			{
 				return await _userManager.CheckPasswordAsync(user, password);
 			}

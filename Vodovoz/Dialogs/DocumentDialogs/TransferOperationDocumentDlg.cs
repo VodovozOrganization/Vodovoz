@@ -8,18 +8,19 @@ using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	public partial class TransferOperationDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<TransferOperationDocument>
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public TransferOperationDocumentDlg()
 		{
@@ -27,7 +28,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
 			TabName = "Новый перенос между точками доставки";
 			ConfigureDlg();
-			Entity.Author = Entity.ResponsiblePerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = Entity.ResponsiblePerson = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -79,7 +80,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;

@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Documents.DriverTerminal
 		Nominative = "документ возврата терминала водителя",
 		NominativePlural = "документы возврата терминалов водителей")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class DriverAttachedTerminalReturnDocument : DriverAttachedTerminalDocumentBase
 	{
 		public virtual string Title =>

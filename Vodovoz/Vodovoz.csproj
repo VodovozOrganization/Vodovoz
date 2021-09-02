@@ -392,6 +392,8 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
+    <Compile Include="Additions\Logistic\RouteListPrintableDocuments.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
@@ -410,6 +412,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePricesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePriceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
     <Compile Include="JournalFilters\EmployeeRepresentationFilterViewModel.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
@@ -453,6 +457,7 @@
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
+    <Compile Include="ReportsParameters\Sales\SalesReport.cs" />
     <Compile Include="Representations\ProductGroupVM.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\BankCatalog.cs" />
@@ -486,6 +491,7 @@
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportNodes\TableNode.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportNodes\TableRecordNode.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportOperation.cs" />
+    <Compile Include="SidePanel\InfoProviders\ICashInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
@@ -495,7 +501,6 @@
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
-    <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="TempAdapters\FixedPricesDialogOpener.cs" />
     <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
     <Compile Include="TempAdapters\WaterJournalFactory.cs" />
@@ -515,6 +520,8 @@
     <Compile Include="Views\Cash\OrganizationCashTransferDocumentView.cs" />
     <Compile Include="Views\Employees\PremiumRaskatGAZelleView.cs" />
     <Compile Include="Views\Employees\PremiumView.cs" />
+    <Compile Include="Views\Goods\NomenclaturePurchasePricesView.cs" />
+    <Compile Include="Views\Goods\NomenclaturePurchasePriceView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
@@ -756,7 +763,6 @@
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
     <Compile Include="ViewWidgets\WorkChartTable.cs" />
-    <Compile Include="ReportsParameters\SalesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.SalesReport.cs" />
     <Compile Include="Dialogs\SubdivisionDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
@@ -867,7 +873,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
     <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
-    <Compile Include="Representations\EquipmentsNonSerialForRentVM.cs" />
     <Compile Include="JournalFilters\NomenclatureEquipTypeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
     <Compile Include="Dialogs\AddExistingDocumentsDlg.cs" />
@@ -1594,6 +1599,10 @@
     <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
+    <Compile Include="Views\Rent\FreeRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.FreeRentPackageView.cs" />
+    <Compile Include="Views\Rent\PaidRentPackageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Rent.PaidRentPackageView.cs" />
     <Compile Include="Filters\GtkViews\NomenclaturePlanFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturePlanFilterView.cs" />
     <Compile Include="ReportsParameters\Logistic\GeneralSalaryInfoReport.cs" />
@@ -1650,6 +1659,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.EquipmentKindView.cs" />
     <Compile Include="Filters\GtkViews\EmployeeRepresentationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeRepresentationFilterView.cs" />
+    <Compile Include="Filters\GtkViews\SalaryByEmployeeFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView.cs" />
     <Compile Include="Views\Suppliers\WarehousesBalanceSummaryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
     <Compile Include="Views\Goods\ProductGroupView.cs" />
@@ -1658,10 +1669,16 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupJournalFilterView.cs" />
     <Compile Include="Views\Reports\NomenclaturePlanReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.NomenclaturePlanReportView.cs" />
+    <Compile Include="Views\Orders\UndeliveryTransferAbsenceReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryTransferAbsenceReasonView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
+    <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\GammaBinding\Gamma.Utilities\Gamma.Utilities.csproj">
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>
     </ProjectReference>
@@ -1713,9 +1730,9 @@
       <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
       <Name>QSReport</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
-      <Name>GammaBinding</Name>
+      <Name>Gamma.Binding</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
       <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
@@ -1728,6 +1745,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSDocTemplates\QSDocTemplates.csproj">
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
+      <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
+      <Name>ApiClientProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
@@ -1952,6 +1973,7 @@
     <Folder Include="Views\Retail\" />
     <Folder Include="ReportsParameters\Retail\" />
     <Folder Include="Reports\Retail\" />
+    <Folder Include="Views\Rent\" />
     <Folder Include="Views\Reports\" />
     <Folder Include="ReportsParameters\Employees\" />
     <Folder Include="JournalViewers\Complaints\" />
@@ -2556,6 +2578,9 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration">
+      <Version>5.0.0</Version>
+    </PackageReference>
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />

@@ -9,8 +9,8 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -21,11 +21,21 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool CanEditRectroactively { get; }
         private readonly Employee author;
 
-        public OrganizationCashTransferDocumentViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
+        public OrganizationCashTransferDocumentViewModel(
+	        IEntityUoWBuilder uowBuilder,
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        ICommonServices commonServices,
+	        IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
+	        IEmployeeService employeeService)
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
+	        if(employeeService == null)
+	        {
+		        throw new ArgumentNullException(nameof(employeeService));
+	        }
+	        
             Organizations = UoW.GetAll<Organization>();
-            author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+            author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
             CanEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(OrganizationCashTransferDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
             CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) ||

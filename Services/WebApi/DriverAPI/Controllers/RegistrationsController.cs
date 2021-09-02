@@ -1,6 +1,7 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +16,13 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class RegistrationsController : ControllerBase
 	{
-		private readonly ILogger<RegistrationsController> logger;
-		private readonly UserManager<IdentityUser> userManager;
-		private readonly IEmployeeModel employeeData;
-		private readonly IDriverMobileAppActionRecordModel driverMobileAppActionRecordData;
-		private readonly IRouteListModel aPIRouteListData;
-		private readonly ITrackPointsModel trackPointsData;
+		private readonly ILogger<RegistrationsController> _logger;
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly IEmployeeModel _employeeData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
+		private readonly IRouteListModel _aPIRouteListData;
+		private readonly ITrackPointsModel _trackPointsData;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
@@ -28,14 +30,17 @@ namespace DriverAPI.Controllers
 			IEmployeeModel employeeData,
 			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
 			IRouteListModel aPIRouteListData,
-			ITrackPointsModel trackPointsData)
+			ITrackPointsModel trackPointsData,
+			IActionTimeHelper actionTimeHelper)
 		{
-			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			this.employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
-			this.driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
-			this.aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
-			this.trackPointsData = trackPointsData ?? throw new ArgumentNullException(nameof(trackPointsData));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_driverMobileAppActionRecordData = driverMobileAppActionRecordData
+				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
+			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
+			_trackPointsData = trackPointsData ?? throw new ArgumentNullException(nameof(trackPointsData));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		/// <summary>
@@ -47,10 +52,12 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterDriverActions")]
 		public void RegisterDriverActions([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
-			var user = userManager.GetUserAsync(User).Result;
-			var driver = employeeData.GetByAPILogin(user.UserName);
+			_logger.LogInformation($"Регистрация действий в мобильном приложении пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			driverMobileAppActionRecordData.RegisterActionsRangeForDriver(driver, driverActionModels);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			_driverMobileAppActionRecordData.RegisterActionsRangeForDriver(driver, driverActionModels);
 		}
 
 		// POST: RegisterRouteListAddressCoordinates
@@ -58,16 +65,24 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public void RegisterRouteListAddressCoordinate([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
-			var user = userManager.GetUserAsync(User).Result;
-			var driver = employeeData.GetByAPILogin(user.UserName);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			aPIRouteListData.RegisterCoordinateForRouteListItem(
+			_logger.LogInformation($"Регистрация предположительных координат точки доставки { routeListAddressCoordinate.RouteListAddressId }" +
+				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
+			var recievedTime = DateTime.Now;
+
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, routeListAddressCoordinate.ActionTime);
+
+			_aPIRouteListData.RegisterCoordinateForRouteListItem(
 				routeListAddressCoordinate.RouteListAddressId,
 				routeListAddressCoordinate.Latitude,
 				routeListAddressCoordinate.Longitude,
-				routeListAddressCoordinate.ActionTime);
+				routeListAddressCoordinate.ActionTime,
+				driver.Id);
 
-			driverMobileAppActionRecordData.RegisterAction(
+			_driverMobileAppActionRecordData.RegisterAction(
 				driver,
 				new DriverActionDto()
 				{
@@ -85,7 +100,17 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterTrackCoordinates")]
 		public void RegisterTrackCoordinates([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
-			trackPointsData.RegisterForRouteList(registerTrackCoordinateRequestModel.RouteListId, registerTrackCoordinateRequestModel.TrackList);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			_logger.LogInformation($"Регистрация треков для МЛ { registerTrackCoordinateRequestModel.RouteListId }" +
+				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+
+			_trackPointsData.RegisterForRouteList(
+				registerTrackCoordinateRequestModel.RouteListId,
+				registerTrackCoordinateRequestModel.TrackList,
+				driver.Id
+				);
 		}
 	}
 }

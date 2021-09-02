@@ -11,7 +11,6 @@ using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
@@ -20,6 +19,8 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -27,8 +28,10 @@ namespace Vodovoz
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-		private IEmployeeRepository EmployeeRepository => EmployeeSingletonRepository.GetInstance();
+		private IStockRepository _stockRepository = new StockRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 
 		private CallTaskWorker callTaskWorker;
@@ -38,9 +41,9 @@ namespace Vodovoz
 					callTaskWorker = new CallTaskWorker(
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
-						OrderSingletonRepository.GetInstance(),
-						EmployeeSingletonRepository.GetInstance(),
-						new BaseParametersProvider(),
+						new OrderRepository(),
+						_employeeRepository,
+						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
 						SingletonErrorReporter.Instance);
 				}
@@ -82,7 +85,7 @@ namespace Vodovoz
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -99,8 +102,11 @@ namespace Vodovoz
 				return;
 			}
 
-			var currentUserId = QS.Project.Services.ServicesConfig.CommonServices.UserService.CurrentUserId;
-			var hasPermitionToEditDocWithClosedRL = QS.Project.Services.ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_car_load_and_unload_docs", currentUserId);
+			var currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+			var hasPermitionToEditDocWithClosedRL = 
+				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
+					"can_change_car_load_and_unload_docs", currentUserId);
+			
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
@@ -113,15 +119,15 @@ namespace Vodovoz
 			var filter = new RouteListsFilter(UoW);
 			filter.SetAndRefilterAtOnce(x => x.RestrictedStatuses = new[] { RouteListStatus.InLoading });
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
-			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
 
 			UpdateRouteListInfo();
-			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
-			Entity.UpdateInRouteListAmount(UoW, new RouteListRepository());
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
+			Entity.UpdateInRouteListAmount(UoW, _routeListRepository);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
 			carloaddocumentview1.SetButtonEditing(editing);
 			buttonSave.Sensitive = editing;
@@ -131,8 +137,12 @@ namespace Vodovoz
 				carloaddocumentview1.FillItemsByWarehouse();
 			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			Entity.CanEdit = permmissionValidator.Validate(typeof(CarLoadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			var permmissionValidator =
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
+			Entity.CanEdit =
+				permmissionValidator.Validate(typeof(CarLoadDocument), currentUserId, nameof(RetroactivelyClosePermission));
+			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -151,12 +161,12 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 			
-			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
+			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			var valid = new QS.Validation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
@@ -211,7 +221,7 @@ namespace Vodovoz
 
 		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			Entity.UpdateStockAmount(UoW);
+			Entity.UpdateStockAmount(UoW, _stockRepository);
 			carloaddocumentview1.UpdateAmounts();
 		}
 
