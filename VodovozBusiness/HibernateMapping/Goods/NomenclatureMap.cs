@@ -68,7 +68,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.AmountInAPackage).Column("amount_in_a_package");
 
 			Map(x => x.StorageCell).Column("storage_cell");
-			Map(x => x.PurchasePrice).Column("purchase_price");
 
 			//Планирование продаж для КЦ
 			Map(x => x.PlanDay).Column("plan_day");
@@ -89,6 +88,7 @@ namespace Vodovoz.HibernateMapping
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }

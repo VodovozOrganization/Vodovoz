@@ -1,6 +1,7 @@
 ﻿using DriverAPI.Data;
-using DriverAPI.Library.Models;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
+using DriverAPI.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,23 +22,22 @@ using QS.Project.DB;
 using System;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
-using QSProjectsLib;
-using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.Stock;
 
 namespace DriverAPI
 {
 	public class Startup
 	{
-		private ILogger<Startup> logger;
+		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -56,7 +56,7 @@ namespace DriverAPI
 					logging.AddNLogWeb();
 				});
 
-			logger = new Logger<Startup>(LoggerFactory.Create(logging => 
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging => 
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
 			// Подключение к БД
@@ -73,7 +73,7 @@ namespace DriverAPI
 			}
 			catch (Exception e)
 			{
-				logger.LogCritical(e, e.Message);
+				_logger.LogCritical(e, e.Message);
 				throw;
 			}
 
@@ -134,7 +134,9 @@ namespace DriverAPI
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			if (env.IsDevelopment())
+			app.UseRequestResponseLogging();
+
+			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
@@ -143,7 +145,7 @@ namespace DriverAPI
 			}
 			else
 			{
-				app.UseExceptionHandler("/api/error");
+				app.UseJsonExceptionsHandler();
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
@@ -167,7 +169,7 @@ namespace DriverAPI
 
 		private void CreateBaseConfig()
 		{
-			logger.LogInformation("Настройка параметров Nhibernate...");
+			_logger.LogInformation("Настройка параметров Nhibernate...");
 
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -191,7 +193,8 @@ namespace DriverAPI
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
-				new System.Reflection.Assembly[] {
+				new System.Reflection.Assembly[]
+				{
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
@@ -240,10 +243,12 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 
 			// Конвертеры
-			foreach (var type in typeof(Library.AssemblyFinder).Assembly.GetTypes()
-										  .Where(type => type.IsClass)
-										  .Where(type => type.Name.EndsWith("Converter"))
-										  .ToList())
+			foreach(var type in typeof(Library.AssemblyFinder)
+									.Assembly
+									.GetTypes()
+									.Where(type => type.IsClass)
+									.Where(type => type.Name.EndsWith("Converter"))
+									.ToList())
 			{
 				services.AddScoped(type);
 			}
@@ -251,6 +256,7 @@ namespace DriverAPI
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
 			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
+			services.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
 			// DAL обертки
 			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
