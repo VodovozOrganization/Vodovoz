@@ -772,18 +772,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
-		public RouteList GetRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
-		{
-			RouteList routeListAlias = null;
-			RouteListItem routeListItemAlias = null;
-			return uow.Session.QueryOver(() => routeListAlias)
-							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
-							  .Where(() => routeListItemAlias.Order.Id == order.Id)
-							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
-							  .List()
-							  .FirstOrDefault();
-		}
-
 		public RouteList GetActualRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteList routeListAlias = null;
