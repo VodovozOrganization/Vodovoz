@@ -17,17 +17,19 @@ namespace Vodovoz.ViewModels
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUserRepository _userRepository;
 		private readonly IFilePickerService _filePicker;
+		private bool _readOnly;
+		private GenericObservableList<ComplaintFile> _filesList;
 
-		private GenericObservableList<ComplaintFile> filesList;
-		public virtual GenericObservableList<ComplaintFile> FilesList {
-			get => filesList;
-			set => SetField(ref filesList, value, () => FilesList);
+		public virtual GenericObservableList<ComplaintFile> FilesList
+		{
+			get => _filesList;
+			set => SetField(ref _filesList, value, () => FilesList);
 		}
-
-		private bool readOnly;
-		public virtual bool ReadOnly {
-			get => readOnly;
-			set => SetField(ref readOnly, value);
+		
+		public virtual bool ReadOnly
+		{
+			get => _readOnly;
+			set => SetField(ref _readOnly, value);
 		}
 
 		#region Commands
@@ -53,7 +55,8 @@ namespace Vodovoz.ViewModels
 		private void CreateCommands()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					if(!_filePicker.OpenSelectFilePicker(out string[] filePaths))
 					{
 						return;
@@ -81,6 +84,7 @@ namespace Vodovoz.ViewModels
 						{
 							FilesList = new GenericObservableList<ComplaintFile>();
 						}
+
 						FilesList.Add(complaintFile);
 					}
 				},
@@ -91,8 +95,8 @@ namespace Vodovoz.ViewModels
 				file => !ReadOnly);
 
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
-				file => {
-
+				file =>
+				{
 					var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
 
 					if(string.IsNullOrWhiteSpace(vodUserTempDir))
@@ -100,7 +104,7 @@ namespace Vodovoz.ViewModels
 						return;
 					}
 
-					var tempFilePath = Path.Combine(Path.GetTempPath(),vodUserTempDir, file.FileStorageId);
+					var tempFilePath = Path.Combine(Path.GetTempPath(), vodUserTempDir, file.FileStorageId);
 
 					if(!File.Exists(tempFilePath))
 					{
@@ -113,9 +117,12 @@ namespace Vodovoz.ViewModels
 				});
 
 			LoadItemCommand = new DelegateCommand<ComplaintFile>(
-				file => {
+				file =>
+				{
 					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+					{
 						File.WriteAllBytes(filePath, file.ByteFile);
+					}
 				},
 				file => !ReadOnly);
 		}
