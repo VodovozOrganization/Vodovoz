@@ -49,24 +49,33 @@ namespace Vodovoz.ViewModels
 		{
 			AddItemCommand = new DelegateCommand(
 				() => {
-
-					if(_filePicker.OpenSelectFilePicker(out string filePath)) 
+					if(!_filePicker.OpenSelectFilePicker(out string[] filePaths))
 					{
-						var complaintFile = new ComplaintFile();
-						complaintFile.FileStorageId = Path.GetFileName(filePath);
-						
-						if (complaintFile.FileStorageId.Length > 45) {
+						return;
+					}
+
+					foreach(var filePath in filePaths)
+					{
+						var complaintFile = new ComplaintFile
+						{
+							FileStorageId = Path.GetFileName(filePath)
+						};
+
+						if(complaintFile.FileStorageId.Length > 45)
+						{
 							_interactiveService.ShowMessage(
 								ImportanceLevel.Warning,
-								"Слишком длинное имя файла.\n" +
+								$"Слишком длинное имя файла: {complaintFile.FileStorageId} " +
+								$"({complaintFile.FileStorageId.Length} символов).\n" +
 								"Оно не должно превышать 45 символов, включая расширение (.txt, .png и т.д.).");
-							return;
+							continue;
 						}
 
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
-
 						if(FilesList == null)
+						{
 							FilesList = new GenericObservableList<ComplaintFile>();
+						}
 						FilesList.Add(complaintFile);
 					}
 				},
