@@ -1114,7 +1114,7 @@ namespace Vodovoz
 
 		private bool CheckAlreadyAddedAddress(Order order)
 		{
-			var routeList = _routeListRepository.GetRouteListByOrder(UoW, order);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(UoW, order);
 			
 			if(routeList == null)
 			{
