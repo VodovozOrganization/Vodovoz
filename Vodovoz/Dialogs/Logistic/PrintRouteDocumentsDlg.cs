@@ -9,9 +9,9 @@ using NHibernate;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Print;
 using QS.Tdi;
 using QSProjectsLib;
-using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Core.DataService;
@@ -21,6 +21,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -31,14 +32,15 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 
-		Gdk.Pixbuf vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
+		private Gdk.Pixbuf _vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
-		List<SelectablePrintDocument> Routes = new List<SelectablePrintDocument>();
-		GenericObservableList<OrderDocTypeNode> OrderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
-		GenericObservableList<GeographicGroup> geographicGroups;
-		GenericObservableList<string> warnings;
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
+		private List<SelectablePrintDocument> _routes = new List<SelectablePrintDocument>();
+		private GenericObservableList<OrderDocTypeNode> _orderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
+		private GenericObservableList<GeographicGroup> _geographicGroups;
+		private GenericObservableList<string> _warnings;
 
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 		public PrintRouteDocumentsDlg()
 		{
@@ -58,7 +60,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Driver.ShortName)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyCar ? vodovozCarIcon : null)
+					.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyCar ? _vodovozCarIcon : null)
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
@@ -74,13 +76,16 @@ namespace Vodovoz.Dialogs.Logistic
 					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? "grey" : "black")
 				.Finish();
 
-			geograficGroup.UoW = uow;
+			geograficGroup.UoW = _uow;
 			geograficGroup.Label = "Часть города:";
-			geographicGroups = new GenericObservableList<GeographicGroup>();
-			geograficGroup.Items = geographicGroups;
+			_geographicGroups = new GenericObservableList<GeographicGroup>();
+			geograficGroup.Items = _geographicGroups;
 			geograficGroup.ListContentChanged += OnYdatePrintDateChanged;
-			foreach(var gg in uow.Session.QueryOver<GeographicGroup>().List())
-				geographicGroups.Add(gg);
+			
+			foreach(var gg in _uow.Session.QueryOver<GeographicGroup>().List())
+			{
+				_geographicGroups.Add(gg);
+			}
 
 			ydatePrint.Date = DateTime.Today;
 
@@ -104,7 +109,9 @@ namespace Vodovoz.Dialogs.Logistic
 			};
 
 			foreach(OrderDocumentType t in Enum.GetValues(typeof(OrderDocumentType)))
-				OrderDocTypesToPrint.Add(new OrderDocTypeNode(t, selectedByDefault.Contains(t)));
+			{
+				_orderDocTypesToPrint.Add(new OrderDocTypeNode(t, selectedByDefault.Contains(t)));
+			}
 
 			yTreeOrderDocumentTypes.ColumnsConfig = FluentColumnsConfig<OrderDocTypeNode>.Create()
 				.AddColumn("Печатать")
@@ -114,11 +121,11 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Название").AddTextRenderer(x => x.Type.GetEnumTitle())
 				.AddColumn("")
 				.Finish();
-			yTreeOrderDocumentTypes.SetItemsSource(OrderDocTypesToPrint);
+			yTreeOrderDocumentTypes.SetItemsSource(_orderDocTypesToPrint);
 			yTreeOrderDocumentTypes.HeadersVisible = false;
 			ChkDocumentsOfOrders_Toggled(this, null);
 
-			warnings = new GenericObservableList<string>();
+			_warnings = new GenericObservableList<string>();
 			yTreeViewWarnings.HeadersVisible = false;
 			yTreeViewWarnings.ColumnsConfig = FluentColumnsConfig<string>.Create()
 				.AddColumn("")
@@ -126,7 +133,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.RowCells()
 					.AddSetter<CellRendererText>((c,n)=>c.Foreground = "red")
 				.Finish();
-			yTreeViewWarnings.SetItemsSource(warnings);
+			yTreeViewWarnings.SetItemsSource(_warnings);
 		}
 
 		class OrderDocTypeNode : PropertyChangedBase
@@ -156,32 +163,34 @@ namespace Vodovoz.Dialogs.Logistic
 		private void UpdateRouteList()
 		{
 			gtkScrollWndWarnings.Visible = false;
-			var ggIds = geographicGroups.Select(x => x.Id).ToList();
-			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(uow.Session);
-			Routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
+			var ggIds = _geographicGroups.Select(x => x.Id).ToList();
+			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(_uow.Session);
+			_routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
 							   .Fetch(SelectMode.Fetch, x => x.Car)
 							   .List()
-							   .Select(x => new SelectablePrintDocument(new RouteListPrintableDocs(uow, x, RouteListPrintableDocuments.RouteList)))
+							   .Select(x => new SelectablePrintDocument(new RouteListPrintableDocs(_uow, x, RouteListPrintableDocuments.RouteList)))
 							   .OrderBy(x => (x.Document as RouteListPrintableDocs).routeList.Driver.LastName)
 							   .ToList()
 							   .Distinct()
 							   .ToList()
 							   ;
-			ytreeRoutes.SetItemsSource(new GenericObservableList<SelectablePrintDocument>(Routes));
-			var notPrintedRoutes = Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status < RouteListStatus.Confirmed).ToList();
+			ytreeRoutes.SetItemsSource(new GenericObservableList<SelectablePrintDocument>(_routes));
+			var notPrintedRoutes = _routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status < RouteListStatus.Confirmed).ToList();
 
 			if(notPrintedRoutes.Any())
+			{
 				MessageDialogHelper.RunWarningDialog(
 					String.Format(
 						"Маршрутные листы {0} не могут быть напечатаны, так как еще не подтверждены.",
 						String.Join(", ", notPrintedRoutes.Select(x => $"{(x.Document as RouteListPrintableDocs).routeList.Id}({(x.Document as RouteListPrintableDocs).routeList.Driver.ShortName})"))
 					)
 				);
+			}
 		}
 
 		protected void OnCheckSelectAllToggled(object sender, EventArgs e)
 		{
-			Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.Confirmed).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
+			_routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.Confirmed).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
 		}
 
 		private bool canClose = true;
@@ -200,35 +209,47 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			try {
+			try
+			{
 				SetSensetivity(false);
-				var routeCount = Routes.Count(x => x.Selected);
+				var routeCount = _routes.Count(x => x.Selected);
 				progressPrint.Adjustment.Upper = routeCount;
 				progressPrint.Adjustment.Value = 0;
 
-				foreach(var item in Routes.Where(x => x.Selected)) {
-					if(item.Document is RouteListPrintableDocs rlPrintableDoc) {
-						progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName);
+				foreach(var item in _routes.Where(x => x.Selected))
+				{
+					if(item.Document is RouteListPrintableDocs rlPrintableDoc)
+					{
+						progressPrint.Text = $"Печатаем МЛ {rlPrintableDoc.routeList.Id} - {rlPrintableDoc.routeList.Driver.ShortName}";
 						QSMain.WaitRedraw();
 						var rlDocTypesToPrint = new List<RouteListPrintableDocuments>();
 						OrderDocumentType[] oDocTypesToPrint = null;
 
 						if(checkRoute.Active)
+						{
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteList);
+						}
+
 						if(checkRouteMap.Active)
+						{
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteMap);
+						}
+
 						if(chkDocumentsOfOrders.Active)
-							oDocTypesToPrint = OrderDocTypesToPrint.Where(n => n.Selected)
-																   .Select(n => n.Type)
-																   .ToArray();
+						{
+							oDocTypesToPrint = _orderDocTypesToPrint.Where(n => n.Selected)
+								.Select(n => n.Type)
+								.ToArray();
+						}
 
 						bool cancelPrinting = false;
-						EntitiyDocumentsPrinter printer = new EntitiyDocumentsPrinter(
-							uow,
+						var printer = _entityDocumentsPrinterFactory.CreateRouteListWithOrderDocumentsPrinter(
+							_uow,
 							rlPrintableDoc.routeList,
 							rlDocTypesToPrint.ToArray(),
 							oDocTypesToPrint
 						);
+						
 						printer.DocumentsPrinted += (o, args) =>
 						{
 							if(!rlDocTypesToPrint.Contains(RouteListPrintableDocuments.RouteList | RouteListPrintableDocuments.All))
@@ -237,19 +258,26 @@ namespace Vodovoz.Dialogs.Logistic
 							}
 
 							rlPrintableDoc.routeList.AddPrintHistory();
-							uow.Save(rlPrintableDoc.routeList);
-							uow.Commit();
+							_uow.Save(rlPrintableDoc.routeList);
+							_uow.Commit();
 						};
-						printer.PrintingCanceled += (s, ea) => {
+						
+						printer.PrintingCanceled += (s, ea) =>
+						{
 							cancelPrinting = true;
 						};
+						
 						printer.Print();
-						if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages)) {
+						
+						if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages))
+						{
 							gtkScrollWndWarnings.Visible = true;
-							warnings.Add(string.Format("МЛ №{0} - {1}:", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName));
-							warnings.Add(printer.ODTTemplateNotFoundMessages);
+							_warnings.Add(string.Format("МЛ №{0} - {1}:", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName));
+							_warnings.Add(printer.ODTTemplateNotFoundMessages);
 						}
-						if(cancelPrinting) {
+						
+						if(cancelPrinting)
+						{
 							progressPrint.Text = "Печать отменена";
 							break;
 						}
@@ -258,15 +286,18 @@ namespace Vodovoz.Dialogs.Logistic
 
 					progressPrint.Adjustment.Value++;
 				}
-				EntitiyDocumentsPrinter.PrinterSettings = null;
-			} finally {
+				
+				EntityDocumentsPrinter.PrinterSettings = null;
+			}
+			finally
+			{
 				SetSensetivity(true);
 			}
 		}
 
 		public override void Destroy()
 		{
-			uow?.Dispose();
+			_uow?.Dispose();
 			base.Destroy();
 		}
 	}
