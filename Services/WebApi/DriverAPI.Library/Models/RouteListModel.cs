@@ -90,10 +90,28 @@ namespace DriverAPI.Library.Models
 				);
 		}
 
-		public void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime)
+		public void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId)
 		{
-			var deliveryPoint = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)?.Order?.DeliveryPoint
+			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
+				?? throw new ArgumentOutOfRangeException(nameof(routeListAddressId), $"Адрес МЛ {routeListAddressId} не нейден");
+
+			var deliveryPoint = routeListAddress.Order?.DeliveryPoint
 				?? throw new DataNotFoundException(nameof(routeListAddressId), $"Точка доставки для адреса не найдена");
+
+			if(routeListAddress.RouteList.Driver.Id != driverId)
+			{
+				_logger.LogWarning($"Попытка записи координаты точки доставки {routeListAddressId} МЛ водителя {routeListAddress.RouteList.Driver.Id}," +
+					$" водителем {driverId}");
+				throw new AccessViolationException("Нельзя записать координаты точки доставки для МЛ другого водителя");
+			}
+
+			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute
+			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning($"Попытка записи координаты точки доставки в МЛ {routeListAddress.RouteList.Id} в статусе {routeListAddress.RouteList.Status}" +
+					$" адреса {routeListAddressId} в статусе {routeListAddress.Status} водителем {driverId}");
+				throw new AccessViolationException("Нельзя записать координаты точки доставки для этого адреса");
+			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
 			{
@@ -116,7 +134,7 @@ namespace DriverAPI.Library.Models
 				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
 		}
 
-		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId)
+		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId)
 		{
 			if(routeListAddressId <= 0)
 			{
@@ -126,15 +144,29 @@ namespace DriverAPI.Library.Models
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
 				?? throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
 
-			if(routeListAddress.Status == RouteListItemStatus.Transfered)
+			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
 			{
-				throw new InvalidOperationException("Перенесенный адрес нельзя вернуть в путь");
+				_logger.LogWarning($"Попытка вернуть в путь адрес МЛ {routeListAddressId} водителем {driverId}, водитель МЛ: {routeListAddress.RouteList.Driver?.Id}");
+				throw new AccessViolationException("Нельзя вернуть в путь адрес не вашего МЛ");
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.Completed
+			|| routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
+			{
+				throw new InvalidOperationException("Адрес нельзя вернуть в путь");
 			}
 
 			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.EnRoute);
 
 			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
+		}
+
+		public bool IsRouteListBelongToDriver(int routeListId, int driverId)
+		{
+			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId);
+
+			return routeList?.Driver?.Id == driverId;
 		}
 	}
 }
