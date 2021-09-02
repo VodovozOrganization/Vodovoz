@@ -4,7 +4,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic.Drivers
 {
-    [Appellative(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
         Nominative = "Запись о действии водителя в мобильном приложении",
         NominativePlural = "Записи о действиях водителей в мобильном приложении")]
     public class DriverMobileAppActionRecord : IDomainObject
@@ -14,13 +14,5 @@ namespace Vodovoz.Domain.Logistic.Drivers
         public virtual DriverMobileAppActionType Action { get; set; }
         public virtual DateTime ActionDatetime { get; set; }
         public virtual DateTime RecievedDatetime { get; set; }
-    }
-
-    public enum DriverMobileAppActionType
-    {
-        OpenOrderInfoPanel,
-        OpenOrderDeliveryPanel,
-        OpenOrderReceiptionPanel,
-        CompleteOrderClicked
     }
 }
