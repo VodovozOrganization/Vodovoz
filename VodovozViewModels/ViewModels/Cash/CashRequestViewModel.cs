@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
 			ExpenseCategoryAutocompleteSelectorFactory =
-				expenseCategorySelectorFactory?.CreateExpenseCategoryAutocompleteSelectorFactory()
+				expenseCategorySelectorFactory?.CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 			CurrentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)
 			                  ?? throw new ArgumentNullException(nameof(employeeRepository));

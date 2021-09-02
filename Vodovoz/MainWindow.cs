@@ -732,9 +732,10 @@ public partial class MainWindow : Gtk.Window
     protected void OnAction14Activated(object sender, EventArgs e)
     {
         var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-        IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории прихода.csv");
+        IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
         var employeeJournalFactory = new EmployeeJournalFactory();
         var subdivisionJournalFactory = new SubdivisionJournalFactory();
+        var incomeFactory = new IncomeCategorySelectorFactory();
 
         tdiMain.AddTab(
             new IncomeCategoryJournalViewModel(
@@ -743,7 +744,8 @@ public partial class MainWindow : Gtk.Window
                 ServicesConfig.CommonServices,
                 chooserProvider,
                 employeeJournalFactory,
-                subdivisionJournalFactory
+                subdivisionJournalFactory,
+                incomeFactory
             )
         );
     }
@@ -751,9 +753,10 @@ public partial class MainWindow : Gtk.Window
     protected void OnAction15Activated(object sender, EventArgs e)
     {
         var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
-        IFileChooserProvider chooserProvider = new Vodovoz.FileChooser("Категории расхода.csv");
+        IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
         var employeeJournalFactory = new EmployeeJournalFactory();
         var subdivisionJournalFactory = new SubdivisionJournalFactory();
+        var expenseFactory = new ExpenseCategorySelectorFactory();
 
         tdiMain.AddTab(
             new ExpenseCategoryJournalViewModel(
@@ -762,7 +765,8 @@ public partial class MainWindow : Gtk.Window
                 ServicesConfig.CommonServices,
                 chooserProvider,
                 employeeJournalFactory,
-                subdivisionJournalFactory
+                subdivisionJournalFactory,
+                expenseFactory
             )
         );
     }
@@ -2047,6 +2051,7 @@ public partial class MainWindow : Gtk.Window
 	    
         var employeesJournalFactory = new EmployeeJournalFactory(employeeFilter);
         var docTemplateRepository = new DocTemplateRepository();
+        var fileChooser = new Vodovoz.FileChooser();
 
         tdiMain.OpenTab(
             () => new WayBillGeneratorViewModel
@@ -2056,8 +2061,9 @@ public partial class MainWindow : Gtk.Window
 	            NavigationManagerProvider.NavigationManager,
 	            new WayBillDocumentRepository(),
 	            new RouteGeometryCalculator(DistanceProvider.Osrm),
-	            employeesJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-	            docTemplateRepository
+	            employeesJournalFactory,
+	            docTemplateRepository,
+	            fileChooser
             ));
     }
 

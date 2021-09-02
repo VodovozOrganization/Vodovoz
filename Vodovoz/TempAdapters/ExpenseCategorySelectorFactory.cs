@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -19,16 +20,16 @@ namespace Vodovoz.TempAdapters
 {
 	public class ExpenseCategorySelectorFactory : IExpenseCategorySelectorFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateExpenseCategoryAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
 		{
-			var uow = UnitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}");
-
-			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel
+			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel();
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
 			{
-				ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id),
-				HidenByDefault = true
-			};
-			IFileChooserProvider chooserProvider = new FileChooser("Категории расхода.csv");
+				expenceCategoryfilterViewModel.ExcludedIds =
+					new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
+			}
+			expenceCategoryfilterViewModel.HidenByDefault = true;
+
 			var employeeFilter = new EmployeeFilterViewModel
 			{
 				Status = EmployeeStatus.IsWorking
@@ -36,6 +37,7 @@ namespace Vodovoz.TempAdapters
 
 			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var expenseFactory = new ExpenseCategorySelectorFactory();
 
 			return new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(() =>
 			{
@@ -45,19 +47,17 @@ namespace Vodovoz.TempAdapters
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						chooserProvider,
-						expenceCategoryfilterViewModel,
 						employeeJournalFactory,
-						subdivisionJournalFactory
+						subdivisionJournalFactory,
+						expenseFactory
 					),
 					node => new ExpenseCategoryViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						chooserProvider,
-						expenceCategoryfilterViewModel,
 						employeeJournalFactory,
-						subdivisionJournalFactory
+						subdivisionJournalFactory,
+						expenseFactory
 					),
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices
@@ -67,6 +67,32 @@ namespace Vodovoz.TempAdapters
 					filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
 				return journal;
 			});
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateDefaultExpenseCategoryAutocompleteSelectorFactory()
+		{
+			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel();
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
+			{
+				expenceCategoryfilterViewModel.ExcludedIds =
+					new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
+			}
+			expenceCategoryfilterViewModel.HidenByDefault = true;
+
+			IFileChooserProvider chooserProvider = new FileChooser();
+			var employeeFilter = new EmployeeFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			};
+			var commonServices = ServicesConfig.CommonServices;
+
+			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var expenseFactory = new ExpenseCategorySelectorFactory();
+
+			return new ExpenseCategoryAutoCompleteSelectorFactory(
+				commonServices, expenceCategoryfilterViewModel, chooserProvider, employeeJournalFactory, subdivisionJournalFactory,
+				expenseFactory);
 		}
 	}
 }

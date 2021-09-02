@@ -6,6 +6,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalSelectors
@@ -18,8 +19,10 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 		    IncomeCategoryJournalFilterViewModel filterViewModel,
 		    IFileChooserProvider fileChooserProvider,
 		    IEmployeeJournalFactory employeeJournalFactory,
-		    ISubdivisionJournalFactory subdivisionJournalFactory)
-		    : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory)
+		    ISubdivisionJournalFactory subdivisionJournalFactory,
+		    IIncomeCategorySelectorFactory incomeCategorySelectorFactory)
+		    : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory,
+			    incomeCategorySelectorFactory)
 	    {
 		    
 	    }
@@ -32,7 +35,8 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
                 commonServices,
                 fileChooserProvider,
                 _employeeJournalFactory,
-                _subdivisionJournalFactory)
+                _subdivisionJournalFactory,
+                _incomeCategorySelectorFactory)
             {
                 SelectionMode = JournalSelectionMode.Single
             };

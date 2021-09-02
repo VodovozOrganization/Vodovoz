@@ -10,13 +10,16 @@ using Vodovoz.Additions.Accounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Accounting
 {
     public class WayBillGeneratorViewModel: DialogTabViewModelBase
     {
         public readonly WayBillDocumentGenerator Entity;
+        private readonly IFileChooserProvider _fileChooser;
 
         public WayBillGeneratorViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -24,10 +27,13 @@ namespace Vodovoz.ViewModels.Accounting
             INavigationManager navigation,
             IWayBillDocumentRepository wayBillDocumentRepository,
             RouteGeometryCalculator calculator,
-            IEntityAutocompleteSelectorFactory entityAutocompleteSelectorFactory,
-            IDocTemplateRepository docTemplateRepository) : base(unitOfWorkFactory, interactiveService, navigation)
+            IEmployeeJournalFactory employeeJournalFactory,
+            IDocTemplateRepository docTemplateRepository,
+            IFileChooserProvider fileChooserProvider) : base(unitOfWorkFactory, interactiveService, navigation)
         {
-            EntityAutocompleteSelectorFactory = entityAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(entityAutocompleteSelectorFactory));
+            EntityAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()
+                                                ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+            _fileChooser = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 
             if (wayBillDocumentRepository == null)
                 throw new ArgumentNullException(nameof(wayBillDocumentRepository));
@@ -88,8 +94,7 @@ namespace Vodovoz.ViewModels.Accounting
         {
             UnloadCommand = new DelegateCommand(
                 () => {
-                    var fileChooser = new FileChooser("");
-                    var path = fileChooser.GetExportFolderPath();
+                    var path = _fileChooser.GetExportFolderPath();
                     if (Directory.Exists(path)) {
                         Entity.ExportODTDocuments(path);
                     }

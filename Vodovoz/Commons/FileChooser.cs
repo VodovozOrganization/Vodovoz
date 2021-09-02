@@ -5,28 +5,28 @@ namespace Vodovoz
 {
     public class FileChooser: Gtk.FileChooserDialog, IFileChooserProvider
     {
-        private Gtk.FileChooserDialog fileChooser;
-        private string fileName;
-        public FileChooser(string fileName)
+        private FileChooserDialog _fileChooser;
+        private readonly string _fileName;
+        public FileChooser(string fileName = null)
         {
-            this.fileName = fileName;
+	        _fileName = fileName ?? string.Empty;
         }
         
-        public string GetExportFilePath()
+        public string GetExportFilePath(string fileName = null)
         {
             //Создается здесь а не в конструкторе, потому что единственный способ
             //закрыть это destroy
-            fileChooser =
+            _fileChooser =
                 new Gtk.FileChooserDialog("Выберите где сохранить файл",
                     this,
                     FileChooserAction.Save,
                     "Отмена", ResponseType.Cancel,
                     "Сохранить", ResponseType.Accept);
-            fileChooser.CurrentName = fileName;
+            _fileChooser.CurrentName = string.IsNullOrWhiteSpace(fileName) ? _fileName : fileName;
             
-            var result = fileChooser.Run();
+            var result = _fileChooser.Run();
             if (result == (int)ResponseType.Accept)
-                return fileChooser.Filename;
+                return _fileChooser.Filename;
             else
             {
                 CloseWindow();
@@ -38,18 +38,18 @@ namespace Vodovoz
         {
             //Создается здесь а не в конструкторе, потому что единственный способ
             //закрыть это destroy
-            fileChooser =
+            _fileChooser =
                 new Gtk.FileChooserDialog("Выберите где сохранить файл",
                     this,
                     FileChooserAction.SelectFolder,
                     "Отмена", ResponseType.Cancel,
                     "Сохранить", ResponseType.Accept);
-            fileChooser.CurrentName = fileName;
+            _fileChooser.CurrentName = string.Empty;
 
-            var result = fileChooser.Run();
+            var result = _fileChooser.Run();
             if (result == (int)ResponseType.Accept)
             {
-                var path = fileChooser.Filename;
+                var path = _fileChooser.Filename;
                 CloseWindow();
                 return path;
             }
@@ -62,7 +62,7 @@ namespace Vodovoz
 
         public void CloseWindow()
         {
-            fileChooser.Destroy();
+            _fileChooser.Destroy();
         }
     }
 }

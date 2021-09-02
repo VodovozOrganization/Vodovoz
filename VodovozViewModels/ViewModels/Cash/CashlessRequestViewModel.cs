@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			ExpenceCategoryAutocompleteSelector =
-				expenseCategorySelectorFactory?.CreateExpenseCategoryAutocompleteSelectorFactory()
+				expenseCategorySelectorFactory?.CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 
 			_currentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)

@@ -8,23 +8,26 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
     public class ExpenseCategorySelectorFactory : IEntitySelectorFactory
     {
-        public ExpenseCategorySelectorFactory(ICommonServices commonServices, 
-            ExpenseCategoryJournalFilterViewModel filterViewModel,
-            IFileChooserProvider fileChooserProvider,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory)
+        public ExpenseCategorySelectorFactory(ICommonServices commonServices,
+	        ExpenseCategoryJournalFilterViewModel filterViewModel,
+	        IFileChooserProvider fileChooserProvider,
+	        IEmployeeJournalFactory employeeJournalFactory,
+	        ISubdivisionJournalFactory subdivisionJournalFactory, IExpenseCategorySelectorFactory expenseCategorySelectorFactory)
         {
             this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
             filter = filterViewModel;
             this.fileChooserProvider = fileChooserProvider;
             _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+            _expenseCategorySelectorFactory =
+	            expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
         }
 
         protected readonly ICommonServices commonServices;
@@ -32,6 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
         protected readonly IFileChooserProvider fileChooserProvider;
         protected readonly IEmployeeJournalFactory _employeeJournalFactory;
         protected readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+        protected readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 
         public Type EntityType => typeof(ExpenseCategory);
 
@@ -43,7 +47,8 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
                 commonServices,
                 fileChooserProvider,
                 _employeeJournalFactory,
-                _subdivisionJournalFactory
+                _subdivisionJournalFactory,
+                _expenseCategorySelectorFactory
             )
             {
                 SelectionMode = JournalSelectionMode.Single

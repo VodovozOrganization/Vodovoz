@@ -6,10 +6,8 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
-using VodovozInfrastructure.Interfaces;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -19,10 +17,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IFileChooserProvider fileChooserProvider,
-            IncomeCategoryJournalFilterViewModel journalFilterViewModel,
             IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
+            ISubdivisionJournalFactory subdivisionJournalFactory,
+            IIncomeCategorySelectorFactory incomeCategorySelectorFactory
         ) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
 	        if(employeeJournalFactory == null)
@@ -35,9 +32,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		        throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 	        }
 	        
-            IncomeCategoryAutocompleteSelectorFactory = 
-                new IncomeCategoryAutoCompleteSelectorFactory(
-	                commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
+            IncomeCategoryAutocompleteSelectorFactory =
+	            incomeCategorySelectorFactory.CreateDefaultIncomeCategoryAutocompleteSelectorFactory();
             
             SubdivisionAutocompleteSelectorFactory =
 	            subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(

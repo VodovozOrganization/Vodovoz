@@ -6,6 +6,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalSelectors
@@ -13,13 +14,18 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
     public class ExpenseCategoryAutoCompleteSelectorFactory:
         ExpenseCategorySelectorFactory, IEntityAutocompleteSelectorFactory
     {
-        public ExpenseCategoryAutoCompleteSelectorFactory(
-            ICommonServices commonServices, 
-            ExpenseCategoryJournalFilterViewModel filterViewModel,
-            IFileChooserProvider fileChooserProvider,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory) 
-            : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory) { }
+	    public ExpenseCategoryAutoCompleteSelectorFactory(
+		    ICommonServices commonServices,
+		    ExpenseCategoryJournalFilterViewModel filterViewModel,
+		    IFileChooserProvider fileChooserProvider,
+		    IEmployeeJournalFactory employeeJournalFactory,
+		    ISubdivisionJournalFactory subdivisionJournalFactory,
+		    IExpenseCategorySelectorFactory expenseCategorySelectorFactory)
+		    : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory,
+			    expenseCategorySelectorFactory)
+	    {
+
+	    }
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
         {
@@ -29,7 +35,8 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
                 commonServices,
                 fileChooserProvider,
                 _employeeJournalFactory,
-                _subdivisionJournalFactory)
+                _subdivisionJournalFactory,
+                _expenseCategorySelectorFactory)
             {
                 SelectionMode = JournalSelectionMode.Single
             };
