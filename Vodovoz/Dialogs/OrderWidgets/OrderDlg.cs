@@ -1197,6 +1197,7 @@ namespace Vodovoz
 			Save();
 			ProcessSmsNotification();
 			UpdateUIState();
+			SaveAndClose();
 		}
 
 		private void ProcessSmsNotification()
