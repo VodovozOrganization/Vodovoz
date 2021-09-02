@@ -57,7 +57,7 @@ namespace Vodovoz.Domain.Cash
 			switch(newState)
 			{
 				//Подана
-				case PayoutRequestState.Submitted:
+				case PayoutRequestState.Submited:
 					if(PayoutRequestState == PayoutRequestState.New || PayoutRequestState == PayoutRequestState.OnClarification)
 					{
 						PayoutRequestState = newState;
@@ -85,7 +85,7 @@ namespace Vodovoz.Domain.Cash
 					break;
 				//Согласована
 				case PayoutRequestState.Agreed:
-					if(PayoutRequestState == PayoutRequestState.Submitted)
+					if(PayoutRequestState == PayoutRequestState.Submited)
 					{
 						PayoutRequestState = newState;
 					}
@@ -108,8 +108,7 @@ namespace Vodovoz.Domain.Cash
 
 					break;
 				case PayoutRequestState.Canceled:
-					if(PayoutRequestState == PayoutRequestState.Submitted ||
-					   PayoutRequestState == PayoutRequestState.New ||
+					if(PayoutRequestState == PayoutRequestState.Submited ||
 					   PayoutRequestState == PayoutRequestState.OnClarification ||
 					   PayoutRequestState == PayoutRequestState.GivenForTake ||
 					   PayoutRequestState == PayoutRequestState.Agreed)

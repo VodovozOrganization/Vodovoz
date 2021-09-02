@@ -52,7 +52,7 @@ namespace Vodovoz.Filters.GtkViews
 			//Иные роли - только видят только свои заявки, поэтому нужно скрытиь фильтр по авторам
 			if(userRole == PayoutRequestUserRole.Coordinator)
 			{
-				yenumcomboStatus.SelectedItem = PayoutRequestState.Submitted;
+				yenumcomboStatus.SelectedItem = PayoutRequestState.Submited;
 			}
 			else if(userRole == PayoutRequestUserRole.Financier)
 			{

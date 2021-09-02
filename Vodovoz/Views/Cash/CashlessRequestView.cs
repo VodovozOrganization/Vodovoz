@@ -66,7 +66,6 @@ namespace Vodovoz.Views.Cash
 			eventBoxCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			labelCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			entryCancelReason.Binding.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text).InitializeFromSource();
-			entryCancelReason.Binding.AddBinding(ViewModel, vm => vm.CanSetCancelReason, w => w.Sensitive).InitializeFromSource();
 
 			eventBoxWhySentToReapproval.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			labelWhySentToReapproval.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();

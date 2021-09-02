@@ -343,7 +343,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public bool VisibleOnlyForFinancer => UserRole == PayoutRequestUserRole.Financier;
         public bool VisibleOnlyForStatusUpperThanCreated => Entity.PayoutRequestState != PayoutRequestState.New;
         public bool ExpenseCategoryVisibility => UserRole == PayoutRequestUserRole.Cashier || UserRole == PayoutRequestUserRole.Financier;
-        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.PayoutRequestState == PayoutRequestState.Submitted && UserRole == PayoutRequestUserRole.Coordinator;
+        public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1 && Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
         #endregion Visibility
 
         #region Permissions
@@ -361,16 +361,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             (Entity.PayoutRequestState == PayoutRequestState.New || Entity.PayoutRequestState == PayoutRequestState.OnClarification);
 
         //Согласовать
-        public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submitted && UserRole == PayoutRequestUserRole.Coordinator;
+        public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
         public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier && Entity.PayoutRequestState == PayoutRequestState.Agreed;
         public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.Agreed ||
                                                 Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
                                                 Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed ||
                                                 Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
-        public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submitted ||
+        public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited ||
                                  Entity.PayoutRequestState == PayoutRequestState.OnClarification ||
-                                 Entity.PayoutRequestState == PayoutRequestState.New ||
                                  (Entity.PayoutRequestState == PayoutRequestState.Agreed && UserRole == PayoutRequestUserRole.Coordinator) ||
                                  (Entity.PayoutRequestState == PayoutRequestState.GivenForTake && UserRole == PayoutRequestUserRole.Coordinator);
         
@@ -452,7 +451,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () =>
             {
-                Entity.ChangeState(PayoutRequestState.Submitted);
+                Entity.ChangeState(PayoutRequestState.Submited);
                 AfterSaveCommand.Execute();
             }, () => true
         ));

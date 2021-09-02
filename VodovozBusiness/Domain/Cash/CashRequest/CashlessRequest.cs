@@ -125,12 +125,9 @@ namespace Vodovoz.Domain.Cash
 
 			yield return ValidateState(nextState);
 
-			validationContext.Items.TryGetValue("user_role", out var userRoleValue);
-			var roleParsed = Enum.TryParse(userRoleValue?.ToString(), ignoreCase: true, out PayoutRequestUserRole userRole);
-
 			switch(nextState)
 			{
-				case PayoutRequestState.Canceled when roleParsed && userRole == PayoutRequestUserRole.Coordinator:
+				case PayoutRequestState.Canceled:
 					if(string.IsNullOrWhiteSpace(CancelReason))
 					{
 						yield return new ValidationResult("Не указана причина отмены", new[] { nameof(CancelReason) });
@@ -144,6 +141,10 @@ namespace Vodovoz.Domain.Cash
 						yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
 					}
 
+					break;
+				}
+				case PayoutRequestState.Closed:
+				{
 					if(ExpenseCategory == null)
 					{
 						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategory) });
@@ -171,7 +172,7 @@ namespace Vodovoz.Domain.Cash
 
 			var errorMessage = $"Некорректная операция. Не предусмотрена смена статуса с {PayoutRequestState} на {nextState}";
 
-			if(nextState == PayoutRequestState.Submitted)
+			if(nextState == PayoutRequestState.Submited)
 			{
 				if(PayoutRequestState != PayoutRequestState.New && PayoutRequestState != PayoutRequestState.OnClarification)
 				{
@@ -189,7 +190,7 @@ namespace Vodovoz.Domain.Cash
 			}
 			else if(nextState == PayoutRequestState.Agreed)
 			{
-				if(PayoutRequestState != PayoutRequestState.Submitted)
+				if(PayoutRequestState != PayoutRequestState.Submited)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
@@ -203,7 +204,7 @@ namespace Vodovoz.Domain.Cash
 			}
 			else if(nextState == PayoutRequestState.Canceled)
 			{
-				if(PayoutRequestState != PayoutRequestState.Submitted &&
+				if(PayoutRequestState != PayoutRequestState.Submited &&
 				   PayoutRequestState != PayoutRequestState.OnClarification &&
 				   PayoutRequestState != PayoutRequestState.GivenForTake &&
 				   PayoutRequestState != PayoutRequestState.Agreed)

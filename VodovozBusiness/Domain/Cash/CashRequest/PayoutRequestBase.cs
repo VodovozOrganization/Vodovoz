@@ -141,7 +141,7 @@ namespace Vodovoz.Domain.Cash
 	    [Display(Name = "На уточнении")]
 	    OnClarification, // после отправки на пересогласование
 	    [Display(Name = "Подана")]
-	    Submitted, // после подтверждения
+	    Submited, // после подтверждения
 	    [Display(Name = "Согласована")]
 	    Agreed, // после согласования
 	    [Display(Name = "Передана на выдачу")]

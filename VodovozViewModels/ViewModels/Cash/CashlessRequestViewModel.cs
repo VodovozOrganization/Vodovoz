@@ -89,9 +89,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanAccept => Entity.PayoutRequestState == PayoutRequestState.New ||
 		                         Entity.PayoutRequestState == PayoutRequestState.OnClarification;
 
-		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submitted && UserRole == PayoutRequestUserRole.Coordinator;
+		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
 
-		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submitted ||
+		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited ||
 		                         Entity.PayoutRequestState == PayoutRequestState.OnClarification ||
 		                         UserRole == PayoutRequestUserRole.Coordinator
 		                         && (Entity.PayoutRequestState == PayoutRequestState.Agreed ||
@@ -113,7 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool IsNotNew => Entity.PayoutRequestState != PayoutRequestState.New;
 
 		public bool CanSeeNotToReconcile =>
-			Entity.PayoutRequestState == PayoutRequestState.Submitted && UserRole == PayoutRequestUserRole.Coordinator;
+			Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
 
 		public bool CanSeeOrganisation => UserRole == PayoutRequestUserRole.Financier;
 
@@ -162,7 +162,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public void Accept()
 		{
-			if(ValidateForNextState(PayoutRequestState.Submitted))
+			if(ValidateForNextState(PayoutRequestState.Submited))
 			{
 				Save(true);
 			}
@@ -222,10 +222,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private bool ValidateForNextState(PayoutRequestState nextState)
 		{
 			ValidationContext.Items.Add("next_state", nextState);
-			ValidationContext.Items.Add("user_role", _userRole);
 			var valid = Validate();
 			ValidationContext.Items.Remove("next_state");
-			ValidationContext.Items.Remove("user_role");
 			if(valid)
 			{
 				Entity.ChangeState(nextState);
