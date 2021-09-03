@@ -23,16 +23,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			ExpenseCategoryAutocompleteSelectorFactory =
-				expenseCategorySelectorFactory?.CreateDefaultExpenseCategoryAutocompleteSelectorFactory()
-			 ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+				(expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory)))
+				.CreateDefaultExpenseCategoryAutocompleteSelectorFactory();
 
 			var employeeSelectorFactory =
-				employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
-			 ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateEmployeeAutocompleteSelectorFactory();
 
 			SubdivisionAutocompleteSelectorFactory =
-				subdivisionJournalFactory?.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory)
-			 ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
 
 			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";
 		}

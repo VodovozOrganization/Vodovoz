@@ -36,11 +36,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			TabName = base.TabName;
 			CounterpartyAutocompleteSelector =
-				counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
-				?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory();
 			ExpenceCategoryAutocompleteSelector =
-				expenseCategorySelectorFactory?.CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
-				?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+				(expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory)))
+				.CreateSimpleExpenseCategoryAutocompleteSelectorFactory();
 
 			_currentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)
 			                   ?? throw new ArgumentNullException(nameof(employeeRepository));
