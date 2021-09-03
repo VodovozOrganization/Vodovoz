@@ -10,6 +10,8 @@ namespace Vodovoz.Views.Complaints
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ComplaintFilesView : WidgetViewBase<ComplaintFilesViewModel>
 	{
+		private readonly Menu _menu = new Menu();
+
 		public ComplaintFilesView()
 		{
 			this.Build();
@@ -29,36 +31,38 @@ namespace Vodovoz.Views.Complaints
 			ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
 			ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
+
+			ConfigureMenu();
 		}
 
 		private void ConfigureMenu()
 		{
-			if(ViewModel.ReadOnly || ytreeviewFiles.GetSelectedObject() == null)
-			{
-				return;
-			}
-
-			var menu = new Menu();
-
 			var deleteFile = new MenuItem("Удалить файл");
-			deleteFile.Activated += (s, args) => ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
+			deleteFile.Activated += (s, args) =>
+			{
+				ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
+				_menu.Popdown();
+			};
 			deleteFile.Visible = true;
-			menu.Add(deleteFile);
+			_menu.Add(deleteFile);
 
 			var saveFile = new MenuItem("Загрузить файл");
-			saveFile.Activated += (s, args) => ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
+			saveFile.Activated += (s, args) =>
+			{
+				ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
+				_menu.Popdown();
+			};
 			saveFile.Visible = true;
-			menu.Add(saveFile);
+			_menu.Add(saveFile);
 
-			menu.ShowAll();
-			menu.Popup();
+			_menu.ShowAll();
 		}
 
 		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
 		{
-			if(args.Event.Button == 3)
+			if(args.Event.Button == 3 && !ViewModel.ReadOnly && ytreeviewFiles.GetSelectedObject() != null)
 			{
-				ConfigureMenu();
+				_menu.Popup();
 			}
 		}
 	}

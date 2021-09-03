@@ -6,56 +6,67 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
 {
-    [System.ComponentModel.ToolboxItem(true)]
-    public partial class CounterpartyFilesView : WidgetViewBase<CounterpartyFilesViewModel>
-    {
-        public CounterpartyFilesView()
-        {
-            this.Build();
-        }
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class CounterpartyFilesView : WidgetViewBase<CounterpartyFilesViewModel>
+	{
+		private readonly Menu _menu = new Menu();
 
-        protected override void ConfigureWidget()
-        {
-            if (ViewModel == null)
-                return;
+		public CounterpartyFilesView()
+		{
+			this.Build();
+		}
 
-            ybuttonAttachFile.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
-            ybuttonAttachFile.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+		protected override void ConfigureWidget()
+		{
+			if(ViewModel == null)
+				return;
 
-            ytreeviewFiles.ColumnsConfig = FluentColumnsConfig<CounterpartyFile>.Create()
-                .AddColumn("Файлы").AddTextRenderer(x => x.FileStorageId)
-                .Finish();
-            ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
-            ytreeviewFiles.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
-            ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
-            ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<CounterpartyFile>());
-        }
+			ybuttonAttachFile.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
+			ybuttonAttachFile.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 
-        protected void ConfigureMenu()
-        {
-            if (ytreeviewFiles.GetSelectedObject() == null)
-                return;
+			ytreeviewFiles.ColumnsConfig = FluentColumnsConfig<CounterpartyFile>.Create()
+				.AddColumn("Файлы").AddTextRenderer(x => x.FileStorageId)
+				.Finish();
+			ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
+			ytreeviewFiles.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
+			ytreeviewFiles.RowActivated +=
+				(o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<CounterpartyFile>());
 
-            var menu = new Menu();
+			ConfigureMenu();
+		}
 
-            var deleteFile = new MenuItem("Удалить файл");
-            deleteFile.Activated += (s, args) => ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
-            deleteFile.Visible = true;
-            menu.Add(deleteFile);
+		private void ConfigureMenu()
+		{
+			var deleteFile = new MenuItem("Удалить файл");
+			deleteFile.Activated += (s, args) =>
+			{
+				ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
+				_menu.Popdown();
+			};
+			deleteFile.Visible = true;
+			_menu.Add(deleteFile);
 
-            var saveFile = new MenuItem("Загрузить файл");
-            saveFile.Activated += (s, args) => ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
-            saveFile.Visible = true;
-            menu.Add(saveFile);
+			var saveFile = new MenuItem("Загрузить файл");
+			saveFile.Activated += (s, args) =>
+			{
+				ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
+				_menu.Popdown();
+			};
+			saveFile.Visible = true;
+			_menu.Add(saveFile);
 
-            menu.ShowAll();
-            menu.Popup();
-        }
+			_menu.ShowAll();
+		}
 
-        protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
-        {
-            if (args.Event.Button == 3)
-                ConfigureMenu();
-        }
-    }
+		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button == 3
+			&& !ViewModel.ReadOnly
+			&& ytreeviewFiles.GetSelectedObject() != null)
+			{
+				_menu.Popup();
+			}
+		}
+	}
 }
