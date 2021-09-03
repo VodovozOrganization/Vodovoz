@@ -12,7 +12,6 @@ namespace Vodovoz.Domain.Cash
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на выдачу средств",
 		Nominative = "заявка на выдачу средств")]
-	[EntityPermission]
 	public abstract class PayoutRequestBase : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private PayoutRequestState _payoutRequestState;

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 
@@ -13,6 +14,7 @@ namespace Vodovoz.Domain.Cash
 		NominativePlural = "заявки на оплату по безналу",
 		Nominative = "заявка на оплату по безналу")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class CashlessRequest : PayoutRequestBase
 	{
 		private decimal _sum;
