@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.Logistic.Drivers
         public virtual int Id { get; set; }
         public virtual Employee Driver { get; set; }
         public virtual DriverMobileAppActionType Action { get; set; }
+		public virtual string Result { get; set; }
         public virtual DateTime ActionDatetime { get; set; }
         public virtual DateTime RecievedDatetime { get; set; }
     }

@@ -1,12 +1,13 @@
 ﻿namespace Vodovoz.Domain.Logistic.Drivers
 {
 	public enum DriverMobileAppActionType
-    {
-        OpenOrderInfoPanel,
-        OpenOrderDeliveryPanel,
-        OpenOrderReceiptionPanel,
-        CompleteOrderClicked,
+	{
+		OpenOrderInfoPanel,
+		OpenOrderDeliveryPanel,
+		OpenOrderReceiptionPanel,
+		CompleteOrderClicked,
 		ChangeOrderPaymentTypeClicked,
-		RollbackRouteListAddressStatusEnRouteClicked
+		RollbackRouteListAddressStatusEnRouteClicked,
+		PayBySmsClicked
 	}
 }
