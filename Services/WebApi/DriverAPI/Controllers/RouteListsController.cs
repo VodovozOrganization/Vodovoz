@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
 {
@@ -23,15 +24,16 @@ namespace DriverAPI.Controllers
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly IOrderModel _aPIOrderData;
 		private readonly IEmployeeModel _employeeData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly UserManager<IdentityUser> _userManager;
-
 
 		public RouteListsController(
 			ILogger<RouteListsController> logger,
 			IRouteListModel aPIRouteListData,
 			IOrderModel aPIOrderData,
 			IEmployeeModel employeeData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordModel,
 			IActionTimeHelper actionTimeHelper,
 			UserManager<IdentityUser> userManager)
 		{
@@ -39,6 +41,7 @@ namespace DriverAPI.Controllers
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_driverMobileAppActionRecordModel = driverMobileAppActionRecordModel ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordModel));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
@@ -113,13 +116,29 @@ namespace DriverAPI.Controllers
 			_logger.LogInformation($"Попытка вернуть в путь адрес МЛ: { requestDto.RoutelistAddressId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var recievedTime = DateTime.Now;
-
-			_actionTimeHelper.ThrowIfNotValid(recievedTime, requestDto.ActionTime);
+			var resultMessage = "OK";
 
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
+			try
+			{
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, requestDto.ActionTime);
+				_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
+			}
+			catch(Exception ex)
+			{
+				resultMessage = ex.Message;
+				throw;
+			}
+			finally
+			{
+				_driverMobileAppActionRecordModel.RegisterAction(driver,
+													 DriverMobileAppActionType.RollbackRouteListAddressStatusEnRouteClicked,
+													 requestDto.ActionTime,
+													 recievedTime,
+													 resultMessage);
+			}
 		}
 	}
 }

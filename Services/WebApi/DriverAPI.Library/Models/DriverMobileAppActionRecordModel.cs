@@ -43,6 +43,7 @@ namespace DriverAPI.Library.Models
 				Driver = driver,
 				Action = actionType,
 				ActionDatetime = actionTime,
+				Result = result,
 				RecievedDatetime = recievedTime
 			};
 
