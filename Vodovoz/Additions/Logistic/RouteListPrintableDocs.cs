@@ -5,6 +5,7 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Additions.Logistic
 {
