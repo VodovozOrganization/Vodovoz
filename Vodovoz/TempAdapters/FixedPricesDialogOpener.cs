@@ -5,6 +5,8 @@ namespace Vodovoz.TempAdapters
 {
 	public class FixedPricesDialogOpener : IFixedPricesDialogOpener
 	{
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+
 		public void OpenFixedPricesForSelfDelivery(int counterpartyId)
 		{
 			CounterpartyDlg counterpartyDlg = new CounterpartyDlg(counterpartyId);
@@ -14,8 +16,7 @@ namespace Vodovoz.TempAdapters
 
 		public void OpenFixedPricesForDeliveryPoint(int deliveryPointId)
 		{
-			IDeliveryPointViewModelFactory dpVmFactory = new DeliveryPointViewModelFactory();
-			var dpViewModel = dpVmFactory.GetForOpenDeliveryPointViewModel(deliveryPointId);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(deliveryPointId);
 			TDIMain.MainNotebook.AddTab(dpViewModel);
 			dpViewModel.OpenFixedPrices();
 		}

@@ -13,6 +13,7 @@ namespace Vodovoz.TempAdapters
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
 		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
 
 		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
 		{
@@ -39,7 +40,7 @@ namespace Vodovoz.TempAdapters
 		public DeliveryPointJournalViewModel CreateDeliveryPointJournal()
 		{
 			var journal = new DeliveryPointJournalViewModel(
-				new DeliveryPointViewModelFactory(),
+				_deliveryPointViewModelFactory,
 				_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
@@ -52,7 +53,7 @@ namespace Vodovoz.TempAdapters
 		public DeliveryPointByClientJournalViewModel CreateDeliveryPointByClientJournal()
 		{
 			var journal = new DeliveryPointByClientJournalViewModel(
-				new DeliveryPointViewModelFactory(),
+				_deliveryPointViewModelFactory,
 				_deliveryPointJournalFilter
 				?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
 				UnitOfWorkFactory.GetDefaultFactory,

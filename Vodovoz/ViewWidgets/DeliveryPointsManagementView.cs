@@ -24,8 +24,8 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
 
 		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
 		{
@@ -88,8 +88,7 @@ namespace Vodovoz
 			}
 
 			var client = DeliveryPointUoW.Root;
-			var dpViewModelFactory = new DeliveryPointViewModelFactory();
-			var dpViewModel = dpViewModelFactory.GetForCreationDeliveryPointViewModel(client);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(client);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
 		}
@@ -97,8 +96,7 @@ namespace Vodovoz
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
-			var dpViewModelFactory = new DeliveryPointViewModelFactory();
-			var dpViewModel = dpViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 		}
 

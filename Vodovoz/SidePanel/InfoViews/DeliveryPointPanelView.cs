@@ -36,6 +36,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
 		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
@@ -185,8 +186,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var dpVmFactory = new DeliveryPointViewModelFactory();
-			var dpViewModel = dpVmFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
 	}
