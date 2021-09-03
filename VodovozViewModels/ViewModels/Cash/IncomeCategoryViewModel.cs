@@ -11,61 +11,38 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-    public class IncomeCategoryViewModel: EntityTabViewModelBase<IncomeCategory>
-    {
-        public IncomeCategoryViewModel(
-            IEntityUoWBuilder uowBuilder,
-            IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices,
-            IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory,
-            IIncomeCategorySelectorFactory incomeCategorySelectorFactory
-        ) : base(uowBuilder, unitOfWorkFactory, commonServices)
-        {
-	        if(employeeJournalFactory == null)
-	        {
-		        throw new ArgumentNullException(nameof(employeeJournalFactory));
-	        }
-			
-	        if(subdivisionJournalFactory == null)
-	        {
-		        throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-	        }
-	        
-            IncomeCategoryAutocompleteSelectorFactory =
-	            incomeCategorySelectorFactory.CreateDefaultIncomeCategoryAutocompleteSelectorFactory();
-            
-            SubdivisionAutocompleteSelectorFactory =
-	            subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
-		            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-            
-            if(uowBuilder.IsNewEntity)
-                TabName = "Создание новой категории дохода";
-            else
-                TabName = $"{Entity.Title}";
-        }
-        
-        public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
-        
-        public bool IsArchive
-        {
-            get { return Entity.IsArchive; }
-            set
-            {
-                Entity.SetIsArchiveRecursively(value);
-            }
-        }
-        
-        public IEntityAutocompleteSelectorFactory IncomeCategoryAutocompleteSelectorFactory;
-        
-        #region Permissions
-        public bool CanCreate => PermissionResult.CanCreate;
-        public bool CanRead => PermissionResult.CanRead;
-        public bool CanUpdate => PermissionResult.CanUpdate;
-        public bool CanDelete => PermissionResult.CanDelete;
+	public class IncomeCategoryViewModel : EntityTabViewModelBase<IncomeCategory>
+	{
+		public IncomeCategoryViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IIncomeCategorySelectorFactory incomeCategorySelectorFactory
+		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		{
+			IncomeCategoryAutocompleteSelectorFactory =
+				incomeCategorySelectorFactory?.CreateDefaultIncomeCategoryAutocompleteSelectorFactory()
+				?? throw new ArgumentNullException(nameof(incomeCategorySelectorFactory));
 
-        public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
+			var employeeAutocompleteSelector = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
+			                                   ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
-        #endregion
-    }
+			SubdivisionAutocompleteSelectorFactory =
+				subdivisionJournalFactory?.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeAutocompleteSelector)
+				?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+
+			TabName = uowBuilder.IsNewEntity ? "Создание новой категории дохода" : $"{Entity.Title}";
+		}
+
+		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory IncomeCategoryAutocompleteSelectorFactory { get; }
+
+		public bool IsArchive
+		{
+			get => Entity.IsArchive;
+			set => Entity.SetIsArchiveRecursively(value);
+		}
+	}
 }

@@ -20,50 +20,30 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
-			) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			if(employeeJournalFactory == null)
-			{
-				throw new ArgumentNullException(nameof(employeeJournalFactory));
-			}
-			
-			if(subdivisionJournalFactory == null)
-			{
-				throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			}
-
 			ExpenseCategoryAutocompleteSelectorFactory =
-				expenseCategorySelectorFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory();
+				expenseCategorySelectorFactory?.CreateDefaultExpenseCategoryAutocompleteSelectorFactory()
+			 ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+
+			var employeeSelectorFactory =
+				employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
+			 ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			SubdivisionAutocompleteSelectorFactory =
-				subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
-					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			
-			if(uowBuilder.IsNewEntity)
-				TabName = "Создание новой категории расхода";
-			else
-				TabName = $"{Entity.Title}";
-			
+				subdivisionJournalFactory?.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory)
+			 ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+
+			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
 
 		public bool IsArchive
 		{
-			get { return Entity.IsArchive; }
-			set
-			{
-				Entity.SetIsArchiveRecursively(value);
-			}
+			get => Entity.IsArchive;
+			set => Entity.SetIsArchiveRecursively(value);
 		}
-
-		public readonly IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory;
-
-		#region Permissions
-
-		public bool CanCreate => PermissionResult.CanCreate;
-		public bool CanUpdate => PermissionResult.CanUpdate;
-
-		#endregion
 	}
 }
