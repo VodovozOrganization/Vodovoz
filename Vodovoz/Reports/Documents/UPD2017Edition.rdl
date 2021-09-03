@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -51,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -834,7 +834,10 @@ WHERE o.id = @order_id
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
+              <PaddingTop >10pt</PaddingTop>
+              <PaddingBottom >5pt</PaddingBottom>
             </Style>
+            <CanGrow >true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
@@ -3917,7 +3920,7 @@ WHERE o.id = @order_id
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
