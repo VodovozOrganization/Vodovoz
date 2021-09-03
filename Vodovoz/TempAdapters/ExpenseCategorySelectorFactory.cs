@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -20,14 +21,21 @@ namespace Vodovoz.TempAdapters
 {
 	public class ExpenseCategorySelectorFactory : IExpenseCategorySelectorFactory
 	{
+		private readonly IEnumerable<int> _excludedIds;
+
+		public ExpenseCategorySelectorFactory()
+		{
+			using(var uow =
+				UnitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
+			{
+				_excludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
+			}
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
 		{
 			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel();
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
-			{
-				expenceCategoryfilterViewModel.ExcludedIds =
-					new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
-			}
+			expenceCategoryfilterViewModel.ExcludedIds = _excludedIds;
 			expenceCategoryfilterViewModel.HidenByDefault = true;
 
 			var employeeFilter = new EmployeeFilterViewModel
@@ -72,11 +80,7 @@ namespace Vodovoz.TempAdapters
 		public IEntityAutocompleteSelectorFactory CreateDefaultExpenseCategoryAutocompleteSelectorFactory()
 		{
 			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel();
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
-			{
-				expenceCategoryfilterViewModel.ExcludedIds =
-					new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
-			}
+			expenceCategoryfilterViewModel.ExcludedIds = _excludedIds;
 			expenceCategoryfilterViewModel.HidenByDefault = true;
 
 			IFileChooserProvider chooserProvider = new FileChooser();
