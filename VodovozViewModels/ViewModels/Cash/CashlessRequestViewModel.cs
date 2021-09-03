@@ -42,8 +42,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				(expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory)))
 				.CreateSimpleExpenseCategoryAutocompleteSelectorFactory();
 
-			_currentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)
-			                   ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_currentEmployee =
+				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
+				.GetEmployeeForCurrentUser(UoW);
 
 			if(UoW.IsNew)
 			{

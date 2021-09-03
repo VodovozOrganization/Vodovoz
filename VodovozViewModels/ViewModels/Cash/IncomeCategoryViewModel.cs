@@ -26,8 +26,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				(incomeCategorySelectorFactory ?? throw new ArgumentNullException(nameof(incomeCategorySelectorFactory)))
 				.CreateDefaultIncomeCategoryAutocompleteSelectorFactory();
 
-			var employeeAutocompleteSelector = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
-			                                   ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			var employeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateEmployeeAutocompleteSelectorFactory();
 
 			SubdivisionAutocompleteSelectorFactory =
 				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
