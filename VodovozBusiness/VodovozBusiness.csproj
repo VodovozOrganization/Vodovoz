@@ -112,6 +112,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Logistic\CarEventType.cs" />
     <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />

@@ -46,10 +46,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал точек доставки клиента";
-			if(FilterViewModel.Counterparty == null)
-			{
-				throw new ArgumentException("Для использования этого журнала необходимо передать клиента в фильтр");
-			}
 
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
