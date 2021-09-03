@@ -65,7 +65,12 @@ namespace Vodovoz.TempAdapters
 			var incomeFactory = new IncomeCategorySelectorFactory();
 
 			return new IncomeCategoryAutoCompleteSelectorFactory(
-				commonServices, incomeCategoryFilter, chooserIncomeProvider, employeeJournalFactory, subdivisionJournalFactory, incomeFactory);
+				commonServices,
+				incomeCategoryFilter,
+				chooserIncomeProvider,
+				employeeJournalFactory,
+				subdivisionJournalFactory,
+				incomeFactory);
 		}
 	}
 }

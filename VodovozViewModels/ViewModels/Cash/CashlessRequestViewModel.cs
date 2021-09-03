@@ -44,10 +44,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			_currentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)
 			                   ?? throw new ArgumentNullException(nameof(employeeRepository));
-			if(_currentEmployee == null)
-			{
-				AbortOpening("Невозможно создать/открыть заявку. К вашему пользователю не привязан сотрудник");
-			}
 
 			if(UoW.IsNew)
 			{
@@ -84,25 +80,27 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region Настройки кнопок смены состояний
 
-		public bool CanPayout => Entity.PayoutRequestState == PayoutRequestState.GivenForTake && UserRole == PayoutRequestUserRole.Accountant;
+		public bool CanPayout => Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+		                         && UserRole == PayoutRequestUserRole.Accountant;
 
-		public bool CanAccept => Entity.PayoutRequestState == PayoutRequestState.New ||
-		                         Entity.PayoutRequestState == PayoutRequestState.OnClarification;
+		public bool CanAccept => Entity.PayoutRequestState == PayoutRequestState.New
+		                         || Entity.PayoutRequestState == PayoutRequestState.OnClarification;
 
-		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
+		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited
+		                          && UserRole == PayoutRequestUserRole.Coordinator;
 
-		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited ||
-		                         Entity.PayoutRequestState == PayoutRequestState.OnClarification ||
-		                         UserRole == PayoutRequestUserRole.Coordinator
-		                         && (Entity.PayoutRequestState == PayoutRequestState.Agreed ||
-		                             Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
+		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited
+		                         || Entity.PayoutRequestState == PayoutRequestState.OnClarification
+		                         || UserRole == PayoutRequestUserRole.Coordinator
+		                         && (Entity.PayoutRequestState == PayoutRequestState.Agreed
+		                             || Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
 
 		public bool CanReapprove => Entity.PayoutRequestState == PayoutRequestState.Agreed ||
 		                            Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
 		                            Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
-		public bool CanConveyForPayout => Entity.PayoutRequestState == PayoutRequestState.Agreed &&
-		                                  UserRole == PayoutRequestUserRole.Financier;
+		public bool CanConveyForPayout => Entity.PayoutRequestState == PayoutRequestState.Agreed
+		                                  && UserRole == PayoutRequestUserRole.Financier;
 
 		#endregion
 
@@ -112,22 +110,24 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool IsNotClosed => Entity.PayoutRequestState != PayoutRequestState.Closed;
 		public bool IsNotNew => Entity.PayoutRequestState != PayoutRequestState.New;
 
-		public bool CanSeeNotToReconcile =>
-			Entity.PayoutRequestState == PayoutRequestState.Submited && UserRole == PayoutRequestUserRole.Coordinator;
+		public bool CanSeeNotToReconcile => Entity.PayoutRequestState == PayoutRequestState.Submited
+		                                    && UserRole == PayoutRequestUserRole.Coordinator;
 
 		public bool CanSeeOrganisation => UserRole == PayoutRequestUserRole.Financier;
 
-		public bool CanSetOrganisaton => Entity.PayoutRequestState == PayoutRequestState.New ||
-		                                 Entity.PayoutRequestState == PayoutRequestState.Agreed ||
-		                                 Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
+		public bool CanSetOrganisaton => Entity.PayoutRequestState == PayoutRequestState.New
+		                                 || Entity.PayoutRequestState == PayoutRequestState.Agreed
+		                                 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
-		public bool CanSeeExpenseCategory => UserRole == PayoutRequestUserRole.Accountant || UserRole == PayoutRequestUserRole.Financier;
+		public bool CanSeeExpenseCategory => UserRole == PayoutRequestUserRole.Accountant
+		                                     || UserRole == PayoutRequestUserRole.Financier;
 
-		public bool CanSetExpenseCategory => Entity.PayoutRequestState == PayoutRequestState.New ||
-		                                     Entity.PayoutRequestState == PayoutRequestState.Agreed ||
-		                                     Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
+		public bool CanSetExpenseCategory => Entity.PayoutRequestState == PayoutRequestState.New
+		                                     || Entity.PayoutRequestState == PayoutRequestState.Agreed
+		                                     || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
-		public bool CanSetCancelReason => UserRole == PayoutRequestUserRole.Coordinator && IsNotClosed;
+		public bool CanSetCancelReason => UserRole == PayoutRequestUserRole.Coordinator
+		                                  && IsNotClosed;
 
 		public PayoutRequestUserRole UserRole
 		{

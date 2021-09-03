@@ -11,8 +11,8 @@ namespace Vodovoz.Domain.Cash
 	[HistoryTrace]
 	public class CashlessRequestFile : PropertyChangedBase, IDomainObject
 	{
-		private string fileStorageId;
-		private byte[] byteFile;
+		private string _fileStorageId;
+		private byte[] _byteFile;
 		private CashlessRequest _cashlessRequest;
 
 		public virtual int Id { get; set; }
@@ -20,15 +20,15 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Идентификатор файла в системе хранения")]
 		public virtual string FileStorageId
 		{
-			get => fileStorageId;
-			set => SetField(ref fileStorageId, value, () => FileStorageId);
+			get => _fileStorageId;
+			set => SetField(ref _fileStorageId, value);
 		}
 
 		[Display(Name = "Файл")]
 		public virtual byte[] ByteFile
 		{
-			get => byteFile;
-			set => SetField(ref byteFile, value, () => ByteFile);
+			get => _byteFile;
+			set => SetField(ref _byteFile, value);
 		}
 
 		[Display(Name = "Запрос на оплату по Б/Н")]

@@ -91,7 +91,11 @@ namespace Vodovoz.TempAdapters
 			var expenseFactory = new ExpenseCategorySelectorFactory();
 
 			return new ExpenseCategoryAutoCompleteSelectorFactory(
-				commonServices, expenceCategoryfilterViewModel, chooserProvider, employeeJournalFactory, subdivisionJournalFactory,
+				commonServices,
+				expenceCategoryfilterViewModel,
+				chooserProvider,
+				employeeJournalFactory,
+				subdivisionJournalFactory,
 				expenseFactory);
 		}
 	}
