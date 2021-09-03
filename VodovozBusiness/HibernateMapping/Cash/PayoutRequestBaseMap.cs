@@ -15,9 +15,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Explanation).Column("explanation");
 			Map(x => x.Basis).Column("ground");
 			Map(x => x.CancelReason).Column("cancel_reason");
-			Map(x => x.ReasonForSendToReappropriate).Column ("reason_for_send_to_reappropriate");
-			Map(x => x.PayoutRequestState).Column("state").CustomType<PayoutRequestBase.CashRequestStateStringType>();
-			Map(x => x.PayoutRequestDocumentType).Column("document_type").CustomType<PayoutRequestBase.CashRequestDocTypeStringType>()
+			Map(x => x.ReasonForSendToReappropriate).Column("reason_for_send_to_reappropriate");
+			Map(x => x.PayoutRequestState).Column("state").CustomType<CashRequestStateStringType>();
+			Map(x => x.PayoutRequestDocumentType).Column("document_type").CustomType<CashRequestDocTypeStringType>()
 				.Update().Not.Insert();
 			//bool
 			Map(x => x.PossibilityNotToReconcilePayments).Column("possibility_not_to_reconcile_payments");
