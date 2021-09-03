@@ -8,7 +8,7 @@ using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Cash
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на выдачу наличных денежных средств",
 		Nominative = "заявка на выдачу наличных денежных средств")]
 	[HistoryTrace]
@@ -58,7 +58,8 @@ namespace Vodovoz.Domain.Cash
 			{
 				//Подана
 				case PayoutRequestState.Submited:
-					if(PayoutRequestState == PayoutRequestState.New || PayoutRequestState == PayoutRequestState.OnClarification)
+					if(PayoutRequestState == PayoutRequestState.New
+					|| PayoutRequestState == PayoutRequestState.OnClarification)
 					{
 						PayoutRequestState = newState;
 					}
@@ -70,10 +71,10 @@ namespace Vodovoz.Domain.Cash
 					break;
 				//На уточнении
 				case PayoutRequestState.OnClarification:
-					if(PayoutRequestState == PayoutRequestState.Agreed ||
-					   PayoutRequestState == PayoutRequestState.GivenForTake ||
-					   PayoutRequestState == PayoutRequestState.Canceled ||
-					   PayoutRequestState == PayoutRequestState.PartiallyClosed)
+					if(PayoutRequestState == PayoutRequestState.Agreed
+					|| PayoutRequestState == PayoutRequestState.GivenForTake
+					|| PayoutRequestState == PayoutRequestState.Canceled
+					|| PayoutRequestState == PayoutRequestState.PartiallyClosed)
 					{
 						PayoutRequestState = newState;
 					}
@@ -108,10 +109,10 @@ namespace Vodovoz.Domain.Cash
 
 					break;
 				case PayoutRequestState.Canceled:
-					if(PayoutRequestState == PayoutRequestState.Submited ||
-					   PayoutRequestState == PayoutRequestState.OnClarification ||
-					   PayoutRequestState == PayoutRequestState.GivenForTake ||
-					   PayoutRequestState == PayoutRequestState.Agreed)
+					if(PayoutRequestState == PayoutRequestState.Submited
+					|| PayoutRequestState == PayoutRequestState.OnClarification
+					|| PayoutRequestState == PayoutRequestState.GivenForTake
+					|| PayoutRequestState == PayoutRequestState.Agreed)
 					{
 						PayoutRequestState = newState;
 					}
@@ -122,7 +123,9 @@ namespace Vodovoz.Domain.Cash
 
 					break;
 				case PayoutRequestState.Closed:
-					PayoutRequestState = Sums.All(x => x.Sum == x.ObservableExpenses.Sum(e => e.Money)) ? newState : PayoutRequestState.PartiallyClosed;
+					PayoutRequestState = Sums.All(x => x.Sum == x.ObservableExpenses.Sum(e => e.Money))
+						? newState
+						: PayoutRequestState.PartiallyClosed;
 					break;
 
 				case PayoutRequestState.PartiallyClosed:
@@ -135,18 +138,14 @@ namespace Vodovoz.Domain.Cash
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Author == null)
+			foreach(var validationResult in base.Validate(validationContext))
 			{
-				yield return new ValidationResult(
-					"Необходимо выбрать автора",
-					new[] { nameof(Author) });
+				yield return validationResult;
 			}
 
 			if(Sums.Count < 1)
 			{
-				yield return new ValidationResult(
-					"Необходимо создать хотя бы одну сумму",
-					new[] { nameof(Sums) });
+				yield return new ValidationResult("Необходимо создать хотя бы одну сумму", new[] { nameof(Sums) });
 			}
 
 			foreach(var cashRequestSumItem in Sums)
@@ -154,44 +153,14 @@ namespace Vodovoz.Domain.Cash
 				if(cashRequestSumItem.AccountableEmployee == null)
 				{
 					yield return new ValidationResult(
-						string.Format($"У суммы {cashRequestSumItem.Sum} должно быть заполнено подотчетное лицо"),
-						new[] { nameof(Sums) });
+						string.Format($"У суммы {cashRequestSumItem.Sum} должно быть заполнено подотчетное лицо"), new[] { nameof(Sums) });
 				}
 			}
 
-			if(string.IsNullOrWhiteSpace(Basis))
+			if(PayoutRequestState == PayoutRequestState.Agreed
+			&& Organization == null)
 			{
-				yield return new ValidationResult(
-					"Необходимо заполнить основание",
-					new[] { nameof(Basis) });
-			}
-
-			if(PayoutRequestState == PayoutRequestState.Agreed && Organization == null)
-			{
-				yield return new ValidationResult(
-					"Необходимо заполнить организацию",
-					new[] { nameof(Organization) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(Basis) && Basis.Length > 1000)
-			{
-				yield return new ValidationResult(
-					"Длина основания не должна превышать 1000 символов",
-					new[] { nameof(Basis) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(CancelReason) && CancelReason.Length > 1000)
-			{
-				yield return new ValidationResult(
-					"Длина причины отмены не должна превышать 1000 символов",
-					new[] { nameof(CancelReason) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(Explanation) && Explanation.Length > 200)
-			{
-				yield return new ValidationResult(
-					"Длина пояснения не должна превышать 200 символов",
-					new[] { nameof(Explanation) });
+				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
 			}
 		}
 
@@ -202,10 +171,12 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual void DeleteItem(CashRequestSumItem sumItem)
 		{
-			if(sumItem == null || !_observableSums.Contains(sumItem))
+			if(sumItem == null
+			|| !_observableSums.Contains(sumItem))
 			{
 				return;
 			}
+
 			ObservableSums.Remove(sumItem);
 		}
 

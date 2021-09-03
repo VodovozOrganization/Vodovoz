@@ -65,18 +65,36 @@ namespace Vodovoz.Domain.Cash
 			PayoutRequestState = newState;
 		}
 
+		public virtual void AddFile(CashlessRequestFile file)
+		{
+			if(ObservableFiles.Contains(file))
+			{
+				return;
+			}
+
+			file.CashlessRequest = this;
+			ObservableFiles.Add(file);
+		}
+
+		public virtual void RemoveFile(CashlessRequestFile file)
+		{
+			if(ObservableFiles.Contains(file))
+			{
+				ObservableFiles.Remove(file);
+			}
+		}
+
+		#endregion
+
+		#region IValidationImplementation
+
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			#region Без учета статуса
 
-			if(Author == null)
+			foreach(var validationResult in base.Validate(validationContext))
 			{
-				yield return new ValidationResult("Не указан автор", new[] { nameof(Author) });
-			}
-
-			if(Subdivision == null)
-			{
-				yield return new ValidationResult("Не указано подразделение автора", new[] { nameof(Subdivision) });
+				yield return validationResult;
 			}
 
 			if(Sum <= 0)
@@ -92,27 +110,6 @@ namespace Vodovoz.Domain.Cash
 			if(Counterparty == null)
 			{
 				yield return new ValidationResult("Необходимо указать поставщика", new[] { nameof(Counterparty) });
-			}
-
-			if(string.IsNullOrWhiteSpace(Basis))
-			{
-				yield return new ValidationResult("Необходимо заполнить основание", new[] { nameof(Basis) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(Basis) && Basis.Length > 1000)
-			{
-				yield return new ValidationResult($"Превышена длина основания ({Basis.Length}/1000)", new[] { nameof(Basis) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(CancelReason) && CancelReason?.Length > 1000)
-			{
-				yield return new ValidationResult($"Превышена длина причины отмены ({CancelReason.Length}/1000)",
-					new[] { nameof(CancelReason) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(Explanation) && Explanation.Length > 200)
-			{
-				yield return new ValidationResult($"Превышена длина пояснения ({Explanation.Length}/200)", new[] { nameof(Explanation) });
 			}
 
 			#endregion
@@ -174,16 +171,17 @@ namespace Vodovoz.Domain.Cash
 
 			if(nextState == PayoutRequestState.Submited)
 			{
-				if(PayoutRequestState != PayoutRequestState.New && PayoutRequestState != PayoutRequestState.OnClarification)
+				if(PayoutRequestState != PayoutRequestState.New
+				&& PayoutRequestState != PayoutRequestState.OnClarification)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
 			else if(nextState == PayoutRequestState.OnClarification)
 			{
-				if(PayoutRequestState != PayoutRequestState.Agreed &&
-				   PayoutRequestState != PayoutRequestState.GivenForTake &&
-				   PayoutRequestState != PayoutRequestState.Canceled)
+				if(PayoutRequestState != PayoutRequestState.Agreed
+				&& PayoutRequestState != PayoutRequestState.GivenForTake
+				&& PayoutRequestState != PayoutRequestState.Canceled)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
@@ -204,10 +202,10 @@ namespace Vodovoz.Domain.Cash
 			}
 			else if(nextState == PayoutRequestState.Canceled)
 			{
-				if(PayoutRequestState != PayoutRequestState.Submited &&
-				   PayoutRequestState != PayoutRequestState.OnClarification &&
-				   PayoutRequestState != PayoutRequestState.GivenForTake &&
-				   PayoutRequestState != PayoutRequestState.Agreed)
+				if(PayoutRequestState != PayoutRequestState.Submited
+				&& PayoutRequestState != PayoutRequestState.OnClarification
+				&& PayoutRequestState != PayoutRequestState.GivenForTake
+				&& PayoutRequestState != PayoutRequestState.Agreed)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
@@ -225,25 +223,6 @@ namespace Vodovoz.Domain.Cash
 			}
 
 			return ValidationResult.Success;
-		}
-
-		public virtual void AddFile(CashlessRequestFile file)
-		{
-			if(ObservableFiles.Contains(file))
-			{
-				return;
-			}
-
-			file.CashlessRequest = this;
-			ObservableFiles.Add(file);
-		}
-
-		public virtual void RemoveFile(CashlessRequestFile file)
-		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
 		}
 
 		#endregion

@@ -33,8 +33,7 @@ namespace Vodovoz.Domain.Cash
 
 		public abstract string Title { get; }
 
-		[Display(Name = "Тип документа")]
-		public virtual PayoutRequestDocumentType PayoutRequestDocumentType { get; set; }
+		[Display(Name = "Тип документа")] public virtual PayoutRequestDocumentType PayoutRequestDocumentType { get; set; }
 
 		[Display(Name = "Состояние")]
 		public virtual PayoutRequestState PayoutRequestState
@@ -115,7 +114,44 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public abstract IEnumerable<ValidationResult> Validate(ValidationContext validationContext);
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Author == null)
+			{
+				yield return new ValidationResult(
+					"Автор не указан. Ваш пользователь не привязан к сотруднику, которого можно указать в качестве автора",
+					new[] { nameof(Author) });
+			}
+
+			if(Subdivision == null)
+			{
+				yield return new ValidationResult("Не указано подразделение автора", new[] { nameof(Subdivision) });
+			}
+
+			if(string.IsNullOrWhiteSpace(Basis))
+			{
+				yield return new ValidationResult("Необходимо заполнить основание", new[] { nameof(Basis) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(Basis)
+			&& Basis.Length > 1000)
+			{
+				yield return new ValidationResult("Длина основания не должна превышать 1000 символов", new[] { nameof(Basis) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(CancelReason)
+			&& CancelReason.Length > 1000)
+			{
+				yield return new ValidationResult("Длина причины отмены не должна превышать 1000 символов", new[] { nameof(CancelReason) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(Explanation)
+			&& Explanation.Length > 200)
+			{
+				yield return new ValidationResult("Длина пояснения не должна превышать 200 символов", new[] { nameof(Explanation) });
+			}
+		}
+
 		public abstract void ChangeState(PayoutRequestState newState);
 	}
 
@@ -123,6 +159,7 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display(Name = "Заявка на выдачу наличных ДС")]
 		CashRequest,
+
 		[Display(Name = "Заявка на оплату по Б/Н")]
 		CashlessRequest
 	}
@@ -131,18 +168,25 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display(Name = "Новая")]
 		New,
+
 		[Display(Name = "На уточнении")]
 		OnClarification, // после отправки на пересогласование
+
 		[Display(Name = "Подана")]
 		Submited, // после подтверждения
+
 		[Display(Name = "Согласована")]
 		Agreed, // после согласования
+
 		[Display(Name = "Передана на выдачу")]
 		GivenForTake,
+
 		[Display(Name = "Частично закрыта")]
 		PartiallyClosed, // содержит не выданные суммы
+
 		[Display(Name = "Отменена")]
 		Canceled,
+
 		[Display(Name = "Закрыта")]
 		Closed // все суммы выданы
 	}
@@ -151,14 +195,19 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display(Name = "Заявитель")]
 		RequestCreator,
+
 		[Display(Name = "Согласователь")]
 		Coordinator,
+
 		[Display(Name = "Финансист")]
 		Financier,
+
 		[Display(Name = "Кассир")]
 		Cashier,
+
 		[Display(Name = "Другие")]
 		Other,
+
 		[Display(Name = "Бухгалтер")]
 		Accountant
 	}

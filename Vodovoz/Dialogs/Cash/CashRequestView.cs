@@ -111,16 +111,19 @@ namespace Vodovoz.Dialogs.Cash
 
 			ybtnGiveSumm.Clicked += (sender, args) =>
 				ViewModel.GiveSumCommand.Execute(ytreeviewSums.GetSelectedObject<CashRequestSumItem>());
-			ybtnGiveSumm.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
-			ybtnGiveSumm.Sensitive = ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
+			ybtnGiveSumm.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanSeeGiveSum, w => w.Visible)
+				.AddBinding(vm => vm.CanGiveSum, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybtnGiveSummPartially.Clicked += (sender, args) => ViewModel.GiveSumPartiallyCommand.Execute(
 				(ytreeviewSums.GetSelectedObject<CashRequestSumItem>(), yspinGivePartially.ValueAsDecimal)
 			);
-			ybtnGiveSummPartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
-			ybtnGiveSummPartially.Sensitive =
-				ViewModel.Entity.ObservableSums.Any(x => x.ObservableExpenses == null || !x.ObservableExpenses.Any());
-			yspinGivePartially.Binding.AddBinding(ViewModel, vm => vm.CanGiveSum, w => w.Visible).InitializeFromSource();
+			ybtnGiveSummPartially.Binding.AddBinding(ViewModel, vm => vm.CanSeeGiveSum, w => w.Visible).InitializeFromSource();
+			yspinGivePartially.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanSeeGiveSum, w => w.Visible)
+				.AddBinding(vm => vm.CanGiveSum, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
