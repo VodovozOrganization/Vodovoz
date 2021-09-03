@@ -26,7 +26,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
-	public class CashRequestJournalViewModel : FilterableMultipleEntityJournalViewModelBase
+	public class PayoutRequestsJournalViewModel : FilterableMultipleEntityJournalViewModelBase
 		<CashRequestJournalNode, CashRequestJournalFilterViewModel>
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private int _currentEmployeeId;
 		private Employee _currentEmployee;
 
-		public CashRequestJournalViewModel(
+		public PayoutRequestsJournalViewModel(
 			CashRequestJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,

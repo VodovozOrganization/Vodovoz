@@ -2015,7 +2015,7 @@ public partial class MainWindow : Gtk.Window
         
         var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-        NavigationManager.OpenViewModel<CashRequestJournalViewModel, CashRequestJournalFilterViewModel, IEmployeeJournalFactory>
+        NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, CashRequestJournalFilterViewModel, IEmployeeJournalFactory>
 	        (null, cashRequestFilterViewModel, employeeJournalFactory, OpenPageOptions.IgnoreHash);
     }
 

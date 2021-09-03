@@ -138,7 +138,7 @@
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
-    <Compile Include="Journals\JournalViewModels\Cash\CashRequestJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\PayoutRequestsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
