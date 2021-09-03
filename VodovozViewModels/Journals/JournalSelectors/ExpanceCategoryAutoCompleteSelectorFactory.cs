@@ -11,37 +11,40 @@ using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
-    public class ExpenseCategoryAutoCompleteSelectorFactory:
-        ExpenseCategorySelectorFactory, IEntityAutocompleteSelectorFactory
-    {
-	    public ExpenseCategoryAutoCompleteSelectorFactory(
-		    ICommonServices commonServices,
-		    ExpenseCategoryJournalFilterViewModel filterViewModel,
-		    IFileChooserProvider fileChooserProvider,
-		    IEmployeeJournalFactory employeeJournalFactory,
-		    ISubdivisionJournalFactory subdivisionJournalFactory,
-		    IExpenseCategorySelectorFactory expenseCategorySelectorFactory)
-		    : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory,
-			    expenseCategorySelectorFactory)
-	    {
+	public class ExpenseCategoryAutoCompleteSelectorFactory :
+		ExpenseCategorySelectorFactory, IEntityAutocompleteSelectorFactory
+	{
+		public ExpenseCategoryAutoCompleteSelectorFactory(
+			ICommonServices commonServices,
+			ExpenseCategoryJournalFilterViewModel filterViewModel,
+			IFileChooserProvider fileChooserProvider,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IExpenseCategorySelectorFactory expenseCategorySelectorFactory)
+			: base(commonServices,
+				filterViewModel,
+				fileChooserProvider,
+				employeeJournalFactory,
+				subdivisionJournalFactory,
+				expenseCategorySelectorFactory)
+		{
+		}
 
-	    }
+		public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
+		{
+			ExpenseCategoryJournalViewModel selectorViewModel = new ExpenseCategoryJournalViewModel(
+				_filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				_commonServices,
+				_fileChooserProvider,
+				_employeeJournalFactory,
+				_subdivisionJournalFactory,
+				_expenseCategorySelectorFactory)
+			{
+				SelectionMode = JournalSelectionMode.Single
+			};
 
-        public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
-        {
-            ExpenseCategoryJournalViewModel selectorViewModel = new ExpenseCategoryJournalViewModel(
-                filter,
-                UnitOfWorkFactory.GetDefaultFactory,
-                commonServices,
-                fileChooserProvider,
-                _employeeJournalFactory,
-                _subdivisionJournalFactory,
-                _expenseCategorySelectorFactory)
-            {
-                SelectionMode = JournalSelectionMode.Single
-            };
-			
-            return selectorViewModel;
-        }
-    }
+			return selectorViewModel;
+		}
+	}
 }
