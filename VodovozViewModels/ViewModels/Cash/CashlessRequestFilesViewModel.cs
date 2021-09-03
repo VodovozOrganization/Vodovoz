@@ -19,9 +19,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly IUserRepository _userRepository;
 		private bool _readOnly;
 
-		public virtual bool ReadOnly {
+		public virtual bool ReadOnly
+		{
 			get => _readOnly;
-			set => SetField(ref _readOnly, value, () => ReadOnly);
+			set => SetField(ref _readOnly, value);
 		}
 
 		public CashlessRequestFilesViewModel(
