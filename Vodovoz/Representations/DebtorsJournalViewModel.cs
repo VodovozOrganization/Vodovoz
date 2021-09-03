@@ -21,6 +21,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using System.Threading.Tasks;
 using System.Threading;
+using FluentNHibernate.Data;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz.Representations
 {
@@ -127,6 +129,10 @@ namespace Vodovoz.Representations
 					NHibernateUtil.String,
 					Projections.Property(() => taskAlias.Id)))
 				.Take(1);
+			
+			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
+				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Count(Projections.Id()));
 
 			#region LastOrder
 
@@ -214,6 +220,10 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+				if(FilterViewModel.ShowSuspendedCounterparty)
+					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 1);
+				if(FilterViewModel.ShowTerminatedCounterparty)
+					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 2);
 			}
 
 			#endregion Filter
@@ -240,7 +250,8 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
 				   .SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
-				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor))
+				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
+				   .SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint))
 				.SetTimeout(180)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
@@ -362,6 +373,10 @@ namespace Vodovoz.Representations
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
+				if(FilterViewModel.ShowSuspendedCounterparty)
+					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 1);
+				if(FilterViewModel.ShowTerminatedCounterparty)
+					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 2);
 
 			}
 			
@@ -402,7 +417,18 @@ namespace Vodovoz.Representations
 					OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 				}
 			}));
-
+			
+			PopupActionsList.Add(new JournalAction("Открыть клиента", x => true, x => true, selectedItems =>
+			{
+				var selectedNode = selectedItems.Cast<DebtorJournalNode>().FirstOrDefault();
+				if(selectedNode != null)
+				{
+					TabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName<Counterparty>(selectedNode.ClientId),
+						() => new CounterpartyDlg(selectedNode.ClientId)
+					);
+				}
+			}));
 
 			PopupActionsList.Add(new JournalAction("Создать задачу", x => true, x => true, selectedItems => {
 				var selectedNodes = selectedItems.Cast<DebtorJournalNode>();
@@ -430,6 +456,18 @@ namespace Vodovoz.Representations
 
 			NodeActionsList.Add(new JournalAction("Печатная форма", x => true, x => true, selectedItems => {
 				OpenPrintingForm();
+			}));
+			
+			NodeActionsList.Add(new JournalAction("Открыть клиента", x => true, x => true, selectedItems =>
+			{
+				var selectedNode = selectedItems.Cast<DebtorJournalNode>().FirstOrDefault();
+				if(selectedNode != null)
+				{
+					TabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName<Counterparty>(selectedNode.ClientId),
+						() => new CounterpartyDlg(selectedNode.ClientId)
+					);
+				}
 			}));
 		}
 
@@ -536,5 +574,7 @@ namespace Vodovoz.Representations
 		public int? LastOrderBottles { get; set; }
 
 		public string IsResidueExist { get; set; } = "нет";
+		
+		public int CountOfDeliveryPoint { get; set; }
 	}
 }

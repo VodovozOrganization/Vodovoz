@@ -29,6 +29,8 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _lastOrderBottlesTo;
 		private int? _lastOrderBottlesFrom;
 		private bool _hideActiveCounterparty;
+		private bool _showSuspendedCounterparty;
+		private bool _showTerminatedCounterparty;
 		private DiscountReason _discountReason;
 		private Nomenclature _lastOrderNomenclature;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
@@ -50,7 +52,9 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.LastOrderBottlesTo,
 				x => x.LastOrderNomenclature,
 				x => x.DiscountReason,
-				x => x.HideActiveCounterparty
+				x => x.HideActiveCounterparty,
+				x => x.ShowSuspendedCounterparty,
+				x => x.ShowTerminatedCounterparty
 			);
 		}
 
@@ -85,6 +89,18 @@ namespace Vodovoz.Filters.ViewModels
 		public bool HideActiveCounterparty {
 			get => _hideActiveCounterparty;
 			set => SetField(ref _hideActiveCounterparty, value, () => HideActiveCounterparty);
+		}
+		
+		[PropertyChangedAlso(nameof(ShowTerminatedCounterparty))]
+		public bool ShowSuspendedCounterparty {
+			get => _showSuspendedCounterparty;
+			set => SetField(ref _showSuspendedCounterparty, value);
+		}
+		
+		[PropertyChangedAlso(nameof(ShowSuspendedCounterparty))]
+		public bool ShowTerminatedCounterparty {
+			get => _showTerminatedCounterparty;
+			set => SetField(ref _showTerminatedCounterparty, value);
 		}
 
 		public bool HideWithOneOrder {
