@@ -55,7 +55,7 @@
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Infrastructure\Print\RouteListPrintableDocuments.cs" />
     <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
-    <Compile Include="Journals\FilterViewModels\Cash\CashRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\PayoutRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\OrganizationCashTransferDocumentFilterViewModel.cs" />
@@ -101,7 +101,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />

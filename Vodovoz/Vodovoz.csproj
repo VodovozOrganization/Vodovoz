@@ -1554,8 +1554,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.UserView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestView.cs" />
-    <Compile Include="Filters\GtkViews\CashRequestJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CashRequestJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\PayoutRequestJournalFilterView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestItemView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestItemView.cs" />
     <Compile Include="JournalFilters\Cash\CashTransferDocumentsFilter.cs" />
@@ -1684,6 +1683,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestFilesView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PayoutRequestJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

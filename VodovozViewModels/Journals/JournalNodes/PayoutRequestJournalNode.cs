@@ -5,15 +5,15 @@ using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
-	public class CashRequestJournalNode<TEntity> : CashRequestJournalNode
+	public class PayoutRequestJournalNode<TEntity> : PayoutRequestJournalNode
 		where TEntity : class, IDomainObject
 	{
-		public CashRequestJournalNode() : base(typeof(TEntity))
+		public PayoutRequestJournalNode() : base(typeof(TEntity))
 		{
 		}
 	}
 
-	public class CashRequestJournalNode : JournalEntityNodeBase
+	public class PayoutRequestJournalNode : JournalEntityNodeBase
 	{
 		public DateTime Date { get; set; }
 		public PayoutRequestState PayoutRequestState { get; set; }
@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public PayoutRequestDocumentType PayoutRequestDocumentType { get; set; }
 		public string CounterpartyName { get; set; }
 
-		protected CashRequestJournalNode(Type entityType) : base(entityType)
+		protected PayoutRequestJournalNode(Type entityType) : base(entityType)
 		{
 		}
 	}

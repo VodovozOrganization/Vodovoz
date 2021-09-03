@@ -822,7 +822,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			
 			//PayoutRequestsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PayoutRequestsJournalViewModel>(
-				() => FluentColumnsConfig<CashRequestJournalNode>.Create()
+				() => FluentColumnsConfig<PayoutRequestJournalNode>.Create()
 					.AddColumn("№")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())

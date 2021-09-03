@@ -5,9 +5,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CashRequestJournalFilterView : FilterViewBase<CashRequestJournalFilterViewModel>
+	public partial class PayoutRequestJournalFilterView : FilterViewBase<PayoutRequestJournalFilterViewModel>
 	{
-		public CashRequestJournalFilterView(CashRequestJournalFilterViewModel journalFilterViewModel) : base(journalFilterViewModel)
+		public PayoutRequestJournalFilterView(PayoutRequestJournalFilterViewModel journalFilterViewModel) : base(journalFilterViewModel)
 		{
 			Build();
 			Configure();

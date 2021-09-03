@@ -27,7 +27,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
 	public class PayoutRequestsJournalViewModel : FilterableMultipleEntityJournalViewModelBase
-		<CashRequestJournalNode, CashRequestJournalFilterViewModel>
+		<PayoutRequestJournalNode, PayoutRequestJournalFilterViewModel>
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private Employee _currentEmployee;
 
 		public PayoutRequestsJournalViewModel(
-			CashRequestJournalFilterViewModel filterViewModel,
+			PayoutRequestJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeRepository employeeRepository,
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			RegisterCashRequest();
 			RegisterCashlessRequest();
 
-			var threadLoader = DataLoader as ThreadDataLoader<CashRequestJournalNode>;
+			var threadLoader = DataLoader as ThreadDataLoader<PayoutRequestJournalNode>;
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
 
 			FinishJournalConfiguration();
@@ -123,14 +123,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			var deleteAction = new JournalAction("Удалить",
 				(selected) =>
 				{
-					var selectedNodes = selected.OfType<CashRequestJournalNode>().ToList();
+					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToList();
 
 					if(!selectedNodes.Any())
 					{
 						return false;
 					}
 
-					CashRequestJournalNode selectedNode = selectedNodes.First();
+					PayoutRequestJournalNode selectedNode = selectedNodes.First();
 
 					if(selectedNode.PayoutRequestState != PayoutRequestState.New)
 					{
@@ -148,13 +148,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				(selected) => true,
 				(selected) =>
 				{
-					var selectedNodes = selected.OfType<CashRequestJournalNode>().ToList();
+					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToList();
 					if(!selectedNodes.Any())
 					{
 						return;
 					}
 
-					CashRequestJournalNode selectedNode = selectedNodes.First();
+					PayoutRequestJournalNode selectedNode = selectedNodes.First();
 					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
 					{
 						return;
@@ -218,7 +218,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			CashRequestSumItem cashRequestSumItemAlias = null;
 			Employee accountableEmployeeAlias = null;
 
-			CashRequestJournalNode<CashRequest> resultAlias = null;
+			PayoutRequestJournalNode<CashRequest> resultAlias = null;
 
 			var result = uow.Session.QueryOver(() => cashRequestAlias)
 				.Left.JoinAlias(с => с.Sums, () => cashRequestSumItemAlias)
@@ -306,7 +306,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePerson)
 					.SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
 					.Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
-				).TransformUsing(Transformers.AliasToBean<CashRequestJournalNode<CashRequest>>())
+				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>())
 				.OrderBy(x => x.Date).Desc();
 			return result;
 		}
@@ -357,7 +357,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			Employee authorAlias = null;
 			Counterparty counterpartyAlias = null;
 
-			CashRequestJournalNode<CashlessRequest> resultAlias = null;
+			PayoutRequestJournalNode<CashlessRequest> resultAlias = null;
 
 			var result = uow.Session.QueryOver(() => cashlessRequestAlias)
 				.Left.JoinAlias(с => с.Author, () => authorAlias)
@@ -431,7 +431,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(clr => clr.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(clr => clr.Sum).WithAlias(() => resultAlias.Sum)
-				).TransformUsing(Transformers.AliasToBean<CashRequestJournalNode<CashlessRequest>>())
+				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>())
 				.OrderBy(clr => clr.Date).Desc();
 			return result;
 		}

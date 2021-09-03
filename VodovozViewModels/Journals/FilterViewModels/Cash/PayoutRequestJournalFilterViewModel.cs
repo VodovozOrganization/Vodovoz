@@ -9,7 +9,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
 {
-	public class CashRequestJournalFilterViewModel : FilterViewModelBase<CashRequestJournalFilterViewModel>
+	public class PayoutRequestJournalFilterViewModel : FilterViewModelBase<PayoutRequestJournalFilterViewModel>
 	{
 		private Employee _author;
 		private Employee _accountableEmployee;
@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => UpdateFilterField(ref _canSetCounterparty, value);
 		}
 
-		public CashRequestJournalFilterViewModel(
+		public PayoutRequestJournalFilterViewModel(
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory)
 		{
