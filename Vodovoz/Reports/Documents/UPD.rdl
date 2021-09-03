@@ -850,8 +850,8 @@ WHERE o.id = @order_id
               <BorderWidth />
               <FontSize>7.5pt</FontSize>
               <VerticalAlign>Middle</VerticalAlign>
-              <PaddingTop>5pt</PaddingTop>
-              <PaddingBottom>5pt</PaddingBottom>
+              <PaddingTop>0pt</PaddingTop>
+              <PaddingBottom>0pt</PaddingBottom>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
