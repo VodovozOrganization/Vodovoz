@@ -31,10 +31,12 @@ namespace Vodovoz.Views.Complaints
 			ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
 		}
 
-		protected void ConfigureMenu()
+		private void ConfigureMenu()
 		{
-			if(ytreeviewFiles.GetSelectedObject() == null || ViewModel.ReadOnly)
+			if(ViewModel.ReadOnly || ytreeviewFiles.GetSelectedObject() == null)
+			{
 				return;
+			}
 
 			var menu = new Menu();
 
@@ -52,10 +54,12 @@ namespace Vodovoz.Views.Complaints
 			menu.Popup();
 		}
 
-		protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
+		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button == 3)
+			{
 				ConfigureMenu();
+			}
 		}
 	}
 }

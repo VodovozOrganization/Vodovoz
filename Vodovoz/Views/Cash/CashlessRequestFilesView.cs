@@ -35,7 +35,7 @@ namespace Vodovoz.Views.Cash
 
 		private void ConfigureMenu()
 		{
-			if(ytreeviewFiles.GetSelectedObject() == null || ViewModel.ReadOnly)
+			if(ViewModel.ReadOnly || ytreeviewFiles.GetSelectedObject() == null)
 			{
 				return;
 			}
