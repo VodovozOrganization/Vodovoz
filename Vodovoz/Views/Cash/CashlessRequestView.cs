@@ -22,7 +22,8 @@ namespace Vodovoz.Views.Cash
 			comboRoleChooser.Binding.AddBinding(ViewModel, vm => vm.UserRole, w => w.SelectedItem).InitializeFromSource();
 			comboRoleChooser.Sensitive = ViewModel.IsRoleChooserSensitive;
 
-			labelStatus.Binding.AddFuncBinding(ViewModel.Entity, e => e.PayoutRequestState.GetEnumTitle(), w => w.Text).InitializeFromSource();
+			labelStatus.Binding.AddFuncBinding(ViewModel.Entity, e => e.PayoutRequestState.GetEnumTitle(), w => w.Text)
+				.InitializeFromSource();
 
 			evmeAuthor.Sensitive = false;
 			evmeAuthor.Binding.AddBinding(ViewModel.Entity, e => e.Author, w => w.Subject).InitializeFromSource();
@@ -66,6 +67,7 @@ namespace Vodovoz.Views.Cash
 			eventBoxCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			labelCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			entryCancelReason.Binding.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text).InitializeFromSource();
+			entryCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotClosed, w => w.Sensitive).InitializeFromSource();
 
 			eventBoxWhySentToReapproval.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			labelWhySentToReapproval.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
