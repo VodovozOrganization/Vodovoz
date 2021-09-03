@@ -1,18 +1,10 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.EntityFactories;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -34,43 +26,41 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory()
 		{
-			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-				new WaterFixedPricesGenerator(
-					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
-
-			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(typeof(DeliveryPoint),
-				() => new DeliveryPointJournalViewModel(
-					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
-					ContactParametersProvider.Instance,
-					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-					new HousesDataLoader(OsmWorker.GetOsmService()),
-					new DeliveryPointRepository(),
-					new NomenclatureSelectorFactory(),
-					controller,
-					new DeliveryScheduleSelectorFactory(),
-					_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, true, true));
+			return new EntityAutocompleteSelectorFactory<DeliveryPointJournalViewModel>(
+				typeof(DeliveryPoint), CreateDeliveryPointJournal);
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDeliveryPointByClientAutocompleteSelectorFactory()
 		{
-			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-				new WaterFixedPricesGenerator(
-					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
+			return new EntityAutocompleteSelectorFactory<DeliveryPointByClientJournalViewModel>(
+				typeof(DeliveryPoint), CreateDeliveryPointByClientJournal);
+		}
 
-			return new EntityAutocompleteSelectorFactory<DeliveryPointByClientJournalViewModel>(typeof(DeliveryPoint),
-				() => new DeliveryPointByClientJournalViewModel(
-					new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
-					ContactParametersProvider.Instance,
-					new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-					new HousesDataLoader(OsmWorker.GetOsmService()),
-					new NomenclatureSelectorFactory(),
-					new DeliveryPointRepository(),
-					controller,
-					new DeliveryScheduleSelectorFactory(),
-					_deliveryPointJournalFilter
-					?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
-					UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, true, true));
+		public DeliveryPointJournalViewModel CreateDeliveryPointJournal()
+		{
+			var journal = new DeliveryPointJournalViewModel(
+				new DeliveryPointViewModelFactory(),
+				_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				hideJournalForOpen: true,
+				hideJournalForCreate: true);
+			
+			return journal;
+		}
+
+		public DeliveryPointByClientJournalViewModel CreateDeliveryPointByClientJournal()
+		{
+			var journal = new DeliveryPointByClientJournalViewModel(
+				new DeliveryPointViewModelFactory(),
+				_deliveryPointJournalFilter
+				?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				hideJournalForOpen: true,
+				hideJournalForCreate: true);
+			
+			return journal;
 		}
 	}
 }

@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -184,22 +185,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-				new WaterFixedPricesGenerator(
-					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()))));
-
-			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
-				ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()),
-				new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
-				new NomenclatureSelectorFactory(),
-				controller,
-				new DeliveryPointRepository(),
-				new DeliveryScheduleSelectorFactory(),
-				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			var dpVmFactory = new DeliveryPointViewModelFactory();
+			var dpViewModel = dpVmFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
 	}
 }
-

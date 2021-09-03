@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 			else if(client == null && uowBuilder.IsNewEntity)
 			{
-				throw new ArgumentNullException(nameof(client), @"Нельзя создать точку доставки без указания клиента");
+				throw new ArgumentNullException(nameof(client), "Нельзя создать точку доставки без указания клиента");
 			}
 
 			if(phoneRepository == null)

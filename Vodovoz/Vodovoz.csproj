@@ -403,6 +403,7 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
+    <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
     <Compile Include="Factories\PhonesViewModelFactory.cs" />
     <Compile Include="Factories\ValidationContextFactory.cs" />
