@@ -2007,7 +2007,6 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
     {
-        var payoutRequestFilterViewModel = autofacScope.Resolve<PayoutRequestJournalFilterViewModel>();
         var employeeFilter = new EmployeeFilterViewModel
         {
 	        Status = EmployeeStatus.IsWorking,
@@ -2015,8 +2014,8 @@ public partial class MainWindow : Gtk.Window
         
         var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-        NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, PayoutRequestJournalFilterViewModel, IEmployeeJournalFactory>
-	        (null, payoutRequestFilterViewModel, employeeJournalFactory, OpenPageOptions.IgnoreHash);
+        NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory>
+	        (null, employeeJournalFactory, OpenPageOptions.IgnoreHash);
     }
 
     protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
