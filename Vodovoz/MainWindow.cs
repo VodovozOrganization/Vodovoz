@@ -2476,7 +2476,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
 	{
-
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
+		);
 	}
 
 }

@@ -2383,6 +2383,9 @@
     <None Include="Reports\Logistic\OrdersByDistrictsAndDeliverySchedules.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\AnalyticsForUndelivery.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Reports\Bottles\OrdersByCreationDate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
