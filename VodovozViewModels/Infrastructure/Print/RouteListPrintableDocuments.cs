@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Additions.Logistic
+namespace Vodovoz.ViewModels.Infrastructure.Print
 {
 	[Flags]
 	public enum RouteListPrintableDocuments

@@ -15,7 +15,6 @@ using QS.Project.Services;
 using QS.Dialog;
 using QS.Osm;
 using QS.Osm.Osrm;
-using QS.Osm.Spuntik;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Dialogs.Logistic
@@ -292,7 +291,7 @@ namespace Dialogs.Logistic
 			UpdateDistanceLabel();
 
 			trackToBaseOverlay.Clear();
-			var decodedPoints = Polyline.DecodePolyline(response.RouteGeometry);
+			var decodedPoints = Polyline.DecodePolyline(response.Routes.First().RouteGeometry);
 			var points = decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)).ToList();
 
 			var route = new GMapRoute(points, "RouteToBase") {
@@ -308,9 +307,9 @@ namespace Dialogs.Logistic
 			buttonRecalculateToBase.Sensitive = false;
 
 			MessageDialogHelper.RunInfoDialog(string.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
-				response.RouteSummary.StartPoint,
-				response.RouteSummary.TotalDistanceKm,
-				response.RouteSummary.TotalTime
+				response.Waypoints.First().Name,
+				response.Routes.First().TotalDistanceKm,
+				response.Routes.First().TotalTime
 			));
 		}
 
@@ -370,19 +369,19 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = SputnikMain.GetRoute (routePoints, false, true);
+					var missedTrack = OsrmMain.GetRoute(routePoints, false, GeometryOverview.Simplified);
 					if (missedTrack == null)
 					{
 						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
 						return;
 					}
-					if(missedTrack.Status != 0)
+					if(missedTrack.Code != "Ok")
 					{
-						MessageDialogHelper.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
+						MessageDialogHelper.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Code, missedTrack.StatusMessageRus);
 						return;
 					}
 
-					var decodedPoints = Polyline.DecodePolyline (missedTrack.RouteGeometry);
+					var decodedPoints = Polyline.DecodePolyline (missedTrack.Routes.First().RouteGeometry);
 					var points = decodedPoints.Select (p => new PointLatLng (p.Latitude * 0.1, p.Longitude * 0.1)).ToList ();
 
 					var route = new GMapRoute(points, "MissedRoute") {

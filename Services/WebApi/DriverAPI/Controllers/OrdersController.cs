@@ -1,13 +1,15 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
 using DriverAPI.Library.DTOs;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
+using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
 {
@@ -20,17 +22,23 @@ namespace DriverAPI.Controllers
 		private readonly IEmployeeModel _employeeData;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IOrderModel _aPIOrderData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			IEmployeeModel employeeData,
 			UserManager<IdentityUser> userManager,
-			IOrderModel aPIOrderData)
+			IOrderModel aPIOrderData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordModel,
+			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_driverMobileAppActionRecordModel = driverMobileAppActionRecordModel ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordModel));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		/// <summary>
@@ -52,18 +60,36 @@ namespace DriverAPI.Controllers
 		{
 			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
+			var recievedTime = DateTime.Now;
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			_aPIOrderData.CompleteOrderDelivery(
-				driver,
-				completedOrderRequestModel.OrderId,
-				completedOrderRequestModel.BottlesReturnCount,
-				completedOrderRequestModel.Rating,
-				completedOrderRequestModel.DriverComplaintReasonId,
-				completedOrderRequestModel.OtherDriverComplaintReasonComment,
-				completedOrderRequestModel.ActionTime
-			);
+			var resultMessage = "OK";
+
+			try
+			{
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, completedOrderRequestModel.ActionTime);
+
+				_aPIOrderData.CompleteOrderDelivery(
+					driver,
+					completedOrderRequestModel.OrderId,
+					completedOrderRequestModel.BottlesReturnCount,
+					completedOrderRequestModel.Rating,
+					completedOrderRequestModel.DriverComplaintReasonId,
+					completedOrderRequestModel.OtherDriverComplaintReasonComment,
+					recievedTime
+				);
+			}
+			catch(Exception ex)
+			{
+				resultMessage = ex.Message;
+				throw;
+			}
+			finally
+			{
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, completedOrderRequestModel.ActionTime, recievedTime, resultMessage);
+			}
 		}
 
 		/// <summary>
@@ -74,38 +100,60 @@ namespace DriverAPI.Controllers
 		[Route("/api/ChangeOrderPaymentType")]
 		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
+			var recievedTime = DateTime.Now;
+
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType } на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType }" +
+				$" на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			if (!availableTypesToChange.Contains(newPaymentType))
+			var resultMessage = "OK";
+
+			try
 			{
-				var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на недоступный для этого заказа тип оплаты { newPaymentType }";
-				_logger.LogWarning(errorMessage);
-				throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
-			}
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, changeOrderPaymentTypeRequestModel.ActionTime);
 
-			Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
+				IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
-			if (newPaymentType == PaymentDtoType.Terminal)
-			{
-				newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
-			}
-			else if (newPaymentType == PaymentDtoType.Cash)
-			{
-				newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.cash;
-			}
-			else
-			{
-				var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на не поддерживаемый для смены тип оплаты { newPaymentType }";
-				_logger.LogWarning(errorMessage);
-				throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
-			}
+				if(!availableTypesToChange.Contains(newPaymentType))
+				{
+					var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на недоступный для этого заказа тип оплаты { newPaymentType }";
+					_logger.LogWarning(errorMessage);
+					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
+				}
 
-			_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType);
+				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
+
+				if(newPaymentType == PaymentDtoType.Terminal)
+				{
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
+				}
+				else if(newPaymentType == PaymentDtoType.Cash)
+				{
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.cash;
+				}
+				else
+				{
+					var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на не поддерживаемый для смены тип оплаты { newPaymentType }";
+					_logger.LogWarning(errorMessage);
+					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
+				}
+
+				_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver);
+			}
+			catch(Exception ex)
+			{
+				resultMessage = ex.Message;
+				throw;
+			}
+			finally
+			{
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, changeOrderPaymentTypeRequestModel.ActionTime, recievedTime, resultMessage);
+			}
 		}
 	}
 }

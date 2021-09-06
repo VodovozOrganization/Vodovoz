@@ -81,6 +81,9 @@ namespace Vodovoz.Infrastructure.Services
 		}
 
 		public event EventHandler<JournalSelectedNodesEventArgs> OnEntitySelectedResult;
+		public bool CanOpen(JournalEntityNodeBase node) => false;
+
+		public ITdiTab GetTabToOpen(JournalEntityNodeBase node) => throw new NotSupportedException();
 
 		#region ITdiTab implementation
 
