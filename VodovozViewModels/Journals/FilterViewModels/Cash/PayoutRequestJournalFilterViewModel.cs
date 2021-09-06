@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			get => _documentType;
 			set
 			{
-				if(!UpdateFilterField(ref _documentType, value))
+				if(!SetField(ref _documentType, value))
 				{
 					return;
 				}
@@ -64,22 +64,31 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 				switch(value)
 				{
 					case PayoutRequestDocumentType.CashRequest:
-						CanSetAccountable = true;
-						CanSetCounterparty = false;
-						Counterparty = null;
+						_canSetAccountable = true;
+						_canSetCounterparty = false;
+						_counterparty = null;
+						OnPropertyChanged(nameof(CanSetAccountable));
+						OnPropertyChanged(nameof(CanSetCounterparty));
+						OnPropertyChanged(nameof(Counterparty));
 						break;
 					case PayoutRequestDocumentType.CashlessRequest:
-						CanSetAccountable = false;
-						CanSetCounterparty = true;
-						AccountableEmployee = null;
+						_canSetAccountable = false;
+						_canSetCounterparty = true;
+						_accountableEmployee = null;
+						OnPropertyChanged(nameof(CanSetAccountable));
+						OnPropertyChanged(nameof(CanSetCounterparty));
+						OnPropertyChanged(nameof(AccountableEmployee));
 						break;
 					case null:
-						CanSetAccountable = true;
-						CanSetCounterparty = true;
+						_canSetAccountable = true;
+						_canSetCounterparty = true;
+						OnPropertyChanged(nameof(CanSetAccountable));
+						OnPropertyChanged(nameof(CanSetCounterparty));
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(value), value, null);
 				}
+				Update();
 			}
 		}
 
