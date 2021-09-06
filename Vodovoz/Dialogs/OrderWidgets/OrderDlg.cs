@@ -2953,7 +2953,7 @@ namespace Vodovoz
 			lblGoods.Visible = hasOrderItems;
 			ylblGoods.Text = hasOrderItems
 				? string.Join("\n",
-					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count }{ oi.Nomenclature.Unit.Name }"))
+					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oi.Nomenclature.Unit?.Name }"))
 				: "";
 
 			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
@@ -2961,7 +2961,7 @@ namespace Vodovoz
 			lblEquipment1.Visible = hasOrderEquipments;
 			ylblEquipment.Text = hasOrderEquipments
 				? string.Join("\n",
-					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count }{ oe.Nomenclature.Unit.Name }"))
+					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oe.Nomenclature.Unit?.Name ?? "шт" }"))
 				: "";
 
 			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
