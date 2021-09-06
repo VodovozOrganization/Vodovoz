@@ -14,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Additions.Logistic
 {

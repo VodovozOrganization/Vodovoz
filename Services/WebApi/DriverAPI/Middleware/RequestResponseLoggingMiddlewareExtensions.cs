@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace DriverAPI
+namespace DriverAPI.Middleware
 {
 	public static class RequestResponseLoggingMiddlewareExtensions
 	{
