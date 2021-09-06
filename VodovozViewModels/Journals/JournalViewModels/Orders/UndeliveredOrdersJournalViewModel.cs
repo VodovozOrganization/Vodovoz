@@ -212,7 +212,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					)
 				);
 
-			var query = UoW.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
 				.Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
 				.Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
