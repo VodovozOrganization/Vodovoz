@@ -8,6 +8,7 @@ charset = utf-8-bom
 # C# files
 [*.cs]
 indent_style = tab
+indent_size = 4
 
 #### .NET Coding Conventions ####
 
