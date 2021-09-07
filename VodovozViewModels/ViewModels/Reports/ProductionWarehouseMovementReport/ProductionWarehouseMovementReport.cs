@@ -44,14 +44,14 @@ namespace Vodovoz.ViewModels.Reports
 				var nomenclatureRangePrices = nomenclatureDocuments
 					.FirstOrDefault()
 					.PurchasePrices
-					.Where(x => ((x.StartDate <= _endDate)
-								 && (x.EndDate == null || x.EndDate >= _startDate)));
+					.Where(x => (x.StartDate <= _endDate)
+						&& (x.EndDate == null || x.EndDate >= _startDate));
 
 				foreach(var nomenclatureRangePrice in nomenclatureRangePrices)
 				{
 					var documentsInPriceRange = nomenclatureDocuments
-						.Where(x => ((nomenclatureRangePrice.StartDate <= x.MovementDocumentDate)
-									 && (nomenclatureRangePrice.EndDate == null || nomenclatureRangePrice.EndDate >= x.MovementDocumentDate)));
+						.Where(x => (nomenclatureRangePrice.StartDate <= x.MovementDocumentDate)
+							&& (nomenclatureRangePrice.EndDate == null || nomenclatureRangePrice.EndDate >= x.MovementDocumentDate));
 
 					var nomenclature = new ProductionWarehouseMovementReportNomenclature
 					{
@@ -70,8 +70,9 @@ namespace Vodovoz.ViewModels.Reports
 
 				foreach(var nomenclatureDocument in nomenclatureDocuments)
 				{
-					if(!nomenclatureDocument.PurchasePrices.Any(p => ((p.StartDate <= nomenclatureDocument.MovementDocumentDate)
-													&& (p.EndDate == null || p.EndDate >= nomenclatureDocument.MovementDocumentDate))))
+					if(!nomenclatureDocument.PurchasePrices
+						.Any(p => (p.StartDate <= nomenclatureDocument.MovementDocumentDate)
+							&& (p.EndDate == null || p.EndDate >= nomenclatureDocument.MovementDocumentDate)))
 					{
 						documentsNotInPriceRange.Add(nomenclatureDocument);
 					}
@@ -140,7 +141,7 @@ namespace Vodovoz.ViewModels.Reports
 
 				var rowsOnDate = new List<ProductionWarehouseMovementReportNode>();
 
-				#region Формирование строк-документов с колонкми-номенклатурами
+				#region Формирование строк-документов с колонками-номенклатурами
 
 				foreach(var documentOnDate in documentsOnDate)
 				{
@@ -156,8 +157,8 @@ namespace Vodovoz.ViewModels.Reports
 							};
 
 							nomenclature.PurchasePrice = x.PurchasePrices
-								.FirstOrDefault(p => ((p.StartDate <= documentOnDate.Date)
-													  && (p.EndDate == null || p.EndDate >= documentOnDate.Date)))
+								.FirstOrDefault(p => (p.StartDate <= documentOnDate.Date)
+									&& (p.EndDate == null || p.EndDate >= documentOnDate.Date))
 								?.PurchasePrice ?? 0m;
 
 							nomenclature.Sum = decimal.Round(nomenclature.PurchasePrice * nomenclature.Amount, 2);

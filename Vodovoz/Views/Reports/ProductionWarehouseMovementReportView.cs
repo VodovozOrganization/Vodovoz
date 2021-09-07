@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Reports
 
 		private void Configure()
 		{
-			ybtnExport.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();// Export();
+			ybtnExport.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();
 			ybtnRunReport.Clicked += (sender, args) => RunReport();
 			btnHelp.Clicked += (sender, args) => ViewModel.HelpCommand.Execute();
 
