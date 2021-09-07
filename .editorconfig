@@ -4,11 +4,20 @@ root = true
 [*]
 end_of_line = lf
 charset = utf-8-bom
+indent_style = tab
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.rdl]
+indent_style = space
+indent_size = 4
+
+#[*.{js,json}]
+#indent_size = 2
 
 # C# files
 [*.cs]
-indent_style = tab
-indent_size = 4
 
 #### .NET Coding Conventions ####
 
