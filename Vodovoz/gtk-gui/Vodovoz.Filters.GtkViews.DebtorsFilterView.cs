@@ -62,7 +62,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowSuspended;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowTerminated;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowCancellation;
 
 		private global::Gamma.Widgets.ySpecComboBox ycomboboxReason;
 
@@ -375,14 +375,14 @@ namespace Vodovoz.Filters.GtkViews
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.ycheckbuttonShowTerminated = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonShowTerminated.CanFocus = true;
-			this.ycheckbuttonShowTerminated.Name = "ycheckbuttonShowTerminated";
-			this.ycheckbuttonShowTerminated.Label = global::Mono.Unix.Catalog.GetString("Показать клиентов только с признаком расторжения");
-			this.ycheckbuttonShowTerminated.DrawIndicator = true;
-			this.ycheckbuttonShowTerminated.UseUnderline = true;
-			this.table2.Add(this.ycheckbuttonShowTerminated);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowTerminated]));
+			this.ycheckbuttonShowCancellation = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowCancellation.CanFocus = true;
+			this.ycheckbuttonShowCancellation.Name = "ycheckbuttonShowTerminated";
+			this.ycheckbuttonShowCancellation.Label = global::Mono.Unix.Catalog.GetString("Показать клиентов только с признаком расторжения");
+			this.ycheckbuttonShowCancellation.DrawIndicator = true;
+			this.ycheckbuttonShowCancellation.UseUnderline = true;
+			this.table2.Add(this.ycheckbuttonShowCancellation);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowCancellation]));
 			w28.LeftAttach = ((uint)(3));
 			w28.RightAttach = ((uint)(4));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));

@@ -23,18 +23,24 @@ using System.Threading.Tasks;
 using System.Threading;
 using FluentNHibernate.Data;
 using QS.Dialog.Gtk;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
+		private readonly IParametersProvider _parametersProvider;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository, IParametersProvider parametersProvider, IGtkTabsOpener gtkTabsOpener) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
+			_parametersProvider = parametersProvider;
+			_gtkTabsOpener = gtkTabsOpener;
 		}
 
 		IEmployeeRepository employeeRepository { get; set; }
@@ -59,7 +65,7 @@ namespace Vodovoz.Representations
 				var result = CountQueryFunction.Invoke(uow);
 				if(token.IsCancellationRequested)
 					return;
-					
+
 				FooterInfo = $"Сумма всех долгов по таре (по адресам): {result}  |  " + base.FooterInfo;
 			}
 		}
@@ -87,6 +93,9 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
+
+			int hideSuspendedCounterpartyId = int.Parse(_parametersProvider.GetParameterValue("HideSuspendedCounterparty"));
+			int hideCancellationCounterpartyId = int.Parse(_parametersProvider.GetParameterValue("HideCancellationCounterparty"));
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
@@ -129,7 +138,7 @@ namespace Vodovoz.Representations
 					NHibernateUtil.String,
 					Projections.Property(() => taskAlias.Id)))
 				.Take(1);
-			
+
 			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
 				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.Count(Projections.Id()));
@@ -166,8 +175,22 @@ namespace Vodovoz.Representations
 						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 				);
 
+			var orderFromSuspended = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
+				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
+				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId);
+
+			var orderFromCancellation = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
+				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
+				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId);
+
 			OrderStatus[] statusOptions = {OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled};
-			
+
 			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
 				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
 				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
@@ -221,9 +244,9 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 				if(FilterViewModel.ShowSuspendedCounterparty)
-					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 1);
-				if(FilterViewModel.ShowTerminatedCounterparty)
-					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 2);
+					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromSuspended);
+				if(FilterViewModel.ShowCancellationCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromCancellation);
 			}
 
 			#endregion Filter
@@ -272,7 +295,7 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
-			
+
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
@@ -332,8 +355,7 @@ namespace Vodovoz.Representations
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
 						.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
-						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
-	);
+						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery));
 			var ordersCountSubQuery = QueryOver.Of(() => orderCountAlias)
 				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
 				.ToRowCountQuery();
@@ -369,17 +391,17 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
-				if(FilterViewModel.HideWithOneOrder) 
+				if(FilterViewModel.HideWithOneOrder)
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
 				if(FilterViewModel.ShowSuspendedCounterparty)
 					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 1);
-				if(FilterViewModel.ShowTerminatedCounterparty)
+				if(FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.Where(x => x.ReturnTareReasonCategory.Id == 2);
 
 			}
-			
+
 
 			#endregion Filter
 
@@ -417,18 +439,8 @@ namespace Vodovoz.Representations
 					OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 				}
 			}));
-			
-			PopupActionsList.Add(new JournalAction("Открыть клиента", x => true, x => true, selectedItems =>
-			{
-				var selectedNode = selectedItems.Cast<DebtorJournalNode>().FirstOrDefault();
-				if(selectedNode != null)
-				{
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName<Counterparty>(selectedNode.ClientId),
-						() => new CounterpartyDlg(selectedNode.ClientId)
-					);
-				}
-			}));
+
+			PopupActionsList.Add(newJournalActionForOpenCounterpartyDlg());
 
 			PopupActionsList.Add(new JournalAction("Создать задачу", x => true, x => true, selectedItems => {
 				var selectedNodes = selectedItems.Cast<DebtorJournalNode>();
@@ -457,20 +469,21 @@ namespace Vodovoz.Representations
 			NodeActionsList.Add(new JournalAction("Печатная форма", x => true, x => true, selectedItems => {
 				OpenPrintingForm();
 			}));
-			
-			NodeActionsList.Add(new JournalAction("Открыть клиента", x => true, x => true, selectedItems =>
+
+			NodeActionsList.Add(newJournalActionForOpenCounterpartyDlg());
+		}
+
+		private JournalAction newJournalActionForOpenCounterpartyDlg()
+		{
+			return new JournalAction("Открыть клиента", x => true, x => true, selectedItems =>
 			{
 				var selectedNode = selectedItems.Cast<DebtorJournalNode>().FirstOrDefault();
 				if(selectedNode != null)
 				{
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName<Counterparty>(selectedNode.ClientId),
-						() => new CounterpartyDlg(selectedNode.ClientId)
-					);
+					_gtkTabsOpener.OpenCounterpartyDlg(this, selectedNode.ClientId);
 				}
-			}));
+			});
 		}
-
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
 
 		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction => (node) =>
@@ -510,7 +523,7 @@ namespace Vodovoz.Representations
 			TabParent.AddTab(dlg, this, false);
 		}
 
-		private ReportViewDlg CreateReportDlg(int counterpartyId, int deliveryPointId = -1) 
+		private ReportViewDlg CreateReportDlg(int counterpartyId, int deliveryPointId = -1)
 		{
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = "Акт по бутылям-залогам",
@@ -574,7 +587,7 @@ namespace Vodovoz.Representations
 		public int? LastOrderBottles { get; set; }
 
 		public string IsResidueExist { get; set; } = "нет";
-		
+
 		public int CountOfDeliveryPoint { get; set; }
 	}
 }
