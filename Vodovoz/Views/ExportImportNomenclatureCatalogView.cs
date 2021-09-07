@@ -21,8 +21,11 @@ namespace Vodovoz.Views
 		{
 			ybuttonExport.Clicked += (sender, e) => {
 				var parentWindow = GetParentWindow(this);
-				var folderChooser = new FileChooserDialog("Выберите папку выгрузки", parentWindow, FileChooserAction.SelectFolder, 
-					Stock.Cancel, ResponseType.Cancel, Stock.Open, ResponseType.Accept);
+				var folderChooser = new FileChooserDialog("Выберите папку выгрузки", parentWindow, FileChooserAction.SelectFolder,
+					Stock.Cancel, ResponseType.Cancel, Stock.Open, ResponseType.Accept)
+				{
+					DoOverwriteConfirmation = true,
+				};
 				folderChooser.ShowAll();
 				if((ResponseType)folderChooser.Run() == ResponseType.Accept) {
 					if(folderChooser.CurrentFolder == null) {

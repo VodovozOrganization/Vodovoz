@@ -56,7 +56,10 @@ namespace Vodovoz.Dialogs.OnlineStore
 				                                            Gtk.FileChooserAction.SelectFolder,
 					"Отмена", ResponseType.Cancel,
 					"Выбрать", ResponseType.Accept
-				);
+				)
+				{
+					DoOverwriteConfirmation = true
+				};
 
 				if(fileChooser.Run() == (int)ResponseType.Cancel)
 				{
