@@ -1,75 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <ProjectGuid>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>VodovozInfrastructure</RootNamespace>
     <AssemblyName>VodovozInfrastructure</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Attributes\RestrictedHistoryProperty.cs" />
-    <Compile Include="Configuration\IApplicationConfigurator.cs" />
-    <Compile Include="Endpoints\DriverApiUserRegisterEndpoint.cs" />
-    <Compile Include="Endpoints\RegisterPayload.cs" />
-    <Compile Include="Interfaces\IFileChooserProvider.cs" />
-    <Compile Include="Passwords\MysqlChangePasswordModelExtended.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\GeneralUtils.cs" />
-    <Compile Include="Utils\NHibernate\Collections\ObservableBagType.cs" />
-    <Compile Include="Utils\NHibernate\Collections\PersistentObservableBag.cs" />
-    <Compile Include="Utils\NHibernate\SqlHelper.cs" />
-    <Compile Include="Utils\PhoneUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client">
-      <Version>5.2.7</Version>
-    </PackageReference>
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="NHibernate" Version="5.3.8" />
-    <PackageReference Include="System.Text.Json">
-      <Version>5.0.2</Version>
-    </PackageReference>
+    <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="System.Net.Http.Formatting.Extension" Version="5.2.3" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
-      <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
-      <Name>QS.Project</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
-      <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
-      <Name>QS.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
-      <Project>{9A2014AB-CC9A-4F28-A678-F2EFF3AB927A}</Project>
-      <Name>ApiClientProvider</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+    <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
