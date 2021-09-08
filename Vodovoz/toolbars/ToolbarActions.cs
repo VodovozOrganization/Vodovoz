@@ -509,7 +509,7 @@ public partial class MainWindow : Window
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
 		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new ParametersProvider(), new GtkTabsOpener());
+			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), new DebtorsParameters(new ParametersProvider()));
 
 		tdiMain.AddTab(debtorsJournal);
 	}
