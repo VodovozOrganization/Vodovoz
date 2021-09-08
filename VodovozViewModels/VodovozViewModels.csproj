@@ -47,6 +47,7 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
     <Compile Include="Factories\IEmployeeWageParametersFactory.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IDeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />

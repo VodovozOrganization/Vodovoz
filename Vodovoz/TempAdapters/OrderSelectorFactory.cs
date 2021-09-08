@@ -46,11 +46,9 @@ namespace Vodovoz.TempAdapters
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
-			var orderJournalFilterViewModel = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
-
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
 				() => new OrderJournalViewModel(
-					orderJournalFilterViewModel,
+					new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory),
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					VodovozGtkServicesConfig.EmployeeService,

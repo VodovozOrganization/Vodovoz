@@ -22,7 +22,10 @@ namespace Vodovoz
 					this,
 					FileChooserAction.Save,
 					"Отмена", ResponseType.Cancel,
-					"Сохранить", ResponseType.Accept);
+					"Сохранить", ResponseType.Accept)
+				{
+					DoOverwriteConfirmation = true
+				};
 			_fileChooser.CurrentName = string.IsNullOrWhiteSpace(fileName) ? _predefinedFileName : fileName;
 
 			var result = _fileChooser.Run();
@@ -46,7 +49,10 @@ namespace Vodovoz
 					this,
 					FileChooserAction.SelectFolder,
 					"Отмена", ResponseType.Cancel,
-					"Сохранить", ResponseType.Accept);
+					"Сохранить", ResponseType.Accept)
+				{
+					DoOverwriteConfirmation = true
+				};
 			_fileChooser.CurrentName = string.Empty;
 
 			var result = _fileChooser.Run();

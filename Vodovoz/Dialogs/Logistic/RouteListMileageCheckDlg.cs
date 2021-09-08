@@ -170,7 +170,7 @@ namespace Vodovoz
 			}
 			
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			Entity.CalculateWages(_wageParameterService);
 
@@ -194,7 +194,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			Entity.AcceptMileage(CallTaskWorker);
 

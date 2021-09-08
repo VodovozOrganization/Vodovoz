@@ -224,15 +224,15 @@ namespace Vodovoz
 			set { callTaskWorker = value; }
 		}
 
-        public bool? IsForRetail
-        {
+		public bool? IsForRetail
+		{
 			get => isForRetail;
 			set {
 				isForRetail = value;
-            }
+			}
 		}
 
-        private bool? isForRetail = null;
+		private bool? isForRetail = null;
 
 		#endregion
 
@@ -592,7 +592,7 @@ namespace Vodovoz
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
 			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 
-            driverCallId.Binding.AddFuncBinding(Entity, e => e.DriverCallId == null ? "" : e.DriverCallId.ToString(), w => w.LabelProp).InitializeFromSource();
+			driverCallId.Binding.AddFuncBinding(Entity, e => e.DriverCallId == null ? "" : e.DriverCallId.ToString(), w => w.LabelProp).InitializeFromSource();
 
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 			ySpecCmbNonReturnReason.Binding.AddBinding(Entity, e => e.TareNonReturnReason, w => w.SelectedItem).InitializeFromSource();
@@ -706,7 +706,7 @@ namespace Vodovoz
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
 
-        private void OnContractChanged()
+		private void OnContractChanged()
 		{
 			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType)) {
 				hboxDocumentType.Remove(enumDocumentType);
@@ -1208,7 +1208,7 @@ namespace Vodovoz
 		private void ProcessSmsNotification()
 		{
 			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
- 			smsNotifier.NotifyIfNewClient(Entity);
+			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
 		private bool ValidateAndFormOrder()
@@ -1736,14 +1736,14 @@ namespace Vodovoz
 				foreach (var proSetItem in proSet.PromotionalSetItems) {
 					var nomenclature = proSetItem.Nomenclature;
 					if (Entity.OrderItems.Any(x =>
-						    !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-					    && nomenclature.Category == NomenclatureCategory.master) {
+							!Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+						&& nomenclature.Category == NomenclatureCategory.master) {
 						MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 						return;
 					}
 
 					if (Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-					    && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+						&& !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
 						MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 						return;
 					}
@@ -1995,9 +1995,9 @@ namespace Vodovoz
 		}
 		
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
-                                           (!Entity.CreateDate.HasValue || Entity.CreateDate > date) &&
-                                           Entity.Client.PersonType == PersonType.legal &&
-                                           Entity.Client.TaxType == TaxType.None;
+										   (!Entity.CreateDate.HasValue || Entity.CreateDate > date) &&
+										   Entity.Client.PersonType == PersonType.legal &&
+										   Entity.Client.TaxType == TaxType.None;
 
 		protected void OnButtonFillCommentClicked(object sender, EventArgs e)
 		{
@@ -2201,7 +2201,7 @@ namespace Vodovoz
 		}
 
 		protected void CheckForStopDelivery()
-        {
+		{
 			if (Entity?.Client != null && Entity.Client.IsDeliveriesClosed)
 			{
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
@@ -2622,7 +2622,7 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
-            buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
@@ -2652,7 +2652,7 @@ namespace Vodovoz
 		}
 
 		private void ChangeGoodsTabSensitive(bool sensitive)
-        {
+		{
 			treeItems.Sensitive = sensitive;
 			hbox12.Sensitive = sensitive;
 			hbox10.Sensitive = sensitive;
@@ -2953,7 +2953,7 @@ namespace Vodovoz
 			lblGoods.Visible = hasOrderItems;
 			ylblGoods.Text = hasOrderItems
 				? string.Join("\n",
-					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count }{ oi.Nomenclature.Unit.Name }"))
+					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oi.Nomenclature.Unit?.Name }"))
 				: "";
 
 			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
@@ -2961,7 +2961,7 @@ namespace Vodovoz
 			lblEquipment1.Visible = hasOrderEquipments;
 			ylblEquipment.Text = hasOrderEquipments
 				? string.Join("\n",
-					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count }{ oe.Nomenclature.Unit.Name }"))
+					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oe.Nomenclature.Unit?.Name ?? "шт" }"))
 				: "";
 
 			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
