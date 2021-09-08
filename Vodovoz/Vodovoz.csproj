@@ -393,15 +393,17 @@
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
-    <Compile Include="Additions\Logistic\RouteListPrintableDocuments.cs" />
+    <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
+    <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
+    <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
     <Compile Include="Factories\PhonesViewModelFactory.cs" />
     <Compile Include="Factories\ValidationContextFactory.cs" />
@@ -497,6 +499,7 @@
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
+    <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
@@ -1043,7 +1046,7 @@
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelConfiguration.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Journal.MultipleEntityJournal.cs" />
-    <Compile Include="Additions\Printing\EntitiyDocumentsPrinter.cs" />
+    <Compile Include="Additions\Printing\EntityDocumentsPrinter.cs" />
     <Compile Include="Core\Permissions\ISubdivisionDividingFilter.cs" />
     <Compile Include="JournalFilters\SubdivisionsAccessJournalFilterBase.cs" />
     <Compile Include="Core\Permissions\AccessFilteredSubdivisionSelectorWidget.cs" />
@@ -1674,6 +1677,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
     <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
+    <Compile Include="Views\Print\DocumentsPrinterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
     <Compile Include="Views\Users\UserView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -1979,6 +1984,7 @@
     <Folder Include="ReportsParameters\Employees\" />
     <Folder Include="JournalViewers\Complaints\" />
     <Folder Include="Views\Flyers\" />
+    <Folder Include="Views\Print\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

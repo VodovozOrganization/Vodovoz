@@ -9,6 +9,5 @@ namespace DriverAPI.DTOs
 		public decimal Latitude { get; set; }
 		public decimal Longitude { get; set; }
 		public DateTime ActionTime { get; set; }
-		public ActionDtoType ActionType { get; set; }
 	}
 }

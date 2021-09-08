@@ -1,5 +1,6 @@
 ﻿using QS.Project.Journal.EntitySelector;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz.ViewModels.TempAdapters
 {
@@ -8,5 +9,7 @@ namespace Vodovoz.ViewModels.TempAdapters
 		void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter);
 		IEntityAutocompleteSelectorFactory CreateDeliveryPointAutocompleteSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateDeliveryPointByClientAutocompleteSelectorFactory();
+		DeliveryPointJournalViewModel CreateDeliveryPointJournal();
+		DeliveryPointByClientJournalViewModel CreateDeliveryPointByClientJournal();
 	}
 }

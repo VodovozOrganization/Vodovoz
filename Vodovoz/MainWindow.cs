@@ -875,19 +875,8 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
     {
-	    var userRepository = new UserRepository();
-
-        DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
-        var deliveryPointJournal = new DeliveryPointJournalViewModel(
-	        userRepository, new GtkTabsOpener(), new PhoneRepository(),
-	        ContactParametersProvider.Instance,
-	        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-	        new HousesDataLoader(OsmWorker.GetOsmService()),
-	        new DeliveryPointRepository(),
-	        new NomenclatureSelectorFactory(),
-	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-	        filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+        var dpJournalFactory = new DeliveryPointJournalFactory();
+        var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
         tdiMain.AddTab(deliveryPointJournal);
     }
 

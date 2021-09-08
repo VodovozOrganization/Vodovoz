@@ -646,6 +646,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapMode(Pango.WrapMode.WordChar)
 						.WrapWidth(1000)
 					.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("")
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);

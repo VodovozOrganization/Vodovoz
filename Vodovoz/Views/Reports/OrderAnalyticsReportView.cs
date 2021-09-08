@@ -58,6 +58,7 @@ namespace Vodovoz.Views.Reports
 
 	        var fc = new FileChooserDialog("Save File As", parentW, FileChooserAction.Save, param)
 	        {
+		        DoOverwriteConfirmation = true,
 		        CurrentName = "Аналитика заказов.csv"
 	        };
 	        

@@ -136,12 +136,12 @@ namespace Vodovoz.ViewModels.Mango
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed
 			) {
-				RouteList routeList = _routedListRepository.GetRouteListByOrder(UoW, order);
+				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
-				RouteList routeList = _routedListRepository.GetRouteListByOrder(UoW, order);
+				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
 					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
