@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			IUserRepository userRepository)
 			: base(entity, commonServices)
 		{
-			this._filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			UoW = uow;
 			CreateCommands();
@@ -66,8 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 						Entity.AddFile(counterpartyFile);
 					}
 				},
-				() => { return !ReadOnly; }
-			);
+				() => !ReadOnly);
 		}
 
 		#endregion AddItemCommand
@@ -126,11 +125,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			LoadItemCommand = new DelegateCommand<CounterpartyFile>(
 				(file) =>
 				{
-					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out var filePath))
+					{
 						File.WriteAllBytes(filePath, file.ByteFile);
+					}
 				},
-				(file) => { return !ReadOnly; }
-			);
+				(file) => !ReadOnly);
 		}
 
 		#endregion LoadItemCommand

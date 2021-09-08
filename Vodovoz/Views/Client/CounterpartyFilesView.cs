@@ -19,7 +19,9 @@ namespace Vodovoz.Views.Client
 		protected override void ConfigureWidget()
 		{
 			if(ViewModel == null)
+			{
 				return;
+			}
 
 			ybuttonAttachFile.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
 			ybuttonAttachFile.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
@@ -62,8 +64,8 @@ namespace Vodovoz.Views.Client
 		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button == 3
-			&& !ViewModel.ReadOnly
-			&& ytreeviewFiles.GetSelectedObject() != null)
+			   && !ViewModel.ReadOnly
+			   && ytreeviewFiles.GetSelectedObject() != null)
 			{
 				_menu.Popup();
 			}
