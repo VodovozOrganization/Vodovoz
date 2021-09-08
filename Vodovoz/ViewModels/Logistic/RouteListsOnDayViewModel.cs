@@ -982,7 +982,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CheckAlreadyAddedAddress(Order order)
 		{
-			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
+			var routeList = routeListRepository.GetActualRouteListByOrder(UoW, order);
 			if(routeList != null)
 				ShowWarningMessage($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
 			return routeList == null;

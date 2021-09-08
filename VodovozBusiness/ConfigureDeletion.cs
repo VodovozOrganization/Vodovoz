@@ -176,6 +176,14 @@ namespace Vodovoz
 				;
 			#endregion
 
+			#region Rent
+
+			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>();
+
+			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
+
+			#endregion
+
 			#region Organization
 
 			DeleteConfig.AddHibernateDeleteInfo<Organization>()

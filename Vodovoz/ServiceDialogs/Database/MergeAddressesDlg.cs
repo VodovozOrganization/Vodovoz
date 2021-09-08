@@ -23,6 +23,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -32,9 +33,10 @@ namespace Vodovoz.ServiceDialogs.Database
 {
 	public partial class MergeAddressesDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-		List<DublicateNode> Duplicates;
-		GenericObservableList<DublicateNode> ObservableDuplicates;
+		private readonly IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private List<DublicateNode> _duplicates;
+		private GenericObservableList<DublicateNode> _observableDuplicates;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
 
 		public MergeAddressesDlg()
 		{
@@ -89,7 +91,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			                                        && (x.Code1c == null || mainPointAlias.Code1c == null || x.Code1c == mainPointAlias.Code1c))
 			                                 .Select(x => x.Id);
 
-			var list = uow.Session.QueryOver<DeliveryPoint>(() => mainPointAlias)
+			var list = _uow.Session.QueryOver<DeliveryPoint>(() => mainPointAlias)
 						  .WithSubquery.WhereExists(dublicateSubquery)
 			              .Fetch(x => x.Counterparty).Eager
 			              .OrderBy(x => x.Counterparty).Asc
@@ -102,29 +104,29 @@ namespace Vodovoz.ServiceDialogs.Database
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
 
-			Duplicates = new List<DublicateNode>();
+			_duplicates = new List<DublicateNode>();
 			DublicateNode lastDuplicate = null;
 			foreach(var dp in list) {
 				if(lastDuplicate == null || !lastDuplicate.Compare(dp)) {
 					lastDuplicate = new DublicateNode();
-					Duplicates.Add(lastDuplicate);
+					_duplicates.Add(lastDuplicate);
 				}
 				lastDuplicate.Addresses.Add(new AddressNode(lastDuplicate, dp));
 				progressOp.Adjustment.Value++;
 				QSMain.WaitRedraw();
 			}
 
-			Duplicates.ForEach(x => x.FineMain());
+			_duplicates.ForEach(x => x.FineMain());
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
 
-			Duplicates = Duplicates.OrderBy(x => x.CounterParty).ThenBy(x => x.FirstAddress1c).ToList();
+			_duplicates = _duplicates.OrderBy(x => x.CounterParty).ThenBy(x => x.FirstAddress1c).ToList();
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
 
-			ObservableDuplicates = new GenericObservableList<DublicateNode>(Duplicates);
+			_observableDuplicates = new GenericObservableList<DublicateNode>(_duplicates);
 
-			ytreeviewDuplicates.SetItemsSource(ObservableDuplicates);
+			ytreeviewDuplicates.SetItemsSource(_observableDuplicates);
 			progressOp.Visible = false;
 		}
 
@@ -140,7 +142,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonApplyClicked(object sender, EventArgs e)
 		{
-			var mergeList = Duplicates.Where(x => x.Selected).ToList();
+			var mergeList = _duplicates.Where(x => x.Selected).ToList();
 			progressOp.Visible = true;
 			progressOp.Adjustment.Value = 0;
 			progressOp.Adjustment.Upper = mergeList.Count;
@@ -152,15 +154,15 @@ namespace Vodovoz.ServiceDialogs.Database
 				var main = dup.Addresses.First(x => x.IsMain);
 				foreach(var deleted in dup.Addresses.Where(x => !x.IsMain && !x.Ignore))
 				{
-					totalLinks += ReplaceEntity.ReplaceEverywhere(uow, deleted.Address, main.Address);
-					uow.Delete(deleted.Address);
-					uow.Commit();
+					totalLinks += ReplaceEntity.ReplaceEverywhere(_uow, deleted.Address, main.Address);
+					_uow.Delete(deleted.Address);
+					_uow.Commit();
 
 					progressOp.Text = $"Ищем ссылки... Заменено {totalLinks} ссылок.";
 					QSMain.WaitRedraw();
 				}
 
-				ObservableDuplicates.Remove(dup);
+				_observableDuplicates.Remove(dup);
 				progressOp.Adjustment.Value++;
 				QSMain.WaitRedraw();
 			}
@@ -197,8 +199,8 @@ namespace Vodovoz.ServiceDialogs.Database
 			public bool Compare(DeliveryPoint dp)
 			{
 				var first = Addresses.First().Address;
-				return first.Counterparty.Id == dp.Counterparty.Id 
-					        && first.GetActiveVersion().Latitude == dp.GetActiveVersion().Latitude 
+				return first.Counterparty.Id == dp.Counterparty.Id
+					        && first.GetActiveVersion().Latitude == dp.GetActiveVersion().Latitude
 					        && first.GetActiveVersion().Longitude == dp.GetActiveVersion().Longitude;
 			}
 
@@ -301,16 +303,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		protected void OnYtreeviewAddressesRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			var id = ytreeviewAddresses.GetSelectedObject<AddressNode>().Address.Id;
-			var dpViewModel = new DeliveryPointViewModel(new UserRepository(), new GtkTabsOpener(), new PhoneRepository(),
-				ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
-				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-				new DeliveryPointRepository(),
-				new SectorsRepository(),
-				EntityUoWBuilder.ForOpen(id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(id);
 			TabParent.AddSlaveTab(this, dpViewModel);
 		}
 	}

@@ -111,6 +111,7 @@
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Logistic\CarEventType.cs" />
     <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />
@@ -243,6 +244,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
+    <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="EntityRepositories\Sectors\ISectorsRepository.cs" />
     <Compile Include="EntityRepositories\Sectors\SectorsRepository.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -10,6 +11,7 @@ using QS.Navigation;
 using QS.Osm.DTO;
 using QS.Tdi;
 using QS.Views.GtkUI;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -20,6 +22,8 @@ namespace Vodovoz.Views.Client
 	public partial class DeliveryPointView : TabViewBase<DeliveryPointViewModel>
 	{
 		private bool _addressIsMoving;
+		private VBox _vboxMap;
+		private yEnumComboBox _comboMapType;
 		private GMapControl _mapWidget;
 		private GMapMarker _addressMarker;
 		private string _cityBeforeChange;
@@ -98,8 +102,8 @@ namespace Vodovoz.Views.Client
 			yenumEntranceType.ItemsEnum = typeof(EntranceType);
 			yenumEntranceType.Binding.AddBinding(ViewModel.Entity, e => e.EntranceType, w => w.SelectedItem).InitializeFromSource();
 
-			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
-			referenceDeliverySchedule.Binding.AddBinding(ViewModel.Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
+			entryDefaultDeliverySchedule.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryScheduleSelectorFactory);
+			entryDefaultDeliverySchedule.Binding.AddBinding(ViewModel.Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
 
 			checkIsActive.Binding.AddBinding(ViewModel.Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
 			checkIsActive.Binding.AddFuncBinding(ViewModel, vm => vm.CanArchiveDeliveryPoint, w => w.Sensitive).InitializeFromSource();
@@ -114,9 +118,12 @@ namespace Vodovoz.Views.Client
 			hboxOrganisation.Binding.AddFuncBinding(ViewModel.Entity,
 					e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
 				.InitializeFromSource();
+			ylabelOrganisation.Binding.AddFuncBinding(ViewModel.Entity,
+					e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
+				.InitializeFromSource();
 			yentryOrganisation.Binding.AddBinding(ViewModel.Entity, e => e.Organization, w => w.Text).InitializeFromSource();
 			yentryKPP.Binding.AddBinding(ViewModel.Entity, e => e.KPP, w => w.Text).InitializeFromSource();
-			yentryAddition.Binding.AddBinding(ViewModel.Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
+			textAddressAddition.Binding.AddBinding(ViewModel.Entity, e => e.АddressAddition, w => w.Buffer.Text).InitializeFromSource();
 
 			entryDefaultWater.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory.GetDefaultWaterSelectorFactory());
 			entryDefaultWater.Binding.AddBinding(ViewModel.Entity, e => e.DefaultWaterNomenclature, w => w.Subject).InitializeFromSource();
@@ -180,16 +187,29 @@ namespace Vodovoz.Views.Client
 				MinZoom = 0,
 				MaxZoom = 24,
 				Zoom = 9,
-				WidthRequest = 450,
+				WidthRequest = 500,
 				HasFrame = true
 			};
 			_mapWidget.Overlays.Add(_addressOverlay);
 			_mapWidget.ButtonPressEvent += MapWidgetOnButtonPressEvent;
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
 			_mapWidget.MotionNotifyEvent += MapWidgetOnMotionNotifyEvent;
-			sidePanelMap.Panel = _mapWidget;
-			sidePanelMap.PanelOpened += (s, a) =>  ViewModel.HideJournalCommand.Execute();
-			sidePanelMap.PanelHided += (s, a) => ViewModel.ShowJournalCommand.Execute();
+
+			_vboxMap = new VBox();
+			_comboMapType = new yEnumComboBox();
+			_comboMapType.ItemsEnum = typeof(MapProviders);
+			_comboMapType.SelectedItem = MapProviders.GoogleMap;
+			_comboMapType.EnumItemSelected += (sender, args) =>
+			{
+				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+			};
+			_vboxMap.Add(_comboMapType);
+			_vboxMap.SetChildPacking(_comboMapType, false, false, 0, PackType.Start);
+			_vboxMap.Add(_mapWidget);
+			_vboxMap.ShowAll();
+
+			sidePanelMap.Panel = _vboxMap;
+			sidePanelMap.IsHided = false;
 			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Autofac;
 using Dialogs.Employees;
 using Gtk;
@@ -1115,17 +1115,7 @@ public partial class MainWindow : Window
 			RestrictNotIsProblematicCases = true
 		};
 
-		tdiMain.OpenTab(() => new UndeliveredOrdersJournalViewModel(
-			undeliveredOrdersFilter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			new GtkTabsOpener(),
-			new EmployeeJournalFactory(),
-			VodovozGtkServicesConfig.EmployeeService,
-			new UndeliveredOrdersJournalOpener(),
-			new OrderSelectorFactory(),
-			new UndeliveredOrdersRepository())
-		);
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionResidueActivated(object sender, System.EventArgs e)

@@ -14,25 +14,45 @@ namespace DriverAPI.Library.Models
 		private readonly ILogger<TrackPointsModel> _logger;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListModel _routeListModel;
 		private readonly IUnitOfWork _unitOfWork;
 
-		public TrackPointsModel(ILogger<TrackPointsModel> logger, ITrackRepository trackRepository, IRouteListRepository routeListRepository, IUnitOfWork unitOfWork)
+		public TrackPointsModel(ILogger<TrackPointsModel> logger,
+			ITrackRepository trackRepository,
+			IRouteListRepository routeListRepository,
+			IRouteListModel routeListModel,
+			IUnitOfWork unitOfWork)
 		{
-			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this._trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			this._routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListModel = routeListModel ?? throw new ArgumentNullException(nameof(routeListModel));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
-		public void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList)
+		public void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList, int driverId)
 		{
 			var track = _trackRepository.GetTrackByRouteListId(_unitOfWork, routeListId);
 
-			if (track == null)
-			{
-				var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
+			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 					?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
+			if(routeList.Status != RouteListStatus.EnRoute
+			&& routeList.Status != RouteListStatus.Delivered)
+			{
+				_logger.LogWarning($"Попытка записать трек для МЛ {routeListId}, МЛ в статусе '{routeList.Status}'");
+				throw new InvalidOperationException($"Нельзя записать трек для МЛ {routeListId}, МЛ в статусе недоступном для записи трека");
+			}
+
+			if(!_routeListModel.IsRouteListBelongToDriver(routeListId, driverId))
+			{
+				_logger.LogWarning($"Водитель ({driverId})" +
+					$" попытался зарегистрировать трек для МЛ {routeListId}");
+				throw new InvalidOperationException("Нельзя регистрировать координаты трека к чужому МЛ");
+			}
+
+			if (track == null)
+			{
 				track = new Track()
 				{
 					RouteList = routeList,

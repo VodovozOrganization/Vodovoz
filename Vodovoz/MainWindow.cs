@@ -142,7 +142,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Rent;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using Vodovoz.EntityRepositories.Sectors;
 
@@ -641,14 +643,12 @@ public partial class MainWindow : Gtk.Window
     
     protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
     {
-	    OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
-	    tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<FreeRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(PaidRentPackage));
-        tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<PaidRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionEquipmentActivated(object sender, EventArgs e)
@@ -874,21 +874,9 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
     {
-	    var userRepository = new UserRepository();
-
-        DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
-        var deliveryPointJournal = new DeliveryPointJournalViewModel(
-	        userRepository, new GtkTabsOpener(), new PhoneRepository(),
-	        ContactParametersProvider.Instance,
-	        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-	        new HousesDataLoader(OsmWorker.GetOsmService()),
-	        new DeliveryPointRepository(),
-	        new NomenclatureSelectorFactory(),
-	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-			new SectorsRepository(),
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-			tdiMain.AddTab(deliveryPointJournal);
+        var dpJournalFactory = new DeliveryPointJournalFactory();
+        var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
+        tdiMain.AddTab(deliveryPointJournal);
     }
 
     protected void OnPropertiesActionActivated(object sender, EventArgs e)

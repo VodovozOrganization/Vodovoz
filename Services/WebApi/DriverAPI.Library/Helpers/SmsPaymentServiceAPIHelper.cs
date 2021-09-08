@@ -9,7 +9,7 @@ namespace DriverAPI.Library.Helpers
 {
 	public class SmsPaymentServiceAPIHelper : ISmsPaymentServiceAPIHelper
 	{
-		private string sendPaymentEndpointURI = "SendPayment";
+		private string _sendPaymentEndpointURI = "SendPayment";
 		private HttpClient _apiClient;
 
 		public SmsPaymentServiceAPIHelper(IConfiguration configuration)
@@ -19,7 +19,7 @@ namespace DriverAPI.Library.Helpers
 
 		public async Task SendPayment(int orderId, string phoneNumber)
 		{
-			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(sendPaymentEndpointURI, new { OrderId = orderId, PhoneNumber = phoneNumber }))
+			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(_sendPaymentEndpointURI, new { OrderId = orderId, PhoneNumber = phoneNumber }))
 			{
 				if (response.IsSuccessStatusCode)
 				{
@@ -48,7 +48,7 @@ namespace DriverAPI.Library.Helpers
 			_apiClient.DefaultRequestHeaders.Accept.Clear();
 			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-			sendPaymentEndpointURI = apiConfiguration["SendPaymentEndpointURI"];
+			_sendPaymentEndpointURI = apiConfiguration["SendPaymentEndpointURI"];
 		}
 	}
 }

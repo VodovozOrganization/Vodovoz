@@ -6,7 +6,7 @@ using System.Linq;
 using GMap.NET;
 using QS.DomainModel.Entity;
 using QS.Osm;
-using QS.Osm.Spuntik;
+using QS.Osm.Osrm;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
@@ -111,7 +111,7 @@ namespace Vodovoz.Domain.Logistic
 			Distance = new MapRoute(points, "").Distance;
 		}
 
-		public virtual SputnikRouteResponse CalculateDistanceToBase()
+		public virtual RouteResponse CalculateDistanceToBase()
 		{
 			var lastAddress = RouteList.Addresses
 				.Where(x => x.Status == RouteListItemStatus.Completed)
@@ -137,11 +137,11 @@ namespace Vodovoz.Domain.Logistic
 				logger.Error("В подобранной части города не указаны координаты базы");
 				return null;
 			}
-			var response = SputnikMain.GetRoute(points, false, true);
-			if(response.Status == 0) {
-				DistanceToBase = (double)response.RouteSummary.TotalDistanceKm;
+			var response = OsrmMain.GetRoute(points, false, GeometryOverview.Simplified);
+			if(response.Code == "Ok") {
+				DistanceToBase = (double)response.Routes.First().TotalDistanceKm;
 			} else
-				logger.Error("Ошибка при получении расстояния до базы {0}: {1}", response.Status, response.StatusMessage);
+				logger.Error("Ошибка при получении расстояния до базы {0}: {1}", response.Code, response.Message);
 			return response;
 		}
 	}
