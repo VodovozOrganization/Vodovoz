@@ -12,10 +12,6 @@ namespace Vodovoz.Representations
 {
 	public class WarehousesVM : RepresentationModelEntityBase<Warehouse, SubdivisionWithWarehousesVMNode>
 	{
-		public WarehousesVM(IUnitOfWork uow) : base() => this.UoW = uow;
-		public WarehousesVM(IUnitOfWork uow, Warehouse parent) : this(uow) => parentId = parent.Id;
-		public WarehousesVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
-
 		public IList<SubdivisionWithWarehousesVMNode> Result { get; set; }
 		public IyTreeModel TreeModel { get; set; }
 		int? parentId;
