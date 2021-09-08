@@ -10,6 +10,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Sectors;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -37,6 +38,7 @@ namespace Vodovoz.Factories
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				controller,
+				new SectorsRepository(),
 				new DeliveryPointRepository(),
 				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForOpen(id),
@@ -65,6 +67,7 @@ namespace Vodovoz.Factories
 				new HousesDataLoader(OsmWorker.GetOsmService()),
 				new NomenclatureSelectorFactory(),
 				controller,
+				new SectorsRepository(),
 				new DeliveryPointRepository(),
 				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForCreate(),
