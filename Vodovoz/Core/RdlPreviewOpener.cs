@@ -1,8 +1,6 @@
 ﻿using System;
 using QS.Report;
 using QS.Tdi;
-using QS.Tdi.Gtk;
-using QSReport;
 using Vodovoz.Infrastructure.Print;
 
 namespace Vodovoz.Core
@@ -11,7 +9,7 @@ namespace Vodovoz.Core
 	{
 		public void OpenRldDocument(Type documentType, IPrintableRDLDocument document)
 		{
-			var rdlTab = DocumentPrinter.GetPreviewTab(document);
+			var rdlTab = QSReport.DocumentPrinter.GetPreviewTab(document);
 			TDIMain.MainNotebook.OpenTab(documentType.Name + "_rdl", () => rdlTab);
 		}
 	}

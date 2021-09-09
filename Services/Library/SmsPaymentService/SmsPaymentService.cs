@@ -307,7 +307,7 @@ namespace SmsPaymentService
 
             try {
                 using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-                    var payments = uow.Session.QueryOver<SmsPayment>().Where(x => x.Order.Id == orderId).List();
+                    var payments = uow.Session.QueryOver<SmsPayment>().Where(x => x.Order.Id == orderId && x.ExternalId != 0).List();
                     if (!payments.Any())
                         return new PaymentResult($"Для заказа с Id: {orderId} не создано ни одного платежа");
 

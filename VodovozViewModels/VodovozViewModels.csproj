@@ -47,12 +47,14 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
     <Compile Include="Factories\IEmployeeWageParametersFactory.cs" />
     <Compile Include="Factories\IPhonesViewModelFactory.cs" />
     <Compile Include="Factories\IValidationContextFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
+    <Compile Include="Infrastructure\Print\RouteListPrintableDocuments.cs" />
     <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\CashRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\ExpenseCategoryJournalFilterViewModel.cs" />
@@ -66,7 +68,15 @@
     <Compile Include="Journals\FilterViewModels\Employees\EmployeeFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
+    <Compile Include="Factories\INonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\IRentPackagesJournalsViewModelsFactory.cs" />
+    <Compile Include="Factories\NonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\RentPackagesJournalsViewModelsFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
+    <Compile Include="Infrastructure\Print\IDocumentPrinter.cs" />
+    <Compile Include="Infrastructure\Print\IEntityDocumentsPrinter.cs" />
+    <Compile Include="Infrastructure\Print\IEntityDocumentsPrinterFactory.cs" />
+    <Compile Include="Dialogs\Orders\DocumentsPrinterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\ProductGroupJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonJournalFilterViewModel.cs" />
@@ -160,6 +170,7 @@
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IDeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
@@ -170,6 +181,8 @@
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
@@ -178,8 +191,13 @@
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\NonSerialEquipmentsForRentJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\PaidRentPackagesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Security\RegisteredRMJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Retail\SalesChannelJournalViewModel.cs" />
+    <Compile Include="Journals\Nodes\Rent\FreeRentPackagesJournalNode.cs" />
+    <Compile Include="Journals\Nodes\Rent\PaidRentPackagesJournalNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempAdapters\ICarJournalFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
@@ -347,6 +365,8 @@
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
     <Compile Include="Journals\JournalNodes\WarehouseJournalNode.cs" />
     <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
+    <Compile Include="ViewModels\Rent\FreeRentPackageViewModel.cs" />
+    <Compile Include="ViewModels\Rent\PaidRentPackageViewModel.cs" />
     <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
@@ -383,6 +403,7 @@
     <Folder Include="Journals\Nodes\Cash\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Counterparty\" />
+    <Folder Include="ViewModels\Rent\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
@@ -392,6 +413,10 @@
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
+      <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
+      <Name>QS.DocTemplates</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
       <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>

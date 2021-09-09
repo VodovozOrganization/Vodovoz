@@ -750,7 +750,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			
 			UoW.Save();
@@ -849,7 +849,7 @@ namespace Vodovoz
 				&& !Entity.DifferencesConfirmed) {
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
 				} else {
-					if(Entity.Car.IsCompanyCar) {
+					if(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck) {
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 					} else {
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);

@@ -6,6 +6,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Osm.Loaders;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -20,6 +21,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
@@ -72,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
 		public INomenclatureSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
 
 		#endregion
 
@@ -94,7 +97,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		#endregion
 
 		public DeliveryPointViewModel(
-			Domain.Client.Counterparty client,
 			IUserRepository userRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IPhoneRepository phoneRepository,
@@ -105,28 +107,20 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
-			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: this(userRepository, gtkTabsOpener, phoneRepository, contactsParameters, citiesDataLoader, streetsDataLoader,
-				housesDataLoader, nomenclatureSelectorFactory, nomenclatureFixedPriceController, deliveryPointRepository,
-				uowBuilder, unitOfWorkFactory, commonServices)
-		{
-			Entity.Counterparty = client;
-		}
-
-		public DeliveryPointViewModel(
-			IUserRepository userRepository,
-			IGtkTabsOpener gtkTabsOpener,
-			IPhoneRepository phoneRepository,
-			IContactsParameters contactsParameters,
-			ICitiesDataLoader citiesDataLoader,
-			IStreetsDataLoader streetsDataLoader,
-			IHousesDataLoader housesDataLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			IDeliveryPointRepository deliveryPointRepository,
-			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
+			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
+			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(client != null && uowBuilder.IsNewEntity)
+			{
+				Entity.Counterparty = client;
+			}
+			else if(client == null && uowBuilder.IsNewEntity)
+			{
+				throw new ArgumentNullException(nameof(client), "Нельзя создать точку доставки без указания клиента");
+			}
+
 			if(phoneRepository == null)
 			{
 				throw new ArgumentNullException(nameof(phoneRepository));
@@ -163,6 +157,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			DeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			DeliveryScheduleSelectorFactory =
+				deliveryScheduleSelectorFactory?.CreateDeliveryScheduleAutocompleteSelectorFactory()
+				?? throw new ArgumentNullException(nameof(deliveryScheduleSelectorFactory));
+
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch (e.PropertyName)
@@ -186,7 +184,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				IsNotSaving = false;
 				if(!HasChanges)
 				{
-					return true;
+					return base.Save(close);
 				}
 
 				if(!Entity.CoordinatesExist &&
@@ -302,20 +300,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public DelegateCommand OpenCounterpartyCommand => _openCounterpartyCommand ?? (_openCounterpartyCommand = new DelegateCommand(
 			() => _gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id),
 			() => Entity.Counterparty != null
-		));
-
-		private DelegateCommand _showJournalCommand;
-
-		public DelegateCommand ShowJournalCommand => _showJournalCommand ?? (_showJournalCommand = new DelegateCommand(
-			() => ((ITdiSliderTab) TabParent).IsHideJournal = false,
-			() => TabParent is ITdiSliderTab
-		));
-
-		private DelegateCommand _hideJournalCommand;
-
-		public DelegateCommand HideJournalCommand => _hideJournalCommand ?? (_hideJournalCommand = new DelegateCommand(
-			() => ((ITdiSliderTab) TabParent).IsHideJournal = true,
-			() => TabParent is ITdiSliderTab
 		));
 
 		#endregion

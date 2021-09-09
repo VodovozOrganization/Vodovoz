@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
@@ -40,6 +41,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz
 {
@@ -49,6 +52,8 @@ namespace Vodovoz
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
+			new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
@@ -259,9 +264,10 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, CreateDocumentsPrinterDlg(choise));
 		}
 
-		private DocumentsPrinterDlg CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
+		private DocumentsPrinterViewModel CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
 		{
-			var dlg = new DocumentsPrinterDlg(UoW, Entity, choise);
+			var dlg = new DocumentsPrinterViewModel(
+				UoW, _entityDocumentsPrinterFactory, MainClass.MainWin.NavigationManager, Entity, choise, ServicesConfig.InteractiveService);
 			dlg.DocumentsPrinted += Dlg_DocumentsPrinted;
 			return dlg;
 		}

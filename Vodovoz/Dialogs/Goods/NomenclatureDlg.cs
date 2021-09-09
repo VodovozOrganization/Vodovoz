@@ -31,6 +31,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Representations;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -165,8 +166,9 @@ namespace Vodovoz
 			entityviewmodelentryShipperCounterparty.Binding.AddBinding(Entity, s => s.ShipperCounterparty, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryShipperCounterparty.CanEditReference = true;
 			yentryStorageCell.Binding.AddBinding(Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
-			yspinbuttonPurchasePrice.Binding.AddBinding(Entity, s => s.PurchasePrice, w => w.ValueAsDecimal).InitializeFromSource();
 			UpdateVisibilityForEshopParam();
+
+			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, ServicesConfig.CommonServices);
 
 			#region Вкладка характиристики
 
@@ -226,8 +228,6 @@ namespace Vodovoz
 			labelShipperCounterparty.Visible = isEshopNomenclature;
 			yentryStorageCell.Visible = isEshopNomenclature;
 			labelStorageCell.Visible = isEshopNomenclature;
-			yspinbuttonPurchasePrice.Visible = isEshopNomenclature;
-			labelPurchasePrice.Visible = isEshopNomenclature;
 			ylblOnlineStore.Visible = ylblOnlineStoreStr.Visible = Entity?.OnlineStore != null;
 		}
 
@@ -349,6 +349,14 @@ namespace Vodovoz
 		{
 			if(radioPrice.Active)
 				notebook1.CurrentPage = 4;
+		}
+
+		protected void OnPurchasePriceToggled(object sender, EventArgs e)
+		{
+			if(radioPurchasePrice.Active)
+			{
+				notebook1.CurrentPage = 5;
+			}
 		}
 
 		#endregion

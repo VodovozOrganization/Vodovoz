@@ -116,6 +116,7 @@ using QS.Osm.Loaders;
 using QS.Osm.Osrm;
 using QS.Project.Repositories;
 using QS.ViewModels;
+using Vodovoz.Core.Journal;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
@@ -140,7 +141,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Rent;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 public partial class MainWindow : Gtk.Window
@@ -326,31 +329,68 @@ public partial class MainWindow : Gtk.Window
 
     public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
     {
-        if (args.Tab is IInfoProvider dialogTab)
-            dialogTab.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
-        else if (args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
-            journal.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+	    switch (args.Tab)
+	    {
+		    case IInfoProvider dialogTab:
+			    dialogTab.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+			    break;
+		    case TdiSliderTab journalTab when journalTab.Journal is IInfoProvider journal:
+			    journal.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+			    break;
+		    case TdiSliderTab tdiSliderTab
+			    when (tdiSliderTab.Journal as MultipleEntityJournal)?.RepresentationModel is IInfoProvider provider:
+		    {
+			    provider.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+			    break;
+		    }
+	    }
     }
 
     public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
     {
-        if (args.Tab is IInfoProvider dialogTab)
-            infopanel.OnInfoProviderDisposed(dialogTab);
-        else if (args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
-            infopanel.OnInfoProviderDisposed(journal);
-        if (tdiMain.NPages == 0)
-            infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+	    switch (args.Tab)
+	    {
+		    case IInfoProvider dialogTab:
+			    infopanel.OnInfoProviderDisposed(dialogTab);
+			    break;
+		    case TdiSliderTab journalTab when journalTab.Journal is IInfoProvider journal:
+			    infopanel.OnInfoProviderDisposed(journal);
+			    break;
+		    case TdiSliderTab tdiSliderTab
+			    when (tdiSliderTab.Journal as MultipleEntityJournal)?.RepresentationModel is IInfoProvider provider:
+		    {
+			    infopanel.OnInfoProviderDisposed(provider);
+			    break;
+		    }
+	    }
+
+	    if (tdiMain.NPages == 0)
+	    {
+		    infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+	    }
     }
 
     public void OnTdiMainTabSwitched(object sender, TabSwitchedEventArgs args)
     {
-        var currentTab = args.Tab;
-        if (currentTab is IInfoProvider)
-            infopanel.SetInfoProvider(currentTab as IInfoProvider);
-        else if (currentTab is TdiSliderTab && (currentTab as TdiSliderTab).Journal is IInfoProvider)
-            infopanel.SetInfoProvider((currentTab as TdiSliderTab).Journal as IInfoProvider);
-        else
-            infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+	    var currentTab = args.Tab;
+	    switch (currentTab)
+	    {
+		    case IInfoProvider provider:
+			    infopanel.SetInfoProvider(provider);
+			    break;
+		    case TdiSliderTab tdiSliderTab when tdiSliderTab.Journal is IInfoProvider provider:
+			    infopanel.SetInfoProvider(provider);
+			    break;
+		    case TdiSliderTab tdiSliderTab when
+			    (tdiSliderTab.Journal as MultipleEntityJournal)?.RepresentationModel is IInfoProvider provider:
+		    {
+			    infopanel.SetInfoProvider(provider);
+			    break;
+		    }
+		    default:
+			    infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
+			    break;
+	    }
     }
 
     protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -601,14 +641,12 @@ public partial class MainWindow : Gtk.Window
     
     protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
     {
-	    OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
-	    tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<FreeRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(PaidRentPackage));
-        tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<PaidRentPackagesJournalViewModel>(null);
     }
 
     protected void OnActionEquipmentActivated(object sender, EventArgs e)
@@ -834,19 +872,8 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
     {
-	    var userRepository = new UserRepository();
-
-        DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
-        var deliveryPointJournal = new DeliveryPointJournalViewModel(
-	        userRepository, new GtkTabsOpener(), new PhoneRepository(),
-	        ContactParametersProvider.Instance,
-	        new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-	        new HousesDataLoader(OsmWorker.GetOsmService()),
-	        new DeliveryPointRepository(),
-	        new NomenclatureSelectorFactory(),
-	        new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-		        new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())))),
-	        filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+        var dpJournalFactory = new DeliveryPointJournalFactory();
+        var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
         tdiMain.AddTab(deliveryPointJournal);
     }
 
