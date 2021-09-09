@@ -2462,4 +2462,12 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.AddTab(journal);
 	}
+
+	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
+			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
+				)));
+	}
 }
