@@ -52,10 +52,10 @@ namespace Vodovoz.JournalViewModels
             var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
             var disjunction = new Disjunction();
 
-            var permission = new CurrentPermissions();
+            var permission = new CurrentWarehousePermissions();
             foreach (var p in warehousePermissions)
             {
-                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.Warehouse.Where(x=>x.WarehousePermissionTypeType == p).Select(x => x.Id).ToArray()));
+                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.WarehousePermissions.Where(x=>x.WarehousePermissionTypeType == p).Select(x => x.Id).ToArray()));
             }
             query.Where(disjunction);
 

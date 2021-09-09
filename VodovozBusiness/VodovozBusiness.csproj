@@ -128,14 +128,14 @@
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
-    <Compile Include="Domain\Permissions\Warehouses\SubdivisionWarehousePermissionModelBase.cs" />
-    <Compile Include="Domain\Permissions\Warehouses\UserWarehousePermissionModelBase.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\SubdivisionWarehousePermissionModel.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\UserWarehousePermissionModel.cs" />
     <Compile Include="Domain\Permissions\Warehouses\WarehousePermissionModelBase.cs" />
     <Compile Include="Domain\Permissions\Warehouses\IWarehousePermissionValidator.cs" />
     <Compile Include="Domain\Permissions\Warehouses\IWarehousePermissionValidatorFactory.cs" />
     <Compile Include="Domain\Permissions\Warehouses\SubdivisionWarehousePermission.cs" />
     <Compile Include="Domain\Permissions\Warehouses\UserWarehousePermission.cs" />
-    <Compile Include="Domain\Permissions\Warehouses\WarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\WarehousePermissionBase.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Retail\SalesChannel.cs" />

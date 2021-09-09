@@ -199,8 +199,8 @@ public partial class MainWindow : Gtk.Window
             ActionRouteListTracking.Sensitive =
             ActionRouteListMileageCheck.Sensitive =
             ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-        CurrentPermissions permissions = new CurrentPermissions();
-        ActionStock.Sensitive = permissions.Warehouse.Any();
+        CurrentWarehousePermissions currentWarehousePermissions = new CurrentWarehousePermissions();
+        ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any();
 
         bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
         bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");

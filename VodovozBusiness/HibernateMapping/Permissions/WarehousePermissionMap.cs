@@ -3,7 +3,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.HibernateMapping.Permissions
 {
-    public class WarehousePermissionMap: ClassMap<WarehousePermission>
+    public class WarehousePermissionMap: ClassMap<WarehousePermissionBase>
     {
         public WarehousePermissionMap()
         {
@@ -12,7 +12,7 @@ namespace Vodovoz.HibernateMapping.Permissions
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             DiscriminateSubClassesOnColumn("type_permission");
-            
+
             Map(x => x.PermissionValue).Column("value");
             Map(x => x.WarehousePermissionTypeType).Column("warehouse_permission_type");
             References(x => x.Warehouse).Column("warehouse_id");

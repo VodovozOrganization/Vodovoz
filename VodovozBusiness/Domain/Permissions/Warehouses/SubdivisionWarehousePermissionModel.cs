@@ -47,10 +47,10 @@ namespace Vodovoz.Domain.Permissions.Warehouses
                 _uow.TryDelete(permissionForDelete);
         }
 
-        public override IEnumerable<WarehousePermission> GetEnumerator() => _uow.Session
+        public override IEnumerable<WarehousePermissionBase> GetEnumerator() => _uow.Session
             .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == _subdivision.Id)
             .List();
 
-        public override List<WarehousePermission> AllPermission { get; set; }
+        public override List<WarehousePermissionBase> AllPermission { get; set; }
     }
 }

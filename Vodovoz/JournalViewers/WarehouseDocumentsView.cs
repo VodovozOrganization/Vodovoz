@@ -48,8 +48,8 @@ namespace Vodovoz
 			buttonAdd.ItemsEnum = typeof(DocumentType);
 			buttonAdd.SetVisibility(DocumentType.DeliveryDocument, false);
 
-			CurrentPermissions permissions = new CurrentPermissions();
-			var allPermissions = permissions.Warehouse;
+			CurrentWarehousePermissions warehousePermissions = new CurrentWarehousePermissions();
+			var allPermissions = warehousePermissions.WarehousePermissions;
 			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {
 				if(allPermissions.Any(x => x.WarehousePermissionTypeType.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
 					continue;
@@ -185,7 +185,7 @@ namespace Vodovoz
 							},
 							this
 						);
-						
+
 						break;
 					case DocumentType.IncomingWater:
 						TabParent.OpenTab(

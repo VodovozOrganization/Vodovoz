@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
@@ -12,7 +11,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 		NominativePlural = "Права на склад",
 		Nominative = "Право на склад")]
 	[EntityPermission]
-	public abstract class WarehousePermission : PropertyChangedBase, IDomainObject
+	public abstract class WarehousePermissionBase : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -50,24 +49,6 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 		{
 			get => _permissionValue;
 			set => SetField(ref _permissionValue, value);
-		}
-
-		private User _user;
-
-		[Display(Name = "Пользователь")]
-		public virtual User User
-		{
-			get => _user;
-			set => SetField(ref _user, value);
-		}
-
-		private Subdivision _subdivision;
-
-		[Display(Name = "Подразделение")]
-		public virtual Subdivision Subdivision
-		{
-			get => _subdivision;
-			set => SetField(ref _subdivision, value);
 		}
 	}
 
