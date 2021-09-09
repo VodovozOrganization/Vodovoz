@@ -43,8 +43,7 @@ namespace Vodovoz.Models
 		}
 
 		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
-			IEnumerable<OrderItem> orderItems = null,
-			PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
+			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null)
 		{
 			throw new NotSupportedException();
 		}

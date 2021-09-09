@@ -1569,8 +1569,19 @@ namespace Vodovoz.Domain.Orders
 			if(counterpartyContract == null) {
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
-			
-			Contract = counterpartyContract;
+
+			var isContractChangeRestricted =
+				PaymentType == PaymentType.ByCard
+				&& Contract?.Organization != null
+				&& Contract.Organization.Id != counterpartyContract?.Organization?.Id
+				&& PaymentByCardFrom != null
+				&& PaymentByCardFrom.Id == new OrderParametersProvider(new ParametersProvider()).PaymentByCardFromSmsId;
+
+			if(isContractChangeRestricted)
+			{
+				return;
+			}
+
 			for (int i = 0; i < OrderItems.Count; i++) {
 				OrderItems[i].CalculateVATType();
 			}
