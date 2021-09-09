@@ -177,6 +177,7 @@
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
+    <Compile Include="TempAdapters\IUserJournalFactory.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />

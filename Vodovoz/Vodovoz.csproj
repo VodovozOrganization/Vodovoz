@@ -506,6 +506,7 @@
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\FixedPricesDialogOpener.cs" />
     <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
+    <Compile Include="TempAdapters\UserJournalFactory.cs" />
     <Compile Include="TempAdapters\WaterJournalFactory.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />

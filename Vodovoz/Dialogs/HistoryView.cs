@@ -21,6 +21,7 @@ using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals;
 using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using VodovozInfrastructure.Attributes;
 
@@ -53,9 +54,9 @@ namespace Vodovoz.Dialogs
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
             comboAction.ItemsEnum = typeof(EntityChangeOperation);
+            var userJournalFactory = new UserJournalFactory();
 
-            entryUser.SetEntityAutocompleteSelectorFactory(
-                new DefaultEntityAutocompleteSelectorFactory<User, SelectUserJournalViewModel, UserJournalFilterViewModel>(ServicesConfig.CommonServices));
+            entryUser.SetEntityAutocompleteSelectorFactory(userJournalFactory.CreateUserAutocompleteSelectorFactory());
 
             entryUser.ChangedByUser += (sender, e) => UpdateJournal();
 
