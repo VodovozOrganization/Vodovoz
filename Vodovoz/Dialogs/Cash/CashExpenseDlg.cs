@@ -1,5 +1,6 @@
 ﻿using NHibernate.Criterion;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -252,9 +253,7 @@ namespace Vodovoz
 			ydateDocument.Sensitive = false;
 			Entity.TypeOperation = ExpenseType.Advance;
 			Entity.Description = description;
-			Entity.ExpenseCategory = UoW.Session.Query<ExpenseCategory>()
-				.Where(ec => ec.Name == _expenseParametersProvider.ChangeCategoryName)
-				.FirstOrDefault();
+			Entity.ExpenseCategory = UoW.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId);
 			Entity.Organisation = UoW.GetById<Organization>(_expenseParametersProvider.DefaultChangeOrganizationId);
 			yspinMoney.ValueAsDecimal = balance;
 			UpdateEmployeeBalanceVisibility();

@@ -14,8 +14,7 @@ namespace Vodovoz.Parameters
 			_organizationParametersProvider = organizationParametersProvider;
 		}
 
-		public string ChangeCategoryName => "Сдача клиенту";
-
+		public int ChangeCategoryId => _parametersProvider.GetIntValue("expense_change_category_id");
 		public int DefaultChangeOrganizationId => _organizationParametersProvider.SosnovcevOrganizationId;
 	}
 }

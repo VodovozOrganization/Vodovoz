@@ -2,7 +2,7 @@
 {
 	public interface IExpenseParametersProvider
 	{
-		string ChangeCategoryName { get; }
 		int DefaultChangeOrganizationId { get; }
+		int ChangeCategoryId { get; }
 	}
 }

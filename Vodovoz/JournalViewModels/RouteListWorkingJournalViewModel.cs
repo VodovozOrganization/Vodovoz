@@ -436,9 +436,7 @@ namespace Vodovoz.JournalViewModels
 
 						if(_accountableDebtsRepository.UnclosedAdvance(UoW,
 							routeList.Driver,
-							UoW.Session.Query<ExpenseCategory>()
-								.Where(ec => ec.Name == _expenseParametersProvider.ChangeCategoryName)
-								.FirstOrDefault(),
+							UoW.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
 							null).Count > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
