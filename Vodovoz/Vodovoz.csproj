@@ -1680,6 +1680,8 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
+    <Compile Include="ViewWidgets\Attacments\AttachmentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Attacments.AttachmentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1984,6 +1986,7 @@
     <Folder Include="JournalViewers\Complaints\" />
     <Folder Include="Views\Flyers\" />
     <Folder Include="Views\Print\" />
+    <Folder Include="ViewWidgets\Attacments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
