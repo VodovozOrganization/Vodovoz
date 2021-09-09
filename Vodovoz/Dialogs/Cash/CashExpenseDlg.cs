@@ -130,10 +130,10 @@ namespace Vodovoz
 		}
 
 		private bool CanEdit => UoW.IsNew
-							 && _canCreate
-							 || _canEdit
-							 && Entity.Date.Date == DateTime.Now.Date
-							 || _canEditRectroactively;
+								&& _canCreate
+								|| _canEdit
+								&& Entity.Date.Date == DateTime.Now.Date
+								|| _canEditRectroactively;
 
 		private void ConfigureDlg()
 		{
@@ -278,7 +278,7 @@ namespace Vodovoz
 		private void UpdateSubdivision()
 		{
 			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null
-			&& accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision)
+				&& accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision)
 			{
 				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 			}
@@ -312,17 +312,17 @@ namespace Vodovoz
 		private void DistributeCash()
 		{
 			if(Entity.TypeOperation == ExpenseType.Expense
-			&& Entity.ExpenseCategory.Id == _categoryRepository.RouteListClosingExpenseCategory(UoW)?.Id)
+				&& Entity.ExpenseCategory.Id == _categoryRepository.RouteListClosingExpenseCategory(UoW)?.Id)
 			{
 				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-				 || Entity.TypeOperation == ExpenseType.Salary)
+					|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-				 || Entity.TypeOperation == ExpenseType.Salary)
+					|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}

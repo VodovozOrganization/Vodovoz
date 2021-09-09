@@ -572,16 +572,16 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var result = new Dictionary<int, decimal>();
 
-			foreach(var order in Addresses.Select(a => a.Order)
+			foreach(var order in Addresses
+				.Where(a => a.Status != RouteListItemStatus.Transfered)
+				.Select(a => a.Order)
 				.Where(o => o.PaymentType == Client.PaymentType.cash))
 			{
-				if(order.Trifle > 0)
+				var change = (order?.Trifle ?? 0) - order.TotalSum;
+
+				if(change > 0)
 				{
-					var change = (order?.Trifle ?? 0) - order.TotalSum;
-					if(change > 0)
-					{
-						result.Add(order.Id, change);
-					}
+					result.Add(order.Id, change);
 				}
 			}
 
