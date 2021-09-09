@@ -654,12 +654,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref driverCallId, value, () => DriverCallId);
 		}
 
-		int? trifle;
+		private int? _trifle;
 
-		[Display(Name = "Сдача")]
-		public virtual int? Trifle {
-			get => trifle;
-			set => SetField(ref trifle, value, () => Trifle);
+		[Display(Name = "Сдача с")]
+		public virtual int? Trifle
+		{
+			get => _trifle;
+			set => SetField(ref _trifle, value);
 		}
 
 		private int? onlineOrder;
@@ -945,7 +946,7 @@ namespace Vodovoz.Domain.Orders
 					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
-					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))

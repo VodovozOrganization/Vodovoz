@@ -942,26 +942,9 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
+	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
 	{
-		var parametersProvider = new ParametersProvider();
-		
-        tdiMain.OpenTab(
-            () => {
-                var routeListFilter = new RouteListJournalFilterViewModel();
-
-                return new RouteListWorkingJournalViewModel(
-                     routeListFilter,
-                     UnitOfWorkFactory.GetDefaultFactory,
-                     ServicesConfig.CommonServices,
-                     new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)),
-                     new FuelRepository(),
-                     new CallTaskRepository(),
-                     new BaseParametersProvider(parametersProvider),
-                     new SubdivisionRepository(parametersProvider)
-                     );
-            }
-        );
+		NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
     }
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)

@@ -19,5 +19,7 @@ namespace Vodovoz.TempAdapters
 
 		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, IPermissionService permissionService,
 			bool canChangeEmployee, ExpenseType expenseType);
+
+		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description, IPermissionService permissionService);
 	}
 }
