@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
@@ -24,6 +25,9 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
+		IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
+		GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
+
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -423,6 +427,16 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref onlineStore, value);
 		}
 
+		[Display(Name = "Цены закупки ТМЦ")]
+		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
+		{
+			get => _purchasePrices;
+			set => SetField(ref _purchasePrices, value);
+		}
+
+		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
+			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -432,13 +446,6 @@ namespace Vodovoz.Domain.Goods
 		public virtual string OnlineStoreExternalId {
 			get => onlineStoreExternalId;
 			set => SetField(ref onlineStoreExternalId, value);
-		}
-		
-		private decimal purchasePrice;
-		[Display(Name = "Цена закупки")]
-		public virtual decimal PurchasePrice {
-			get => purchasePrice;
-			set => SetField(ref purchasePrice, value);
 		}
 
 		private Counterparty shipperCounterparty;
@@ -681,6 +688,40 @@ namespace Vodovoz.Domain.Goods
 				parent = parent.Parent;
 			}
 			return false;
+		}
+
+		public virtual void ChangePurchasePrice(NomenclaturePurchasePrice purchasePrice, DateTime startDate)
+		{
+			if(purchasePrice == null)
+			{
+				throw new ArgumentNullException(nameof(purchasePrice));
+			}
+
+			purchasePrice.Nomenclature = this;
+			purchasePrice.StartDate = startDate;
+			NomenclaturePurchasePrice oldPurchasePrice = ObservablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
+
+			if(oldPurchasePrice != null)
+			{
+				if(oldPurchasePrice.StartDate > startDate)
+				{
+					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
+				}
+				oldPurchasePrice.EndDate = startDate.AddMilliseconds(-1);
+			}
+			ObservablePurchasePrices.Add(purchasePrice);
+		}
+
+		public virtual bool CheckStartDateForNewPurchasePrice(DateTime newStartDate)
+		{
+			NomenclaturePurchasePrice oldPurchasePrice = _observablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
+			
+			if(oldPurchasePrice == null)
+			{
+				return true;
+			}
+
+			return oldPurchasePrice.StartDate < newStartDate;
 		}
 
 		#endregion

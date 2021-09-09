@@ -71,6 +71,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanChangeLessThreeHours, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter())
 				.InitializeFromSource();
+			ycheckSortDeliveryDate.Binding
+				.AddBinding(ViewModel, vm => vm.SortDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter())
+				.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible)
+				.InitializeFromSource();
 
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);
 			yenumcomboboxPaymentOrder.Binding.AddBinding(ViewModel, vm => vm.PaymentOrder, w => w.SelectedItemOrNull)

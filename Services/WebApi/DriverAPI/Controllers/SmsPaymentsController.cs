@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
 {
@@ -22,6 +23,7 @@ namespace DriverAPI.Controllers
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly IOrderModel _aPIOrderData;
 		private readonly IEmployeeModel _employeeData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly UserManager<IdentityUser> _userManager;
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
@@ -31,6 +33,7 @@ namespace DriverAPI.Controllers
 			SmsPaymentStatusConverter smsPaymentConverter,
 			IOrderModel aPIOrderData,
 			IEmployeeModel employeeData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordModel,
 			UserManager<IdentityUser> userManager)
 		{
 			if(configuration is null)
@@ -44,6 +47,7 @@ namespace DriverAPI.Controllers
 			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_driverMobileAppActionRecordModel = driverMobileAppActionRecordModel ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordModel));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
@@ -79,17 +83,35 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
-			var user = _userManager.GetUserAsync(User).Result;
-			var driver = _employeeData.GetByAPILogin(user.UserName);
-
 			var recievedTime = DateTime.Now;
 
-			_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
 				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");
 
-			_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
+			var resultMessage = "OK";
+
+			try
+			{
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
+
+				_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
+			}
+			catch(Exception ex)
+			{
+				resultMessage = ex.Message;
+				throw;
+			}
+			finally
+			{
+				_driverMobileAppActionRecordModel.RegisterAction(driver,
+													 DriverMobileAppActionType.PayBySmsClicked,
+													 payBySmsRequestModel.ActionTime,
+													 recievedTime,
+													 resultMessage);
+			}
 		}
 	}
 }

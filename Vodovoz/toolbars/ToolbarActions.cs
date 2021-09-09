@@ -724,7 +724,8 @@ public partial class MainWindow : Window
 			x => x.RestrictWithoutSelfDelivery = false,
 			x => x.RestrictHideService = true,
 			x => x.RestrictOnlyService = false,
-			x => x.RestrictLessThreeHours = false
+			x => x.RestrictLessThreeHours = false,
+			x => x.SortDeliveryDate = false
 		);
 		filter.HidenByDefault = true;
 		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(

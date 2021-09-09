@@ -568,7 +568,7 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						if(selectedNode != null && MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum))
+						if(selectedNode != null && MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum) && selectedNode.CarTypeOfUse != CarTypeOfUse.CompanyTruck)
 							MainClass.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListMileageCheckDlg(selectedNode.Id)
@@ -576,7 +576,7 @@ namespace Vodovoz.ViewModel
 					},
 					(selectedItems) => selectedItems.Any(
 						x => MileageCheckDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum)
-						&& (x as RouteListsVMNode).UsesCompanyCar
+						&& (x as RouteListsVMNode).UsesCompanyCar && ((RouteListsVMNode) x).CarTypeOfUse != CarTypeOfUse.CompanyTruck
 					)
 				));
 

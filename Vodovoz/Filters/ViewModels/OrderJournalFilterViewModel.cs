@@ -175,10 +175,12 @@ namespace Vodovoz.Filters.ViewModels
 					if(value == null)
 					{
 						DeliveryPoint = null;
+						SortDeliveryDateVisibility = false;
 					}
 					else
 					{
 						CanChangeDeliveryPoint = true;
+						SortDeliveryDateVisibility = true;
 					}
 				}
 			}
@@ -352,6 +354,24 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public bool CanChangeOnlyService { get; private set; } = true;
+
+		#endregion
+		
+		#region Sorting
+
+		private bool? _sortDeliveryDate;
+		public virtual bool? SortDeliveryDate 
+		{
+			get => _sortDeliveryDate;
+			set => UpdateFilterField(ref _sortDeliveryDate, value);
+		}
+
+		private bool _sortDeliveryDateVisibility;
+		public bool SortDeliveryDateVisibility
+		{
+			get => _sortDeliveryDateVisibility;
+			set => SetField(ref _sortDeliveryDateVisibility, value);
+		}
 
 		#endregion
 		

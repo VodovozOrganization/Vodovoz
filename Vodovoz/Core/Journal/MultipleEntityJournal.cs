@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Journal
 			UpdateActionsSensitivity();
 		}
 
-		protected IMultipleEntityRepresentationModel RepresentationModel {
+		public IMultipleEntityRepresentationModel RepresentationModel {
 			get {
 				return representationModel;
 			}
