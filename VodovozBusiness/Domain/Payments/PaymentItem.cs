@@ -7,7 +7,7 @@ using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Payments
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки платежа(куда распределены)",
 		Nominative = "строка платежа(куда распределен)",
 		Prepositional = "строке платежа(куда распределен)",
