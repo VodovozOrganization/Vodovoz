@@ -16,7 +16,7 @@ node('Vod6'){
 		echo "checkout GMap.NET"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/master']],
+			branches: [[name: '*/feature/netstandardMigration']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]

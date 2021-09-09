@@ -136,17 +136,15 @@ namespace Vodovoz.Domain.Sms
 			const string deliveryDateVariable = "$delivery_date$";
 			const string deliveryTimeVariable = "$delivery_time$";
 			//формирование времени доставки и проверка на Null exception
-			string orderScheduleTimeString = undeliveredOrder.NewOrder.DeliverySchedule 
-			                                 != null ? $"c {undeliveredOrder.NewOrder.DeliverySchedule.From.Hours}" +
-			                                           $":{undeliveredOrder.NewOrder.DeliverySchedule.From.Minutes:D2} " +
-			                                           $"по {undeliveredOrder.NewOrder.DeliverySchedule.To.Hours}" +
-			                                           $":{undeliveredOrder.NewOrder.DeliverySchedule.To.Minutes:D2}" : "";
+			string orderScheduleTimeString = undeliveredOrder.NewOrder.DeliverySchedule == null ? ""
+												: $"c {undeliveredOrder.NewOrder.DeliverySchedule.From.Hours}" +
+													$"-{undeliveredOrder.NewOrder.DeliverySchedule.To.Hours}";
 			if(string.IsNullOrWhiteSpace(orderScheduleTimeString))
 			{
 				return;
 			}
 			//замена метки на дату доставки
-			msgToSend = msgToSend.Replace(deliveryDateVariable, $"{undeliveredOrder.NewOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")}");
+			msgToSend = msgToSend.Replace(deliveryDateVariable, $"{undeliveredOrder.NewOrder.DeliveryDate.Value:dd.MM}");
 			//замена метки на время доставки
 			msgToSend = msgToSend.Replace(deliveryTimeVariable, $"{orderScheduleTimeString}");
 
