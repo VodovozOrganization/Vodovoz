@@ -524,7 +524,7 @@ public partial class MainWindow : Gtk.Window
 
         var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
         
-        tdiMain.AddTab(employeeJournalFactory.CreateEmployeeJournal());
+        tdiMain.AddTab(employeeJournalFactory.CreateEmployeesJournal());
     }
 
     protected void OnActionCarsActivated(object sender, EventArgs e)

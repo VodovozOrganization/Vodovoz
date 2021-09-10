@@ -29,12 +29,14 @@ using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -62,7 +64,10 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
         private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		
+        private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private readonly IFileChooserProvider _fileChooserProvider = new FileChooser();
+		private readonly IScanDialog _scanDialog = new ScanDialog();
+
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -393,7 +398,10 @@ namespace Vodovoz.Dialogs.Logistic
 					_driverApiRegistrationEndpoint,
 					CurrentUserSettings.Settings,
 					_userRepository,
-					_baseParametersProvider);
+					_baseParametersProvider,
+					_attachmentsViewModelFactory,
+					_fileChooserProvider,
+					_scanDialog);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),

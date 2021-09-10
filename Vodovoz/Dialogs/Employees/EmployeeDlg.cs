@@ -53,6 +53,12 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using Vodovoz.Factories;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Attachments;
+using VodovozInfrastructure.Interfaces;
+using Vodovoz.Domain.Attachments;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -63,10 +69,15 @@ namespace Vodovoz
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly IFileChooserProvider _fileChooserProvider = new FileChooser();
+		private readonly IScanDialog _scanDialog = new ScanDialog();
 
 		private ICashDistributionCommonOrganisationProvider commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(
 				new OrganizationParametersProvider(new ParametersProvider()));
+
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private readonly AttachmentsViewModel _attachmentsViewModel;
 
 		private TerminalManagementViewModel _terminalManagementViewModel;
 		private Employee _employeeForCurrentUser;
@@ -76,6 +87,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
+			_attachmentsViewModel = _attachmentsViewModelFactory.CreateNewAttachmentsViewModel(_fileChooserProvider, _scanDialog, EntityType.Employee);
 			mySQLUserRepository = new MySQLUserRepository(
 				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
 				new GtkInteractiveService());
@@ -96,6 +108,7 @@ namespace Vodovoz
 			this.Build();
 			logger.Info("Загрузка информации о сотруднике...");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Employee>(id);
+			_attachmentsViewModel = _attachmentsViewModelFactory.CreateNewAttachmentsViewModel(_fileChooserProvider, _scanDialog, EntityType.Employee, id);
 			mySQLUserRepository = new MySQLUserRepository(
 				new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()),
 				new GtkInteractiveService());
@@ -294,11 +307,8 @@ namespace Vodovoz
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
 
-			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Employee));
-			if(Entity.Id != 0) {
-				attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				attachmentFiles.UpdateFileList();
-			}
+			attachmentsView.ViewModel = _attachmentsViewModel;
+
 			phonesView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone>();
@@ -810,7 +820,7 @@ namespace Vodovoz
 			get {
 				phonesView.RemoveEmpty();
 				return UoWGeneric.HasChanges
-					|| attachmentFiles.HasChanges
+					|| _attachmentsViewModel.HasChanges
 					|| !string.IsNullOrEmpty(yentryUserLogin.Text)
 					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
@@ -895,10 +905,7 @@ namespace Vodovoz
 			logger.Info("Сохраняем сотрудника...");
 			try {
 				UoWGeneric.Save();
-				if(UoWGeneric.IsNew) {
-					attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				}
-				attachmentFiles.SaveChanges();
+				_attachmentsViewModel.SaveChanges(Entity.Id);
 			} catch(Exception ex) {
 				logger.Error(ex, "Не удалось записать сотрудника.");
 				QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
@@ -1070,5 +1077,11 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			attachmentsView.Destroy();
+			base.Destroy();
+		}
 	}
 }

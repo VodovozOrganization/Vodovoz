@@ -33,6 +33,8 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using Vodovoz.ViewModels.Factories;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -58,6 +60,9 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private readonly IFileChooserProvider _fileChooserProvider = new FileChooser();
+		private readonly IScanDialog _scanDialog = new ScanDialog();
 
 		public TraineeDlg()
 		{
@@ -225,6 +230,9 @@ namespace Vodovoz.Dialogs.Employees
 				CurrentUserSettings.Settings,
 				_userRepository,
 				_baseParametersProvider,
+				_attachmentsViewModelFactory,
+				_fileChooserProvider,
+				_scanDialog,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
