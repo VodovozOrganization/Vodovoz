@@ -41,6 +41,9 @@ namespace Vodovoz.Views.Cash
 			checkNotToReconcile.Binding.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
 				.InitializeFromSource();
 
+			eventBoxOrganisationSeparator.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CanSeeOrganisation || vm.CanSeeExpenseCategory, w => w.Visible)
+				.InitializeFromSource();
 			labelComboOrganization.Binding.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible).InitializeFromSource();
 			comboOrganisation.SetRenderTextFunc<Domain.Organizations.Organization>(org => org.Name);
 			comboOrganisation.ItemsList = ViewModel.OurOrganisations;
@@ -64,6 +67,7 @@ namespace Vodovoz.Views.Cash
 			entryExplanation.Binding.AddBinding(ViewModel.Entity, e => e.Explanation, w => w.Buffer.Text).InitializeFromSource();
 			entryExplanation.Binding.AddBinding(ViewModel, vm => vm.IsNotClosed, w => w.Sensitive).InitializeFromSource();
 
+			eventBoxReasonsSeparator.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			eventBoxCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			labelCancelReason.Binding.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible).InitializeFromSource();
 			entryCancelReason.Binding.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text).InitializeFromSource();
