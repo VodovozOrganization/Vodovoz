@@ -182,7 +182,7 @@ namespace Vodovoz.Representations
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId)
-				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
+				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
 					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 				);
@@ -193,7 +193,7 @@ namespace Vodovoz.Representations
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId)
-				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
+				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
 					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 				);
