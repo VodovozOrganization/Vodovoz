@@ -18,9 +18,9 @@ namespace Vodovoz.ViewWidgets.Attacments
 
 		private global::Gamma.GtkWidgets.yButton btnDelete;
 
-		private global::Gtk.ScrolledWindow scrolledwindow1;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gtk.IconView iconviewFiles;
+		private global::Gamma.GtkWidgets.yTreeView treeFiles;
 
 		protected virtual void Build()
 		{
@@ -109,17 +109,16 @@ namespace Vodovoz.ViewWidgets.Attacments
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
-			this.scrolledwindow1.CanFocus = true;
-			this.scrolledwindow1.Name = "scrolledwindow1";
-			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrolledwindow1.Gtk.Container+ContainerChild
-			this.iconviewFiles = new global::Gtk.IconView();
-			this.iconviewFiles.CanFocus = true;
-			this.iconviewFiles.Name = "iconviewFiles";
-			this.scrolledwindow1.Add(this.iconviewFiles);
-			this.vbox1.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.scrolledwindow1]));
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.treeFiles = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeFiles.CanFocus = true;
+			this.treeFiles.Name = "treeFiles";
+			this.GtkScrolledWindow.Add(this.treeFiles);
+			this.vbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w12.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
