@@ -69,7 +69,8 @@ namespace Vodovoz.Models
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:
 					organizationId =
-						paymentFrom?.Id == _orderParametersProvider.PaymentByCardFromSmsId
+						paymentFrom != null
+						&& _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 							? _organizationParametersProvider.VodovozNorthOrganizationId
 							: _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
@@ -113,7 +114,8 @@ namespace Vodovoz.Models
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:
 					organizationId =
-						paymentFrom?.Id == _orderParametersProvider.PaymentByCardFromSmsId
+						paymentFrom != null
+						&& _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 							? _organizationParametersProvider.VodovozNorthOrganizationId
 							: _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
