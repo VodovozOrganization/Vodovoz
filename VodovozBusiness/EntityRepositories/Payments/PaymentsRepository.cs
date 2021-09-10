@@ -93,7 +93,7 @@ namespace Vodovoz.EntityRepositories.Payments
 			return distributedPayments;
 		}
 
-		public Payment GetRefundPaymentByRefundedPaymentId(IUnitOfWork uow, int refundedPaymentId)
+		public Payment GetRefundPayment(IUnitOfWork uow, int refundedPaymentId)
 		{
 			var refund = uow.Session.QueryOver<Payment>()
 				.Where(p => p.RefundedPayment.Id == refundedPaymentId)

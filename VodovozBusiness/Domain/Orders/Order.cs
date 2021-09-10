@@ -2649,8 +2649,6 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.Shipped:
-					DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
-					break;
 				case OrderStatus.InTravelList:
 				case OrderStatus.UnloadingOnStock:
 					break;
@@ -2671,6 +2669,8 @@ namespace Vodovoz.Domain.Orders
 			   || newStatus == OrderStatus.NotDelivered
 			   || initialStatus == newStatus)
 				return;
+
+			DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
 
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
@@ -2720,14 +2720,15 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказа
+		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
 		/// </summary>
 		/// <param name="previousStatus"></param>
 		private void DeleteRefundWhenOrderRestoredToDeliver(OrderStatus previousStatus)
 		{
-			if((previousStatus == OrderStatus.DeliveryCanceled || previousStatus == OrderStatus.NotDelivered)
-			   && PaymentType == PaymentType.cashless
-			   && OrderPaymentStatus != OrderPaymentStatus.Paid)
+			if((previousStatus == OrderStatus.DeliveryCanceled
+			    || previousStatus == OrderStatus.NotDelivered
+			    || previousStatus == OrderStatus.Canceled)
+			   && PaymentType == PaymentType.cashless)
 			{
 				var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
 				var payment = paymentItems.FirstOrDefault()?.Payment;
@@ -2736,10 +2737,19 @@ namespace Vodovoz.Domain.Orders
 					return;
 				}
 
-				var refundToDelete = _paymentsRepository.GetRefundPaymentByRefundedPaymentId(UoW, payment.Id);
+				var refundToDelete = _paymentsRepository.GetRefundPayment(UoW, payment.Id);
 				if(refundToDelete == null)
 				{
 					return;
+				}
+
+				var itemsToUpdate = refundToDelete.PaymentItems;
+
+				foreach(var pItem in itemsToUpdate)
+				{
+					var order = pItem.Order;
+					order.UpdateOrderPaymentStatus(pItem);
+					UoW.Save(order);
 				}
 
 				UoW.Delete(refundToDelete);
@@ -2749,6 +2759,29 @@ namespace Vodovoz.Domain.Orders
 					? OrderPaymentStatus.PartiallyPaid
 					: OrderPaymentStatus.Paid;
 			}
+		}
+
+		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
+		{
+			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id)
+				.Where(pi => pi != ignoredItem).ToList();
+			if(!paymentItems.Any())
+			{
+				if(PaymentType == PaymentType.cashless)
+				{
+					OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				}
+
+				return;
+			}
+
+			var totalPayed = paymentItems.Select(pi => pi.Sum).Sum();
+
+			OrderPaymentStatus = totalPayed == 0
+				? OrderPaymentStatus.UnPaid
+				: ActualTotalSum > totalPayed
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
 		}
 
 		/// <summary>
