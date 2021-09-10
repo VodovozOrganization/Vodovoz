@@ -32,6 +32,18 @@ namespace Vodovoz.ReportsParameters.Sales
 		public string Title => "Ставки для водителей";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+
+		protected void OnYcheckAllClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnYUnCheckAllClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
+		{
+		}
 	}
 
 	public class SalaryRateFilterNode
