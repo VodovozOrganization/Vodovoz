@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -90,6 +91,15 @@ namespace Vodovoz.EntityRepositories.Payments
 									.List();
 
 			return distributedPayments;
+		}
+
+		public Payment GetRefundPaymentByRefundedPaymentId(IUnitOfWork uow, int refundedPaymentId)
+		{
+			var refund = uow.Session.QueryOver<Payment>()
+				.Where(p => p.RefundedPayment.Id == refundedPaymentId)
+				.List()
+				.FirstOrDefault();
+			return refund;
 		}
 	}
 }

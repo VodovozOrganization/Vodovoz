@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Models;
@@ -60,6 +61,7 @@ namespace Vodovoz.Domain.Orders
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -2645,9 +2647,11 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.OnLoading:
 					OnChangeStatusToOnLoading();
 					break;
-				case OrderStatus.InTravelList:
 				case OrderStatus.OnTheWay:
 				case OrderStatus.Shipped:
+					DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
+					break;
+				case OrderStatus.InTravelList:
 				case OrderStatus.UnloadingOnStock:
 					break;
 				case OrderStatus.Closed:
@@ -2713,6 +2717,38 @@ namespace Vodovoz.Domain.Orders
 			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, Id);
 			
 			UoW.Save(newPayment);
+		}
+
+		/// <summary>
+		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказа
+		/// </summary>
+		/// <param name="previousStatus"></param>
+		private void DeleteRefundWhenOrderRestoredToDeliver(OrderStatus previousStatus)
+		{
+			if((previousStatus == OrderStatus.DeliveryCanceled || previousStatus == OrderStatus.NotDelivered)
+			   && PaymentType == PaymentType.cashless
+			   && OrderPaymentStatus != OrderPaymentStatus.Paid)
+			{
+				var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
+				var payment = paymentItems.FirstOrDefault()?.Payment;
+				if(payment == null)
+				{
+					return;
+				}
+
+				var refundToDelete = _paymentsRepository.GetRefundPaymentByRefundedPaymentId(UoW, payment.Id);
+				if(refundToDelete == null)
+				{
+					return;
+				}
+
+				UoW.Delete(refundToDelete);
+				var totalPayed = paymentItems.Select(pi => pi.Sum).Sum();
+
+				OrderPaymentStatus = ActualTotalSum > totalPayed
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
+			}
 		}
 
 		/// <summary>

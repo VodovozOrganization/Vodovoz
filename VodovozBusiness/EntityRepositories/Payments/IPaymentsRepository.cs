@@ -17,5 +17,6 @@ namespace Vodovoz.EntityRepositories.Payments
 		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId);
 		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider);
 		IList<Payment> GetAllDistributedPayments(IUnitOfWork uow);
+		Payment GetRefundPaymentByRefundedPaymentId(IUnitOfWork uow, int refundedPaymentId);
 	}
 }
