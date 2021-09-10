@@ -245,9 +245,9 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 				if(FilterViewModel.ShowSuspendedCounterparty)
-					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromSuspended);
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
 				if(FilterViewModel.ShowCancellationCounterparty)
-					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromCancellation);
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
 			}
 
 			#endregion Filter
