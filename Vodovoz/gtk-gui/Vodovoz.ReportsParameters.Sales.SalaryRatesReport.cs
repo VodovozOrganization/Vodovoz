@@ -20,6 +20,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.Name = "Vodovoz.ReportsParameters.Sales.SalaryRatesReport";
 			// Container child Vodovoz.ReportsParameters.Sales.SalaryRatesReport.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.WidthRequest = 500;
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
