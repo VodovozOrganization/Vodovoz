@@ -252,8 +252,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					result.Where(() => cashRequestAlias.PayoutRequestState == FilterViewModel.State);
 				}
 
-				if(FilterViewModel.DocumentType != PayoutRequestDocumentType.CashRequest &&
-				   FilterViewModel.DocumentType != null)
+				if(FilterViewModel.DocumentType != PayoutRequestDocumentType.CashRequest
+				   && FilterViewModel.DocumentType != null
+				   || FilterViewModel.Counterparty != null)
 				{
 					result.Where(cr => cr.Id == -1);
 				}
@@ -385,8 +386,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					result.Where(() => cashlessRequestAlias.PayoutRequestState == FilterViewModel.State);
 				}
 
-				if(FilterViewModel.DocumentType != PayoutRequestDocumentType.CashlessRequest &&
-				   FilterViewModel.DocumentType != null)
+				if(FilterViewModel.DocumentType != PayoutRequestDocumentType.CashlessRequest
+				   && FilterViewModel.DocumentType != null
+				   || FilterViewModel.AccountableEmployee != null)
 				{
 					result.Where(clr => clr.Id == -1);
 				}
