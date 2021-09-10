@@ -70,7 +70,7 @@ namespace Vodovoz.Models
 				case PaymentType.ByCard:
 					organizationId =
 						paymentFrom != null
-						&& _orderParametersProvider.PaymentsByCardForNorthOrganization.Contains(paymentFrom.Id)
+						&& _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 							? _organizationParametersProvider.VodovozNorthOrganizationId
 							: _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
@@ -115,7 +115,7 @@ namespace Vodovoz.Models
 				case PaymentType.ByCard:
 					organizationId =
 						paymentFrom != null
-						&& _orderParametersProvider.PaymentsByCardForNorthOrganization.Contains(paymentFrom.Id)
+						&& _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 							? _organizationParametersProvider.VodovozNorthOrganizationId
 							: _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;

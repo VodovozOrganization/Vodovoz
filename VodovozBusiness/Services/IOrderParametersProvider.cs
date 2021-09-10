@@ -16,6 +16,6 @@ namespace Vodovoz.Services
         
         int[] PaymentsByCardFromNotToSendSalesReceipts { get; }
 
-        int[] PaymentsByCardForNorthOrganization { get; }
+        int[] PaymentsByCardFromForNorthOrganization { get; }
     }
 }
