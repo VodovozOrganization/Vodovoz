@@ -65,6 +65,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			//FEDOS можно в параметры тупа обжект передать, нужно это использовать
 			return new ReportInfo {
+				//ПОПРОБОВАТЬ ИСПОЛЬЗОВАТЬ IENUMERABLE!!!!!!!!!!!!!!!!!!!!!!!
 				Identifier = "Logistic.AnalyticsForUndelivery",
 				Parameters = new Dictionary<string, object> {
 					{ "start_date", pkrDate.StartDate },
