@@ -63,5 +63,17 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
 			master.TabParent.AddTab(dlg, master);
 		}
+
+		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description, IPermissionService permissionService)
+		{
+			var dlg = new CashExpenseDlg(permissionService);
+			if(dlg.FailInitialize)
+			{
+				return;
+			}
+
+			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
+			master.TabParent.AddTab(dlg, master);
+		}
 	}
 }
