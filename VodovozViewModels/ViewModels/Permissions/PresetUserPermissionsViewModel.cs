@@ -23,11 +23,13 @@ namespace Vodovoz.ViewModels.Permissions
 			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>(permissionList);
 
 			originalPermissionsSourceList = PermissionsSettings.PresetPermissions.Values.ToList();
-			foreach(var item in permissionList) 
-			{
+			foreach (var item in permissionList) 
+			{ 
 				var sourceItem = originalPermissionsSourceList.SingleOrDefault(x => x.Name == item.PermissionName);
-				if(sourceItem != null)
+				if (sourceItem != null)
+				{
 					originalPermissionsSourceList.Remove(sourceItem);
+				}
 			}
 			ObservablePermissionsSourceList = new GenericObservableList<PresetUserPermissionSource>(originalPermissionsSourceList);
 
@@ -40,9 +42,11 @@ namespace Vodovoz.ViewModels.Permissions
 			originalPermissionsSourceList = PermissionsSettings.PresetPermissions.Values.ToList();
 			foreach (var item in permissionList) 
 			{ 
-				var sourceItem = originalPermissionsSourceList.SingleOrDefault(x => x.Name == item.PermissionName); 
-				if (sourceItem != null) 
+				var sourceItem = originalPermissionsSourceList.SingleOrDefault(x => x.Name == item.PermissionName);
+				if(sourceItem != null)
+				{
 					originalPermissionsSourceList.Remove(sourceItem);
+				}
 			}
 
 			ObservablePermissionsSourceList = null;
