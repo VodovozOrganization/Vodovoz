@@ -72,8 +72,35 @@ namespace Vodovoz.Core.Permissions
 				.Finish();
 
 			ytreeviewEntities.ItemsDataSource = model.ObservableTypeOfEntitiesList;
+			
+			searchSubdivisions.TextChanged += SearchSubdivisionsOnTextChanged;
+			searchTypesOfEntities.TextChanged += SearchPermissionsOnTextChanged;
 
 			Sensitive = true;
+		}
+		
+
+		private void SearchSubdivisionsOnTextChanged(object sender, EventArgs e)
+		{
+			model.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
+			if(searchSubdivisions.Text == "")
+			{
+				//возвращаем начальное состояние
+				var subdivisionsVM = new SubdivisionsVM(UoW);
+				subdivisionsVM.UpdateNodes();
+				treeviewSubdivisions.RepresentationModel.ItemsList.Clear();
+				foreach(var item in subdivisionsVM.ItemsList)
+				{
+					treeviewSubdivisions.RepresentationModel.ItemsList.Add(item);
+				}
+			}
+		}
+		
+		private void SearchPermissionsOnTextChanged(object sender, EventArgs e)
+		{
+			ytreeviewEntities.ItemsDataSource = null;
+			model.SearchPermissions(searchTypesOfEntities.Text);
+			ytreeviewEntities.ItemsDataSource = model.ObservableTypeOfEntitiesList;
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -196,5 +223,91 @@ namespace Vodovoz.Core.Permissions
 				uow.Delete(item);
 			}
 		}
+
+		#region Search
+
+		public void SearchSubdivisions(string searchString, RepresentationTreeView treeToSearch)
+		{
+			if(searchString != "")
+			{
+				var items = treeToSearch.RepresentationModel;
+				for(int i = 0; i < ((IList<SubdivisionVMNode>)items.ItemsList).Count; i++)
+				{
+					for(int j = 0; j < ((IList<SubdivisionVMNode>) items.ItemsList)[i].Children.Count; j++)
+					{
+						var itemToSearch = ((IList<SubdivisionVMNode>) items.ItemsList)[i].Children; 
+						RecursiveSearch(ref itemToSearch, searchString);
+						((IList<SubdivisionVMNode>) items.ItemsList)[i].Children = itemToSearch;
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Рекурсивный поиск, если у элемента (SubdivisionVMNode) списка есть Children -
+		/// функция запускается рекурсивно и проходится по всем зависимым Children
+		/// </summary>
+		/// <param name="node">Нода - список зависимых объектов предыдущей ноды</param>
+		/// <param name="searchString">Строка, по которой производится поиск</param>
+		private void RecursiveSearch(ref IList<SubdivisionVMNode> node, string searchString)
+		{
+			for(int i = 0; i < node.Count; i++)
+			{
+				if(node[i].Children.Count > 0)
+				{
+					for(int j = 0; j < node[i].Children.Count; j++)
+					{
+						if(node[i].Children[j].Children.Count > 0)
+						{
+							var nodes = node[i].Children;
+							RecursiveSearch(ref nodes, searchString);
+							node[i].Children = nodes;
+						}
+						else
+						{
+							//Поиск и удаление не подходящих подэлементов списка (без учета регистра),
+							//если у них нет зависимых подэлементов
+							if (node[i].Children[j].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+							{
+								node[i].Children.Remove(node[i].Children[j]);
+								j -= 1;
+							}
+						}
+					}
+				}
+				else
+				{
+					//Поиск и удаление не подходящих элементов списка (без учета регистра), если нет подэлементов
+					if (node[i].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+					{
+						node.Remove(node[i]);
+						i -= 1;
+					}
+				}
+				
+			}
+		}
+		
+		public void SearchPermissions(string searchString)
+		{
+			//Каждый раз перезаписываем список
+			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
+			
+			if(searchString != "")
+			{
+				for(int i = 0; i < ObservableTypeOfEntitiesList.Count; i++)
+				{
+					//Поиск и удаление не подходящих элементов списка (без учета регистра)
+					if (ObservableTypeOfEntitiesList[i].CustomName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+					{
+						ObservableTypeOfEntitiesList.Remove(ObservableTypeOfEntitiesList[i]);
+						i -= 1;
+					}
+				}
+			}
+		}
+
+		#endregion
 	}
 }
