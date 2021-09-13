@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using FluentNHibernate.Conventions;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Permissions;
@@ -37,10 +38,10 @@ namespace Vodovoz.ViewModels.Permissions
 		{
 			permissionList = permissionRepository.GetAllPresetUserPermission(UoW, user).OfType<HierarchicalPresetPermissionBase>().ToList();
 			originalPermissionsSourceList = PermissionsSettings.PresetPermissions.Values.ToList();
-			foreach(var item in permissionList) 
+			foreach (var item in permissionList) 
 			{ 
 				var sourceItem = originalPermissionsSourceList.SingleOrDefault(x => x.Name == item.PermissionName); 
-				if(sourceItem != null) 
+				if (sourceItem != null) 
 					originalPermissionsSourceList.Remove(sourceItem);
 			}
 
@@ -49,14 +50,14 @@ namespace Vodovoz.ViewModels.Permissions
 			ObservablePermissionsList = null;
 			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>(permissionList);
 			
-			if(searchString != "")
+			if(!searchString.IsEmpty())
 			{
 				for(int i = 0; i < ObservablePermissionsSourceList.Count; i++)
 				{
 					if (ObservablePermissionsSourceList[i].DisplayName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
 					{
 						ObservablePermissionsSourceList.Remove(ObservablePermissionsSourceList[i]);
-						i -= 1;
+						i--;
 					}
 				}
 				for(int i = 0; i < ObservablePermissionsList.Count; i++)
@@ -64,7 +65,7 @@ namespace Vodovoz.ViewModels.Permissions
 					if (ObservablePermissionsList[i].DisplayName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
 					{
 						ObservablePermissionsList.Remove(ObservablePermissionsList[i]);
-						i -= 1;
+						i--;
 					}
 				}
 			}

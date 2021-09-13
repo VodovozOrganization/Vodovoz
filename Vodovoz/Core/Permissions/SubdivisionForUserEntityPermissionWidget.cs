@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using FluentNHibernate.Conventions;
 using Gamma.Binding;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
@@ -82,7 +83,7 @@ namespace Vodovoz.Core.Permissions
 		private void SearchSubdivisionsOnTextChanged(object sender, EventArgs e)
 		{
 			model.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
-			if(searchSubdivisions.Text == "")
+			if(searchSubdivisions.Text.IsEmpty())
 			{
 				//возвращаем начальное состояние
 				var subdivisionsVM = new SubdivisionsVM(UoW);
@@ -227,7 +228,7 @@ namespace Vodovoz.Core.Permissions
 
 		public void SearchSubdivisions(string searchString, RepresentationTreeView treeToSearch)
 		{
-			if(searchString != "")
+			if(!searchString.IsEmpty())
 			{
 				var items = treeToSearch.RepresentationModel;
 				for(int i = 0; i < ((IList<SubdivisionVMNode>)items.ItemsList).Count; i++)
@@ -269,7 +270,7 @@ namespace Vodovoz.Core.Permissions
 							if (node[i].Children[j].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
 							{
 								node[i].Children.Remove(node[i].Children[j]);
-								j -= 1;
+								j--;
 							}
 						}
 					}
@@ -280,7 +281,7 @@ namespace Vodovoz.Core.Permissions
 					if (node[i].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
 					{
 						node.Remove(node[i]);
-						i -= 1;
+						i--;
 					}
 				}
 				
@@ -301,7 +302,7 @@ namespace Vodovoz.Core.Permissions
 					if (ObservableTypeOfEntitiesList[i].CustomName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
 					{
 						ObservableTypeOfEntitiesList.Remove(ObservableTypeOfEntitiesList[i]);
-						i -= 1;
+						i--;
 					}
 				}
 			}
