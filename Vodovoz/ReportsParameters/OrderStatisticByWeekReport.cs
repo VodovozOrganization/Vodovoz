@@ -18,7 +18,7 @@ namespace Vodovoz.ReportsParameters
 	{
 		private readonly GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
 
-        public OrderStatisticByWeekReport()
+		public OrderStatisticByWeekReport()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -26,15 +26,16 @@ namespace Vodovoz.ReportsParameters
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
 			dateperiodpicker.EndDate = DateTime.Today;
 
-            new List<string>() {
-                "План",
-                "Факт"
-            }.ForEach(comboboxReportMode.AppendText);
+			new List<string>()
+			{
+				"План",
+				"Факт"
+			}.ForEach(comboboxReportMode.AppendText);
 
-            comboboxReportMode.Active = 0;
+			comboboxReportMode.Active = 0;
 
 			_geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
-				UoW.GetAll<GeographicGroup>().Select(gg => new GeographicGroupNode(gg)).ToList());
+				UoW.GetAll<GeographicGroup>().Select(gg => new GeographicGroupNode(gg){Selected = true}).ToList());
 			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>
 				.Create()
 					.AddColumn("Выбрать").AddToggleRenderer(ggn => ggn.Selected).Editing()
@@ -43,7 +44,7 @@ namespace Vodovoz.ReportsParameters
 
 			ytreeviewGeographicGroup.ItemsDataSource = _geographicGroupNodes;
 			ytreeviewGeographicGroup.HeadersVisible = false;
-        }
+		}
 
 		#region IParametersWidget implementation
 
@@ -53,23 +54,22 @@ namespace Vodovoz.ReportsParameters
 
 		#endregion
 
-		public object EntityObject => null;
-
-		void OnUpdate(bool hide = false) => 
+		private void OnUpdate(bool hide = false) =>
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 
-		protected void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
+		private void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
 
 		private ReportInfo GetReportInfo()
 		{
-			var selectedGeoGroupsIds = _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id).ToArray();
-			return new ReportInfo {
+			var selectedGeoGroupsIds = _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id);
+			return new ReportInfo
+			{
 				Identifier = "Logistic.OrderStatisticByWeek",
-                Parameters = new Dictionary<string, object>
+				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
-                    { "report_mode", comboboxReportMode.Active },
+					{ "report_mode", comboboxReportMode.Active },
 					{ "geographic_group_id", selectedGeoGroupsIds },
 					{ "selected_filters", GetSelectedFilters() }
 				}
@@ -93,8 +93,5 @@ namespace Vodovoz.ReportsParameters
 
 			return result;
 		}
-
-		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e) => 
-			buttonRun.Sensitive = dateperiodpicker.StartDateOrNull.HasValue && dateperiodpicker.EndDateOrNull.HasValue;
 	}
 }
