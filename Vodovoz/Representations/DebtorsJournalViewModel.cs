@@ -181,24 +181,16 @@ namespace Vodovoz.Representations
 				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
-				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId
-				           && orderAlias.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId)
-				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
-					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
-				).OrderBy(x => x.DeliveryDate).Desc.Take(1);
+				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId)
+				.And(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id);
 
 			var orderFromCancellation = QueryOver.Of(() => orderFromAnotherDPAlias)
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
 				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
-				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId
-				           && orderAlias.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId)
-				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
-					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
-				).OrderBy(x => x.DeliveryDate).Desc.Take(1);
+				.And(() => orderFromAnotherDPAlias.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId)
+				.And(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id);
 
 			OrderStatus[] statusOptions = {OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled};
 
@@ -382,7 +374,7 @@ namespace Vodovoz.Representations
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
 					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
-				).OrderBy(x => x.DeliveryDate).Desc.Take(1);
+				);
 
 			var orderFromCancellation = QueryOver.Of(() => orderFromAnotherDPAlias)
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
@@ -393,7 +385,7 @@ namespace Vodovoz.Representations
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
 					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
 					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
-				).OrderBy(x => x.DeliveryDate).Desc.Take(1);
+				);
 
 			#endregion LastOrder
 
