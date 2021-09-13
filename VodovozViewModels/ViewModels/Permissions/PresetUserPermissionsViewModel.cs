@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using FluentNHibernate.Conventions;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Permissions;
@@ -22,14 +23,56 @@ namespace Vodovoz.ViewModels.Permissions
 			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>(permissionList);
 
 			originalPermissionsSourceList = PermissionsSettings.PresetPermissions.Values.ToList();
-			foreach(var item in permissionList) {
+			foreach (var item in permissionList) 
+			{ 
 				var sourceItem = originalPermissionsSourceList.SingleOrDefault(x => x.Name == item.PermissionName);
-				if(sourceItem != null)
+				if (sourceItem != null)
+				{
 					originalPermissionsSourceList.Remove(sourceItem);
+				}
 			}
 			ObservablePermissionsSourceList = new GenericObservableList<PresetUserPermissionSource>(originalPermissionsSourceList);
 
 			OrderPermission();
+		}
+		
+		public override void StartSearch(string searchString)
+		{
+			permissionList = permissionRepository.GetAllPresetUserPermission(UoW, user).OfType<HierarchicalPresetPermissionBase>().ToList();
+			originalPermissionsSourceList = PermissionsSettings.PresetPermissions.Values.ToList();
+			foreach (var item in permissionList) 
+			{ 
+				var sourceItem = originalPermissionsSourceList.SingleOrDefault(x => x.Name == item.PermissionName);
+				if(sourceItem != null)
+				{
+					originalPermissionsSourceList.Remove(sourceItem);
+				}
+			}
+
+			ObservablePermissionsSourceList = null;
+			ObservablePermissionsSourceList = new GenericObservableList<PresetUserPermissionSource>(originalPermissionsSourceList);
+			ObservablePermissionsList = null;
+			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>(permissionList);
+			
+			if(!searchString.IsEmpty())
+			{
+				for(int i = 0; i < ObservablePermissionsSourceList.Count; i++)
+				{
+					if (ObservablePermissionsSourceList[i].DisplayName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+					{
+						ObservablePermissionsSourceList.Remove(ObservablePermissionsSourceList[i]);
+						i--;
+					}
+				}
+				for(int i = 0; i < ObservablePermissionsList.Count; i++)
+				{
+					if (ObservablePermissionsList[i].DisplayName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+					{
+						ObservablePermissionsList.Remove(ObservablePermissionsList[i]);
+						i--;
+					}
+				}
+			}
 		}
 
 		public override DelegateCommand<PresetUserPermissionSource> AddPermissionCommand {
