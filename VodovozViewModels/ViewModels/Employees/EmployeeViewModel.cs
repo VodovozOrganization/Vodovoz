@@ -832,12 +832,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			return DomainHelper.GenerateDialogHashName(typeof(Employee), id);
 		}
 		
-		public override void Close(bool askSave, CloseSource source)
-		{
-			base.Close(askSave, source);
-			Dispose();
-		}
-		
 		public override void Dispose()
 		{
 			UoW?.Dispose();
