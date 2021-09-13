@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using FluentNHibernate.Conventions;
 using Gamma.Binding;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
@@ -72,8 +73,41 @@ namespace Vodovoz.Core.Permissions
 				.Finish();
 
 			ytreeviewEntities.ItemsDataSource = model.ObservableTypeOfEntitiesList;
+			
+			searchSubdivisions.TextChanged += SearchSubdivisionsOnTextChanged;
+			searchTypesOfEntities.TextChanged += SearchPermissionsOnTextChanged;
 
+			treeviewSubdivisions.ExpandAll();
+			
 			Sensitive = true;
+		}
+		
+		private void SearchSubdivisionsOnTextChanged(object sender, EventArgs e)
+		{
+			treeviewSubdivisions.CollapseAll();
+			
+			//возвращаем начальное состояние
+			var subdivisionsVM = new SubdivisionsVM(UoW);
+			subdivisionsVM.UpdateNodes();
+			treeviewSubdivisions.RepresentationModel.ItemsList.Clear();
+			foreach(var item in subdivisionsVM.ItemsList)
+			{
+				treeviewSubdivisions.RepresentationModel.ItemsList.Add(item);
+			}
+			
+			if(!searchSubdivisions.Text.IsEmpty())
+			{
+				model.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
+			}
+
+			treeviewSubdivisions.ExpandAll();
+		}
+		
+		private void SearchPermissionsOnTextChanged(object sender, EventArgs e)
+		{
+			ytreeviewEntities.ItemsDataSource = null;
+			model.SearchPermissions(searchTypesOfEntities.Text);
+			ytreeviewEntities.ItemsDataSource = model.ObservableTypeOfEntitiesList;
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -196,5 +230,94 @@ namespace Vodovoz.Core.Permissions
 				uow.Delete(item);
 			}
 		}
+
+		#region Search
+
+		public void SearchSubdivisions(string searchString, RepresentationTreeView treeToSearch)
+		{
+			if(!searchString.IsEmpty())
+			{
+				var items = treeToSearch.RepresentationModel.ItemsList as IList<SubdivisionVMNode>;
+				if(items != null)
+				{
+					for(int i = 0; i < items.Count; i++)
+					{
+						for(int j = 0; j < items[i].Children.Count; j++)
+						{
+							var itemToSearch = items[i].Children; 
+							RecursiveSearch(ref itemToSearch, searchString);
+							items[i].Children = itemToSearch;
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Рекурсивный поиск, если у элемента (SubdivisionVMNode) списка есть Children -
+		/// функция запускается рекурсивно и проходится по всем зависимым Children
+		/// </summary>
+		/// <param name="node">Нода - список зависимых объектов предыдущей ноды</param>
+		/// <param name="searchString">Строка, по которой производится поиск</param>
+		private void RecursiveSearch(ref IList<SubdivisionVMNode> node, string searchString)
+		{
+			for(int i = 0; i < node.Count; i++)
+			{
+				if(node[i].Children.Count > 0)
+				{
+					for(int j = 0; j < node[i].Children.Count; j++)
+					{
+						if(node[i].Children[j].Children.Count > 0)
+						{
+							var nodes = node[i].Children;
+							RecursiveSearch(ref nodes, searchString);
+							node[i].Children = nodes;
+						}
+						else
+						{
+							//Поиск и удаление не подходящих подэлементов списка (без учета регистра),
+							//если у них нет зависимых подэлементов
+							if (node[i].Children[j].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+							{
+								node[i].Children.Remove(node[i].Children[j]);
+								j--;
+							}
+						}
+					}
+				}
+				else
+				{
+					//Поиск и удаление не подходящих элементов списка (без учета регистра), если нет подэлементов
+					if (node[i].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+					{
+						node.Remove(node[i]);
+						i--;
+					}
+				}
+				
+			}
+		}
+		
+		public void SearchPermissions(string searchString)
+		{
+			//Каждый раз перезаписываем список
+			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
+			
+			if(searchString != "")
+			{
+				for(int i = 0; i < ObservableTypeOfEntitiesList.Count; i++)
+				{
+					//Поиск и удаление не подходящих элементов списка (без учета регистра)
+					if (ObservableTypeOfEntitiesList[i].CustomName.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
+					{
+						ObservableTypeOfEntitiesList.Remove(ObservableTypeOfEntitiesList[i]);
+						i--;
+					}
+				}
+			}
+		}
+
+		#endregion
 	}
 }
