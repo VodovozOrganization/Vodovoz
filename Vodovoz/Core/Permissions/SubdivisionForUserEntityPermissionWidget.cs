@@ -79,7 +79,6 @@ namespace Vodovoz.Core.Permissions
 			Sensitive = true;
 		}
 		
-
 		private void SearchSubdivisionsOnTextChanged(object sender, EventArgs e)
 		{
 			model.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
