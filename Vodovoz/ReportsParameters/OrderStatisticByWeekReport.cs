@@ -61,7 +61,10 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			var selectedGeoGroupsIds = _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id);
+			var selectedGeoGroupsIds = _geographicGroupNodes.Any(ggn => ggn.Selected)
+				? _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id)
+				: _geographicGroupNodes.Select(ggn => ggn.GeographicGroup.Id);
+
 			return new ReportInfo
 			{
 				Identifier = "Logistic.OrderStatisticByWeek",
@@ -79,7 +82,16 @@ namespace Vodovoz.ReportsParameters
 		private string GetSelectedFilters()
 		{
 			var result = "Фильтры: части города -";
-			_geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.ToString()).ForEach(ggName => result += $" {ggName},");
+			if(!_geographicGroupNodes.Any(ggn => ggn.Selected)
+			   || _geographicGroupNodes.Count(ggn => ggn.Selected) == _geographicGroupNodes.Count)
+			{
+				result += " все,";
+			}
+			else
+			{
+				_geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.ToString()).ForEach(ggName => result += $" {ggName},");
+			}
+
 			result += " тип значений -";
 			switch(comboboxReportMode.Active)
 			{
