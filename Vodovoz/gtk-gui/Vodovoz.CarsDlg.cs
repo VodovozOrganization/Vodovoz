@@ -196,7 +196,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label23;
 
-		private global::QSAttachment.Attachment attachmentFiles;
+		private global::Vodovoz.ViewWidgets.Attacments.AttachmentsView attachmentsView;
 
 		private global::Gtk.Label label2;
 
@@ -1249,17 +1249,17 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.vboxGeographicGroups, this.label23);
 			this.label23.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.attachmentFiles = new global::QSAttachment.Attachment();
-			this.attachmentFiles.Events = ((global::Gdk.EventMask)(256));
-			this.attachmentFiles.Name = "attachmentFiles";
-			this.notebook1.Add(this.attachmentFiles);
-			global::Gtk.Notebook.NotebookChild w95 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.attachmentFiles]));
+			this.attachmentsView = new global::Vodovoz.ViewWidgets.Attacments.AttachmentsView();
+			this.attachmentsView.Events = ((global::Gdk.EventMask)(256));
+			this.attachmentsView.Name = "attachmentsView";
+			this.notebook1.Add(this.attachmentsView);
+			global::Gtk.Notebook.NotebookChild w95 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.attachmentsView]));
 			w95.Position = 2;
 			// Notebook tab
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Файлы");
-			this.notebook1.SetTabLabel(this.attachmentFiles, this.label2);
+			this.notebook1.SetTabLabel(this.attachmentsView, this.label2);
 			this.label2.ShowAll();
 			this.vbox1.Add(this.notebook1);
 			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
