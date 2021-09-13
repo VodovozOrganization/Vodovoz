@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::QS.Widgets.GtkUI.RepresentationTreeView treeviewSubdivisions;
 
-		private global::QSWidgetLib.SearchEntity searchPresetPermissions;
+		private global::QSWidgetLib.SearchEntity searchSubdivisions;
 
 		private global::Gtk.VBox vbox3;
 
@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewEntities;
 
-		private global::QSWidgetLib.SearchEntity searchPresetPermissions1;
+		private global::QSWidgetLib.SearchEntity searchTypesOfEntities;
 
 		private global::Gtk.HBox hbox2;
 
@@ -74,11 +74,11 @@ namespace Vodovoz.Core.Permissions
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
 			w2.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.searchPresetPermissions = new global::QSWidgetLib.SearchEntity();
-			this.searchPresetPermissions.Events = ((global::Gdk.EventMask)(256));
-			this.searchPresetPermissions.Name = "searchPresetPermissions";
-			this.vbox2.Add(this.searchPresetPermissions);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.searchPresetPermissions]));
+			this.searchSubdivisions = new global::QSWidgetLib.SearchEntity();
+			this.searchSubdivisions.Events = ((global::Gdk.EventMask)(256));
+			this.searchSubdivisions.Name = "searchSubdivisions";
+			this.vbox2.Add(this.searchSubdivisions);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.searchSubdivisions]));
 			w3.Position = 1;
 			w3.Expand = false;
 			w3.Fill = false;
@@ -102,11 +102,11 @@ namespace Vodovoz.Core.Permissions
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow1]));
 			w6.Position = 0;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.searchPresetPermissions1 = new global::QSWidgetLib.SearchEntity();
-			this.searchPresetPermissions1.Events = ((global::Gdk.EventMask)(256));
-			this.searchPresetPermissions1.Name = "searchPresetPermissions1";
-			this.vbox3.Add(this.searchPresetPermissions1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.searchPresetPermissions1]));
+			this.searchTypesOfEntities = new global::QSWidgetLib.SearchEntity();
+			this.searchTypesOfEntities.Events = ((global::Gdk.EventMask)(256));
+			this.searchTypesOfEntities.Name = "searchTypesOfEntities";
+			this.vbox3.Add(this.searchTypesOfEntities);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.searchTypesOfEntities]));
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
