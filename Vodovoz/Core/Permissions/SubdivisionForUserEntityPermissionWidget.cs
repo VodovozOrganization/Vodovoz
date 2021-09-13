@@ -230,14 +230,14 @@ namespace Vodovoz.Core.Permissions
 		{
 			if(!searchString.IsEmpty())
 			{
-				var items = treeToSearch.RepresentationModel;
-				for(int i = 0; i < ((IList<SubdivisionVMNode>)items.ItemsList).Count; i++)
+				var items = treeToSearch.RepresentationModel.ItemsList as IList<SubdivisionVMNode>;
+				for(int i = 0; i < items.Count; i++)
 				{
-					for(int j = 0; j < ((IList<SubdivisionVMNode>) items.ItemsList)[i].Children.Count; j++)
+					for(int j = 0; j < items[i].Children.Count; j++)
 					{
-						var itemToSearch = ((IList<SubdivisionVMNode>) items.ItemsList)[i].Children; 
+						var itemToSearch = items[i].Children; 
 						RecursiveSearch(ref itemToSearch, searchString);
-						((IList<SubdivisionVMNode>) items.ItemsList)[i].Children = itemToSearch;
+						items[i].Children = itemToSearch;
 					}
 				}
 			}
