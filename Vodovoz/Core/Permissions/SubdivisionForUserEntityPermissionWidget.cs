@@ -77,23 +77,30 @@ namespace Vodovoz.Core.Permissions
 			searchSubdivisions.TextChanged += SearchSubdivisionsOnTextChanged;
 			searchTypesOfEntities.TextChanged += SearchPermissionsOnTextChanged;
 
+			treeviewSubdivisions.ExpandAll();
+			
 			Sensitive = true;
 		}
 		
 		private void SearchSubdivisionsOnTextChanged(object sender, EventArgs e)
 		{
-			model.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
-			if(searchSubdivisions.Text.IsEmpty())
+			treeviewSubdivisions.CollapseAll();
+			
+			//возвращаем начальное состояние
+			var subdivisionsVM = new SubdivisionsVM(UoW);
+			subdivisionsVM.UpdateNodes();
+			treeviewSubdivisions.RepresentationModel.ItemsList.Clear();
+			foreach(var item in subdivisionsVM.ItemsList)
 			{
-				//возвращаем начальное состояние
-				var subdivisionsVM = new SubdivisionsVM(UoW);
-				subdivisionsVM.UpdateNodes();
-				treeviewSubdivisions.RepresentationModel.ItemsList.Clear();
-				foreach(var item in subdivisionsVM.ItemsList)
-				{
-					treeviewSubdivisions.RepresentationModel.ItemsList.Add(item);
-				}
+				treeviewSubdivisions.RepresentationModel.ItemsList.Add(item);
 			}
+			
+			if(!searchSubdivisions.Text.IsEmpty())
+			{
+				model.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
+			}
+
+			treeviewSubdivisions.ExpandAll();
 		}
 		
 		private void SearchPermissionsOnTextChanged(object sender, EventArgs e)
