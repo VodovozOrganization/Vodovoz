@@ -97,8 +97,7 @@ namespace Vodovoz.EntityRepositories.Payments
 		{
 			var refund = uow.Session.QueryOver<Payment>()
 				.Where(p => p.RefundedPayment.Id == refundedPaymentId)
-				.List()
-				.FirstOrDefault();
+				.SingleOrDefault();
 			return refund;
 		}
 	}

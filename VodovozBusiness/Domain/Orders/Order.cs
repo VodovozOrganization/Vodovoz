@@ -2753,7 +2753,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				UoW.Delete(refundToDelete);
-				var totalPayed = paymentItems.Select(pi => pi.Sum).Sum();
+				var totalPayed = paymentItems.Sum(pi => pi.Sum);
 
 				OrderPaymentStatus = ActualTotalSum > totalPayed
 					? OrderPaymentStatus.PartiallyPaid
@@ -2775,7 +2775,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var totalPayed = paymentItems.Select(pi => pi.Sum).Sum();
+			var totalPayed = paymentItems.Sum(pi => pi.Sum);
 
 			OrderPaymentStatus = totalPayed == 0
 				? OrderPaymentStatus.UnPaid
