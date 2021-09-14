@@ -7,6 +7,6 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 	{
 		bool Validate(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse, User user);
 		bool Validate(WarehousePermissionsType warehousePermissionType, int warehouseId);
-		IEnumerable<Store.Warehouse> GetAllowedWarehouses(WarehousePermissionsType permissionType, Subdivision subdivision);
+		IEnumerable<Store.Warehouse> GetAllowedWarehouses(WarehousePermissionsType permissionType, Employee employee);
 	}
 }

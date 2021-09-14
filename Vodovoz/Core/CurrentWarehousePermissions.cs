@@ -32,14 +32,14 @@ namespace Vodovoz.Core
 				var subdivision = employee.Subdivision;
 				permissions = new List<WarehousePermissionBase>();
 				var userWarehousePermissionsQuery = uow.Session.QueryOver<UserWarehousePermission>()
-					.Where(x => x.User.Id == userId && x.PermissionValue == true).List();
+					.Where(x => x.User.Id == userId).List();
 				userWarehousePermissionsQuery.ForEach(x => permissions.Add(x));
-				while(subdivision != null || !permissions.Any())
+				while(subdivision != null)
 				{
 					var subdivisionWarehousePermissionQuery = uow.Session.QueryOver<SubdivisionWarehousePermission>()
-						.Where(x => x.Subdivision.Id == subdivision.Id && x.PermissionValue == true).List();
+						.Where(x => x.Subdivision.Id == subdivision.Id).List();
 					subdivisionWarehousePermissionQuery.ForEach(x => permissions.Add(x));
-					subdivision = subdivision?.ParentSubdivision;
+					subdivision = subdivision.ParentSubdivision;
 				}
 			}
 		}

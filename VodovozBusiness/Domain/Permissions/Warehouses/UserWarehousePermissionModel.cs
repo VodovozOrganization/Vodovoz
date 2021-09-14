@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
@@ -14,10 +15,12 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 		{
 			_uow = uow;
 			_user = user;
-			AllPermission = GetEnumerator().ToList();
+			AllPermission = _uow.Session
+				.QueryOver<UserWarehousePermission>().Where(x => x.User.Id == _user.Id)
+				.List().ToList<WarehousePermissionBase>();
 		}
 
-		public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse, bool? permissionValue)
+		public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Warehouse warehouse, bool? permissionValue)
 		{
 			var findPermission = AllPermission.SingleOrDefault(x =>
 				x.Warehouse == warehouse &&
@@ -42,7 +45,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 			}
 		}
 
-		public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse)
+		public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Warehouse warehouse)
 		{
 			var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermissionType);
 			if(permissionForDelete != null)
@@ -50,10 +53,6 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 				_uow.Delete(permissionForDelete);
 			}
 		}
-
-		public override IEnumerable<WarehousePermissionBase> GetEnumerator() => _uow.Session
-			.QueryOver<UserWarehousePermission>().Where(x => x.User.Id == _user.Id)
-			.List();
 
 		public override List<WarehousePermissionBase> AllPermission { get; set; }
 	}

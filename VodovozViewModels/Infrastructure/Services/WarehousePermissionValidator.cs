@@ -8,19 +8,36 @@ namespace Vodovoz.Core
 {
 	public class WarehousePermissionValidator : IWarehousePermissionValidator
 	{
-		private readonly IEnumerable<SubdivisionWarehousePermission> subdivisionWarehousePermissions;
+		private readonly IEnumerable<SubdivisionWarehousePermission> _subdivisionWarehousePermissions;
 
 		public WarehousePermissionValidator(IEnumerable<SubdivisionWarehousePermission> subdivisionWarehousePermissions)
 		{
-			this.subdivisionWarehousePermissions = subdivisionWarehousePermissions;
+			_subdivisionWarehousePermissions = subdivisionWarehousePermissions;
 		}
 
-		public IEnumerable<Warehouse> GetAllowedWarehouses(WarehousePermissionsType permissionType, Subdivision subdivision)
+		public IEnumerable<Warehouse> GetAllowedWarehouses(WarehousePermissionsType permissionType, Employee employee)
 		{
+			// var userId = ServicesConfig.UserService.CurrentUserId;
+			// using(var uow = UnitOfWorkFactory.CreateForRoot<User>(userId))
+			// {
+			// 	var employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
+			// 	var subdivision = employee.Subdivision;
+			// 	permissions = new List<WarehousePermissionBase>();
+			// 	var userWarehousePermissionsQuery = uow.Session.QueryOver<UserWarehousePermission>()
+			// 		.Where(x => x.User.Id == userId).List();
+			// 	userWarehousePermissionsQuery.ForEach(x => permissions.Add(x));
+			// 	while(subdivision != null)
+			// 	{
+			// 		var subdivisionWarehousePermissionQuery = uow.Session.QueryOver<SubdivisionWarehousePermission>()
+			// 			.Where(x => x.Subdivision.Id == subdivision.Id).List();
+			// 		subdivisionWarehousePermissionQuery.ForEach(x => permissions.Add(x));
+			// 		subdivision = subdivision.ParentSubdivision;
+			// 	}
+			// }
 			var warehouse = new List<SubdivisionWarehousePermission>();
 			while (subdivision != null)
 			{
-				var permissions = subdivisionWarehousePermissions.Where(x =>
+				var permissions = _subdivisionWarehousePermissions.Where(x =>
 						x.WarehousePermissionType == permissionType
 						&& x.Subdivision.Id == subdivision.Id);
 				warehouse.AddRange(permissions);
@@ -37,7 +54,7 @@ namespace Vodovoz.Core
 		}
 
 		public bool Validate(WarehousePermissionsType warehousePermissionsType, int warehouseId)
-			=> subdivisionWarehousePermissions.SingleOrDefault(x =>
+			=> _subdivisionWarehousePermissions.SingleOrDefault(x =>
 					x.Warehouse.Id == warehouseId && x.WarehousePermissionType == warehousePermissionsType).PermissionValue
 				.Value;
 	}

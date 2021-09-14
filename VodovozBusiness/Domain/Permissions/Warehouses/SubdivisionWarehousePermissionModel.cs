@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
@@ -11,12 +12,14 @@ namespace Vodovoz.Domain.Permissions.Warehouses
         private Subdivision _subdivision;
         public SubdivisionWarehousePermissionModelBase(IUnitOfWork unitOfWork, Subdivision subdivision)
         {
-            this._uow = unitOfWork;
-            this._subdivision = subdivision;
-            AllPermission = GetEnumerator().ToList();
+            _uow = unitOfWork;
+            _subdivision = subdivision;
+            AllPermission = _uow.Session
+	            .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == _subdivision.Id)
+	            .List().ToList<WarehousePermissionBase>();
         }
 
-        public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse, bool? permissionValue)
+        public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Warehouse warehouse, bool? permissionValue)
         {
             var findPermission = AllPermission.SingleOrDefault(x =>
                 x.Warehouse == warehouse &&
@@ -40,16 +43,12 @@ namespace Vodovoz.Domain.Permissions.Warehouses
             }
         }
 
-        public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse)
+        public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Warehouse warehouse)
         {
             var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermissionType);
             if (permissionForDelete != null)
                 _uow.TryDelete(permissionForDelete);
         }
-
-        public override IEnumerable<WarehousePermissionBase> GetEnumerator() => _uow.Session
-            .QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == _subdivision.Id)
-            .List();
 
         public override List<WarehousePermissionBase> AllPermission { get; set; }
     }
