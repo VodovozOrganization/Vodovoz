@@ -6,56 +6,55 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {
     public class WarehousePermissionAllNodeViewModelBase : PropertyChangedBase
     {
-        
-        private string title;
+	    private string _title;
         public string Title
         {
-            get => title; 
-            set => SetField(ref title, value);
+            get => _title; 
+            set => SetField(ref _title, value);
         }
-
-        private List<WarehousePermissionNodeViewModel> subNodeViewModel;
+        
+        private List<WarehousePermissionNodeViewModel> _subNodeViewModel;
         public List<WarehousePermissionNodeViewModel> SubNodeViewModel
         {
-            get => subNodeViewModel;
-            set => SetField(ref subNodeViewModel, value);
+            get => _subNodeViewModel;
+            set => SetField(ref _subNodeViewModel, value);
         }
 
-        private bool? permissionValue;
+        private bool? _permissionValue;
         public bool? PermissionValue
         {
-            get => permissionValue;
+            get => _permissionValue;
             set
             {
-                if (UnSetAll) SetField(ref permissionValue, value);
-                else if (SetField(ref permissionValue, value))
+                if (UnSetAll) SetField(ref _permissionValue, value);
+                else if (SetField(ref _permissionValue, value))
                 {
-                    if (permissionValue.HasValue || !value.HasValue)
+                    if (_permissionValue.HasValue || !value.HasValue)
                     {
                         foreach (var subNode in SubNodeViewModel)
                         {
-                            subNode.UnSubscribe = true;
+                            subNode.Unsubscribed = true;
                             subNode.PermissionValue = value;
-                            subNode.UnSubscribe = false;
+                            subNode.Unsubscribed = false;
                         }
                     }
-                    else if (permissionValue == value)
+                    else if (_permissionValue == value)
                     {
                         foreach (var subNode in SubNodeViewModel)
                         {
-                            subNode.UnSubscribe = true;
+                            subNode.Unsubscribed = true;
                             subNode.PermissionValue = value;
-                            subNode.UnSubscribe = false;
+                            subNode.Unsubscribed = false;
                         }
                     }
                 }
-                ItemChangeSelectAll?.Invoke(this, EventArgs.Empty);
+                ItemSelectAllChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
         public bool UnSetAll = false;
-        public bool UnSubscribeAll = false;
+        public bool UnsubscribedAll = false;
 
-        public EventHandler ItemChangeSelectAll;
+        public EventHandler ItemSelectAllChanged;
     }
 }

@@ -21,7 +21,7 @@ namespace Vodovoz.Core
 			while (subdivision != null)
 			{
 				var permissions = subdivisionWarehousePermissions.Where(x =>
-						x.WarehousePermissionTypeType == permissionType
+						x.WarehousePermissionType == permissionType
 						&& x.Subdivision.Id == subdivision.Id);
 				warehouse.AddRange(permissions);
 				subdivision = subdivision.ParentSubdivision;
@@ -38,7 +38,7 @@ namespace Vodovoz.Core
 
 		public bool Validate(WarehousePermissionsType warehousePermissionsType, int warehouseId)
 			=> subdivisionWarehousePermissions.SingleOrDefault(x =>
-					x.Warehouse.Id == warehouseId && x.WarehousePermissionTypeType == warehousePermissionsType).PermissionValue
+					x.Warehouse.Id == warehouseId && x.WarehousePermissionType == warehousePermissionsType).PermissionValue
 				.Value;
 	}
 }

@@ -12,8 +12,8 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 
 		public UserWarehousePermissionModelBase(IUnitOfWork uow, User user)
 		{
-			this._uow = uow;
-			this._user = user;
+			_uow = uow;
+			_user = user;
 			AllPermission = GetEnumerator().ToList();
 		}
 
@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 		{
 			var findPermission = AllPermission.SingleOrDefault(x =>
 				x.Warehouse == warehouse &&
-				x.WarehousePermissionTypeType == warehousePermissionType);
+				x.WarehousePermissionType == warehousePermissionType);
 
 			if(findPermission is null)
 			{
@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 					PermissionType = PermissionType.User,
 					Warehouse = warehouse,
 					PermissionValue = permissionValue,
-					WarehousePermissionTypeType = warehousePermissionType
+					WarehousePermissionType = warehousePermissionType
 				};
 				_uow.Save(userWarehousePermission);
 			}
@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 
 		public override void DeletePermission(WarehousePermissionsType warehousePermissionType, Store.Warehouse warehouse)
 		{
-			var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionTypeType == warehousePermissionType);
+			var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermissionType);
 			if(permissionForDelete != null)
 			{
 				_uow.Delete(permissionForDelete);

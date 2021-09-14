@@ -11,11 +11,11 @@ namespace Vodovoz.Domain.Permissions.Warehouses
     {
         public override PermissionType PermissionType => PermissionType.Subdivision;
 
-        private Subdivision subdivision;
+        private Subdivision _subdivision;
         [Display(Name = "Подразделение")]
         public virtual Subdivision Subdivision {
-            get => subdivision;
-            set => SetField(ref subdivision, value);
+            get => _subdivision;
+            set => SetField(ref _subdivision, value);
         }
     }
 }

@@ -24,13 +24,13 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 			set => SetField(ref _permissionType, value);
 		}
 
-		private WarehousePermissionsType _warehousePermissionTypeType;
+		private WarehousePermissionsType _warehousePermissionType;
 
 		[Display(Name = "Права склада")]
-		public virtual WarehousePermissionsType WarehousePermissionTypeType
+		public virtual WarehousePermissionsType WarehousePermissionType
 		{
-			get => _warehousePermissionTypeType;
-			set => SetField(ref _warehousePermissionTypeType, value);
+			get => _warehousePermissionType;
+			set => SetField(ref _warehousePermissionType, value);
 		}
 
 		private Warehouse _warehouse;

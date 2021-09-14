@@ -12,17 +12,17 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 
         public WarehousePermissionNodeViewModel(Warehouse warehouse, WarehousePermissionsType warehousePermissionsType, WarehousePermissionModelBase warehousePermissionModelBase)
         {
-            this.warehouse = warehouse;
+            this._warehouse = warehouse;
             this._warehousePermissionsType = warehousePermissionsType;
             this.WarehousePermissionModelBase = warehousePermissionModelBase;
             var permissions = warehousePermissionModelBase.AllPermission;
             if (permissions.Any())
             {
-                this.permissionValue = permissions
-                    .Where(x => x.Warehouse == Warehouse && x.WarehousePermissionTypeType == WarehousePermissionsType)
+                this._permissionValue = permissions
+                    .Where(x => x.Warehouse == Warehouse && x.WarehousePermissionType == WarehousePermissionsType)
                     .Select(x=>x.PermissionValue).SingleOrDefault();
             }
-            UnSubscribe = false;
+            Unsubscribed = false;
         }
 
         private WarehousePermissionsType _warehousePermissionsType;
@@ -32,31 +32,31 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             set => SetField(ref _warehousePermissionsType, value);
         }
 
-        private Warehouse warehouse;
+        private Warehouse _warehouse;
         public Warehouse Warehouse
         {
-            get => warehouse;
-            set => SetField(ref warehouse, value);
+            get => _warehouse;
+            set => SetField(ref _warehouse, value);
         }
 
-        private bool? permissionValue;
+        private bool? _permissionValue;
         public bool? PermissionValue
         {
-            get => permissionValue;
+            get => _permissionValue;
             set
             {
-                SetField(ref permissionValue, value);
-                ItemChangeValue?.Invoke(this, EventArgs.Empty);
+                if(SetField(ref _permissionValue, value))
+	                ItemValueChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        public EventHandler ItemChangeValue;
+        public EventHandler ItemValueChanged;
 
-        private bool unSubscribe;
-        public bool UnSubscribe
+        private bool _unsubscribed;
+        public bool Unsubscribed
         {
-            get => unSubscribe;
-            set => SetField(ref unSubscribe, value);
+            get => _unsubscribed;
+            set => SetField(ref _unsubscribed, value);
         }
     }
 }

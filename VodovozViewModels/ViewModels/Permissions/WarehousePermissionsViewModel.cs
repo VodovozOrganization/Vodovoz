@@ -22,9 +22,9 @@ namespace Vodovoz.ViewModels.Permissions
 		private IEnumerable<WarehousePermissionsType> AllPermissionsTypes() => Enum.GetValues(typeof(WarehousePermissionsType)).Cast<WarehousePermissionsType>();
 		private IEnumerable<Warehouse> allNamesOfWarehouses() => _uow.Session.QueryOver<Warehouse>().List();
 
-		public WarehousePermissionsViewModel(IUnitOfWork UoW, WarehousePermissionModelBase warehousePermissionModelBase)
+		public WarehousePermissionsViewModel(IUnitOfWork uoW, WarehousePermissionModelBase warehousePermissionModelBase)
 		{
-			this._uow = UoW;
+			_uow = uoW;
 			WarehousePermissionModelBase = warehousePermissionModelBase ?? throw new ArgumentNullException(nameof(warehousePermissionModelBase));
 			AllPermissionTypes = new List<PermissionTypeAllNodeViewModel>();
 			AllWarehouses = new List<WarehouseAllNodeViewModel>();

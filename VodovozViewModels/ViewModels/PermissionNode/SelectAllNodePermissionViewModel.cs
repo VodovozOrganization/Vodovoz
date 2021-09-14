@@ -7,69 +7,67 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {
     public class SelectAllNodePermissionViewModel : PropertyChangedBase
     {
-        private string title;
+        private string _title;
         public string Title
         {
-            get => title; 
-            set => SetField(ref title, value);
+            get => _title; 
+            set => SetField(ref _title, value);
         }
         
         public SelectAllNodePermissionViewModel(List<WarehouseAllNodeViewModel> allWarehouses, List<PermissionTypeAllNodeViewModel> allPermissionTypes)
         {
             AllWarehouses = allWarehouses;
             AllPermissionTypes = allPermissionTypes;
-            foreach (var warehouse in AllWarehouses)
-                warehouse.ItemChangeSelectAll += IsAllWarehouseSeted;
-            foreach (var permission in AllPermissionTypes)
-                permission.ItemChangeSelectAll += IsAllPermissionSeted;
+            AllWarehouses.ForEach(x => x.ItemSelectAllChanged += InstallAllWarehouses);
+            AllPermissionTypes.ForEach(x => x.ItemSelectAllChanged += InstallAllPermissions);
         }
-        private List<WarehouseAllNodeViewModel> allWarehouses;
+        private List<WarehouseAllNodeViewModel> _allWarehouses;
 
         public List<WarehouseAllNodeViewModel> AllWarehouses
         {
-            get => allWarehouses;
-            set => SetField(ref allWarehouses, value);
+            get => _allWarehouses;
+            set => SetField(ref _allWarehouses, value);
         }
 
-        private List<PermissionTypeAllNodeViewModel> allPermissionTypes;
+        private List<PermissionTypeAllNodeViewModel> _allPermissionTypes;
 
         public List<PermissionTypeAllNodeViewModel> AllPermissionTypes
         {
-            get => allPermissionTypes;
-            set => SetField(ref allPermissionTypes, value);
+            get => _allPermissionTypes;
+            set => SetField(ref _allPermissionTypes, value);
         }
 
-        private bool? permissionValue;
+        private bool? _permissionValue;
 
         public bool? PermissionValue
         {
-            get => permissionValue;
+            get => _permissionValue;
             set
             {
-                if (UnSetAll) SetField(ref permissionValue, value);
-                else if (SetField(ref permissionValue, value))
+                if (UnSetAll) SetField(ref _permissionValue, value);
+                else if (SetField(ref _permissionValue, value))
                 {
                     foreach (var permissionTypeAll in AllPermissionTypes)
                     {
-                        permissionTypeAll.UnSubscribeAll = true;
+                        permissionTypeAll.UnsubscribedAll = true;
                         permissionTypeAll.PermissionValue = value;
-                        permissionTypeAll.UnSubscribeAll = false;
+                        permissionTypeAll.UnsubscribedAll = false;
                     }
                     foreach (var warehouseAll in AllWarehouses)
                     {
-                        warehouseAll.UnSubscribeAll = true;
+                        warehouseAll.UnsubscribedAll = true;
                         warehouseAll.PermissionValue = value;
-                        warehouseAll.UnSubscribeAll = false;
+                        warehouseAll.UnsubscribedAll = false;
                     }
                 }
             }
             
         }
 
-        private void IsAllPermissionSeted(object sender, EventArgs e)
+        private void InstallAllPermissions(object sender, EventArgs e)
         {
             var permissionTypeAllNodeViewModel = sender as PermissionTypeAllNodeViewModel;
-            if (permissionTypeAllNodeViewModel.UnSubscribeAll) return;
+            if (permissionTypeAllNodeViewModel.UnsubscribedAll) return;
             UnSetAll = true;
             if (AllPermissionTypes.All(x => x.PermissionValue == true) 
                     && permissionTypeAllNodeViewModel.PermissionValue == true)
@@ -81,10 +79,10 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             UnSetAll = false;
         }
 
-        private void IsAllWarehouseSeted(object sender, EventArgs e)
+        private void InstallAllWarehouses(object sender, EventArgs e)
         {
             var warehouseAllNodeViewModel = sender as WarehouseAllNodeViewModel;
-            if (warehouseAllNodeViewModel.UnSubscribeAll) return;
+            if (warehouseAllNodeViewModel.UnsubscribedAll) return;
             UnSetAll = true;
             if (AllWarehouses.All(x => x.PermissionValue == true) 
                 && warehouseAllNodeViewModel.PermissionValue == true)

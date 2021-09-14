@@ -24,15 +24,15 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             foreach (var warehouse in warehouses)
             {
                 var permissionNode = new WarehousePermissionNodeViewModel(warehouse, warehousePermissionsType, warehousePermissionModelBase);
-                permissionNode.ItemChangeValue += IsAllPermissionSeted;
+                permissionNode.ItemValueChanged += InstallAllPermissions;
                 SubNodeViewModel.Add(permissionNode);
             }
         }
         
-        public void IsAllPermissionSeted(object sender, EventArgs e)
+        public void InstallAllPermissions(object sender, EventArgs e)
         {
             var warehousePermissionNodeViewModel = sender as WarehousePermissionNodeViewModel;
-            if (warehousePermissionNodeViewModel.UnSubscribe) return;
+            if (warehousePermissionNodeViewModel.Unsubscribed) return;
             UnSetAll = true;
             var collection = SubNodeViewModel.Where(x => x.Warehouse !=
                 warehousePermissionNodeViewModel.Warehouse);

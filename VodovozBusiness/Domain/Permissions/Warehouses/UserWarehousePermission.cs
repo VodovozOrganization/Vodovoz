@@ -12,11 +12,11 @@ namespace Vodovoz.Domain.Permissions.Warehouses
     {
         public override PermissionType PermissionType => PermissionType.User;
 
-        private User user;
+        private User _user;
         [Display(Name = "Пользователь")]
         public virtual User User {
-            get => user;
-            set => SetField(ref user, value);
+            get => _user;
+            set => SetField(ref _user, value);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping.Permissions
             DiscriminateSubClassesOnColumn("type_permission");
 
             Map(x => x.PermissionValue).Column("value");
-            Map(x => x.WarehousePermissionTypeType).Column("warehouse_permission_type");
+            Map(x => x.WarehousePermissionType).Column("warehouse_permission_type");
             References(x => x.Warehouse).Column("warehouse_id");
         }
     }
