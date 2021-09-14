@@ -1756,13 +1756,13 @@
       <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
       <Name>ApiClientProvider</Name>
     </ProjectReference>
+  	<ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
+	  <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
+	  <Name>SmsPaymentService</Name>
+  	</ProjectReference>
     <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
-      <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
-      <Name>SmsPaymentService</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\WebApi\MangoController\MangoController.csproj">
       <Project>{665aaa79-4d55-41ce-a49a-bc8d926db39e}</Project>
@@ -1793,7 +1793,7 @@
       <Name>QSExtraGammaWidgets</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{54871F7B-7DF2-43BD-9ACD-72F650BA35A1}</Project>
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
