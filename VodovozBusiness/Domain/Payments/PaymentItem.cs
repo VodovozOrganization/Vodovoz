@@ -7,6 +7,11 @@ using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Payments
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "строки платежа(куда распределены)",
+		Nominative = "строка платежа(куда распределен)",
+		Prepositional = "строке платежа(куда распределен)",
+		PrepositionalPlural = "строках платежа(куда распределены)")]
 	[HistoryTrace]
 	public class PaymentItem : PropertyChangedBase, IDomainObject
 	{
