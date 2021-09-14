@@ -50,15 +50,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
-
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-		private readonly IFileChooserProvider _fileChooserProvider;
-		private readonly IScanDialog _scanDialog;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -80,7 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _copyDriverWorkScheduleSetCommand;
 		private DelegateCommand _removeEmployeeDocumentsCommand;
 		private DelegateCommand _removeEmployeeContractsCommand;
-		private DelegateCommand _registerDriverModileUserCommand;
+		private DelegateCommand _registerDriverModuleUserCommand;
 
 		public IReadOnlyList<Organization> organizations;
 
@@ -120,12 +117,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
-			
-			if(commonOrganisationProvider == null)
-			{
-				throw new ArgumentNullException(nameof(commonOrganisationProvider));
-			}
-			
 			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
 			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
@@ -138,20 +129,33 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
-			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-			_scanDialog = scanDialog ?? throw new ArgumentNullException(nameof(scanDialog));
 
+			if(commonOrganisationProvider == null)
+			{
+				throw new ArgumentNullException(nameof(commonOrganisationProvider));
+			}
+
+			if(fileChooserProvider == null)
+			{
+				throw new ArgumentNullException(nameof(fileChooserProvider));
+			}
+			
+			if(scanDialog == null)
+			{
+				throw new ArgumentNullException(nameof(scanDialog));
+			}
+			
 			if(validationContextFactory == null)
 			{
 				throw new ArgumentNullException(nameof(validationContextFactory));
 			}
-
-			ConfigureValidationContext(validationContextFactory);
-
+			
 			if(phonesViewModelFactory == null)
 			{
 				throw new ArgumentNullException(nameof(phonesViewModelFactory));
 			}
+			
+			ConfigureValidationContext(validationContextFactory);
 
 			PhonesViewModel = phonesViewModelFactory.CreateNewPhonesViewModel(UoW);
 			
@@ -162,7 +166,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 				AttachmentsViewModel =
 				(attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
-				.CreateNewAttachmentsViewModel(_fileChooserProvider, _scanDialog, EntityType.Employee);
+				.CreateNewAttachmentsViewModel(fileChooserProvider, scanDialog, EntityType.Employee);
 
 				TabName = "Новый сотрудник";
 			}
@@ -170,7 +174,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				AttachmentsViewModel =
 				(attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
-				.CreateNewAttachmentsViewModel(_fileChooserProvider, _scanDialog, EntityType.Employee, Entity.Id);
+				.CreateNewAttachmentsViewModel(fileChooserProvider, scanDialog, EntityType.Employee, Entity.Id);
 
 				TabName = Entity.GetPersonNameWithInitials();
 			}
@@ -193,14 +197,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			if(!permissionResult.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
-			}
-		}
-
-		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
-			{
-				OnPropertyChanged(nameof(IsValidNewMobileUser));
 			}
 		}
 
@@ -600,8 +596,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 
-		public DelegateCommand RegisterDriverModileUserCommand =>
-			_registerDriverModileUserCommand ?? (_registerDriverModileUserCommand = new DelegateCommand(
+		public DelegateCommand RegisterDriverModuleUserCommand =>
+			_registerDriverModuleUserCommand ?? (_registerDriverModuleUserCommand = new DelegateCommand(
 					() =>
 					{
 						try
@@ -630,6 +626,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
+			{
+				OnPropertyChanged(nameof(IsValidNewMobileUser));
+			}
+		}
 
 		private void SetPermissions()
 		{

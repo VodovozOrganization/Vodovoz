@@ -3,6 +3,10 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Attachments
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "прикрепляемые файлы",
+		Nominative = "прикрепляемый файл"
+	)]
 	public class Attachment : PropertyChangedBase, IDomainObject
 	{
 		private string _fileName;
@@ -40,7 +44,7 @@ namespace Vodovoz.Domain.Attachments
 			set => SetField(ref _byteFile, value);
 		}
 
-		public virtual bool Saved => Id > 0;
+		public virtual bool IsSaved => Id > 0;
 
 		public virtual string Title => FileName;
 	}
@@ -49,6 +53,8 @@ namespace Vodovoz.Domain.Attachments
 	{
 		[Display(Name = "Сотрудник")]
 		Employee,
+		[Display(Name = "Стажер")]
+		Trainee,
 		[Display(Name = "Автомобиль")]
 		Car
 	}

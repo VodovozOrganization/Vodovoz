@@ -157,6 +157,8 @@
     <Compile Include="EntityRepositories\Accounting\AccountIncomeRepository.cs" />
     <Compile Include="EntityRepositories\Accounting\IAccountExpenseRepository.cs" />
     <Compile Include="EntityRepositories\Accounting\IAccountIncomeRepository.cs" />
+    <Compile Include="EntityRepositories\Attachments\AttachmentRepository.cs" />
+    <Compile Include="EntityRepositories\Attachments\IAttachmentRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\ICullingCategoryRepository.cs" />

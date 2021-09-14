@@ -5,6 +5,6 @@
         string GetExportFilePath(string fileName = null);
         string GetAttachedFileName();
         void CloseWindow();
-        void Hide();
+        void HideWindow();
     }
 }

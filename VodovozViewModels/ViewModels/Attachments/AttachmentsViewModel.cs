@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.ViewModels;
 using Vodovoz.Domain.Attachments;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Attachments;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Interfaces;
 
@@ -17,13 +18,15 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 {
 	public class AttachmentsViewModel : UoWWidgetViewModelBase, IDisposable
 	{
-		private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly static uint _maxFileNameLength = 45;
-		private bool _hasDeletedAttachments;
-		private Attachment _selectedAttacment;
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private const int _maxFileNameLength = 45;
+		private readonly EntityType _entityType;
+		private readonly int _entityId;
 		private readonly IFileChooserProvider _fileChooserProvider;
 		private readonly IScanDialog _scanDialog;
 		private readonly IUserRepository _userRepository;
+		private bool _hasDeletedAttachments;
+		private Attachment _selectedAttachment;
 
 		private DelegateCommand _addCommand;
 		private DelegateCommand _openCommand;
@@ -36,6 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 			IFileChooserProvider fileChooserProvider,
 			IScanDialog scanDialog,
 			IUserRepository userRepository,
+			IAttachmentRepository attachmentRepository,
 			EntityType entityType,
 			int entityId)
 		{
@@ -43,14 +47,20 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 			_scanDialog = scanDialog ?? throw new ArgumentNullException(nameof(scanDialog));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			EntityType = entityType;
-			EntityId = entityId;
+
+			if(attachmentRepository == null)
+			{
+				throw new ArgumentNullException(nameof(attachmentRepository));
+			}
+			
+			_entityType = entityType;
+			_entityId = entityId;
 
 			Attachments = new GenericObservableList<Attachment>();
 
-			if(EntityId != -1)
+			if(_entityId != -1)
 			{
-				LoadDataFromDB();
+				LoadDataFromDB(attachmentRepository);
 			}
 		}
 
@@ -58,10 +68,10 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 
 		public Attachment SelectedAttachment
 		{
-			get => _selectedAttacment;
+			get => _selectedAttachment;
 			set
 			{
-				if(SetField(ref _selectedAttacment, value))
+				if(SetField(ref _selectedAttachment, value))
 				{
 					OnPropertyChanged(nameof(CanSave));
 					OnPropertyChanged(nameof(CanDelete));
@@ -73,30 +83,7 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 		public bool CanSave => SelectedAttachment != null;
 		public bool CanDelete => SelectedAttachment != null;
 		public bool CanOpen => SelectedAttachment != null;
-		
-		public EntityType EntityType { get; }
-		public int EntityId { get; }
-
-		public bool HasChanges
-		{
-			get
-			{
-				if(_hasDeletedAttachments)
-				{
-					return true;
-				}
-
-				foreach (Attachment file in Attachments)
-				{
-					if(!file.Saved)
-					{
-						return true;
-					}
-				}
-
-				return false;
-			}
-		}
+		public bool HasChanges => _hasDeletedAttachments || Attachments.Any(file => !file.IsSaved);
 
 		public DelegateCommand AddCommand => _addCommand ?? (_addCommand = new DelegateCommand(
 				() =>
@@ -113,8 +100,8 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 
 						Attachments.Add(attachment);
 						
-						_logger.Info("Ok");
 						_fileChooserProvider.CloseWindow();
+						_logger.Info("Ok");
 					}
 				}
 			)
@@ -151,14 +138,13 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 
 					if(!string.IsNullOrEmpty(filePath))
 					{
-						_fileChooserProvider.Hide();
+						_fileChooserProvider.HideWindow();
 
 						_logger.Info("Сохраняем файл на диск...");
 						File.WriteAllBytes(filePath, SelectedAttachment.ByteFile);
 						_fileChooserProvider.CloseWindow();
+						_logger.Info("Ок");
 					}
-					
-					_logger.Info("Ок");
 				}
 			)
 		);
@@ -166,7 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 		public DelegateCommand DeleteCommand => _deleteCommand ?? (_deleteCommand = new DelegateCommand(
 				() =>
 				{
-					if(SelectedAttachment.Saved)
+					if(SelectedAttachment.IsSaved)
 					{
 						UoW.Delete(SelectedAttachment);
 						Attachments.Remove(SelectedAttachment);
@@ -195,12 +181,9 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 			)
 		);
 
-		private void LoadDataFromDB()
+		private void LoadDataFromDB(IAttachmentRepository attachmentRepository)
 		{
-			var attachments = UoW.Session.QueryOver<Attachment>()
-				.Where(a => a.EntityType == EntityType)
-				.And(a => a.EntityId == EntityId)
-				.List();
+			var attachments = attachmentRepository.GetAllAttachmentsForEntity(UoW, _entityType, _entityId);
 
 			foreach(var attachment in attachments)
 			{
@@ -217,7 +200,7 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 			{
 				var ext = Path.GetExtension(attachedFileName);
 				var name = Path.GetFileNameWithoutExtension(attachedFileName);
-				attachedFileName = $"{name.Remove((int)_maxFileNameLength - ext.Length)}{ext}";
+				attachedFileName = $"{name.Remove(_maxFileNameLength - ext.Length)}{ext}";
 			}
 
 			return attachedFileName;
@@ -227,14 +210,19 @@ namespace Vodovoz.ViewModels.ViewModels.Attachments
 			new Attachment
 			{
 				EntityId = -1,
-				EntityType = EntityType,
+				EntityType = _entityType,
 				FileName = attachedFileName,
 				ByteFile = file
 			};
 
 		public void SaveChanges(int entityId)
 		{
-			var notSavedFiles = Attachments.Where(f => !f.Saved).ToList();
+			if(!HasChanges)
+			{
+				return;
+			}
+
+			var notSavedFiles = Attachments.Where(file => !file.IsSaved).ToList();
 
 			if(notSavedFiles.Any())
 			{

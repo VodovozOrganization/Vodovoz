@@ -3,60 +3,64 @@ using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz
 {
-    public class FileChooser: Gtk.FileChooserDialog, IFileChooserProvider
+    public class FileChooser: FileChooserDialog, IFileChooserProvider
     {
-        private Gtk.FileChooserDialog fileChooser;
+        private FileChooserDialog fileChooser;
 		private string _predefinedFileName;
 
 		public FileChooser(string fileName = null)
         {
 			_predefinedFileName = fileName;
         }
+		
+		private void CreateNewFileChooser(string title, FileChooserAction fileChooserAction, params object[] buttonData)
+		{
+			fileChooser = new FileChooserDialog(title, this, fileChooserAction, buttonData);
+			{
+				DoOverwriteConfirmation = true;
+			}
+		}
         
         public string GetExportFilePath(string fileName = null)
         {
             //Создается здесь а не в конструкторе, потому что единственный способ
             //закрыть это destroy
-            fileChooser =
-                new Gtk.FileChooserDialog("Выберите где сохранить файл",
-                    this,
-                    FileChooserAction.Save,
-                    "Отмена", ResponseType.Cancel,
-                    "Сохранить", ResponseType.Accept)
-            {
-	            DoOverwriteConfirmation = true
+            object[] buttonData = {
+	            "Отмена",
+	            ResponseType.Cancel,
+	            "Сохранить",
+	            ResponseType.Accept
             };
+            
+            CreateNewFileChooser("Выберите где сохранить файл", FileChooserAction.Save, buttonData);
 
             fileChooser.CurrentName = string.IsNullOrWhiteSpace(fileName) ? _predefinedFileName : fileName;
             
             var result = fileChooser.Run();
            
-			if (result == (int)ResponseType.Accept)
+			if(result == (int)ResponseType.Accept)
 			{
 				return fileChooser.Filename;
 			}
-			else
-            {
-                CloseWindow();
-                return "";
-            }
+			
+			CloseWindow();
+	        return "";
         }
         
         public string GetAttachedFileName()
         {
-	        fileChooser = new FileChooserDialog(
-		        "Выберите файл для прикрепления...",
-		        this,
-		        FileChooserAction.Open,
-		        "Отмена", ResponseType.Cancel,
-		        "Прикрепить", ResponseType.Accept);
-	        {
-		        DoOverwriteConfirmation = true;
-	        }
+	        object[] buttonData = {
+		        "Отмена",
+		        ResponseType.Cancel,
+		        "Прикрепить",
+		        ResponseType.Accept
+	        };
+	        
+	        CreateNewFileChooser("Выберите файл для прикрепления...", FileChooserAction.Open, buttonData);
 
-	        if (fileChooser.Run() == (int)ResponseType.Accept)
+	        if(fileChooser.Run() == (int)ResponseType.Accept)
 	        {
-				Hide();
+				HideWindow();
 				return fileChooser.Filename;
 	        }
 	        
@@ -68,33 +72,31 @@ namespace Vodovoz
         {
             //Создается здесь а не в конструкторе, потому что единственный способ
             //закрыть это destroy
-            fileChooser =
-                new Gtk.FileChooserDialog("Выберите где сохранить файл",
-                    this,
-                    FileChooserAction.SelectFolder,
-                    "Отмена", ResponseType.Cancel,
-                    "Сохранить", ResponseType.Accept)
-                {
-	                DoOverwriteConfirmation = true
-                };
+            object[] buttonData = {
+	            "Отмена",
+	            ResponseType.Cancel,
+	            "Сохранить",
+	            ResponseType.Accept
+            };
+	        
+            CreateNewFileChooser("Выберите где сохранить файл", FileChooserAction.SelectFolder, buttonData);
+            
             fileChooser.CurrentName = _predefinedFileName;
 
             var result = fileChooser.Run();
-            if (result == (int)ResponseType.Accept)
+            if(result == (int)ResponseType.Accept)
             {
                 var path = fileChooser.Filename;
                 CloseWindow();
                 return path;
             }
-            else
-            {
-                CloseWindow();
-                return "";
-            }
+            
+            CloseWindow();
+	        return "";
         }
 
         public void CloseWindow() => fileChooser.Destroy();
 
-        public void Hide() => fileChooser.Hide();
+        public void HideWindow() => fileChooser.Hide();
     }
 }

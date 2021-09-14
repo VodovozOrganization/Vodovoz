@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Logistic;
@@ -12,7 +11,10 @@ using Vodovoz.Domain.Sale;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
+using Vodovoz.Domain.Attachments;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Attachments;
 
 namespace Vodovoz
 {
@@ -20,28 +22,37 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private ICarRepository carRepository;
+		private ICarRepository _carRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
+		private AttachmentsViewModel _attachmentsViewModel;
 
-		public override bool HasChanges => UoWGeneric.HasChanges || attachmentFiles.HasChanges;
+		public override bool HasChanges => UoWGeneric.HasChanges || _attachmentsViewModel.HasChanges;
 
 		public CarsDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Car>();
+			CreateAttachmentsViewModel();
 			TabName = "Новый автомобиль";
 			ConfigureDlg();
 		}
 
 		public CarsDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Car>(id);
+			CreateAttachmentsViewModel(id);
 			ConfigureDlg();
 		}
 
 		public CarsDlg(Car sub) : this(sub.Id) { }
 
+		private void CreateAttachmentsViewModel(int entityId = -1)
+		{
+			_attachmentsViewModel = new AttachmentsViewModelFactory().CreateNewAttachmentsViewModel(
+				new FileChooser(), new ScanDialog(), EntityType.Car, entityId);
+		}
+		
 		private void ConfigureDlg()
 		{
 			notebook1.Page = 0;
@@ -95,7 +106,9 @@ namespace Vodovoz
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
-			carRepository = new CarRepository();
+			attachmentsView.ViewModel = _attachmentsViewModel;
+			
+			_carRepository = new CarRepository();
 
 			checkIsRaskat.Active = Entity.IsRaskat;
 
@@ -106,7 +119,7 @@ namespace Vodovoz
 			};
 
 			checkIsRaskat.Toggled += (s, e) => {
-				if(Entity.Id == 0 || !carRepository.IsInAnyRouteList(UoW, Entity)) {
+				if(Entity.Id == 0 || !_carRepository.IsInAnyRouteList(UoW, Entity)) {
 					Entity.IsRaskat = checkIsRaskat.Active;
 				}
 				else if(checkIsRaskat.Active != Entity.IsRaskat) {
@@ -123,12 +136,7 @@ namespace Vodovoz
 			enumRaskatType.Binding.AddFuncBinding(Entity, e => e.Id == 0, w => w.Sensitive).InitializeFromSource();
 
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-
-			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
-			if(!UoWGeneric.IsNew) {
-				attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				attachmentFiles.UpdateFileList();
-			}
+			
 			OnEntryDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
 
@@ -169,13 +177,13 @@ namespace Vodovoz
 			}
 
 			logger.Info("Сохраняем автомобиль...");
-			try {
+			try
+			{
 				UoWGeneric.Save();
-				if(UoWGeneric.IsNew) {
-					attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				}
-				attachmentFiles.SaveChanges();
-			} catch(Exception ex) {
+				_attachmentsViewModel.SaveChanges(Entity.Id);
+			}
+			catch(Exception ex)
+			{
 				logger.Error(ex, "Не удалось записать Автомобиль.");
 				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
 				return false;
@@ -259,6 +267,12 @@ namespace Vodovoz
 		private void UpdateSensitivity()
 		{
 			comboDriverCarKind.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
+		}
+		
+		public override void Destroy()
+		{
+			attachmentsView.Destroy();
+			base.Destroy();
 		}
 	}
 }
