@@ -10,9 +10,11 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using NHibernate.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -459,6 +461,26 @@ namespace Vodovoz.JournalViewModels
 							$"\n-----" +
 							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")),
 							commonServices.PermissionService);
+					}
+				}
+			));
+
+			PopupActionsList.Add(new JournalAction(
+				"Перенести терминал на вторую ходку",
+				(selectedItems) =>
+				{
+					var userPermission = commonServices.PermissionService.ValidateUserPermission(
+						typeof(SelfDriverTerminalTransferDocument), commonServices.UserService.CurrentUserId);
+
+					return userPermission.CanCreate;
+				},
+				(selectedItems) => true,
+				(selectedItems) =>
+				{
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					{
+						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+						routeList?.CreateSelfDriverTerminalTransferDocument();
 					}
 				}
 			));
