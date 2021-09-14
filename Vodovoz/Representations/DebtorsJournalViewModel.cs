@@ -153,6 +153,15 @@ namespace Vodovoz.Representations
 				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
+			
+			var LastOrderIdQueryWithDate = QueryOver.Of(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => lastOrderAlias.DeliveryDate <= FilterViewModel.EndDate.Value)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
+				.OrderByAlias(() => orderAlias.Id).Desc
+				.Take(1);
 
 			var LastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -208,7 +217,10 @@ namespace Vodovoz.Representations
 
 			#endregion LastOrder
 
-			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+			if(FilterViewModel != null && FilterViewModel.EndDate != null)
+				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQueryWithDate);
+			else
+				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
 
 			ordersQuery.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
