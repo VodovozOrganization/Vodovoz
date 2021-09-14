@@ -20,7 +20,7 @@ namespace VodovozDeliveryRulesService
         private const double startInterval =  5 * 1000;    //5 секунд
         private const double interval = 60 * 60 * 1000;    //1 час
         
-        public IEnumerable<Sector> Sector { get; private set; } = new List<Sector>();
+        public IEnumerable<Sector> Sectors { get; private set; } = new List<Sector>();
 
         public void StartAutoUpdateTask()
         {
@@ -40,23 +40,23 @@ namespace VodovozDeliveryRulesService
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 
 	                SectorVersion sectorVersion = null;
-	                var districts = uow.Session.QueryOver<Sector>().List();
+	                var sectors = uow.Session.QueryOver<Sector>().List();
 
-                    foreach (var district in districts) {
-                        NHibernateUtil.Initialize(district.GetActiveSectorVersion().GeographicGroup);
+                    foreach (var sector in sectors) {
+                        NHibernateUtil.Initialize(sector.GetActiveSectorVersion().GeographicGroup);
 
-                        foreach (var scheduleRestriction in district.GetActiveWeekDayScheduleVersion().SectorSchedules) {
+                        foreach (var scheduleRestriction in sector.GetActiveWeekDayScheduleVersion().SectorSchedules) {
                             NHibernateUtil.Initialize(scheduleRestriction.DeliverySchedule);
                         }
-                        foreach (var weekDayRuleItem in district.GetActiveWeekDayDeliveryRuleVersion().WeekDayDistrictRules) {
+                        foreach (var weekDayRuleItem in sector.GetActiveWeekDayDeliveryRuleVersion().WeekDayDistrictRules) {
                             NHibernateUtil.Initialize(weekDayRuleItem.DeliveryPriceRule);
                         }
-                        foreach (var commonRuleItem in district.GetActiveDeliveryRuleVersion().CommonDistrictRuleItems) {
+                        foreach (var commonRuleItem in sector.GetActiveDeliveryRuleVersion().CommonDistrictRuleItems) {
                             NHibernateUtil.Initialize(commonRuleItem.DeliveryPriceRule);
                         }
                         
                     }
-                    Sector = districts;
+                    Sectors = sectors;
                 }
                 
                 logger.Info("Обновление бэкапа районов успешно завершено");
@@ -69,6 +69,6 @@ namespace VodovozDeliveryRulesService
 
     public interface IBackupDistrictService
     {
-        IEnumerable<Sector> Sector { get; }
+        IEnumerable<Sector> Sectors { get; }
     }
 }

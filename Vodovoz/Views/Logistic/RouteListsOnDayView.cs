@@ -499,7 +499,9 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.HasValue && order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.HasValue)
+				var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+				
+				if(geodata.Latitude.HasValue && geodata.Longitude.HasValue)
 				{
 					bool overdueOrder = false;
 					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
@@ -571,7 +573,8 @@ namespace Vodovoz.Views.Logistic
 
 		private PointMarker FillAddressMarker(Order order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
-			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude), type, shape) {
+			var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+			var addressMarker = new PointMarker(new PointLatLng((double)geodata.Latitude, (double)geodata.Longitude), type, shape) {
 				Tag = order
 			};
 
@@ -587,11 +590,11 @@ namespace Vodovoz.Views.Logistic
 
 			ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 				order.DeliverySchedule?.Name ?? "Не назначено",
-				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).NetTopologyPoint))?.SectorName);
+				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(geodata.NetTopologyPoint))?.SectorName);
 
 			addressMarker.ToolTipText = ttText;
 
-			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude && g.Position.Lng == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude);
+			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)geodata.Latitude && g.Position.Lng == (double)geodata.Longitude);
 			var pointShift = 5;
 			if(identicalPoint >= 1) {
 				addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
@@ -835,13 +838,13 @@ namespace Vodovoz.Views.Logistic
 			//добавляем маркеры нераспределенных заказов из районов водителя
 			foreach(var order in ordersOnDay) {
 				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
-			
-				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.HasValue && order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.HasValue) {
+				var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+				if(geodata.Latitude.HasValue && geodata.Longitude.HasValue) {
 					if(!ordersRouteLists.TryGetValue(order.Id, out var orderRls)) {
 						orderRls = new List<int>();
 					}
 			
-					if(driverDistricts.Contains(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Sector) && route == null) {
+					if(driverDistricts.Contains(geodata.Sector) && route == null) {
 						FillTypeAndShapeMarker(order, null, orderRls, out PointMarkerShape shape, out PointMarkerType type);
 						var addressMarker = FillAddressMarker(order, type, shape, driverAddressesOverlay, null);
 						driverAddressesOverlay.Markers.Add(addressMarker);

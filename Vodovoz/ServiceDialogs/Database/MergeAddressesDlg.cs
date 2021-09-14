@@ -5,7 +5,9 @@ using System.Linq;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using Gamma.ColumnConfig;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using QS.Deletion;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
@@ -20,6 +22,7 @@ using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
+using Vodovoz.Domain.Sectors;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
@@ -82,21 +85,33 @@ namespace Vodovoz.ServiceDialogs.Database
 			QSMain.WaitRedraw();
 
 			DeliveryPoint mainPointAlias = null;
+			DeliveryPoint duplicatesPointAlias = null;
+			DeliveryPointSectorVersion mainPointSectorVersionAlias = null;
+			DeliveryPointSectorVersion duplicatesPointSectorVersionAlias = null;
 
-			var dublicateSubquery = QueryOver.Of<DeliveryPoint>()
-			                                 .Where(x => x.Counterparty.Id == mainPointAlias.Counterparty.Id
-			                                        && x.GetActiveVersion(DateTime.Now).Latitude == mainPointAlias.GetActiveVersion(DateTime.Now).Latitude
-			                                        && x.GetActiveVersion(DateTime.Now).Longitude == mainPointAlias.GetActiveVersion(DateTime.Now).Longitude
-			                                        && x.Id != mainPointAlias.Id
-			                                        && (x.Code1c == null || mainPointAlias.Code1c == null || x.Code1c == mainPointAlias.Code1c))
+			var dublicateSubquery = QueryOver.Of(() => duplicatesPointAlias)
+				.JoinEntityAlias(() => duplicatesPointSectorVersionAlias, () =>
+					duplicatesPointSectorVersionAlias.DeliveryPoint.Id == duplicatesPointAlias.Id &&
+					(duplicatesPointSectorVersionAlias.EndDate == null ||
+					 duplicatesPointSectorVersionAlias.EndDate <= DateTime.Today.AddDays(1)), JoinType.LeftOuterJoin)
+				
+				.Where(x => x.Counterparty.Id == mainPointAlias.Counterparty.Id
+				            && duplicatesPointSectorVersionAlias.Latitude == mainPointSectorVersionAlias.Latitude
+				            && duplicatesPointSectorVersionAlias.Longitude == mainPointSectorVersionAlias.Longitude
+				            && x.Id != mainPointAlias.Id
+				            && (x.Code1c == null || mainPointAlias.Code1c == null || x.Code1c == mainPointAlias.Code1c))
 			                                 .Select(x => x.Id);
 
-			var list = _uow.Session.QueryOver<DeliveryPoint>(() => mainPointAlias)
+			var list = _uow.Session.QueryOver(() => mainPointAlias)
+				.JoinEntityAlias(() => mainPointSectorVersionAlias, () =>
+					mainPointSectorVersionAlias.DeliveryPoint.Id == mainPointAlias.Id &&
+					(mainPointSectorVersionAlias.EndDate == null ||
+					 mainPointSectorVersionAlias.EndDate <= DateTime.Today.AddDays(1)), JoinType.LeftOuterJoin)
 						  .WithSubquery.WhereExists(dublicateSubquery)
 			              .Fetch(x => x.Counterparty).Eager
 			              .OrderBy(x => x.Counterparty).Asc
-			              .ThenBy(x => x.GetActiveVersion(DateTime.Now).Latitude).Asc
-			              .ThenBy(x => x.GetActiveVersion(DateTime.Now).Longitude).Asc
+			              .ThenBy(x => mainPointSectorVersionAlias.Latitude).Asc
+			              .ThenBy(x => mainPointSectorVersionAlias.Longitude).Asc
 			              .List();
 
 			progressOp.Adjustment.Upper = list.Count + 3;
@@ -199,9 +214,11 @@ namespace Vodovoz.ServiceDialogs.Database
 			public bool Compare(DeliveryPoint dp)
 			{
 				var first = Addresses.First().Address;
+				var geodata = first.GetActiveVersion();
+				var dpGeodata = dp.GetActiveVersion();
 				return first.Counterparty.Id == dp.Counterparty.Id
-					        && first.GetActiveVersion().Latitude == dp.GetActiveVersion().Latitude
-					        && first.GetActiveVersion().Longitude == dp.GetActiveVersion().Longitude;
+					        && geodata.Latitude == dpGeodata.Latitude
+					        && geodata.Longitude == dpGeodata.Longitude;
 			}
 
 			public void FineMain()

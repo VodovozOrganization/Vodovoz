@@ -1082,7 +1082,8 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
-			if(DeliveryPoint != null && (!DeliveryPoint.GetActiveVersion(DeliveryDate).Latitude.HasValue || !DeliveryPoint.GetActiveVersion(DeliveryDate).Longitude.HasValue)) {
+			var geodata = DeliveryPoint.GetActiveVersion(DeliveryDate);
+			if(DeliveryPoint != null && (!geodata.Latitude.HasValue || !geodata.Longitude.HasValue)) {
 				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
 				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			}

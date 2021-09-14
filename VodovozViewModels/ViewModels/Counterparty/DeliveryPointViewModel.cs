@@ -192,14 +192,16 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					return base.Save(close);
 				}
 
-				if(!Entity.GetActiveVersion().CoordinatesExist &&
+				var geodata = Entity?.GetActiveVersion();
+				
+				if(!geodata.CoordinatesExist &&
 				   !CommonServices.InteractiveService.Question(
 					   "Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 				{
 					return false;
 				}
 
-				if(Entity?.GetActiveVersion().Sector == null && !CommonServices.InteractiveService.Question(
+				if(geodata.Sector == null && !CommonServices.InteractiveService.Question(
 					"Район доставки не найден. Это приведёт к невозможности отображения заказа на " +
 					"эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\n" +
 					"Продолжить сохранение точки доставки?",
@@ -259,9 +261,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public void WriteCoordinates(decimal? latitude, decimal? longitude, bool isManual)
 		{
 			Entity.ManualCoordinates = isManual;
-			var activeVersion = Entity.GetActiveVersion();
+			var activeVersion = Entity?.GetActiveVersion();
 			if(activeVersion != null)
-				if(EqualCoords(Entity?.GetActiveVersion().Latitude, latitude) && EqualCoords(Entity?.GetActiveVersion().Longitude, longitude))
+				if(EqualCoords(activeVersion.Latitude, latitude) && EqualCoords(activeVersion.Longitude, longitude))
 					return;
 
 			DeliveryPointSectorVersion newDeliveryPointSectorVersion;

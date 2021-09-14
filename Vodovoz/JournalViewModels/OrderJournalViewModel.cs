@@ -370,20 +370,10 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
-				.JoinEntityAlias(() => deliveryPointSectorVersionAlias, () => deliveryPointAlias.Id == deliveryPointSectorVersionAlias.DeliveryPoint.Id &&
-				                                                              deliveryPointSectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate &&
-				                                                              (deliveryPointSectorVersionAlias.EndDate == null ||
-				                                                               deliveryPointSectorVersionAlias.EndDate <= FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => deliveryPointSectorVersionAlias.Sector.Id, () => sectorAlias.Id)
-				.JoinEntityAlias(() => sectorVersionAlias, () => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
-				                                                 sectorVersionAlias.StartDate <= FilterViewModel.RestrictStartDate && (sectorVersionAlias.EndDate == null ||
-					                                                 sectorVersionAlias.EndDate <=
-					                                                 FilterViewModel.RestrictEndDate.Value.Date.AddDays(1)), JoinType.LeftOuterJoin)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias);
 
 			query.Where(GetSearchCriterion(
@@ -938,15 +928,16 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null)
+							var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+							if(order.DeliveryPoint == null || geodata.Latitude == null || geodata.Longitude == null)
 								continue;
 
 							System.Diagnostics.Process.Start(
 								string.Format(
 									CultureInfo.InvariantCulture,
 									"https://maps.yandex.ru/?ll={0},{1}&z=17",
-									order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude,
-									order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude
+									geodata.Longitude,
+									geodata.Latitude
 								)
 							);
 						}
@@ -986,10 +977,11 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<VodovozOrder>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null)
+							var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+							if(order.DeliveryPoint == null || geodata.Latitude == null || geodata.Longitude == null)
 								continue;
 
-							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude, order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude));
+							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", geodata.Longitude, geodata.Latitude));
 						}
 					}
 				)

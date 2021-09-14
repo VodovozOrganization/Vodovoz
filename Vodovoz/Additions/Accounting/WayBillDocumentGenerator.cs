@@ -265,12 +265,14 @@ namespace Vodovoz.Additions.Accounting
                 }
                 else if (i == lastId)
                 {
-                    waybillItemsEnumerator.Current.Mileage = _distanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
-		                    employee.Subdivision.GeographicGroup, orderEnumerator.Current.DeliveryDate) * 2 / 1000;
+                    waybillItemsEnumerator.Current.Mileage = _distanceCalculator.DistanceToBaseMeter(orderEnumerator.Current?.DeliveryPoint,
+		                    employee.Subdivision.GeographicGroup, orderEnumerator.Current?.DeliveryDate) * 2 / 1000;
 
-                    if (orderEnumerator.Current.DeliveryPoint.GetActiveVersion(orderEnumerator.Current.DeliveryDate).CoordinatesExist)
+                    var geodata = orderEnumerator.Current.DeliveryPoint.GetActiveVersion(orderEnumerator.Current.DeliveryDate);
+                    
+                    if (geodata.CoordinatesExist)
                     {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint.GetActiveVersion(orderEnumerator.Current.DeliveryDate)));
+                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geodata));
                     }
                     wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
                 }

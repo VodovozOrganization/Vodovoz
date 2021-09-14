@@ -2050,7 +2050,8 @@ namespace Vodovoz.Domain.Logistic
 				{
 					if(address.Status == RouteListItemStatus.Completed)
 					{
-						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.GetActiveVersion(address.Order.DeliveryDate).Latitude, (double)address.Order.DeliveryPoint.GetActiveVersion(address.Order.DeliveryDate).Longitude));
+						var geodata = address.Order.DeliveryPoint.GetActiveVersion(address.Order.DeliveryDate);
+						pointsToRecalculate.Add(new PointOnEarth((double)geodata.Latitude, (double)geodata.Longitude));
 					}
 				}
 

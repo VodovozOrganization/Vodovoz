@@ -31,7 +31,8 @@ namespace Vodovoz.Tools.Logistic
 		public static DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null, DateTime? activationTime = null)
 		{
 			deliveryPoint = point;
-			return Calculate(deliveryPoint?.GetActiveVersion(activationTime)?.Latitude, deliveryPoint?.GetActiveVersion(activationTime)?.Longitude, bottlesCount, activationTime);
+			var geodata = deliveryPoint?.GetActiveVersion(activationTime);
+			return Calculate(geodata?.Latitude, geodata?.Longitude, bottlesCount, activationTime);
 		}
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount, DateTime? activationTime = null)

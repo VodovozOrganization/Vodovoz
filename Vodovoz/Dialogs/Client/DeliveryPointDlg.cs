@@ -51,7 +51,7 @@ namespace Vodovoz
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
-
+		private	readonly ISectorsRepository _sectorsRepository = new SectorsRepository();
 		IPhoneRepository phoneRepository = new PhoneRepository();
 
 		GMapControl MapWidget;
@@ -545,8 +545,6 @@ namespace Vodovoz
 				if(EqualCoords(geodataVersion.Latitude, latitude) && EqualCoords(geodataVersion.Longitude, longitude))
 					return;
 
-			ISectorsRepository _sectorsRepository = new SectorsRepository();
-			
 			var newDeliveryPointSectorVersion = new DeliveryPointSectorVersion {DeliveryPoint = Entity};
 			if(geodataVersion != null)
 			{

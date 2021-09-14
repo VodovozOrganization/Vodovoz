@@ -122,6 +122,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
+		private readonly ISectorsRepository _sectorsRepository = new SectorsRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 		private readonly IServiceClaimRepository _serviceClaimRepository = new ServiceClaimRepository();
@@ -721,14 +722,15 @@ namespace Vodovoz
 
 		private void TryAddFlyers()
 		{
+			var geodata = Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate);
 			if(Entity.SelfDelivery
 			   || Entity.OrderStatus != OrderStatus.NewOrder
-			   || Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).Sector == null)
+			   || geodata?.Sector == null)
 			{
 				return;
 			}
 
-			var sector = Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).Sector;
+			var sector = geodata.Sector;
 			var geographicGroupId = sector.GetActiveSectorVersion(Entity.DeliveryDate).GeographicGroup.Id;
 			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW);
 
@@ -1232,10 +1234,8 @@ namespace Vodovoz
 				autofacScope.Dispose();
 				return false;
 			}
-
-			ISectorsRepository sectorsRepository = new SectorsRepository();
 			
-			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).CalculateSectors(UoW, sectorsRepository).Any())
+			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.GetActiveVersion(Entity.DeliveryDate).CalculateSectors(UoW, _sectorsRepository).Any())
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 
 			OnFormOrderActions();

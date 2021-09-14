@@ -162,16 +162,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			var areas = UoW.GetAll<SectorVersion>()
 				.Where(x => x.Status == SectorsSetStatus.Active).ToList();
-			List<Sector> unusedDistricts = new List<Sector>();
+			List<Sector> unusedSectors = new List<Sector>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
 			// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
 			// информации о заказе. Всего бутылей, вес и прочее.
-			foreach(var order in Orders) {
-				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null)
+			foreach(var order in Orders)
+			{
+				var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+				if(geodata?.Longitude == null || geodata.Latitude == null)
 					continue;
-				var point = new Point((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.Value, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.Value);
+				var point = new Point((double)geodata.Latitude.Value, (double)geodata.Longitude.Value);
 				var area = areas.Find(x => x.Polygon.Contains(point));
 				if(area != null) {
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
@@ -181,13 +183,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 						var cOrder = new CalculatedOrder(order, area.Sector);
 						//if(possibleRoutes.Any(r => r.GeographicGroup.Id == cOrder.ShippingBase.Id))//убрать, если в автоформировании должны учавствовать заказы из всех частей города вне зависимости от того какие части города выбраны в диалоге
 						calculatedOrders.Add(cOrder);
-					} else if(!unusedDistricts.Contains(area.Sector))
-						unusedDistricts.Add(area.Sector);
+					} else if(!unusedSectors.Contains(area.Sector))
+						unusedSectors.Add(area.Sector);
 				}
 			}
 			Nodes = calculatedOrders.ToArray();
-			if(unusedDistricts.Any()) {
-				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.GetActiveSectorVersion().SectorName)));
+			if(unusedSectors.Any()) {
+				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedSectors.Select(x => x.GetActiveSectorVersion().SectorName)));
 			}
 
 			// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша

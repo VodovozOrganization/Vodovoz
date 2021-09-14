@@ -52,20 +52,22 @@ namespace Vodovoz.Additions.Logistic
 
 		public static void DrawAddressesOfRoute(GMapOverlay overlay, RouteList routeList)
 		{
-			foreach(var orderItem in routeList.Addresses) {
-				var point = orderItem.Order.DeliveryPoint.GetActiveVersion(orderItem.Order.DeliveryDate);
-				if(point == null)
+			foreach(var orderItem in routeList.Addresses)
+			{
+				var point = orderItem.Order.DeliveryPoint;
+				var geodata = point.GetActiveVersion(orderItem.Order.DeliveryDate);
+				if(geodata == null)
 					continue;
-				if(point.Latitude.HasValue && point.Longitude.HasValue) {
+				if(geodata.Latitude.HasValue && geodata.Longitude.HasValue) {
 					GMapMarker addressMarker = new NumericPointMarker(
 						new PointLatLng(
-							(double)point.Latitude,
-							(double)point.Longitude
+							(double)geodata.Latitude,
+							(double)geodata.Longitude
 						),
 						NumericPointMarkerType.white_large,
 						orderItem.IndexInRoute + 1
 					);
-					var text = point.DeliveryPoint.ShortAddress;
+					var text = point.ShortAddress;
 					addressMarker.ToolTipText = text;
 					overlay.Markers.Add(addressMarker);
 				}

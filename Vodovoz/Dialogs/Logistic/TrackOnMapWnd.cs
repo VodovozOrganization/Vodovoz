@@ -185,9 +185,10 @@ namespace Dialogs.Logistic
 			{
 				var point = orderItem.Order.DeliveryPoint;
 				var deliveryDate = orderItem.Order.DeliveryDate;
+				var geodata = point.GetActiveVersion(deliveryDate);
 				if (point == null)
 					continue;
-				if(point.GetActiveVersion(deliveryDate).Latitude.HasValue && point.GetActiveVersion(deliveryDate).Longitude.HasValue)
+				if(geodata.Latitude.HasValue && geodata.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
 					switch(orderItem.Status)
@@ -218,13 +219,13 @@ namespace Dialogs.Logistic
 							.OrderBy(x => x.StatusLastUpdate)
 							.ToList().IndexOf(orderItem);
 
-						addressMarker = new NumericPointMarker(new PointLatLng((double)point.GetActiveVersion(deliveryDate).Latitude, (double)point.GetActiveVersion(deliveryDate).Longitude),
+						addressMarker = new NumericPointMarker(new PointLatLng((double)geodata.Latitude, (double)geodata.Longitude),
 							NumericPointMarkerType.green_large, index + 1);
 					}
 					else
-						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.GetActiveVersion(deliveryDate).Latitude, (double)point.GetActiveVersion(deliveryDate).Longitude),	type);
+						addressMarker = new GMarkerGoogle(new PointLatLng((double)geodata.Latitude, (double)geodata.Longitude),	type);
 
-					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)point.GetActiveVersion(deliveryDate).Latitude && g.Position.Lng == (double)point.GetActiveVersion(deliveryDate).Longitude);
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)geodata.Latitude && g.Position.Lng == (double)geodata.Longitude);
 					var pointShift = 4;
 					if(identicalPoint > 0)
 					{
@@ -542,7 +543,8 @@ namespace Dialogs.Logistic
 					if(address.Status == RouteListItemStatus.Completed)
 					{
 						var order = address.Order;
-						pointsToRecalculate.Add(new PointOnEarth((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude));
+						var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+						pointsToRecalculate.Add(new PointOnEarth((double)geodata.Latitude, (double)geodata.Longitude));
 					}
 				}
 
@@ -565,7 +567,8 @@ namespace Dialogs.Logistic
 			{
 				var order = routeList.Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order;
 				var point = order.DeliveryPoint;
-				pointsToRecalculate.Add(new PointOnEarth((double)point.GetActiveVersion(order.DeliveryDate).Latitude, (double)point.GetActiveVersion(order.DeliveryDate).Longitude));
+				var geodata = point.GetActiveVersion(order.DeliveryDate);
+				pointsToRecalculate.Add(new PointOnEarth((double)geodata.Latitude, (double)geodata.Longitude));
 			}
 
 			pointsToBase.Add(pointsToRecalculate.Last());

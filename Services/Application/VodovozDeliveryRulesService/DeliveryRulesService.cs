@@ -50,7 +50,7 @@ namespace VodovozDeliveryRulesService
 						logger.Error(e, "Ошибка при подборе района по координатам");
 						logger.Info("Пробую подобрать район из бэкапа...");
 						sector = backupDistrictService
-							.Sector
+							.Sectors
 							.FirstOrDefault(x => x.GetActiveSectorVersion().Polygon.Contains(new Point((double)latitude, (double)longitude)));
 					}
 					
@@ -69,7 +69,7 @@ namespace VodovozDeliveryRulesService
 						{
 							//Берём все правила дня недели
 							var rulesToAdd = 
-								sector.GetActiveWeekDayDeliveryRuleVersion().WeekDayDistrictRules.Single(x=>x.WeekDay == weekDay).Title; 
+								sector.GetActiveWeekDayDeliveryRuleVersion()?.WeekDayDistrictRules.Single(x=>x.WeekDay == weekDay).Title; 
 							
 							IList<string> commonRules = null;
 							//Если правил дня недели нет берем общие правила района
@@ -93,7 +93,7 @@ namespace VodovozDeliveryRulesService
 
 							var item = new WeekDayDeliveryRuleDTO {
 								WeekDayEnum = weekDay,
-								DeliveryRules = !string.IsNullOrWhiteSpace(rulesToAdd)? new List<string>{ rulesToAdd } : commonRules,
+								DeliveryRules = !string.IsNullOrWhiteSpace(rulesToAdd) ? new List<string>{ rulesToAdd } : commonRules,
 								ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 							};
 							response.WeekDayDeliveryRules.Add(item);
@@ -140,21 +140,21 @@ namespace VodovozDeliveryRulesService
 					}
 					catch (Exception e) 
 					{
-						logger.Error(e, "Ошибка при подборе района по координатам.");
-						logger.Info("Пробую подобрать район из бэкапа...");
+						logger.Error(e, "Ошибка при подборе сектора по координатам.");
+						logger.Info("Пробую подобрать сектор из бэкапа...");
 						sector = backupDistrictService
-							.Sector
+							.Sectors
 							.FirstOrDefault(x => x.GetActiveSectorVersion().Polygon.Contains(new Point((double)latitude, (double)longitude)));
 					}
 					
 					if(sector != null) 
 					{
-						logger.Info($"Район получен {sector.GetActiveSectorVersion().SectorName}");
+						logger.Info($"Сектор получен {sector.GetActiveSectorVersion().SectorName}");
 
 						return FillDeliveryInfoDTO(sector);
 					}
 					
-					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
+					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден сектор";
 					logger.Debug(message);
 					return new DeliveryInfoDTO {
 						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,

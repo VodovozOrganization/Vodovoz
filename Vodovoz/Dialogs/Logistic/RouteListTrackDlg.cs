@@ -255,7 +255,9 @@ namespace Vodovoz
 					logger.Warn ("Для заказа №{0}, отсутствует точка доставки. Поэтому добавление маркера пропущено.", point.OrderId);
 					continue;
 				}
-				if(point.Address.GetActiveVersion().Latitude.HasValue && point.Address.GetActiveVersion().Longitude.HasValue)
+
+				var geodata = point.Address.GetActiveVersion();
+				if(geodata.Latitude.HasValue && geodata.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
 					switch(point.Status)
@@ -279,8 +281,8 @@ namespace Vodovoz
 
 					var addressMarker =
 						new GMarkerGoogle(
-							new PointLatLng((double) point.Address.GetActiveVersion().Latitude,
-								(double) point.Address.GetActiveVersion().Longitude), type);
+							new PointLatLng((double) geodata.Latitude,
+								(double) geodata.Longitude), type);
 					addressMarker.ToolTipText =
 						$"{point.Address.ShortAddress}\nВремя доставки: {point.Time?.Name ?? "Не назначено"}";
 					tracksOverlay.Markers.Add(addressMarker);

@@ -33,10 +33,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			set => shippingBase = value;
 		}
 
-		public CalculatedOrder(Order order, Sector _sector, bool notCalculate = false, RouteList existRoute = null)
+		public CalculatedOrder(Order order, Sector sector, bool notCalculate = false, RouteList existRoute = null)
 		{
 			Order = order;
-			Sector = _sector;
+			Sector = sector;
 			ExistRoute = existRoute;
 
 			if(notCalculate)

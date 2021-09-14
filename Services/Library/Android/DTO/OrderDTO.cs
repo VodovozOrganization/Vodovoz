@@ -87,15 +87,17 @@ namespace Android
 
 		public OrderDTO (RouteListItem item)
 		{
-			Id = item.Order.Id;
-			Title = item.Order.Title;
 			var order = item.Order;
-			CityDistrict = order.DeliveryPoint?.CityDistrict;
-			StreetDistrict = order.DeliveryPoint?.StreetDistrict;
-			Latitude = order.DeliveryPoint?.GetActiveVersion(order.DeliveryDate).Latitude;
-			Longitude = order.DeliveryPoint?.GetActiveVersion(order.DeliveryDate).Longitude;
-			DeliveryPointComment = order.DeliveryPoint?.Comment;
-			Address = order.DeliveryPoint?.CompiledAddress;
+			var point = order.DeliveryPoint;
+			var geodata = point?.GetActiveVersion(order.DeliveryDate);
+			Id = order.Id;
+			Title = order.Title;
+			CityDistrict = point?.CityDistrict;
+			StreetDistrict = point?.StreetDistrict;
+			Latitude = geodata?.Latitude;
+			Longitude = geodata?.Longitude;
+			DeliveryPointComment = point?.Comment;
+			Address = point?.CompiledAddress;
 			DeliverySchedule = order.DeliverySchedule.DeliveryTime;
 			RouteListItemStatus = item.Status.GetEnumTitle ();
 			OrderComment = order.Comment;

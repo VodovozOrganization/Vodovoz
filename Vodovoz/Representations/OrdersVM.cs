@@ -344,10 +344,11 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null)
+							var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+							if(order.DeliveryPoint == null || geodata.Latitude == null || geodata.Longitude == null)
 								continue;
 
-							System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude, order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude));
+							System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", geodata.Longitude, geodata.Latitude));
 						}
 					}
 				));
@@ -376,10 +377,11 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
 						foreach(var sel in selectedNodes) {
 							var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.Id);
-							if(order.DeliveryPoint == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude == null || order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude == null)
+							var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+							if(order.DeliveryPoint == null || geodata.Latitude == null || geodata.Longitude == null)
 								continue;
 
-							System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude, order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude));
+							System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", geodata.Longitude, geodata.Latitude));
 						}
 					}
 				));

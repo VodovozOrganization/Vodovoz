@@ -811,7 +811,8 @@ namespace Vodovoz
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude.HasValue && order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude.HasValue) {
+				var geodata = order.DeliveryPoint.GetActiveVersion(order.DeliveryDate);
+				if(geodata.Latitude.HasValue && geodata.Longitude.HasValue) {
 					PointMarkerShape shape = GetMarkerShape(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
@@ -838,7 +839,7 @@ namespace Vodovoz
 					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude, (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude), type, shape) {
+					var addressMarker = new PointMarker(new PointLatLng((double)geodata.Latitude, (double)geodata.Longitude), type, shape) {
 						Tag = order
 					};
 
@@ -852,11 +853,11 @@ namespace Vodovoz
 
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
-						logisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).NetTopologyPoint))?.SectorName);
+						logisticanDistricts?.FirstOrDefault(x => x.Polygon.Contains(geodata.NetTopologyPoint))?.SectorName);
 
 					addressMarker.ToolTipText = ttText;
 
-					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Latitude && g.Position.Lng == (double)order.DeliveryPoint.GetActiveVersion(order.DeliveryDate).Longitude);
+					var identicalPoint = addressesOverlay.Markers.Count(g => g.Position.Lat == (double)geodata.Latitude && g.Position.Lng == (double)geodata.Longitude);
 					var pointShift = 5;
 					if(identicalPoint >= 1) {
 						addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);

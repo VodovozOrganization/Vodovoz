@@ -884,26 +884,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			});
 
 			filterableSectors = filterableSectors.Distinct().ToList();
-			// sectors.ForEach(s =>
-			// {
-			// 	if(Status.HasValue)
-			// 	{
-			// 		sectors.Concat() = s.SectorVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList();
-			// 		sectors.Concat(s.SectorDeliveryRuleVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList());
-			// 		sectors.Concat(s.SectorWeekDaySchedulesVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList());
-			// 		sectors.Concat(s.SectorWeekDayDeliveryRuleVersions.Where(x => x.Status == Status).Select(x => x.Sector).ToList());
-			// 	}
-			//
-			// 	if(StartDateSector.HasValue)
-			// 	{
-			// 		sectors = s.SectorVersions.Where(x => x.StartDate >= StartDateSector).Select(x => x.Sector).ToList();
-			// 		sectors = s.SectorDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector).ToList();
-			// 		sectors = s.SectorWeekDaySchedulesVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector)
-			// 			.ToList();
-			// 		sectors = s.SectorWeekDayDeliveryRuleVersions.Where(x => x.StartDate >= StartDateSector.Value).Select(x => x.Sector)
-			// 			.ToList();
-			// 	}
-			// });
+			
 			ObservableSectors = new GenericObservableList<Sector>(filterableSectors);
 			ObservableSectors.ForEach(x =>
 			{

@@ -475,8 +475,6 @@ namespace Vodovoz.Domain.Client
 			_observableDeliveryPointSectorVersions ?? (_observableDeliveryPointSectorVersions =
 				new GenericObservableList<DeliveryPointSectorVersion>(DeliveryPointSectorVersion));
 
-		private DeliveryPointSectorVersion _activeVersion;
-
 		public DeliveryPointSectorVersion GetActiveVersion(DateTime? activationTime = null)
 		{
 			if(activationTime.HasValue)
