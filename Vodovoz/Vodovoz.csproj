@@ -1756,10 +1756,10 @@
       <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
       <Name>ApiClientProvider</Name>
     </ProjectReference>
-  	<ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
-	  <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
-	  <Name>SmsPaymentService</Name>
-  	</ProjectReference>
+    <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
+      <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
+      <Name>SmsPaymentService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
