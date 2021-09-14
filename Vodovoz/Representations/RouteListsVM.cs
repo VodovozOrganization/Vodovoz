@@ -6,8 +6,10 @@ using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using MoreLinq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -303,11 +305,31 @@ namespace Vodovoz.ViewModel
 			RouteListStatus.Closed
 		};
 
-		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus> {
-			RouteListStatus.New,
-			RouteListStatus.Confirmed,
-			RouteListStatus.InLoading
-		};
+		private bool CanDeleteRouteList(RouteListsVMNode selectedNode)
+		{
+			bool result = false;
+
+			if(selectedNode.StatusEnum == RouteListStatus.New)
+			{
+				result = true;
+				
+				var routeList = UoW.Session.QueryOver<RouteList>()
+					.Where(x => x.Id == selectedNode.Id)
+					.SingleOrDefault<RouteList>();
+
+				foreach(var fuelDocument in routeList.FuelDocuments)
+				{
+					decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
+					decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
+					if(litersGived > 0 || payedLiters > 0)
+					{
+						result = false;
+					}
+				}
+			}
+
+			return result;
+		}
 
 		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus> {
 			RouteListStatus.New,
@@ -614,7 +636,7 @@ namespace Vodovoz.ViewModel
 							UpdateNodes();
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+					(selectedItems) => selectedItems.Any(x => CanDeleteRouteList(x as RouteListsVMNode))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Выдать топливо",
