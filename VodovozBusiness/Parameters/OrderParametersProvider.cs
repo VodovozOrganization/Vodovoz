@@ -21,5 +21,8 @@ namespace Vodovoz.Parameters
         
         public int[] PaymentsByCardFromNotToSendSalesReceipts =>
             new[] { PaymentByCardFromMobileAppId, PaymentByCardFromOnlineStoreId, PaymentByCardFromSiteId, PaymentByCardFromSmsId };
+
+        public int[] PaymentsByCardFromForNorthOrganization =>
+	        PaymentsByCardFromNotToSendSalesReceipts;
     }
 }

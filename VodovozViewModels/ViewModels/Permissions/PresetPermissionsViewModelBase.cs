@@ -34,6 +34,8 @@ namespace Vodovoz.ViewModels.Permissions
 			originalPermissionsSourceList.Sort((x, y) => string.Compare(x.DisplayName, y.DisplayName, StringComparison.Ordinal));
 		}
 
+		public virtual void StartSearch(string searchstring) { }
+
 		protected DelegateCommand<PresetUserPermissionSource> addPermissionCommand;
 		public virtual DelegateCommand<PresetUserPermissionSource> AddPermissionCommand { get; }
 
