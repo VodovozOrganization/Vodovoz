@@ -55,6 +55,7 @@ namespace Vodovoz.Views.Cash
 				.InitializeFromSource();
 
 			labelExpenceCategory.Binding.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible).InitializeFromSource();
+			evmeExpenceCategory.CanEditReference = true;
 			evmeExpenceCategory.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenceCategoryAutocompleteSelector);
 			evmeExpenceCategory.Binding.AddBinding(ViewModel.Entity, vm => vm.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			evmeExpenceCategory.Binding.AddSource(ViewModel)
