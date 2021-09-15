@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Reports
 						PurchasePriceStartDate = nomenclatureRangePrice.StartDate,
 						PurchasePriceEndDate = nomenclatureRangePrice.EndDate ?? _endDate,
 						NomenclatureName = nomenclatureDocuments.FirstOrDefault().NomenclatureName,
-						Amount = documentsInPriceRange.Sum(a => a.Amount),
+						Amount = decimal.Round(documentsInPriceRange.Sum(a => a.Amount)),
 						PurchasePrice = nomenclatureRangePrice.PurchasePrice,
 						Sum = decimal.Round(documentsInPriceRange.Sum(a => a.Amount) * nomenclatureRangePrice.PurchasePrice, 2)
 					};
@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Reports
 				var nomenclatureWithNullPrice = new ProductionWarehouseMovementReportNomenclature
 				{
 					NomenclatureName = nomenclatureDocuments.FirstOrDefault().NomenclatureName,
-					Amount = documentsNotInPriceRange.Sum(a => a.Amount)
+					Amount = decimal.Round(documentsNotInPriceRange.Sum(a => a.Amount))
 				};
 
 				if(nomenclatureWithNullPrice.Amount > 0)
@@ -93,7 +93,7 @@ namespace Vodovoz.ViewModels.Reports
 			var totalRow = new ProductionWarehouseMovementReportNomenclature
 			{
 				NomenclatureName = "ИТОГО",
-				Amount = nomenclatureResultList.Sum(n => n.Amount),
+				Amount = decimal.Round(nomenclatureResultList.Sum(n => n.Amount)),
 				Sum = nomenclatureResultList.Sum(n => n.Sum),
 				IsTotal = true
 			};
@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.Reports
 							{
 								Id = x.NomenclatureId,
 								NomenclatureName = x.NomenclatureName,
-								Amount = x.Amount
+								Amount = decimal.Round(x.Amount, 2)
 							};
 
 							nomenclature.PurchasePrice = x.PurchasePrices
@@ -193,7 +193,7 @@ namespace Vodovoz.ViewModels.Reports
 						.Where(x => x.Id == title.NomenclatureId)
 						.Sum(x => x.Amount);
 
-					amountTotalNomenclatures.Add(new ProductionWarehouseMovementReportNomenclature { Id = title.NomenclatureId, Amount = amountSum });
+					amountTotalNomenclatures.Add(new ProductionWarehouseMovementReportNomenclature { Id = title.NomenclatureId, Amount = decimal.Round(amountSum, 2) });
 				}
 
 				var amountTotalRow = new ProductionWarehouseMovementReportNode
@@ -214,10 +214,10 @@ namespace Vodovoz.ViewModels.Reports
 				{
 					var purchasePrice = rowsOnDate
 						.SelectMany(x => x.NomenclatureColumns)
-						.FirstOrDefault(x => x.Id == title.NomenclatureId)
-						.PurchasePrice;
+						.Where(x => x.Id == title.NomenclatureId)
+						.Max(x => x.PurchasePrice);
 
-					purchasePriceNomenclatures.Add(new ProductionWarehouseMovementReportNomenclature { Id = title.NomenclatureId, Amount = purchasePrice });
+					purchasePriceNomenclatures.Add(new ProductionWarehouseMovementReportNomenclature { Id = title.NomenclatureId, Amount = purchasePrice, IsTotal = true });
 				}
 
 				var purchasePriceTotalRow = new ProductionWarehouseMovementReportNode
@@ -239,7 +239,8 @@ namespace Vodovoz.ViewModels.Reports
 					sumTotalColumns.Add(new ProductionWarehouseMovementReportNomenclature
 					{
 						Id = Titles[i].NomenclatureId,
-						Amount = decimal.Round(amountTotalNomenclatures[i].Amount * purchasePriceNomenclatures[i].Amount)
+						Amount = decimal.Round(amountTotalNomenclatures[i].Amount * purchasePriceNomenclatures[i].Amount),
+						IsTotal = true
 					});
 				}
 
@@ -370,7 +371,7 @@ namespace Vodovoz.ViewModels.Reports
 
 					foreach(var column in row.NomenclatureColumns)
 					{
-						csv.WriteField(column.Amount);
+						csv.WriteField(column.IsTotal? $"{ column.Amount:F2}" : $"{ column.Amount:F0}");
 					}
 
 					csv.NextRecord();
@@ -391,7 +392,7 @@ namespace Vodovoz.ViewModels.Reports
 				{
 					csv.WriteField(row.NomenclatureName);
 					csv.WriteField(row.DateRange);
-					csv.WriteField(row.PurchasePrice);
+					csv.WriteField(row.IsTotal ? "" : row.PurchasePrice.ToString());
 					csv.WriteField(row.Amount);
 					csv.WriteField(row.Sum);
 					csv.NextRecord();

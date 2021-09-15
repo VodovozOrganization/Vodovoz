@@ -41,6 +41,7 @@ namespace Vodovoz.Views.Reports
 
 			ycheckbtnDetails.Binding.AddBinding(ViewModel, vm => vm.IsDetailed, w => w.Active).InitializeFromSource();
 			ybtnRunReport.Binding.AddBinding(ViewModel, vm => vm.CanGenerate, w => w.Sensitive).InitializeFromSource();
+			ybtnExport.Binding.AddBinding(ViewModel, vm => vm.CanGenerate, w => w.Sensitive).InitializeFromSource();
 		}
 
 		private void RunReport()
@@ -65,7 +66,7 @@ namespace Vodovoz.Views.Reports
 
 					columnsConfig.AddColumn($"{ ViewModel.Report.Titles[index].NomenclatureName }")
 						.MinWidth(70)
-						.AddNumericRenderer((row => row.NomenclatureColumns[index].Amount)).Digits(2);
+						.AddTextRenderer(row => row.NomenclatureColumns[index].IsTotal ? $"{ row.NomenclatureColumns[index].Amount:N2}" : $"{ (row.NomenclatureColumns[index].Amount):N0}");
 				}
 
 				ytreeviewReport.ColumnsConfig = columnsConfig.Finish();
@@ -80,11 +81,11 @@ namespace Vodovoz.Views.Reports
 					.AddColumn("Период")
 					.AddTextRenderer(n => n.DateRange)
 					.AddColumn("Цена")
-					.AddNumericRenderer(n => n.PurchasePrice).Digits(2)
+					.AddTextRenderer(n => n.IsTotal ? "" : $"{ n.PurchasePrice:N2}")
 					.AddColumn("Количество")
-					.AddNumericRenderer(n => n.Amount).Digits(2)
+					.AddTextRenderer(n => $"{ n.Amount:N0}")
 					.AddColumn("Сумма")
-					.AddNumericRenderer(n => n.Sum).Digits(2);
+					.AddTextRenderer(n => $"{ n.Sum:N2}");
 
 				ytreeviewReport.ColumnsConfig = columnsConfig.Finish();
 				ytreeviewReport.ItemsDataSource = ViewModel.Report.ResultNodeList.SelectMany(x => x.NomenclatureColumns).ToList();
