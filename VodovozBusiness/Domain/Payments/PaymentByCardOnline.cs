@@ -80,8 +80,16 @@ namespace Vodovoz.Domain.Payments
 			DateAndTime = ParseDate(data[4].Trim());
 
 			if(!int.TryParse(GetNumberFromDescription(data[6], ref paymentFrom), out paymentNr))
+			{
 				paymentNr = 0;
-			
+			}
+
+			//Проверяем дополнительно здесь, т.к. по одной из касс прилетают оплаты трех форматов
+			if(paymentNr < 1000000 && paymentFrom == PaymentByCardOnlineFrom.FromSMS)
+			{
+				paymentFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
+			}
+
 			PaymentByCardFrom = paymentFrom;
 
 			PaymentStatus = PaymentStatus.CONFIRMED;
