@@ -81,7 +81,17 @@ namespace Vodovoz
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
-			LoginDialog.SetDefaultNames ("Vodovoz");
+
+			var customProjectArgindex = Array.FindIndex(args, a => a == "-p") + 1;
+			if(customProjectArgindex > 0 && args.Length > customProjectArgindex)
+			{
+				LoginDialog.SetDefaultNames(args[customProjectArgindex]);
+			}
+			else
+			{
+				LoginDialog.SetDefaultNames("Vodovoz");
+			}
+
 			LoginDialog.DefaultLogin = "user";
 			LoginDialog.DefaultServer = "sql.vod.qsolution.ru";
 			LoginDialog.UpdateFromGConf ();
