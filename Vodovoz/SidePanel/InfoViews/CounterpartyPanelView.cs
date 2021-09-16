@@ -100,7 +100,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
 			}
 
-			Label labelAddPhone = new Label() { LabelProp = "Щёлкните чтоб\n добавить телефон-->" };
+			Label labelAddPhone = new Label() { LabelProp = "Щёлкните чтобы\n добавить телефон-->" };
 			PhonesTable.Attach(labelAddPhone, 0, 1, rowsCount - 1, rowsCount);
 
 			Image addIcon = new Image();
@@ -110,6 +110,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			btn.Clicked += OnBtnAddPhoneClicked;
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
+			btn.Sensitive = buttonSaveComment.Sensitive = _counterparty.Id != 0;
 		}
 
 		private void SetupPersonalManagers()
