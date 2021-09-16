@@ -699,7 +699,6 @@
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentKindsForRentVM.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
-    <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.InventoryDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentItemsView.cs" />
