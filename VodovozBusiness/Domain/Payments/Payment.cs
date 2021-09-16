@@ -172,6 +172,14 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref counterpartyCorrespondentAcc, value);
 		}
 
+		private Payment _refundedPayment;
+		[Display(Name = "Возвращаемый платеж")]
+		public virtual Payment RefundedPayment
+		{
+			get => _refundedPayment;
+			set => SetField(ref _refundedPayment, value);
+		}
+
 		public virtual string NumOrders { get; set; }
 
 		public Payment() { }
@@ -287,8 +295,9 @@ namespace Vodovoz.Domain.Payments
 				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента",
 				Organization = Organization,
 				Counterparty = Counterparty,
-				CounterpartyName = counterpartyName,
-				Status = PaymentState.undistributed
+				CounterpartyName = CounterpartyName,
+				Status = PaymentState.undistributed,
+				RefundedPayment = this
 			};
 		}
 

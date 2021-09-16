@@ -141,6 +141,11 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 
+			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			{
+				CreateDefaultDeleteAction();
+			}
+
 			NodeActionsList.Add(new JournalAction(
 				"Завершить распределение", 
 				x => true,

@@ -11,7 +11,7 @@ namespace Vodovoz.JournalViewers
 	public partial class WarehousesView : QS.Dialog.Gtk.TdiTabBase
 	{
 		IUnitOfWork uow;
-
+		private WarehousesVM _vm;
 		public WarehousesView()
 		{
 			this.Build();
@@ -21,11 +21,11 @@ namespace Vodovoz.JournalViewers
 
 		void ConfigureWidget()
 		{
-			var vm = new WarehousesVM();
-			tableWarehouses.ColumnsConfig = vm.ColumnsConfig;
-			vm.UpdateNodes();
-			tableWarehouses.YTreeModel = vm.TreeModel;
-			uow = vm.UoW;
+			_vm = new WarehousesVM();
+			tableWarehouses.ColumnsConfig = _vm.ColumnsConfig;
+			_vm.UpdateNodes();
+			tableWarehouses.YTreeModel = _vm.TreeModel;
+			uow = _vm.UoW;
 			tableWarehouses.Selection.Changed += OnSelectionChanged;
 			tableWarehouses.ExpandAll();
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
@@ -79,5 +79,11 @@ namespace Vodovoz.JournalViewers
 		}
 
 		protected void OnButtonRefreshClicked(object sender, EventArgs e) => ConfigureWidget();
+
+		protected override void OnDestroyed()
+		{
+			_vm?.Destroy();
+			base.OnDestroyed();
+		}
 	}
 }
