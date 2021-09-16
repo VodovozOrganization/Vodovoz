@@ -14,6 +14,7 @@ using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
@@ -80,9 +81,11 @@ namespace Vodovoz.Representations
 			Phone deliveryPointPhonesAlias = null;
 			Phone counterpartyPhonesAlias = null;
 			Domain.Orders.Order orderAlias = null;
+			District districtAlias = null;
 
 			var tasksQuery = UoW.Session.QueryOver(() => callTaskAlias)
-						.Left.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias);
+						.Left.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias)
+						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
 
 			switch(Filter.DateType) {
 				case TaskFilterDateType.CreationTime:
@@ -109,6 +112,11 @@ namespace Vodovoz.Representations
 
 			if(Filter.DeliveryPointCategory != null)
 				tasksQuery.Where(() => deliveryPointAlias.Category == Filter.DeliveryPointCategory);
+
+			if(Filter.GeographicGroup != null)
+			{
+				tasksQuery.Where(() => districtAlias.GeographicGroup.Id == Filter.GeographicGroup.Id);
+			}
 
 			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
 			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
