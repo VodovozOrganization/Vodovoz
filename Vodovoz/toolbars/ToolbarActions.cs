@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Autofac;
 using Dialogs.Employees;
 using Gtk;
@@ -942,26 +942,9 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
+	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
 	{
-		var parametersProvider = new ParametersProvider();
-		
-        tdiMain.OpenTab(
-            () => {
-                var routeListFilter = new RouteListJournalFilterViewModel();
-
-                return new RouteListWorkingJournalViewModel(
-                     routeListFilter,
-                     UnitOfWorkFactory.GetDefaultFactory,
-                     ServicesConfig.CommonServices,
-                     new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)),
-                     new FuelRepository(),
-                     new CallTaskRepository(),
-                     new BaseParametersProvider(parametersProvider),
-                     new SubdivisionRepository(parametersProvider)
-                     );
-            }
-        );
+		NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
     }
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
@@ -1112,17 +1095,7 @@ public partial class MainWindow : Window
 			RestrictNotIsProblematicCases = true
 		};
 
-		tdiMain.OpenTab(() => new UndeliveredOrdersJournalViewModel(
-			undeliveredOrdersFilter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			new GtkTabsOpener(),
-			new EmployeeJournalFactory(),
-			VodovozGtkServicesConfig.EmployeeService,
-			new UndeliveredOrdersJournalOpener(),
-			new OrderSelectorFactory(),
-			new UndeliveredOrdersRepository())
-		);
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionResidueActivated(object sender, System.EventArgs e)

@@ -312,13 +312,14 @@
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
-    <Compile Include="Models\Stage1OrganizationProvider.cs" />
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
+    <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
+    <Compile Include="Parameters\IExpenseParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />

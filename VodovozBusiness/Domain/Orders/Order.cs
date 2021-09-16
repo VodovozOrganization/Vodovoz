@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Models;
@@ -60,6 +61,7 @@ namespace Vodovoz.Domain.Orders
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -654,12 +656,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref driverCallId, value, () => DriverCallId);
 		}
 
-		int? trifle;
+		private int? _trifle;
 
-		[Display(Name = "Сдача")]
-		public virtual int? Trifle {
-			get => trifle;
-			set => SetField(ref trifle, value, () => Trifle);
+		[Display(Name = "Сдача с")]
+		public virtual int? Trifle
+		{
+			get => _trifle;
+			set => SetField(ref _trifle, value);
 		}
 
 		private int? onlineOrder;
@@ -945,7 +948,7 @@ namespace Vodovoz.Domain.Orders
 					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
-					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
@@ -2644,9 +2647,9 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.OnLoading:
 					OnChangeStatusToOnLoading();
 					break;
-				case OrderStatus.InTravelList:
 				case OrderStatus.OnTheWay:
 				case OrderStatus.Shipped:
+				case OrderStatus.InTravelList:
 				case OrderStatus.UnloadingOnStock:
 					break;
 				case OrderStatus.Closed:
@@ -2666,6 +2669,8 @@ namespace Vodovoz.Domain.Orders
 			   || newStatus == OrderStatus.NotDelivered
 			   || initialStatus == newStatus)
 				return;
+
+			DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
 
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
@@ -2712,6 +2717,71 @@ namespace Vodovoz.Domain.Orders
 			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, Id);
 			
 			UoW.Save(newPayment);
+		}
+
+		/// <summary>
+		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
+		/// </summary>
+		/// <param name="previousStatus"></param>
+		private void DeleteRefundWhenOrderRestoredToDeliver(OrderStatus previousStatus)
+		{
+			if((previousStatus == OrderStatus.DeliveryCanceled
+			    || previousStatus == OrderStatus.NotDelivered
+			    || previousStatus == OrderStatus.Canceled)
+			   && PaymentType == PaymentType.cashless)
+			{
+				var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
+				var payment = paymentItems.FirstOrDefault()?.Payment;
+				if(payment == null)
+				{
+					return;
+				}
+
+				var refundToDelete = _paymentsRepository.GetRefundPayment(UoW, payment.Id);
+				if(refundToDelete == null)
+				{
+					return;
+				}
+
+				var itemsToUpdate = refundToDelete.PaymentItems;
+
+				foreach(var pItem in itemsToUpdate)
+				{
+					var order = pItem.Order;
+					order.UpdateOrderPaymentStatus(pItem);
+					UoW.Save(order);
+				}
+
+				UoW.Delete(refundToDelete);
+				var totalPayed = paymentItems.Sum(pi => pi.Sum);
+
+				OrderPaymentStatus = ActualTotalSum > totalPayed
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
+			}
+		}
+
+		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
+		{
+			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id)
+				.Where(pi => pi != ignoredItem).ToList();
+			if(!paymentItems.Any())
+			{
+				if(PaymentType == PaymentType.cashless)
+				{
+					OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				}
+
+				return;
+			}
+
+			var totalPayed = paymentItems.Sum(pi => pi.Sum);
+
+			OrderPaymentStatus = totalPayed == 0
+				? OrderPaymentStatus.UnPaid
+				: ActualTotalSum > totalPayed
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
 		}
 
 		/// <summary>

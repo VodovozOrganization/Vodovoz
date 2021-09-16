@@ -568,6 +568,26 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
+		public virtual IDictionary<int, decimal> GetCashChangesForOrders()
+		{
+			var result = new Dictionary<int, decimal>();
+
+			foreach(var order in Addresses
+				.Where(a => a.Status != RouteListItemStatus.Transfered)
+				.Select(a => a.Order)
+				.Where(o => o.PaymentType == Client.PaymentType.cash))
+			{
+				var change = (order?.Trifle ?? 0) - order.TotalSum;
+
+				if(change > 0)
+				{
+					result.Add(order.Id, change);
+				}
+			}
+
+			return result;
+		}
+
 		/// <summary>
 		/// Возврат экспедитора по умолчанию для водителя <paramref name="driver"/>
 		/// </summary>

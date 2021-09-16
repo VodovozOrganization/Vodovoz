@@ -189,7 +189,6 @@ namespace Vodovoz.SidePanel.InfoViews
 							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
-							$"WHEN '{nameof(GuiltyTypes.Unknown)}' THEN 'Неизвестно' " +
 							"ELSE ?1 " +
 							"END ORDER BY ?1 ASC SEPARATOR '\n')"
 						 ),
@@ -216,5 +215,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			_uow?.Dispose();
+			base.Destroy();
+		}
 	}
 }

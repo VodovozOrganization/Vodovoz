@@ -1,20 +1,12 @@
 ﻿using System;
 using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Osm.Loaders;
-using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
@@ -26,38 +18,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 	public class DeliveryPointByClientJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<DeliveryPoint, DeliveryPointViewModel, DeliveryPointByClientJournalNode, DeliveryPointJournalFilterViewModel>
 	{
-		private readonly IUserRepository _userRepository;
-		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly IPhoneRepository _phoneRepository;
-		private readonly IContactsParameters _contactsParameters;
-		private readonly ICitiesDataLoader _citiesLoader;
-		private readonly IStreetsDataLoader _streetsLoader;
-		private readonly IHousesDataLoader _housesLoader;
-		private readonly IDeliveryPointRepository _deliveryPointRepository;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
 		public DeliveryPointByClientJournalViewModel(
-			IUserRepository userRepository, IGtkTabsOpener gtkTabsOpener, IPhoneRepository phoneRepository, IContactsParameters contactsParameters,
-			ICitiesDataLoader citiesLoader, IStreetsDataLoader streetsLoader, IHousesDataLoader housesLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory, IDeliveryPointRepository deliveryPointRepository,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
-			DeliveryPointJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IDeliveryPointViewModelFactory deliveryPointViewModelFactory,
+			DeliveryPointJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			bool hideJournalForOpen,
+			bool hideJournalForCreate)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
 		{
 			TabName = "Журнал точек доставки клиента";
 
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
-			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
-			_citiesLoader = citiesLoader ?? throw new ArgumentNullException(nameof(citiesLoader));
-			_streetsLoader = streetsLoader ?? throw new ArgumentNullException(nameof(streetsLoader));
-			_housesLoader = housesLoader ?? throw new ArgumentNullException(nameof(housesLoader));
-			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_nomenclatureFixedPriceController = nomenclatureFixedPriceController ??
-			                                    throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
+			_deliveryPointViewModelFactory =
+				deliveryPointViewModelFactory ?? throw new ArgumentNullException(nameof(deliveryPointViewModelFactory));
 
 			UpdateOnChanges(
 				typeof(Counterparty),
@@ -82,25 +57,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 			if(FilterViewModel?.RestrictOnlyActive == true)
 			{
-				query = query.Where(() => deliveryPointAlias.IsActive);
+				query.Where(() => deliveryPointAlias.IsActive);
 			}
 
 			if(FilterViewModel?.Counterparty != null)
 			{
-				query = query.Where(() => deliveryPointAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
+				query.Where(() => deliveryPointAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
 			}
 
 			if(FilterViewModel?.RestrictOnlyNotFoundOsm == true)
 			{
-				query = query.Where(() => deliveryPointAlias.FoundOnOsm == false);
+				query.Where(() => deliveryPointAlias.FoundOnOsm == false);
 			}
 
 			if(FilterViewModel?.RestrictOnlyWithoutStreet == true)
 			{
-				query = query.Where(Restrictions.Eq
-					(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Boolean, "IS_NULL_OR_WHITESPACE(?1)"),
-							NHibernateUtil.String, new IProjection[] {Projections.Property(() => deliveryPointAlias.Street)}
-							), true));
+				query.Where(() => deliveryPointAlias.Street == null || deliveryPointAlias.Street == " ");
 			}
 
 			query.Where(GetSearchCriterion(
@@ -120,22 +92,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		};
 
 		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () =>
-			new DeliveryPointViewModel(
-				FilterViewModel.Counterparty,
-				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
-				_citiesLoader, _streetsLoader, _housesLoader,
-				_nomenclatureSelectorFactory,
-				_nomenclatureFixedPriceController,
-				_deliveryPointRepository,
-				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+			_deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(FilterViewModel.Counterparty);
 
 		protected override Func<DeliveryPointByClientJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
-			new DeliveryPointViewModel(
-				_userRepository, _gtkTabsOpener, _phoneRepository, _contactsParameters,
-				_citiesLoader, _streetsLoader, _housesLoader,
-				_nomenclatureSelectorFactory,
-				_nomenclatureFixedPriceController,
-				_deliveryPointRepository,
-				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+			_deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(node.Id);
 	}
 }

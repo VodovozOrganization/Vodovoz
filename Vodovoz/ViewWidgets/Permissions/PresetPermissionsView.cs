@@ -28,6 +28,16 @@ namespace Vodovoz.ViewWidgets.Permissions
 		public PresetPermissionsView()
 		{
 			this.Build();
+			searchPresetPermissions.TextChanged += SearchPresetPermissionsOnTextChanged;
+		}
+
+		private void SearchPresetPermissionsOnTextChanged(object sender, EventArgs e)
+		{ 
+			ytreeviewAvailablePermissions.ItemsDataSource = null;
+			ytreeviewSelectedPermissions.ItemsDataSource = null;
+			ViewModel.StartSearch(searchPresetPermissions.Text);
+			ytreeviewAvailablePermissions.ItemsDataSource = ViewModel.ObservablePermissionsSourceList;
+			ytreeviewSelectedPermissions.ItemsDataSource = ViewModel.ObservablePermissionsList;
 		}
 
 		protected void Configure()
