@@ -13,7 +13,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 
 		public PremiumJournalFilterViewModel(EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel> subdivisionAutocompleteSelectorFactory)
 		{
-			_startDate = _endDate = DateTime.Today;
 			SubdivisionAutocompleteSelectorFactory = subdivisionAutocompleteSelectorFactory;
 		}
 

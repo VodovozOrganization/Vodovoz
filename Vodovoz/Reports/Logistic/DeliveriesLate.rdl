@@ -58,16 +58,12 @@ FROM
         LEFT JOIN employees lo_comment_author ON lo_comment_author.id = route_list_addresses.comment_for_fine_author_id
         LEFT OUTER JOIN fines_to_route_list_addresses fine_route_list_adrs on route_list_addresses.id = fine_route_list_adrs.route_list_address_id
         LEFT OUTER JOIN fines fine on fine_route_list_adrs.fine_id = fine.id
-        INNER JOIN 
-        (
-            SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
-            WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
-            GROUP BY ggte.route_list_id
-        ) AS gg ON gg.route_list_id = route_lists.id
+        LEFT JOIN districts ON delivery_points.district_id = districts.id
 WHERE
-    route_lists.`date` BETWEEN @start_date AND @end_date
+  route_lists.`date` BETWEEN @start_date AND @end_date
   AND route_list_addresses.status = 'Completed'
   AND employees.visiting_master = 0
+  AND (@geographic_group_id = 0 OR districts.geographic_group_id = @geographic_group_id)
 GROUP BY route_list_addresses.id
 HAVING delay &gt; 0;</CommandText>
         <QueryParameters>
@@ -141,16 +137,13 @@ HAVING delay &gt; 0;</CommandText>
 FROM
     route_list_addresses
 LEFT JOIN orders o on route_list_addresses.order_id = o.id
-INNER JOIN 
-(
-    SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
-    WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
-    GROUP BY ggte.route_list_id
-) AS gg ON gg.route_list_id = route_list_addresses.route_list_id 
+LEFT JOIN delivery_points ON delivery_points.id = o.delivery_point_id
+LEFT JOIN districts ON delivery_points.district_id = districts.id
 
 WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
     AND delivery_date &gt;= @start_date
-    AND delivery_date &lt;= @end_date</CommandText>
+    AND delivery_date &lt;= @end_date
+    AND (@geographic_group_id = 0 OR districts.geographic_group_id = @geographic_group_id)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

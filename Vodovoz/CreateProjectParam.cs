@@ -402,13 +402,16 @@ namespace Vodovoz
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
-			
+
 			#endregion
 
+			builder.RegisterType<ExpenseParametersProvider>().As<IExpenseParametersProvider>();
+			builder.RegisterType<OrganizationParametersProvider>().As<IOrganizationParametersProvider>();
+
 			#region Vodovoz
-			
+
 			#region Adapters
-			
+
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
 			

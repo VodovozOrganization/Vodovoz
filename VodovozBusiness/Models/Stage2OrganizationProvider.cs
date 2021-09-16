@@ -6,7 +6,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 
 namespace Vodovoz.Models
@@ -15,22 +14,14 @@ namespace Vodovoz.Models
 	{
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private readonly IOrderParametersProvider _orderParametersProvider;
-		private readonly IEnumerable<int> _northOrganizationGeoGroupsIds;
 
 		public Stage2OrganizationProvider(
 			IOrganizationParametersProvider organizationParametersProvider,
-			IOrderParametersProvider orderParametersProvider,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			IOrderParametersProvider orderParametersProvider)
 		{
 			_organizationParametersProvider =
 				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			if(geographicGroupParametersProvider == null)
-			{
-				throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
-			}
-			_northOrganizationGeoGroupsIds = new[]
-				{ geographicGroupParametersProvider.NorthGeographicGroupId, geographicGroupParametersProvider.EastGeographicGroupId };
 		}
 
 		public Organization GetOrganization(IUnitOfWork uow, Order order)
@@ -41,12 +32,11 @@ namespace Vodovoz.Models
 			}
 
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
-			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.OrderItems, order.PaymentByCardFrom,
-				order.DeliveryPoint?.District?.GeographicGroup);
+			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.OrderItems, order.PaymentByCardFrom);
 		}
 
 		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
-			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
+			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null)
 		{
 			if(uow == null)
 			{
@@ -60,7 +50,7 @@ namespace Vodovoz.Models
 
 			return isSelfDelivery
 				? GetOrganizationForSelfDelivery(uow, paymentType, paymentFrom)
-				: GetOrganizationForOtherOptions(uow, paymentType, paymentFrom, geographicGroup);
+				: GetOrganizationForOtherOptions(uow, paymentType, paymentFrom);
 		}
 
 		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, PaymentFrom paymentFrom = null)
@@ -79,7 +69,8 @@ namespace Vodovoz.Models
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:
 					organizationId =
-						paymentFrom?.Id == _orderParametersProvider.PaymentByCardFromSmsId
+						paymentFrom != null
+						&& _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 							? _organizationParametersProvider.VodovozNorthOrganizationId
 							: _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
@@ -107,8 +98,7 @@ namespace Vodovoz.Models
 			return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
 		}
 
-		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, PaymentFrom paymentFrom = null,
-			GeographicGroup geographicGroup = null)
+		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, PaymentFrom paymentFrom = null)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -124,8 +114,8 @@ namespace Vodovoz.Models
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:
 					organizationId =
-						paymentFrom?.Id == _orderParametersProvider.PaymentByCardFromSmsId
-						&& _northOrganizationGeoGroupsIds.Contains(geographicGroup?.Id ?? -1)
+						paymentFrom != null
+						&& _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 							? _organizationParametersProvider.VodovozNorthOrganizationId
 							: _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;

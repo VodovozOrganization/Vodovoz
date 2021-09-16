@@ -2509,6 +2509,20 @@
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox21">
+        <Height>12pt</Height>
+        <Width>5in</Width>
+        <Value>=Parameters!selected_filters</Value>
+        <ZIndex>1</ZIndex>
+        <Left>7pt</Left>
+        <Top>1.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -2521,9 +2535,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>#SET @start_date = '2020-08-20';
-#SET @end_date = '2020-08-20 23:59';
-
+        <CommandText>
 SELECT
    T.week_begin,
    T.week_end,
@@ -2594,7 +2606,7 @@ FROM
                 SUM(order_items.count) AS count
             FROM
                 order_items
-                    LEFT JOIN 
+                    LEFT JOIN
                 nomenclature ON order_items.nomenclature_id = nomenclature.id
             WHERE
                 nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
@@ -2604,6 +2616,10 @@ FROM
         delivery_points ON delivery_point_id = delivery_points.id
             LEFT JOIN
         delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+            LEFT JOIN
+        districts ON delivery_points.district_id = districts.id
+            LEFT JOIN
+        geographic_groups ON geographic_groups.id = districts.geographic_group_id
     WHERE
         (orders.delivery_date BETWEEN @start_date AND @end_date)
         AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
@@ -2612,7 +2628,8 @@ FROM
         AND !orders.is_contract_closer
         AND orders.order_address_type != 'Service'
         AND delivery_schedule.id IS NOT NULL
-        AND orders.delivery_point_id IS NOT NULL) as T
+        AND orders.delivery_point_id IS NOT NULL
+        AND geographic_groups.id in (@geographic_group_id)) as T
 GROUP BY week_begin
 ORDER BY week_begin</CommandText>
         <QueryParameters>
@@ -2624,6 +2641,9 @@ ORDER BY week_begin</CommandText>
           </QueryParameter>
           <QueryParameter Name="report_mode">
             <Value>=Parameters!report_mode</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_id">
+            <Value>=Parameters!geographic_group_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2697,9 +2717,7 @@ ORDER BY week_begin</CommandText>
     <DataSet Name="Undeliveries">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>#SET @start_date = '2020-08-17';
-#SET @end_date = '2020-08-17 23:59';
-
+        <CommandText>
 SELECT
     count(*) as undeliveries
 FROM
@@ -2708,16 +2726,27 @@ FROM
     guilty_in_undelivered_orders guilty_in on undeliv_orders.id=guilty_in.undelivery_id
         left join
     orders old_order on undeliv_orders.old_order_id=old_order.id
+        left join
+    delivery_points ON old_order.delivery_point_id = delivery_points.id
+        left join
+    districts ON delivery_points.district_id = districts.id
+        left join
+    geographic_groups ON geographic_groups.id = districts.geographic_group_id
 WHERE
     old_order.delivery_date &gt;= @start_date
     and old_order.delivery_date &lt;= @end_date
-    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46));</CommandText>
+    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46))
+    and geographic_groups.id in (@geographic_group_id)
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_id">
+            <Value>=Parameters!geographic_group_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2735,7 +2764,7 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_test;user=enzogord;password=qwerty;port=3306;server=vod.qsolution.ru</ConnectString>
+        <ConnectString>database=;user=;password=;port=;server=</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -2771,6 +2800,22 @@ WHERE
       <DataType>Integer</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_group_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="selected_filters">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>

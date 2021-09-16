@@ -151,6 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(Entity.Id == 0)
 			{
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+				FillHiddenCategories(traineeToEmployee);
 				TabName = "Новый сотрудник";
 			}
 			else
@@ -168,7 +169,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			organizations = UoW.GetAll<Organization>().ToList();
-			FillHiddenCategories(traineeToEmployee);
 
 			CanRegisterMobileUser = string.IsNullOrWhiteSpace(Entity.AndroidLogin) && string.IsNullOrWhiteSpace(Entity.AndroidPassword);
 

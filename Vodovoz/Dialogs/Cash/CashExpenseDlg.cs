@@ -1,33 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NHibernate.Criterion;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Validation;
-using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
-using QS.Services;
-using System.Linq;
-using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Parameters;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
+using QS.Services;
+using QS.Validation;
+using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalFilters;
+using Vodovoz.Parameters;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Cash;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz
 {
@@ -48,6 +49,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IWagesMovementRepository _wagesMovementRepository = new WagesMovementRepository();
+		private readonly IExpenseParametersProvider _expenseParametersProvider = new ExpenseParametersProvider(_parametersProvider, new OrganizationParametersProvider(_parametersProvider));
 
 		private readonly RouteListCashOrganisationDistributor _routeListCashOrganisationDistributor =
 			new RouteListCashOrganisationDistributor(
@@ -55,7 +57,7 @@ namespace Vodovoz
 					new OrganizationParametersProvider(_parametersProvider)),
 				new RouteListItemCashDistributionDocumentRepository(),
 				new OrderRepository());
-		
+
 		private readonly ExpenseCashOrganisationDistributor _expenseCashOrganisationDistributor =
 			new ExpenseCashOrganisationDistributor();
 
@@ -66,9 +68,9 @@ namespace Vodovoz
 
 		public CashExpenseDlg(IPermissionService permissionService)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
-			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog(
@@ -79,7 +81,8 @@ namespace Vodovoz
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
 			_canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate) {
+			if(!userPermission.CanCreate)
+			{
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание расходного ордера");
 				FailInitialize = true;
 				return;
@@ -98,7 +101,7 @@ namespace Vodovoz
 
 		public CashExpenseDlg(int id, IPermissionService permissionService)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Expense)))
@@ -109,7 +112,8 @@ namespace Vodovoz
 			}
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
+			if(!userPermission.CanRead)
+			{
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр расходного ордера");
 				FailInitialize = true;
 				return;
@@ -126,9 +130,11 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		private bool CanEdit => UoW.IsNew && _canCreate ||
-		                        _canEdit && Entity.Date.Date == DateTime.Now.Date ||
-		                        _canEditRectroactively;
+		private bool CanEdit => UoW.IsNew
+								&& _canCreate
+								|| _canEdit
+								&& Entity.Date.Date == DateTime.Now.Date
+								|| _canEditRectroactively;
 
 		private void ConfigureDlg()
 		{
@@ -166,7 +172,8 @@ namespace Vodovoz
 			ydateDocument.Sensitive = _canEditDate;
 
 			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
-			var filterViewModel = new ExpenseCategoryJournalFilterViewModel {
+			var filterViewModel = new ExpenseCategoryJournalFilterViewModel
+			{
 				ExcludedIds = _categoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
 				HidenByDefault = true
 			};
@@ -239,6 +246,19 @@ namespace Vodovoz
 			UpdateEmployeeBalanceVisibility();
 		}
 
+		public void ConfigureForRouteListChangeGiveout(int employeeId, decimal balance, string description)
+		{
+			yentryEmployee.Subject = UoW.GetById<Employee>(employeeId);
+			yentryEmployee.Sensitive = false;
+			ydateDocument.Sensitive = false;
+			Entity.TypeOperation = ExpenseType.Advance;
+			Entity.Description = description;
+			Entity.ExpenseCategory = UoW.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId);
+			Entity.Organisation = UoW.GetById<Organization>(_expenseParametersProvider.DefaultChangeOrganizationId);
+			yspinMoney.ValueAsDecimal = balance;
+			UpdateEmployeeBalanceVisibility();
+		}
+
 		public void CopyExpenseFrom(Expense doc)
 		{
 			Entity.TypeOperation = doc.TypeOperation;
@@ -256,8 +276,8 @@ namespace Vodovoz
 
 		private void UpdateSubdivision()
 		{
-			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null &&
-			   accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision)
+			if(accessfilteredsubdivisionselectorwidget.SelectedSubdivision != null
+				&& accessfilteredsubdivisionselectorwidget.NeedChooseSubdivision)
 			{
 				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 			}
@@ -266,7 +286,7 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			var valid = new QSValidator<Expense>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(valid.RunDlgIfNotValid((Gtk.Window)Toplevel))
 			{
 				return false;
 			}
@@ -290,16 +310,18 @@ namespace Vodovoz
 
 		private void DistributeCash()
 		{
-			if (Entity.TypeOperation == ExpenseType.Expense && 
-			    Entity.ExpenseCategory.Id == _categoryRepository.RouteListClosingExpenseCategory(UoW)?.Id) {
+			if(Entity.TypeOperation == ExpenseType.Expense
+				&& Entity.ExpenseCategory.Id == _categoryRepository.RouteListClosingExpenseCategory(UoW)?.Id)
+			{
 				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
-			else if (Entity.TypeOperation == ExpenseType.EmployeeAdvance
-			         || Entity.TypeOperation == ExpenseType.Salary) {
+			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
+					|| Entity.TypeOperation == ExpenseType.Salary)
+			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-			        || Entity.TypeOperation == ExpenseType.Salary)
+					|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
@@ -354,9 +376,8 @@ namespace Vodovoz
 
 			_currentEmployeeWage = 0;
 			var labelTemplate = "Текущий баланс сотрудника: {0}";
-			var employee = yentryEmployee.Subject as Employee;
 
-			if(employee != null)
+			if(yentryEmployee.Subject is Employee employee)
 			{
 				_currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
 			}
@@ -390,11 +411,13 @@ namespace Vodovoz
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Expense), "квитанции"))
+			{
 				Save();
+			}
 
 			var reportInfo = new QS.Report.ReportInfo
 			{
-				Title = String.Format("Квитанция №{0} от {1:d}", Entity.Id, Entity.Date),
+				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
 				Identifier = "Cash.Expense",
 				Parameters = new Dictionary<string, object>
 				{
@@ -408,8 +431,10 @@ namespace Vodovoz
 
 		protected void OnYspinMoneyFocusInEvent(object o, Gtk.FocusInEventArgs args)
 		{
-			if(yspinMoney.ValueAsDecimal == Decimal.Zero)
+			if(yspinMoney.ValueAsDecimal == decimal.Zero)
+			{
 				yspinMoney.Text = "";
+			}
 		}
 	}
 }
