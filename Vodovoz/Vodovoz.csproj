@@ -740,8 +740,6 @@
     <Compile Include="gtk-gui\Vodovoz.ChatWidget.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
-    <Compile Include="JournalFilters\DeliveryPointFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DeliveryPointFilter.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
     <Compile Include="Additions\Logistic\MapProvidersHelper.cs" />
     <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
