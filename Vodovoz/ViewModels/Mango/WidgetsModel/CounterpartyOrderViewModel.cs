@@ -11,19 +11,14 @@ using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -34,7 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class CounterpartyOrderViewModel : ViewModelBase
+	public class CounterpartyOrderViewModel : ViewModelBase, IDisposable
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
@@ -222,5 +217,10 @@ namespace Vodovoz.ViewModels.Mango
 			}
 		}
 		#endregion
+
+		public void Dispose()
+		{
+			UoW?.Dispose();
+		}
 	}
 }
