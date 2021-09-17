@@ -951,7 +951,6 @@
     <Compile Include="Dialogs\Goods\Folder1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.Folder1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureGroupCatalog.cs" />
-    <Compile Include="Representations\UndeliveredOrdersVM.cs" />
     <Compile Include="Dialogs\UndeliveredOrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderDlg.cs" />
     <Compile Include="ReportsParameters\OrderRegistryReport.cs" />
@@ -960,8 +959,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.EquipmentBalance.cs" />
     <Compile Include="ReportsParameters\CardPaymentsOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
-    <Compile Include="JournalFilters\UndeliveredOrdersFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.UndeliveredOrdersFilter.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
     <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />
