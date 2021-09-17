@@ -73,7 +73,6 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
 		private IFilePickerService _filePickerService;
@@ -89,10 +88,6 @@ namespace Vodovoz
 
 		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
 			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
-
-		public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory =>
-			_employeeSelectorFactory ??
-			(_employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());
 
 		public virtual ISubdivisionRepository SubdivisionRepository =>
 			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
@@ -744,8 +739,7 @@ namespace Vodovoz
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory,
-				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory);
 			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
 
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
@@ -753,7 +747,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				UndeliveredOrdersJournalOpener,
 				_employeeService,
-				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				CounterpartySelectorFactory,
 				RouteListItemRepository,
 				SubdivisionParametersProvider.Instance,
 				filter,

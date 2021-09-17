@@ -174,28 +174,6 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc(Employee updatedSubject) => true;
 
 		#endregion
-
-		public EmployeesVM(IUnitOfWork uow, EmployeeRepresentationFilterViewModel filterViewModel)
-		{
-			Filter = filterViewModel;
-			UoW = uow;
-		}
-
-		public EmployeesVM(EmployeeRepresentationFilterViewModel filterViewModel)
-		{
-			Filter = filterViewModel;
-		}
-
-		public EmployeesVM()
-		{
-			CreateRepresentationFilter = () => new EmployeeRepresentationFilterViewModel { Status = EmployeeStatus.IsWorking };
-		}
-
-		public EmployeesVM(IUnitOfWork uow)
-		{
-			CreateRepresentationFilter = () => new EmployeeRepresentationFilterViewModel { Status = EmployeeStatus.IsWorking };
-			this.UoW = uow;
-		}
 	}
 
 	public class EmployeesVMNode : QS.RepresentationModel.GtkUI.INodeWithEntryFastSelect

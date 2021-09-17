@@ -10,7 +10,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
@@ -19,6 +18,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {
@@ -92,6 +92,9 @@ namespace Vodovoz
 
 			yspinLiters.Binding.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
 
+			ylabelAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.LabelProp,
+				new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
+
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
 			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
@@ -104,8 +107,6 @@ namespace Vodovoz
 			yentryreferenceRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
-			yentryAuthor.RepresentationModel = new EmployeesVM();
-            yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 			
             UpdateControlsState();
 			ShowLiters();

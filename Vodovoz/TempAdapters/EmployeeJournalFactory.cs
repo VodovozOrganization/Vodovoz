@@ -203,7 +203,46 @@ namespace Vodovoz.TempAdapters
 				}
 			);
 		}
-		
+
+		public IEntityAutocompleteSelectorFactory CreateWorkingEmployeeAutocompleteSelectorFactory()
+		{
+			CreateNewDependencies();
+
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() =>
+				{
+					var filter = new EmployeeFilterViewModel
+					{
+						HidenByDefault = true,
+						Status = EmployeeStatus.IsWorking
+					};
+
+					return new EmployeesJournalViewModel(
+						filter,
+						_authorizationServiceFactory,
+						_employeeWageParametersFactory,
+						_employeeJournalFactory,
+						_subdivisionJournalFactory,
+						_employeePostsJournalFactory,
+						_cashDistributionCommonOrganisationProvider,
+						_subdivisionService,
+						_emailServiceSettingAdapter,
+						_wageCalculationRepository,
+						_employeeRepository,
+						_warehouseRepository,
+						_routeListRepository,
+						CurrentUserSettings.Settings,
+						_validationContextFactory,
+						_phonesViewModelFactory,
+						_driverApiUserRegisterEndpoint,
+						ServicesConfig.CommonServices,
+						UnitOfWorkFactory.GetDefaultFactory
+					);
+				}
+			);
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory()
 		{
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(

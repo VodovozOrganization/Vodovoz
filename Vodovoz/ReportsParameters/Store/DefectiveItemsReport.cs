@@ -1,37 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Report;
-using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DefectiveItemsReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class DefectiveItemsReport : Gtk.Bin, IParametersWidget
 	{
 		public DefectiveItemsReport()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
 			yEnumCmbSource.AddEnumToHideList(new Enum[] { DefectSource.None });
 
-			var driversFilter = new EmployeeRepresentationFilterViewModel
+			var driverFilter = new EmployeeFilterViewModel
 			{
-				RestrictCategory = EmployeeCategory.driver, Status = EmployeeStatus.IsWorking
+				RestrictCategory = EmployeeCategory.driver,
+				Status = EmployeeStatus.IsWorking
 			};
-			yEntryRefDriver.RepresentationModel = new EmployeesVM(driversFilter);
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 
 			datePeriod.StartDate = datePeriod.EndDate = DateTime.Today;
+			buttonRun.Clicked += (sender, e) => OnUpdate(true);
+			datePeriod.PeriodChanged += (sender, e) => ValidateParameters();
 		}
 
 		#region IParametersWidget implementation
@@ -49,16 +47,11 @@ namespace Vodovoz.ReportsParameters.Store
 			}
 		}
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
-
 		private ReportInfo GetReportInfo()
 		{
 			var driver = 0;
-			if(yEntryRefDriver.Subject is Employee)
-				driver = (yEntryRefDriver.Subject as Employee).Id;
+			if(evmeDriver.Subject is Employee)
+				driver = evmeDriver.SubjectId;
 			var source = yEnumCmbSource.SelectedItem;
 			var startDate = datePeriod.StartDateOrNull.Value.ToString("yyyy-MM-dd");
 			var endDate = datePeriod.EndDateOrNull.Value.ToString("yyyy-MM-dd");
@@ -81,11 +74,6 @@ namespace Vodovoz.ReportsParameters.Store
 		{
 			var datePeriodSelected = datePeriod.EndDateOrNull != null && datePeriod.StartDateOrNull != null;
 			buttonRun.Sensitive = datePeriodSelected;
-		}
-
-		protected void OnDatePeriodPeriodChanged(object sender, EventArgs e)
-		{
-			ValidateParameters();
 		}
 	}
 }

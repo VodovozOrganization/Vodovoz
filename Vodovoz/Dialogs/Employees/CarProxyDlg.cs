@@ -16,6 +16,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -53,28 +55,26 @@ namespace Vodovoz.Dialogs.Employees
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
 
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var orgFactory = new OrganisationJournalFactory();
+			evmeOrganisation.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganisationAutocompleteSelectorFactory());
+			evmeOrganisation.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
+			evmeOrganisation.Changed += (sender, e) => UpdateStates();
 
-			var filterDefaultForwarder = new EmployeeRepresentationFilterViewModel();
-			filterDefaultForwarder.Status = EmployeeStatus.IsWorking;
-			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
-			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
-			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
-			yentryDriver.Changed += (sender, e) => {
-				UpdateStates();
+			var driverFilter = new EmployeeFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking,
+				RestrictCategory = EmployeeCategory.driver
 			};
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
+			evmeDriver.Changed += (sender, e) => UpdateStates();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
 
 			RefreshParserRootObject();
 
@@ -117,8 +117,8 @@ namespace Vodovoz.Dialogs.Employees
 		void UpdateStates()
 		{
 			bool isNewDoc = !(Entity.Id > 0);
-			yentryOrganization.Sensitive = isNewDoc;
-			yentryDriver.Sensitive = isNewDoc;
+			evmeOrganisation.Sensitive = isNewDoc;
+			evmeDriver.Sensitive = isNewDoc;
 			entityviewmodelentryCar.Sensitive = isNewDoc;
 			if(Entity.Organization == null 
 				|| Entity.Car == null 

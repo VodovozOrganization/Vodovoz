@@ -380,7 +380,9 @@ namespace Vodovoz.JournalViewModels
 								_fuelRepository,
 								NavigationManagerProvider.NavigationManager,
 								new TrackRepository(),
-								new CategoryRepository(new ParametersProvider())
+								new CategoryRepository(new ParametersProvider()),
+								new EmployeeJournalFactory(),
+								new CarJournalFactory()
 							)
 						);
 					}

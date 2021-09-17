@@ -10,11 +10,11 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.ViewModel;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Services;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -60,14 +60,16 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse);
-			repEntryEmployee.IsEditable = textComment.Editable = editing;
+			evmeEmployee.IsEditable = textComment.Editable = editing;
 			writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
 
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
 			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
 
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
-			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
+			var clientFactory = new CounterpartyJournalFactory();
+			evmeCounterparty.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
+			evmeCounterparty.Changed += OnReferenceCounterpartyChanged;
 
 			ySpecCmbWarehouses.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.WriteoffEdit);
 			ySpecCmbWarehouses.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.SelectedItem).InitializeFromSource ();
@@ -85,17 +87,18 @@ namespace Vodovoz
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)
 			{
-				repEntryEmployee.CanEditReference = false;
+				evmeEmployee.CanEditReference = false;
 			}
 			
-			repEntryEmployee.RepresentationModel = new EmployeesVM();
-			repEntryEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.ItemsEnum = typeof(WriteoffType);
-			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
+			referenceDeliveryPoint.Sensitive = evmeCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
 			comboType.EnumItemSelected += (object sender, Gamma.Widgets.ItemSelectedEventArgs e) => {
 				ySpecCmbWarehouses.Sensitive = WriteoffType.warehouse.Equals(comboType.SelectedItem);
 				referenceDeliveryPoint.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem) && UoWGeneric.Root.Client != null;
-				referenceCounterparty.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem);
+				evmeCounterparty.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem);
 			};
 			//FIXME Списание с контрагента не реализовано. Поэтому блокирует выбор типа списания.
 			comboType.Sensitive = false;
@@ -118,10 +121,10 @@ namespace Vodovoz
 			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				referenceCounterparty.Sensitive = false;
+				evmeCounterparty.Sensitive = false;
 				referenceDeliveryPoint.Sensitive = false;
 				comboType.Sensitive = false;
-				repEntryEmployee.Sensitive = false;
+				evmeEmployee.Sensitive = false;
 				textComment.Sensitive = false;
 				writeoffdocumentitemsview1.Sensitive = false;
 
@@ -156,9 +159,9 @@ namespace Vodovoz
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
-			referenceDeliveryPoint.Sensitive = referenceCounterparty.Subject != null;
-			if (referenceCounterparty.Subject != null) {
-				var points = ((Counterparty)referenceCounterparty.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
+			referenceDeliveryPoint.Sensitive = evmeCounterparty.Subject != null;
+			if (evmeCounterparty.Subject != null) {
+				var points = ((Counterparty)evmeCounterparty.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
 				referenceDeliveryPoint.ItemsCriteria = UoW.Session.CreateCriteria<DeliveryPoint> ()
 					.Add (Restrictions.In ("Id", points));
 			}
@@ -184,4 +187,3 @@ namespace Vodovoz
 		}
 	}
 }
-

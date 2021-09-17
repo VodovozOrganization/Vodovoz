@@ -61,8 +61,10 @@ namespace Vodovoz
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text).InitializeFromSource();
 			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
 			yentryrefParentSubdivision.Binding.AddBinding(Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
-			yentryreferenceChief.RepresentationModel = new EmployeesVM();
-			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
+
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeChief.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 
 			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
 			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();

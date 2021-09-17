@@ -13,6 +13,7 @@ using Vodovoz.ViewModel;
 using NHibernate.Criterion;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -33,11 +34,8 @@ namespace Vodovoz.ServiceDialogs
 
         private void ConfigureDlg()
         {
-            var filterDriver = new EmployeeRepresentationFilterViewModel();
-            filterDriver.SetAndRefilterAtOnce(
-                x => x.Status = EmployeeStatus.IsWorking
-            );
-            entryDriver.RepresentationModel = new EmployeesVM(filterDriver);
+            var employeeFactory = new EmployeeJournalFactory();
+            evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
             datePickerFrom.IsEditable = true;
             datePickerTo.IsEditable = true;
 
@@ -47,7 +45,7 @@ namespace Vodovoz.ServiceDialogs
 
         void ButtonRecalculate_Clicked(object sender, EventArgs e)
         {
-            var driver = entryDriver.Subject as Employee;
+            var driver = evmeDriver.Subject as Employee;
 
             if(datePickerFrom.DateOrNull == null){
                 throw new ArgumentNullException("Не выбрана дата с!");
@@ -87,7 +85,7 @@ namespace Vodovoz.ServiceDialogs
 
         void ButtonRecalculateForwarder_Clicked(object sender, EventArgs e)
         {
-            var forwarder = entryDriver.Subject as Employee;
+            var forwarder = evmeDriver.Subject as Employee;
 
             if(datePickerFrom.DateOrNull == null) {
                 throw new ArgumentNullException("Не выбрана дата с!");

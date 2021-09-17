@@ -1,50 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModel;
 using QS.Dialog.GtkUI;
-using Vodovoz.JournalFilters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class DriverWagesReport : Gtk.Bin, IParametersWidget
 	{
 		public DriverWagesReport()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			var filter = new EmployeeRepresentationFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
-			yentryreferenceDriver.Changed += (sender, args) =>
+			var driverFilter = new EmployeeFilterViewModel
 			{
-				if(dateperiodpicker.StartDateOrNull.HasValue && yentryreferenceDriver.Subject is Employee)
+				RestrictCategory = EmployeeCategory.driver,
+				Status = EmployeeStatus.IsWorking
+			};
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Changed += (sender, args) =>
+			{
+				if(dateperiodpicker.StartDateOrNull.HasValue && evmeDriver.Subject is Employee)
 					OnUpdate(true);
 			};
 			
 			dateperiodpicker.PeriodChanged += (sender, args) =>
 			{
-				if(yentryreferenceDriver.Subject is Employee && dateperiodpicker.StartDateOrNull.HasValue)
+				if(evmeDriver.Subject is Employee && dateperiodpicker.StartDateOrNull.HasValue)
 					OnUpdate(true);
 			};
+			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title	{ 
-			get {
-				return "Зарплата водителя";
-			}
-		}
+		public string Title => "Зарплата водителя";
 
 		#endregion
 
@@ -66,7 +62,7 @@ namespace Vodovoz.Reports
 
 			var parameters = new Dictionary<string, object>
 				{
-					{ "driver_id", (yentryreferenceDriver.Subject as Employee).Id},
+					{ "driver_id", evmeDriver.SubjectId },
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", endDate }
 			};
@@ -85,7 +81,7 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
-			if ((yentryreferenceDriver.Subject as Employee) == null)
+			if ((evmeDriver.Subject as Employee) == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Необходимо выбрать водителя");
 				return;
@@ -99,4 +95,3 @@ namespace Vodovoz.Reports
 		}
 	}
 }
-

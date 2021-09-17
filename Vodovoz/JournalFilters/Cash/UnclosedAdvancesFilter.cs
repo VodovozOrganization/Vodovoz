@@ -5,6 +5,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -13,7 +14,11 @@ namespace Vodovoz
 	{
 		protected override void ConfigureWithUow()
 		{
-			repEntryAccountable.RepresentationModel = new ViewModel.EmployeesVM();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeAccountable.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeAccountable.Changed += (sender, e) => OnRefiltered();
+			yAdvancePeriod.PeriodChanged += (sender, e) => OnRefiltered();
+			yentryExpense.Changed += (sender, e) => OnRefiltered();
 			yentryExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
 		}
 
@@ -36,10 +41,10 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictAccountable {
-			get { return repEntryAccountable.Subject as Employee; }
+			get { return evmeAccountable.Subject as Employee; }
 			set {
-				repEntryAccountable.Subject = value;
-				repEntryAccountable.Sensitive = false;
+				evmeAccountable.Subject = value;
+				evmeAccountable.Sensitive = false;
 			}
 		}
 
@@ -58,21 +63,5 @@ namespace Vodovoz
 				yAdvancePeriod.Sensitive = false;
 			}
 		}
-
-		protected void OnYentryAccountableChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYentryExpenseChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYAdvancePeriodPeriodChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
 	}
 }
-

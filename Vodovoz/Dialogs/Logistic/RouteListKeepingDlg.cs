@@ -30,9 +30,11 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
@@ -120,27 +122,31 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = logisticanEditing;
 
-			var filterDriver = new EmployeeRepresentationFilterViewModel();
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
-			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			referenceDriver.Sensitive = logisticanEditing;
-			var filterForwarder = new EmployeeRepresentationFilterViewModel();
-			filterForwarder.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
-			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			referenceForwarder.Sensitive = logisticanEditing;
-			referenceForwarder.Changed += ReferenceForwarder_Changed;
+			var driverFilter = new EmployeeFilterViewModel
+			{
+				RestrictCategory = EmployeeCategory.driver,
+				Status = EmployeeStatus.IsWorking
+			};
+			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
+			evmeDriver.Sensitive = logisticanEditing;
 
-			referenceLogistican.RepresentationModel = new EmployeesVM();
-			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
-			referenceLogistican.Sensitive = logisticanEditing;
+			var forwarderFilter = new EmployeeFilterViewModel
+			{
+				RestrictCategory = EmployeeCategory.forwarder,
+				Status = EmployeeStatus.IsWorking
+			};
+			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
+			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
+			evmeForwarder.Sensitive = logisticanEditing;
+			evmeForwarder.Changed += ReferenceForwarder_Changed;
+
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
+			evmeLogistician.Sensitive = logisticanEditing;
 
 			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
@@ -586,4 +592,3 @@ namespace Vodovoz
 		public StatusChangedEventArgs(RouteListItemStatus newStatus) => NewStatus = newStatus;
 	}
 }
-

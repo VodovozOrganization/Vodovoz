@@ -951,9 +951,7 @@ public partial class MainWindow : Gtk.Window
 	    var employeeJournalFactory = new EmployeeJournalFactory();
 	    var userRepository = new UserRepository();
         
-        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+        ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
 
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -970,7 +968,7 @@ public partial class MainWindow : Gtk.Window
 	        new ComplaintFilterViewModel(
 		        ServicesConfig.CommonServices,
 		        subdivisionRepository,
-		        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+		        employeeJournalFactory,
 		        counterpartySelectorFactory
 	        )
 	        {
@@ -2103,9 +2101,7 @@ public partial class MainWindow : Gtk.Window
         var employeeJournalFactory = new EmployeeJournalFactory();
         var userRepository = new UserRepository();
 
-        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+        ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
 
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -2125,7 +2121,7 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+                        employeeJournalFactory,
                         counterpartySelectorFactory
                     )
                     { IsForRetail = true },

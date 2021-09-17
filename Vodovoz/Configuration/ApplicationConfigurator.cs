@@ -299,12 +299,6 @@ namespace Vodovoz.Configuration
                 .SearchColumn("Имя класса", x => x.Type)
                 .OrderAsc(x => x.CustomName)
                 .End();
-            OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
-                .Column("Код", x => x.Id.ToString())
-                .SearchColumn("Ф.И.О.", x => x.FullName)
-                .Column("Категория", x => x.Category.GetEnumTitle())
-                .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
-                .End();
             OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
                 .Column("Код", x => x.Id.ToString())
                 .SearchColumn("Ф.И.О.", x => x.FullName)

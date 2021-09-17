@@ -5,10 +5,12 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Employees
@@ -49,8 +51,9 @@ namespace Vodovoz.Dialogs.Employees
 
 			Entity.ObservableItems.ListContentChanged += ObservableItems_ListContentChanged;
 
-			yentryAuthor.RepresentationModel = new EmployeesVM();
-			yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeAuthor.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<PremiumItem>()
 				.AddColumn("Сотрудник")
@@ -122,15 +125,16 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addEmployeeDlg = new PermissionControlledRepresentationJournal(new EmployeesVM());
-			addEmployeeDlg.Mode = JournalSelectMode.Single;
-			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, addEmployeeDlg);
+			var employeeFactory = new EmployeeJournalFactory();
+			var employeeJournal = employeeFactory.CreateEmployeeJournal();
+			employeeJournal.SelectionMode = JournalSelectionMode.Single;
+			employeeJournal.OnEntitySelectedResult += AddEmployeeDlg_ObjectSelected;
+			TabParent.AddSlaveTab(this, employeeJournal);
 		}
 
-		void AddEmployeeDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		void AddEmployeeDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			var selectedId = e.SelectedNodes.FirstOrDefault()?.Id ?? 0;
 			if(selectedId == 0) {
 				return;
 			}

@@ -14,12 +14,18 @@ using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
+		private readonly OrderJournalFilterViewModel _orderJournalFilter;
+
+		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
+		{
+			_orderJournalFilter = orderFilter;
+		}
+
 		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
 			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
@@ -48,7 +54,7 @@ namespace Vodovoz.TempAdapters
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
 				() => new OrderJournalViewModel(
-					new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory),
+					_orderJournalFilter ?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory),
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					VodovozGtkServicesConfig.EmployeeService,

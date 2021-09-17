@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
-using Vodovoz.ViewModel;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Dialogs;
+using QS.Project.Journal;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -82,21 +82,22 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addEmployeeDlg = new PermissionControlledRepresentationJournal(new EmployeesVM());
-			addEmployeeDlg.Mode = JournalSelectMode.Single;
-			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected; 
-			MyTab.TabParent.AddSlaveTab(MyTab, addEmployeeDlg);
+			var employeeFactory = new EmployeeJournalFactory();
+			var employeeJournal = employeeFactory.CreateEmployeeJournal();
+			employeeJournal.SelectionMode = JournalSelectionMode.Single;
+			employeeJournal.OnEntitySelectedResult += AddEmployeeDlg_ObjectSelected;
+			MyTab.TabParent.AddSlaveTab(MyTab, employeeJournal);
 		}
 		
-		void AddEmployeeDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		void AddEmployeeDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			var selectedId = e.SelectedNodes.FirstOrDefault()?.Id ?? 0;
 			if(selectedId == 0) {
 				return;
 			}
 			var employee = FineUoW.GetById<Employee>(selectedId);
 			if(FineUoW.Root.Items.Any(x => x.Employee.Id == employee.Id)) {
-				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
+				MessageDialogHelper.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
 				return;
 			}
 			FineUoW.Root.AddItem(employee);
@@ -130,4 +131,3 @@ namespace Vodovoz
 		}
 	}
 }
-

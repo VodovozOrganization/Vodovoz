@@ -41,7 +41,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IFilePickerService _filePickerService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -72,7 +72,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICommonServices commonServices,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
 			ComplaintFilterViewModel filterViewModel,
@@ -431,7 +431,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						_unitOfWorkFactory,
 						_employeeService,
-						_counterpartySelectorFactory,
+						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_subdivisionRepository,
 						_commonServices,
 						_nomenclatureRepository,
@@ -454,7 +454,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_commonServices,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
-						_counterpartySelectorFactory,
+						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_filePickerService,
 						_subdivisionRepository,
 						_nomenclatureRepository,
@@ -496,7 +496,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_commonServices,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
-						_counterpartySelectorFactory,
+						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_filePickerService,
 						_subdivisionRepository,
 						_nomenclatureRepository,
@@ -594,7 +594,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_commonServices,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
-								_counterpartySelectorFactory,
+								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 								_filePickerService,
 								_subdivisionRepository,
 								_nomenclatureRepository,
@@ -631,7 +631,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_commonServices,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
-								_counterpartySelectorFactory,
+								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 								_filePickerService,
 								_subdivisionRepository,
 								_nomenclatureRepository,

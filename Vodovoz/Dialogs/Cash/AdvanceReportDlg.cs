@@ -19,6 +19,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -138,7 +139,7 @@ namespace Vodovoz
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
-			comboExpense.Sensitive = yspinMoney.Sensitive = yentryEmployee.Sensitive = specialListCmbOrganisation.Sensitive = false;
+			comboExpense.Sensitive = yspinMoney.Sensitive = evmeEmployee.Sensitive = specialListCmbOrganisation.Sensitive = false;
 
 			ConfigureDlg();
 		}
@@ -156,19 +157,12 @@ namespace Vodovoz
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
 			}
 
-			var filterEmployee = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
-			yentryEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
+			evmeEmployee.Changed += (sender, e) => FillDebt();
 
-			var filterCasher = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
-			yentryCasher.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
+			evmeCashier.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
@@ -339,11 +333,6 @@ namespace Vodovoz
 			ylabel1.Visible = specialListCmbOrganisation.Visible = Entity.NeedValidateOrganisation = ClosingSum != Entity.Money;
 		}
 
-		protected void OnYentryEmployeeChanged(object sender, EventArgs e)
-		{
-			FillDebt();
-		}
-
 		protected void OnComboExpenseChanged(object sender, EventArgs e)
 		{
 			FillDebt();
@@ -373,4 +362,3 @@ namespace Vodovoz
 		}
 	}
 }
-

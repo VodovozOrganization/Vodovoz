@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
@@ -8,19 +7,17 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.JournalFilters
 {
 	[OrmDefaultIsFiltered(true)]
 	[System.ComponentModel.ToolboxItem(true)]
+	[Obsolete("Похоже, что старый журнал UndeliveredOrdersVM нигде не используется и фильтр с журналом можно удалить")]
 	public partial class UndeliveredOrdersFilter : RepresentationFilterBase<UndeliveredOrdersFilter>, ISingleUoWDialog
 	{
 		protected override void ConfigureWithUow()
@@ -32,26 +29,37 @@ namespace Vodovoz.JournalFilters
 			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList =
 				new SubdivisionRepository(new ParametersProvider()).GetAllDepartmentsOrderedByName(UoW);
 
-			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
-			refOldOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			var orderFactory = new OrderSelectorFactory();
+			evmeOldOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOldOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			var driversFilter = new EmployeeRepresentationFilterViewModel();
+			var driversFilter = new EmployeeFilterViewModel();
 			driversFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			refDriver.RepresentationModel = new EmployeesVM(driversFilter);
+			var driverFactory = new EmployeeJournalFactory(driversFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 
-			refClient.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<DeliveryPoint, DeliveryPointJournalViewModel, DeliveryPointJournalFilterViewModel>(ServicesConfig.CommonServices));
+			var clientFactory = new CounterpartyJournalFactory();
+			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			var dpFactory = new DeliveryPointJournalFactory();
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointAutocompleteSelectorFactory());
 
-			var authorsFilter = new EmployeeRepresentationFilterViewModel();
-			authorsFilter.SetAndRefilterAtOnce(
+			var oldAuthorsFilter = new EmployeeFilterViewModel();
+			oldAuthorsFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			refOldOrderAuthor.RepresentationModel = refUndeliveryAuthor.RepresentationModel = new EmployeesVM(authorsFilter);
+			var oldAuthorFactory = new EmployeeJournalFactory(oldAuthorsFilter);
+			evmeOldOrder.SetEntityAutocompleteSelectorFactory(oldAuthorFactory.CreateEmployeeAutocompleteSelectorFactory());
+			var undeliveryAuthorFilter = new EmployeeFilterViewModel();
+			undeliveryAuthorFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.Status = EmployeeStatus.IsWorking
+			);
+			var undeliveryAuthorFactory = new EmployeeJournalFactory(undeliveryAuthorFilter);
+			evmeUndeliveryAuthor.SetEntityAutocompleteSelectorFactory(undeliveryAuthorFactory.CreateEmployeeAutocompleteSelectorFactory());
 
 			dateperiodOldOrderDate.StartDateOrNull = DateTime.Today.AddMonths(-1);
 			dateperiodOldOrderDate.EndDateOrNull = DateTime.Today.AddMonths(1);
@@ -71,13 +79,13 @@ namespace Vodovoz.JournalFilters
 			
 			AuthorSubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(subdivisionSelectorFactory);
 			
-			AuthorSubdivisionEntityviewmodelentry.Changed += AuthorSubdivisionEntityviewmodelentryOnChanged;
-		}
+			AuthorSubdivisionEntityviewmodelentry.Changed += (sender, args) => OnRefiltered();
+			evmeUndeliveryAuthor.Changed += (sender, args) => OnRefiltered();
+			evmeOrderAuthor.Changed += (sender, args) => OnRefiltered();
+			evmeClient.Changed += (sender, args) => OnRefiltered();
+			evmeDriver.Changed += (sender, args) => OnRefiltered();
+			evmeOldOrder.Changed += (sender, args) => OnRefiltered();
 
-		public void ResetFilter(){
-			enumCMBUndeliveryStatus.SelectedItem = SpecialComboState.All;
-			dateperiodOldOrderDate.StartDateOrNull = null;
-			dateperiodOldOrderDate.EndDateOrNull = null;
 		}
 
 		public UndeliveredOrdersFilter(IUnitOfWork uow) : this()
@@ -94,18 +102,18 @@ namespace Vodovoz.JournalFilters
 		public GuiltyTypes[] ExcludingGuiltiesForProblematicCases => new GuiltyTypes[] { GuiltyTypes.Client, GuiltyTypes.None };
 
 		public Order RestrictOldOrder {
-			get => refOldOrder.Subject as Order;
+			get => evmeOldOrder.Subject as Order;
 			set {
-				refOldOrder.Subject = value;
-				refOldOrder.Sensitive = false;
+				evmeOldOrder.Subject = value;
+				evmeOldOrder.Sensitive = false;
 			}
 		}
 
 		public Employee RestrictDriver {
-			get => refDriver.Subject as Employee;
+			get => evmeDriver.Subject as Employee;
 			set {
-				refDriver.Subject = value;
-				refDriver.Sensitive = false;
+				evmeDriver.Subject = value;
+				evmeDriver.Sensitive = false;
 			}
 		}
 		
@@ -118,10 +126,10 @@ namespace Vodovoz.JournalFilters
 		}
 
 		public Counterparty RestrictClient {
-			get => refClient.Subject as Counterparty;
+			get => evmeClient.Subject as Counterparty;
 			set {
-				refClient.Subject = value;
-				refClient.Sensitive = false;
+				evmeClient.Subject = value;
+				evmeClient.Sensitive = false;
 			}
 		}
 
@@ -134,10 +142,10 @@ namespace Vodovoz.JournalFilters
 		}
 
 		public Employee RestrictOldOrderAuthor {
-			get => refOldOrderAuthor.Subject as Employee;
+			get => evmeOrderAuthor.Subject as Employee;
 			set {
-				refOldOrderAuthor.Subject = value;
-				refOldOrderAuthor.Sensitive = false;
+				evmeOrderAuthor.Subject = value;
+				evmeOrderAuthor.Sensitive = false;
 			}
 		}
 
@@ -197,14 +205,6 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
-		public ActionsWithInvoice? RestrictActionsWithInvoice {
-			get => yEnumCMBActionWithInvoice.SelectedItem as ActionsWithInvoice?;
-			set {
-				yEnumCMBActionWithInvoice.SelectedItem = value;
-				yEnumCMBActionWithInvoice.Sensitive = false;
-			}
-		}
-
 		public UndeliveryStatus? RestrictUndeliveryStatus {
 			get => enumCMBUndeliveryStatus.SelectedItem as UndeliveryStatus?;
 			set {
@@ -214,34 +214,14 @@ namespace Vodovoz.JournalFilters
 		}
 
 		public Employee RestrictUndeliveryAuthor {
-			get => refUndeliveryAuthor.Subject as Employee;
+			get => evmeUndeliveryAuthor.Subject as Employee;
 			set {
-				refUndeliveryAuthor.Subject = value;
-				refUndeliveryAuthor.Sensitive = false;
+				evmeUndeliveryAuthor.Subject = value;
+				evmeUndeliveryAuthor.Sensitive = false;
 			}
 		}
 
 		public bool? NewInvoiceCreated { get; set; }
-
-		protected void OnRefOldOrderChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnRefDriverChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnRefClientChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnRefOldOrderAuthorChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
 
 		protected void OnYEnumCMBActionWithInvoiceEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
@@ -293,22 +273,12 @@ namespace Vodovoz.JournalFilters
 			OnRefiltered();
 		}
 
-		protected void OnRefUndeliveryAuthorChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnYSpecCMBinProcessAtItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			OnRefiltered();
 		}
 
 		protected void OnEntityVMEntryDeliveryPointChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-		
-		private void AuthorSubdivisionEntityviewmodelentryOnChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}

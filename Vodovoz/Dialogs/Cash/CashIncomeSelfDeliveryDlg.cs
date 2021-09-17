@@ -23,8 +23,10 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -153,23 +155,23 @@ namespace Vodovoz.Dialogs.Cash
 			enumcomboOperation.Sensitive = false;
 			Entity.TypeOperation = IncomeType.Payment;
 
-			var filterCasher = new EmployeeRepresentationFilterViewModel();
-			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
-			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
-			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
-			yentryCasher.Sensitive = false;
+			evmeCashier.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
+			evmeCashier.Sensitive = false;
 
-			var filterOrders = new OrdersFilter(UoW);
-			filterOrders.SetAndRefilterAtOnce(
-				x => x.RestrictStatus = OrderStatus.WaitForPayment,
-				x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld },
-				x => x.RestrictSelfDelivery = true,
-				x => x.RestrictWithoutSelfDelivery = false,
-				x => x.RestrictHideService = true,
-				x => x.RestrictOnlyService = false
-			);
-			yentryOrder.RepresentationModel = new OrdersVM(filterOrders);
-			yentryOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
+			var orderFilter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory())
+			{
+				RestrictStatus = OrderStatus.WaitForPayment,
+				AllowPaymentTypes = new[] { PaymentType.cash, PaymentType.BeveragesWorld },
+				RestrictOnlySelfDelivery = true,
+				RestrictWithoutSelfDelivery = false,
+				RestrictHideService = true,
+				RestrictOnlyService = false
+			};
+
+			var orderFactory = new OrderSelectorFactory(orderFilter);
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
+			evmeOrder.Changed += OnYentryOrderChanged;
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 

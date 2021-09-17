@@ -3,22 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class PlanImplementationReport : Gtk.Bin, IParametersWidget
 	{
-		EmployeeRepresentationFilterViewModel filter;
+		private readonly EmployeeFilterViewModel filter = new EmployeeFilterViewModel() {Status = EmployeeStatus.IsWorking};
 		public PlanImplementationReport(bool orderById = false)
 		{
 			this.Build();
@@ -27,21 +24,19 @@ namespace Vodovoz.ReportsParameters
 
 		void ConfigureDlg()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 			dateperiodpicker.EndDate = dateperiodpicker.StartDate.AddMonths(1).AddTicks(-1);
-
-			filter = new EmployeeRepresentationFilterViewModel();
 
 			var availablePlansToUse = new[] { WageParameterItemTypes.SalesPlan };
 			lstCmbPlanType.SetRenderTextFunc<WageParameterItemTypes>(t => t.GetEnumTitle());
 			lstCmbPlanType.ItemsList = availablePlansToUse;
 			lstCmbPlanType.SelectedItem = availablePlansToUse.FirstOrDefault();
 			lstCmbPlanType.Changed += LstCmbPlanType_Changed;
-			LstCmbPlanType_Changed(this, new EventArgs());
-			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
-			yEntRefEmployee.ChangedByUser += (sender, e) => {
-				var actualWageParameter = (yEntRefEmployee.Subject as Employee)?.GetActualWageParameter(DateTime.Now);
+			LstCmbPlanType_Changed(this, EventArgs.Empty);
+			var employeeFactory = new EmployeeJournalFactory(filter);
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.ChangedByUser += (sender, e) => {
+				var actualWageParameter = (evmeEmployee.Subject as Employee)?.GetActualWageParameter(DateTime.Now);
 				if(actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.SalesPlan) {
 					return;
 				}
@@ -50,6 +45,7 @@ namespace Vodovoz.ReportsParameters
 			};
 			comboTypeOfDate.ItemsEnum = typeof(OrderDateType);
 			comboTypeOfDate.SelectedItem = OrderDateType.CreationDate;
+			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
 
 		void LstCmbPlanType_Changed(object sender, EventArgs e)
@@ -76,7 +72,7 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			int employeeId = (yEntRefEmployee.Subject as Employee)?.Id ?? 0;
+			int employeeId = (evmeEmployee.Subject as Employee)?.Id ?? 0;
 			return new ReportInfo {
 				Identifier = employeeId > 0 ? "Sales.PlanImplementationByEmployeeReport" : "Sales.PlanImplementationFullReport",
 				Parameters = new Dictionary<string, object>

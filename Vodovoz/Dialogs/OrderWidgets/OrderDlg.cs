@@ -513,13 +513,8 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
-			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
-			referenceAuthor.Sensitive = false;
+			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
+			evmeAuthor.Sensitive = false;
 
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;

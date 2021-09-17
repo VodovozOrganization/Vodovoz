@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -148,8 +149,9 @@ namespace Vodovoz.ViewWidgets
 				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(UoW);
 			}
 
-			refRegisteredBy.RepresentationModel = new EmployeesVM(UoW);
-			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeRegisteredBy.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
 			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;
 
@@ -246,7 +248,7 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBDriverCallPlace.Sensitive =
 				yDateDriverCallTime.Sensitive =
 					yDateDispatcherCallTime.Sensitive =
-						refRegisteredBy.Sensitive =
+						evmeRegisteredBy.Sensitive =
 							vbxReasonAndFines.Sensitive = (
 								_undelivery.OldOrder != null
 								&& hasPermissionOrNew

@@ -254,7 +254,7 @@ namespace Vodovoz
 				x => x.Category = EmployeeCategory.forwarder,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
+			//repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			repEntDefaultForwarder.Binding
 				.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 			

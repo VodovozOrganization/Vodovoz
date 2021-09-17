@@ -37,12 +37,14 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -73,7 +75,7 @@ namespace Vodovoz
 			{
 				_isEditable = value;
 				speccomboShift.Sensitive = _isEditable;
-				ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = referenceForwarder.Sensitive = yspeccomboboxCashSubdivision.Sensitive = _isEditable;
+				ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive = yspeccomboboxCashSubdivision.Sensitive = _isEditable;
 				createroutelistitemsview1.IsEditable(_isEditable);
 			}
 		}
@@ -146,45 +148,46 @@ namespace Vodovoz
 				if(Entity.Car != null)
 				{
 					Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.Car.Driver : null;
-					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
+					evmeDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
 					//Водители на Авто компании катаются без экспедитора
 					Entity.Forwarder = Entity.Car.IsCompanyCar ? null : Entity.Forwarder;
-					referenceForwarder.IsEditable = !Entity.Car.IsCompanyCar;
+					evmeForwarder.IsEditable = !Entity.Car.IsCompanyCar;
 				}
 			};
 
-			var filterDriver = new EmployeeRepresentationFilterViewModel();
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.CanChangeStatus = false
-			);
-			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
-			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			var driverFilter = new EmployeeFilterViewModel
+			{
+				RestrictCategory = EmployeeCategory.driver,
+				Status  = EmployeeStatus.IsWorking,
+				CanChangeStatus = false
+			};
+			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeRepresentationFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.CanChangeStatus = false
-			);
-			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
-			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
-			referenceForwarder.Changed += (sender, args) =>
+			var forwarderFilter = new EmployeeFilterViewModel
+			{
+				RestrictCategory = EmployeeCategory.forwarder,
+				Status  = EmployeeStatus.IsWorking,
+				CanChangeStatus = false
+			};
+			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
+			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
+			evmeForwarder.Changed += (sender, args) =>
 			{
 				createroutelistitemsview1.OnForwarderChanged();
 			};
 
-			referenceLogistican.Sensitive = false;
-			referenceLogistican.RepresentationModel = new EmployeesVM();
-			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
+			evmeLogistician.Sensitive = false;
+			evmeLogistician.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 
-			referenceDriver.Sensitive = false;
+			evmeDriver.Sensitive = false;
 			enumPrint.Sensitive = Entity.Status != RouteListStatus.New;
 
 			if(Entity.Id > 0)
