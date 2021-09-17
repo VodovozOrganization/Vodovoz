@@ -8,5 +8,7 @@ namespace Vodovoz.TempAdapters
 	{
 		IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses);
 		IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector();
+		IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector();
 	}
 }

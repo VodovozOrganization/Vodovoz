@@ -127,13 +127,8 @@ namespace Vodovoz
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictOnlySelfDelivery = true,
-				x => x.RestrictStatus = OrderStatus.OnLoading
-			);
-			var orderFactory = new OrderSelectorFactory(filter);
-			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			var orderFactory = new OrderSelectorFactory();
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
 			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 			evmeOrder.ChangedByUser += (sender, e) => 
@@ -208,10 +203,10 @@ namespace Vodovoz
 					typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
-				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				evmeOrder.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				ytextviewOrderInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yTreeOtherGoods.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				evmeOrder.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewCommnet.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewOrderInfo.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				lstWarehouse.Sensitive = false;
 				selfdeliverydocumentitemsview1.Sensitive = false;
 				spnTareToReturn.Sensitive = false;

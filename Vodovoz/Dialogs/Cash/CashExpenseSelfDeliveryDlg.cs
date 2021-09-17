@@ -149,18 +149,8 @@ namespace Vodovoz.Dialogs.Cash
 			enumcomboOperation.Sensitive = false;
 			Entity.TypeOperation = ExpenseType.ExpenseSelfDelivery;
 
-			var orderFilter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
-			orderFilter.SetAndRefilterAtOnce(
-					x => x.RestrictStatus = OrderStatus.WaitForPayment,
-					x => x.AllowPaymentTypes = new[] { PaymentType.cash, PaymentType.BeveragesWorld },
-					x => x.RestrictOnlySelfDelivery = true,
-					x => x.RestrictWithoutSelfDelivery = false,
-					x => x.RestrictHideService = true,
-					x => x.RestrictOnlyService = false
-			);
-
-			var orderFactory = new OrderSelectorFactory(orderFilter);
-			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			var orderFactory = new OrderSelectorFactory();
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateCashSelfDeliveryOrderAutocompleteSelector());
 			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 			evmeOrder.Changed += OnYentryOrderChanged;
 

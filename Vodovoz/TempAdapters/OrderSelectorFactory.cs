@@ -4,6 +4,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System.Collections.Generic;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
@@ -47,6 +48,84 @@ namespace Vodovoz.TempAdapters
 				typeof(Order),
 				CreateOrderJournalViewModel
 			);
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
+		{
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
+				typeof(Order),
+				() =>
+				{
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+					filter.SetAndRefilterAtOnce(
+						x => x.RestrictStatus = OrderStatus.WaitForPayment,
+						x => x.AllowPaymentTypes = new[] { PaymentType.cash, PaymentType.BeveragesWorld },
+						x => x.RestrictOnlySelfDelivery = true,
+						x => x.RestrictWithoutSelfDelivery = false,
+						x => x.RestrictHideService = true,
+						x => x.RestrictOnlyService = false);
+
+					return new OrderJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						VodovozGtkServicesConfig.EmployeeService,
+						nomenclatureRepository,
+						userRepository,
+						new OrderSelectorFactory(),
+						new EmployeeJournalFactory(),
+						counterpartyJournalFactory,
+						new DeliveryPointJournalFactory(),
+						subdivisionJournalFactory,
+						new GtkTabsOpener(),
+						new UndeliveredOrdersJournalOpener(),
+						new NomenclatureSelectorFactory(),
+						new UndeliveredOrdersRepository());
+				});
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
+		{
+
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
+				typeof(Order),
+				() =>
+				{
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+					filter.SetAndRefilterAtOnce(
+						x => x.RestrictOnlySelfDelivery = true,
+						x => x.RestrictStatus = OrderStatus.OnLoading
+					);
+
+					return new OrderJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						VodovozGtkServicesConfig.EmployeeService,
+						nomenclatureRepository,
+						userRepository,
+						new OrderSelectorFactory(),
+						new EmployeeJournalFactory(),
+						counterpartyJournalFactory,
+						new DeliveryPointJournalFactory(),
+						subdivisionJournalFactory,
+						new GtkTabsOpener(),
+						new UndeliveredOrdersJournalOpener(),
+						new NomenclatureSelectorFactory(),
+						new UndeliveredOrdersRepository());
+				});
 		}
 
 		public OrderJournalViewModel CreateOrderJournalViewModel()
