@@ -1320,8 +1320,11 @@ namespace Vodovoz.Domain.Logistic
 						RouteListTo = foundRouteList,
 					};
 
-					UoW.Save(terminalTransferDocumentForOneDriver);
-					UoW.Commit();
+					using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						localUoW.Save(terminalTransferDocumentForOneDriver);
+						localUoW.Commit();
+					}
 
 					ServicesConfig.InteractiveService.ShowMessage(
 						ImportanceLevel.Info, 

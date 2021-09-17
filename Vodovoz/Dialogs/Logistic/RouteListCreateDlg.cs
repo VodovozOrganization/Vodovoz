@@ -307,7 +307,6 @@ namespace Vodovoz
 					if(selfDriverTerminalTransferDocument != null)
 					{
 						UoW.Delete(selfDriverTerminalTransferDocument);
-						UoW.Commit();
 					}
 				}
 
