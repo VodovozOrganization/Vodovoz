@@ -178,21 +178,19 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
-			var driverFilter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.driver,
-				Status = EmployeeStatus.IsWorking
-			};
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver);
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			previousForwarder = Entity.Forwarder;
-			var forwarderFilter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.forwarder,
-				Status = EmployeeStatus.IsWorking
-			};
+			var forwarderFilter = new EmployeeFilterViewModel();
+			forwarderFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.forwarder);
 			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();

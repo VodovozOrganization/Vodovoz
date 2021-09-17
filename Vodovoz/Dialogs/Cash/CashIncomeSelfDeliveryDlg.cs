@@ -158,15 +158,15 @@ namespace Vodovoz.Dialogs.Cash
 			evmeCashier.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 			evmeCashier.Sensitive = false;
 
-			var orderFilter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory())
-			{
-				RestrictStatus = OrderStatus.WaitForPayment,
-				AllowPaymentTypes = new[] { PaymentType.cash, PaymentType.BeveragesWorld },
-				RestrictOnlySelfDelivery = true,
-				RestrictWithoutSelfDelivery = false,
-				RestrictHideService = true,
-				RestrictOnlyService = false
-			};
+			var orderFilter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
+			orderFilter.SetAndRefilterAtOnce(
+				x => x.RestrictStatus = OrderStatus.WaitForPayment,
+				x => x.AllowPaymentTypes = new[] { PaymentType.cash, PaymentType.BeveragesWorld },
+				x => x.RestrictOnlySelfDelivery = true,
+				x => x.RestrictWithoutSelfDelivery = false,
+				x => x.RestrictHideService = true,
+				x => x.RestrictOnlyService = false
+			);
 
 			var orderFactory = new OrderSelectorFactory(orderFilter);
 			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());

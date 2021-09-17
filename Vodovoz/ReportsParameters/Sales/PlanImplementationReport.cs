@@ -15,7 +15,7 @@ namespace Vodovoz.ReportsParameters
 {
 	public partial class PlanImplementationReport : Gtk.Bin, IParametersWidget
 	{
-		private readonly EmployeeFilterViewModel filter = new EmployeeFilterViewModel() {Status = EmployeeStatus.IsWorking};
+		private readonly EmployeeFilterViewModel _filter = new EmployeeFilterViewModel() {Status = EmployeeStatus.IsWorking};
 		public PlanImplementationReport(bool orderById = false)
 		{
 			this.Build();
@@ -33,7 +33,7 @@ namespace Vodovoz.ReportsParameters
 			lstCmbPlanType.SelectedItem = availablePlansToUse.FirstOrDefault();
 			lstCmbPlanType.Changed += LstCmbPlanType_Changed;
 			LstCmbPlanType_Changed(this, EventArgs.Empty);
-			var employeeFactory = new EmployeeJournalFactory(filter);
+			var employeeFactory = new EmployeeJournalFactory(_filter);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.ChangedByUser += (sender, e) => {
 				var actualWageParameter = (evmeEmployee.Subject as Employee)?.GetActualWageParameter(DateTime.Now);
@@ -50,7 +50,7 @@ namespace Vodovoz.ReportsParameters
 
 		void LstCmbPlanType_Changed(object sender, EventArgs e)
 		{
-			filter.SetAndRefilterAtOnce(
+			_filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictWageParameterItemType = lstCmbPlanType.SelectedItem as WageParameterItemTypes?

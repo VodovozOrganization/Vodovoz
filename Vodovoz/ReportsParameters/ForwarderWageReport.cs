@@ -14,12 +14,11 @@ namespace Vodovoz.Reports
 		public ForwarderWageReport()
 		{
 			this.Build();
-			var driverFilter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.forwarder,
-				Status = EmployeeStatus.IsWorking
-			};
-			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			var forwarderFilter = new EmployeeFilterViewModel();
+			forwarderFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var employeeFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Changed += (sender, e) => CanRun();
 			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();

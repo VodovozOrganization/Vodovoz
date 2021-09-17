@@ -155,22 +155,20 @@ namespace Vodovoz
 				}
 			};
 
-			var driverFilter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.driver,
-				Status  = EmployeeStatus.IsWorking,
-				CanChangeStatus = false
-			};
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.CanChangeStatus = false);
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			var forwarderFilter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.forwarder,
-				Status  = EmployeeStatus.IsWorking,
-				CanChangeStatus = false
-			};
+			var forwarderFilter = new EmployeeFilterViewModel();
+			forwarderFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.CanChangeStatus = false);
 			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();

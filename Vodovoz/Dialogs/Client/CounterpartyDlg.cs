@@ -508,11 +508,10 @@ namespace Vodovoz
 
 		private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			var filter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.office,
-				Status = EmployeeStatus.IsWorking
-			};
+			var filter = new EmployeeFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.Status = EmployeeStatus.IsWorking);
 			employeeJournalFactory.SetEmployeeFilterViewModel(filter);
 			return employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}

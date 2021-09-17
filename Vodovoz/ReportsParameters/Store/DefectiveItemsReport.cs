@@ -19,11 +19,10 @@ namespace Vodovoz.ReportsParameters.Store
 			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
 			yEnumCmbSource.AddEnumToHideList(new Enum[] { DefectSource.None });
 
-			var driverFilter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.driver,
-				Status = EmployeeStatus.IsWorking
-			};
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver);
 			var employeeFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 

@@ -60,11 +60,10 @@ namespace Vodovoz.Dialogs.Employees
 			evmeOrganisation.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
 			evmeOrganisation.Changed += (sender, e) => UpdateStates();
 
-			var driverFilter = new EmployeeFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking,
-				RestrictCategory = EmployeeCategory.driver
-			};
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver);
 			var employeeFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();

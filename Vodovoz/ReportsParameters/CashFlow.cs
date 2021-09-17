@@ -55,10 +55,11 @@ namespace Vodovoz.Reports
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
 			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 
-			var employeeFilter = new EmployeeFilterViewModel();
-			employeeFilter.RestrictCategory = EmployeeCategory.office;
-			employeeFilter.Status = EmployeeStatus.IsWorking;
-			var employeeFactory = new EmployeeJournalFactory(employeeFilter);
+			var officeFilter = new EmployeeFilterViewModel();
+			officeFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.office);
+			var employeeFactory = new EmployeeJournalFactory(officeFilter);
 			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
