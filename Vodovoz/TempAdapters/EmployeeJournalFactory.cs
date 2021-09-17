@@ -137,9 +137,10 @@ namespace Vodovoz.TempAdapters
 			var driverFilter = new EmployeeFilterViewModel
 			{
 				HidenByDefault = true,
-				Status = EmployeeStatus.IsWorking,
-				Category = EmployeeCategory.driver
 			};
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.Category = EmployeeCategory.driver);
 					
 			return new EmployeesJournalViewModel(
 				driverFilter,
@@ -175,9 +176,10 @@ namespace Vodovoz.TempAdapters
 					var officeFilter = new EmployeeFilterViewModel
 					{
 						HidenByDefault = true,
-						Status = EmployeeStatus.IsWorking,
-						Category = EmployeeCategory.office
 					};
+					officeFilter.SetAndRefilterAtOnce(
+						x => x.Status = EmployeeStatus.IsWorking,
+						x => x.Category = EmployeeCategory.office);
 					
 					return new EmployeesJournalViewModel(
 						officeFilter,
