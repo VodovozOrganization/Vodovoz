@@ -552,8 +552,6 @@
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
-    <Compile Include="Representations\OrdersVM.cs" />
-    <Compile Include="gtk-gui\Vodovoz.OrdersFilter.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyFilter.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
@@ -575,7 +573,6 @@
     <Compile Include="JournalFilters\StockBalanceFilter.cs" />
     <Compile Include="JournalFilters\ClientBalanceFilter.cs" />
     <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
-    <Compile Include="JournalFilters\OrdersFilter.cs" />
     <Compile Include="JournalFilters\CounterpartyFilter.cs" />
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />

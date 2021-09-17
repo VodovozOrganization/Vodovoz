@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
@@ -50,14 +51,15 @@ namespace Vodovoz.ViewWidgets
 		{
 			//если новый недовоз без выбранного недовезённого заказа
 			if(UoW.IsNew && _undelivery.OldOrder == null)
-				//открыть окно выбора недовезённого заказа
-				yEForUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+			{//открыть окно выбора недовезённого заказа
+				evmeOldUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+			}
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery)
 		{
 			Sensitive = false;
-			yEForUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
+			evmeOldUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
 
 			_canChangeProblemSource = _commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", _commonServices.UserService.CurrentUserId);
 			_undelivery = undelivery;
@@ -78,15 +80,15 @@ namespace Vodovoz.ViewWidgets
 					);
 				}
 			}
-			var filterOrders = new OrdersFilter(UoW);
 			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
 			var grantedStatusesArray = _orderRepository.GetStatusesForOrderCancelation();
 			foreach(OrderStatus status in Enum.GetValues(typeof(OrderStatus))) {
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
 			}
+			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
-			yEForUndeliveredOrder.Changed += (sender, e) => {
+			evmeOldUndeliveredOrder.Changed += (sender, e) => {
 				_oldOrder = undelivery.OldOrder;
 				lblInfo.Markup = undelivery.GetOldOrderInfo(_orderRepository);
 				if(undelivery.Id <= 0)
@@ -101,9 +103,11 @@ namespace Vodovoz.ViewWidgets
 				GetFines();
 				RemoveItemsFromEnums();
 			};
-			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
-			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
-			yEForUndeliveredOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			var orderFactory = new OrderSelectorFactory(filterOrders);
+			evmeOldUndeliveredOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOldUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
+			evmeOldUndeliveredOrder.CanEditReference =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -351,21 +355,21 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = _oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
-			Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
-			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
-				Mode = JournalSelectMode.Single
-			};
+			var orderFactory = new OrderSelectorFactory(filter);
+			var orderJournal = orderFactory.CreateOrderJournalViewModel();
 
-			MyTab.TabParent.AddTab(dlg, MyTab, false);
+			MyTab.TabParent.AddTab(orderJournal, MyTab, false);
 
-			dlg.ObjectSelected += (s, ea) => {
-				var selectedId = ea.GetSelectedIds().FirstOrDefault();
-				if(selectedId == 0) {
+			orderJournal.OnEntitySelectedResult += (s, ea) =>
+			{
+				var selectedId = ea.SelectedNodes.FirstOrDefault()?.Id ?? 0;
+				if(selectedId == 0)
+				{
 					return;
 				}
 				if(_oldOrder.Id == selectedId) {

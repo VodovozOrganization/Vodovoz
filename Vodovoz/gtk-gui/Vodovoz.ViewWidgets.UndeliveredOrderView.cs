@@ -26,7 +26,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label lblUndeliveredOrder;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yEForUndeliveredOrder;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOldUndeliveredOrder;
 
 		private global::Gtk.Table tblUndeliveryFields;
 
@@ -194,11 +194,12 @@ namespace Vodovoz.ViewWidgets
 			w8.Position = 0;
 			w8.Expand = false;
 			// Container child hbxUndelivery.Gtk.Box+BoxChild
-			this.yEForUndeliveredOrder = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yEForUndeliveredOrder.Events = ((global::Gdk.EventMask)(256));
-			this.yEForUndeliveredOrder.Name = "yEForUndeliveredOrder";
-			this.hbxUndelivery.Add(this.yEForUndeliveredOrder);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbxUndelivery[this.yEForUndeliveredOrder]));
+			this.evmeOldUndeliveredOrder = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeOldUndeliveredOrder.Events = ((global::Gdk.EventMask)(256));
+			this.evmeOldUndeliveredOrder.Name = "evmeOldUndeliveredOrder";
+			this.evmeOldUndeliveredOrder.CanEditReference = true;
+			this.hbxUndelivery.Add(this.evmeOldUndeliveredOrder);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbxUndelivery[this.evmeOldUndeliveredOrder]));
 			w9.Position = 1;
 			this.vbxWithControls.Add(this.hbxUndelivery);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbxWithControls[this.hbxUndelivery]));
