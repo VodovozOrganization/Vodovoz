@@ -43,7 +43,7 @@ namespace Vodovoz.JournalViewers
 		private void ConfigureDlg()
 		{
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeEmployee.ChangedByUser += EvmeEmployee_ChangedByUser;
+			evmeEmployee.ChangedByUser += OnEvmeEmployeeChangedByUser;
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
 			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
@@ -180,7 +180,7 @@ namespace Vodovoz.JournalViewers
 		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) =>
 			evmeEmployee.OpenSelectDialog("Ответственный :");
 
-		void EvmeEmployee_ChangedByUser(object sender, EventArgs e)
+		void OnEvmeEmployeeChangedByUser(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.AssignedEmployee = evmeEmployee.Subject as Employee);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();

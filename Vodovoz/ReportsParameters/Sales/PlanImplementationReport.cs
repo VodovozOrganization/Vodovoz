@@ -31,8 +31,8 @@ namespace Vodovoz.ReportsParameters
 			lstCmbPlanType.SetRenderTextFunc<WageParameterItemTypes>(t => t.GetEnumTitle());
 			lstCmbPlanType.ItemsList = availablePlansToUse;
 			lstCmbPlanType.SelectedItem = availablePlansToUse.FirstOrDefault();
-			lstCmbPlanType.Changed += LstCmbPlanType_Changed;
-			LstCmbPlanType_Changed(this, EventArgs.Empty);
+			lstCmbPlanType.Changed += OnLstCmbPlanTypeOnChanged;
+			OnLstCmbPlanTypeOnChanged(this, EventArgs.Empty);
 			var employeeFactory = new EmployeeJournalFactory(_filter);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.ChangedByUser += (sender, e) => {
@@ -48,7 +48,7 @@ namespace Vodovoz.ReportsParameters
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
 
-		void LstCmbPlanType_Changed(object sender, EventArgs e)
+		private void OnLstCmbPlanTypeOnChanged(object sender, EventArgs e)
 		{
 			_filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,

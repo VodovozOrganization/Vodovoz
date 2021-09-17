@@ -14,12 +14,14 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FineItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IEmployeeJournalFactory _employeeFactory = new EmployeeJournalFactory();
+		
 		public FineItemsView()
 		{
 			this.Build();
 
 			UpdateControlsState();
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+			ytreeviewItems.Selection.Changed += OnTreeViewItemsSelectionChanged;
 		}
 		bool isFuelOverspending;
 
@@ -54,7 +56,7 @@ namespace Vodovoz
 				.Finish();
 		}
 
-		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		private void OnTreeViewItemsSelectionChanged (object sender, EventArgs e)
 		{
 			UpdateControlsState();
 		}
@@ -71,25 +73,24 @@ namespace Vodovoz
 					FineUoW.Root.Items = new List<FineItem> ();
 
 				ytreeviewItems.ItemsDataSource = FineUoW.Root.ObservableItems;
-				FineUoW.Root.ObservableItems.ListContentChanged += FineUoW_Root_ObservableItems_ListContentChanged;
+				FineUoW.Root.ObservableItems.ListContentChanged += OnFineItemsListContentChanged;
 			}
 		}
 
-		void FineUoW_Root_ObservableItems_ListContentChanged (object sender, EventArgs e)
+		private void OnFineItemsListContentChanged (object sender, EventArgs e)
 		{
 			CalculateTotal();
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var employeeFactory = new EmployeeJournalFactory();
-			var employeeJournal = employeeFactory.CreateEmployeeJournal();
+			var employeeJournal = _employeeFactory.CreateEmployeeJournal();
 			employeeJournal.SelectionMode = JournalSelectionMode.Single;
-			employeeJournal.OnEntitySelectedResult += AddEmployeeDlg_ObjectSelected;
+			employeeJournal.OnEntitySelectedResult += OnEmployeeSelectedFromJournal;
 			MyTab.TabParent.AddSlaveTab(MyTab, employeeJournal);
 		}
 		
-		void AddEmployeeDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnEmployeeSelectedFromJournal(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var selectedId = e.SelectedNodes.FirstOrDefault()?.Id ?? 0;
 			if(selectedId == 0) {

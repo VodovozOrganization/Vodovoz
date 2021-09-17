@@ -80,7 +80,7 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
-			if ((evmeDriver.Subject as Employee) == null)
+			if (!(evmeDriver.Subject is Employee))
 			{
 				MessageDialogHelper.RunErrorDialog("Необходимо выбрать водителя");
 				return;

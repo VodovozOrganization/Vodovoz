@@ -8,6 +8,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
@@ -362,6 +363,7 @@ namespace Vodovoz.ViewWidgets
 			);
 			var orderFactory = new OrderSelectorFactory(filter);
 			var orderJournal = orderFactory.CreateOrderJournalViewModel();
+			orderJournal.SelectionMode = JournalSelectionMode.Single;
 
 			MyTab.TabParent.AddTab(orderJournal, MyTab, false);
 
