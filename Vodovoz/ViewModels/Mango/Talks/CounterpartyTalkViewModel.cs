@@ -5,21 +5,15 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -29,7 +23,7 @@ using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public partial class CounterpartyTalkViewModel : TalkViewModelBase
+	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IRouteListRepository _routedListRepository;
@@ -228,5 +222,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 		#endregion
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
+		}
 	}
 }
