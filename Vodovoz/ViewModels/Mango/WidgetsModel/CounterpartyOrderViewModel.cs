@@ -220,6 +220,7 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void Dispose()
 		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			UoW?.Dispose();
 		}
 	}
