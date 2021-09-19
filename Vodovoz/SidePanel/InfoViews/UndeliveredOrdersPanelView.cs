@@ -200,10 +200,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				.GroupBy(x => x[1])
 				.Select(r => new[] { r.Key, r.Count(), position++, r.Sum(x => x[2] == null ? 0 : (decimal)x[2]) })
 				.ToList();
-			//FEDOS Итог по ЛО - складываем результаты недовозов соф парнас и боксит
-			int itog = Convert.ToInt32(result[1][1]) + Convert.ToInt32(result[2][1]) + Convert.ToInt32(result[3][1]);
-			object[] objLO = {"Итог по ЛО: ", itog, 0, (decimal)0 };
-			result.Add(objLO);
 
 			foreach(var obj in result)
 			{
