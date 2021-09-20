@@ -195,6 +195,17 @@ namespace Vodovoz.Representations
 				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQueryWithDate)
 				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
 			
+			
+			var orderFromSuspendedWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQuery)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId).Take(1);
+
+			var orderFromCancellationWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQuery)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
+			
 			OrderStatus[] statusOptions = {OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled};
 
 			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
@@ -252,10 +263,14 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
-				if(FilterViewModel.ShowSuspendedCounterparty)
+				if(FilterViewModel.EndDate != null && FilterViewModel.ShowSuspendedCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
-				if(FilterViewModel.ShowCancellationCounterparty)
+				if(FilterViewModel.EndDate != null && FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
+				if(FilterViewModel.ShowSuspendedCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
+				if(FilterViewModel.ShowCancellationCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
 			}
 
 			#endregion Filter
@@ -388,6 +403,16 @@ namespace Vodovoz.Representations
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
 				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQueryWithDate)
 				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
+			
+			var orderFromSuspendedWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQuery)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId).Take(1);
+
+			var orderFromCancellationWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQuery)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
 
 			#endregion LastOrder
 
@@ -427,11 +452,14 @@ namespace Vodovoz.Representations
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
-				if(FilterViewModel.ShowSuspendedCounterparty)
+				if(FilterViewModel.EndDate != null && FilterViewModel.ShowSuspendedCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
-				if(FilterViewModel.ShowCancellationCounterparty)
+				if(FilterViewModel.EndDate != null && FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
-
+				if(FilterViewModel.ShowSuspendedCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
+				if(FilterViewModel.ShowCancellationCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
 			}
 
 
