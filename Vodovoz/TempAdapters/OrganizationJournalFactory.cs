@@ -7,9 +7,9 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
-	public class OrganisationJournalFactory : IOrganisationJournalFactory
+	public class OrganizationJournalFactory : IOrganizationJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateOrganisationAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateOrganizationAutocompleteSelectorFactory()
 		{
 			return new SimpleEntitySelectorFactory<Organization, OrganizationDlg>(
 				() =>

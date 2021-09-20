@@ -55,8 +55,8 @@ namespace Vodovoz.Dialogs.Employees
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
 
-			var orgFactory = new OrganisationJournalFactory();
-			evmeOrganisation.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganisationAutocompleteSelectorFactory());
+			var orgFactory = new OrganizationJournalFactory();
+			evmeOrganisation.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
 			evmeOrganisation.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
 			evmeOrganisation.Changed += (sender, e) => UpdateStates();
 
