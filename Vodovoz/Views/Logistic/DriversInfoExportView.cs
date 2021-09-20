@@ -42,6 +42,9 @@ namespace Vodovoz.Views.Logistic
 			comboEmployeeStatus.ItemsEnum = typeof(EmployeeStatus);
 			comboEmployeeStatus.Binding.AddBinding(ViewModel, vm => vm.EmployeeStatus, w => w.SelectedItemOrNull);
 
+			comboTypeOfDriversInfoExport.ItemsEnum = typeof(DriversInfoExportType);
+			comboTypeOfDriversInfoExport.Binding.AddBinding(ViewModel, vm => vm.DriversInfoExportType, w => w.SelectedItem);
+
 			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StatusMessage, w => w.Text).InitializeFromSource();
 
 			ybuttonExport.Binding.AddBinding(ViewModel, vm => vm.CanExport, w => w.Sensitive).InitializeFromSource();
@@ -68,6 +71,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.DataIsLoading = true;
 				ViewModel.StatusMessage = "Загрузка данных водителей...";
+				ytreeDriversInfo.Columns[0].Visible = ytreeDriversInfo.Columns[2].Visible = ViewModel.DriversInfoExportType == DriversInfoExportType.RouteListGrouping;
 				var items = await Task.Run(() => ViewModel.GetDriverInfoNodes());
 				loadedSuccessfully = true;
 				if(!isDestroyed)
