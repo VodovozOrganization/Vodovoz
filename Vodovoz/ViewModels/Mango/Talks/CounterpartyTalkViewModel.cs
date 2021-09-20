@@ -230,9 +230,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			{
 				return;
 			}
-			foreach(var model in CounterpartyOrdersViewModels)
+			foreach(var viewModel in CounterpartyOrdersViewModels)
 			{
-				model.Dispose();
+				viewModel.Dispose();
 			}
 			
 			_uow?.Dispose();
