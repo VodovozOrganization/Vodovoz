@@ -263,14 +263,14 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
-				if(FilterViewModel.EndDate != null && FilterViewModel.ShowSuspendedCounterparty)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
-				if(FilterViewModel.EndDate != null && FilterViewModel.ShowCancellationCounterparty)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
-				if(FilterViewModel.ShowSuspendedCounterparty)
+				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
-				if(FilterViewModel.ShowCancellationCounterparty)
+				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
+				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
+				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
 			}
 
 			#endregion Filter
@@ -452,14 +452,14 @@ namespace Vodovoz.Representations
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
-				if(FilterViewModel.EndDate != null && FilterViewModel.ShowSuspendedCounterparty)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
-				if(FilterViewModel.EndDate != null && FilterViewModel.ShowCancellationCounterparty)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
-				if(FilterViewModel.ShowSuspendedCounterparty)
+				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
-				if(FilterViewModel.ShowCancellationCounterparty)
+				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
+				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
+				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
 			}
 
 
