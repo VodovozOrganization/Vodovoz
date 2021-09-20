@@ -22,6 +22,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -65,6 +66,7 @@ namespace Vodovoz
 
 		private bool _isEditable;
 		private bool _canClose = true;
+		private Employee _oldDriver;
 
 		protected bool IsEditable
 		{
@@ -244,6 +246,8 @@ namespace Vodovoz
 			{
 				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";
 			}
+
+			_oldDriver = Entity.Driver;
 		}
 
 		private void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -293,6 +297,21 @@ namespace Vodovoz
 			}
 
 			Entity.CalculateWages(_wageParameterService);
+
+			if(_oldDriver != Entity.Driver)
+			{
+				if(_oldDriver != null)
+				{
+					var selfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, _oldDriver, Entity);
+
+					if(selfDriverTerminalTransferDocument != null)
+					{
+						UoW.Delete(selfDriverTerminalTransferDocument);
+					}
+				}
+
+				_oldDriver = Entity.Driver;
+			}
 
 			_logger.Info("Сохраняем маршрутный лист...");
 			UoWGeneric.Save();
