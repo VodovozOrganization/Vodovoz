@@ -133,8 +133,6 @@ namespace Vodovoz.Configuration
                     .SearchColumn("Шаблон комментария", x => x.Comment).End(),
                 OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView()
                     .SearchColumn("Шаблон комментария", x => x.Reason).End(),
-                OrmObjectMapping<PremiumTemplate>.Create().Dialog<PremiumTemplateDlg>().DefaultTableView()
-                    .SearchColumn("Шаблон комментария", x => x.Reason).End(),
                 OrmObjectMapping<MeasurementUnits>.Create().Dialog<MeasurementUnitsDlg>().DefaultTableView()
                     .SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits.ToString())
                     .End(),
@@ -205,7 +203,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg>(),
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
-                OrmObjectMapping<Premium>.Create().Dialog<PremiumDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
                 //Банкинг

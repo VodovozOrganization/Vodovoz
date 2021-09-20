@@ -141,6 +141,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Rent;
@@ -1357,8 +1358,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnAction47Activated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(PremiumTemplate));
-        tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
     }
 
     protected void OnAction48Activated(object sender, EventArgs e)
