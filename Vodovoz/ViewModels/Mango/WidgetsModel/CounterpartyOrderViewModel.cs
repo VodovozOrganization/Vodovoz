@@ -29,7 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class CounterpartyOrderViewModel : ViewModelBase, IDisposable
+	public class CounterpartyOrderViewModel : ViewModelBase
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
@@ -217,11 +217,5 @@ namespace Vodovoz.ViewModels.Mango
 			}
 		}
 		#endregion
-
-		public void Dispose()
-		{
-			NotifyConfiguration.Instance.UnsubscribeAll(this);
-			UoW?.Dispose();
-		}
 	}
 }

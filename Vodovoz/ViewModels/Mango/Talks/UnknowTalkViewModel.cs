@@ -18,7 +18,7 @@ using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public class UnknowTalkViewModel : TalkViewModelBase, IDisposable
+	public class UnknowTalkViewModel : TalkViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IInteractiveQuestion _interactive;
@@ -118,10 +118,5 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 		#endregion
-
-		public void Dispose()
-		{
-			_uow?.Dispose();
-		}
 	}
 }
