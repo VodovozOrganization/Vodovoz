@@ -107,11 +107,5 @@ namespace Vodovoz.Views.Mango
 			ViewModel.OpenMoreInformationAboutOrder(selectedRow.Id);
 		}
 		#endregion
-
-		public override void Destroy()
-		{
-			ViewModel.Dispose();
-			base.Destroy();
-		}
 	}
 }

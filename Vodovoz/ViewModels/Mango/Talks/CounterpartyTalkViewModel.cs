@@ -23,7 +23,7 @@ using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
+	public partial class CounterpartyTalkViewModel : TalkViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IRouteListRepository _routedListRepository;
@@ -35,7 +35,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IOrderRepository _orderRepository;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IUnitOfWork _uow;
-		private bool _isDisposed;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -223,20 +222,5 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 		#endregion
-
-		public void Dispose()
-		{
-			if(_isDisposed)
-			{
-				return;
-			}
-			foreach(var viewModel in CounterpartyOrdersViewModels)
-			{
-				viewModel.Dispose();
-			}
-			
-			_uow?.Dispose();
-			_isDisposed = true;
-		}
 	}
 }
