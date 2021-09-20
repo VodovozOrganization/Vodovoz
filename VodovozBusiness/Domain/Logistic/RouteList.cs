@@ -1382,8 +1382,15 @@ namespace Vodovoz.Domain.Logistic
 				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
 				foreach(var address in Addresses) {
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
-						yield return new ValidationResult($"Один из адрессов, находится в другом МЛ");
-					
+					{
+						yield return new ValidationResult($"Адрес {address.Order.Id} находится в другом МЛ");
+					}
+
+					if(rliRepository.CurrentRouteListHasOrderDuplicate(UoW, address, Addresses.Select(x => x.Id).ToArray()))
+					{
+						yield return new ValidationResult($"Адрес { address.Order.Id } дублируется в текущем МЛ");
+					}
+
 					foreach (var result in address.Validate(new ValidationContext(address)))
 						yield return result;
 				}
