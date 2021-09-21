@@ -850,6 +850,27 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
+		
+		public bool CanDeleteRouteListIfNoFuelGiven(IUnitOfWork uow, int id)
+		{
+			bool result = true;
+
+			var routeList = uow.Session.QueryOver<RouteList>()
+				.Where(x => x.Id == id)
+				.SingleOrDefault<RouteList>();
+
+			foreach(var fuelDocument in routeList.FuelDocuments)
+			{
+				decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
+				decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
+				if(litersGived > 0 || payedLiters > 0)
+				{
+					result = false;
+				}
+			}
+
+			return result;
+		}
 	}
 
 	#region DTO

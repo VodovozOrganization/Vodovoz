@@ -39,6 +39,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
@@ -308,24 +309,13 @@ namespace Vodovoz.ViewModel
 		private bool CanDeleteRouteList(RouteListsVMNode selectedNode)
 		{
 			bool result = false;
-
+			
 			if(selectedNode.StatusEnum == RouteListStatus.New)
 			{
-				result = true;
-				
-				var routeList = UoW.Session.QueryOver<RouteList>()
-					.Where(x => x.Id == selectedNode.Id)
-					.SingleOrDefault<RouteList>();
-
-				foreach(var fuelDocument in routeList.FuelDocuments)
-				{
-					decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
-					decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
-					if(litersGived > 0 || payedLiters > 0)
-					{
-						result = false;
-					}
-				}
+				RouteListRepository rep = new RouteListRepository(
+					new StockRepository(), 
+					new BaseParametersProvider(new ParametersProvider()));
+				result = rep.CanDeleteRouteListIfNoFuelGiven(UoW, selectedNode.Id);
 			}
 
 			return result;
