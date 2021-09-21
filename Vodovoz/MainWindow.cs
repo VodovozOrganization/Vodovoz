@@ -2467,7 +2467,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
-			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
+			() => new QSReport.ReportViewDlg(new SalaryRatesReport(UnitOfWorkFactory.GetDefaultFactory
 				)));
 	}
 }

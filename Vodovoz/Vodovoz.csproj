@@ -2572,6 +2572,9 @@
     <None Include="Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  	<None Include="Reports\Sales\SalaryRatesReport.rdl">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  	</None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
