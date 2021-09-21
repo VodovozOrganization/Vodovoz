@@ -90,10 +90,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return uow.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
 		}
 
-		public IList<DeliveryPoint> GetDeliveryPointsByClientId(IUnitOfWork uow, int clientId)
+		public IList<DeliveryPoint> GetDeliveryPointsByCounterpartyId(IUnitOfWork uow, int counterpartyId)
 		{
 			var result = uow.Session.QueryOver<DeliveryPoint>()
-				.Where(dp => dp.Counterparty.Id == clientId)
+				.Where(dp => dp.Counterparty.Id == counterpartyId)
 				.List<DeliveryPoint>();
 
 			return result;

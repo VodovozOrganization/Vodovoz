@@ -104,7 +104,7 @@ namespace Vodovoz
 
 		private void UpdateNodes()
 		{
-			var result = _deliveryPointRepository.GetDeliveryPointsByClientId(UoW, _counterparty.Id);
+			var result = _deliveryPointRepository.GetDeliveryPointsByCounterpartyId(UoW, _counterparty.Id);
 			treeDeliveryPoints.SetItemsSource(result);
 		}
 	}
