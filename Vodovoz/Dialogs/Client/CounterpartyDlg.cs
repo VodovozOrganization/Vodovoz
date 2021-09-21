@@ -615,7 +615,7 @@ namespace Vodovoz
 
 		private void ConfigureTabDeliveryPoints()
 		{
-			deliveryPointsManagementView.DeliveryPointUoW = UoWGeneric;
+			deliveryPointsManagementView.Counterparty = Entity;
 		}
 
 		private void ConfigureTabDocuments()

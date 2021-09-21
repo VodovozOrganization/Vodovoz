@@ -2,39 +2,35 @@
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using Gtk;
-using NHibernate.Transform;
-using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
-using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
+		private Counterparty _counterparty;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
-		private bool _canDeletePermission;
+		private readonly bool _canDeletePermission;
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
-		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
+		public Counterparty Counterparty
 		{
-			get => _deliveryPointUoW;
 			set
 			{
-				if(_deliveryPointUoW == value)
+				if(_counterparty == value)
 				{
 					return;
 				}
-
-				_deliveryPointUoW = value;
-				if(DeliveryPointUoW.Root.DeliveryPoints == null)
+				_counterparty = value;
+				if(_counterparty.DeliveryPoints == null)
 				{
-					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint>();
+					_counterparty.DeliveryPoints = new List<DeliveryPoint>();
 				}
-
 				UpdateNodes();
 			}
 		}
@@ -50,11 +46,11 @@ namespace Vodovoz
 
 			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
 			treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
-			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPointByClientJournalNode>.Create()
+			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
 				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("")
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
 				.Finish();
 			_canDeletePermission =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
@@ -84,15 +80,14 @@ namespace Vodovoz
 				}
 			}
 
-			var client = DeliveryPointUoW.Root;
-			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(client);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(_counterparty);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			var dpId = treeDeliveryPoints.GetSelectedObject<DeliveryPointByClientJournalNode>().Id;
+			var dpId = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
@@ -100,7 +95,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			var deliveryPoint = treeDeliveryPoints.GetSelectedObject<DeliveryPointByClientJournalNode>();
+			var deliveryPoint = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>();
 			if(OrmMain.DeleteObject(typeof(DeliveryPoint), deliveryPoint.Id))
 			{
 				UpdateNodes();
@@ -109,23 +104,7 @@ namespace Vodovoz
 
 		private void UpdateNodes()
 		{
-			DeliveryPoint deliveryPointAlias = null;
-			DeliveryPointByClientJournalNode resultAlias = null;
-			Counterparty counterpartyAlias = null;
-
-			var query = DeliveryPointUoW.Session.QueryOver(() => deliveryPointAlias)
-				.JoinAlias(c => c.Counterparty, () => counterpartyAlias)
-				.Where(() => counterpartyAlias.Id == DeliveryPointUoW.Root.Id);
-
-			var result = query
-				.SelectList(list => list
-					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
-					.Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
-				)
-				.TransformUsing(Transformers.AliasToBean<DeliveryPointByClientJournalNode>())
-				.List<DeliveryPointByClientJournalNode>();
-
+			var result = _deliveryPointRepository.GetDeliveryPointsByClientId(UoW, _counterparty.Id);
 			treeDeliveryPoints.SetItemsSource(result);
 		}
 	}
