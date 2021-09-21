@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gamma.ColumnConfig;
+using Gtk;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
-using QS.Project.Domain;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz
 {
@@ -26,6 +17,7 @@ namespace Vodovoz
 	{
 		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		private bool _canDeletePermission;
 
 		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
 		{
@@ -43,24 +35,29 @@ namespace Vodovoz
 					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint>();
 				}
 
-				treeDeliveryPoints.RepresentationModel = new ClientDeliveryPointsVM(value);
-				treeDeliveryPoints.RepresentationModel.UpdateNodes();
+				UpdateNodes();
 			}
 		}
 
 		private bool CanDelete()
 		{
-			return ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				"can_delete_counterparty_and_deliverypoint")
-			       && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
+			return _canDeletePermission && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
 		}
-
 
 		public DeliveryPointsManagementView()
 		{
 			this.Build();
 
 			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
+			treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
+			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPointByClientJournalNode>.Create()
+				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
+				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
+				.AddColumn("")
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.Finish();
+			_canDeletePermission =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
 		}
 
 		private void OnSelectionChanged(object sender, EventArgs e)
@@ -90,27 +87,46 @@ namespace Vodovoz
 			var client = DeliveryPointUoW.Root;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(client);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
-			treeDeliveryPoints.RepresentationModel.UpdateNodes();
+			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
+			var dpId = treeDeliveryPoints.GetSelectedObject<DeliveryPointByClientJournalNode>().Id;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
-		}
-
-		protected void OnTreeDeliveryPointsRowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			buttonEdit.Click();
+			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			if(OrmMain.DeleteObject(typeof(DeliveryPoint), treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id))
+			var deliveryPoint = treeDeliveryPoints.GetSelectedObject<DeliveryPointByClientJournalNode>();
+			if(OrmMain.DeleteObject(typeof(DeliveryPoint), deliveryPoint.Id))
 			{
-				treeDeliveryPoints.RepresentationModel.UpdateNodes();
+				UpdateNodes();
 			}
+		}
+
+		private void UpdateNodes()
+		{
+			DeliveryPoint deliveryPointAlias = null;
+			DeliveryPointByClientJournalNode resultAlias = null;
+			Counterparty counterpartyAlias = null;
+
+			var query = DeliveryPointUoW.Session.QueryOver(() => deliveryPointAlias)
+				.JoinAlias(c => c.Counterparty, () => counterpartyAlias)
+				.Where(() => counterpartyAlias.Id == DeliveryPointUoW.Root.Id);
+
+			var result = query
+				.SelectList(list => list
+					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
+					.Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
+				)
+				.TransformUsing(Transformers.AliasToBean<DeliveryPointByClientJournalNode>())
+				.List<DeliveryPointByClientJournalNode>();
+
+			treeDeliveryPoints.SetItemsSource(result);
 		}
 	}
 }

@@ -25,6 +25,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IOrderRepository _orderRepository;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IUnitOfWork _uow;
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -59,7 +61,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider) : base(navigation, manager)
+			IParametersProvider parametersProvider,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(navigation, manager)
 		{
 			NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
@@ -73,6 +76,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
+			_deliveryPointJournalFactory =
+				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 
 			if(ActiveCall.CounterpartyIds.Any())
 			{
@@ -209,7 +214,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void BottleActCommand()
 		{
-			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(_orderRepository);
+			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				_orderRepository,
+				_counterpartyJournalFactory,
+				_deliveryPointJournalFactory);
 			parameters.SetCounterparty(currentCounterparty);
 			ReportViewDlg dialog = _tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters) as ReportViewDlg;
 			parameters.OnUpdate(true);

@@ -157,8 +157,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString())
                     .SearchColumn("По", x => x.ExpirationDate.ToShortDateString()).End(),
-                OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>().DefaultTableView()
-                    .SearchColumn("ID", x => x.Id.ToString()).Column("Адрес", x => x.Title).End(),
                 OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
                     .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name)
                     .SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString(x.PriceDaily))

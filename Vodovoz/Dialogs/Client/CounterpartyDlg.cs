@@ -41,6 +41,8 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using QS.Project.Journal;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -55,6 +57,7 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 
@@ -672,17 +675,20 @@ namespace Vodovoz
 
 		private void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
 		{
-			var deliveryPointSelectDlg = new PermissionControlledRepresentationJournal(new ClientDeliveryPointsVM(UoW, Entity))
+			var filter = new DeliveryPointJournalFilterViewModel
 			{
-				Mode = JournalSelectMode.Single
+				Counterparty = Entity
 			};
-			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
-			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
+			var dpFactory = new DeliveryPointJournalFactory(filter);
+			var dpJournal = dpFactory.CreateDeliveryPointByClientJournal();
+			dpJournal.SelectionMode = JournalSelectionMode.Single;
+			dpJournal.OnEntitySelectedResult += OnDeliveryPointJournalEntitySelected;
+			TabParent.AddSlaveTab(this, dpJournal);
 		}
 
-		private void DeliveryPointRep_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		private void OnDeliveryPointJournalEntitySelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			if(e.GetNodes<ClientDeliveryPointVMNode>().FirstOrDefault() is ClientDeliveryPointVMNode node)
+			if(e.SelectedNodes.FirstOrDefault() is DeliveryPointByClientJournalNode node)
 			{
 				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 			}
