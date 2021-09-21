@@ -1141,7 +1141,14 @@ namespace Vodovoz
 			Expense cashExpense = null;
 
 			var inputCashOrder = (decimal)spinCashOrder.Value;
-			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
+			try
+			{
+				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
+			}
+			catch(MissingOrdersWithCashlessPaymentTypeException)
+			{
+				MessageDialogHelper.RunInfoDialog($"В МЛ отсутствуют заказы с типом оплыта 'Наличная'");
+			}
 
 			if (cashIncome != null) UoW.Save(cashIncome);
 			if (cashExpense != null) UoW.Save(cashExpense);
