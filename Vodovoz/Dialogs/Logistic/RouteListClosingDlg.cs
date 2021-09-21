@@ -1147,7 +1147,7 @@ namespace Vodovoz
 			}
 			catch(MissingOrdersWithCashlessPaymentTypeException ex)
 			{
-				MessageDialogHelper.RunInfoDialog($"В МЛ {ex.RouteList.Id} отсутствуют заказы с типом оплыта 'Наличная'");
+				MessageDialogHelper.RunErrorDialog(ex.Message);
 			}
 
 			if (cashIncome != null) UoW.Save(cashIncome);
