@@ -27,10 +27,7 @@
                         ) as payment_date
                     from
                         employees e
-                    where e.category in ('driver','forwarder')
-                      and e.status not in ('isFired', 'onCalculation')
-                      and !e.visiting_master
-                      and e.id in (@employees)
+                    where e.id in (@employees)
                       and e.first_work_day &lt;
                           DATE_SUB(STR_TO_DATE(CONCAT(YEARWEEK(date_add(@start_date, INTERVAL 1 WEEK ), 1), 'Monday'), '%X%V %W'), INTERVAL 2 WEEK)
                     order by

@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 			{
 				var parameters = new Dictionary<string, object>
 				{
-					{ "start_date", StartDateTime.ToString() },
+					{ "start_date", StartDateTime },
 					{ "creation_date", DateTime.Now },
 					{ "employees", EmployeeNodes.Where(dn => dn.IsSelected).Select(dn => dn.Id) }
 				};
@@ -92,13 +92,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 		public void ShowInfo()
 		{
 			var info = "В фильтре сотрудников представлены две группы сотрудников: водители и экспедиторы."
-			           + "\r\nЭкспедиторы в фильтре выделены серым цветом."
-			           + "\r\nВ фильтр и отчет не попадают сотрудники:"
-			           + "\r\n\t- Выездные мастера;"
-			           + "\r\n\t- Офисные сотрудники;"
-			           + "\r\n\t- Уволенные или на расчете;"
-			           + "\r\n\t- Сотрудники, для которых разница дат понедельника следующей недели от выбранной даты "
-			           + "\r\n\t\tи первого рабочего дня меньше двух недель.";
+			           + "\nЭкспедиторы в фильтре выделены серым цветом."
+			           + "\nВ фильтр и отчет не попадают сотрудники:"
+			           + "\n\t- Выездные мастера;"
+			           + "\n\t- Офисные сотрудники;"
+			           + "\n\t- Уволенные или на расчете;"
+			           + "\n\t- Сотрудники, для которых разница дат понедельника следующей недели от выбранной даты "
+			           + "\n\t\tи первого рабочего дня меньше двух недель.";
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчётом");
 		}
 
