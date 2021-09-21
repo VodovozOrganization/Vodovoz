@@ -31,6 +31,9 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxSortingParam.Binding.AddBinding(ViewModel, x => x.SortingParam, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboboxSortingDirection.Binding.AddBinding(ViewModel, x => x.SortingDirection, w => w.SelectedItem).InitializeFromSource();
 
+			ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
+			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+
 			buttonExpired.Clicked += (sender, e) => ViewModel.ChangeDateOnExpiredCommand.Execute();
 			buttonToday.Clicked += (sender, e) => ViewModel.ChangeDateOnTodayCommand.Execute();
 			buttonTomorrow.Clicked += (sender, e) => ViewModel.ChangeDateOnTomorrowCommand.Execute();

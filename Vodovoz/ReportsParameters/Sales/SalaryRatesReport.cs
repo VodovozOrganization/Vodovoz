@@ -78,7 +78,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			if(!_salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId).Any())
 			{
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать хотя бы одного водителя");
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать хотя бы одну ставку");
 				return;
 			}
 
