@@ -5,21 +5,15 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -44,7 +38,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 
-		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels { get; private set; } = new List<CounterpartyOrderViewModel>();
+		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
 		public Counterparty currentCounterparty { get;private set; }
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
@@ -88,10 +82,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
 						client, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
 						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository, _parametersProvider);
-					CounterpartyOrdersModels.Add(model);
+					CounterpartyOrdersViewModels.Add(model);
 				}
 				
-				currentCounterparty = CounterpartyOrdersModels.FirstOrDefault().Client;
+				currentCounterparty = CounterpartyOrdersViewModels.FirstOrDefault().Client;
 			} else
 				throw new InvalidProgramException("Открыт диалог разговора с имеющимся контрагентом, но ни одного id контрагента не найдено.");
 		}
@@ -147,7 +141,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 						_nomenclatureRepository,
 						_parametersProvider);
 				
-				CounterpartyOrdersModels.Add(model);
+				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
 				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
@@ -159,7 +153,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
-			if(!CounterpartyOrdersModels.Any(c => c.Client.Id == client.Id)) {
+			if(!CounterpartyOrdersViewModels.Any(c => c.Client.Id == client.Id)) {
 				if(_interactiveService.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
 					client.Phones.Add(ActiveCall.Phone);
 					_uow.Save<Counterparty>(client);
@@ -172,7 +166,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository,
 						_parametersProvider);
 				
-				CounterpartyOrdersModels.Add(model);
+				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
 				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
@@ -185,7 +179,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
 			}
-			var model = CounterpartyOrdersModels.Find(m => m.Client.Id == currentCounterparty.Id);
+			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
 			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
 			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
 		}
