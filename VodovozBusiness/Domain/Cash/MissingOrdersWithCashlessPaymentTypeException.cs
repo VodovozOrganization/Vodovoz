@@ -1,25 +1,17 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Cash
 {
 	[Serializable]
-	public class MissingOrdersWithCashlessPaymentTypeException : Exception
+	public class MissingOrdersWithCashlessPaymentTypeException : InvalidOperationException
 	{
-		public MissingOrdersWithCashlessPaymentTypeException()
+		public MissingOrdersWithCashlessPaymentTypeException(RouteList routeList)
 		{
+			RouteList = routeList;
 		}
 
-		public MissingOrdersWithCashlessPaymentTypeException(string message) : base(message)
-		{
-		}
-
-		public MissingOrdersWithCashlessPaymentTypeException(string message, Exception innerException) : base(message, innerException)
-		{
-		}
-
-		protected MissingOrdersWithCashlessPaymentTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
-		}
+		public RouteList RouteList { get; }
 	}
 }

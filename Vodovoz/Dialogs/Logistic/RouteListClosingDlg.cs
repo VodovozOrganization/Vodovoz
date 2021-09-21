@@ -1145,9 +1145,9 @@ namespace Vodovoz
 			{
 				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
 			}
-			catch(MissingOrdersWithCashlessPaymentTypeException)
+			catch(MissingOrdersWithCashlessPaymentTypeException ex)
 			{
-				MessageDialogHelper.RunInfoDialog($"В МЛ отсутствуют заказы с типом оплыта 'Наличная'");
+				MessageDialogHelper.RunInfoDialog($"В МЛ {ex.RouteList.Id} отсутствуют заказы с типом оплыта 'Наличная'");
 			}
 
 			if (cashIncome != null) UoW.Save(cashIncome);
