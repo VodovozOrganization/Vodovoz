@@ -19,6 +19,8 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -744,8 +746,9 @@ namespace Vodovoz.Domain.Logistic
 			foreach(var good in goods) {
 				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
 
-				if(good.NomenclatureId == terminalId 
-					&& (loaded?.Amount ?? 0) + terminalsTransferedToThisRL == good.Amount)
+				if(good.NomenclatureId == terminalId
+					&& ((loaded?.Amount ?? 0) + terminalsTransferedToThisRL == good.Amount 
+					    || _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, Driver, this) != null))
 				{
 					continue;
 				}
@@ -1237,6 +1240,101 @@ namespace Vodovoz.Domain.Logistic
 			new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
 				.Contains(Status);
 
+		public virtual void CreateSelfDriverTerminalTransferDocument()
+		{
+			if(_routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Driver) is DriverAttachedTerminalGiveoutDocument)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Терминал привязан к водителю { Driver.GetPersonNameWithInitials() }",
+					"Не удалось перенести терминал");
+
+				return;
+			}
+
+			var foundRouteLists = UoW.Session.QueryOver<RouteList>()
+				.Where(x => x.Driver == this.Driver
+				            && x.Date == this.Date
+				            && x.Status == RouteListStatus.InLoading
+				            && x.Id != this.Id)
+				.List();
+
+			if(foundRouteLists.Count == 0)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Не найдены подходящие МЛ для переноса терминала из МЛ №{ Id }. Попробуйте перенести терминал вручную.",
+					"Не удалось перенести терминал");
+
+				return;
+			}
+
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
+
+			if(loadedTerminalAmount - unloadedTerminalAmount <= 0)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"В МЛ №{ Id } отсутствуют погруженные терминалы.");
+
+				return;
+			}
+
+			if(foundRouteLists.Count > 1)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Для переноса терминала из МЛ № { Id } найдено больше одного МЛ: " +
+						$"{string.Join(", ", foundRouteLists.Select(x => x.Id).ToArray())}.\nПопробуйте перенести терминал вручную.",
+					"Не удалось перенести терминал");
+
+				return;
+			}
+
+			var foundRouteList = foundRouteLists.FirstOrDefault();
+
+			var selfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, foundRouteList.Driver, foundRouteList);
+
+			if(selfDriverTerminalTransferDocument != null)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Терминал уже был перенесён в МЛ №{ selfDriverTerminalTransferDocument.RouteListTo.Id }",
+					"Не удалось перенести терминал");
+
+				return;
+			}
+			else
+			{
+				if(ServicesConfig.InteractiveService.Question($"Терминал будет перенесён из МЛ №{ Id } в МЛ №{ foundRouteList.Id }. Продолжить?"))
+				{
+					var terminalTransferDocumentForOneDriver = new SelfDriverTerminalTransferDocument()
+					{
+						Author = _employeeRepository.GetEmployeeForCurrentUser(UoW),
+						CreateDate = DateTime.Now,
+						DriverFrom = foundRouteList.Driver,
+						DriverTo = foundRouteList.Driver,
+						RouteListFrom = this,
+						RouteListTo = foundRouteList,
+					};
+
+					using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						localUoW.Save(terminalTransferDocumentForOneDriver);
+						localUoW.Commit();
+					}
+
+					ServicesConfig.InteractiveService.ShowMessage(
+						ImportanceLevel.Info, 
+						$"Терминал перенесён в МЛ №{ foundRouteList.Id }",
+						"Готово");
+				}
+			}
+		}
+
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -1284,8 +1382,15 @@ namespace Vodovoz.Domain.Logistic
 				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
 				foreach(var address in Addresses) {
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
-						yield return new ValidationResult($"Один из адрессов, находится в другом МЛ");
-					
+					{
+						yield return new ValidationResult($"Адрес {address.Order.Id} находится в другом МЛ");
+					}
+
+					if(rliRepository.CurrentRouteListHasOrderDuplicate(UoW, address, Addresses.Select(x => x.Id).ToArray()))
+					{
+						yield return new ValidationResult($"Адрес { address.Order.Id } дублируется в текущем МЛ");
+					}
+
 					foreach (var result in address.Validate(new ValidationContext(address)))
 						yield return result;
 				}
@@ -1999,12 +2104,15 @@ namespace Vodovoz.Domain.Logistic
 			if(Id > 0) {
 				var loadedNomenclatures = _routeListRepository.AllGoodsLoaded(UoW, this);
 				var nomenclaturesToLoad = _routeListRepository.GetGoodsAndEquipsInRL(UoW, this);
-				
+				var hasSelfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, this.Driver, this) != null;
+
 				foreach(var n in nomenclaturesToLoad) {
-					
-					if(!needTerminalAccounting && n.NomenclatureId == terminalId)
+
+					if(n.NomenclatureId == terminalId && (!needTerminalAccounting || hasSelfDriverTerminalTransferDocument))
+					{
 						continue;
-					
+					}
+
 					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
 					decimal loadedAmount = 0;
 					if(loaded != null)
