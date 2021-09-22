@@ -1680,6 +1680,8 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
+    <Compile Include="Views\ReportsParameters\Cash\DayOfSalaryGiveoutReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Cash.DayOfSalaryGiveoutReportView.cs" />
     <Compile Include="Views\Users\UserView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -1703,6 +1705,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Report.Gtk\QS.Report.Gtk.csproj">
+      <Project>{42708cee-08d8-43d5-afe0-9992eb46e9f9}</Project>
+      <Name>QS.Report.Gtk</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
@@ -1986,6 +1992,8 @@
     <Folder Include="JournalViewers\Complaints\" />
     <Folder Include="Views\Flyers\" />
     <Folder Include="Views\Print\" />
+    <Folder Include="Views\ReportsParameters\" />
+    <Folder Include="Views\ReportsParameters\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2795,6 +2803,11 @@
     <EmbeddedResource Include="icons\map\points\overduetriangle\red_stripes.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\white.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Reports\Cash\DayOfSalaryGiveout.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

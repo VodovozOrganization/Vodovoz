@@ -95,8 +95,6 @@ namespace Vodovoz.Domain.Orders
 	/// </summary>
 	public enum GuiltyTypes
 	{
-		[Display(Name = "Неизвестно")]
-		Unknown,
 		[Display(Name = "Клиент")]
 		Client,
 		[Display(Name = "Водитель")]

@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (Contact updatedSubject)
 		{
-			return Counterparty.Id == updatedSubject.Counterparty.Id;
+			return Counterparty != null && Counterparty.Id == updatedSubject?.Counterparty?.Id;
 		}
 
 		#endregion
