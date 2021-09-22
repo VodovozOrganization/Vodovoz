@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Reports
 						Sum = decimal.Round(documentsInPriceRange.Sum(a => a.Amount) * nomenclatureRangePrice.PurchasePrice, 2)
 					};
 
-					nomenclatureResultList.Add(nomenclature);
+						nomenclatureResultList.Add(nomenclature);
 				}
 
 				var documentsNotInPriceRange = new List<ProductionWarehouseMovementReportDataBaseNode>();
@@ -276,7 +276,8 @@ namespace Vodovoz.ViewModels.Reports
 					(x.Document.Status == MovementDocumentStatus.Accepted || x.Document.Status == MovementDocumentStatus.Discrepancy)
 					&& (selectedWarehouses.Contains(x.Document.FromWarehouse.Id))
 					&& (x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= (_endDate ?? DateTime.MaxValue))
-					&& x.Nomenclature.Category == NomenclatureCategory.water)
+					&& x.Nomenclature.Category == NomenclatureCategory.water
+					&& x.SendedAmount > 0)
 				.Fetch(x => x.WarehouseIncomeOperation)
 				.Fetch(x => x.WarehouseWriteoffOperation)
 				.Fetch(x => x.Nomenclature)
