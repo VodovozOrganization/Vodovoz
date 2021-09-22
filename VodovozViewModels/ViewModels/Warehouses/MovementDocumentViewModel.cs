@@ -204,7 +204,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		private void ReloadAllowedWarehousesFrom()
 		{
-			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissionsType.MovementEdit, CurrentEmployee.Subdivision);
+			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissionsType.MovementEdit, CurrentEmployee);
 			allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
 				.Where(x => !x.IsArchive)
 				.WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
