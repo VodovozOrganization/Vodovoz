@@ -597,8 +597,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RouteListAssignedDistrictsNode routeListAssignedDistrictsNodeAlias = null;
 			RouteList routeListAlias = null;
 			Employee driverAlias = null;
-			District districtAlias = null;
-
+			Sector sectorAlias = null;
+			SectorVersion sectorVersionAlias = null;
+			
 			#endregion
 
 			var groupedByDriver = nodes.GroupBy(x => new { x.DriverId, x.CarRegNumber, x.RouteListDate });
@@ -728,7 +729,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					groupNode.GroupBy(x => x.RouteListItemId)
 						.Select(x => x.First())
 						.Where(x => !x.WasTransfered)
-						.Select(x => x.RouteListItemDistrictName)
+						.Select(x => x.RouteListItemSectorName)
 						.Distinct()
 				);
 
@@ -737,7 +738,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						.Select(x => x.First())
 						.Where(x => x.RouteListItemStatus == RouteListItemStatus.Completed
 									&& x.RouteListStatus == RouteListStatus.Closed)
-						.Select(x => x.RouteListItemDistrictName)
+						.Select(x => x.RouteListItemSectorName)
 						.Distinct());
 
 				node.RouteListItemCountPlanned = groupNode.Where(x => !x.WasTransfered).GroupBy(x => x.RouteListItemId).Count();
@@ -775,7 +776,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var driverListNodes = uow.Session.QueryOver(() => driverAlias)
 				.Inner.JoinAlias(() => driverAlias.DriverDistrictPrioritySets, () => driverDistrictPrioritySetAlias)
 				.Inner.JoinAlias(() => driverDistrictPrioritySetAlias.DriverDistrictPriorities, () => driverDistrictPriorityAlias)
-				.Inner.JoinAlias(() => driverDistrictPriorityAlias.District, () => districtAlias)
+				.Inner.JoinAlias(() => driverDistrictPriorityAlias.Sector, () => sectorAlias)
+				.JoinEntityAlias(() => sectorVersionAlias,
+					() => sectorVersionAlias.Sector.Id == sectorAlias.Id &&
+					      (startDate.HasValue && sectorVersionAlias.StartDate <= startDate.Value.Date || !startDate.HasValue && sectorVersionAlias.StartDate <= DateTime.Today.Date) && (sectorVersionAlias.EndDate == null ||
+					                                                              sectorVersionAlias.EndDate <=
+					                                                              endDate.Value.Date.AddDays(1)),
+					JoinType.LeftOuterJoin)
 				.WhereRestrictionOn(() => driverAlias.Id).IsIn(driverInfoNodes.Select(x => x.DriverId).ToArray())
 				.And(() => driverDistrictPrioritySetAlias.DateActivated <= endDate)
 				.And(Restrictions.Disjunction()
@@ -783,8 +790,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Add(() => driverDistrictPrioritySetAlias.DateDeactivated >= startDate))
 				.SelectList(list => list
 					.SelectGroup(() => driverAlias.Id).WithAlias(() => routeListAssignedDistrictsNodeAlias.DriverId)
-					.Select(CustomProjections.GroupConcat(() => districtAlias.DistrictName, true,
-						orderByExpression: () => districtAlias.DistrictName, separator: ", "))
+					.Select(CustomProjections.GroupConcat(() => sectorAlias, true,
+						orderByExpression: () => sectorVersionAlias.SectorName, separator: ", "))
 					.WithAlias(() => routeListAssignedDistrictsNodeAlias.AssignedDistricts))
 				.TransformUsing(Transformers.AliasToBean<RouteListAssignedDistrictsNode>())
 				.List<RouteListAssignedDistrictsNode>();
