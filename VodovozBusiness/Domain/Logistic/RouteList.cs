@@ -1153,21 +1153,21 @@ namespace Vodovoz.Domain.Logistic
 			UpdateClosedInformation();
 		}
 
-		public virtual void ChangeAddressStatus(IUnitOfWork uow, int id, RouteListItemStatus newAddressStatus)
+		public virtual void ChangeAddressStatus(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
 		{
-			Addresses.First(a => a.Id == id).UpdateStatus(uow, newAddressStatus);
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatus(uow, newAddressStatus);
 			UpdateStatus();
 		}
 
-		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int id, RouteListItemStatus newAddressStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, CallTaskWorker callTaskWorker)
 		{
-			Addresses.First(a => a.Id == id).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
 			UpdateStatus();
 		}
 
-		public virtual void SetAddressStatusWithoutOrderChange(int id, RouteListItemStatus newAddressStatus)
+		public virtual void SetAddressStatusWithoutOrderChange(int routeListAddressid, RouteListItemStatus newAddressStatus)
 		{
-			Addresses.First(a => a.Id == id).SetStatusWithoutOrderChange(newAddressStatus);
+			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(newAddressStatus);
 			UpdateStatus();
 		}
 

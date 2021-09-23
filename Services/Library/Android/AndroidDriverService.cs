@@ -337,9 +337,9 @@ namespace Android
 						return false;
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
-					var routeList = routeListItem.RouteList;
+					var routeList = routeListItem?.RouteList;
 					if(routeListItem == null || routeList == null)
-                    {
+					{
 						return false;
 					}
 
