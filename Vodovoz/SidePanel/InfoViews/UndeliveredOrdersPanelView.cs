@@ -72,8 +72,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			yTreeView.ItemsDataSource = guilties;
 
-			//lblTotalLO.Markup = $"Итого ЛО: <b> {guilties.Where()}</b> шт.";
-
 			lblTotalUdeliveredBottles.Markup = 
 				$"Воды 19л: <b>{guilties.Sum(g => (decimal) g[3]):N0}</b> бут.";
 
