@@ -401,7 +401,6 @@ namespace Vodovoz
 				routeListTo.ObservableAddresses.Add(newItem);
 
 				routeListFrom.TransferAddressTo(item.Id, newItem);
-				//item.TransferedTo = newItem;
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
