@@ -400,7 +400,7 @@ namespace Vodovoz
 
 				routeListTo.ObservableAddresses.Add(newItem);
 
-				item.TransferedTo = newItem;
+				routeListFrom.TransferAddressTo(item.Id, newItem);
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
@@ -487,11 +487,13 @@ namespace Vodovoz
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
 					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
 
+				var previousRouteList = pastPlace?.RouteList;
+
 				if(pastPlace != null)
 				{
-					pastPlace.SetStatusWithoutOrderChange(address.Status);
+					previousRouteList.SetAddressStatusWithoutOrderChange(pastPlace.Id, address.Status);
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
-					pastPlace.TransferedTo = null;
+					previousRouteList.TransferAddressTo(pastPlace.Id, null);
 
 					if(pastPlace.RouteList.ClosingFilled)
 					{
@@ -500,6 +502,7 @@ namespace Vodovoz
 
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					UoW.Save(pastPlace);
+					UoW.Save(previousRouteList);
 				}
 
 				address.RouteList.ObservableAddresses.Remove(address);
