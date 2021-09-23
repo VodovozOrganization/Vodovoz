@@ -1156,6 +1156,38 @@ namespace Vodovoz.Domain.Logistic
 			UpdateClosedInformation();
 		}
 
+		public virtual void ChangeAddressStatus(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatus(uow, newAddressStatus);
+			UpdateStatus();
+		}
+
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, CallTaskWorker callTaskWorker)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
+			UpdateStatus();
+		}
+
+		public virtual void SetAddressStatusWithoutOrderChange(int routeListAddressid, RouteListItemStatus newAddressStatus)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(newAddressStatus);
+			UpdateStatus();
+		}
+
+		public virtual void UpdateStatus()
+		{
+			if(Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute))
+			{
+				ChangeStatus(RouteListStatus.Delivered);
+			}
+		}
+
+		public virtual void TransferAddressTo(int id, RouteListItem targetAddress)
+		{
+			Addresses.First(a => a.Id == id).TransferTo(targetAddress);
+			UpdateStatus();
+		}
+
 		private void UpdateClosedInformation()
 		{
 			if(Status == RouteListStatus.Closed)
