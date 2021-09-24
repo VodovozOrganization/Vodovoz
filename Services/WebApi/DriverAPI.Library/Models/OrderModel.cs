@@ -251,7 +251,7 @@ namespace DriverAPI.Library.Models
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
-			routeList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.Completed);
+			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.Completed);
 
 			if (rating < _maxClosingRating)
 			{
@@ -277,9 +277,13 @@ namespace DriverAPI.Library.Models
 				_unitOfWork.Save(complaint);
 			}
 
-			_unitOfWork.Save(routeListAddress);
-			_unitOfWork.Save(routeList);
+			if (routeList.Status == RouteListStatus.EnRoute && routeList.Addresses.All(a => a.Status != RouteListItemStatus.EnRoute))
+			{
+				routeList.ChangeStatus(RouteListStatus.Delivered);
+				_unitOfWork.Save(routeList);
+			}
 
+			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
 		}
 

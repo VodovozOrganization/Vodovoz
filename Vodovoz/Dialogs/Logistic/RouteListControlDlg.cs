@@ -92,7 +92,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private void UpdateLists()
 		{
 			var goods = _routeListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
-			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _baseParametersProvider.GetNomenclatureIdForTerminal);
+			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true);
 			
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 

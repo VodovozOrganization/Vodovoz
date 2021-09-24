@@ -11,7 +11,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -417,11 +416,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return null;
 			}
 
-			if(GetSelfDriverTerminalTransferDocument(uow, routeList.Driver, routeList) != null)
-			{//если терминал был перенесён на вторую ходку, то не надо его грузить
-				return null;
-			}
-
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 
 			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
@@ -570,7 +564,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				throw new ArgumentNullException(nameof(routeList));
 			}
 
-			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocumentBase>()
+			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
 				.Where(dttd => dttd.RouteListTo.Id == routeList.Id
 							|| dttd.RouteListFrom.Id == routeList.Id)
 				.ToList();
@@ -856,11 +850,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
-
-		public SelfDriverTerminalTransferDocument GetSelfDriverTerminalTransferDocument(IUnitOfWork unitOfWork, Employee driver, RouteList routeList) =>
-			unitOfWork.Session.QueryOver<SelfDriverTerminalTransferDocument>()
-				.Where(d => d.DriverTo == driver && d.RouteListTo == routeList)
-				.SingleOrDefault();
 	}
 
 	#region DTO

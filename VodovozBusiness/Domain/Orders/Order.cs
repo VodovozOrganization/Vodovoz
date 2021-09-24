@@ -2593,16 +2593,15 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
-			var routeList = routeListItem?.RouteList;
-			switch(OrderStatus)
-			{
+
+			switch(OrderStatus) {
 				case OrderStatus.NewOrder:
 				case OrderStatus.WaitForPayment:
 				case OrderStatus.Accepted:
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
+					routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2610,15 +2609,12 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.UnloadingOnStock:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Closed:
-					if(guilty == GuiltyTypes.Client)
-					{
+					if(guilty == GuiltyTypes.Client) {
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
-					}
-					else
-					{
+						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
+					} else {
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
+						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					}
 					break;
 			}

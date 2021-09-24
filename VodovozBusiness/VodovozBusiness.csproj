@@ -58,14 +58,10 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
-    <Compile Include="Domain\Cash\MissingOrdersWithCashlessPaymentTypeException.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
-    <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
-    <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
-    <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
-    <Compile Include="Domain\Documents\DriverTerminalTransfer\AnotherDriverTerminalTransferDocument.cs" />
+    <Compile Include="Domain\Documents\DriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DocumentPrintHistory.cs" />
     <Compile Include="Domain\Client\DeliveryPointEstimatedCoordinate.cs" />
     <Compile Include="Domain\Complaints\DriverComplaintReason.cs" />
@@ -270,7 +266,7 @@
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
-    <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentBaseMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminal\DriverAttachedTerminalDocumentsMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
@@ -319,7 +315,6 @@
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
-    <Compile Include="Parameters\DebtorsParameters.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
@@ -557,7 +552,6 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
-    <Compile Include="Services\IDebtorsParameters.cs" />
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />

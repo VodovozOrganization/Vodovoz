@@ -72,7 +72,10 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Перенесен в другой маршрутный лист")]
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
-			protected set => SetField(ref transferedTo, value);
+			set {
+				if(SetField(ref transferedTo, value) && value != null)
+					Status = RouteListItemStatus.Transfered;
+			}
 		}
 
 		private bool needToReload;
@@ -498,7 +501,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
+		public virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;
@@ -530,8 +533,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 			uow.Save(Order);
 		}
-
-		protected internal virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
+		
+		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
 		{
 			if(Status == status)
 			{
@@ -564,12 +567,6 @@ namespace Vodovoz.Domain.Logistic
 					break;
 			}
 			uow.Save(Order);
-		}
-
-		protected internal virtual void TransferTo(RouteListItem targetAddress)
-		{
-			TransferedTo = targetAddress;
-			SetStatusWithoutOrderChange(RouteListItemStatus.Transfered);
 		}
 
 		public virtual void RecalculateTotalCash() => TotalCash = CalculateTotalCash();
@@ -695,7 +692,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RemovedFromRoute() => Order.OrderStatus = OrderStatus.Accepted;
 
-		protected internal virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
+		public virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
 
 		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
 		public virtual string GetTransferText(RouteListItem item)

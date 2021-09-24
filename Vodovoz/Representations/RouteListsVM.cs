@@ -6,9 +6,7 @@ using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -39,7 +37,6 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
@@ -643,25 +640,6 @@ namespace Vodovoz.ViewModel
 						}
 					},
 					(selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListsVMNode).StatusEnum))
-				));
-
-				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible(
-					"Перенести терминал на вторую ходку",
-					(selectedItems) =>
-					{
-						if(selectedItems.FirstOrDefault() is RouteListsVMNode selectedNode)
-						{
-							var routeList = UoW.GetById<RouteList>(selectedNode.Id);
-							routeList?.CreateSelfDriverTerminalTransferDocument();
-						}
-					},
-					(selectedItems) =>
-					{
-						var userPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(
-							typeof(SelfDriverTerminalTransferDocument), ServicesConfig.UserService.CurrentUserId);
-
-						return userPermission.CanCreate;
-					}
 				));
 
 				return result;

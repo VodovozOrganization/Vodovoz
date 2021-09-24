@@ -17,8 +17,6 @@ namespace Vodovoz.HibernateMapping.Contacts
 			Map(x => x.Name).Column("name");
 
 			References(x => x.PhoneType).Column("type_id").Not.LazyLoad();
-			References(x => x.DeliveryPoint).Column("delivery_point_id");
-			References(x => x.Counterparty).Column("counterparty_id");
 		}
 	}
 }

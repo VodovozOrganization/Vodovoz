@@ -11,14 +11,19 @@ using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
+using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -182,10 +187,9 @@ namespace Vodovoz.ViewModels.Mango
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
-						routeListItem.RouteList.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
+						routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
 						routeListItem.StatusLastUpdate = DateTime.Now;
 						routeListItem.FillCountsOnCanceled();
-						UoW.Save(routeListItem.RouteList);
 						UoW.Save(routeListItem);
 					}
 

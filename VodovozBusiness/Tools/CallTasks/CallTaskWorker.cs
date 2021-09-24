@@ -61,31 +61,20 @@ namespace Vodovoz.Tools.CallTasks
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			Task.Run(() =>
-			{
-				try
-				{
-					switch(order.OrderStatus)
-					{
+			Task.Run(() => {
+				try {
+					switch(order.OrderStatus) {
 						case OrderStatus.Accepted:
-							CreateTaskIfCounterpartyRelocated(order);
+								CreateTaskIfCounterpartyRelocated(order);
 							break;
 						case OrderStatus.DeliveryCanceled:
 							TryDeleteTask(order);
 							break;
 					}
-
 					UoW.Commit();
-				}
-				catch(Exception ex)
-				{
+				} catch(Exception ex) {
 					var currUser = userService?.GetCurrentUser(UoW);
-					errorReporter?.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}",
-						user: currUser);
-				}
-				finally
-				{
-					UoW.Dispose();
+					errorReporter?.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}", user: currUser);
 				}
 			});
 		}

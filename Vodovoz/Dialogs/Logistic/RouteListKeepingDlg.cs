@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using Chats;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
@@ -395,7 +394,10 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-
+				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
+				{
+					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
+				}
 				Entity.CalculateWages(wageParameterService);
 
 				UoWGeneric.Save();
@@ -481,7 +483,7 @@ namespace Vodovoz
 			foreach(RouteListKeepingItemNode item in selectedObjects) {
 				if(item.Status == RouteListItemStatus.Transfered)
 					continue;
-				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+				item.RouteListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}
 
@@ -571,7 +573,7 @@ namespace Vodovoz
 		public void UpdateStatus(RouteListItemStatus value, CallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);
+			RouteListItem.UpdateStatusAndCreateTask(uow, value, callTaskWorker);
 			HasChanged = true;
 			OnPropertyChanged<RouteListItemStatus>(() => Status);
 		}

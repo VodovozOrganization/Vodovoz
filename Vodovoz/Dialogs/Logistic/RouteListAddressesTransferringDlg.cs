@@ -18,7 +18,6 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -401,7 +400,7 @@ namespace Vodovoz
 
 				routeListTo.ObservableAddresses.Add(newItem);
 
-				routeListFrom.TransferAddressTo(item.Id, newItem);
+				item.TransferedTo = newItem;
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
@@ -488,13 +487,11 @@ namespace Vodovoz
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
 					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
 
-				var previousRouteList = pastPlace?.RouteList;
-
 				if(pastPlace != null)
 				{
-					previousRouteList.SetAddressStatusWithoutOrderChange(pastPlace.Id, address.Status);
+					pastPlace.SetStatusWithoutOrderChange(address.Status);
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
-					previousRouteList.TransferAddressTo(pastPlace.Id, null);
+					pastPlace.TransferedTo = null;
 
 					if(pastPlace.RouteList.ClosingFilled)
 					{
@@ -503,7 +500,6 @@ namespace Vodovoz
 
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					UoW.Save(pastPlace);
-					UoW.Save(previousRouteList);
 				}
 
 				address.RouteList.ObservableAddresses.Remove(address);
@@ -586,7 +582,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,
@@ -655,7 +651,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,

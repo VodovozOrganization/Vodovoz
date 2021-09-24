@@ -419,18 +419,14 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .List().FirstOrDefault();
 		}
 		
-		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(
-			IUnitOfWorkFactory uowFactory,
-			DateTime date,
-			DeliveryPoint deliveryPoint)
+		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uowFactory, DateTime date, DeliveryPoint deliveryPoint)
 		{
-			using(var uow = uowFactory.CreateWithoutRoot())
-			{
-				return uow.Session.QueryOver<VodovozOrder>()
-					.Where(x => x.DeliveryDate == date)
-					.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
-					.List();
-			}
+			var uow = uowFactory.CreateWithoutRoot();
+			
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(x => x.DeliveryDate == date)
+				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
+				.List();
 		}
 
 		public bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)

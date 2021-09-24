@@ -1141,14 +1141,7 @@ namespace Vodovoz
 			Expense cashExpense = null;
 
 			var inputCashOrder = (decimal)spinCashOrder.Value;
-			try
-			{
-				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
-			}
-			catch(MissingOrdersWithCashlessPaymentTypeException ex)
-			{
-				MessageDialogHelper.RunErrorDialog(ex.Message);
-			}
+			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
 
 			if (cashIncome != null) UoW.Save(cashIncome);
 			if (cashExpense != null) UoW.Save(cashExpense);

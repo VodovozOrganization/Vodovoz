@@ -115,7 +115,6 @@ using QS.Osm;
 using QS.Osm.Loaders;
 using QS.Osm.Osrm;
 using QS.Project.Repositories;
-using QS.Report.ViewModels;
 using QS.ViewModels;
 using Vodovoz.Core.Journal;
 using Vodovoz.Domain.EntityFactories;
@@ -143,7 +142,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
-using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Rent;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
@@ -2473,8 +2471,4 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionDayOfSalaryGiveoutReport_Activated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
-	}
 }

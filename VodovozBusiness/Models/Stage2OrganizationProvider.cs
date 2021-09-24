@@ -64,7 +64,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.cash:
-					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozDeshitsOrganizationId;
 					break;
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:
@@ -109,7 +109,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.cash:
-					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozDeshitsOrganizationId;
 					break;
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:

@@ -400,10 +400,10 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
+				_routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
 				_routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
-				OnCloseTab(false);
+				this.OnCloseTab(false);
 			};
 		}
 
@@ -413,16 +413,16 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
+				_routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
 				_routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
-				OnCloseTab(false);
+				this.OnCloseTab(false);
 			};
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+			_routeListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(UoW, _wageParameterService);
 			UpdateListsSentivity();
