@@ -317,8 +317,15 @@ namespace Vodovoz.ViewModel
 			{
 				RouteListRepository rep = new RouteListRepository(
 					new StockRepository(), 
-					new BaseParametersProvider(new ParametersProvider()));
-				result = rep.CanDeleteRouteListIfNoFuelGiven(UoW, selectedNode.Id);
+					new BaseParametersProvider(new ParametersProvider())); 
+				if(rep.RouteListContainsGivedFuelLiters(UoW, selectedNode.Id))
+				{
+					result = false;
+				}
+				else
+				{
+					result = true;
+				}
 			}
 
 			return result;

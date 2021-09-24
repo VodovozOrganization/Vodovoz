@@ -857,9 +857,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
 		
-		public bool CanDeleteRouteListIfNoFuelGiven(IUnitOfWork uow, int id)
+		public bool RouteListContainsGivedFuelLiters(IUnitOfWork uow, int id)
 		{
-			bool result = true;
+			bool result = false;
 
 			var routeList = uow.Session.QueryOver<RouteList>()
 				.Where(x => x.Id == id)
@@ -871,7 +871,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
 				if(litersGived > 0 || payedLiters > 0)
 				{
-					result = false;
+					result = true;
 				}
 			}
 
