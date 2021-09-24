@@ -48,7 +48,6 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes ()
 		{
-
 			CounterpartyContract contractAlias = null;
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;
@@ -89,6 +88,11 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (CounterpartyContract updatedSubject)
 		{
+			if(Counterparty == null)
+			{
+				return false;
+			}
+			
 			return Counterparty.Id == updatedSubject?.Counterparty?.Id;
 		}
 			

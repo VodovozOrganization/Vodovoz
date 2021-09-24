@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
   <DataSources>
@@ -177,6 +175,47 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="SelfTerminalTransfer" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>WITH RECURSIVE cte (routelist_from_id, routelist_to_id) AS (
+	SELECT		
+				dttd.routelist_from_id,
+				dttd.routelist_to_id
+	FROM 
+				driver_terminal_transfer_documents dttd
+	INNER JOIN
+				store_car_unload_documents scud
+			ON
+				scud.route_list_id = dttd.routelist_to_id
+	WHERE
+				scud.id = @id
+UNION ALL
+	SELECT		
+				dttd.routelist_from_id,
+				dttd.routelist_to_id
+	FROM 
+				driver_terminal_transfer_documents dttd
+	INNER JOIN
+				cte
+			ON
+				dttd.routelist_to_id = cte.routelist_from_id
+)
+SELECT			CONCAT('Внимание! Терминал был перенесён из МЛ ',  GROUP_CONCAT(routelist_from_id SEPARATOR ' ← '), '.') AS self_transfers
+FROM			cte;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@id">
+            <Value>={?id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="self_transfers">
+          <DataField>self_transfers</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -288,8 +327,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -342,6 +381,8 @@ WHERE
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -365,8 +406,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -383,8 +423,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -718,8 +757,8 @@ WHERE
         <Width>261.19pt</Width>
         <Value>= "____________________ (" + First({storekeeper}, "Doc") + ")"</Value>
         <ZIndex>1</ZIndex>
-        <Left>133.7pt</Left>
-        <Top>207.0pt</Top>
+        <Left>133.70pt</Left>
+        <Top>207.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -727,8 +766,28 @@ WHERE
           <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox7" >
+        <Height>21.00pt</Height>
+        <Width>537.20pt</Width>
+        <Value>=First({self_transfers}, "SelfTerminalTransfer")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>7.30pt</Left>
+        <Top>249.30pt</Top>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Arial</FontFamily>
+          <FontSize>12pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Left</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>229.3pt</Height>
+    <Height>337.0pt</Height>
   </Body>
   <PageFooter>
     <Height>0.0pt</Height>
@@ -746,8 +805,7 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
