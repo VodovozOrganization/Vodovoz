@@ -556,6 +556,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
+		/// <summary>
+		/// МЛ находится в статусе для открытия диалога закрытия
+		/// </summary>
+		public virtual bool CanBeOpenedInClosingDlg
+			=> new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
+				.Contains(Status);
+
 		#endregion
 
 		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
@@ -1264,13 +1271,11 @@ namespace Vodovoz.Domain.Logistic
 			};
 			_printsHistory.Add(newHistory);
 		}
-		
+
 		/// <summary>
 		/// Указывает, находится ли МЛ в таком статусе, что его надо печатать как ClosedRouteList.rdl
 		/// </summary>
-		public virtual bool PrintAsClosed() =>
-			new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
-				.Contains(Status);
+		public virtual bool PrintAsClosed() => CanBeOpenedInClosingDlg;
 
 		public virtual void CreateSelfDriverTerminalTransferDocument()
 		{
