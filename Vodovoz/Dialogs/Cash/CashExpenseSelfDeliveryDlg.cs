@@ -154,6 +154,8 @@ namespace Vodovoz.Dialogs.Cash
 			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 			evmeOrder.Changed += OnYentryOrderChanged;
 
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeCashier.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 			evmeCashier.Sensitive = false;
 

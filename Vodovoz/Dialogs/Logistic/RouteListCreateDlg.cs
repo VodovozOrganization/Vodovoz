@@ -179,6 +179,8 @@ namespace Vodovoz
 				createroutelistitemsview1.OnForwarderChanged();
 			};
 
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Sensitive = false;
 			evmeLogistician.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
 

@@ -163,6 +163,7 @@ namespace Vodovoz
 			evmeEmployee.Changed += (sender, e) => FillDebt();
 
 			evmeCashier.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
+			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
