@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -24,7 +25,6 @@ using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -55,13 +55,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly UserSettings _userSettings;
-		private readonly IFileChooserProvider _fileChooserProvider;
-		private readonly IScanDialog _scanDialog;
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 
 		//Новые зависимости создаем в журнале, скоро внедрим autofac
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
@@ -83,8 +81,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IFileChooserProvider fileChooserProvider,
-			IScanDialog scanDialog) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IAttachmentsViewModelFactory attachmentsViewModelFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
 
@@ -107,11 +104,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
 			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-			_scanDialog = scanDialog ?? throw new ArgumentNullException(nameof(scanDialog));
 
 			UpdateOnChanges(typeof(Employee));
 		}
@@ -415,9 +411,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_userSettings,
 			_userRepository,
 			_baseParametersProvider,
-			_attachmentsViewModelFactory,
-			_fileChooserProvider,
-			_scanDialog);
+			_attachmentsViewModelFactory);
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
@@ -441,8 +435,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_userSettings,
 				_userRepository,
 				_baseParametersProvider,
-				_attachmentsViewModelFactory,
-				_fileChooserProvider,
-				_scanDialog);
+				_attachmentsViewModelFactory);
 	}
 }

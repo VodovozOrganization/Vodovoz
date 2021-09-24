@@ -402,6 +402,7 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
+    <Compile Include="Factories\AttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
@@ -501,7 +502,6 @@
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
-    <Compile Include="TempAdapters\ScanDialog.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -1681,14 +1681,16 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
-    <Compile Include="ViewWidgets\Attacments\AttachmentsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Attacments.AttachmentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
+      <Name>QS.Attachments</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
@@ -1987,7 +1989,6 @@
     <Folder Include="JournalViewers\Complaints\" />
     <Folder Include="Views\Flyers\" />
     <Folder Include="Views\Print\" />
-    <Folder Include="ViewWidgets\Attacments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

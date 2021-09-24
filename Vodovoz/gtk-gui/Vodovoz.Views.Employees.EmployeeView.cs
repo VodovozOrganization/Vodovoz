@@ -256,7 +256,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gamma.GtkWidgets.yVBox vboxFiles;
 
-		private global::Vodovoz.ViewWidgets.Attacments.AttachmentsView attachmentsView;
+		private global::QSAttachment.Views.Widgets.AttachmentsView attachmentsView;
 
 		private global::Gtk.Label label24;
 
@@ -1718,7 +1718,7 @@ namespace Vodovoz.Views.Employees
 			this.vboxFiles.Name = "vboxFiles";
 			this.vboxFiles.Spacing = 6;
 			// Container child vboxFiles.Gtk.Box+BoxChild
-			this.attachmentsView = new global::Vodovoz.ViewWidgets.Attacments.AttachmentsView();
+			this.attachmentsView = new global::QSAttachment.Views.Widgets.AttachmentsView();
 			this.attachmentsView.Events = ((global::Gdk.EventMask)(256));
 			this.attachmentsView.Name = "attachmentsView";
 			this.vboxFiles.Add(this.attachmentsView);

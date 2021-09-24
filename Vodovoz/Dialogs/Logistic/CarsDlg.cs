@@ -3,6 +3,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
+using QS.Attachments.ViewModels.Widgets;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
@@ -11,10 +12,8 @@ using Vodovoz.Domain.Sale;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
-using Vodovoz.Domain.Attachments;
+using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.ViewModels.Attachments;
 
 namespace Vodovoz
 {
@@ -26,13 +25,12 @@ namespace Vodovoz
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 		private AttachmentsViewModel _attachmentsViewModel;
 
-		public override bool HasChanges => UoWGeneric.HasChanges || _attachmentsViewModel.HasChanges;
+		public override bool HasChanges => UoWGeneric.HasChanges;
 
 		public CarsDlg()
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Car>();
-			CreateAttachmentsViewModel();
 			TabName = "Новый автомобиль";
 			ConfigureDlg();
 		}
@@ -41,22 +39,22 @@ namespace Vodovoz
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Car>(id);
-			CreateAttachmentsViewModel(id);
 			ConfigureDlg();
 		}
 
 		public CarsDlg(Car sub) : this(sub.Id) { }
 
-		private void CreateAttachmentsViewModel(int entityId = -1)
+		private void CreateAttachmentsViewModel()
 		{
-			_attachmentsViewModel = new AttachmentsViewModelFactory().CreateNewAttachmentsViewModel(
-				new FileChooser(), new ScanDialog(), EntityType.Car, entityId);
+			_attachmentsViewModel = new AttachmentsViewModelFactory().CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 		}
 		
 		private void ConfigureDlg()
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
+
+			CreateAttachmentsViewModel();
 
 			dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
 			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
@@ -180,7 +178,6 @@ namespace Vodovoz
 			try
 			{
 				UoWGeneric.Save();
-				_attachmentsViewModel.SaveChanges(Entity.Id);
 			}
 			catch(Exception ex)
 			{

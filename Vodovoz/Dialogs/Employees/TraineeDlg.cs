@@ -32,10 +32,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
-using Vodovoz.Domain.Attachments;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.ViewModels.Attachments;
-using VodovozInfrastructure.Interfaces;
+using QS.Attachments.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -62,8 +59,6 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-		private readonly IFileChooserProvider _fileChooserProvider = new FileChooser();
-		private readonly IScanDialog _scanDialog = new ScanDialog();
 		
 		private AttachmentsViewModel _attachmentsViewModel;
 
@@ -71,7 +66,6 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Trainee>();
-			CreateAttachmentsViewModel();
 			ConfigureDlg();
 		}
 
@@ -79,7 +73,6 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Trainee>(id);
-			CreateAttachmentsViewModel(id);
 			ConfigureDlg();
 		}
 
@@ -87,18 +80,13 @@ namespace Vodovoz.Dialogs.Employees
 		{
 		}
 
-		private void CreateAttachmentsViewModel(int entityId = -1)
-		{
-			_attachmentsViewModel = new AttachmentsViewModelFactory().CreateNewAttachmentsViewModel(
-				new FileChooser(), new ScanDialog(), EntityType.Trainee, entityId);
-		}
-		
 		private void ConfigureDlg()
 		{
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 
+			CreateAttachmentsViewModel();
 			ConfigureBindings();
 		}
 
@@ -142,8 +130,13 @@ namespace Vodovoz.Dialogs.Employees
 			
 			logger.Info("Ok");
 		}
+		
+		private void CreateAttachmentsViewModel()
+		{
+			_attachmentsViewModel = _attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
+		}
 
-		public override bool HasChanges => UoWGeneric.HasChanges || _attachmentsViewModel.HasChanges;
+		public override bool HasChanges => UoWGeneric.HasChanges;
 
 		public override bool Save()
 		{
@@ -156,7 +149,6 @@ namespace Vodovoz.Dialogs.Employees
 			try
 			{
 				UoWGeneric.Save();
-				_attachmentsViewModel.SaveChanges(Entity.Id);
 			}
 			catch(Exception ex)
 			{
@@ -237,8 +229,6 @@ namespace Vodovoz.Dialogs.Employees
 				_userRepository,
 				_baseParametersProvider,
 				_attachmentsViewModelFactory,
-				_fileChooserProvider,
-				_scanDialog,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),

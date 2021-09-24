@@ -15,8 +15,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using QS.Attachments.ViewModels.Widgets;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Attachments;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -34,10 +34,8 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Attachments;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using VodovozInfrastructure.Endpoints;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -105,8 +103,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			IFileChooserProvider fileChooserProvider,
-			IScanDialog scanDialog,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null
 			) : base(commonServices?.InteractiveService, navigationManager)
@@ -135,16 +131,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				throw new ArgumentNullException(nameof(commonOrganisationProvider));
 			}
 
-			if(fileChooserProvider == null)
-			{
-				throw new ArgumentNullException(nameof(fileChooserProvider));
-			}
-			
-			if(scanDialog == null)
-			{
-				throw new ArgumentNullException(nameof(scanDialog));
-			}
-			
 			if(validationContextFactory == null)
 			{
 				throw new ArgumentNullException(nameof(validationContextFactory));
@@ -164,20 +150,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 				FillHiddenCategories(traineeToEmployee);
 
-				AttachmentsViewModel =
-				(attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
-				.CreateNewAttachmentsViewModel(fileChooserProvider, scanDialog, EntityType.Employee);
-
 				TabName = "Новый сотрудник";
 			}
 			else
 			{
-				AttachmentsViewModel =
-				(attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
-				.CreateNewAttachmentsViewModel(fileChooserProvider, scanDialog, EntityType.Employee, Entity.Id);
-
 				TabName = Entity.GetPersonNameWithInitials();
 			}
+			
+			AttachmentsViewModel = (attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
+				.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			
 			if(Entity.Phones == null)
 			{
@@ -235,8 +216,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				PhonesViewModel.RemoveEmpty();
 
 				return UoWGeneric.HasChanges
-					   || AttachmentsViewModel.HasChanges
-					   || !string.IsNullOrEmpty(Entity.LoginForNewUser)
+				       || !string.IsNullOrEmpty(Entity.LoginForNewUser)
 					   || (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
@@ -810,7 +790,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			try
 			{
 				UoWGeneric.Save();
-				AttachmentsViewModel.SaveChanges(Entity.Id);
 			}
 			catch(Exception ex)
 			{

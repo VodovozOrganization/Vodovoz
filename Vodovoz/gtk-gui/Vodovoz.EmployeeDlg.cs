@@ -250,7 +250,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label17;
 
-		private global::Vodovoz.ViewWidgets.Attacments.AttachmentsView attachmentsView;
+		private global::QSAttachment.Views.Widgets.AttachmentsView attachmentsView;
 
 		private global::Gtk.Label label24;
 
@@ -1684,7 +1684,7 @@ namespace Vodovoz
 			this.notebookMain.SetTabLabel(this.vbox5, this.label17);
 			this.label17.ShowAll();
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
-			this.attachmentsView = new global::Vodovoz.ViewWidgets.Attacments.AttachmentsView();
+			this.attachmentsView = new global::QSAttachment.Views.Widgets.AttachmentsView();
 			this.attachmentsView.Events = ((global::Gdk.EventMask)(256));
 			this.attachmentsView.Name = "attachmentsView";
 			this.notebookMain.Add(this.attachmentsView);

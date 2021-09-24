@@ -2,9 +2,7 @@
 {
     public interface IFileChooserProvider
     {
-        string GetExportFilePath(string fileName = null);
-        string GetAttachedFileName();
-        void CloseWindow();
-        void HideWindow();
-    }
+        string GetExportFilePath();
+		void CloseWindow();
+	}
 }

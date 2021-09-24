@@ -1,13 +1,11 @@
-﻿using Vodovoz.Domain.Attachments;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Attachments;
-using VodovozInfrastructure.Interfaces;
+﻿using System.Collections.Generic;
+using QS.Attachments.Domain;
+using QS.Attachments.ViewModels.Widgets;
 
 namespace Vodovoz.Factories
 {
 	public interface IAttachmentsViewModelFactory
 	{
-		AttachmentsViewModel CreateNewAttachmentsViewModel(
-			IFileChooserProvider fileChooserProvider, IScanDialog scanDialog, EntityType entityType, int entityId = -1);
+		AttachmentsViewModel CreateNewAttachmentsViewModel(IList<Attachment> attachments);
 	}
 }

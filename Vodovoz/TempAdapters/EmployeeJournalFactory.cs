@@ -44,8 +44,7 @@ namespace Vodovoz.TempAdapters
 		private IPhonesViewModelFactory _phonesViewModelFactory;
 		private IWarehouseRepository _warehouseRepository;
 		private IRouteListRepository _routeListRepository;
-		private IFileChooserProvider _fileChooserProvider;
-		private IScanDialog _scanDialog;
+		private IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 
 		public EmployeeJournalFactory(
 			EmployeeFilterViewModel employeeJournalFilter = null)
@@ -68,8 +67,7 @@ namespace Vodovoz.TempAdapters
 			_employeePostsJournalFactory = new EmployeePostsJournalFactory();
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
-			_fileChooserProvider = new FileChooser();
-			_scanDialog = new ScanDialog();
+			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		}
 
 		private void CreateNewDependencies()
@@ -109,8 +107,7 @@ namespace Vodovoz.TempAdapters
 				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				_fileChooserProvider,
-				_scanDialog
+				_attachmentsViewModelFactory
 			);
 		}
 

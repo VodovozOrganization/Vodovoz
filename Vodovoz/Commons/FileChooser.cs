@@ -5,98 +5,70 @@ namespace Vodovoz
 {
 	public class FileChooser: FileChooserDialog, IFileChooserProvider
 	{
-		private FileChooserDialog fileChooser;
-		private string _predefinedFileName;
+		 private Gtk.FileChooserDialog fileChooser;
+        private string fileName;
+        public FileChooser(string fileName)
+        {
+            this.fileName = fileName;
+        }
+        
+        public string GetExportFilePath()
+        {
+            //Создается здесь а не в конструкторе, потому что единственный способ
+            //закрыть это destroy
+            fileChooser =
+                new Gtk.FileChooserDialog("Выберите где сохранить файл",
+                    this,
+                    FileChooserAction.Save,
+                    "Отмена", ResponseType.Cancel,
+                    "Сохранить", ResponseType.Accept)
+                {
+	                DoOverwriteConfirmation = true
+                };
+            fileChooser.CurrentName = fileName;
+            
+            var result = fileChooser.Run();
+            if (result == (int)ResponseType.Accept)
+                return fileChooser.Filename;
+            else
+            {
+                CloseWindow();
+                return "";
+            }
+        }
 
-		public FileChooser(string fileName = null)
-		{
-			_predefinedFileName = fileName;
-		}
-		
-		private void CreateNewFileChooser(string title, FileChooserAction fileChooserAction, params object[] buttonData)
-		{
-			fileChooser = new FileChooserDialog(title, this, fileChooserAction, buttonData);
-			{
-				DoOverwriteConfirmation = true;
-			}
-		}
-		
-		public string GetExportFilePath(string fileName = null)
-		{
-			//Создается здесь а не в конструкторе, потому что единственный способ
-			//закрыть это destroy
-			object[] buttonData = {
-				"Отмена",
-				ResponseType.Cancel,
-				"Сохранить",
-				ResponseType.Accept
-			};
-			
-			CreateNewFileChooser("Выберите где сохранить файл", FileChooserAction.Save, buttonData);
+        public string GetExportFolderPath()
+        {
+            //Создается здесь а не в конструкторе, потому что единственный способ
+            //закрыть это destroy
+            fileChooser =
+                new Gtk.FileChooserDialog("Выберите где сохранить файл",
+                    this,
+                    FileChooserAction.SelectFolder,
+                    "Отмена", ResponseType.Cancel,
+                    "Сохранить", ResponseType.Accept)
+                {
+	                DoOverwriteConfirmation = true
+                };
+            fileChooser.CurrentName = fileName;
 
-			fileChooser.CurrentName = string.IsNullOrWhiteSpace(fileName) ? _predefinedFileName : fileName;
-			
-			var result = fileChooser.Run();
-		   
-			if(result == (int)ResponseType.Accept)
-			{
-				return fileChooser.Filename;
-			}
-			
-			CloseWindow();
-			return "";
-		}
-		
-		public string GetAttachedFileName()
-		{
-			object[] buttonData = {
-				"Отмена",
-				ResponseType.Cancel,
-				"Прикрепить",
-				ResponseType.Accept
-			};
-			
-			CreateNewFileChooser("Выберите файл для прикрепления...", FileChooserAction.Open, buttonData);
+            var result = fileChooser.Run();
+            if (result == (int)ResponseType.Accept)
+            {
+                var path = fileChooser.Filename;
+                CloseWindow();
+                return path;
+            }
+            else
+            {
+                CloseWindow();
+                return "";
+            }
+        }
 
-			if(fileChooser.Run() == (int)ResponseType.Accept)
-			{
-				HideWindow();
-				return fileChooser.Filename;
-			}
-			
-			CloseWindow();
-			return "";
-		}
-
-		public string GetExportFolderPath()
-		{
-			//Создается здесь а не в конструкторе, потому что единственный способ
-			//закрыть это destroy
-			object[] buttonData = {
-				"Отмена",
-				ResponseType.Cancel,
-				"Сохранить",
-				ResponseType.Accept
-			};
-			
-			CreateNewFileChooser("Выберите где сохранить файл", FileChooserAction.SelectFolder, buttonData);
-			
-			fileChooser.CurrentName = _predefinedFileName;
-
-			var result = fileChooser.Run();
-			if(result == (int)ResponseType.Accept)
-			{
-				var path = fileChooser.Filename;
-				CloseWindow();
-				return path;
-			}
-			
-			CloseWindow();
-			return "";
-		}
-
-		public void CloseWindow() => fileChooser.Destroy();
-
-		public void HideWindow() => fileChooser.Hide();
+        public void CloseWindow()
+        {
+            fileChooser.Destroy();
+        }
 	}
 }
