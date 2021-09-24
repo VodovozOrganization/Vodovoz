@@ -9,32 +9,26 @@ namespace VodovozSalesReceiptsService
 {
 	public class SalesReceiptsInstanceProvider : IInstanceProvider
 	{
-		private readonly ISalesReceiptsServiceSettings salesReceiptsServiceSettings;
-		private readonly IOrderRepository orderRepository;
-		private readonly IOrderParametersProvider orderParametersProvider;
-		private readonly IOrganizationParametersProvider organizationParametersProvider;
-		private readonly ISalesReceiptsParametersProvider _salesReceiptsParametersProvider;
+		private readonly ISalesReceiptsServiceSettings _salesReceiptsServiceSettings;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		public SalesReceiptsInstanceProvider(
 			ISalesReceiptsServiceSettings salesReceiptsServiceSettings,
 			IOrderRepository orderRepository,
-			IOrderParametersProvider orderParametersProvider,
-			IOrganizationParametersProvider organizationParametersProvider,
-			ISalesReceiptsParametersProvider salesReceiptsParametersProvider
-			)
+			IOrderParametersProvider orderParametersProvider)
 		{
-			this.salesReceiptsServiceSettings = salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));
-			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			this.organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
-			_salesReceiptsParametersProvider = salesReceiptsParametersProvider ?? throw new ArgumentNullException(nameof(salesReceiptsParametersProvider));
+			_salesReceiptsServiceSettings =
+				salesReceiptsServiceSettings ?? throw new ArgumentNullException(nameof(salesReceiptsServiceSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 		}
 
 		#region IInstanceProvider implementation
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SalesReceiptsService(salesReceiptsServiceSettings, orderRepository, orderParametersProvider, organizationParametersProvider, _salesReceiptsParametersProvider);
+			return new SalesReceiptsService(_salesReceiptsServiceSettings, _orderRepository, _orderParametersProvider);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)
@@ -43,8 +37,7 @@ namespace VodovozSalesReceiptsService
 		}
 
 		public void ReleaseInstance(InstanceContext instanceContext, object instance)
-		{
-		}
+		{ }
 
 		#endregion IInstanceProvider implementation
 	}

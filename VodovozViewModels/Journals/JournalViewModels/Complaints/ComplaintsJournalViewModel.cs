@@ -535,16 +535,18 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			Complaint GetComplaint(object[] objs)
 			{
-				var selectedNodes = objs.Cast<ComplaintJournalNode>();
-				if(selectedNodes.Count() != 1)
+				var selectedNodes = objs.Cast<ComplaintJournalNode>().ToList();
+				if(selectedNodes.Count != 1)
+				{
 					return null;
-				var complaint = UoW.GetById<Complaint>(selectedNodes.FirstOrDefault().Id);
+				}
+
+				var complaint = UoW.GetById<Complaint>(selectedNodes.First().Id);
 				return complaint;
 			}
 
 			Order GetOrder(object[] objs)
 			{
-				var complaint = GetComplaint(objs);
 				return GetComplaint(objs)?.Order;
 			}
 
@@ -552,7 +554,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			{
 				var order = GetOrder(objs);
 				if(order == null)
+				{
 					return null;
+				}
+
 				var rl = _routeListItemRepository.GetRouteListItemForOrder(UoW, order)?.RouteList;
 				return rl;
 			}
@@ -576,6 +581,15 @@ namespace Vodovoz.Journals.JournalViewModels
 					HasRouteList,
 					n => true,
 					n => _gtkDlgOpener.OpenCreateRouteListDlg(this, GetRouteList(n).Id)
+				)
+			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть диалог закрытия МЛ",
+					n => GetRouteList(n)?.CanBeOpenedInClosingDlg ?? false,
+					n => true,
+					n => _gtkDlgOpener.OpenRouteListClosingDlg(this, GetRouteList(n).Id)
 				)
 			);
 

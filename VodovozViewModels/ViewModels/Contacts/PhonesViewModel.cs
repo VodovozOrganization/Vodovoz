@@ -5,6 +5,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
@@ -18,6 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 
 		public IList<PhoneType> PhoneTypes;
 		public event Action PhonesListReplaced; //Убрать
+		public DeliveryPoint DeliveryPoint { get; set; }
 
 		private GenericObservableList<Phone> phonesList ;
 		public virtual GenericObservableList<Phone> PhonesList {
@@ -57,6 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			AddItemCommand = new DelegateCommand(
 				() => {
 					var phone = new Phone().Init(ContactParametersProvider.Instance);
+					phone.DeliveryPoint = DeliveryPoint;
 					if(PhonesList == null)
 						PhonesList = new GenericObservableList<Phone>();
 					PhonesList.Add(phone);
