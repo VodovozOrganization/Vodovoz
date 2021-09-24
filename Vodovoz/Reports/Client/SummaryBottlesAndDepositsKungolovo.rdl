@@ -8,8 +8,8 @@
   <PageWidth>209.804mm</PageWidth>
   <Width>190mm</Width>
   <TopMargin>10mm</TopMargin>
-  <LeftMargin>10mm</LeftMargin>
-  <RightMargin>10mm</RightMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
@@ -561,19 +561,19 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>25.1pt</Width>
+            <Width>27pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.8pt</Width>
+            <Width>57pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.2pt</Width>
+            <Width>52pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.2pt</Width>
+            <Width>56pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.3pt</Width>
+            <Width>68pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.1pt</Width>
@@ -585,16 +585,16 @@ WHERE
             <Width>42.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26.3pt</Width>
+            <Width>28pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.9pt</Width>
+            <Width>54pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.5pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.4pt</Width>
+            <Width>55pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -616,6 +616,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -634,6 +635,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -652,6 +654,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -670,6 +673,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -688,6 +692,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -706,6 +711,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -724,6 +730,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -742,6 +749,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -760,6 +768,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -778,6 +787,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -796,6 +806,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -814,6 +825,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -845,7 +857,9 @@ WHERE
                             <BorderWidth />
                             <FontFamily>Arial</FontFamily>
                             <FontSize>9pt</FontSize>
+                            <PaddingBottom>2pt</PaddingBottom>
                           </Style>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -888,7 +902,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <BorderColor />
                             <BorderWidth />
@@ -896,7 +910,7 @@ WHERE
                             <FontFamily>Arial</FontFamily>
                             <FontSize>9pt</FontSize>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >#,##0.00</Format>
+                            <Format>#,##0.00</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -910,7 +924,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -931,7 +945,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -951,7 +965,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -971,7 +985,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -991,7 +1005,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -1011,7 +1025,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -1031,7 +1045,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
@@ -1076,7 +1090,7 @@ WHERE
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <BorderColor />
                             <BorderWidth />
@@ -1337,13 +1351,14 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1363,6 +1378,8 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingRight >0pt</PaddingRight>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1382,6 +1399,8 @@ WHERE
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
                         <TextAlign>Center</TextAlign>
+                        <PaddingRight >0pt</PaddingRight>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1400,6 +1419,8 @@ WHERE
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
                         <TextAlign>Center</TextAlign>
+                        <PaddingRight >0pt</PaddingRight>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1418,6 +1439,8 @@ WHERE
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
                         <TextAlign>Center</TextAlign>
+                        <PaddingRight >0pt</PaddingRight>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1430,12 +1453,13 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1448,12 +1472,13 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1466,12 +1491,13 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1514,7 +1540,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1522,7 +1548,7 @@ WHERE
                         <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1536,7 +1562,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1557,7 +1583,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1577,7 +1603,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1597,7 +1623,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1617,7 +1643,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1657,7 +1683,7 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -1705,30 +1731,15 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox28">
-        <Height>54.12pt</Height>
-        <Width>202.33pt</Width>
+        <Height>54pt</Height>
+        <Width>200pt</Width>
         <Value>Руководитель
 
 ____________(                        )
-м.п.</Value>
+     м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>24.0pt</Left>
-        <Top>209.6pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>11pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox29">
-        <Height>34.58pt</Height>
-        <Width>157.34pt</Width>
-        <Value>___________(                   )
-м.п.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>312.9pt</Left>
-        <Top>230.8pt</Top>
+        <Top>210pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1737,12 +1748,16 @@ ____________(                        )
         </Style>
       </Textbox>
       <Textbox Name="Textbox30">
-        <Height>24.01pt</Height>
-        <Width>228.20pt</Width>
-        <Value>=First({full_name}, "Client")</Value>
+        <Height>54pt</Height>
+        <Width>250pt</Width>
+        <Value>=First({full_name}, "Client")+
+'
+
+___________(                   )
+      м.п.'</Value>
         <ZIndex>1</ZIndex>
-        <Left>309.10pt</Left>
-        <Top>207.80pt</Top>
+        <Left>300pt</Left>
+        <Top>210pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1770,7 +1785,7 @@ ____________(                        )
         <Width>118.90pt</Width>
         <Value>=Sum(Fields!delivered.Value, 'Data') - Sum(Fields!returned.Value, 'Data') - Sum(Fields!forfeitCount.Value, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.5pt</Left>
+        <Left>220pt</Left>
         <Top>149.0pt</Top>
         <Style>
           <BorderStyle />
@@ -1779,6 +1794,9 @@ ____________(                        )
           <Format>0 шт.</Format>
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
+          <PaddingRight >0pt</PaddingRight>
+          <VerticalAlign >Middle</VerticalAlign>
+          <PaddingLeft >2pt</PaddingLeft>
         </Style>
       </Textbox>
       <Textbox Name="Textbox31">
@@ -1801,19 +1819,22 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>221.3pt</Left>
-        <Top>162.4pt</Top>
+        <Left>220pt</Left>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
-          <Format >#,##0.00</Format>
+          <Format>#,##0.00</Format>
+          <PaddingRight >0pt</PaddingRight>
+          <VerticalAlign >Middle</VerticalAlign>
+          <PaddingLeft >2pt</PaddingLeft>
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>247.7pt</Height>
+    <Height>270pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
