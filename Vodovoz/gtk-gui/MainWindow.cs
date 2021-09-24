@@ -1543,59 +1543,6 @@ public partial class MainWindow
 				"t\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionP" +
 				"roposals\' action=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' a" +
 				"ction=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
-				"ActionDeliveryAnalytics\'/></menu><separator/><menu name=\'ActionReportEmployees\' " +
-				"action=\'ActionReportEmployees\'><menuitem name=\'ActionEmployeeFines\' action=\'Acti" +
-				"onEmployeeFines\'/><menuitem name=\'ActionEmployeesBonuses\' action=\'ActionEmployee" +
-				"sBonuses\'/><menuitem name=\'ActionEmployeesReport\' action=\'ActionEmployeesReport\'" +
-				"/></menu><menu name=\'ActionReportsDrivers\' action=\'ActionReportsDrivers\'><menuit" +
-				"em name=\'ActionDeliveriesLate\' action=\'ActionDeliveriesLate\'/><menuitem name=\'Ac" +
-				"tionUnclosedRouteLists\' action=\'ActionUnclosedRouteLists\'/><separator/><menuitem" +
-				" name=\'ActionRoutesListRegister\' action=\'ActionRoutesListRegister\'/><menuitem na" +
-				"me=\'ActionOnLoadTime\' action=\'ActionOnLoadTime\'/><menuitem name=\'ActionDeliveryT" +
-				"imeReport\' action=\'ActionDeliveryTimeReport\'/><menuitem name=\'ActionCompanyTruck" +
-				"s\' action=\'ActionCompanyTrucks\'/><menuitem name=\'ActionShipmentReport\' action=\'A" +
-				"ctionShipmentReport\'/><menuitem name=\'ActionMileageReport\' action=\'ActionMileage" +
-				"Report\'/><menuitem name=\'Action67\' action=\'Action67\'/><menuitem name=\'DriversToD" +
-				"istrictsAssignmentReportAction\' action=\'DriversToDistrictsAssignmentReportAction" +
-				"\'/></menu><separator/><menu name=\'ActionReportService\' action=\'ActionReportServi" +
-				"ce\'><menuitem name=\'Action42\' action=\'Action42\'/><menuitem name=\'Action41\' actio" +
-				"n=\'Action41\'/><menuitem name=\'ActionMastersVisitReport\' action=\'ActionMastersVis" +
-				"itReport\'/></menu><menu name=\'ActionBookkeepping\' action=\'ActionBookkeepping\'><m" +
-				"enuitem name=\'ActionCloseDeliveryReport\' action=\'ActionCloseDeliveryReport\'/><me" +
-				"nuitem name=\'ActionPaymentsFinDepartmentReport\' action=\'ActionPaymentsFinDepartm" +
-				"entReport\'/><menuitem name=\'Action68\' action=\'Action68\'/><menuitem name=\'ActionO" +
-				"rderChangesReport\' action=\'ActionOrderChangesReport\'/></menu><menu name=\'ActionC" +
-				"ashMenubar\' action=\'ActionCashMenubar\'><menuitem name=\'ActionIncomeBalanceReport" +
-				"\' action=\'ActionIncomeBalanceReport\'/><menuitem name=\'ActionDriverWages\' action=" +
-				"\'ActionDriverWages\'/><menuitem name=\'ActionDriversWageBalance\' action=\'ActionDri" +
-				"versWageBalance\'/><menuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/><" +
-				"menuitem name=\'ActionForwarderWageReport\' action=\'ActionForwarderWageReport\'/><m" +
-				"enuitem name=\'ActionWagesOperations\' action=\'ActionWagesOperations\'/><menuitem n" +
-				"ame=\'ActionCashBook\' action=\'ActionCashBook\'/><menuitem name=\'ActionDayOfSalaryG" +
-				"iveoutReport\' action=\'ActionDayOfSalaryGiveoutReport\'/></menu><menu name=\'Action" +
-				"Production\' action=\'ActionProduction\'><menuitem name=\'ActionProducedProductionRe" +
-				"port\' action=\'ActionProducedProductionReport\'/></menu><menu name=\'ActionRetailMe" +
-				"nubar\' action=\'ActionRetailMenubar\'><menuitem name=\'ActionQualityRetailReport\' a" +
-				"ction=\'ActionQualityRetailReport\'/><menuitem name=\'ActionCounterpartyRetailRepor" +
-				"t\' action=\'ActionCounterpartyRetailReport\'/></menu></menu><menu name=\'ActionAdmi" +
-				"nistration\' action=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\'" +
-				" action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUser" +
-				"s\'/><menuitem name=\'registeredRMAction\' action=\'registeredRMAction\'/><menuitem n" +
-				"ame=\'ActionParameters\' action=\'ActionParameters\'/><menu name=\'ActionService\' act" +
-				"ion=\'ActionService\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=" +
-				"\'ActionAddressDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'Acti" +
-				"onDistanceFromCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionO" +
-				"rdersWithoutBottlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><men" +
-				"uitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCount" +
-				"erpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionTo" +
-				"OnlineStore\'/><menuitem name=\'Action62\' action=\'Action62\'/><menuitem name=\'Actio" +
-				"nRecalculateDriverWages\' action=\'ActionRecalculateDriverWages\'/></menu><separato" +
-				"r/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem na" +
-				"me=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'Act" +
-				"ionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'Action" +
-				"About\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'Act" +
-				"ionProposals\' action=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJourna" +
-				"l\' action=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
