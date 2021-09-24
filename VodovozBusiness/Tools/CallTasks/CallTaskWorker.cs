@@ -59,33 +59,30 @@ namespace Vodovoz.Tools.CallTasks
 			if(order.OrderStatus == OrderStatus.Shipped)
 				UpdateDepositReturnTask(order);
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-
 			Task.Run(() =>
 			{
-				try
+				using(UoW = UnitOfWorkFactory.CreateWithoutRoot())
 				{
-					switch(order.OrderStatus)
+					try
 					{
-						case OrderStatus.Accepted:
-							CreateTaskIfCounterpartyRelocated(order);
-							break;
-						case OrderStatus.DeliveryCanceled:
-							TryDeleteTask(order);
-							break;
-					}
+						switch(order.OrderStatus)
+						{
+							case OrderStatus.Accepted:
+								CreateTaskIfCounterpartyRelocated(order);
+								break;
+							case OrderStatus.DeliveryCanceled:
+								TryDeleteTask(order);
+								break;
+						}
 
-					UoW.Commit();
-				}
-				catch(Exception ex)
-				{
-					var currUser = userService?.GetCurrentUser(UoW);
-					errorReporter?.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}",
-						user: currUser);
-				}
-				finally
-				{
-					UoW.Dispose();
+						UoW.Commit();
+					}
+					catch(Exception ex)
+					{
+						var currUser = userService?.GetCurrentUser(UoW);
+						errorReporter?.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}",
+							user: currUser);
+					}
 				}
 			});
 		}
