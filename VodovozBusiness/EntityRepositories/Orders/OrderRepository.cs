@@ -586,8 +586,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
 			IUnitOfWork uow,
 			IOrderParametersProvider orderParametersProvider,
-			IOrganizationParametersProvider organizationParametersProvider,
-			ISalesReceiptsParametersProvider salesReceiptsParametersProvider,
 			DateTime? startDate = null)
 		{
 			ExtendedReceiptForOrderNode extendedReceiptForOrderNodeAlias = null;
