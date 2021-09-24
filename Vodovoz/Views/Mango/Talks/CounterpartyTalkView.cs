@@ -19,7 +19,7 @@ namespace Vodovoz.Views.Mango.Talks
 		{
 			CallNumberYLabel.Binding.AddBinding(ViewModel, v => v.PhoneText, w => w.LabelProp).InitializeFromSource();
 
-			foreach(var item in ViewModel.CounterpartyOrdersModels) {
+			foreach(var item in ViewModel.CounterpartyOrdersViewModels) {
 				var label = new Gtk.Label(item.Client.Name);
 				var widget = new CounterpartyOrderView(item);
 				WidgetPlace.AppendPage(widget, label);
@@ -85,7 +85,7 @@ namespace Vodovoz.Views.Mango.Talks
 			for(int i = 0; i < count; i++) {
 				WidgetPlace.RemovePage(0);
 			}
-			foreach(var item in ViewModel.CounterpartyOrdersModels) {
+			foreach(var item in ViewModel.CounterpartyOrdersViewModels) {
 				var label = new Gtk.Label(item.Client.Name);
 				var widget = new CounterpartyOrderView(item);
 				WidgetPlace.AppendPage(widget, label);

@@ -156,8 +156,9 @@ namespace DriverAPI.Library.Models
 				throw new InvalidOperationException("Адрес нельзя вернуть в путь");
 			}
 
-			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.EnRoute);
+			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);
 
+			_unitOfWork.Save(routeListAddress.RouteList);
 			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
 		}

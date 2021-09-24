@@ -60,6 +60,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideOneOrder;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowSuspended;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowCancellation;
+
 		private global::Gamma.Widgets.ySpecComboBox ycomboboxReason;
 
 		private global::Gtk.VSeparator vseparator1;
@@ -213,7 +217,7 @@ namespace Vodovoz.Filters.GtkViews
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table(((uint)(4)), ((uint)(3)), false);
+			this.table2 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
@@ -356,6 +360,34 @@ namespace Vodovoz.Filters.GtkViews
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.ycheckbuttonShowSuspended = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowSuspended.CanFocus = true;
+			this.ycheckbuttonShowSuspended.Name = "ycheckbuttonShowSuspended";
+			this.ycheckbuttonShowSuspended.Label = global::Mono.Unix.Catalog.GetString("Показать клиентов только с признаком приостановлено");
+			this.ycheckbuttonShowSuspended.DrawIndicator = true;
+			this.ycheckbuttonShowSuspended.UseUnderline = true;
+			this.table2.Add(this.ycheckbuttonShowSuspended);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowSuspended]));
+			w27.TopAttach = ((uint)(1));
+			w27.BottomAttach = ((uint)(2));
+			w27.LeftAttach = ((uint)(3));
+			w27.RightAttach = ((uint)(4));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.ycheckbuttonShowCancellation = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowCancellation.CanFocus = true;
+			this.ycheckbuttonShowCancellation.Name = "ycheckbuttonShowTerminated";
+			this.ycheckbuttonShowCancellation.Label = global::Mono.Unix.Catalog.GetString("Показать клиентов только с признаком расторжения");
+			this.ycheckbuttonShowCancellation.DrawIndicator = true;
+			this.ycheckbuttonShowCancellation.UseUnderline = true;
+			this.table2.Add(this.ycheckbuttonShowCancellation);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowCancellation]));
+			w28.LeftAttach = ((uint)(3));
+			w28.RightAttach = ((uint)(4));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.ycomboboxReason = new global::Gamma.Widgets.ySpecComboBox();
 			this.ycomboboxReason.Name = "ycomboboxReason";
 			this.ycomboboxReason.AddIfNotExist = false;
@@ -363,27 +395,27 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycomboboxReason.ShowSpecialStateAll = false;
 			this.ycomboboxReason.ShowSpecialStateNot = true;
 			this.table2.Add(this.ycomboboxReason);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table2[this.ycomboboxReason]));
-			w27.TopAttach = ((uint)(1));
-			w27.BottomAttach = ((uint)(2));
-			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table2[this.ycomboboxReason]));
+			w29.TopAttach = ((uint)(1));
+			w29.BottomAttach = ((uint)(2));
+			w29.LeftAttach = ((uint)(1));
+			w29.RightAttach = ((uint)(2));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox2.Add(this.table2);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
-			w28.Position = 2;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.hbox2.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
-			w29.PackType = ((global::Gtk.PackType)(1));
-			w29.Position = 3;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
+			w31.PackType = ((global::Gtk.PackType)(1));
+			w31.Position = 3;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.Add(this.hbox2);
 			if ((this.Child != null))
 			{

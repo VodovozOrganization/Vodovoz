@@ -41,15 +41,16 @@ namespace Vodovoz.Filters.GtkViews
 			yvalidatedentryBottlesFrom.Binding.AddBinding(ViewModel, x => x.LastOrderBottlesFrom, x => x.Text, new IntToStringConverter()).InitializeFromSource();
 			yenumcomboboxOPF.Binding.AddBinding(ViewModel, x => x.OPF, x => x.SelectedItemOrNull).InitializeFromSource();
 			ycomboboxReason.Binding.AddBinding(ViewModel, x => x.DiscountReason, x => x.SelectedItem).InitializeFromSource();
-			ydateperiodpickerLastOrder.Binding.AddSource(ViewModel)
-				.AddBinding(ViewModel, x => x.StartDate, x => x.StartDateOrNull)
-				.AddBinding(ViewModel, x => x.EndDate, x => x.EndDateOrNull)
-				.InitializeFromSource();
-			ycheckbuttonHideActive.Binding.AddSource(ViewModel)
-				.AddBinding(x => x.HideActiveCounterparty, x => x.Active)
-				.AddBinding(ViewModel, x => x.ShowHideActiveCheck, x => x.Visible)
-				.InitializeFromSource();
-			ycheckbuttonHideOneOrder.Binding.AddBinding(ViewModel, x => x.HideWithOneOrder, x => x.Active).InitializeFromSource();
+			ydateperiodpickerLastOrder.Binding.AddSource(ViewModel).AddBinding(x => x.StartDate, x => x.StartDateOrNull)
+				.AddBinding(x => x.EndDate, x => x.EndDateOrNull).InitializeFromSource();
+			ycheckbuttonHideActive.Binding.AddSource(ViewModel).AddBinding(x => x.HideActiveCounterparty, x => x.Active)
+				.AddFuncBinding(x => x.ShowHideActiveCheck && !x.ShowCancellationCounterparty && !x.ShowSuspendedCounterparty,
+					x => x.Visible).InitializeFromSource();
+			ycheckbuttonHideOneOrder.Binding.AddSource(ViewModel).AddBinding(x => x.HideWithOneOrder, x => x.Active).InitializeFromSource();
+			ycheckbuttonShowSuspended.Binding.AddSource(ViewModel).AddBinding(x => x.ShowSuspendedCounterparty, x => x.Active)
+				.AddFuncBinding(x => !x.ShowCancellationCounterparty && !x.HideActiveCounterparty, x => x.Visible).InitializeFromSource();
+			ycheckbuttonShowCancellation.Binding.AddSource(ViewModel).AddBinding(x => x.ShowCancellationCounterparty, x => x.Active)
+				.AddFuncBinding(x => !x.ShowSuspendedCounterparty && !x.HideActiveCounterparty, x => x.Visible).InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
