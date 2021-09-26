@@ -40,7 +40,7 @@
     <ReportItems>
       <Table Name="Table2">
         <DataSetName>deliveries_late_Set</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -182,10 +182,13 @@
             </TableRow>
           </TableRows>
         </Footer>
+        <Visibility>
+          <Hidden></Hidden>
+        </Visibility>
       </Table>
       <Table Name="Table1">
         <DataSetName>deliveries_late_Set_2</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -394,7 +397,7 @@ Sum(Fields!Minutes.Value)
       </Table>
       <Table Name="Table5">
         <DataSetName>bottles_addresses_set_2</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -724,7 +727,7 @@ First({bottles},'bottles_addresses_set')
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -928,7 +931,7 @@ First({bottles},'bottles_addresses_set')
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
                       <Visibility>
                         <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
@@ -974,7 +977,7 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Right >None</Right>
+                          <Right>None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -994,7 +997,7 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
+                          <Left>None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -1363,7 +1366,7 @@ LightGreen
       </fyi:Grid>
       <Table Name="Table4">
         <DataSetName>bottles_addresses_set</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1511,7 +1514,7 @@ LightGreen
       </Table>
       <Table Name="Table7">
         <DataSetName>geopart_divided</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1544,7 +1547,7 @@ LightGreen
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1591,7 +1594,7 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1608,7 +1611,7 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1622,7 +1625,7 @@ LightGreen
       </Table>
       <Table Name="Table8">
         <DataSetName>geopart_divided2</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1708,7 +1711,7 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
                         <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
@@ -1728,7 +1731,7 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
                         <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
