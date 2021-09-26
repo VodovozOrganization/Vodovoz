@@ -508,6 +508,8 @@ public partial class MainWindow
 	private global::Gtk.Action ActionAnalyticsForUndelivery;
 
 	private global::Gtk.Action ActionDayOfSalaryGiveoutReport;
+	
+	private global::Gtk.Action ActionProductionWarehouseMovementReport;
 
 	private global::Gtk.HBox hbox1;
 
@@ -1336,6 +1338,9 @@ public partial class MainWindow
 		this.ActionDayOfSalaryGiveoutReport = new global::Gtk.Action("ActionDayOfSalaryGiveoutReport", global::Mono.Unix.Catalog.GetString("Дата ЗП у водителей/экспедиторов"), null, null);
 		this.ActionDayOfSalaryGiveoutReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Дата ЗП у водителей/экспедиторов");
 		w1.Add(this.ActionDayOfSalaryGiveoutReport, null);
+		this.ActionProductionWarehouseMovementReport = new global::Gtk.Action("ActionProductionWarehouseMovementReport", global::Mono.Unix.Catalog.GetString("Отчет по перемещениям с производств"), null, null);
+		this.ActionProductionWarehouseMovementReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по перемещениям с производств");
+		w1.Add(this.ActionProductionWarehouseMovementReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1543,6 +1548,7 @@ public partial class MainWindow
 				"t\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionP" +
 				"roposals\' action=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' a" +
 				"ction=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
+
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1858,6 +1864,7 @@ public partial class MainWindow
 		this.UndeliveryTransferAbsenceReason.Activated += new global::System.EventHandler(this.OnActionUndeliveryTransferAbsenceReasonActivated);
 		this.ActionAnalyticsForUndelivery.Activated += new global::System.EventHandler(this.OnActionAnalyticsForUndeliveryActivated);
 		this.ActionDayOfSalaryGiveoutReport.Activated += new global::System.EventHandler(this.OnActionDayOfSalaryGiveoutReport_Activated);
+		this.ActionProductionWarehouseMovementReport.Activated += new global::System.EventHandler(this.OnProductionWarehouseMovementReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

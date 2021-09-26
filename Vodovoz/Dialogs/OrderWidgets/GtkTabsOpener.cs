@@ -28,6 +28,14 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
+		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId)
+		{
+			return master.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<RouteList>(routelistId),
+				() => new RouteListClosingDlg(routelistId)
+			);
+		}
+
 		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0)
 		{
 			return tab.TabParent.OpenTab(
