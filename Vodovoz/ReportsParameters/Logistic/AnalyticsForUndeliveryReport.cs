@@ -12,7 +12,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AnalyticsForUndeliveryReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private int itogLO = 0;
 		private string titleDate;
 		
 		public AnalyticsForUndeliveryReport()

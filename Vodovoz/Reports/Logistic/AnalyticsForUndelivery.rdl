@@ -2,25 +2,25 @@
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
-  <PageHeight>210mm</PageHeight>
-  <PageWidth>297mm</PageWidth>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>210.058mm</PageWidth>
   <Width>295mm</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>1mm</LeftMargin>
   <RightMargin>1mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>33.4pt</Height>
+    <Height>62.7pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox2">
-        <Height>19.57pt</Height>
-        <Width>828.59pt</Width>
-        <Value>="Аналитика недовозов на " + {?title_date} </Value>
+        <Height>21.80pt</Height>
+        <Width>476.16pt</Width>
+        <Value>="Аналитика недовозов на " + {?title_date}</Value>
         <ZIndex>1</ZIndex>
-        <Left>7.20pt</Left>
-        <Top>13.40pt</Top>
+        <Left>51.3pt</Left>
+        <Top>18.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -30,13 +30,13 @@
           <PaddingLeft>0mm</PaddingLeft>
           <PaddingBottom>0mm</PaddingBottom>
           <PaddingRight>0mm</PaddingRight>
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>364.5pt</Height>
+    <Height>529.3pt</Height>
     <ReportItems>
       <Table Name="Table2">
         <DataSetName>deliveries_late_Set</DataSetName>
@@ -50,7 +50,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>84.1pt</Width>
+            <Width>88.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>91.1pt</Width>
@@ -139,8 +139,8 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>226.5pt</Left>
-        <Top>11.8pt</Top>
+        <Left>59.1pt</Left>
+        <Top>72.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -196,7 +196,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>84.2pt</Width>
+            <Width>85.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>92.1pt</Width>
@@ -221,6 +221,9 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -241,13 +244,16 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>12.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -262,6 +268,9 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -278,6 +287,9 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -286,12 +298,12 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>629.7pt</Left>
-        <Top>12.2pt</Top>
+        <Left>344.8pt</Left>
+        <Top>72.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>15.2pt</Height>
+              <Height>17.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -328,6 +340,9 @@ Count(Fields!Addresses.Value)
 )
 +
 '%)'</Value>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -366,6 +381,9 @@ Sum(Fields!Minutes.Value)
 )
 +
 '%)'</Value>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -411,6 +429,9 @@ Sum(Fields!Minutes.Value)
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -431,6 +452,9 @@ Sum(Fields!Minutes.Value)
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -452,6 +476,9 @@ Sum(Fields!Minutes.Value)
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -468,6 +495,9 @@ Sum(Fields!Minutes.Value)
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -476,8 +506,8 @@ Sum(Fields!Minutes.Value)
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>438.2pt</Left>
-        <Top>66.6pt</Top>
+        <Left>344.7pt</Left>
+        <Top>149.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -521,6 +551,9 @@ First({addresses},'bottles_addresses_set')
 )
 +
 '%)'</Value>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -562,6 +595,9 @@ First({bottles},'bottles_addresses_set')
 )
 +
 '%)'</Value>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -653,7 +689,7 @@ First({bottles},'bottles_addresses_set')
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>Недовозы</Value>
+                      <Value>Кол-во</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -684,9 +720,11 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right>None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -699,6 +737,7 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left>None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -711,7 +750,7 @@ First({bottles},'bottles_addresses_set')
             </TableRow>
           </TableRows>
         </Details>
-        <Left>32.3pt</Left>
+        <Left>59.0pt</Left>
         <Top>12.2pt</Top>
         <Footer>
           <TableRows>
@@ -724,6 +763,7 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right>None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -740,9 +780,11 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left>None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Left</TextAlign>
                       </Style>
                       <Value>=First({Quantity},"LO_Only")</Value>
                     </Textbox>
@@ -794,6 +836,9 @@ First({bottles},'bottles_addresses_set')
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -812,6 +857,9 @@ First({bottles},'bottles_addresses_set')
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -833,13 +881,16 @@ First({bottles},'bottles_addresses_set')
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>Недовозы</Value>
+                      <Value>Кол-во</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -849,6 +900,9 @@ First({bottles},'bottles_addresses_set')
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -870,8 +924,15 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right>None</Right>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Left</TextAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -883,12 +944,16 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left>None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -896,7 +961,7 @@ First({bottles},'bottles_addresses_set')
             </TableRow>
           </TableRows>
         </Details>
-        <Left>438.5pt</Left>
+        <Left>344.1pt</Left>
         <Top>12.2pt</Top>
         <Footer>
           <TableRows>
@@ -909,6 +974,7 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Right >None</Right>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -916,6 +982,9 @@ First({bottles},'bottles_addresses_set')
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value> Итог по ЛО:</Value>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -925,6 +994,7 @@ First({bottles},'bottles_addresses_set')
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left >None</Left>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -956,6 +1026,9 @@ Convert.ToInt32((
 ))
 +
 "%)"</Value>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -975,10 +1048,10 @@ Convert.ToInt32((
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>97.3pt</Width>
+            <Width>103.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.1pt</Width>
+            <Width>76.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1064,7 +1137,7 @@ Convert.ToInt32((
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>14.4pt</Height>
+              <Height>16.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1100,8 +1173,8 @@ Convert.ToInt32((
             </TableRow>
           </TableRows>
         </Details>
-        <Left>32.2pt</Left>
-        <Top>108.0pt</Top>
+        <Left>59.7pt</Left>
+        <Top>193.7pt</Top>
         <Visibility>
           <Hidden></Hidden>
           <ToggleItem></ToggleItem>
@@ -1143,6 +1216,9 @@ Convert.ToInt32((
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1160,6 +1236,9 @@ Convert.ToInt32((
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1185,6 +1264,9 @@ Convert.ToInt32((
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1193,7 +1275,7 @@ Convert.ToInt32((
                     <Textbox Name="Textbox42">
                       <Value>=First({orders_count},'undeliveried_orders2') +' (' 
 +
-Iif(First({orders_count},'undeliveried_orders1')&gt;First({orders_count},'undeliveried_orders2'),'-','+')
+Iif(First({orders_count},'undeliveried_orders1')&gt;First({orders_count},'undeliveried_orders2'),' ','+')
 +Convert.ToInt32((100*
 ((First({orders_count},'undeliveried_orders2')-First({orders_count},'undeliveried_orders1'))/First({orders_count},'undeliveried_orders1'))
 ))+
@@ -1213,6 +1295,9 @@ LightGreen
 )
 </BackgroundColor>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1232,6 +1317,9 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1241,7 +1329,7 @@ LightGreen
                       <Value>=Convert.ToInt32
 (First({bottles_count},'undeliveried_bottles2')) +' (' 
 +
-Iif(First({bottles_count},'undeliveried_bottles1')&gt;First({bottles_count},'undeliveried_bottles2'),'-','+')
+Iif(First({bottles_count},'undeliveried_bottles1')&gt;First({bottles_count},'undeliveried_bottles2'),' ','+')
 +Convert.ToInt32((100*
 ((First({bottles_count},'undeliveried_bottles2')-First({bottles_count},'undeliveried_bottles1'))/First({bottles_count},'undeliveried_bottles1'))
 ))+
@@ -1260,6 +1348,9 @@ Red
 LightGreen
 )</BackgroundColor>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1267,8 +1358,8 @@ LightGreen
             </TableRow>
           </TableRows>
         </Details>
-        <Left>438.0pt</Left>
-        <Top>111.2pt</Top>
+        <Left>344.5pt</Left>
+        <Top>192.6pt</Top>
       </fyi:Grid>
       <Table Name="Table4">
         <DataSetName>bottles_addresses_set</DataSetName>
@@ -1285,7 +1376,7 @@ LightGreen
             <Width>85.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>95.7pt</Width>
+            <Width>93.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1375,7 +1466,7 @@ LightGreen
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12.8pt</Height>
+              <Height>15.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1415,8 +1506,8 @@ LightGreen
             </TableRow>
           </TableRows>
         </Details>
-        <Left>32.1pt</Left>
-        <Top>66.4pt</Top>
+        <Left>59.6pt</Left>
+        <Top>151.3pt</Top>
       </Table>
       <Table Name="Table7">
         <DataSetName>geopart_divided</DataSetName>
@@ -1430,7 +1521,7 @@ LightGreen
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>83.7pt</Width>
+            <Width>88.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>90.5pt</Width>
@@ -1439,7 +1530,7 @@ LightGreen
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>14.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1453,6 +1544,7 @@ LightGreen
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1485,7 +1577,7 @@ LightGreen
         <Details>
           <TableRows>
             <TableRow>
-              <Height>14.4pt</Height>
+              <Height>17.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1499,6 +1591,7 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1515,6 +1608,7 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1523,8 +1617,8 @@ LightGreen
             </TableRow>
           </TableRows>
         </Details>
-        <Left>226.8pt</Left>
-        <Top>54.2pt</Top>
+        <Left>59.4pt</Left>
+        <Top>114.8pt</Top>
       </Table>
       <Table Name="Table8">
         <DataSetName>geopart_divided2</DataSetName>
@@ -1547,7 +1641,7 @@ LightGreen
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>14.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1563,6 +1657,9 @@ LightGreen
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1583,6 +1680,9 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1594,7 +1694,7 @@ LightGreen
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>16.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1608,7 +1708,11 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1624,7 +1728,11 @@ LightGreen
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1632,14 +1740,29 @@ LightGreen
             </TableRow>
           </TableRows>
         </Details>
-        <Left>629.3pt</Left>
-        <Top>50.8pt</Top>
+        <Left>344.9pt</Left>
+        <Top>114.8pt</Top>
       </Table>
+      <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>531.26pt</Height>
+        <Width>0.09pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>292.90pt</Left>
+        <Top>0.80pt</Top>
+      </Line>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>14pt</Height>
+    <Height>15.5pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
