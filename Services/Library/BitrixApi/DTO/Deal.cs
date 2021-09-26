@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using VodovozInfrastructure.Utils;
 
-namespace BitrixApi.DTO
+namespace Bitrix.DTO
 {
 	public class Deal
 	{
@@ -72,13 +72,13 @@ namespace BitrixApi.DTO
 		[JsonProperty("DATE_MODIFY")] 
 		public DateTime ModifyDate { get; set; }
 
-		[JsonProperty("UF_CRM_1597998841845")] 
-		public string PartOfTown { get; set; }
+		[JsonProperty(UserFieldNames.DealGeographicGroup)] 
+		public string GeographicGroup { get; set; }
 
-		[JsonProperty("UF_CRM_1593010244990")] 
+		[JsonProperty(UserFieldNames.DealPaymentStatus)] 
 		public string PaymentStatus { get; set; }
 
-		[JsonProperty("UF_CRM_5DA9BBA018649")] 
+		[JsonProperty(UserFieldNames.DealDeliveryDate)] 
 		public DateTime DeliveryDate { get; set; }
 
 		[JsonProperty("OPENED")] 
@@ -90,82 +90,80 @@ namespace BitrixApi.DTO
 		[JsonProperty("CATEGORY_ID")] 
 		public int CategoryId { get; set; }
 
-		[JsonProperty("UF_CRM_1603522128")] 
+		[JsonProperty(UserFieldNames.DealStatus)] 
 		public string Status { get; set; }
 
-		[JsonProperty("UF_CRM_1611649517604")] 
+		[JsonProperty(UserFieldNames.DealCoordinates)] 
 		public string Coordinates { get; set; }
 
-		[JsonProperty("UF_CRM_5DA85CF9E13B9")] 
+		[JsonProperty(UserFieldNames.DealDeliveryAddressWithoutHouse)] 
 		public string DeliveryAddressWithoutHouse { get; set; }
 
 		//Пример значения: "143"
-		[JsonProperty("UF_CRM_5DA85CFA4B2FD")] 
+		[JsonProperty(UserFieldNames.DealRoomNumber)] 
 		public string RoomNumber { get; set; }
 
 		//Пример значения: "д 104"
-		[JsonProperty("UF_CRM_5DADB4A25AFE5")] 
+		[JsonProperty(UserFieldNames.DealHouseAndBuilding)] 
 		public string HouseAndBuilding { get; set; }
 
 		// Может быть Null or empty
-		[JsonProperty("UF_CRM_1596187803")] 
+		[JsonProperty(UserFieldNames.DealPromocode)] 
 		public string Promocode { get; set; }
 
 		//624 - Курьерская, 626 - Самовывоз
-		[JsonProperty("UF_CRM_1573799954786")] 
+		[JsonProperty(UserFieldNames.DealDeliveryType)] 
 		public string DeliveryType { get; set; }
 
 		//158 - Курьеру наличными, 160 - Картой на сайте, 162 - На расчетный счет, 1108 - Курьеру по смс, 1162 - Курьеру по терминалу
-		[JsonProperty("UF_CRM_5DA85CF9B48E1")] 
+		[JsonProperty(UserFieldNames.DealPaymentMethod)] 
 		public string PaymentMethod { get; set; }
 
-		[JsonProperty("UF_CRM_1596187445")] 
+		[JsonProperty(UserFieldNames.DealCity)] 
 		public string City { get; set; }
 
 		//Парадная/Торговый комплекс/Торговый центр...
-		[JsonProperty("UF_CRM_5DA85CFA35DAD")] public string RoomType { get; set; }
+		[JsonProperty(UserFieldNames.DealRoomType)]
+		public string RoomType { get; set; }
 
 		//Парадная/Название БЦ
-		[JsonProperty("UF_CRM_5DA85CFA297D5")] 
+		[JsonProperty(UserFieldNames.DealEntrance)]
 		public string Entrance { get; set; }
 
-		[JsonProperty("UF_CRM_1575544790252")] 
+		[JsonProperty(UserFieldNames.DealFloor)]
 		public string Floor { get; set; }
 
-		[JsonProperty("UF_CRM_5DA85CFA0C838")] 
+		[JsonProperty(UserFieldNames.DealEntranceType)]
 		public string EntranceType { get; set; }
 
-		[JsonProperty("UF_CRM_5DA9BBA03A12A")] 
+		[JsonProperty(UserFieldNames.DealDeliverySchedule)]
 		public uint DeliverySchedule { get; set; }
-		
-		//нет такого поля
-		/*
-		[JsonProperty("UF_CRM_1603521814")] 
-		public uint CreateInDV { get; set; }
-		*/
 
-		[JsonProperty("UF_CRM_1613635090586")] 
+		[JsonProperty(UserFieldNames.DealBottlesToReturn)]
 		public int? BottlesToReturn { get; set; }
 
-		[JsonProperty("UF_CRM_5DADB4A27E1EC")] 
+		[JsonProperty(UserFieldNames.DealTrifle)]
 		public int? Trifle { get; set; }
 
-		[JsonProperty("UF_CRM_1596873234121")] 
+		[JsonProperty(UserFieldNames.DealOrderNumber)]
 		public int? OrderNumber { get; set; }
 
-		public bool IsSelfDelivery()
+		public bool IsSelfDelivery
 		{
-			if(string.IsNullOrWhiteSpace(DeliveryType))
+			get
 			{
-				throw new ArgumentNullException(nameof(DeliveryType));
-			}
+				if(string.IsNullOrWhiteSpace(DeliveryType))
+				{
+					throw new ArgumentNullException(nameof(DeliveryType));
+				}
 
-			return DeliveryType switch
-			{
-				"624" => false,
-				"626" => true,
-				_ => throw new ArgumentException($"Неизвестный id способа доставки {DeliveryType}")
-			};
+				return DeliveryType switch
+				{
+					"624" => false,
+					"626" => true,
+					_ => throw new ArgumentException($"Неизвестный id способа доставки {DeliveryType}")
+				};
+			}
 		}
 
 		public RoomType GetRoomType()
@@ -201,13 +199,13 @@ namespace BitrixApi.DTO
 			};
 		}
 
-		public string GetPartOfTown()
+		public string GetGeographicGroup()
 		{
-			return PartOfTown switch
+			return GeographicGroup switch
 			{
 				"1120" => "Север",
 				"1122" => "Юг",
-				_ => throw new ArgumentException($"Неизвестный id части города {PartOfTown}")
+				_ => throw new ArgumentException($"Неизвестный id части города {GeographicGroup}")
 			};
 		}
 
@@ -237,6 +235,8 @@ namespace BitrixApi.DTO
 				_ => throw new ArgumentException($"Неизвестный id Подтипа объекта {EntranceType}")
 			};
 		}
+
+		public bool IsSmsPayment => PaymentMethod == "1108";
 
 		public PaymentType GetPaymentMethod()
 		{

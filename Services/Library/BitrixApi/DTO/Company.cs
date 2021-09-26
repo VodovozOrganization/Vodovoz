@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace BitrixApi.DTO
+namespace Bitrix.DTO
 {
     public class Company
     {
@@ -156,37 +156,37 @@ namespace BitrixApi.DTO
         [JsonProperty("ADDRESS_LEGAL")] 
         public string AddressLegal { get; set; }
         
-        [JsonProperty("UF_CRM_5DB83D2D840E6")] 
+        [JsonProperty(UserFieldNames.CompanyPaymentType)] 
         public string PaymentType { get; set; }
         
-        [JsonProperty("UF_CRM_5DB83D2D9FE1F")] 
+        [JsonProperty(UserFieldNames.CompanyAddressWithoutHouse)] 
         public string AddressWithoutHouse { get; set; }
         
         /// <summary>
         /// 550 - Жилой дом, 558 - Прочее, 562 Торговый центр, 556 Общежитие, 548 Детский лагерь,
         /// 552 Мероприятие, 554 Морское судно 546 База отдыха, 560 Строительный объект, 
         /// </summary>
-        [JsonProperty("UF_CRM_5DB83D2DB1327")] 
+        [JsonProperty(UserFieldNames.CompanyObjectType)] 
         public string ObjectType { get; set; }
         
         /// <summary>
         /// Всегда пустое, 564 - Парадная, 566 Торговый комплекс, 568 Торговый центр, 570 - Бизнес центр, 572 - Школа, 574 - Общежитие
         /// </summary>
-        [JsonProperty("UF_CRM_5DB83D2DD7C22")] 
+        [JsonProperty(UserFieldNames.CompanyObjectSubType)] 
         public string ObjectSubType { get; set; }
         
         /// <summary>
         /// Параюдная / Название БЦ, всегда пустое
         /// </summary>
-        [JsonProperty("UF_CRM_5DB83D2DED598")] 
+        [JsonProperty(UserFieldNames.CompanyEntrance)] 
         public string Entrance { get; set; }
 
         /// <summary>
         ///Тип помещения всегда пустое
         ///576 - Квартира, 578 Офис, 580 Склад, 582 Помещение, 584 Комната, 586 Секция
         /// </summary>
-        [JsonProperty("UF_CRM_5DB83D2E05E81")] 
-        public string RoomType { get; set; }
+        [JsonProperty(UserFieldNames.CompanyRoomType)] 
+		public string RoomType { get; set; }
         
         [JsonProperty("PHONE")] 
         public IList<Phone> Phones { get; set; }

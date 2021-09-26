@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace BitrixApi.DTO
+namespace Bitrix.DTO
 {
 	public class DealProductItem
 	{

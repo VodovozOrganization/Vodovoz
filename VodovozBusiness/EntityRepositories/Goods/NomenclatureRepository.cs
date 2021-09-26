@@ -229,24 +229,24 @@ namespace Vodovoz.EntityRepositories.Goods
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
 		
-		public static Nomenclature GetNommenclatureByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+		public Nomenclature GetNommenclatureByBitrixId(IUnitOfWork uow, uint bitrixId) =>
 			uow.Session.QueryOver<Nomenclature>()
 				.Where(x => x.BitrixId == bitrixId)
 				.SingleOrDefault();
 
-		public static Nomenclature GetNomenclatureByName(IUnitOfWork uow, string productName)
+		public Nomenclature GetNomenclatureByName(IUnitOfWork uow, string productName)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
 				.Where(x => x.Name == productName)
 				.List().FirstOrDefault();
 		}
 		
-		public static ProductGroup GetProductGroupByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+		public ProductGroup GetProductGroupByBitrixId(IUnitOfWork uow, uint bitrixId) =>
 			uow.Session.QueryOver<ProductGroup>()
 				.Where(x => x.BitrixId == bitrixId)
 				.SingleOrDefault();
 		
-		public static ProductGroup GetProductGroupByName(IUnitOfWork uow, string productGroup)
+		public ProductGroup GetProductGroupByName(IUnitOfWork uow, string productGroup)
 		{
 			var a = uow.Session.QueryOver<ProductGroup>()
 				.Where(x => x.Name == productGroup)

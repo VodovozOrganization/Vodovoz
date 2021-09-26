@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace BitrixApi.DTO
+namespace Bitrix.DTO
 {
 	public class Product
 	{
@@ -44,16 +44,13 @@ namespace BitrixApi.DTO
 		[JsonProperty("MEASURE")]
 		public int Measure { get; set; }
 
-		[JsonProperty("PROPERTY_174")]
+		[JsonProperty(UserFieldNames.ProductCategory)]
 		public ProductCategory Category { get; set; }
 
-		[JsonProperty("PROPERTY_176")]
-		public OurProductInfo IsOurProduct { get; set; }
-
-		[JsonProperty("PROPERTY_178")]
+		[JsonProperty(UserFieldNames.ProductNomenclatureInfo)]
 		public NomenclatureInfo NomenclatureInfo { get; set; }
 
-		[JsonProperty("PROPERTY_180")]
+		[JsonProperty(UserFieldNames.ProductPromosetInfo)]
 		public PromosetInfo PromosetInfo { get; set; }
 	}
 }

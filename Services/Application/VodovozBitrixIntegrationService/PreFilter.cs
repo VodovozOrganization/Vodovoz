@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -18,9 +18,13 @@ namespace VodovozBitrixIntegrationService
 
         public void ApplyDispatchBehavior(ServiceDescription desc, ServiceHostBase host)
         {
-            foreach(ChannelDispatcher cDispatcher in host.ChannelDispatchers)
-            foreach(EndpointDispatcher eDispatcher in cDispatcher.Endpoints)
-                eDispatcher.DispatchRuntime.MessageInspectors.Add(new ConsoleMessageTracer());
-        }
+            foreach(ChannelDispatcher channelDispatcher in host.ChannelDispatchers)
+			{
+				foreach(EndpointDispatcher endpointDispatcher in channelDispatcher.Endpoints)
+				{
+					endpointDispatcher.DispatchRuntime.MessageInspectors.Add(new ConsoleMessageTracer());
+				}
+			}
+		}
     }
 }

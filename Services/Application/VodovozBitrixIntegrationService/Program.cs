@@ -1,10 +1,5 @@
-﻿using System;
-using System.ServiceModel;
-using System.ServiceModel.Description;
-using System.Threading;
-using BitrixApi.REST;
+﻿using Bitrix;
 using BitrixIntegration;
-using BitrixIntegration.ServiceInterfaces;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -13,101 +8,124 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
-using Vodovoz.Core.DataService;
+using System;
+using System.Threading;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Common;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
-using Vodovoz.Services;
 
 namespace VodovozBitrixIntegrationService
 {
 	class Service
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		// private static readonly string configFile = "/home/gavr/vodovoz-bitrix-integration-service.conf"; 
-		private static readonly string configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
+		private static readonly string _configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
 			
-		//Service
-		private static string serviceHostName;
-		private static string servicePort;
-		private static string serviceWebPort;
-
 		//Mysql
-		private static string mysqlServerHostName;
-		private static string mysqlServerPort;
-		private static string mysqlUser;
-		private static string mysqlPassword;
-		private static string mysqlDatabase;
+		private static string _mysqlServerHostName;
+		private static string _mysqlServerPort;
+		private static string _mysqlUser;
+		private static string _mysqlPassword;
+		private static string _mysqlDatabase;
 		
 		//Bitrix
-		private static string token;
-		private static string userId;
+		private static string _token;
+		private static string _userId;
 		
 
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
-			AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-			logger.Info("Чтение конфигурационного файла...");
 
-			#region ReadConfig
+			_logger.Info("Чтение конфигурационного файла...");
+			ReadServiceConfiguration();
 
-			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
-				confFile.Reload();
-				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
-				serviceWebPort = serviceConfig.GetString("service_web_port");
-
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
-				
-				IConfig bitrixConfig = confFile.Configs["Bitrix"];
-				token = bitrixConfig.GetString("api_key");
-				userId = bitrixConfig.GetString("user_id");
-			}
-			catch(Exception ex) {
-				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
-				return;
-			}
-
-			#endregion ReadCOnfig
-			logger.Info("Настройка подключения к БД...");
+			_logger.Info("Настройка подключения к БД...");
 			ConfigureDBConnection();
-			
-			RunServiceLoop();
+
+			try
+			{
+				_logger.Info("Запуск сервиса...");
+
+				StartService();
+
+				_logger.Info("Сервис запущен.");
+
+				if(Environment.OSVersion.Platform == PlatformID.Unix)
+				{
+					UnixSignal[] signals = {
+						new UnixSignal (Signum.SIGINT),
+						new UnixSignal (Signum.SIGHUP),
+						new UnixSignal (Signum.SIGTERM)
+					};
+					UnixSignal.WaitAny(signals);
+				}
+				else
+				{
+					Console.ReadLine();
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.Fatal(e);
+			}
+			finally
+			{
+				if(Environment.OSVersion.Platform == PlatformID.Unix)
+					Thread.CurrentThread.Abort();
+				Environment.Exit(0);
+			}
 		}
 
 		#region Configure
 
-		static void ConfigureDBConnection()
+		private static void ReadServiceConfiguration()
+		{
+			try
+			{
+				IniConfigSource confFile = new IniConfigSource(_configFile);
+				confFile.Reload();
+				IConfig mysqlConfig = confFile.Configs["Mysql"];
+				_mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
+				_mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
+				_mysqlUser = mysqlConfig.GetString("mysql_user");
+				_mysqlPassword = mysqlConfig.GetString("mysql_password");
+				_mysqlDatabase = mysqlConfig.GetString("mysql_database");
+
+				IConfig bitrixConfig = confFile.Configs["Bitrix"];
+				_token = bitrixConfig.GetString("api_key");
+				_userId = bitrixConfig.GetString("user_id");
+			}
+			catch(Exception ex)
+			{
+				_logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
+				return;
+			}
+		}
+
+		private static void ConfigureDBConnection()
 		{
 			try
 			{
 				var conStrBuilder = new MySqlConnectionStringBuilder
 				{
-					Server = mysqlServerHostName,
-					Port = UInt32.Parse(mysqlServerPort),
-					Database = mysqlDatabase,
-					UserID = mysqlUser,
-					Password = mysqlPassword,
+					Server = _mysqlServerHostName,
+					Port = UInt32.Parse(_mysqlServerPort),
+					Database = _mysqlDatabase,
+					UserID = _mysqlUser,
+					Password = _mysqlPassword,
 					SslMode = MySqlSslMode.None
 				};
-				
+
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-					.ConnectionString(conStrBuilder.GetConnectionString(true)); 
+					.ConnectionString(conStrBuilder.GetConnectionString(true));
 
 				OrmConfig.ConfigureOrm(
 					dbConfig,
@@ -121,139 +139,67 @@ namespace VodovozBitrixIntegrationService
 
 				QS.HistoryLog.HistoryMain.Enable();
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
-				logger.Fatal(ex, "Ошибка в настройке подключения к БД.");
+				_logger.Fatal(ex, "Ошибка в настройке подключения к БД.");
 			}
 		}
-		
+
 		#endregion
 
 		#region StartService
-		static void RunServiceLoop()
-		{
-			try
-			{
-				StartService();
-				logger.Info("Server started.");
 
-				if(Environment.OSVersion.Platform == PlatformID.Unix) {
-					UnixSignal[] signals = {
-						new UnixSignal (Signum.SIGINT),
-						new UnixSignal (Signum.SIGHUP),
-						new UnixSignal (Signum.SIGTERM)
-					};
-					UnixSignal.WaitAny(signals);
-				}
-				else {
-					Console.ReadLine();
-				}
-			}
-			catch(Exception e) {
-				logger.Fatal(e);
-			}
-			finally {
-				if(Environment.OSVersion.Platform == PlatformID.Unix)
-					Thread.CurrentThread.Abort();
-				Environment.Exit(0);
-			}
-		}
-		
 		static async void StartService()
 		{
 			try
 			{
-				IBitrixServiceSettings bitrixServiceSettings = new BitrixServiceSettings(SingletonParametersProvider.Instance);
-				var bitrixInstanceProvider = new BitrixInstanceProvider(bitrixServiceSettings);
+				var parametersProvider = new ParametersProvider();
+				var uowFactory = new DefaultUnitOfWorkFactory(new DefaultSessionProvider());
+				var bitrixClient = new BitrixClient(_userId, _token);
 
-				IMeasurementUnitsRepository measurementUnitsRepository = new MeasurementUnitsRepository();
-				
-				var bitrixHost = new BitrixServiceHost(bitrixInstanceProvider);
-
-				var webContract = typeof(IBitrixServiceWeb);
-				var webBinding = new WebHttpBinding();
-				var webAddress = $"http://{serviceHostName}:{serviceWebPort}/BitrixServiceWeb";
-
-				var webEndPoint = bitrixHost.AddServiceEndpoint(webContract, webBinding, webAddress);
-				
-				
-				WebHttpBehavior httpBehavior = new WebHttpBehavior();
-				webEndPoint.Behaviors.Add(httpBehavior);
-
-				var contract = typeof(IBitrixService);
-				var binding = new BasicHttpBinding();
-				var address = $"http://{serviceHostName}:{servicePort}/BitrixService";
-
-
-				BitrixManager.SetToken(token);
-
-				var uow = UnitOfWorkFactory.CreateWithoutRoot();
-				var deliveryPointRepository = new DeliveryPointRepository();
-				var matcher = new Matcher(deliveryPointRepository);
-				var bitrixApi = BitrixRestApiFactory.CreateBitrixRestApi(userId, token);
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
 				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
-				var orderRepository = OrderSingletonRepository.GetInstance();
+
+				var bitrixRepository = new BitrixRepository();
+				var dealRegistrator = new DealRegistrator(uowFactory, bitrixRepository, bitrixClient);
+
+				var measurementUnitsRepository = new MeasurementUnitsRepository();
+				var bitrixServiceSettings = new BitrixServiceSettings(parametersProvider);
+				var orderRepository = new OrderSingletonRepository();
 				var counterpartyRepository = new CounterpartyRepository();
-				
-					var dealProcessor = new DealProcessor(
-						bitrixApi,
-						matcher,
-						counterpartyContractRepository,
-						counterpartyContractFactory,
-						measurementUnitsRepository,
-						bitrixServiceSettings,
-						orderRepository,
-						counterpartyRepository
-					);
-					
-					var dealCollector = new DealCollector(bitrixApi, new DealFromBitrixRepository());
-					var mainCycle = new MainCycle(uow, dealCollector, dealProcessor);
-					
-					await mainCycle.RunProcessCycle();
-					
-				BitrixManager.SetDealProcessor(dealProcessor);
 
-				bitrixHost.AddServiceEndpoint(contract, binding, address);
+				var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+				var nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
 				
-				bitrixHost.Description.Behaviors.Add(new PreFilter());
-				ServiceDebugBehavior debug = bitrixHost.Description.Behaviors.Find<ServiceDebugBehavior>();
-				debug.IncludeExceptionDetailInFaults = true;
-				
-				bitrixHost.Open();
-
-				logger.Log(LogLevel.Info, "Сервис запущен");
-
+				var dealProcessor = new DealProcessor(
+					uowFactory,
+					bitrixClient,
+					counterpartyContractRepository,
+					counterpartyContractFactory,
+					dealRegistrator,
+					measurementUnitsRepository,
+					bitrixServiceSettings,
+					orderRepository,
+					counterpartyRepository,
+					nomenclatureRepository
+				);
+					
+				var dealWorker = new DealWorker(dealProcessor);
+				dealWorker.Start();
 			}
 			catch (Exception e)
 			{
-				logger.Error($"!Ошибка дошла до самого верхнего уровня! Ошибка: {e.Message}\n\n{e.InnerException?.Message}");
+				_logger.Fatal($"!Ошибка дошла до самого верхнего уровня! Ошибка: {e.Message}\n\n{e.InnerException?.Message}");
 			}
-
-#if DEBUG
-			// MailjetEventsHost.Description.Behaviors.Add(new PreFilter());
-#endif
-			// EmailSendingHost.Open();
-			// MailjetEventsHost.Open();
 		}
 
 		#endregion StartService
 
-		#region Signals
-
-		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
-		{
-			BitrixManager.StopWorkers();
-		}
-
 		static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
+			_logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
 		}
-
-		#endregion
-		
 	}
 }

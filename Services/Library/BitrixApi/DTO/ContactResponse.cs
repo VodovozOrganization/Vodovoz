@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace BitrixApi.DTO
+namespace Bitrix.DTO
 {
-	public class ContactRequest
+	public class ContactResponse
     {
         [JsonProperty("result")]
         public Contact Result { get; set; }

@@ -61,7 +61,7 @@
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\Common\MeasurementUnit.cs" />
-    <Compile Include="Domain\DealFromBitrix.cs" />
+    <Compile Include="Domain\BitrixDealRegistration.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DocumentPrintHistory.cs" />
@@ -165,8 +165,8 @@
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
-    <Compile Include="EntityRepositories\Online\DealFromBitrixRepository.cs" />
-    <Compile Include="EntityRepositories\Online\IDealFromBitrixRepository.cs" />
+    <Compile Include="EntityRepositories\Online\BitrixRepository.cs" />
+    <Compile Include="EntityRepositories\Online\IBitrixRepository.cs" />
     <Compile Include="HibernateMapping\Common\MeasurementUnitMap.cs" />
     <Compile Include="HibernateMapping\DealFromBitrixMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />

@@ -93,9 +93,9 @@
       <Project>{022dd59d-0eee-420f-9750-eb275772f56a}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\BitrixApi\BitrixApi.csproj">
+    <ProjectReference Include="..\..\Library\BitrixApi\BitrixClient.csproj">
       <Project>{a02986d6-0734-4467-8988-dc5939911d87}</Project>
-      <Name>BitrixApi</Name>
+      <Name>BitrixClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Library\BitrixIntegration\BitrixIntegration.csproj">
       <Project>{7f55d466-ce81-4a81-aac1-d7d58544f7af}</Project>
