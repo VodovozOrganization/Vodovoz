@@ -110,6 +110,7 @@ namespace Vodovoz
 
 			phonesview1.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
+			phonesview1.ViewModel.DeliveryPoint = Entity;
 
 			ShowResidue();
 

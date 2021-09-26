@@ -2477,4 +2477,16 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
 	}
+	
+	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
+	{
+		IFilePickerService filePickerService = new GtkFilePicker();
+		IParametersProvider parametersProvider = new ParametersProvider();
+		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
+
+		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, filePickerService, productionWarehouseMovementReportProvider);
+
+		tdiMain.AddTab(viewModel);
+	}
 }

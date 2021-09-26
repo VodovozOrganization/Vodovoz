@@ -9,7 +9,6 @@ namespace Vodovoz.EntityRepositories.Orders
         public int? ReceiptId { get; set; }
         public bool? WasSent { get; set; }
         public decimal? OrderSum { get; set; }
-        public DateTime? DeliveryDate { get; set; }
         public PaymentType PaymentType { get; set; }
     }
 }
