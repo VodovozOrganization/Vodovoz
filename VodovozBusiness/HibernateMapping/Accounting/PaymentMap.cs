@@ -30,7 +30,9 @@ namespace Vodovoz.HibernateMapping.Accounting
 			References(x => x.Organization).Column("organization_id");
 			References(x => x.OrganizationAccount).Column("organization_account_id");
 			References(x => x.ProfitCategory).Column("profit_category_id");
-			References(x => x.CashlessMovementOperation).Column("cashless_movement_operation_id");
+			References(x => x.CashlessMovementOperation).Column("cashless_movement_operation_id")
+				.Cascade.AllDeleteOrphan();
+			References(x => x.RefundedPayment).Column("refunded_payment_id");
 
 			HasMany(x => x.PaymentItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
 		}

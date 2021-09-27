@@ -17,15 +17,19 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using GC = System.GC;
@@ -36,11 +40,14 @@ namespace Vodovoz
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly WageParameterService _wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
+		private readonly ICategoryRepository _categoryRepository;
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -54,18 +61,24 @@ namespace Vodovoz
 
 		#region Конструкторы
 
-		public RouteListAddressesTransferringDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository, 
-		                                         ITerminalNomenclatureProvider terminalNomenclatureProvider,
-												 IEmployeeService employeeService,
-												 ICommonServices commonServices)
+		public RouteListAddressesTransferringDlg(
+			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
+			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			IRouteListRepository routeListRepository,
+			IEmployeeService employeeService,
+			ICommonServices commonServices,
+			ICategoryRepository categoryRepository)
 		{
 			Build();
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
 				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			
 			TabName = "Перенос адресов маршрутных листов";
 			ConfigureDlg();
 		}
@@ -75,8 +88,17 @@ namespace Vodovoz
 			OpenParameter param,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			IRouteListRepository routeListRepository,
 			IEmployeeService employeeService,
-			ICommonServices commonServices) : this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider, employeeService, commonServices)
+			ICommonServices commonServices,
+			ICategoryRepository categoryRepository)
+			: this(
+				employeeNomenclatureMovementRepository,
+				terminalNomenclatureProvider,
+				routeListRepository,
+				employeeService,
+				commonServices,
+				categoryRepository)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
 
@@ -379,7 +401,7 @@ namespace Vodovoz
 
 				routeListTo.ObservableAddresses.Add(newItem);
 
-				item.TransferedTo = newItem;
+				routeListFrom.TransferAddressTo(item.Id, newItem);
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
@@ -401,12 +423,12 @@ namespace Vodovoz
 
 			if(routeListFrom.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListFrom.UpdateMovementOperations());
+				messages.AddRange(routeListFrom.UpdateMovementOperations(_categoryRepository));
 			}
 
 			if(routeListTo.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListTo.UpdateMovementOperations());
+				messages.AddRange(routeListTo.UpdateMovementOperations(_categoryRepository));
 			}
 
 			UoW.Save(routeListTo);
@@ -466,11 +488,13 @@ namespace Vodovoz
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
 					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
 
+				var previousRouteList = pastPlace?.RouteList;
+
 				if(pastPlace != null)
 				{
-					pastPlace.SetStatusWithoutOrderChange(address.Status);
+					previousRouteList.SetAddressStatusWithoutOrderChange(pastPlace.Id, address.Status);
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
-					pastPlace.TransferedTo = null;
+					previousRouteList.TransferAddressTo(pastPlace.Id, null);
 
 					if(pastPlace.RouteList.ClosingFilled)
 					{
@@ -479,6 +503,7 @@ namespace Vodovoz
 
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					UoW.Save(pastPlace);
+					UoW.Save(previousRouteList);
 				}
 
 				address.RouteList.ObservableAddresses.Remove(address);
@@ -496,7 +521,7 @@ namespace Vodovoz
 
 		private void UpdateTranferDocuments(RouteList from, RouteList to)
 		{
-			var addressTransferController = new AddressTransferController(EmployeeSingletonRepository.GetInstance());
+			var addressTransferController = new AddressTransferController(new EmployeeRepository());
 			addressTransferController.UpdateDocuments(from, to, UoW);
 		}
 
@@ -522,18 +547,29 @@ namespace Vodovoz
 						MessageDialogHelper.RunErrorDialog("Вы не можете передавать терминал, т.к. его нет на балансе у водителя.", "Ошибка");
 						return;
 					}
-					
+
+					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+
+					var giveoutDocFrom = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
+					if(giveoutDocFrom is DriverAttachedTerminalGiveoutDocument)
+					{
+						MessageDialogHelper.RunErrorDialog(
+							$"Нельзя передать терминал от водителя {routeListFrom?.Driver.GetPersonNameWithInitials()}, " +
+							$"к которому привязан терминал.\r\nВодителю {routeListTo?.Driver.GetPersonNameWithInitials()}, " +
+							"которому передается заказ, необходима допогрузка", "Ошибка");
+						return;
+					}
+
 					if (ObservableDriverBalanceTo.Any(x => x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal 
-														&& x.Amount > 0))
+					                                       && x.Amount > 0))
 					{
 						MessageDialogHelper.RunErrorDialog("У водителя уже есть терминал для оплаты.", "Ошибка");
 						return;
 					}
 					
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
-					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
-					
+
 					var operationFrom = new EmployeeNomenclatureMovementOperation
 					{
 						Employee = routeListFrom.Driver,
@@ -550,7 +586,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,
@@ -592,9 +628,18 @@ namespace Vodovoz
 						return;
 					}
 
+					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+
+					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListTo?.Driver);
+					if(giveoutDocTo is DriverAttachedTerminalGiveoutDocument)
+					{
+						MessageDialogHelper.RunErrorDialog($"Нельзя вернуть терминал от водителя {routeListTo?.Driver.GetPersonNameWithInitials()}" +
+						                                   ", к которому привязан терминал.", "Ошибка");
+						return;
+					}
+
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLTo.Subject as RouteList;
-					var routeListTo = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 
 					var operationFrom = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListFrom.Driver,
@@ -610,7 +655,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,

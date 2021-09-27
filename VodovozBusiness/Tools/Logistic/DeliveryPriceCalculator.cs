@@ -7,13 +7,16 @@ using QS.Osm;
 using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.Sale;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
 	public static class DeliveryPriceCalculator
 	{
+		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
+		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -36,7 +39,7 @@ namespace Vodovoz.Tools.Logistic
 
 			//Топливо
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
-				var fuel = FuelRepository.GetDefaultFuel(uow);
+				var fuel = _fuelRepository.GetDefaultFuel(uow);
 				if(fuel == null) {
 					result.ErrorMessage = string.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
 					return result;
@@ -44,7 +47,7 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
-				districts = ScheduleRestrictionRepository.GetDistrictsWithBorder(uow);
+				districts = _scheduleRestrictionRepository.GetDistrictsWithBorder(uow);
 				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
 
 				//Координаты
@@ -55,7 +58,8 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
+					var gg =
+						_geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
 					if(gg != null && gg.BaseCoordinatesExist)
 						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));

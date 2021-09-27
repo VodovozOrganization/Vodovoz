@@ -15,13 +15,14 @@ using QS.Project.Services;
 using QS.Dialog;
 using QS.Osm;
 using QS.Osm.Osrm;
-using QS.Osm.Spuntik;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Dialogs.Logistic
 {
 	public partial class TrackOnMapWnd : Gtk.Window
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
 		#region Поля
 
@@ -70,7 +71,7 @@ namespace Dialogs.Logistic
 
 		private void Configure()
 		{
-			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+			track = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
 			if(track == null){
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 				MessageDialogHelper.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
@@ -84,7 +85,7 @@ namespace Dialogs.Logistic
 
 		private void ConfigureMap()
 		{
-			gmapWidget.MapProvider = GMapProviders.YandexMap;
+			gmapWidget.MapProvider = GMapProviders.GoogleMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.MinZoom = 0;
@@ -97,6 +98,13 @@ namespace Dialogs.Logistic
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
+
+			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
+			comboMapProvider.ItemsEnum = typeof(MapProviders);
+			comboMapProvider.SelectedItem = MapProviders.GoogleMap;
+			comboMapProvider.EnumItemSelected += (sender, args) =>
+				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+
 		}
 
 		private void OpenMap()
@@ -276,14 +284,14 @@ namespace Dialogs.Logistic
 
 		protected void OnButtonRecalculateToBaseClicked(object sender, EventArgs e)
 		{
-			var track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
-			var response = track.CalculateDistanceToBase();
-			UoW.Save(track);
+			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
+			var response = curTrack.CalculateDistanceToBase();
+			UoW.Save(curTrack);
 			UoW.Commit();
 			UpdateDistanceLabel();
 
 			trackToBaseOverlay.Clear();
-			var decodedPoints = Polyline.DecodePolyline(response.RouteGeometry);
+			var decodedPoints = Polyline.DecodePolyline(response.Routes.First().RouteGeometry);
 			var points = decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)).ToList();
 
 			var route = new GMapRoute(points, "RouteToBase") {
@@ -299,9 +307,9 @@ namespace Dialogs.Logistic
 			buttonRecalculateToBase.Sensitive = false;
 
 			MessageDialogHelper.RunInfoDialog(string.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
-				response.RouteSummary.StartPoint,
-				response.RouteSummary.TotalDistanceKm,
-				response.RouteSummary.TotalTime
+				response.Waypoints.First().Name,
+				response.Routes.First().TotalDistanceKm,
+				response.Routes.First().TotalTime
 			));
 		}
 
@@ -327,7 +335,7 @@ namespace Dialogs.Logistic
 				
 				if(distance > 0.5)
 				{
-					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
+					_logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
 					message += string.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
 					                          distance,
 					                          lastPoint.TimeStamp,
@@ -352,7 +360,7 @@ namespace Dialogs.Logistic
 					if(afterIndex - beforeIndex > 1)
 					{
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
-						logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
+						_logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
 						routePoints.AddRange (
 							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
 							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));
@@ -361,19 +369,19 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = SputnikMain.GetRoute (routePoints, false, true);
+					var missedTrack = OsrmMain.GetRoute(routePoints, false, GeometryOverview.Simplified);
 					if (missedTrack == null)
 					{
 						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
 						return;
 					}
-					if(missedTrack.Status != 0)
+					if(missedTrack.Code != "Ok")
 					{
-						MessageDialogHelper.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
+						MessageDialogHelper.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Code, missedTrack.StatusMessageRus);
 						return;
 					}
 
-					var decodedPoints = Polyline.DecodePolyline (missedTrack.RouteGeometry);
+					var decodedPoints = Polyline.DecodePolyline (missedTrack.Routes.First().RouteGeometry);
 					var points = decodedPoints.Select (p => new PointLatLng (p.Latitude * 0.1, p.Longitude * 0.1)).ToList ();
 
 					var route = new GMapRoute(points, "MissedRoute") {
@@ -450,19 +458,19 @@ namespace Dialogs.Logistic
 		{
 			
 			IEnumerable<PointLatLng> midlPoints;
-			var track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
 
 			tracksOverlay.Clear();
 
 			var startDateTime = ydatepickerStart.Date;
 			var endDateTime = ydatepickerEnd.Date;
 
-			var startPoints = track.TrackPoints.Where(x => x.TimeStamp < startDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
-			var endPoints = track.TrackPoints.Where(x => x.TimeStamp >= endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var startPoints = curTrack.TrackPoints.Where(x => x.TimeStamp < startDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var endPoints = curTrack.TrackPoints.Where(x => x.TimeStamp >= endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 
 			if(!ydatepickerStart.IsEmpty) {
 
-				midlPoints = track.TrackPoints.Where(x => x.TimeStamp >= startDateTime && x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+				midlPoints = curTrack.TrackPoints.Where(x => x.TimeStamp >= startDateTime && x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 
 				trackRoute = new GMapRoute(startPoints, routeList.Id.ToString()) {
 					Stroke = new Pen(Color.Gray) {
@@ -475,7 +483,7 @@ namespace Dialogs.Logistic
  
 			} else
 			{
-				midlPoints = track.TrackPoints.Where(x => x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+				midlPoints = curTrack.TrackPoints.Where(x => x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
 			}
 
 			trackRoute = new GMapRoute(midlPoints, routeList.Id.ToString()) {

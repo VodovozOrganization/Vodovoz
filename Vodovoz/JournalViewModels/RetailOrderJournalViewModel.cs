@@ -17,8 +17,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewers;
-using Vodovoz.Repositories;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
@@ -27,7 +25,10 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -38,12 +39,12 @@ namespace Vodovoz.JournalViewModels
 {
 	public class RetailOrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<RetailOrderJournalNode, OrderJournalFilterViewModel>
 	{
-		private readonly ICommonServices commonServices;
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly ICommonServices _commonServices;
+		private readonly IEmployeeService _employeeService;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -51,16 +52,13 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
@@ -70,15 +68,13 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelector) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INomenclatureSelectorFactory nomenclatureSelector,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -86,9 +82,14 @@ namespace Vodovoz.JournalViewModels
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+
+			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
+			                                   ?? throw new ArgumentNullException(nameof(_nomenclatureSelectorFactory));
+			_counterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			_undeliveredOrdersJournalOpener =
+				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_undeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
 			TabName = "Журнал заказов";
 
@@ -127,7 +128,7 @@ namespace Vodovoz.JournalViewModels
 			District districtAlias = null;
 			CounterpartyContract contractAlias = null;
 
-			Nomenclature sanitizationNomenclature = nomenclatureRepository.GetSanitisationNomenclature(uow);
+			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
@@ -173,8 +174,8 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
 
-			if(FilterViewModel.RestrictDeliveryPoint != null) {
-				query.Where(o => o.DeliveryPoint == FilterViewModel.RestrictDeliveryPoint);
+			if(FilterViewModel.DeliveryPoint != null) {
+				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
 			if(FilterViewModel.RestrictStartDate != null) {
@@ -195,12 +196,28 @@ namespace Vodovoz.JournalViewModels
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if(FilterViewModel.RestrictHideService != null) {
-				query.Where(o => o.IsService != FilterViewModel.RestrictHideService);
+			if(FilterViewModel.RestrictHideService != null) 
+			{
+				if(FilterViewModel.RestrictHideService.Value)
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
 			}
 
-			if(FilterViewModel.RestrictOnlyService != null) {
-				query.Where(o => o.IsService == FilterViewModel.RestrictOnlyService);
+			if(FilterViewModel.RestrictOnlyService != null) 
+			{
+				if(FilterViewModel.RestrictOnlyService.Value)
+				{
+					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
+				}
+				else
+				{
+					query.Where(o => o.OrderAddressType != OrderAddressType.Service);
+				}
 			}
 			
 			if(FilterViewModel.OrderPaymentStatus != null) {
@@ -326,7 +343,7 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD && FilterViewModel.ViewTypes != ViewTypes.All
 				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 				|| FilterViewModel.RestrictPaymentType != null
-				|| FilterViewModel.RestrictDeliveryPoint != null
+				|| FilterViewModel.DeliveryPoint != null
 				|| FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 				|| FilterViewModel.RestrictLessThreeHours == true
@@ -396,13 +413,17 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						_commonServices,
+						_employeeService,
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						_commonServices,
+						_employeeService,
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
@@ -431,7 +452,7 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
 			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 			    || FilterViewModel.RestrictPaymentType != null
-			    || FilterViewModel.RestrictDeliveryPoint != null
+			    || FilterViewModel.DeliveryPoint != null
 			    || FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
@@ -525,13 +546,17 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices
+						_commonServices,
+						_employeeService,
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices
+						_commonServices,
+						_employeeService,
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
@@ -558,7 +583,7 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
 			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 			    || FilterViewModel.RestrictPaymentType != null
-			    || FilterViewModel.RestrictDeliveryPoint != null
+			    || FilterViewModel.DeliveryPoint != null
 			    || FilterViewModel.RestrictOnlyService != null
 			    || FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
@@ -644,23 +669,27 @@ namespace Vodovoz.JournalViewModels
 					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						commonServices,
-						employeeService,
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository
+						_commonServices,
+						_employeeService,
+						_nomenclatureSelectorFactory,
+						_counterpartySelectorFactory,
+						_nomenclatureRepository,
+						_userRepository,
+						new OrderRepository(),
+						new ParametersProvider()
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
-						commonServices,
-						employeeService,
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository
+						_commonServices,
+						_employeeService,
+						_nomenclatureSelectorFactory,
+						_counterpartySelectorFactory,
+						_nomenclatureRepository,
+						_userRepository,
+						new OrderRepository(),
+						new ParametersProvider()
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
@@ -711,14 +740,15 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
-						o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(selectedItems),
+						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(
+							UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(selectedItems),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
 
 						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-							commonServices,
+							_commonServices,
 							_orderSelectorFactory,
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
@@ -734,12 +764,13 @@ namespace Vodovoz.JournalViewModels
 						var dlg = new UndeliveredOrdersJournalViewModel(
 							undeliveredOrdersFilter,
 							UnitOfWorkFactory,
-							commonServices,
+							_commonServices,
 							_gtkDialogsOpener,
 							_employeeJournalFactory,
-							employeeService,
+							_employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory
+							_orderSelectorFactory,
+							_undeliveredOrdersRepository
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

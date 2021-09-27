@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
@@ -413,8 +415,8 @@ WHERE o.id = @order_id
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List2">
-        <Height>180pt</Height>
-        <Width>719.60pt</Width>
+        <Height>186.76pt</Height>
+        <Width>718.10pt</Width>
         <Left>85.80pt</Left>
         <Top>2.00pt</Top>
         <ReportItems>
@@ -537,8 +539,8 @@ WHERE o.id = @order_id
             <Width>111.27pt</Width>
             <Value>ИНН/КПП покупателя:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>143.0pt</Top>
+            <Left>0.8pt</Left>
+            <Top>148.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -551,8 +553,8 @@ WHERE o.id = @order_id
             <Width>140.52pt</Width>
             <Value>Валюта: наименование, код</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>156.0pt</Top>
+            <Left>0.8pt</Left>
+            <Top>161.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -565,8 +567,8 @@ WHERE o.id = @order_id
             <Width>1in</Width>
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>130.6pt</Top>
+            <Left>0.8pt</Left>
+            <Top>133.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -795,7 +797,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>8pt</FontSize>
+              <FontSize>7.5pt</FontSize>
               <VerticalAlign>Top</VerticalAlign>
             </Style>
           </Textbox>
@@ -817,46 +819,49 @@ WHERE o.id = @order_id
             </Style>
           </Textbox>
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>419.75pt</Width>
+            <Height>14.23pt</Height>
+            <Width>420.50pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_customer}) = false, {special_customer}, {client_name})</Value>
             <ZIndex>1</ZIndex>
-            <Left>152.5pt</Left>
-            <Top>119.0pt</Top>
+            <Left>152.50pt</Left>
+            <Top>119.00pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>8pt</FontSize>
+              <FontSize>7pt</FontSize>
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
+            <Height>12.75pt</Height>
             <Width>493.25pt</Width>
             <Value>={client_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>152.5pt</Left>
-            <Top>130.6pt</Top>
+            <Top>134.5pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>8pt</FontSize>
+              <FontSize>7.5pt</FontSize>
               <VerticalAlign>Middle</VerticalAlign>
+              <PaddingTop>0pt</PaddingTop>
+              <PaddingBottom>0pt</PaddingBottom>
             </Style>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
             <Value>={inn_kpp}</Value>
             <ZIndex>1</ZIndex>
-            <Left>152.5pt</Left>
-            <Top>143.0pt</Top>
+            <Left>153.3pt</Left>
+            <Top>148.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -872,8 +877,8 @@ WHERE o.id = @order_id
             <Width>493.25pt</Width>
             <Value>Российский рубль, 643</Value>
             <ZIndex>1</ZIndex>
-            <Left>152.5pt</Left>
-            <Top>155.0pt</Top>
+            <Left>153.3pt</Left>
+            <Top>160.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -988,7 +993,7 @@ WHERE o.id = @order_id
             <Value>(6а)</Value>
             <ZIndex>1</ZIndex>
             <Left>673.1pt</Left>
-            <Top>130.6pt</Top>
+            <Top>133.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1001,8 +1006,8 @@ WHERE o.id = @order_id
             <Width>23.52pt</Width>
             <Value>(6б)</Value>
             <ZIndex>1</ZIndex>
-            <Left>673.1pt</Left>
-            <Top>143.0pt</Top>
+            <Left>673.9pt</Left>
+            <Top>148.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1015,8 +1020,8 @@ WHERE o.id = @order_id
             <Width>23.52pt</Width>
             <Value>(7)</Value>
             <ZIndex>1</ZIndex>
-            <Left>673.1pt</Left>
-            <Top>155.0pt</Top>
+            <Left>673.9pt</Left>
+            <Top>160.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1039,12 +1044,12 @@ WHERE o.id = @order_id
             </Style>
           </Textbox>
           <Textbox Name="Textbox178" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
+            <Height>12.00pt</Height>
             <Width>345.14pt</Width>
             <Value>Идентификатор государственного контракта, договора (соглашения) (при наличии)</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>168.20pt</Top>
+            <Left>0.8pt</Left>
+            <Top>173.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1057,8 +1062,8 @@ WHERE o.id = @order_id
             <Width>23.52pt</Width>
             <Value>(8)</Value>
             <ZIndex>1</ZIndex>
-            <Left>673.1pt</Left>
-            <Top>168.2pt</Top>
+            <Left>673.9pt</Left>
+            <Top>173.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1071,8 +1076,8 @@ WHERE o.id = @order_id
             <Width>303.00pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_gov_contract}) = false, {special_gov_contract}, "")</Value>
             <ZIndex>1</ZIndex>
-            <Left>342.50pt</Left>
-            <Top>168.20pt</Top>
+            <Left>343.3pt</Left>
+            <Top>173.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -1105,7 +1110,8 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <BackgroundColor></BackgroundColor>
+              <BackgroundColor>
+              </BackgroundColor>
               <BackgroundGradientType>None</BackgroundGradientType>
               <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
               <TextAlign>Left</TextAlign>
@@ -1129,7 +1135,8 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox195">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>1</ZIndex>
             <Left>152.5pt</Left>
             <Top>95.3pt</Top>
@@ -1198,22 +1205,22 @@ WHERE o.id = @order_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>15.2pt</Width>
+            <Width>68.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.0pt</Width>
+            <Width>15pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>118.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23.2pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>20.9pt</Width>
+            <Width>21.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>41pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.8pt</Width>
@@ -1222,10 +1229,10 @@ WHERE o.id = @order_id
             <Width>37.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.7pt</Width>
+            <Width>53pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.7pt</Width>
+            <Width>26.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>26.1pt</Width>
@@ -1234,41 +1241,42 @@ WHERE o.id = @order_id
             <Width>36.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.0pt</Width>
+            <Width>42.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.2pt</Width>
+            <Width>28pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.5pt</Width>
+            <Width>32pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.8pt</Width>
+            <Width>59pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>29.4pt</Width>
+            <Width>26pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.1pt</Width>
+            <Width>57.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>27.6pt</Height>
+              <Height>28pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>№</Value>
+                      <Value>Код товара/</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
+                          <Right>None</Right>
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
@@ -1279,12 +1287,13 @@ WHERE o.id = @order_id
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>Код товара/</Value>
-                      <Style>
+                    <Textbox Name="Textbox208">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1292,7 +1301,9 @@ WHERE o.id = @order_id
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
                         <FontSize>7pt</FontSize>
                         <VerticalAlign>Bottom</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
@@ -1314,7 +1325,7 @@ WHERE o.id = @order_id
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
+                          <Left>1pt</Left>
                         </BorderWidth>
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
@@ -1599,17 +1610,18 @@ WHERE o.id = @order_id
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>36.5pt</Height>
+              <Height>35pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox94">
-                      <Value>п/п</Value>
+                      <Value>работ, услуг</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Top>None</Top>
+                          <Right>None</Right>
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
@@ -1619,11 +1631,12 @@ WHERE o.id = @order_id
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox95">
-                      <Value>работ, услуг</Value>
+                    <Textbox Name="Textbox209">
+                      <Value>п/п</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1632,7 +1645,9 @@ WHERE o.id = @order_id
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
@@ -1653,12 +1668,13 @@ WHERE o.id = @order_id
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
+                          <Left>1pt</Left>
                         </BorderWidth>
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1922,6 +1938,7 @@ WHERE o.id = @order_id
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2001,12 +2018,12 @@ WHERE o.id = @order_id
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>8.7pt</Height>
+              <Height>7.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value>1</Value>
+                      <Value>А</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2018,25 +2035,30 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox80">
-                      <Value>Б</Value>
-                      <Style>
+                    <Textbox Name="Textbox210">
+                      <Value>1</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2053,11 +2075,12 @@ WHERE o.id = @order_id
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
+                          <Left>1pt</Left>
                         </BorderWidth>
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2077,6 +2100,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2096,6 +2120,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2115,6 +2140,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2134,6 +2160,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2153,6 +2180,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2172,6 +2200,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2191,6 +2220,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2210,6 +2240,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2229,6 +2260,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2248,6 +2280,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2267,6 +2300,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2286,6 +2320,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2305,6 +2340,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2324,6 +2360,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2343,6 +2380,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2362,6 +2400,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0.5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2374,13 +2413,13 @@ WHERE o.id = @order_id
         <Details>
           <TableRows>
             <TableRow>
-              <Height>10.4pt</Height>
+              <Height>13.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>=RowNumber()</Value>
-                      <CanGrow>true</CanGrow>
+                      <Value>=Fields!id.Value</Value>
+                      <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2389,26 +2428,30 @@ WHERE o.id = @order_id
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <PaddingRight>0pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
                         <PaddingTop>1pt</PaddingTop>
+                        <PaddingLeft>3pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox77">
-                      <Value>=Fields!id.Value</Value>
-                      <Style>
+                    <Textbox Name="Textbox211">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
+                        <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                       </Style>
                     </Textbox>
@@ -2424,13 +2467,13 @@ WHERE o.id = @order_id
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
+                          <Left>1pt</Left>
                         </BorderWidth>
                         <FontSize>7pt</FontSize>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -2439,7 +2482,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox184">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2565,12 +2609,15 @@ WHERE o.id = @order_id
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>7pt</FontSize>
+                        <FontSize>5.5pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>0.5pt</PaddingBottom>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2755,12 +2802,13 @@ WHERE o.id = @order_id
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>10.4pt</Height>
+              <Height>8.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2772,13 +2820,13 @@ WHERE o.id = @order_id
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox75">
+                    <Textbox Name="Textbox212">
                       <Value>Всего к оплате</Value>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -2786,13 +2834,14 @@ WHERE o.id = @order_id
                         <BorderWidth>
                           <Left>3pt</Left>
                         </BorderWidth>
+                        <FontSize>8pt</FontSize>
                         <FontWeight>Bold</FontWeight>
                         <PaddingLeft>3pt</PaddingLeft>
-                        <FontSize>8pt</FontSize>
+                        <PaddingTop>0pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>7</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -2878,7 +2927,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2895,14 +2945,14 @@ WHERE o.id = @order_id
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>11.7pt</Left>
-        <Top>183.8pt</Top>
+        <Left>12.5pt</Left>
+        <Top>191.0pt</Top>
       </Table>
       <List Name="List4">
         <Height>254.59pt</Height>
         <Width>803.94pt</Width>
-        <Left>1.5pt</Left>
-        <Top>277.6pt</Top>
+        <Left>2.3pt</Left>
+        <Top>284.8pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -3838,7 +3888,7 @@ WHERE o.id = @order_id
             </Style>
           </Textbox>
           <Line Name="Line1">
-            <Height>0.02pt</Height>
+            <Height>0.0pt</Height>
             <Width>727pt</Width>
             <Style>
               <BorderStyle>
@@ -3849,12 +3899,12 @@ WHERE o.id = @order_id
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>76.9pt</Left>
+            <Left>77.2pt</Left>
             <Top>43.7pt</Top>
           </Line>
           <Line Name="Line2">
             <Height>43.00pt</Height>
-            <Width>0.01pt</Width>
+            <Width>0.0pt</Width>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -3864,7 +3914,7 @@ WHERE o.id = @order_id
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>78.3pt</Left>
+            <Left>78.7pt</Left>
             <Top>0.0pt</Top>
           </Line>
           <Textbox Name="Textbox128">
@@ -3886,8 +3936,8 @@ WHERE o.id = @order_id
             <Width>70.77pt</Width>
             <Value>="Документ составлен на " + {@PageNumber} + Iif({@PageNumber} = 1, " листе", " листах")</Value>
             <ZIndex>1</ZIndex>
-            <Left>3.2pt</Left>
-            <Top>3.5pt</Top>
+            <Left>3.20pt</Left>
+            <Top>3.50pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4199,8 +4249,10 @@ WHERE o.id = @order_id
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundGradientEndColor></BackgroundGradientEndColor>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundGradientEndColor>
+          </BackgroundGradientEndColor>
+          <BackgroundColor>
+          </BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -4209,7 +4261,7 @@ WHERE o.id = @order_id
         <Width>67.15pt</Width>
         <Value>Универсальный передаточный документ</Value>
         <ZIndex>1</ZIndex>
-        <Left>11.7pt</Left>
+        <Left>11.70pt</Left>
         <Top>17.10pt</Top>
         <Style>
           <BorderStyle />
@@ -4224,8 +4276,8 @@ WHERE o.id = @order_id
         <Width>39.27pt</Width>
         <Value>Статус:</Value>
         <ZIndex>1</ZIndex>
-        <Left>11.7pt</Left>
-        <Top>63.1pt</Top>
+        <Left>11.70pt</Left>
+        <Top>63.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -4277,8 +4329,8 @@ WHERE o.id = @order_id
         </Style>
       </Textbox>
       <Line Name="Line4">
-        <Height>210.73pt</Height>
-        <Width>-0.03pt</Width>
+        <Height>185.80pt</Height>
+        <Width>0.00pt</Width>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -4289,8 +4341,8 @@ WHERE o.id = @order_id
           </BorderWidth>
           <PaddingLeft>0pt</PaddingLeft>
         </Style>
-        <Left>80.2pt</Left>
-        <Top>5.6pt</Top>
+        <Left>81.0pt</Left>
+        <Top>7.1pt</Top>
       </Line>
     </ReportItems>
   </Body>
@@ -4321,14 +4373,16 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -4340,7 +4394,8 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

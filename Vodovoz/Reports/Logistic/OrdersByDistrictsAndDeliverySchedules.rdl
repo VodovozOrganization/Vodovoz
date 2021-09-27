@@ -74,7 +74,7 @@ WHERE
   AND DATE(o.delivery_date) &gt;= DATE(@start_date) AND DATE(o.delivery_date) &lt;= DATE(@end_date)
   AND o.delivery_schedule_id IS NOT NULL
   AND NOT o.is_contract_closer
-  AND NOT o.service
+  AND o.order_address_type != 'Service'
   AND (@geographic_group_id = '' OR distr.geographic_group_id = @geographic_group_id)
   AND NOT o.self_delivery
 GROUP BY distr.id, o.delivery_date

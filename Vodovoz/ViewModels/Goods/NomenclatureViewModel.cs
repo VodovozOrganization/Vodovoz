@@ -12,6 +12,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods
 {
@@ -19,9 +20,9 @@ namespace Vodovoz.ViewModels.Goods
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
 		
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -37,22 +38,25 @@ namespace Vodovoz.ViewModels.Goods
 
 		public Action PricesViewSaveChanges;
 		
-		public NomenclatureViewModel(IEntityUoWBuilder uowBuilder,
-		                             IUnitOfWorkFactory uowFactory,
-		                             ICommonServices commonServices,
-									 IEmployeeService employeeService,
-		                             IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-		                             IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-		                             INomenclatureRepository nomenclatureRepository,
-		                             IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices) {
+		public NomenclatureViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices) {
 
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices);
 
 			ConfigureEntityPropertyChanges();
+			ConfigureValidationContext();
 		}
 
 		public bool VisibilityWaterInNotDisposableTareCategoryItems =>
@@ -97,7 +101,12 @@ namespace Vodovoz.ViewModels.Goods
 
 		public bool SensitivityRadioPriceButton => Entity.DependsOnNomenclature == null;
 
-		void ConfigureEntityPropertyChanges() {
+		private void ConfigureValidationContext()
+		{
+			ValidationContext.ServiceContainer.AddService(typeof(INomenclatureRepository), _nomenclatureRepository);
+		}
+
+		private void ConfigureEntityPropertyChanges() {
 			SetPropertyChangeRelation(
 				e => e.Category,
 				() => VisibilityWaterInNotDisposableTareCategoryItems,
@@ -138,7 +147,7 @@ namespace Vodovoz.ViewModels.Goods
 				return "";
 			}
 
-			var employee = employeeService.GetEmployeeForUser(UoW, Entity.CreatedBy.Id);
+			var employee = _employeeService.GetEmployeeForUser(UoW, Entity.CreatedBy.Id);
 
 			if(employee == null) {
 				return Entity.CreatedBy.Name;
@@ -168,13 +177,13 @@ namespace Vodovoz.ViewModels.Goods
 
 		protected override void BeforeValidation() {
 			if(string.IsNullOrWhiteSpace(Entity.Code1c)) {
-				Entity.Code1c = nomenclatureRepository.GetNextCode1c(UoW);
+				Entity.Code1c = _nomenclatureRepository.GetNextCode1c(UoW);
 			}
 		}
 		
 		protected override void BeforeSave() {
 			logger.Info("Сохраняем номенклатуру...");
-			Entity.SetNomenclatureCreationInfo(userRepository);
+			Entity.SetNomenclatureCreationInfo(_userRepository);
 			PricesViewSaveChanges?.Invoke();
 		}
 		
@@ -191,5 +200,7 @@ namespace Vodovoz.ViewModels.Goods
 		);
 
 		#endregion
+
+		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; set; }
 	}
 }

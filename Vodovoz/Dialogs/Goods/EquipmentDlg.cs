@@ -7,12 +7,14 @@ using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Equipments;
 
 namespace Vodovoz
 {
 	public partial class EquipmentDlg : QS.Dialog.Gtk.EntityDialogBase<Equipment>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 
 		//FIXME Возможно нужно удалить конструктор, так как создание нового оборудования отсюда должно быть закрыто.
 		public EquipmentDlg ()
@@ -98,7 +100,7 @@ namespace Vodovoz
 
 		void FillLocation()
 		{
-			var location = Repositories.EquipmentRepository.GetLocation(UoW, Entity);
+			var location = _equipmentRepository.GetLocation(UoW, Entity);
 			labelWhere.LabelProp = location.Title;
 		}
 	}

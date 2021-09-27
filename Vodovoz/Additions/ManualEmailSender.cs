@@ -74,7 +74,7 @@ namespace Vodovoz.Additions
 						Text = billTemplate.Text,
 						HtmlText = billTemplate.TextHtml,
 						Recipient = new EmailContact("", sendedEmail.RecipientAddress),
-						Sender = new EmailContact("vodovoz-spb.ru", SingletonParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
+						Sender = new EmailContact("vodovoz-spb.ru", new ParametersProvider().GetParameterValue("email_for_email_delivery")),
 						Order = billDocument.Order.Id,
 						OrderDocumentType = OrderDocumentType.Bill
 					};

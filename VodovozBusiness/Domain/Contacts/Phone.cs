@@ -2,7 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using QS.Utilities.Numeric;
+using Vodovoz.Domain.Client;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Contacts
@@ -10,9 +12,12 @@ namespace Vodovoz.Domain.Contacts
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "телефоны",
 		Nominative = "телефон")]
+	[HistoryTrace]
 	public class Phone : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
+		private DeliveryPoint _deliveryPoint;
+		private Counterparty _counterparty;
 
 		public virtual int Id { get; set; }
 
@@ -51,6 +56,20 @@ namespace Vodovoz.Domain.Contacts
 		public virtual string Name {
 			get => name;
 			set { SetField(ref name, value, () => Name); }
+		}
+
+		[Display(Name = "Точка доставки")]
+		public virtual DeliveryPoint DeliveryPoint
+		{
+			get => _deliveryPoint;
+			set => SetField(ref _deliveryPoint, value); 
+		}
+
+		[Display(Name = "Контрагент")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
 		#endregion
@@ -114,5 +133,7 @@ namespace Vodovoz.Domain.Contacts
 		{
 			return "+7 " + Number;
 		}
+
+		public virtual string Title => $"{ ToString() }, { DeliveryPoint?.Title ?? Counterparty?.Name }";
 	}
 }

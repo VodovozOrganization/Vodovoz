@@ -1,82 +1,114 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.Commands;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public class CallTaskFilterViewModel : FilterViewModelBase<CallTaskFilterViewModel>
 	{
-		public CallTaskFilterViewModel(IEntityAutocompleteSelectorFactory employeeAutocompleteSelectorFactory)
+		private TaskFilterDateType _dateType = TaskFilterDateType.DeadlinePeriod;
+		private DeliveryPointCategory _deliveryPointCategory;
+		private Employee _employee;
+		private DateTime _endDate;
+		private bool _hideCompleted = true;
+		private bool _showOnlyWithoutEmployee = true;
+		private SortingDirectionType _sortingDirection;
+		private SortingParamType _sortingParam = SortingParamType.Id;
+		private DateTime _startDate;
+		private GeographicGroup _geographicGroup;
+
+		public CallTaskFilterViewModel(
+			IEntityAutocompleteSelectorFactory employeeAutocompleteSelectorFactory,
+			IDeliveryPointRepository deliveryPointRepository)
 		{
 			EmployeeAutocompleteSelectorFactory =
-				employeeAutocompleteSelectorFactory ?? throw new ArgumentNullException(nameof(employeeAutocompleteSelectorFactory));
+				employeeAutocompleteSelectorFactory
+				?? throw new ArgumentNullException(nameof(employeeAutocompleteSelectorFactory));
+			ActiveDeliveryPointCategories =
+				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
+				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			StartDate = DateTime.Today.AddDays(-14);
 			EndDate = DateTime.Today.AddDays(14);
+			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List();
 			CreateCommands();
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
+		public IOrderedEnumerable<DeliveryPointCategory> ActiveDeliveryPointCategories { get; }
 
-		private DateTime startDate;
-		public DateTime StartDate {
-			get => startDate;
-			set => UpdateFilterField(ref startDate, value);
+		public DateTime StartDate
+		{
+			get => _startDate;
+			set => UpdateFilterField(ref _startDate, value);
 		}
 
-		private DateTime endDate;
-		public DateTime EndDate {
-			get => endDate;
-			set => UpdateFilterField(ref endDate, value);
+		public DateTime EndDate
+		{
+			get => _endDate;
+			set => UpdateFilterField(ref _endDate, value);
 		}
 
-		private TaskFilterDateType dateType = TaskFilterDateType.DeadlinePeriod;
-		public TaskFilterDateType DateType {
-			get => dateType;
-			set => UpdateFilterField(ref dateType, value);
+		public TaskFilterDateType DateType
+		{
+			get => _dateType;
+			set => UpdateFilterField(ref _dateType, value);
 		}
 
-		private Employee employee;
-		public Employee Employee {
-			get => employee;
-			set => UpdateFilterField(ref employee, value);
+		public Employee Employee
+		{
+			get => _employee;
+			set => UpdateFilterField(ref _employee, value);
 		}
 
-		private DeliveryPointCategory deliveryPointCategory;
-		public DeliveryPointCategory DeliveryPointCategory {
-			get => deliveryPointCategory;
-			set => UpdateFilterField(ref deliveryPointCategory, value);
+		public DeliveryPointCategory DeliveryPointCategory
+		{
+			get => _deliveryPointCategory;
+			set => UpdateFilterField(ref _deliveryPointCategory, value);
 		}
 
-		private bool hideCompleted = true;
-		public bool HideCompleted {
-			get => hideCompleted;
-			set => UpdateFilterField(ref hideCompleted, value);
+		public bool HideCompleted
+		{
+			get => _hideCompleted;
+			set => UpdateFilterField(ref _hideCompleted, value);
 		}
 
-		private bool showOnlyWithoutEmployee = true;
-		public bool ShowOnlyWithoutEmployee {
-			get => showOnlyWithoutEmployee;
-			set => UpdateFilterField(ref showOnlyWithoutEmployee, value);
+		public bool ShowOnlyWithoutEmployee
+		{
+			get => _showOnlyWithoutEmployee;
+			set => UpdateFilterField(ref _showOnlyWithoutEmployee, value);
 		}
 
-		private SortingParamType sortingParam = SortingParamType.Id;
-		public SortingParamType SortingParam {
-			get => sortingParam;
-			set => UpdateFilterField(ref sortingParam, value);
+		public SortingParamType SortingParam
+		{
+			get => _sortingParam;
+			set => UpdateFilterField(ref _sortingParam, value);
 		}
 
-		private SortingDirectionType sortingDirection;
-		public SortingDirectionType SortingDirection {
-			get => sortingDirection;
-			set => UpdateFilterField(ref sortingDirection, value);
+		public SortingDirectionType SortingDirection
+		{
+			get => _sortingDirection;
+			set => UpdateFilterField(ref _sortingDirection, value);
 		}
 
-		public void SetDatePeriod(DateTime startPeriod, DateTime endPeriod)
+		public GeographicGroup GeographicGroup
+		{
+			get => _geographicGroup;
+			set => UpdateFilterField(ref _geographicGroup, value);
+		}
+
+		public IList<GeographicGroup> GeographicGroups { get; }
+
+		private void SetDatePeriod(DateTime startPeriod, DateTime endPeriod)
 		{
 			StartDate = startPeriod;
 			EndDate = endPeriod;
@@ -88,7 +120,7 @@ namespace Vodovoz.Filters.ViewModels
 			SetDatePeriod(start_date, end_date);
 		}
 
-		void CreateCommands()
+		private void CreateCommands()
 		{
 			CreateChangeDateOnExpiredCommand();
 			CreateChangeDateOnTodayCommand();
@@ -98,11 +130,14 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		#region Commands
+
 		public DelegateCommand ChangeDateOnExpiredCommand { get; private set; }
-		void CreateChangeDateOnExpiredCommand()
+
+		private void CreateChangeDateOnExpiredCommand()
 		{
 			ChangeDateOnExpiredCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					StartDate = DateTime.Now.AddDays(-15);
 					EndDate = DateTime.Now.AddDays(-1);
 				}, () => true
@@ -110,10 +145,12 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public DelegateCommand ChangeDateOnTodayCommand { get; private set; }
-		void CreateChangeDateOnTodayCommand()
+
+		private void CreateChangeDateOnTodayCommand()
 		{
 			ChangeDateOnTodayCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					StartDate = DateTime.Now;
 					EndDate = DateTime.Now;
 				}, () => true
@@ -121,10 +158,12 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public DelegateCommand ChangeDateOnTomorrowCommand { get; private set; }
-		void CreateChangeDateOnTomorrowCommand()
+
+		private void CreateChangeDateOnTomorrowCommand()
 		{
 			ChangeDateOnTomorrowCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					StartDate = DateTime.Now.AddDays(1);
 					EndDate = DateTime.Now.AddDays(1);
 				}, () => true
@@ -132,10 +171,12 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public DelegateCommand ChangeDateOnThisWeekCommand { get; private set; }
-		void CreateChangeDateOnThisWeekCommand()
+
+		private void CreateChangeDateOnThisWeekCommand()
 		{
 			ChangeDateOnThisWeekCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					DateHelper.GetWeekPeriod(out DateTime start_date, out DateTime end_date, 0);
 					StartDate = start_date;
 					EndDate = end_date;
@@ -144,16 +185,19 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public DelegateCommand ChangeDateOnNextWeekCommand { get; private set; }
-		void CreateChangeDateOnNextWeekCommand()
+
+		private void CreateChangeDateOnNextWeekCommand()
 		{
 			ChangeDateOnNextWeekCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					DateHelper.GetWeekPeriod(out DateTime start_date, out DateTime end_date, 1);
 					StartDate = start_date;
 					EndDate = end_date;
 				}, () => true
 			);
 		}
+
 		#endregion
 	}
 
@@ -169,24 +213,15 @@ namespace Vodovoz.Filters.ViewModels
 
 	public enum SortingParamType
 	{
-		[Display(Name = "Клиент")]
-		Client,
-		[Display(Name = "Адрес")]
-		DeliveryPoint,
-		[Display(Name = "№")]
-		Id,
-		[Display(Name = "Долг по адресу")]
-		DebtByAddress,
-		[Display(Name = "Долг по клиенту")]
-		DebtByClient,
-		[Display(Name = "Создатель задачи")]
-		Deadline,
-		[Display(Name = "Ответственный")]
-		AssignedEmployee,
-		[Display(Name = "Статус")]
-		Status,
-		[Display(Name = "Срочность")]
-		ImportanceDegree
+		[Display(Name = "Клиент")] Client,
+		[Display(Name = "Адрес")] DeliveryPoint,
+		[Display(Name = "№")] Id,
+		[Display(Name = "Долг по адресу")] DebtByAddress,
+		[Display(Name = "Долг по клиенту")] DebtByClient,
+		[Display(Name = "Создатель задачи")] Deadline,
+		[Display(Name = "Ответственный")] AssignedEmployee,
+		[Display(Name = "Статус")] Status,
+		[Display(Name = "Срочность")] ImportanceDegree
 	}
 
 	public enum SortingDirectionType

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace EmailService
@@ -67,7 +68,7 @@ namespace EmailService
 				return;
 			}
 
-			IMailjetParametersProvider parametersProvider = new BaseParametersProvider();
+			IMailjetParametersProvider parametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 			try {
 				SetLoginSetting(parametersProvider.MailjetUserId, parametersProvider.MailjetSecretKey);

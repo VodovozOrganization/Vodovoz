@@ -1,12 +1,12 @@
-﻿using NHibernate;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 
@@ -30,15 +30,24 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<ClientCameFrom> GetPlacesClientCameFrom(IUnitOfWork uow, bool doNotShowArchive, bool orderByDescending = false)
 		{
 			var query = uow.Session.QueryOver<ClientCameFrom>();
+			
 			if(doNotShowArchive)
+			{
 				query.Where(f => !f.IsArchive);
-			return orderByDescending ? query.OrderBy(f => f.Name).Desc().List() : query.OrderBy(f => f.Name).Asc().List();
+			}
+
+			return orderByDescending 
+				? query.OrderBy(f => f.Name).Desc().List()
+				: query.OrderBy(f => f.Name).Asc().List();
 		}
 
 		public Counterparty GetCounterpartyByINN(IUnitOfWork uow, string inn)
 		{
 			if(string.IsNullOrWhiteSpace(inn))
+			{
 				return null;
+			}
+
 			return uow.Session.QueryOver<Counterparty>()
 				.Where(c => c.INN == inn)
 				.Take(1)
@@ -48,7 +57,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<Counterparty> GetCounterpartiesByINN(IUnitOfWork uow, string inn)
 		{
 			if(string.IsNullOrWhiteSpace(inn))
+			{
 				return null;
+			}
+
 			return uow.Session.QueryOver<Counterparty>()
 				.Where(c => c.INN == inn).List<Counterparty>();
 		}
@@ -56,7 +68,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
 		{
 			if(string.IsNullOrWhiteSpace(accountNumber))
+			{
 				return null;
+			}
+
 			Account accountAlias = null;
 
 			return uow.Session.QueryOver<Counterparty>()
@@ -79,7 +94,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Select(Projections.Distinct(Projections.Property<Counterparty>(x => x.SignatoryBaseOf)))
 				.List<string>();
 		}
-		/*
+
 		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld };
 
 		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
@@ -87,7 +102,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public bool IsCashPayment(PaymentType payment) => GetPaymentTypesForCash().Contains(payment);
 
 		public bool IsCashlessPayment(PaymentType payment) => GetPaymentTypesForCashless().Contains(payment);
-		*/
 
 		public IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow)
 		{

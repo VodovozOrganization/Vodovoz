@@ -8,7 +8,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
 using QS.Dialog;
@@ -22,13 +21,11 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
-using QS.Osm;
-using QS.Osm.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure.Converters;
-using TrackRepository = Vodovoz.Repository.Logistics.TrackRepository;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -36,6 +33,8 @@ namespace Vodovoz
 	{
 		#region Поля
 
+		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		bool editing = true;
 
 		List<RouteListKeepingItemNode> items;
@@ -45,13 +44,14 @@ namespace Vodovoz
 			callTaskWorker ?? (callTaskWorker = new CallTaskWorker(
 				CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
-				OrderSingletonRepository.GetInstance(),
-				EmployeeSingletonRepository.GetInstance(),
-				new BaseParametersProvider(),
+				new OrderRepository(),
+				new EmployeeRepository(),
+				new BaseParametersProvider(new ParametersProvider()),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance));
 
-		private readonly WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
 		#endregion
 
@@ -84,14 +84,16 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
+			referenceDriver.RepresentationModel = new EmployeesVM();
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
+			referenceForwarder.RepresentationModel = new EmployeesVM();
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 		
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);
+			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoWGeneric);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
@@ -168,9 +170,9 @@ namespace Vodovoz
 			}
 			
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
-			Entity.CalculateWages(wageParameterService);
+			Entity.CalculateWages(_wageParameterService);
 
 			UoWGeneric.Save();
 
@@ -192,7 +194,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			Entity.AcceptMileage(CallTaskWorker);
 
@@ -213,7 +215,7 @@ namespace Vodovoz
 
 		protected void OnButtonFromTrackClicked(object sender, EventArgs e)
 		{
-			var track = TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
 			if(track == null) {
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
 				return;

@@ -74,15 +74,23 @@ namespace Vodovoz.Domain.Payments
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
 			culture.NumberFormat.NumberDecimalSeparator = ".";
 
-			PaymentByCardFrom = paymentFrom;
-			
 			if(!decimal.TryParse(data[1].Trim(), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
 				paymentRUR = 0m;
 			
 			DateAndTime = ParseDate(data[4].Trim());
 
-			if(!int.TryParse(GetNumberFromDescription(data[6], paymentFrom), out paymentNr))
+			if(!int.TryParse(GetNumberFromDescription(data[6], ref paymentFrom), out paymentNr))
+			{
 				paymentNr = 0;
+			}
+
+			//Проверяем дополнительно здесь, т.к. по одной из касс прилетают оплаты трех форматов
+			if(paymentNr < 1000000 && paymentFrom == PaymentByCardOnlineFrom.FromSMS)
+			{
+				paymentFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
+			}
+
+			PaymentByCardFrom = paymentFrom;
 
 			PaymentStatus = PaymentStatus.CONFIRMED;
 
@@ -184,11 +192,34 @@ namespace Vodovoz.Domain.Payments
 		public virtual bool IsDuplicate { get; set; }
 		public virtual string Color { get; set; }
 		
-		private string GetNumberFromDescription(string description, PaymentByCardOnlineFrom paymentFrom)
+		private string GetNumberFromDescription(string description, ref PaymentByCardOnlineFrom paymentFrom)
 		{
-			var pattern = paymentFrom == PaymentByCardOnlineFrom.FromEShop ? @"№([0-9]{1,})" : @"[\s|-]([0-9]{1,})";
+			var pattern1 = @"№([0-9]{1,})";
+			var pattern2 = @"[\s|-]([0-9]{1,})";
+
+			MatchCollection matches;
 			
-			var matches = Regex.Matches(description, pattern);
+			if(paymentFrom == PaymentByCardOnlineFrom.FromEShop)
+			{
+				matches = Regex.Matches(description, pattern1);
+			}
+			else if(paymentFrom == PaymentByCardOnlineFrom.FromSMS) //Проверяем отдельно т.к. появилась северная касса
+			{
+				//Туда прилетают оплаты, как по номеру заказа, так и по номеру ИМ, парсим сначала по второму паттерну(№ заказа)
+				matches = Regex.Matches(description, pattern2);
+
+				//Если соответствий нет
+				if(matches.Count == 0)
+				{
+					//Делаем выборку по первому паттерну и меняем тип оплаты для корректного нахождения этой оплаты в отчете
+					matches = Regex.Matches(description, pattern1);
+					paymentFrom = PaymentByCardOnlineFrom.FromEShop;
+				}
+			}
+			else
+			{
+				matches = Regex.Matches(description, pattern2);
+			}
 
 			return matches[matches.Count - 1].Groups[1].Value;
 		}

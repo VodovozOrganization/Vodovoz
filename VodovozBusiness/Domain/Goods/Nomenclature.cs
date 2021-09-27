@@ -14,9 +14,8 @@ using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -27,6 +26,9 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
+		IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
+		GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
+
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -426,6 +428,16 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref onlineStore, value);
 		}
 
+		[Display(Name = "Цены закупки ТМЦ")]
+		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
+		{
+			get => _purchasePrices;
+			set => SetField(ref _purchasePrices, value);
+		}
+
+		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
+			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -435,13 +447,6 @@ namespace Vodovoz.Domain.Goods
 		public virtual string OnlineStoreExternalId {
 			get => onlineStoreExternalId;
 			set => SetField(ref onlineStoreExternalId, value);
-		}
-		
-		private decimal purchasePrice;
-		[Display(Name = "Цена закупки")]
-		public virtual decimal PurchasePrice {
-			get => purchasePrice;
-			set => SetField(ref purchasePrice, value);
 		}
 
 		private Counterparty shipperCounterparty;
@@ -707,12 +712,52 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
+		public virtual void ChangePurchasePrice(NomenclaturePurchasePrice purchasePrice, DateTime startDate)
+		{
+			if(purchasePrice == null)
+			{
+				throw new ArgumentNullException(nameof(purchasePrice));
+			}
+
+			purchasePrice.Nomenclature = this;
+			purchasePrice.StartDate = startDate;
+			NomenclaturePurchasePrice oldPurchasePrice = ObservablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
+
+			if(oldPurchasePrice != null)
+			{
+				if(oldPurchasePrice.StartDate > startDate)
+				{
+					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
+				}
+				oldPurchasePrice.EndDate = startDate.AddMilliseconds(-1);
+			}
+			ObservablePurchasePrices.Add(purchasePrice);
+		}
+
+		public virtual bool CheckStartDateForNewPurchasePrice(DateTime newStartDate)
+		{
+			NomenclaturePurchasePrice oldPurchasePrice = _observablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
+			
+			if(oldPurchasePrice == null)
+			{
+				return true;
+			}
+
+			return oldPurchasePrice.StartDate < newStartDate;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.ServiceContainer.GetService(
+				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(nomenclatureRepository) }");
+			}
+			
 			if(String.IsNullOrWhiteSpace(Name))
 				yield return new ValidationResult(
 					"Название номенклатуры должно быть заполнено.", new[] { this.GetPropertyName(o => o.Name) });
@@ -767,14 +812,22 @@ namespace Vodovoz.Domain.Goods
 					new[] { this.GetPropertyName(o => o.Unit) });
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
-			if(DependsOnNomenclature != null) {
-				IList<Nomenclature> dependedNomenclatures = NomenclatureRepository.GetDependedNomenclatures(UoW, this);
-				if(dependedNomenclatures.Any()) {
+			if(DependsOnNomenclature != null)
+			{
+				IList<Nomenclature> dependedNomenclatures = nomenclatureRepository.GetDependedNomenclatures(UoW, this);
+				
+				if(dependedNomenclatures.Any())
+				{
 					string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
+					
 					foreach(Nomenclature n in dependedNomenclatures)
+					{
 						dependedNomenclaturesText += $"{n.Id}: {n.OfficialName} ({n.CategoryString})\n";
+					}
+
 					yield return new ValidationResult(dependedNomenclaturesText, new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 				}
+				
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
 					yield return new ValidationResult(
 						$"Номенклатура '{DependsOnNomenclature.ShortOrFullName}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName}'",
@@ -787,11 +840,13 @@ namespace Vodovoz.Domain.Goods
 						$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
 						new[] { this.GetPropertyName(o => o.Code1c) });
 
-				var next = NomenclatureRepository.GetNextCode1c(UoW);
+				var next = nomenclatureRepository.GetNextCode1c(UoW);
 				if(string.Compare(Code1c, next) > 0)
+				{
 					yield return new ValidationResult(
 						$"Код 1с использует префикс автоматического формирования кодов '{PrefixOfCode1c}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {next} или оставьте это поле пустым для автозаполенения.",
 						new[] { this.GetPropertyName(o => o.Code1c) });
+				}
 			}
 
 			if(DateTime.Now >= new DateTime(2019, 01, 01) && VAT == VAT.Vat18)

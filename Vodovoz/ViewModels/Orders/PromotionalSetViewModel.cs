@@ -21,26 +21,27 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly IEmployeeService _employeeService;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		
-		public PromotionalSetViewModel(IEntityUoWBuilder uowBuilder, 
-		                               IUnitOfWorkFactory unitOfWorkFactory, 
-		                               ICommonServices commonServices,
-		                               IEmployeeService employeeService,
-		                               IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-		                               IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-		                               INomenclatureRepository nomenclatureRepository,
-		                               IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		public PromotionalSetViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
@@ -134,8 +135,8 @@ namespace Vodovoz.ViewModels.Orders
 					x => x.SelectSaleCategory = SaleCategory.forSale);
 
 				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, 
-					CommonServices, employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory,
-					nomenclatureRepository, userRepository) {
+					CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
+					_nomenclatureRepository, _userRepository) {
 					SelectionMode = JournalSelectionMode.Single
 				};
 
@@ -178,7 +179,7 @@ namespace Vodovoz.ViewModels.Orders
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
 				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, 
-					counterpartySelectorFactory, nomenclatureRepository, userRepository);
+					_counterpartySelectorFactory, _nomenclatureRepository, _userRepository);
 				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
 
 				if(SelectedActionViewModel is ICreationControl) {

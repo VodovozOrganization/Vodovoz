@@ -7,10 +7,11 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -18,15 +19,25 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Repositories;
-using Vodovoz.NhibernateExtensions;
+using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class RouteListRepository : IRouteListRepository
 	{
+		private readonly IStockRepository _stockRepository;
+		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		
+		public RouteListRepository(IStockRepository stockRepository, ITerminalNomenclatureProvider terminalNomenclatureProvider)
+		{
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_terminalNomenclatureProvider =
+				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+		}
+		
 		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date)
 		{
 			RouteList routeListAlias = null;
@@ -260,7 +271,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				).WithAlias(() => resultAlias.ExpireDatePercent)
 				.Select(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
-			    .TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
 		}
 
@@ -331,15 +342,20 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null) {
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 			
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
-			                        .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
-			                        .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-			                        .And(x => x.RouteList.Id == routeList.Id)
-			                        .List();
-			
+									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+									.Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+									.And(x => x.RouteList.Id == routeList.Id)
+									.List();
+
+			if(GetLastTerminalDocumentForEmployee(uow, routeList.Driver) is DriverAttachedTerminalGiveoutDocument)
+			{
+				return null;
+			}
+
 			if (needTerminal || loadedTerminal.Any()) {
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
@@ -351,8 +367,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-
-				if(StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
+				if(_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount
@@ -363,31 +378,53 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
-        public bool IsTerminalRequired(IUnitOfWork uow, int routeListId)
-        {
-            CarLoadDocumentItem carLoadDocumentItemAlias = null;
+		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
+		{
+			DriverAttachedTerminalDocumentBase docAlias = null;
 
-            var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-            var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
-            var anyAddressesRequireTermanal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			return uow.Session.QueryOver(() => docAlias)
+				.Where(doc => doc.Driver == employee)
+				.OrderBy(doc => doc.CreationDate).Desc.Take(1)
+				.SingleOrDefault();
+		}
 
-            var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
-                                    .JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
-                                    .Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-                                    .And(() => carLoadDocumentItemAlias.Amount > 0)
-                                    .And(x => x.RouteList.Id == routeList.Id)
-                                    .List();
+		public bool IsTerminalRequired(IUnitOfWork uow, int routeListId)
+		{
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
-            return anyAddressesRequireTermanal && !loadedTerminal.Any();
-        }
+			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
+			var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+			var giveoutDoc = GetLastTerminalDocumentForEmployee(uow, routeList.Driver) as DriverAttachedTerminalGiveoutDocument;
+
+			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
+									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
+									.Where(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+									.And(() => carLoadDocumentItemAlias.Amount > 0)
+									.And(x => x.RouteList.Id == routeList.Id)
+									.List();
+
+			return anyAddressesRequireTerminal && !loadedTerminal.Any() && giveoutDoc == null;
+		}
 
 		public GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
+			if(GetLastTerminalDocumentForEmployee(uow, routeList.Driver) is DriverAttachedTerminalGiveoutDocument giveoutDoc)
+			{//если водителю был привязан терминал, то ему не надо его грузить
+				return null;
+			}
+
+			if(GetSelfDriverTerminalTransferDocument(uow, routeList.Driver, routeList) != null)
+			{//если терминал был перенесён на вторую ходку, то не надо его грузить
+				return null;
+			}
+
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
+			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal) && transferedCount == 0;
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
@@ -410,9 +447,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 						Amount = amount
 					};
 				}
-
-
-				if (StockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
+				
+				if (_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{
@@ -444,9 +480,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList(list => list
 					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inCarLoads.NomenclatureId)
-				    .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
-				    .SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
-				    .SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
+					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
+					.SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
+					.SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
 				.List<GoodsInRouteListResultToDivide>();
 			return loadedlist;
@@ -534,9 +570,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				throw new ArgumentNullException(nameof(routeList));
 			}
 
-			var terminalId = new BaseParametersProvider().GetNomenclatureIdForTerminal;
-
-			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
+			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocumentBase>()
 				.Where(dttd => dttd.RouteListTo.Id == routeList.Id
 							|| dttd.RouteListFrom.Id == routeList.Id)
 				.ToList();
@@ -744,13 +778,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .List();
 		}
 
-		public RouteList GetRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
+		public RouteList GetActualRouteListByOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			return uow.Session.QueryOver(() => routeListAlias)
 							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
 							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .And(() => routeListItemAlias.Status != RouteListItemStatus.Transfered)
 							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
 							  .List()
 							  .FirstOrDefault();
@@ -778,8 +813,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.List();
 		}
 
-        public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
-        {
+		public RouteList GetRouteListById(IUnitOfWork uow, int routeListsId)
+		{
 			return uow.GetById<RouteList>(routeListsId);
 		}
 
@@ -821,7 +856,33 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
-    }
+		
+		public bool RouteListContainsGivedFuelLiters(IUnitOfWork uow, int id)
+		{
+			bool result = false;
+
+			var routeList = uow.Session.QueryOver<RouteList>()
+				.Where(x => x.Id == id)
+				.SingleOrDefault<RouteList>();
+
+			foreach(var fuelDocument in routeList.FuelDocuments)
+			{
+				decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
+				decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
+				if(litersGived > 0 || payedLiters > 0)
+				{
+					result = true;
+				}
+			}
+
+			return result;
+		}
+
+		public SelfDriverTerminalTransferDocument GetSelfDriverTerminalTransferDocument(IUnitOfWork unitOfWork, Employee driver, RouteList routeList) =>
+			unitOfWork.Session.QueryOver<SelfDriverTerminalTransferDocument>()
+				.Where(d => d.DriverTo == driver && d.RouteListTo == routeList)
+				.SingleOrDefault();
+	}
 
 	#region DTO
 

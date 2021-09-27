@@ -13,13 +13,12 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Navigation;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -27,18 +26,20 @@ namespace Vodovoz.ViewModels.FuelDocuments
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+		private readonly ICategoryRepository _categoryRepository;
+		private readonly ITrackRepository _trackRepository;
+
 		private CashDistributionCommonOrganisationProvider commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance));
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 
 		private FuelCashOrganisationDistributor fuelCashOrganisationDistributor;
 
 		public virtual IUnitOfWork UoW { get; set; }
 
-		protected IFuelRepository fuelRepository { get; set; }
-		protected ISubdivisionRepository subdivisionsRepository { get; }
-		protected IEmployeeRepository employeeRepository { get; }
-		protected ICommonServices commonServices { get; }
+		protected IFuelRepository FuelRepository { get; set; }
+		protected ISubdivisionRepository SubdivisionsRepository { get; }
+		protected IEmployeeRepository EmployeeRepository { get; }
+		protected ICommonServices CommonServices { get; }
 
 		private FuelDocument fuelDocument;
 		[PropertyChangedAlso(nameof(Balance), nameof(FuelInfo), nameof(ResultInfo))]
@@ -97,13 +98,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual bool IsNewEditable { get { return FuelDocument.Id <= 0 && CanEdit; } }
 
 		public virtual bool CanChangeDate { get => CanEdit &&
-		commonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number", commonServices.UserService.CurrentUserId);
+		CommonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number", CommonServices.UserService.CurrentUserId);
 		} 
 
 		public virtual decimal Balance {
 			get {
 				if(FuelDocument.Subdivision != null && FuelDocument.Fuel != null)
-					return fuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
+					return FuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
 				return 0m;
 			}
 		}
@@ -133,9 +134,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{ 
 			get 
 				{
-					var user = commonServices.UserService.GetCurrentUser(UoW);
-					var employee = employeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
-					var subdivisions = subdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
+					var user = CommonServices.UserService.GetCurrentUser(UoW);
+					var employee = EmployeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
+					var subdivisions = SubdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
 					
 					if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
 						FuelDocument.Subdivision = employee.Subdivision;
@@ -164,13 +165,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
 			IFuelRepository fuelRepository,
-			INavigationManager navigationManager
-		) : base(commonServices.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			ICategoryRepository categoryRepository) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
-			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
-			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
-			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			UoW = uow;
 			FuelDocument = new FuelDocument();
@@ -189,13 +193,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
 			IFuelRepository fuelRepository,
-			INavigationManager navigationManager
-		) : base(commonServices.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			ICategoryRepository categoryRepository) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
-			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
-			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
-			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
@@ -216,13 +223,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ISubdivisionRepository subdivisionsRepository, 
 			IEmployeeRepository employeeRepository, 
 			IFuelRepository fuelRepository,
-			INavigationManager navigationManager
-		) : base(commonServices.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			ICategoryRepository categoryRepository) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
-			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
-			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
-			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
@@ -244,9 +254,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			TabName = "Выдача топлива";
 			fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(commonOrganisationProvider);
 			CreateCommands();
-			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
+			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+			
 			if(FuelDocument.Id == 0)
+			{
 				FuelDocument.FillEntity(RouteList);
+			}
+
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 		}
 
@@ -254,14 +268,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool InitActualCashier()
 		{
-			Cashier = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(Cashier == null) {
 				ShowWarningMessage("Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства и топливо, так как некого указывать в качестве кассира.");
 				return false;
 			}
 
-			var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var cashSubdivisions = SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true) {
 				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
 				return false;
@@ -294,13 +308,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				FuelDocument.FuelCashExpense.Casher = cashier;
 			}
 
-			var valid = commonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
+			var valid = CommonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
 
 			if(!valid)
+			{
 				return false;
+			}
+
 			if(FuelDocument.Id == 0) 
 			{
-				FuelDocument.CreateOperations(fuelRepository, commonOrganisationProvider);
+				FuelDocument.CreateOperations(FuelRepository, commonOrganisationProvider, _categoryRepository);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
 				if (FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
@@ -310,7 +327,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			} 
 			else 
 			{
-				FuelDocument.UpdateFuelOperation(fuelRepository);
+				FuelDocument.UpdateFuelOperation(_categoryRepository);
 			}
 
 			logger.Info("Сохраняем топливный документ...");
@@ -375,11 +392,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			var text = new List<string>();
 			decimal fc = (decimal)RouteList.Car.FuelConsumption;
 
-			var track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
-			bool hasTrack = track != null && track.Distance.HasValue;
+			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+			bool hasTrack = curTrack != null && curTrack.Distance.HasValue;
 
 			if(hasTrack)
-				text.Add($"Расстояние по треку: {track.TotalDistance:f1}({track.Distance ?? 0:N1}+{track.DistanceToBase ?? 0:N1}) км.");
+			{
+				text.Add($"Расстояние по треку: {curTrack.TotalDistance:f1}({curTrack.Distance ?? 0:N1}+{curTrack.DistanceToBase ?? 0:N1}) км.");
+			}
 
 			text.Add($"Подтвержденное расстояние {RouteList.ConfirmedDistance}");
 
@@ -408,8 +427,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				else 
 					car = null;
 
-				fuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-					UoW, driver, car, RouteList.Car.FuelType, null, exclude?.ToArray());
+				fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
 
 				text.Add($"Остаток без документа {fuelBalance:F2} л.");
 			} else {

@@ -21,8 +21,11 @@ namespace Vodovoz.Views
 		{
 			ybuttonExport.Clicked += (sender, e) => {
 				var parentWindow = GetParentWindow(this);
-				var folderChooser = new FileChooserDialog("Выберите папку выгрузки", parentWindow, FileChooserAction.SelectFolder, 
-					Stock.Cancel, ResponseType.Cancel, Stock.Open, ResponseType.Accept);
+				var folderChooser = new FileChooserDialog("Выберите папку выгрузки", parentWindow, FileChooserAction.SelectFolder,
+					Stock.Cancel, ResponseType.Cancel, Stock.Open, ResponseType.Accept)
+				{
+					DoOverwriteConfirmation = true,
+				};
 				folderChooser.ShowAll();
 				if((ResponseType)folderChooser.Run() == ResponseType.Accept) {
 					if(folderChooser.CurrentFolder == null) {
@@ -106,9 +109,6 @@ namespace Vodovoz.Views
 				.AddColumn("ID поставщика")
 					.AddNumericRenderer(x => x.ShipperCounterpartyId)
 					.XAlign(0.5f)
-				.AddColumn("Цена закупки")
-					.AddNumericRenderer(x => x.PurchasePrice).Digits(2).WidthChars(10)
-					.XAlign(1)
 				.AddColumn("Цена продажи")
 					.AddNumericRenderer(x => x.SellPrice).Digits(2).WidthChars(10)
 					.XAlign(1)

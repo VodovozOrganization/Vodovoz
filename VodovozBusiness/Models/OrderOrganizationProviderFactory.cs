@@ -6,15 +6,13 @@ namespace Vodovoz.Models
 	{
 		public IOrganizationProvider CreateOrderOrganizationProvider()
 		{
-			var organizationParametersProvider = new OrganizationParametersProvider(SingletonParametersProvider.Instance);
-			var orderParametersProvider = new OrderParametersProvider(SingletonParametersProvider.Instance);
-			var geographicGroupParametersProvider = new GeographicGroupParametersProvider(SingletonParametersProvider.Instance);
+			var parametersProvider = new ParametersProvider();
+			var organizationParametersProvider = new OrganizationParametersProvider(parametersProvider);
+			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
 
 			return new Stage2OrganizationProvider(
 				organizationParametersProvider,
-				orderParametersProvider,
-				geographicGroupParametersProvider
-			);
+				orderParametersProvider);
 		}
 	}
 }

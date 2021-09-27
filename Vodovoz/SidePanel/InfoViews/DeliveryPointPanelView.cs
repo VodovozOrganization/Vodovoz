@@ -16,11 +16,12 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository.Client;
-using Vodovoz.Repository.Operations;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -31,6 +32,11 @@ namespace Vodovoz.SidePanel.InfoViews
 {
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
+		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
+		private readonly IDepositRepository _depositRepository = new DepositRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
 		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
@@ -100,16 +106,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
 
-			var bottlesAtDeliveryPoint = BottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
-			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
+			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
+			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
 			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
-			var bottlesAtCounterparty = BottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
+			var bottlesAtCounterparty = _bottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
-			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
+			var depositsAtDeliveryPoint = _depositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 
-			var currentOrders = OrderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
+			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
 			vboxLastOrders.Visible = currentOrders.Any();
 
@@ -180,17 +186,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
-				ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()),
-				new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
-				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
-				EntityUoWBuilder.ForOpen(DeliveryPoint.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
 	}
 }
-

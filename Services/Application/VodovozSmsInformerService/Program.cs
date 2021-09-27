@@ -12,13 +12,14 @@ using QSProjectsLib;
 using SmsRuSendService;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
+using Vodovoz.Parameters;
 
 namespace VodovozSmsInformerService
 {
     class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
+		
 		private static readonly string configFile = "/etc/vodovoz-smsinformer-service.conf";
 
 		//Service
@@ -33,6 +34,7 @@ namespace VodovozSmsInformerService
 		private static string mysqlDatabase;
 
 		static NewClientSmsInformer newClientInformer;
+		static UndeliveryNotApprovedSmsInformer undeliveryNotApprovedSmsInformer;
 
 		public static void Main(string[] args)
 		{
@@ -109,17 +111,20 @@ namespace VodovozSmsInformerService
 				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();
 
 				SmsRuSendController smsSender = new SmsRuSendController(smsRuConfig);
-
+				
 				newClientInformer = new NewClientSmsInformer(smsSender, smsNotificationRepository);
 				newClientInformer.Start();
 
-				BaseParametersProvider parametersProvider = new BaseParametersProvider();
+				BaseParametersProvider parametersProvider = new BaseParametersProvider(new ParametersProvider());
 				LowBalanceNotifier lowBalanceNotifier = new LowBalanceNotifier(smsSender, smsSender, parametersProvider);
 				lowBalanceNotifier.Start();
+				
+				undeliveryNotApprovedSmsInformer = new UndeliveryNotApprovedSmsInformer(smsSender, smsNotificationRepository);
+				undeliveryNotApprovedSmsInformer.Start();
 
 				SmsInformerInstanceProvider serviceStatusInstanceProvider = new SmsInformerInstanceProvider(
 					smsNotificationRepository, 
-					new BaseParametersProvider()
+					new BaseParametersProvider(new ParametersProvider())
 				);
 				WebServiceHost smsInformerStatus = new SmsInformerServiceHost(serviceStatusInstanceProvider);
 				smsInformerStatus.AddServiceEndpoint(
@@ -154,6 +159,7 @@ namespace VodovozSmsInformerService
 		static void CurrentDomain_ProcessExit(object sender, EventArgs e)
 		{
 			newClientInformer?.Stop();
+			undeliveryNotApprovedSmsInformer.Stop();
 		}
 	}
 }

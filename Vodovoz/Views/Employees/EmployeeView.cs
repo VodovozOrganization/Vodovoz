@@ -6,9 +6,12 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Banks.Domain;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
+using QS.Project.Services;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
 using QSOrmProject;
@@ -20,13 +23,16 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
 {
-	public partial class EmployeeView : TabViewBase<EmployeeViewModel>
+	public partial class EmployeeView : TabViewBase<EmployeeViewModel>, IEntityDialog
 	{
 		public EmployeeView(EmployeeViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
 		}
+		
+		public IUnitOfWork UoW => ViewModel.UoW;
+		public object EntityObject => ViewModel.UoWGeneric.RootObject;
 
 		private void ConfigureDlg()
 		{
@@ -159,8 +165,23 @@ namespace Vodovoz.Views.Employees
 			dataentryAndroidLogin.Binding
 				.AddBinding(ViewModel.Entity, e => e.AndroidLogin, w => w.Text)
 				.InitializeFromSource();
+			dataentryAndroidLogin.Binding
+				.AddBinding(ViewModel, vm => vm.CanRegisterMobileUser, w => w.Sensitive)
+				.InitializeFromSource();
+
 			dataentryAndroidPassword.Binding
 				.AddBinding(ViewModel.Entity, e => e.AndroidPassword, w => w.Text)
+				.InitializeFromSource();
+			dataentryAndroidPassword.Binding
+				.AddBinding(ViewModel, vm => vm.CanRegisterMobileUser, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yMobileLoginInfo.Binding
+				.AddBinding(ViewModel, vm => vm.AddMobileLoginInfo, w => w.LabelProp)
+				.InitializeFromSource();
+
+			yAddMobileLogin.Binding
+				.AddBinding(ViewModel, vm => vm.IsValidNewMobileUser, w => w.Sensitive)
 				.InitializeFromSource();
 
 			defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
@@ -210,8 +231,11 @@ namespace Vodovoz.Views.Employees
 			ViewModel.HasAttachmentFilesChangesFunc += HasAttachmentsFilesChanges;
 
 			//Вкладка Документы
-			ConfigureDocumentsTabButtons();
-			ConfigureTreeEmployeeDocuments();
+			if(radioTabEmployeeDocument.Sensitive = ViewModel.CanReadEmployeeDocuments)
+			{
+				ConfigureDocumentsTabButtons();
+				ConfigureTreeEmployeeDocuments();
+			}
 			
 			//Вкладка Договора
 			ConfigureContractsTabButtons();
@@ -258,7 +282,8 @@ namespace Vodovoz.Views.Employees
 			btnAddDocument.Clicked += OnButtonAddDocumentClicked;
 			btnEditDocument.Clicked += OnButtonEditDocumentClicked;
 			btnRemoveDocument.Clicked += (s, e) => ViewModel.RemoveEmployeeDocumentsCommand.Execute();
-			
+
+			btnAddDocument.Sensitive = ViewModel.CanAddEmployeeDocument;
 			btnEditDocument.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditEmployeeDocument, w => w.Sensitive).InitializeFromSource();
 			btnRemoveDocument.Binding
@@ -286,14 +311,15 @@ namespace Vodovoz.Views.Employees
 		{
 			var dlg = new EmployeeDocDlg(
 				ViewModel.UoW,
-				ViewModel.Entity.IsRussianCitizen ? ViewModel.HiddenForRussianDocument : ViewModel.HiddenForForeignCitizen);
+				ViewModel.Entity.IsRussianCitizen ? ViewModel.HiddenForRussianDocument : ViewModel.HiddenForForeignCitizen,
+				ServicesConfig.CommonServices);
 			dlg.Save += (s, args) => ViewModel.Entity.ObservableDocuments.Add(dlg.Entity);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
 		}
 
 		private void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			var dlg = new EmployeeDocDlg(ViewModel.SelectedEmployeeDocuments.ElementAt(0).Id, ViewModel.UoW);
+			var dlg = new EmployeeDocDlg(ViewModel.SelectedEmployeeDocuments.ElementAt(0).Id, ViewModel.UoW, ServicesConfig.CommonServices);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
 		}
 
@@ -619,6 +645,10 @@ namespace Vodovoz.Views.Employees
 
 		private void OnRadioTabLogisticToggled(object sender, EventArgs e)
 		{
+			if(terminalmanagementview1.ViewModel == null)
+			{
+				terminalmanagementview1.ViewModel = ViewModel.TerminalManagementViewModel;
+			}
 			if(radioTabLogistic.Active)
 			{
 				notebookMain.CurrentPage = 1;
@@ -671,6 +701,11 @@ namespace Vodovoz.Views.Employees
 			ViewModel.HasAttachmentFilesChangesFunc -= HasAttachmentsFilesChanges;
 			
 			base.Destroy();
+		}
+
+		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
+		{
+			ViewModel.RegisterDriverModileUserCommand.Execute();
 		}
 	}
 }

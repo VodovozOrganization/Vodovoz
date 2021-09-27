@@ -14,6 +14,7 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
 
 namespace VodovozEmailService
 {
@@ -90,7 +91,8 @@ namespace VodovozEmailService
 				
 				QS.HistoryLog.HistoryMain.Enable();
 
-				EmailInstanceProvider emailInstanceProvider = new EmailInstanceProvider(new BaseParametersProvider());
+				EmailInstanceProvider emailInstanceProvider =
+					new EmailInstanceProvider(new BaseParametersProvider(new ParametersProvider()));
 
 				ServiceHost EmailSendingHost = new EmailServiceHost(emailInstanceProvider);
 				ServiceHost MailjetEventsHost = new EmailServiceHost(emailInstanceProvider);

@@ -3,12 +3,15 @@ using System.Linq;
 using System.Xml.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {
-	public class Goods : IXmlConvertable 
+	public class Goods : IXmlConvertable
 	{
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public IList<Nomenclature> Nomenclatures { get; private set; }
 
 		public Goods(Export export)
@@ -17,7 +20,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			myExport.OnProgressPlusOneTask("Выгружаем товары");
 
 			var groupsIds = myExport.ProductGroups.ToExportIds();
-			Nomenclatures = NomenclatureRepository.NomenclatureInGroupsQuery(groupsIds).GetExecutableQueryOver(myExport.UOW.Session).List();
+			Nomenclatures = _nomenclatureRepository.NomenclatureInGroupsQuery(groupsIds).GetExecutableQueryOver(myExport.UOW.Session).List();
             Nomenclatures.ToList().ForEach(n => n.CreateGuidIfNotExist(export.UOW));
 		}
 

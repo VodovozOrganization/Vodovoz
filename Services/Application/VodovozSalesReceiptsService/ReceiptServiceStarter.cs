@@ -13,28 +13,27 @@ namespace VodovozSalesReceiptsService
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		public static void StartService(string serviceHostName, string servicePort, string modulKassaBaseAddress, IEnumerable<CashBox> cashboxes)
+		public static void StartService(string serviceHostName, string servicePort, string modulKassaBaseAddress,
+			IEnumerable<CashBox> cashboxes)
 		{
 			_logger.Info("Запуск службы фискализации и печати кассовых чеков...");
 
+			var parametersProvider = new ParametersProvider();
+
 			var fiscalizationWorker = new FiscalizationWorker(
-				OrderSingletonRepository.GetInstance(),
+				new OrderRepository(),
 				new SalesReceiptSender(modulKassaBaseAddress),
-				new OrderParametersProvider(SingletonParametersProvider.Instance),
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
-				new SalesReceiptsParametersProvider(SingletonParametersProvider.Instance),
+				new OrderParametersProvider(parametersProvider),
 				cashboxes
 			);
 			fiscalizationWorker.Start();
-			
+
 			_logger.Info("Служба фискализации запущена");
 
 			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
-				new BaseParametersProvider(),
-				OrderSingletonRepository.GetInstance(),
-				new OrderParametersProvider(SingletonParametersProvider.Instance),
-				new OrganizationParametersProvider(SingletonParametersProvider.Instance),
-				new SalesReceiptsParametersProvider(SingletonParametersProvider.Instance)
+				new BaseParametersProvider(parametersProvider),
+				new OrderRepository(),
+				new OrderParametersProvider(parametersProvider)
 			);
 			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
 			salesReceiptsHost.AddServiceEndpoint(

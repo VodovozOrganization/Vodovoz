@@ -4,6 +4,8 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class EmployeeFilterView
 	{
+		private global::Gtk.VBox vbox1;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Label labelCategory;
@@ -14,6 +16,60 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
 
+		private global::Gamma.GtkWidgets.yHBox hboxDriversAndTerminals;
+
+		private global::Gtk.VSeparator vseparator1;
+
+		private global::Gamma.GtkWidgets.yLabel labelDriversAndTerminals;
+
+		private global::Gamma.Widgets.yEnumComboBox comboDriverType;
+
+		private global::Gtk.HBox hbox2;
+
+		private global::Gtk.Label lblSubdivision;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeSubdivision;
+
+		private global::Gtk.Label lblDriverOf;
+
+		private global::Gamma.Widgets.yEnumComboBox cmbDriverOf;
+
+		private global::Gtk.Label lblRegistrationType;
+
+		private global::Gamma.Widgets.yEnumComboBox registrationTypeCmb;
+
+		private global::Gtk.HBox hbox4;
+
+		private global::Gtk.Label lblHiredDate;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker drpHiredDate;
+
+		private global::Gtk.Label lblFirstDayOnWork;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker drpFirstDayOnWork;
+
+		private global::Gtk.HBox hbox7;
+
+		private global::Gtk.Label lblFiredDate;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker drpFiredDate;
+
+		private global::Gtk.Label lblSettlementDate;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker drpSettlementDate;
+
+		private global::Gtk.HBox hbox9;
+
+		private global::Gamma.GtkWidgets.yCheckButton ychkVisitingMaster;
+
+		private global::Gamma.GtkWidgets.yCheckButton ychkDriverForOneDay;
+
+		private global::Gamma.GtkWidgets.yCheckButton ychkChainStoreDriver;
+
+		private global::Gamma.GtkWidgets.yCheckButton ychkRFcitizenship;
+
+		private global::Gamma.GtkWidgets.yCheckButton checkSortByPriority;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -21,6 +77,10 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.EmployeeFilterView";
 			// Container child Vodovoz.Filters.GtkViews.EmployeeFilterView.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -66,7 +126,278 @@ namespace Vodovoz.Filters.GtkViews
 			w4.Position = 3;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.Add(this.hbox1);
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.hboxDriversAndTerminals = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxDriversAndTerminals.Name = "hboxDriversAndTerminals";
+			this.hboxDriversAndTerminals.Spacing = 6;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hboxDriversAndTerminals.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.vseparator1]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.labelDriversAndTerminals = new global::Gamma.GtkWidgets.yLabel();
+			this.labelDriversAndTerminals.Name = "labelDriversAndTerminals";
+			this.labelDriversAndTerminals.LabelProp = global::Mono.Unix.Catalog.GetString("Водители и терминалы:");
+			this.hboxDriversAndTerminals.Add(this.labelDriversAndTerminals);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.labelDriversAndTerminals]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.comboDriverType = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboDriverType.Name = "comboDriverType";
+			this.comboDriverType.ShowSpecialStateAll = true;
+			this.comboDriverType.ShowSpecialStateNot = false;
+			this.comboDriverType.UseShortTitle = false;
+			this.comboDriverType.DefaultFirst = false;
+			this.hboxDriversAndTerminals.Add(this.comboDriverType);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.comboDriverType]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.hbox1.Add(this.hboxDriversAndTerminals);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxDriversAndTerminals]));
+			w8.Position = 4;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lblSubdivision = new global::Gtk.Label();
+			this.lblSubdivision.Name = "lblSubdivision";
+			this.lblSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
+			this.hbox2.Add(this.lblSubdivision);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblSubdivision]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.evmeSubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeSubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.evmeSubdivision.Name = "evmeSubdivision";
+			this.evmeSubdivision.CanEditReference = false;
+			this.hbox2.Add(this.evmeSubdivision);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.evmeSubdivision]));
+			w11.Position = 1;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lblDriverOf = new global::Gtk.Label();
+			this.lblDriverOf.Name = "lblDriverOf";
+			this.lblDriverOf.Xalign = 1F;
+			this.lblDriverOf.LabelProp = global::Mono.Unix.Catalog.GetString("Управляет а\\м:");
+			this.hbox2.Add(this.lblDriverOf);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblDriverOf]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.cmbDriverOf = new global::Gamma.Widgets.yEnumComboBox();
+			this.cmbDriverOf.Name = "cmbDriverOf";
+			this.cmbDriverOf.ShowSpecialStateAll = true;
+			this.cmbDriverOf.ShowSpecialStateNot = false;
+			this.cmbDriverOf.UseShortTitle = false;
+			this.cmbDriverOf.DefaultFirst = false;
+			this.hbox2.Add(this.cmbDriverOf);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.cmbDriverOf]));
+			w13.Position = 3;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lblRegistrationType = new global::Gtk.Label();
+			this.lblRegistrationType.Name = "lblRegistrationType";
+			this.lblRegistrationType.LabelProp = global::Mono.Unix.Catalog.GetString("Оформление:");
+			this.hbox2.Add(this.lblRegistrationType);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblRegistrationType]));
+			w14.Position = 4;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.registrationTypeCmb = new global::Gamma.Widgets.yEnumComboBox();
+			this.registrationTypeCmb.Name = "registrationTypeCmb";
+			this.registrationTypeCmb.ShowSpecialStateAll = false;
+			this.registrationTypeCmb.ShowSpecialStateNot = false;
+			this.registrationTypeCmb.UseShortTitle = false;
+			this.registrationTypeCmb.DefaultFirst = false;
+			this.hbox2.Add(this.registrationTypeCmb);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.registrationTypeCmb]));
+			w15.Position = 5;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.lblHiredDate = new global::Gtk.Label();
+			this.lblHiredDate.Name = "lblHiredDate";
+			this.lblHiredDate.LabelProp = global::Mono.Unix.Catalog.GetString("Прием на работу:");
+			this.hbox4.Add(this.lblHiredDate);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblHiredDate]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.drpHiredDate = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.drpHiredDate.Events = ((global::Gdk.EventMask)(256));
+			this.drpHiredDate.Name = "drpHiredDate";
+			this.drpHiredDate.StartDate = new global::System.DateTime(0);
+			this.drpHiredDate.EndDate = new global::System.DateTime(0);
+			this.hbox4.Add(this.drpHiredDate);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.drpHiredDate]));
+			w18.Position = 1;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.lblFirstDayOnWork = new global::Gtk.Label();
+			this.lblFirstDayOnWork.Name = "lblFirstDayOnWork";
+			this.lblFirstDayOnWork.LabelProp = global::Mono.Unix.Catalog.GetString("Первый рабочий день:");
+			this.hbox4.Add(this.lblFirstDayOnWork);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblFirstDayOnWork]));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.drpFirstDayOnWork = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.drpFirstDayOnWork.Events = ((global::Gdk.EventMask)(256));
+			this.drpFirstDayOnWork.Name = "drpFirstDayOnWork";
+			this.drpFirstDayOnWork.StartDate = new global::System.DateTime(0);
+			this.drpFirstDayOnWork.EndDate = new global::System.DateTime(0);
+			this.hbox4.Add(this.drpFirstDayOnWork);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.drpFirstDayOnWork]));
+			w20.Position = 3;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox7 = new global::Gtk.HBox();
+			this.hbox7.Name = "hbox7";
+			this.hbox7.Spacing = 6;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.lblFiredDate = new global::Gtk.Label();
+			this.lblFiredDate.Name = "lblFiredDate";
+			this.lblFiredDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата увольнения:");
+			this.hbox7.Add(this.lblFiredDate);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.lblFiredDate]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.drpFiredDate = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.drpFiredDate.Events = ((global::Gdk.EventMask)(256));
+			this.drpFiredDate.Name = "drpFiredDate";
+			this.drpFiredDate.StartDate = new global::System.DateTime(0);
+			this.drpFiredDate.EndDate = new global::System.DateTime(0);
+			this.hbox7.Add(this.drpFiredDate);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.drpFiredDate]));
+			w23.Position = 1;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.lblSettlementDate = new global::Gtk.Label();
+			this.lblSettlementDate.Name = "lblSettlementDate";
+			this.lblSettlementDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата расчета:");
+			this.hbox7.Add(this.lblSettlementDate);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.lblSettlementDate]));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.drpSettlementDate = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.drpSettlementDate.Events = ((global::Gdk.EventMask)(256));
+			this.drpSettlementDate.Name = "drpSettlementDate";
+			this.drpSettlementDate.StartDate = new global::System.DateTime(0);
+			this.drpSettlementDate.EndDate = new global::System.DateTime(0);
+			this.hbox7.Add(this.drpSettlementDate);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.drpSettlementDate]));
+			w25.Position = 3;
+			this.vbox1.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w26.Position = 3;
+			w26.Expand = false;
+			w26.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox9 = new global::Gtk.HBox();
+			this.hbox9.Name = "hbox9";
+			this.hbox9.Spacing = 6;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.ychkVisitingMaster = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ychkVisitingMaster.CanFocus = true;
+			this.ychkVisitingMaster.Name = "ychkVisitingMaster";
+			this.ychkVisitingMaster.Label = global::Mono.Unix.Catalog.GetString("Выездной мастер");
+			this.ychkVisitingMaster.DrawIndicator = true;
+			this.ychkVisitingMaster.UseUnderline = true;
+			this.hbox9.Add(this.ychkVisitingMaster);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ychkVisitingMaster]));
+			w27.Position = 0;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.ychkDriverForOneDay = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ychkDriverForOneDay.CanFocus = true;
+			this.ychkDriverForOneDay.Name = "ychkDriverForOneDay";
+			this.ychkDriverForOneDay.Label = global::Mono.Unix.Catalog.GetString("Разовый водитель");
+			this.ychkDriverForOneDay.DrawIndicator = true;
+			this.ychkDriverForOneDay.UseUnderline = true;
+			this.hbox9.Add(this.ychkDriverForOneDay);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ychkDriverForOneDay]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.ychkChainStoreDriver = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ychkChainStoreDriver.CanFocus = true;
+			this.ychkChainStoreDriver.Name = "ychkChainStoreDriver";
+			this.ychkChainStoreDriver.Label = global::Mono.Unix.Catalog.GetString("Водитель для сетей");
+			this.ychkChainStoreDriver.DrawIndicator = true;
+			this.ychkChainStoreDriver.UseUnderline = true;
+			this.hbox9.Add(this.ychkChainStoreDriver);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ychkChainStoreDriver]));
+			w29.Position = 2;
+			w29.Expand = false;
+			w29.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.ychkRFcitizenship = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ychkRFcitizenship.CanFocus = true;
+			this.ychkRFcitizenship.Name = "ychkRFcitizenship";
+			this.ychkRFcitizenship.Label = global::Mono.Unix.Catalog.GetString("Гражданство РФ");
+			this.ychkRFcitizenship.DrawIndicator = true;
+			this.ychkRFcitizenship.UseUnderline = true;
+			this.hbox9.Add(this.ychkRFcitizenship);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ychkRFcitizenship]));
+			w30.Position = 3;
+			w30.Expand = false;
+			w30.Fill = false;
+			this.vbox1.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
+			w31.Position = 4;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.checkSortByPriority = new global::Gamma.GtkWidgets.yCheckButton();
+			this.checkSortByPriority.CanFocus = true;
+			this.checkSortByPriority.Name = "checkSortByPriority";
+			this.checkSortByPriority.Label = global::Mono.Unix.Catalog.GetString("Сортировать сотрудников по приоритету для выдачи терминалов");
+			this.checkSortByPriority.DrawIndicator = true;
+			this.checkSortByPriority.UseUnderline = true;
+			this.vbox1.Add(this.checkSortByPriority);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.checkSortByPriority]));
+			w32.Position = 5;
+			w32.Expand = false;
+			w32.Fill = false;
+			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Web.UI.WebControls;
 using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
@@ -174,6 +175,14 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Certificate>()
 				.AddDeleteDependence<NomenclatureCertificateDocument>(x => x.Certificate)
 				;
+			#endregion
+
+			#region Rent
+
+			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>();
+
+			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
+
 			#endregion
 
 			#region Organization
@@ -726,6 +735,8 @@ namespace Vodovoz
 						.AddClearDependence<Order>(x => x.PaymentByCardFrom)
 						;
 
+			DeleteConfig.AddHibernateDeleteInfo<UndeliveryTransferAbsenceReason>();
+
 			#endregion
 
 			#region Недовозы
@@ -1218,6 +1229,19 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FlyerActionTime>();
 
+			#endregion
+
+			#region Платежи (выписка из банк клиента)
+
+			DeleteConfig.AddHibernateDeleteInfo<Payment>()
+				.AddDeleteCascadeDependence(p => p.CashlessMovementOperation)
+				.AddDeleteDependence<PaymentItem>(item => item.Payment);
+			
+			DeleteConfig.AddHibernateDeleteInfo<PaymentItem>()
+				.AddDeleteCascadeDependence(pi => pi.CashlessMovementOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<CashlessMovementOperation>();
+			
 			#endregion
 
 			logger.Info("Ок");

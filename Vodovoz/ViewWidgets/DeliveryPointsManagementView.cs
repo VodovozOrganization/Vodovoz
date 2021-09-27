@@ -12,7 +12,9 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -23,6 +25,7 @@ namespace Vodovoz
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
 
 		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
 		{
@@ -85,14 +88,7 @@ namespace Vodovoz
 			}
 
 			var client = DeliveryPointUoW.Root;
-			var dpViewModel = new DeliveryPointViewModel(client, UserSingletonRepository.GetInstance(), new GtkTabsOpener(),
-				new PhoneRepository(), ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
-				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
-				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(client);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 			treeDeliveryPoints.RepresentationModel.UpdateNodes();
 		}
@@ -100,14 +96,7 @@ namespace Vodovoz
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
-			var dpViewModel = new DeliveryPointViewModel(UserSingletonRepository.GetInstance(), new GtkTabsOpener(), new PhoneRepository(),
-				ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()), new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
-				new NomenclatureSelectorFactory(),
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory(),
-					new WaterFixedPricesGenerator(new NomenclatureRepository(new NomenclatureParametersProvider()))),
-				EntityUoWBuilder.ForOpen(dpId), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
 		}
 

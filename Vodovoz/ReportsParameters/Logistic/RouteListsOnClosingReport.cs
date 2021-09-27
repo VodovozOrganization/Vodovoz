@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListsOnClosingReport : Gtk.Bin, IParametersWidget
+	public partial class RouteListsOnClosingReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public RouteListsOnClosingReport()
 		{
 			this.Build();
 			ConfigureChkBtns();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeographicGroup>();
 		}
 
 		#region IParametersWidget implementation
@@ -36,6 +41,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			parameters.Add("RemTruckRLs", chkRemTruckRLs.Active);
 			parameters.Add("RemServiceRLs", chkRemServiceRLs.Active);
 			parameters.Add("RemMercRLs", chkRemMercRLs.Active);
+			parameters.Add("geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Id ?? 0);
 
 			return new ReportInfo
 			{

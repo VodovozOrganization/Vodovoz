@@ -1,11 +1,14 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
+using DriverAPI.Library.Converters;
 using DriverAPI.Library.Helpers;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
 {
@@ -14,23 +17,38 @@ namespace DriverAPI.Controllers
 	[Authorize]
 	public class SmsPaymentsController : ControllerBase
 	{
-		private readonly ILogger<SmsPaymentsController> logger;
-		private readonly ISmsPaymentModel aPISmsPaymentData;
-		private readonly SmsPaymentStatusConverter smsPaymentConverter;
-		private readonly ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper;
-		private readonly IOrderModel aPIOrderData;
+		private readonly ILogger<SmsPaymentsController> _logger;
+		private readonly IActionTimeHelper _actionTimeHelper;
+		private readonly ISmsPaymentModel _aPISmsPaymentData;
+		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
+		private readonly IOrderModel _aPIOrderData;
+		private readonly IEmployeeModel _employeeData;
+		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
+		private readonly UserManager<IdentityUser> _userManager;
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
+			IConfiguration configuration,
+			IActionTimeHelper actionTimeHelper,
 			ISmsPaymentModel aPISmsPaymentData,
 			SmsPaymentStatusConverter smsPaymentConverter,
-			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
-			IOrderModel aPIOrderData)
+			IOrderModel aPIOrderData,
+			IEmployeeModel employeeData,
+			IDriverMobileAppActionRecordModel driverMobileAppActionRecordModel,
+			UserManager<IdentityUser> userManager)
 		{
-			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this.aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
-			this.smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
-			this.smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
-			this.aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			if(configuration is null)
+			{
+				throw new ArgumentNullException(nameof(configuration));
+			}
+
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
+			_aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
+			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
+			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
+			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_driverMobileAppActionRecordModel = driverMobileAppActionRecordModel ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordModel));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
 		/// <summary>
@@ -42,15 +60,15 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrderSmsPaymentStatus")]
 		public OrderPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
-			var additionalInfo = aPIOrderData.GetAdditionalInfo(orderId)
+			var additionalInfo = _aPIOrderData.GetAdditionalInfo(orderId)
 				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
 
 			var response = new OrderPaymentStatusResponseDto()
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
-				SmsPaymentStatus = smsPaymentConverter.convertToAPIPaymentStatus(
-					aPISmsPaymentData.GetOrderPaymentStatus(orderId)
+				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(
+					_aPISmsPaymentData.GetOrderPaymentStatus(orderId)
 				)
 			};
 
@@ -65,7 +83,35 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
-			smsPaymentServiceAPIHelper.SendPayment(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber).Wait();
+			var recievedTime = DateTime.Now;
+
+			var user = _userManager.GetUserAsync(User).Result;
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
+				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");
+
+			var resultMessage = "OK";
+
+			try
+			{
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
+
+				_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
+			}
+			catch(Exception ex)
+			{
+				resultMessage = ex.Message;
+				throw;
+			}
+			finally
+			{
+				_driverMobileAppActionRecordModel.RegisterAction(driver,
+													 DriverMobileAppActionType.PayBySmsClicked,
+													 payBySmsRequestModel.ActionTime,
+													 recievedTime,
+													 resultMessage);
+			}
 		}
 	}
 }

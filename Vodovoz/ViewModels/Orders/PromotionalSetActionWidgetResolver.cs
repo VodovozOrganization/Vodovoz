@@ -15,23 +15,23 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetActionWidgetResolver
 	{
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
+		private readonly IUnitOfWork _uow;
+		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
 
-		public PromotionalSetActionWidgetResolver(IUnitOfWork UoW, 
-		                                          IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-		                                          INomenclatureRepository nomenclatureRepository,
-		                                          IUserRepository userRepository)
+		public PromotionalSetActionWidgetResolver(
+			IUnitOfWork uow, 
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository)
 		{
-			uow = UoW;
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_uow = uow;
+			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 		}
-
-		private IUnitOfWork uow;
-
+		
 		public WidgetViewModelBase Resolve(PromotionalSet promotionalSet, PromotionalSetActionType setActionType)
 		{
 			switch(setActionType) {
@@ -41,10 +41,10 @@ namespace Vodovoz.ViewModels.Orders
 					
 					var nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, filter, counterpartySelectorFactory,
-							 nomenclatureRepository, userRepository);
+							ServicesConfig.CommonServices, filter, _counterpartySelectorFactory,
+							 _nomenclatureRepository, _userRepository);
 					
-					return new AddFixPriceActionViewModel(uow, promotionalSet, ServicesConfig.CommonServices, nomenclatureSelectorFactory);
+					return new AddFixPriceActionViewModel(_uow, promotionalSet, ServicesConfig.CommonServices, nomenclatureSelectorFactory);
 				default: 
 					throw new ArgumentException();
 			}

@@ -1,7 +1,7 @@
 ﻿using QS.Dialog.Gtk;
 using QS.Tdi;
-using System;
-using FluentNHibernate.Data;
+using QS.Services;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -28,6 +28,14 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
+		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId)
+		{
+			return master.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<RouteList>(routelistId),
+				() => new RouteListClosingDlg(routelistId)
+			);
+		}
+
 		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0)
 		{
 			return tab.TabParent.OpenTab(
@@ -49,6 +57,31 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			return master.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
 				() => new CounterpartyDlg(counterpartyId));
+		}
+
+		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, IPermissionService permissionService,
+			bool canChangeEmployee, ExpenseType expenseType)
+		{
+			var dlg = new CashExpenseDlg(permissionService);
+			if(dlg.FailInitialize)
+			{
+				return;
+			}
+
+			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
+			master.TabParent.AddTab(dlg, master);
+		}
+
+		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description, IPermissionService permissionService)
+		{
+			var dlg = new CashExpenseDlg(permissionService);
+			if(dlg.FailInitialize)
+			{
+				return;
+			}
+
+			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
+			master.TabParent.AddTab(dlg, master);
 		}
 	}
 }

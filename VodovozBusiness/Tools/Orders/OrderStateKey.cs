@@ -112,11 +112,11 @@ namespace Vodovoz.Tools.Orders
 			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
 
-			HasOrderEquipment = HasOrderEquipments(UnitOfWorkFactory.CreateWithoutRoot());
+			HasOrderEquipment = HasOrderEquipments(Order.UoW);
 
 			if(!Order.ObservableOrderItems.Any() || 
 			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
-				   x.Nomenclature.Id == int.Parse(SingletonParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))))) 
+				   x.Nomenclature.Id == int.Parse(new ParametersProvider().GetParameterValue("paid_delivery_nomenclature_id"))))) 
 			{
 				HasOrderItems = false;
 			}

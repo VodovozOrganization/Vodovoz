@@ -13,7 +13,7 @@ namespace VodovozBusinessTests.ErrorReporting
 		[Test(Description = "Проверяем что действительно не отправим автоматический отчет, если автоматическая отправка отключена в настройках.")]
 		public void SendErrorReport_DisableSendAutomatically()
 		{
-			var sendService = Substitute.For<IErrorReportingService>();
+			var sendService = Substitute.For<IErrorReportSender>();
 			var appInfo = Substitute.For<IApplicationInfo>();
 			appInfo.ProductName.Returns("Test");
 

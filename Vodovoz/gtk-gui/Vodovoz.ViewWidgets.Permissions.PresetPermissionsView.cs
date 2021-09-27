@@ -22,6 +22,8 @@ namespace Vodovoz.ViewWidgets.Permissions
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewSelectedPermissions;
 
+		private global::QSWidgetLib.SearchEntity searchPresetPermissions;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -94,6 +96,15 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.vbox2.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
 			w8.Position = 0;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.searchPresetPermissions = new global::QSWidgetLib.SearchEntity();
+			this.searchPresetPermissions.Events = ((global::Gdk.EventMask)(256));
+			this.searchPresetPermissions.Name = "searchPresetPermissions";
+			this.vbox2.Add(this.searchPresetPermissions);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.searchPresetPermissions]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

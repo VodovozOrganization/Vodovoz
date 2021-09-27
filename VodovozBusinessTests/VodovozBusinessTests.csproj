@@ -78,6 +78,10 @@
     <Compile Include="SmsPaymentService\SmsPaymentItemDTOCalculateTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
+      <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
+      <Name>Gamma.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
@@ -101,10 +105,6 @@
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
       <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
       <Name>QSOrmProject</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
-      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
-      <Name>GammaUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Testing\QS.Testing.csproj">
       <Project>{BA8E8ACF-ECB0-4617-9E09-D1BE93992D0E}</Project>

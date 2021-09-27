@@ -3,7 +3,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Nodes;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureOfGoodsWithoutEmptyBottlesQuery();
 		QueryOver<Nomenclature> NomenclatureWaterOnlyQuery();
 		QueryOver<Nomenclature> NomenclatureEquipOnlyQuery();
-		Nomenclature GetDefaultBottle(IUnitOfWork uow);
+		Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow);
 
 		/// <summary>
 		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.
@@ -39,6 +39,15 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
 		Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
 		Nomenclature GetSanitisationNomenclature(IUnitOfWork uow);
+
+		#region Rent
+
+		Nomenclature GetAvailableNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentKind kind, IEnumerable<int> excludeNomenclatures);
+		IList<NomenclatureForRentNode> GetAllNonSerialEquipmentForRent(IUnitOfWork uow, EquipmentKind kind);
+		QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentKind kind);
+
+		#endregion
+		
 		IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs);
 
 		/// <summary>

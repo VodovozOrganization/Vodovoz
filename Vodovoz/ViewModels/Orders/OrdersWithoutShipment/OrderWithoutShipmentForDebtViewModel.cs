@@ -10,14 +10,16 @@ using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForDebtViewModel : EntityTabViewModelBase<OrderWithoutShipmentForDebt>, ITdiTabAddedNotifier
 	{
+		private readonly IParametersProvider _parametersProvider;
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
@@ -27,9 +29,20 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public OrderWithoutShipmentForDebtViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
-			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			if(employeeService == null)
+			{
+				throw new ArgumentNullException(nameof(employeeService));
+			}
+
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+
+			bool canCreateBillsWithoutShipment = 
+				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
 			if (uowBuilder.IsNewEntity)
 			{
@@ -41,7 +54,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					}
 					else
 					{
-						Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+						Entity.Author = currentEmployee;
 					}
 				}
 				else
@@ -53,7 +66,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
-			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), commonServices.InteractiveService, UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(
+				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
 		}
 
 		

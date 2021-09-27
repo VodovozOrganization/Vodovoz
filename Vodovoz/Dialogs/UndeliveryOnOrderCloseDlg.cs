@@ -4,13 +4,18 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveryOnOrderCloseDlg : QS.Dialog.Gtk.SingleUowTabBase
 	{
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+
 		UndeliveredOrder undelivery;
 		Order order;
 
@@ -29,10 +34,12 @@ namespace Vodovoz.Dialogs
 
 		public void ConfigureDlg()
 		{
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			
 			undelivery = new UndeliveredOrder{
 				UoW = UoW,
-				Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
-				EmployeeRegistrator = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
+				Author = currentEmployee,
+				EmployeeRegistrator = currentEmployee,
 				TimeOfCreation = DateTime.Now,
 				OldOrder = order
 			};
@@ -67,10 +74,10 @@ namespace Vodovoz.Dialogs
 		/// нового (но не добавленного) недовоза.</returns>
 		bool CanCreateUndelivery()
 		{
-			var otherUndelivery = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, order).FirstOrDefault();
+			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, order).FirstOrDefault();
 			if(otherUndelivery == null)
 				return true;
-			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo());
+			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo(_orderRepository));
 			return false;
 		}
 

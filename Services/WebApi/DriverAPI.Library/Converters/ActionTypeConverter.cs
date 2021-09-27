@@ -24,7 +24,7 @@ namespace DriverAPI.Library.Converters
 					result = ActionDtoType.CompleteOrderClicked;
 					break;
 				default:
-					throw new ConverterException(nameof(driverMobileAppActionType), driverMobileAppActionType, $"Значение {driverMobileAppActionType} не поддерживается");
+					throw new ConverterException(nameof(driverMobileAppActionType), driverMobileAppActionType, $"Значение { driverMobileAppActionType } не поддерживается");
 			}
 
 			return result;
@@ -49,7 +49,7 @@ namespace DriverAPI.Library.Converters
 					result = DriverMobileAppActionType.CompleteOrderClicked;
 					break;
 				default:
-					throw new ConverterException(nameof(aPIActionType), aPIActionType, $"Значение {aPIActionType} не поддерживается");
+					throw new ConverterException(nameof(aPIActionType), aPIActionType, $"Значение { aPIActionType } не поддерживается");
 			}
 
 			return result;

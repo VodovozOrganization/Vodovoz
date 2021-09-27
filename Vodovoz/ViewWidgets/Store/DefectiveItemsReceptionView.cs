@@ -9,6 +9,8 @@ using NHibernate.Transform;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
@@ -23,7 +25,8 @@ namespace Vodovoz.ViewWidgets.Store
 	public partial class DefectiveItemsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<DefectiveItemNode> defectiveList = new GenericObservableList<DefectiveItemNode>();
-
+		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
+		
 		public IList<DefectiveItemNode> Items => defectiveList;
 
 		public void AddItem(DefectiveItemNode item) => defectiveList.Add(item);
@@ -158,6 +161,20 @@ namespace Vodovoz.ViewWidgets.Store
 				QueryOver.Of<Nomenclature>().Where(x => x.IsDefectiveBottle)
 			);
 			SelectNomenclatureDlg.Mode = OrmReferenceMode.MultiSelect;
+			
+			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
+			{
+				_userHasOnlyAccessToWarehouseAndComplaints =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"user_have_access_only_to_warehouse_and_complaints")
+					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			}
+
+			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
+			{
+				SelectNomenclatureDlg.ButtonMode = ReferenceButtonMode.None;
+			}
+			
 			SelectNomenclatureDlg.ObjectSelected += SelectNomenclatureDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectNomenclatureDlg);
 		}

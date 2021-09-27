@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
@@ -85,7 +85,7 @@ namespace Vodovoz.Domain.Cash
                 Amount = amount
             };
 
-            var address = routeList.Addresses.First(x => x.TotalCash > 0);
+            var address = routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0) ?? throw new MissingOrdersWithCashlessPaymentTypeException(routeList);
             var document = CreateRouteListItemCashDistributionDocument(operation, address, income);
             
             Save(uow, operation, document);

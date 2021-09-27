@@ -1,27 +1,16 @@
 node('Vod6'){
 	stage('Checkout'){
-		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
+		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_WIN}/workspace/Vodovoz_Vodovoz_master"
 
 		echo "checkout Gtk.DataBindings"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/master']],
+			branches: [[name: '*/vodovoz']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions: 
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
 			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
 			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
-		])
-
-		echo "checkout GammaBinding"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/master']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GammaBinding']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GammaBinding"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GammaBinding.git']]
 		])
 
 		echo "checkout GMap.NET"	
@@ -79,6 +68,22 @@ node('Vod6'){
 		fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 		zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
 		archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
+	}
+	stage('DriverAPI Delivery')
+	{
+		if(env.BRANCH_NAME ==~ /(develop|master)/
+			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+		{
+			echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
+			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+			
+			echo 'Move files to CD folder'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
 	}
 }
 node('Vod3') {

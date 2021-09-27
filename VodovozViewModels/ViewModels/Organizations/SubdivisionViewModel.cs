@@ -8,6 +8,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Permissions;
@@ -41,9 +42,11 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IPermissionRepository permissionRepository,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			ISubdivisionRepository subdivisionRepository
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			SalesPlanSelectorFactory = (salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory)))
@@ -51,6 +54,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 		}
+		
+		public ISubdivisionRepository SubdivisionRepository { get; }
 
 		private void ConfigureEntityChangingRelations()
 		{

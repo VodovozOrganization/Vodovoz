@@ -30,16 +30,16 @@ namespace Vodovoz.TempAdapters
             nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
             nomenclatureFilter.RestrictArchive = false;
 			
-            var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider());
-			
+            var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+            var userRepository = new UserRepository();
+
             var counterpartySelectorFactory =
                 new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
                     ServicesConfig.CommonServices);
 			
             var nomenclatureSelectorFactory =
                 new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                    ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository,
-                    UserSingletonRepository.GetInstance());
+                    ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
 			
             WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
@@ -48,7 +48,7 @@ namespace Vodovoz.TempAdapters
                 nomenclatureSelectorFactory,
                 counterpartySelectorFactory,
                 nomenclatureRepository,
-                UserSingletonRepository.GetInstance()	
+                userRepository	
             );
 
             waterJournal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;

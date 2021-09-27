@@ -1,5 +1,6 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -10,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -23,11 +25,10 @@ namespace DriverAPI.Library.Models
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly OrderConverter _orderConverter;
-		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 		private readonly IComplaintsRepository _complaintsRepository;
-		private readonly ISmsPaymentModel _aPISmsPaymentData;
-		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordData;
+		private readonly ISmsPaymentModel _aPISmsPaymentModel;
+		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
 		private readonly IUnitOfWork _unitOfWork;
 
 		private readonly int _maxClosingRating = 5;
@@ -37,25 +38,23 @@ namespace DriverAPI.Library.Models
 			IOrderRepository orderRepository,
 			IRouteListRepository routeListRepository,
 			OrderConverter orderConverter,
-			IOrderParametersProvider orderParametersProvider,
 			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
-			ISmsPaymentModel aPISmsPaymentData,
-			IDriverMobileAppActionRecordModel driverMobileAppActionRecordData,
+			ISmsPaymentModel aPISmsPaymentModel,
+			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
 			IUnitOfWork unitOfWork
 			)
 		{
-			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this._orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this._routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			this._orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
-			this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			this._webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
-			this._complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			this._aPISmsPaymentData = aPISmsPaymentData ?? throw new ArgumentNullException(nameof(aPISmsPaymentData));
-			this._driverMobileAppActionRecordData = driverMobileAppActionRecordData ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordData));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-		}
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
+			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
+			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
+			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+	}
 
 		/// <summary>
 		/// Получение заказа в требуемом формате из заказа программы ДВ (использует функцию ниже)
@@ -65,9 +64,9 @@ namespace DriverAPI.Library.Models
 		public OrderDto Get(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
-			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentData.GetOrderPaymentStatus(orderId));
+			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentModel.GetOrderPaymentStatus(orderId));
 			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 
 			return order;
@@ -83,9 +82,9 @@ namespace DriverAPI.Library.Models
 			var result = new List<OrderDto>();
 			var vodovozOrders = _orderRepository.GetOrders(_unitOfWork, orderIds);
 
-			foreach (var vodovozOrder in vodovozOrders)
+			foreach(var vodovozOrder in vodovozOrders)
 			{
-				var smsPaymentStatus = _aPISmsPaymentData.GetOrderPaymentStatus(vodovozOrder.Id);
+				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderPaymentStatus(vodovozOrder.Id);
 				var order = _orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
@@ -102,7 +101,7 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
 		}
@@ -112,16 +111,16 @@ namespace DriverAPI.Library.Models
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Vodovoz.Domain.Orders.Order order)
+		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order)
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
-			if (order.PaymentType == PaymentType.cash)
+			if(order.PaymentType == PaymentType.cash)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 			}
 
-			if (order.PaymentType == PaymentType.Terminal)
+			if(order.PaymentType == PaymentType.Terminal)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 			}
@@ -137,7 +136,7 @@ namespace DriverAPI.Library.Models
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
 		}
@@ -147,12 +146,12 @@ namespace DriverAPI.Library.Models
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public OrderAdditionalInfoDto GetAdditionalInfo(Vodovoz.Domain.Orders.Order order)
+		public OrderAdditionalInfoDto GetAdditionalInfo(Order order)
 		{
 			return new OrderAdditionalInfoDto()
 			{
 				AvailablePaymentTypes = GetAvailableToChangePaymentTypes(order),
-				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentData.GetOrderPaymentStatus(order.Id)),
+				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentModel.GetOrderPaymentStatus(order.Id)),
 			};
 		}
 
@@ -162,16 +161,34 @@ namespace DriverAPI.Library.Models
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <param name="smsPaymentStatus">Статус оплаты СМС</param>
 		/// <returns></returns>
-		private bool CanSendSmsForPayment(Vodovoz.Domain.Orders.Order order, SmsPaymentStatus? smsPaymentStatus)
+		private bool CanSendSmsForPayment(Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
 			return !_smsNotPayable.Contains(order.PaymentType)
 				&& order.OrderTotalSum > 0;
 		}
 
-		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType)
+		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
 		{
+			if(driver is null)
+			{
+				throw new ArgumentNullException(nameof(driver));
+			}
+
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+
+			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
+			{
+				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: { orderId }, заказ не в пути.");
+			}
+
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning($"Водитель {driver.Id} попытался сменить тип оплаты заказа {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя сменить тип оплаты заказа другого водителя");
+			}
 
 			vodovozOrder.PaymentType = paymentType;
 			_unitOfWork.Save(vodovozOrder);
@@ -185,29 +202,56 @@ namespace DriverAPI.Library.Models
 			int rating,
 			int driverComplaintReasonId,
 			string otherDriverComplaintReasonComment,
-			DateTime actionTime)
+			DateTime recievedTime)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
-			var routeList = _routeListRepository.GetRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
 			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).SingleOrDefault();
 
-			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
-
-			if(vodovozOrder == null)
+			if(vodovozOrder is null)
 			{
-				var error = $"Попытка завершения несуществующего заказа: {orderId}";
+				var error = $"Заказ не найден: { orderId }";
 				_logger.LogWarning(error);
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
-			if(routeListAddress.Status == RouteListItemStatus.Transfered)
+			if(routeList is null)
 			{
-				var error = $"Попытка завершения заказа, который был передан: {orderId}";
+				var error = $"МЛ для заказа: { orderId } не найден";
 				_logger.LogWarning(error);
-				throw new InvalidOperationException(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
-			routeListAddress.UpdateStatus(_unitOfWork, RouteListItemStatus.Completed);
+			if(routeListAddress is null)
+			{
+				var error = $"адрес МЛ для заказа: { orderId } не найден";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning($"Водитель {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				var error = $"Нельзя завершить заказ: { orderId }, МЛ не в пути";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				var error = $"Нельзя завершить заказ: { orderId }, адрес МЛ не в пути";
+				_logger.LogWarning(error);
+				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+			}
+
+			routeList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.Completed);
 
 			if (rating < _maxClosingRating)
 			{
@@ -222,34 +266,52 @@ namespace DriverAPI.Library.Models
 					Order = vodovozOrder,
 					DriverRating = rating,
 					DeliveryPoint = vodovozOrder.DeliveryPoint,
-					CreationDate = actionTime,
-					ChangedDate = actionTime,
+					CreationDate = recievedTime,
+					ChangedDate = recievedTime,
 					CreatedBy = driver,
 					ChangedBy = driver,
-					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"По причине {reason}"
+					ComplaintText = $"Заказ номер { orderId }\n" +
+						$"По причине { reason }"
 				};
 
 				_unitOfWork.Save(complaint);
 			}
 
-			if (routeList.Status == RouteListStatus.EnRoute && routeList.Addresses.All(a => a.Status != RouteListItemStatus.EnRoute))
-			{
-				routeList.ChangeStatus(RouteListStatus.Delivered);
-				_unitOfWork.Save(routeList);
-			}
-
 			_unitOfWork.Save(routeListAddress);
-			_unitOfWork.Commit();
+			_unitOfWork.Save(routeList);
 
-			_driverMobileAppActionRecordData.RegisterAction(
-				driver,
-				new DriverActionDto()
-				{
-					ActionType = ActionDtoType.CompleteOrderClicked,
-					ActionTime = actionTime
-				});
+			_unitOfWork.Commit();
 		}
 
+		public void SendSmsPaymentRequest(
+			int orderId,
+			string phoneNumber,
+			int driverId)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).FirstOrDefault();
+
+			if(vodovozOrder is null
+			|| routeList is null
+			|| routeListAddress is null)
+			{
+				throw new DataNotFoundException(nameof(orderId), "Не найден или не находится в МЛ");
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute
+			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				throw new InvalidOperationException("Нельзя отправлять СМС на оплату для адреса МЛ не в пути");
+			}
+
+			if(routeList.Driver.Id != driverId)
+			{
+				_logger.LogWarning($"Водитель {driverId} попытался запросить оплату по СМС для заказа {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя запросить оплату по СМС для заказа другого водителя");
+			}
+
+			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
+		}
 	}
 }

@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GMap.NET;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;
-using Vodovoz.Repository.Client;
 using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -24,7 +20,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 		}
 		
-		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter)
+		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter = null)
 		{
 			if(uow == null) throw new ArgumentNullException(nameof(uow));
 			if(order == null) throw new ArgumentNullException(nameof(order));
