@@ -35,7 +35,7 @@ namespace Vodovoz.Tools
 		/// <param name="canSendAutomatically">Если<c>false</c> и передаваемый в SendErrorReport() <see cref="ErrorReportType"/>, = <see cref="ErrorReportType.Automatic"/> то не отправляет сообщение об ошибке</param>
 		/// <param name="autoSendLogRowCount">Если передаваемый в SendErrorReport() <see cref="ErrorReportType"/>, = <see cref="ErrorReportType.Automatic"/>, то отправляет на сервер такое количество лога по умолчанию</param>
 		public static void Initialize(
-			IErrorReportingService sendService,
+			IErrorReportSender sendService,
 			IApplicationInfo applicationInfo,
 			ILogService logService = null,
 			string databaseName = null,
@@ -60,7 +60,7 @@ namespace Vodovoz.Tools
 
 		private ILogService logService;
 		private int? autoSendLogRowCount;
-		private IErrorReportingService sendService;
+		private IErrorReportSender sendService;
 
 		public string DatabaseName { get; protected set; }
 		public string ProductName { get; protected set; }

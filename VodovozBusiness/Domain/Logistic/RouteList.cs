@@ -556,6 +556,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
+		/// <summary>
+		/// МЛ находится в статусе для открытия диалога закрытия
+		/// </summary>
+		public virtual bool CanBeOpenedInClosingDlg
+			=> new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
+				.Contains(Status);
+
 		#endregion
 
 		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
@@ -1156,6 +1163,38 @@ namespace Vodovoz.Domain.Logistic
 			UpdateClosedInformation();
 		}
 
+		public virtual void ChangeAddressStatus(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatus(uow, newAddressStatus);
+			UpdateStatus();
+		}
+
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, CallTaskWorker callTaskWorker)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
+			UpdateStatus();
+		}
+
+		public virtual void SetAddressStatusWithoutOrderChange(int routeListAddressid, RouteListItemStatus newAddressStatus)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(newAddressStatus);
+			UpdateStatus();
+		}
+
+		public virtual void UpdateStatus()
+		{
+			if(Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute))
+			{
+				ChangeStatus(RouteListStatus.Delivered);
+			}
+		}
+
+		public virtual void TransferAddressTo(int id, RouteListItem targetAddress)
+		{
+			Addresses.First(a => a.Id == id).TransferTo(targetAddress);
+			UpdateStatus();
+		}
+
 		private void UpdateClosedInformation()
 		{
 			if(Status == RouteListStatus.Closed)
@@ -1232,13 +1271,11 @@ namespace Vodovoz.Domain.Logistic
 			};
 			_printsHistory.Add(newHistory);
 		}
-		
+
 		/// <summary>
 		/// Указывает, находится ли МЛ в таком статусе, что его надо печатать как ClosedRouteList.rdl
 		/// </summary>
-		public virtual bool PrintAsClosed() =>
-			new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
-				.Contains(Status);
+		public virtual bool PrintAsClosed() => CanBeOpenedInClosingDlg;
 
 		public virtual void CreateSelfDriverTerminalTransferDocument()
 		{

@@ -1682,6 +1682,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
     <Compile Include="Views\ReportsParameters\Cash\DayOfSalaryGiveoutReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Cash.DayOfSalaryGiveoutReportView.cs" />
+    <Compile Include="Views\Reports\ProductionWarehouseMovementReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.ProductionWarehouseMovementReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRatesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
   </ItemGroup>
