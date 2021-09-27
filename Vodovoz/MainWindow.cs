@@ -883,9 +883,7 @@ public partial class MainWindow : Gtk.Window
     {
 	    var subdivisionJournalFactory = new SubdivisionJournalFactory();
 
-        var counterpartyAutocompleteSelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-	            ServicesConfig.CommonServices);
+	    var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
         tdiMain.OpenTab(
             () => new UserSettingsViewModel(
@@ -895,7 +893,7 @@ public partial class MainWindow : Gtk.Window
 	            VodovozGtkServicesConfig.EmployeeService,
 	            SubdivisionParametersProvider.Instance,
 	            subdivisionJournalFactory,
-	            counterpartyAutocompleteSelectorFactory
+	            counterpartyJournalFactory
             ));
     }
 
