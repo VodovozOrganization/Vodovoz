@@ -2489,4 +2489,12 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices
 				)));
 	}
+	
+	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
+		);
+	}
 }
