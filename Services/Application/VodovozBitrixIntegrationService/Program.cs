@@ -11,13 +11,14 @@ using QSProjectsLib;
 using System;
 using System.Threading;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Common;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Client;
 
 namespace VodovozBitrixIntegrationService
 {
@@ -167,12 +168,14 @@ namespace VodovozBitrixIntegrationService
 
 				var measurementUnitsRepository = new MeasurementUnitsRepository();
 				var bitrixServiceSettings = new BitrixServiceSettings(parametersProvider);
-				var orderRepository = new OrderSingletonRepository();
+				var orderRepository = new OrderRepository();
 				var counterpartyRepository = new CounterpartyRepository();
 
-				var nomenclatureParametersProvider = new NomenclatureParametersProvider();
+				var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
 				var nomenclatureRepository = new NomenclatureRepository(nomenclatureParametersProvider);
-				
+
+				var deliveryScheduleRepository = new DeliveryScheduleRepository();
+
 				var dealProcessor = new DealProcessor(
 					uowFactory,
 					bitrixClient,
@@ -183,7 +186,8 @@ namespace VodovozBitrixIntegrationService
 					bitrixServiceSettings,
 					orderRepository,
 					counterpartyRepository,
-					nomenclatureRepository
+					nomenclatureRepository,
+					deliveryScheduleRepository
 				);
 					
 				var dealWorker = new DealWorker(dealProcessor);

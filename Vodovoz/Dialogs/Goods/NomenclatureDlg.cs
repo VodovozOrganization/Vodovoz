@@ -32,6 +32,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Representations;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.Domain.Common;
 
 namespace Vodovoz
 {

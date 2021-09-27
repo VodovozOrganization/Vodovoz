@@ -2,7 +2,6 @@
 using Bitrix;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Osm.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +12,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Common;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Repositories.Client;
-using Vodovoz.Repository;
 using Vodovoz.Services;
 using VodovozInfrastructure.Utils;
 using BitrixPhone = Bitrix.DTO.Phone;
@@ -23,8 +21,6 @@ using Phone = Vodovoz.Domain.Contacts.Phone;
 using Contact = Bitrix.DTO.Contact;
 using Vodovoz.Domain.Common;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 
 namespace BitrixIntegration
@@ -43,6 +39,7 @@ namespace BitrixIntegration
 		private readonly IOrderRepository _orderRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 
 		public DealProcessor(
 			IUnitOfWorkFactory uowFactory,
@@ -54,8 +51,9 @@ namespace BitrixIntegration
 	        IBitrixServiceSettings bitrixServiceSettings,
 			IOrderRepository orderRepository,
 			ICounterpartyRepository counterpartyRepository,
-			INomenclatureRepository nomenclatureRepository
-	        )
+			INomenclatureRepository nomenclatureRepository,
+			IDeliveryScheduleRepository deliveryScheduleRepository
+			)
         {
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_bitrixClient = bitrixClient ?? throw new ArgumentNullException(nameof(bitrixClient));
@@ -63,6 +61,7 @@ namespace BitrixIntegration
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
 			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 	        _counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_dealRegistrator = dealRegistrator ?? throw new ArgumentNullException(nameof(dealRegistrator));
@@ -136,7 +135,7 @@ namespace BitrixIntegration
 			{
 				_logger.Info("Обработка точек доставки");
 				deliveryPoint = ProcessDeliveryPoint(uow, deal, counterparty);
-				deliverySchedule = DeliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
+				deliverySchedule = _deliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
 				if(deliverySchedule == null)
 				{
 					throw new InvalidOperationException($"Не найдено время доставки DeliverySchedule ({deal.DeliverySchedule}) по bitrixId");

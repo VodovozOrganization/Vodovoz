@@ -24,7 +24,7 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnBtnRunToFileClicked(object sender, EventArgs e)
 		{
-			using(var exportOperation = new ExportCounterpartiesTo1C(new CounterpartyRepository())) {
+			using(var exportOperation = new ExportCounterpartiesTo1C()) {
 				this.exportInProgress = true;
 				LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);
 				this.exportInProgress = false;

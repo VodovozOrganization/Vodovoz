@@ -325,6 +325,8 @@ namespace Vodovoz
 		MeasurementUnit unitU;
 		MeasurementUnit UnitServ;
 
+		IMeasurementUnitsRepository _measurementUnitsRepository = new MeasurementUnitsRepository();
+
 
 		public LoadFrom1cDlg ()
 		{
@@ -338,8 +340,8 @@ namespace Vodovoz
 			filechooserXML.Filter = Filter;
 
 			DeliverySchedules  = _uow.GetAll<DeliverySchedule>().ToList();
-			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(_uow);
-			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(_uow);
+			unitU 	 = _measurementUnitsRepository.GetDefaultGoodsUnit(_uow);
+			UnitServ = _measurementUnitsRepository.GetDefaultGoodsService(_uow);
 
 			vboxChanges.Visible = false;
 			ytreeEntites.ColumnsConfig = ColumnsConfigFactory.Create<ChangedItem>()
