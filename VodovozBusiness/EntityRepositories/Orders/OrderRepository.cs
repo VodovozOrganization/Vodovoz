@@ -588,11 +588,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			IOrderParametersProvider orderParametersProvider,
 			DateTime? startDate = null)
 		{
-			ExtendedReceiptForOrderNode extendedReceiptForOrderNodeAlias = null;
-
+			ReceiptForOrderNode resultAlias = null;
 			OrderItem orderItemAlias = null;
 			VodovozOrder orderAlias = null;
 			CashReceipt cashReceiptAlias = null;
+			Counterparty counterpartyAlias = null;
 
 			var orderSumProjection = Projections.Sum(
 				Projections.SqlFunction(
@@ -605,8 +605,10 @@ namespace Vodovoz.EntityRepositories.Orders
 			);
 
 			var paymentTypeRestriction = Restrictions.Disjunction()
-				.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType),
-					new[] { PaymentType.cash, PaymentType.Terminal }))
+				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
+				.Add(Restrictions.Conjunction()
+					.Add(() => orderAlias.PaymentType == PaymentType.cash)
+					.Add(() => counterpartyAlias.AlwaysSendReceitps))
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
 					.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId));
@@ -627,6 +629,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var ordersToSendQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(paymentTypeRestriction)
 				.And(statusRestriction)
 				.And(positiveSumRestriction)
@@ -639,27 +642,13 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var ordersToSend = ordersToSendQuery
 				.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderId)
-					.Select(() => orderAlias.PaymentType).WithAlias(() => extendedReceiptForOrderNodeAlias.PaymentType)
-					.Select(orderSumProjection).WithAlias(() => extendedReceiptForOrderNodeAlias.OrderSum)
-					.Select(() => cashReceiptAlias.Id).WithAlias(() => extendedReceiptForOrderNodeAlias.ReceiptId)
-					.Select(() => cashReceiptAlias.Sent).WithAlias(() => extendedReceiptForOrderNodeAlias.WasSent))
-				.TransformUsing(Transformers.AliasToBean<ExtendedReceiptForOrderNode>())
-				.Future<ExtendedReceiptForOrderNode>();
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.ReceiptId)
+					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent))
+				.TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
+				.List<ReceiptForOrderNode>();
 
-			//Здесь фильтрация идёт не на уровне запроса, т.к. не NHibernate упорно не хочет клась сложное условие в HAVING
-			var result = ordersToSend
-				.Where(x =>
-					x.PaymentType != PaymentType.cash
-					|| x.PaymentType == PaymentType.cash && x.OrderSum < 20000)
-				.Select(x => new ReceiptForOrderNode
-				{
-					OrderId = x.OrderId,
-					ReceiptId = x.ReceiptId,
-					WasSent = x.WasSent
-				});
-
-			return result;
+			return ordersToSend;
 		}
 
 		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)
