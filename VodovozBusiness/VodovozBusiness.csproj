@@ -253,7 +253,6 @@
     <Compile Include="EntityRepositories\Counterparties\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
-    <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
