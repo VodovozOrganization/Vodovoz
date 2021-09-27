@@ -538,7 +538,7 @@ namespace Vodovoz
 			this.btnReDeliver.CanFocus = true;
 			this.btnReDeliver.Name = "btnReDeliver";
 			this.btnReDeliver.UseUnderline = true;
-			this.btnReDeliver.Label = global::Mono.Unix.Catalog.GetString("Вернуть в статус \"Доставлен\"");
+			this.btnReDeliver.Label = global::Mono.Unix.Catalog.GetString("Вернуть маршрутный лист в статус \"Доставлен\"");
 			this.hbox10.Add(this.btnReDeliver);
 			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.btnReDeliver]));
 			w43.Position = 4;
