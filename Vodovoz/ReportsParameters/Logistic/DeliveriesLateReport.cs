@@ -11,7 +11,6 @@ namespace Vodovoz.Reports.Logistic
 {
 	public partial class DeliveriesLateReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		//FEDOS по 4 пункту минуты и кол во адресов
 		public DeliveriesLateReport ()
 		{
 			this.Build ();

@@ -2465,14 +2465,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(journal);
 	}
 
-	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
-		);
-	}
-
 	protected void OnActionDayOfSalaryGiveoutReport_Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
@@ -2488,5 +2480,13 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.InteractiveService, NavigationManager, filePickerService, productionWarehouseMovementReportProvider);
 
 		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
+		);
 	}
 }

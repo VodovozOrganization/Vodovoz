@@ -225,7 +225,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -248,7 +248,7 @@
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -272,7 +272,7 @@
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -291,7 +291,7 @@
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -344,7 +344,7 @@ Count(Fields!Addresses.Value)
 +
 '%)'</Value>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -385,7 +385,7 @@ Sum(Fields!Minutes.Value)
 +
 '%)'</Value>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -433,7 +433,7 @@ Sum(Fields!Minutes.Value)
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -456,7 +456,7 @@ Sum(Fields!Minutes.Value)
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -480,7 +480,7 @@ Sum(Fields!Minutes.Value)
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -499,7 +499,7 @@ Sum(Fields!Minutes.Value)
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -555,7 +555,7 @@ First({addresses},'bottles_addresses_set')
 +
 '%)'</Value>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -599,7 +599,7 @@ First({bottles},'bottles_addresses_set')
 +
 '%)'</Value>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -840,7 +840,7 @@ First({bottles},'bottles_addresses_set')
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -861,7 +861,7 @@ First({bottles},'bottles_addresses_set')
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -885,7 +885,7 @@ First({bottles},'bottles_addresses_set')
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -904,7 +904,7 @@ First({bottles},'bottles_addresses_set')
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -934,7 +934,7 @@ First({bottles},'bottles_addresses_set')
                         <TextAlign>Left</TextAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -955,7 +955,7 @@ First({bottles},'bottles_addresses_set')
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -986,7 +986,7 @@ First({bottles},'bottles_addresses_set')
                       </Style>
                       <Value> Итог по ЛО:</Value>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1030,7 +1030,7 @@ Convert.ToInt32((
 +
 "%)"</Value>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1220,7 +1220,7 @@ Convert.ToInt32((
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1240,7 +1240,7 @@ Convert.ToInt32((
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1268,7 +1268,7 @@ Convert.ToInt32((
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1299,7 +1299,7 @@ LightGreen
 </BackgroundColor>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1321,7 +1321,7 @@ LightGreen
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1352,7 +1352,7 @@ LightGreen
 )</BackgroundColor>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1661,7 +1661,7 @@ LightGreen
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1684,7 +1684,7 @@ LightGreen
                         <BorderWidth />
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1714,7 +1714,7 @@ LightGreen
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1734,7 +1734,7 @@ LightGreen
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>=Iif({?start_date} = {?end_date}, true, false)</Hidden>
+                        <Hidden>=Iif({?first_date} = {?second_date}, true, false)</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1798,7 +1798,7 @@ group by case
              end </CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date</Value>
+            <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1847,7 +1847,7 @@ GROUP BY route_list_addresses.id
 HAVING delay &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date</Value>
+            <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1945,7 +1945,7 @@ FROM
          ) AS order_sum ON order_sum.order_id = orders.id
              LEFT JOIN
          delivery_points ON delivery_point_id = delivery_points.id
-             LEFT JOIN
+             INNER JOIN
          delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
      WHERE
              orders.delivery_date = @first_date
@@ -1958,7 +1958,7 @@ FROM
        AND orders.delivery_point_id IS NOT NULL) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date</Value>
+            <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2007,7 +2007,7 @@ GROUP BY route_list_addresses.id
 HAVING delay &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date</Value>
+            <Value>=Parameters!second_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2105,7 +2105,7 @@ FROM
          ) AS order_sum ON order_sum.order_id = orders.id
              LEFT JOIN
          delivery_points ON delivery_point_id = delivery_points.id
-             LEFT JOIN
+             INNER JOIN
          delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
      WHERE
              orders.delivery_date = @second_date
@@ -2118,7 +2118,7 @@ FROM
        AND orders.delivery_point_id IS NOT NULL) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date</Value>
+            <Value>=Parameters!second_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2161,7 +2161,7 @@ group by case
              end </CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date</Value>
+            <Value>=Parameters!second_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2187,7 +2187,7 @@ on oi.nomenclature_id = nm.id
 where o.delivery_date = @first_date and nm.category is not null and nm.tare_volume is not null</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date.Value</Value>
+            <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2206,7 +2206,7 @@ where o.delivery_date = @first_date and nm.category is not null and nm.tare_volu
 where o.delivery_date = @first_date</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date.Value</Value>
+            <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2228,7 +2228,7 @@ on oi.nomenclature_id = nm.id
 where o.delivery_date = @second_date and nm.category is not null and nm.tare_volume is not null</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date.Value</Value>
+            <Value>=Parameters!second_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2247,7 +2247,7 @@ where o.delivery_date = @second_date and nm.category is not null and nm.tare_vol
 where o.delivery_date = @second_date</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date.Value</Value>
+            <Value>=Parameters!second_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2285,10 +2285,10 @@ union (
 )</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date.Value</Value>
+            <Value>=Parameters!first_date.Value</Value>
           </QueryParameter>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date.Value</Value>
+            <Value>=Parameters!second_date.Value</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2343,7 +2343,7 @@ group by a.geographic_group_id</CommandText>
             <Value>=Parameters!geoparts</Value>
           </QueryParameter>
           <QueryParameter Name="first_date">
-            <Value>=Parameters!start_date</Value>
+            <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2402,7 +2402,7 @@ group by a.geographic_group_id</CommandText>
             <Value>=Parameters!geoparts</Value>
           </QueryParameter>
           <QueryParameter Name="second_date">
-            <Value>=Parameters!end_date</Value>
+            <Value>=Parameters!second_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2430,7 +2430,7 @@ group by a.geographic_group_id</CommandText>
     </DataSource>
   </DataSources>
   <ReportParameters>
-    <ReportParameter Name="start_date">
+    <ReportParameter Name="first_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
@@ -2442,7 +2442,7 @@ group by a.geographic_group_id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="end_date">
+    <ReportParameter Name="second_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>

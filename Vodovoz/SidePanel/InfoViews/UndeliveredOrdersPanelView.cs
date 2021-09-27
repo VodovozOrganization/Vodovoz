@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -23,8 +22,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
-		private List<string> listOfGuilties = new List<string>(); //FEDOS удалить
-
+		
 		public UndeliveredOrdersPanelView()
 		{
 			this.Build();
@@ -198,13 +196,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				.GroupBy(x => x[1])
 				.Select(r => new[] { r.Key, r.Count(), position++, r.Sum(x => x[2] == null ? 0 : (decimal)x[2]) })
 				.ToList();
-
-			foreach(var obj in result)
-			{
-				int i = 0;
-				listOfGuilties.Add(obj[0].ToString() +" "+ obj[1].ToString());
-			}
-
 			return result;
 		}
 

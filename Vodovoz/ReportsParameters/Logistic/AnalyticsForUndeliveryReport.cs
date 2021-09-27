@@ -13,34 +13,34 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class AnalyticsForUndeliveryReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private string titleDate;
-		
+
 		public AnalyticsForUndeliveryReport()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
-		
+
 		void ConfigureDlg()
 		{
-			pkrDate.StartDate = pkrDate.EndDate = DateTime.Today;
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 		}
 
 		#region IParametersWidget implementation
-		
+
 		public string Title => "Аналитика по недовозам";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
-		
+
 		#endregion
-		
+
 		void OnUpdate(bool hide = false)
 		{
 			if(LoadReport != null)
 				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
+		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			GetGuilty();
 			OnUpdate(true);
@@ -48,32 +48,34 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			int[] geoparts = {1,2,3};
-			return new ReportInfo {
+			int[] geoparts = { 1, 2, 3 };
+			return new ReportInfo
+			{
 				Identifier = "Logistic.AnalyticsForUndelivery",
-				Parameters = new Dictionary<string, object> {
-					{ "start_date", pkrDate.StartDate },
-					{ "end_date", pkrDate.EndDate },
+				Parameters = new Dictionary<string, object> 
+				{
+					{ "first_date", dateperiodpicker.StartDate },
+					{ "second_date", dateperiodpicker.EndDate },
 					{"title_date",titleDate},
 					{"geoparts",geoparts}
 				}
 			};
 		}
-		
+
 		public void GetGuilty()
 		{
-			if(pkrDate == null)
+			if(dateperiodpicker == null)
 			{
 				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не заполнена дата!");
 			}
 			else
 			{
-				titleDate = pkrDate.StartDate.ToShortDateString();
+				titleDate = dateperiodpicker.StartDate.ToShortDateString();
 			}
 
-			if(pkrDate.EndDate != null && pkrDate.EndDate != pkrDate.StartDate)
+			if(dateperiodpicker.EndDate != null && dateperiodpicker.EndDate != dateperiodpicker.StartDate)
 			{
-				titleDate = titleDate + " и на " + pkrDate.EndDate.ToShortDateString();
+				titleDate = titleDate + " и на " + dateperiodpicker.EndDate.ToShortDateString();
 			}
 
 		}
