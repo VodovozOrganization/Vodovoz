@@ -608,7 +608,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.PaymentType == PaymentType.cash)
-					.Add(() => counterpartyAlias.AlwaysSendReceitps))
+					.Add(() => counterpartyAlias.AlwaysSendReceipts))
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
 					.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId));
