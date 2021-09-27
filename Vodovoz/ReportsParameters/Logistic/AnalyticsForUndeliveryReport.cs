@@ -37,7 +37,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 		void OnUpdate(bool hide = false)
 		{
 			if(LoadReport != null)
+			{
 				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
+			}
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

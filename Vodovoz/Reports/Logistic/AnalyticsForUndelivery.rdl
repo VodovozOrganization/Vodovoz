@@ -1863,7 +1863,7 @@ HAVING delay &gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="bottles_addresses_set">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     (
@@ -1954,7 +1954,6 @@ FROM
        AND !orders.self_delivery
        AND !orders.is_contract_closer
        AND !orders.service
-       AND delivery_schedule.id IS NOT NULL
        AND orders.delivery_point_id IS NOT NULL) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
@@ -1962,7 +1961,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2023,7 +2022,7 @@ HAVING delay &gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="bottles_addresses_set_2">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     (
@@ -2114,7 +2113,6 @@ FROM
        AND !orders.self_delivery
        AND !orders.is_contract_closer
        AND !orders.service
-       AND delivery_schedule.id IS NOT NULL
        AND orders.delivery_point_id IS NOT NULL) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
@@ -2122,7 +2120,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2259,7 +2257,7 @@ where o.delivery_date = @second_date</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="LO_Only">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     count(und.id) as Quantity
@@ -2269,7 +2267,7 @@ from undelivered_orders as und
          left join subdivisions as sd on sd.id = guilty.guilty_department_id
 where ord.delivery_date = @first_date and
     (
-                sd.short_name = 'ЛО Бокс' or sd.short_name = 'ЛО Соф' or sd.short_name = 'ЛО Парнас'
+                sd.id = 46 or sd.id = 13 or sd.id = 26
         )
 union (
     select
@@ -2280,7 +2278,7 @@ union (
              left join subdivisions as sd on sd.id = guilty.guilty_department_id
     where ord.delivery_date = @second_date and
         (
-                    sd.short_name = 'ЛО Бокс' or sd.short_name = 'ЛО Соф' or sd.short_name = 'ЛО Парнас'
+                    sd.id = 46 or sd.id = 13 or sd.id = 26
             )
 )</CommandText>
         <QueryParameters>
@@ -2292,7 +2290,7 @@ union (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Quantity">
           <DataField>Quantity</DataField>
           <TypeName>System.Int32</TypeName>
