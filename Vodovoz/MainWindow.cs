@@ -2480,6 +2480,7 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.InteractiveService, NavigationManager, filePickerService, productionWarehouseMovementReportProvider);
 
 		tdiMain.AddTab(viewModel);
+	}
 
 	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
 	{

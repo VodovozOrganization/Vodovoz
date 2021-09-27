@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gamma.Utilities;
 using MoreLinq;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QS.Services;
-using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.WageCalculation;
 
@@ -22,6 +20,7 @@ namespace Vodovoz.ReportsParameters.Sales
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly ICommonServices _commonServices;
+
 		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 		{
 			Build();
@@ -29,7 +28,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			SalaryRateFilterNode salaryRateFilterNodeAlias = null;
 			WageDistrictLevelRates wageDistrictLevelRatesAlias = null;
-			_salaryRateFilterNodes = new GenericObservableList<SalaryRateFilterNode>(UoW.Session.QueryOver(() => wageDistrictLevelRatesAlias).Where(x => !x.IsArchive)
+			_salaryRateFilterNodes = new GenericObservableList<SalaryRateFilterNode>(UoW.Session
+				.QueryOver(() => wageDistrictLevelRatesAlias).Where(x => !x.IsArchive)
 				.SelectList(list => list
 					.Select(() => wageDistrictLevelRatesAlias.Name).WithAlias(() => salaryRateFilterNodeAlias.Name)
 					.Select(() => wageDistrictLevelRatesAlias.Id).WithAlias(() => salaryRateFilterNodeAlias.WageId))
@@ -59,28 +59,15 @@ namespace Vodovoz.ReportsParameters.Sales
 			};
 		}
 
-		private void OnUpdate(bool hide = false)
-		{
-			if (LoadReport != null)
-			{
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
+		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		protected void OnYcheckAllClicked(object sender, EventArgs e)
-		{
-			_salaryRateFilterNodes.ForEach(x => x.Selected = true);
-			treeViewSalaryProperties.SetItemsSource(_salaryRateFilterNodes);
-		}
+		private void OnYcheckAllClicked(object sender, EventArgs e) => _salaryRateFilterNodes.ForEach(x => x.Selected = true);
 
-		protected void OnYUnCheckAllClicked(object sender, EventArgs e)
-		{
-			_salaryRateFilterNodes.ForEach(x => x.Selected = false);
-			treeViewSalaryProperties.SetItemsSource(_salaryRateFilterNodes);
-		}
+		private void OnYUnCheckAllClicked(object sender, EventArgs e) => _salaryRateFilterNodes.ForEach(x => x.Selected = false);
 
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
+		private void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			if(!_salaryRateFilterNodes.Any(x => x.Selected))
 			{
@@ -89,18 +76,23 @@ namespace Vodovoz.ReportsParameters.Sales
 			}
 
 			OnUpdate(true);
-			
 		}
 	}
 
-	public class SalaryRateFilterNode
+	public class SalaryRateFilterNode : PropertyChangedBase
 	{
 		public int WageId { get; set; }
 		
 		public string Title { get; set; }
 		
 		public string Name { get; set; }
-		
-		public bool Selected { get; set; }
+
+		private bool _selected;
+
+		public bool Selected
+		{
+			get => _selected;
+			set => SetField(ref _selected, value);
+		}
 	}
 }
