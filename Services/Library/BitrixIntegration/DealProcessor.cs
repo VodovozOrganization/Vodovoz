@@ -25,6 +25,7 @@ using Vodovoz.Domain.Common;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Domain;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 
 namespace BitrixIntegration
 {
