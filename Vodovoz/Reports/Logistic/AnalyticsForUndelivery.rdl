@@ -1943,18 +1943,16 @@ FROM
                      nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
              GROUP BY order_items.order_id
          ) AS order_sum ON order_sum.order_id = orders.id
-             LEFT JOIN
+             INNER JOIN
          delivery_points ON delivery_point_id = delivery_points.id
              INNER JOIN
          delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
      WHERE
              orders.delivery_date = @first_date
-       AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
-       AND orders.order_status NOT IN ('DeliveryCanceled', 'NotDelivered')
+       AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment', 'DeliveryCanceled', 'NotDelivered')
        AND !orders.self_delivery
        AND !orders.is_contract_closer
-       AND !orders.service
-       AND orders.delivery_point_id IS NOT NULL) as T</CommandText>
+       AND !orders.service) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
             <Value>=Parameters!first_date</Value>
@@ -2102,18 +2100,16 @@ FROM
                      nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
              GROUP BY order_items.order_id
          ) AS order_sum ON order_sum.order_id = orders.id
-             LEFT JOIN
+             INNER JOIN
          delivery_points ON delivery_point_id = delivery_points.id
              INNER JOIN
          delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
      WHERE
              orders.delivery_date = @second_date
-       AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
-       AND orders.order_status NOT IN ('DeliveryCanceled', 'NotDelivered')
+       AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment', 'DeliveryCanceled', 'NotDelivered')
        AND !orders.self_delivery
        AND !orders.is_contract_closer
-       AND !orders.service
-       AND orders.delivery_point_id IS NOT NULL) as T</CommandText>
+       AND !orders.service) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
             <Value>=Parameters!second_date</Value>
