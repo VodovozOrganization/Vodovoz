@@ -575,7 +575,7 @@ namespace Vodovoz
 			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler(this.OnButtonChangeDeliveryTimeClicked);
 			this.buttonSetStatusComplete.Clicked += new global::System.EventHandler(this.OnButtonSetStatusCompleteClicked);
 			this.buttonRetriveEnRoute.Clicked += new global::System.EventHandler(this.OnButtonRetriveEnRouteClicked);
-			this.btnReDeliver.Activated += new global::System.EventHandler(this.OnBtnReDeliverActivated);
+			this.btnReDeliver.Clicked += new global::System.EventHandler(this.OnBtnReDeliverClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
 		}
 	}

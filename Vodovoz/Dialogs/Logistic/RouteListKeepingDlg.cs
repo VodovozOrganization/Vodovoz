@@ -505,7 +505,7 @@ namespace Vodovoz
 			Entity.RollBackEnRouteStatus();
 		}
 
-		protected void OnBtnReDeliverActivated(object sender, EventArgs e)
+		protected void OnBtnReDeliverClicked(object sender, EventArgs e)
 		{
 			Entity.UpdateStatus();
 		}
