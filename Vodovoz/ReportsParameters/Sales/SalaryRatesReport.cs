@@ -48,13 +48,17 @@ namespace Vodovoz.ReportsParameters.Sales
 		private GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
 		
 		private ReportInfo GetReportInfo()
-		{			
+		{
+			var cityDistrict = UoW.Session.QueryOver<WageDistrict>().Where(x => x.Id == 1).SingleOrDefault();
+			var suburbDistrict = UoW.Session.QueryOver<WageDistrict>().Where(x => x.Id == 1).SingleOrDefault();
 			return new ReportInfo
 			{
 				Identifier = "Sales.SalaryRatesReport",
 				Parameters = new Dictionary<string, object>
 				{ 
-					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) }
+					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
+					{ "cityId", cityDistrict.Id},
+					{ "suburbId", suburbDistrict.Id},
 				}
 			};
 		}

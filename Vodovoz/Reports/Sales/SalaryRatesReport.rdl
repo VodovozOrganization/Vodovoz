@@ -1583,128 +1583,131 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select wdlrs.name as name, 
        'С экспедитором' as with_out_forwarder,
-       SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as PhoneCompensationCity,
-       SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as Bottle19LCity,
-       SUM(IF(wr.wage_rate_type = 'EmptyBottle19L' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LCity,
-       SUM(IF(wr.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as Bottle19LInBigOrderCity,
-       SUM(IF(wr.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LInBigOrderCity,
-       SUM(IF(wr.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as MinBottlesQtyInBigOrderCity,
-       SUM(IF(wr.wage_rate_type = 'Bottle6L' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as Bottle6LCity,
-       SUM(IF(wr.wage_rate_type = 'PackOfBottles600ml' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as PackOfBottles600mlCity,
-       SUM(IF(wr.wage_rate_type = 'Bottle1500ml' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as Bottle1500mlCity,
-       SUM(IF(wr.wage_rate_type = 'Bottle500ml' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as Bottle500mlCity,
-       SUM(IF(wr.wage_rate_type = 'Equipment' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as EquipmentCity,
-       SUM(IF(wr.wage_rate_type = 'Address' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as AddressCity,
-       SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as ForeignAddressCity,
-       SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = 1, wr.for_driver_with_forwarder, 0)) as ContractCancelationCity,
-       SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as PhoneCompensationSuburb,
-       SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as Bottle19LSuburb,
-       SUM(IF(wr.wage_rate_type = 'EmptyBottle19L' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LSuburb,
-       SUM(IF(wr.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as Bottle19LInBigOrderSuburb,
-       SUM(IF(wr.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LInBigOrderSuburb,
-       SUM(IF(wr.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as MinBottlesQtyInBigOrderSuburb,
-       SUM(IF(wr.wage_rate_type = 'Bottle6L' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as Bottle6LSuburb,
-       SUM(IF(wr.wage_rate_type = 'PackOfBottles600ml' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as PackOfBottles600mlSuburb,
-       SUM(IF(wr.wage_rate_type = 'Bottle1500ml' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as Bottle1500mlSuburb,
-       SUM(IF(wr.wage_rate_type = 'Bottle500ml' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as Bottle500mlSuburb,
-       SUM(IF(wr.wage_rate_type = 'Equipment' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as EquipmentSuburb,
-       SUM(IF(wr.wage_rate_type = 'Address' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as AddressSuburb,
-       SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as ForeignAddressSuburb,
-       SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = 2, wr.for_driver_with_forwarder, 0)) as ContractCancelationSuburb
+       SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as PhoneCompensationCity,
+       SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as Bottle19LCity,
+       SUM(IF(wr.wage_rate_type = 'EmptyBottle19L' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LCity,
+       SUM(IF(wr.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as Bottle19LInBigOrderCity,
+       SUM(IF(wr.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LInBigOrderCity,
+       SUM(IF(wr.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as MinBottlesQtyInBigOrderCity,
+       SUM(IF(wr.wage_rate_type = 'Bottle6L' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as Bottle6LCity,
+       SUM(IF(wr.wage_rate_type = 'PackOfBottles600ml' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as PackOfBottles600mlCity,
+       SUM(IF(wr.wage_rate_type = 'Bottle1500ml' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as Bottle1500mlCity,
+       SUM(IF(wr.wage_rate_type = 'Bottle500ml' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as Bottle500mlCity,
+       SUM(IF(wr.wage_rate_type = 'Equipment' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as EquipmentCity,
+       SUM(IF(wr.wage_rate_type = 'Address' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as AddressCity,
+       SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as ForeignAddressCity,
+       SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as ContractCancelationCity,
+       SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as PhoneCompensationSuburb,
+       SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle19LSuburb,
+       SUM(IF(wr.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LSuburb,
+       SUM(IF(wr.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle19LInBigOrderSuburb,
+       SUM(IF(wr.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LInBigOrderSuburb,
+       SUM(IF(wr.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as MinBottlesQtyInBigOrderSuburb,
+       SUM(IF(wr.wage_rate_type = 'Bottle6L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle6LSuburb,
+       SUM(IF(wr.wage_rate_type = 'PackOfBottles600ml' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as PackOfBottles600mlSuburb,
+       SUM(IF(wr.wage_rate_type = 'Bottle1500ml' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle1500mlSuburb,
+       SUM(IF(wr.wage_rate_type = 'Bottle500ml' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle500mlSuburb,
+       SUM(IF(wr.wage_rate_type = 'Equipment' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as EquipmentSuburb,
+       SUM(IF(wr.wage_rate_type = 'Address' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as AddressSuburb,
+       SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ForeignAddressSuburb,
+       SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ContractCancelationSuburb
 from wage_rates wr
     left join wage_district_level_rate wdlr on wr.wage_district_level_rate_id = wdlr.id
     left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
     left join wage_districts wd on wdlr.wage_district_id = wd.id
-where !wdlrs.is_archive
-    and wdlrs.id in (@wageIds)
+where wdlrs.id in (@wageIds)
 group by name, with_out_forwarder
 union 
 select wdlrs.name as name, 
        'Без экспедитора' as with_out_forwarder,
-       SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationCity,
-       SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as Bottle19LCity,
-       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19L' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LCity,
-       SUM(IF(wr2.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as Bottle19LInBigOrderCity,
-       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LInBigOrderCity,
-       SUM(IF(wr2.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as MinBottlesQtyInBigOrderCity,
-       SUM(IF(wr2.wage_rate_type = 'Bottle6L' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as Bottle6LCity,
-       SUM(IF(wr2.wage_rate_type = 'PackOfBottles600ml' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as PackOfBottles600mlCity,
-       SUM(IF(wr2.wage_rate_type = 'Bottle1500ml' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as Bottle1500mlCity,
-       SUM(IF(wr2.wage_rate_type = 'Bottle500ml' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as Bottle500mlCity,
-       SUM(IF(wr2.wage_rate_type = 'Equipment' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as EquipmentCity,
-       SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as AddressCity,
-       SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as ForeignAddressCity,
-       SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = 1, wr2.for_driver_without_forwarder, 0)) as ContractCancelationCity,
-       SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as Bottle19LSuburb,
-       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19L' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as Bottle19LInBigOrderSuburb,
-       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LInBigOrderSuburb,
-       SUM(IF(wr2.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as MinBottlesQtyInBigOrderSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Bottle6L' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as Bottle6LSuburb,
-       SUM(IF(wr2.wage_rate_type = 'PackOfBottles600ml' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as PackOfBottles600mlSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Bottle1500ml' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as Bottle1500mlSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Bottle500ml' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as Bottle500mlSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Equipment' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as EquipmentSuburb,
-       SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as AddressSuburb,
-       SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as ForeignAddressSuburb,
-       SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = 2, wr2.for_driver_without_forwarder, 0)) as ContractCancelationSuburb
+       SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationCity,
+       SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as Bottle19LCity,
+       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19L' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LCity,
+       SUM(IF(wr2.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as Bottle19LInBigOrderCity,
+       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LInBigOrderCity,
+       SUM(IF(wr2.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as MinBottlesQtyInBigOrderCity,
+       SUM(IF(wr2.wage_rate_type = 'Bottle6L' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as Bottle6LCity,
+       SUM(IF(wr2.wage_rate_type = 'PackOfBottles600ml' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as PackOfBottles600mlCity,
+       SUM(IF(wr2.wage_rate_type = 'Bottle1500ml' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as Bottle1500mlCity,
+       SUM(IF(wr2.wage_rate_type = 'Bottle500ml' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as Bottle500mlCity,
+       SUM(IF(wr2.wage_rate_type = 'Equipment' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as EquipmentCity,
+       SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as AddressCity,
+       SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressCity,
+       SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationCity,
+       SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle19LSuburb,
+       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle19LInBigOrderSuburb,
+       SUM(IF(wr2.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LInBigOrderSuburb,
+       SUM(IF(wr2.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as MinBottlesQtyInBigOrderSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Bottle6L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle6LSuburb,
+       SUM(IF(wr2.wage_rate_type = 'PackOfBottles600ml' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as PackOfBottles600mlSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Bottle1500ml' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle1500mlSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Bottle500ml' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle500mlSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Equipment' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as EquipmentSuburb,
+       SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as AddressSuburb,
+       SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressSuburb,
+       SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationSuburb
 from wage_rates wr2
     left join wage_district_level_rate wdlr on wr2.wage_district_level_rate_id = wdlr.id
     left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
     left join wage_districts wd on wdlr.wage_district_id = wd.id
-where !wdlrs.is_archive
-    and wdlrs.id in (@wageIds)
+where wdlrs.id in (@wageIds)
 group by name, with_out_forwarder
 union 
 select wdlrs.name as name, 
        'Для экспедитора' as with_out_forwarder,
-       SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = 1, wr3.for_forwarder, 0)) as PhoneCompensationCity,
-       SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = 1, wr3.for_forwarder, 0)) as Bottle19LCity,
-       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19L' and wd.id = 1, wr3.for_forwarder, 0)) as EmptyBottle19LCity,
-       SUM(IF(wr3.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = 1, wr3.for_forwarder, 0)) as Bottle19LInBigOrderCity,
-       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = 1, wr3.for_forwarder, 0)) as EmptyBottle19LInBigOrderCity,
-       SUM(IF(wr3.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = 1, wr3.for_forwarder, 0)) as MinBottlesQtyInBigOrderCity,
-       SUM(IF(wr3.wage_rate_type = 'Bottle6L' and wd.id = 1, wr3.for_forwarder, 0)) as Bottle6LCity,
-       SUM(IF(wr3.wage_rate_type = 'PackOfBottles600ml' and wd.id = 1, wr3.for_forwarder, 0)) as PackOfBottles600mlCity,
-       SUM(IF(wr3.wage_rate_type = 'Bottle1500ml' and wd.id = 1, wr3.for_forwarder, 0)) as Bottle1500mlCity,
-       SUM(IF(wr3.wage_rate_type = 'Bottle500ml' and wd.id = 1, wr3.for_forwarder, 0)) as Bottle500mlCity,
-       SUM(IF(wr3.wage_rate_type = 'Equipment' and wd.id = 1, wr3.for_forwarder, 0)) as EquipmentCity,
-       SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = 1, wr3.for_forwarder, 0)) as AddressCity,
-       SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = 1, wr3.for_forwarder, 0)) as ForeignAddressCity,
-       SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = 1, wr3.for_forwarder, 0)) as ContractCancelationCity,
-       SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = 2, wr3.for_forwarder, 0)) as PhoneCompensationSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = 2, wr3.for_forwarder, 0)) as Bottle19LSuburb,
-       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19L' and wd.id = 2, wr3.for_forwarder, 0)) as EmptyBottle19LSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = 2, wr3.for_forwarder, 0)) as Bottle19LInBigOrderSuburb,
-       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = 2, wr3.for_forwarder, 0)) as EmptyBottle19LInBigOrderSuburb,
-       SUM(IF(wr3.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = 2, wr3.for_forwarder, 0)) as MinBottlesQtyInBigOrderSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Bottle6L' and wd.id = 2, wr3.for_forwarder, 0)) as Bottle6LSuburb,
-       SUM(IF(wr3.wage_rate_type = 'PackOfBottles600ml' and wd.id = 2, wr3.for_forwarder, 0)) as PackOfBottles600mlSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Bottle1500ml' and wd.id = 2, wr3.for_forwarder, 0)) as Bottle1500mlSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Bottle500ml' and wd.id = 2, wr3.for_forwarder, 0)) as Bottle500mlSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Equipment' and wd.id = 2, wr3.for_forwarder, 0)) as EquipmentSuburb,
-       SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = 2, wr3.for_forwarder, 0)) as AddressSuburb,
-       SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = 2, wr3.for_forwarder, 0)) as ForeignAddressSuburb,
-       SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = 2, wr3.for_forwarder, 0)) as ContractCancelationSuburb
+       SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = @cityId, wr3.for_forwarder, 0)) as PhoneCompensationCity,
+       SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = @cityId, wr3.for_forwarder, 0)) as Bottle19LCity,
+       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19L' and wd.id = @cityId, wr3.for_forwarder, 0)) as EmptyBottle19LCity,
+       SUM(IF(wr3.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = @cityId, wr3.for_forwarder, 0)) as Bottle19LInBigOrderCity,
+       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = @cityId, wr3.for_forwarder, 0)) as EmptyBottle19LInBigOrderCity,
+       SUM(IF(wr3.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = @cityId, wr3.for_forwarder, 0)) as MinBottlesQtyInBigOrderCity,
+       SUM(IF(wr3.wage_rate_type = 'Bottle6L' and wd.id = @cityId, wr3.for_forwarder, 0)) as Bottle6LCity,
+       SUM(IF(wr3.wage_rate_type = 'PackOfBottles600ml' and wd.id = @cityId, wr3.for_forwarder, 0)) as PackOfBottles600mlCity,
+       SUM(IF(wr3.wage_rate_type = 'Bottle1500ml' and wd.id = @cityId, wr3.for_forwarder, 0)) as Bottle1500mlCity,
+       SUM(IF(wr3.wage_rate_type = 'Bottle500ml' and wd.id = @cityId, wr3.for_forwarder, 0)) as Bottle500mlCity,
+       SUM(IF(wr3.wage_rate_type = 'Equipment' and wd.id = @cityId, wr3.for_forwarder, 0)) as EquipmentCity,
+       SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = @cityId, wr3.for_forwarder, 0)) as AddressCity,
+       SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr3.for_forwarder, 0)) as ForeignAddressCity,
+       SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr3.for_forwarder, 0)) as ContractCancelationCity,
+       SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as PhoneCompensationSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle19LSuburb,
+       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as EmptyBottle19LSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Bottle19LInBigOrder' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle19LInBigOrderSuburb,
+       SUM(IF(wr3.wage_rate_type = 'EmptyBottle19LInBigOrder' and wd.id = @suburbId, wr3.for_forwarder, 0)) as EmptyBottle19LInBigOrderSuburb,
+       SUM(IF(wr3.wage_rate_type = 'MinBottlesQtyInBigOrder' and wd.id = @suburbId, wr3.for_forwarder, 0)) as MinBottlesQtyInBigOrderSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Bottle6L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle6LSuburb,
+       SUM(IF(wr3.wage_rate_type = 'PackOfBottles600ml' and wd.id = @suburbId, wr3.for_forwarder, 0)) as PackOfBottles600mlSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Bottle1500ml' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle1500mlSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Bottle500ml' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle500mlSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Equipment' and wd.id = @suburbId, wr3.for_forwarder, 0)) as EquipmentSuburb,
+       SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = @suburbId, wr3.for_forwarder, 0)) as AddressSuburb,
+       SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ForeignAddressSuburb,
+       SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ContractCancelationSuburb
 from wage_rates wr3 
     left join wage_district_level_rate wdlr on wr3.wage_district_level_rate_id = wdlr.id
     left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
     left join wage_districts wd on wdlr.wage_district_id = wd.id
-where !wdlrs.is_archive
-    and wdlrs.id in (@wageIds)
+where wdlrs.id in (@wageIds)
 group by name, with_out_forwarder;</CommandText>
         <QueryParameters>
           <QueryParameter Name="wageIds">
             <Value>=Parameters!wageIds</Value>
           </QueryParameter>
+          <QueryParameter Name="cityId">
+            <Value>=Parameters!cityId</Value>
+          </QueryParameter>
+          <QueryParameter Name="suburbId">
+            <Value>=Parameters!suburbId</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1837,13 +1840,27 @@ group by name, with_out_forwarder;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="wageIds">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cityId">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="suburbId">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
