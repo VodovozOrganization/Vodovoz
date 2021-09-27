@@ -202,7 +202,13 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get => status;
-			protected set => SetField(ref status, value, () => Status);
+			protected set
+			{
+				if(SetField(ref status, value))
+				{
+					OnPropertyChanged(() => CanChangeStatusToDelivered);
+				}
+			}
 		}
 
 		DateTime? closingDate;
@@ -556,6 +562,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
+		public virtual bool CanChangeStatusToDelivered => Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
+		
 		/// <summary>
 		/// МЛ находится в статусе для открытия диалога закрытия
 		/// </summary>
@@ -1183,7 +1191,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateStatus()
 		{
-			if(Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute))
+			if(CanChangeStatusToDelivered)
 			{
 				ChangeStatus(RouteListStatus.Delivered);
 			}
