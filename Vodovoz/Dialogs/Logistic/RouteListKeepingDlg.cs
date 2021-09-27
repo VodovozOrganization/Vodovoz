@@ -158,6 +158,8 @@ namespace Vodovoz
 			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_retrieve_routelist_en_route");
 
+			btnReDeliver.Binding.AddBinding(Entity, e => e.CanChangeStatusToDelivered, w => w.Sensitive);
+
 			buttonNewFine.Sensitive = allEditing;
 
 			buttonRefresh.Sensitive = allEditing;
@@ -501,6 +503,11 @@ namespace Vodovoz
 		protected void OnButtonRetriveEnRouteClicked(object sender, EventArgs e)
 		{
 			Entity.RollBackEnRouteStatus();
+		}
+
+		protected void OnBtnReDeliverClicked(object sender, EventArgs e)
+		{
+			Entity.UpdateStatus();
 		}
 	}
 
