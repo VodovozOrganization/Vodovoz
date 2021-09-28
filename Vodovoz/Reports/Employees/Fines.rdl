@@ -23,6 +23,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT 
     CONCAT_WS(' ',
             employees.last_name,
@@ -354,6 +355,7 @@ ORDER BY employee , date</CommandText>
                         <Format>d</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -386,6 +388,8 @@ ORDER BY employee , date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingBottom >=Len({nomenclature_info}) / 3 + "pt"</PaddingBottom>
+                        <PaddingTop >0pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -402,6 +406,7 @@ ORDER BY employee , date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingBottom >=Len({comment}) / 3 + "pt"</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>

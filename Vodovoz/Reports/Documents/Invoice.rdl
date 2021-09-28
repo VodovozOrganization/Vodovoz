@@ -996,49 +996,40 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>24.1pt</Width>
+            <Width>19pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.1pt</Width>
+            <Width>205pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.9pt</Width>
+            <Width>58pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.3pt</Width>
+            <Width>29pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.2pt</Width>
+            <Width>49pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>28.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>49.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>47.8pt</Width>
+            <Width>45pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
           </TableColumn>
           <TableColumn>
-            <Width>62.7pt</Width>
+            <Width>63pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
           </TableColumn>
           <TableColumn>
-            <Width>69.7pt</Width>
+            <Width>70pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12.8pt</Height>
+              <Height>20pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1073,7 +1064,7 @@ WHERE stored_resource.id = @id1</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1155,7 +1146,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>Сум.без скидки</Value>
+                      <Value>Сумма без скидки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1237,7 +1228,7 @@ WHERE stored_resource.id = @id1</CommandText>
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1381,58 +1372,8 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox65">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox63">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>

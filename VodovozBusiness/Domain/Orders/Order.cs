@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Models;
@@ -60,6 +61,7 @@ namespace Vodovoz.Domain.Orders
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -2591,15 +2593,16 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
-
-			switch(OrderStatus) {
+			var routeList = routeListItem?.RouteList;
+			switch(OrderStatus)
+			{
 				case OrderStatus.NewOrder:
 				case OrderStatus.WaitForPayment:
 				case OrderStatus.Accepted:
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
+					routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2607,12 +2610,15 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.UnloadingOnStock:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Closed:
-					if(guilty == GuiltyTypes.Client) {
+					if(guilty == GuiltyTypes.Client)
+					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
-					} else {
+						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
+					}
+					else
+					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
+						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
 					}
 					break;
 			}
@@ -2645,9 +2651,9 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.OnLoading:
 					OnChangeStatusToOnLoading();
 					break;
-				case OrderStatus.InTravelList:
 				case OrderStatus.OnTheWay:
 				case OrderStatus.Shipped:
+				case OrderStatus.InTravelList:
 				case OrderStatus.UnloadingOnStock:
 					break;
 				case OrderStatus.Closed:
@@ -2667,6 +2673,8 @@ namespace Vodovoz.Domain.Orders
 			   || newStatus == OrderStatus.NotDelivered
 			   || initialStatus == newStatus)
 				return;
+
+			DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
 
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
@@ -2713,6 +2721,71 @@ namespace Vodovoz.Domain.Orders
 			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, Id);
 			
 			UoW.Save(newPayment);
+		}
+
+		/// <summary>
+		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
+		/// </summary>
+		/// <param name="previousStatus"></param>
+		private void DeleteRefundWhenOrderRestoredToDeliver(OrderStatus previousStatus)
+		{
+			if((previousStatus == OrderStatus.DeliveryCanceled
+			    || previousStatus == OrderStatus.NotDelivered
+			    || previousStatus == OrderStatus.Canceled)
+			   && PaymentType == PaymentType.cashless)
+			{
+				var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
+				var payment = paymentItems.FirstOrDefault()?.Payment;
+				if(payment == null)
+				{
+					return;
+				}
+
+				var refundToDelete = _paymentsRepository.GetRefundPayment(UoW, payment.Id);
+				if(refundToDelete == null)
+				{
+					return;
+				}
+
+				var itemsToUpdate = refundToDelete.PaymentItems;
+
+				foreach(var pItem in itemsToUpdate)
+				{
+					var order = pItem.Order;
+					order.UpdateOrderPaymentStatus(pItem);
+					UoW.Save(order);
+				}
+
+				UoW.Delete(refundToDelete);
+				var totalPayed = paymentItems.Sum(pi => pi.Sum);
+
+				OrderPaymentStatus = ActualTotalSum > totalPayed
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
+			}
+		}
+
+		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
+		{
+			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id)
+				.Where(pi => pi != ignoredItem).ToList();
+			if(!paymentItems.Any())
+			{
+				if(PaymentType == PaymentType.cashless)
+				{
+					OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				}
+
+				return;
+			}
+
+			var totalPayed = paymentItems.Sum(pi => pi.Sum);
+
+			OrderPaymentStatus = totalPayed == 0
+				? OrderPaymentStatus.UnPaid
+				: ActualTotalSum > totalPayed
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
 		}
 
 		/// <summary>

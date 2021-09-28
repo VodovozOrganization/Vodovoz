@@ -14,6 +14,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		bool HasRouteListItemsForOrder(IUnitOfWork uow, Order order);
 		bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order);
 		bool AnotherRouteListItemForOrderExist(IUnitOfWork uow, RouteListItem routeListItem);
+		bool CurrentRouteListHasOrderDuplicate(IUnitOfWork uow, RouteListItem routeListItem, int[] actualRouteListItemIds);
 		RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId);
 	}
 }

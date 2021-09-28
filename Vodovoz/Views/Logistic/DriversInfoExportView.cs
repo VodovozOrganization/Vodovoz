@@ -20,7 +20,6 @@ namespace Vodovoz.Views.Logistic
 		public DriversInfoExportView(DriversInfoExportViewModel viewModel) : base(viewModel)
 		{
 			Build();
-			ConfigureTreeView();
 			Configure();
 			Destroyed += (sender, args) => isDestroyed = true;
 		}
@@ -41,6 +40,12 @@ namespace Vodovoz.Views.Logistic
 
 			comboEmployeeStatus.ItemsEnum = typeof(EmployeeStatus);
 			comboEmployeeStatus.Binding.AddBinding(ViewModel, vm => vm.EmployeeStatus, w => w.SelectedItemOrNull);
+
+			comboTypeOfDriversInfoExport.ItemsEnum = typeof(DriversInfoExportType);
+			comboTypeOfDriversInfoExport.Binding.AddBinding(ViewModel, vm => vm.DriversInfoExportType, w => w.SelectedItem);
+
+			comboPlanFact.ItemsEnum = typeof(DriversInfoExportPlanFactType);
+			comboPlanFact.Binding.AddBinding(ViewModel, vm => vm.DriversInfoExportPlanFactType, w => w.SelectedItem);
 
 			ylabelStatus.Binding.AddBinding(ViewModel, vm => vm.StatusMessage, w => w.Text).InitializeFromSource();
 
@@ -68,12 +73,27 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.DataIsLoading = true;
 				ViewModel.StatusMessage = "Загрузка данных водителей...";
+
 				var items = await Task.Run(() => ViewModel.GetDriverInfoNodes());
 				loadedSuccessfully = true;
+
 				if(!isDestroyed)
 				{
-					Application.Invoke((s, eventArgs) => ViewModel.Items = new GenericObservableList<DriverInfoNode>(items.ToList()));
+					Application.Invoke((s, eventArgs) =>
+					{
+						if(ViewModel.DriversInfoExportType == DriversInfoExportType.RouteListGrouping)
+						{
+							ConfigureTreeViewForRouteListGrouping(ViewModel.IsPlan, ViewModel.IsFact);
+						}
+						else
+						{
+							ConfigureTreeViewForDriverCarGrouping(ViewModel.IsPlan, ViewModel.IsFact);
+						}
+
+						ViewModel.Items = new GenericObservableList<DriverInfoNode>(items.ToList());
+					});
 				}
+				
 			}
 			catch(Exception ex)
 			{
@@ -138,9 +158,9 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		private void ConfigureTreeView()
+		private void ConfigureTreeViewForRouteListGrouping(bool isPlan, bool isFact)
 		{
-			ytreeDriversInfo.ColumnsConfig = ColumnsConfigFactory.Create<DriverInfoNode>()
+			var columnsConfig = ColumnsConfigFactory.Create<DriverInfoNode>()
 				.AddColumn("Код МЛ")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(x => x.RouteListId)
@@ -165,13 +185,9 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(x => x.DriverStatus)
 					.XAlign(0.5f)
-				.AddColumn("ЗП водителя\n за МЛ план")
+				.AddColumn("ЗП водителя за МЛ\n(план+факт)")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.DriverRouteListWagePlannedString)
-					.XAlign(0.5f)
-				.AddColumn("ЗП водителя\n за МЛ факт")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.DriverRouteListWageFactString)
+					.AddTextRenderer(x => x.DriverRouteListWageForRouteListGroupingString)
 					.XAlign(0.5f)
 				.AddColumn("ЗП водителя\n  за период")
 					.HeaderAlignment(0.5f)
@@ -193,46 +209,97 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn(" Кол-во отраб.\nдней за период")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(x => x.DriverDaysWorkedCount)
-					.XAlign(0.5f)
-				.AddColumn("Адреса\n  план")
-					.AddNumericRenderer(x => x.RouteListItemCountPlanned.ToString())
-					.XAlign(0.5f)
-				.AddColumn("Адреса\n  факт")
+					.XAlign(0.5f);
+			if(isPlan)
+			{
+				columnsConfig
+					.AddColumn("Адреса\n  план")
+						.AddNumericRenderer(x => x.RouteListItemCountPlanned.ToString())
+						.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("Адреса\n  факт")
 					.AddTextRenderer(x => x.RouteListItemCountFact)
-					.XAlign(0.5f)
-				.AddColumn("       19л\nот клиента")
-					.AddNumericRenderer(x => x.RouteListReturnedBottlesCount)
-					.XAlign(0.5f)
-				.AddColumn(" 19л\nплан")
+					.XAlign(0.5f);
+			}
+
+			columnsConfig.AddColumn("       19л\nот клиента")
+				.AddNumericRenderer(x => x.RouteListReturnedBottlesCount)
+				.XAlign(0.5f);
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn(" 19л\nплан")
 					.AddNumericRenderer(x => x.Vol19LBottlesCount.ToString())
-					.XAlign(0.5f)
-				.AddColumn(" 19л\nфакт")
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn(" 19л\nфакт")
 					.AddTextRenderer(x => x.Vol19LBottlesActualCount)
-					.XAlign(0.5f)
-				.AddColumn("  6л\nплан")
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("  6л\nплан")
 					.AddNumericRenderer(x => x.Vol6LBottlesCount.ToString())
-					.XAlign(0.5f)
-				.AddColumn("  6л\nфакт")
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("  6л\nфакт")
 					.AddTextRenderer(x => x.Vol6LBottlesActualCount)
-					.XAlign(0.5f)
-				.AddColumn("1.5л\nплан")
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("1.5л\nплан")
 					.AddNumericRenderer(x => x.Vol1500MlBottlesCount.ToString())
-					.XAlign(0.5f)
-				.AddColumn("1.5л\nфакт")
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("1.5л\nфакт")
 					.AddTextRenderer(x => x.Vol1500MlBottlesActualCount)
-					.XAlign(0.5f)
-				.AddColumn("0.6л\nплан")
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("0.6л\nплан")
 					.AddNumericRenderer(x => x.Vol600MlBottlesCount.ToString())
-					.XAlign(0.5f)
-				.AddColumn("0.6л\nфакт")
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("0.6л\nфакт")
 					.AddTextRenderer(x => x.Vol600MlBottlesActualCount)
-					.XAlign(0.5f)
-				.AddColumn("обор.\nплан")
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("обор.\nплан")
 					.AddNumericRenderer(x => x.EquipmentCount.ToString())
-					.XAlign(0.5f)
-				.AddColumn("обор.\nфакт")
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("обор.\nфакт")
 					.AddTextRenderer(x => x.EquipmentActualCount)
-					.XAlign(0.5f)
+					.XAlign(0.5f);
+			}
+
+			columnsConfig
 				.AddColumn("     19л\nнедовозы")
 					.AddTextRenderer(x => x.Vol19LUndelivered)
 					.XAlign(0.5f)
@@ -254,8 +321,167 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(x => x.DriverFactDistricts)
 					.WrapMode(WrapMode.WordChar)
 					.WrapWidth(500)
-				.AddColumn("")
-				.Finish();
+				.AddColumn("");
+
+			ytreeDriversInfo.ColumnsConfig = columnsConfig.Finish();
+		}
+
+		private void ConfigureTreeViewForDriverCarGrouping(bool isPlan, bool isFact)
+		{
+			var columnsConfig = ColumnsConfigFactory.Create<DriverInfoNode>()
+				.AddColumn("Дата МЛ")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.RouteListDateString)
+					.XAlign(0.5f)
+				.AddColumn("Принадлежность авто")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.CarTypeOfUse)
+					.XAlign(0.5f)
+				.AddColumn("Раскат")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => x.CarIsRaskat)
+					.Editing(false)
+					.XAlign(0.5f)
+				.AddColumn("Гос. номер авто")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.CarRegNumber)
+					.XAlign(0.5f)
+				.AddColumn("Водитель")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DriverFullName)
+					.XAlign(0.5f);
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("Адреса\n  план")
+					.AddNumericRenderer(x => x.RouteListItemCountPlanned.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("Адреса\n  факт")
+					.AddTextRenderer(x => x.RouteListItemCountFact)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn(" 19л\nплан")
+					.AddNumericRenderer(x => x.Vol19LBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn(" 19л\nфакт")
+					.AddTextRenderer(x => x.Vol19LBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			columnsConfig.AddColumn("       19л\nот клиента")
+				.AddNumericRenderer(x => x.RouteListReturnedBottlesCount)
+				.XAlign(0.5f);
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("  6л\nплан")
+					.AddNumericRenderer(x => x.Vol6LBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("  6л\nфакт")
+					.AddTextRenderer(x => x.Vol6LBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("1.5л\nплан")
+					.AddNumericRenderer(x => x.Vol1500MlBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("1.5л\nфакт")
+					.AddTextRenderer(x => x.Vol1500MlBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("0.6л\nплан")
+					.AddNumericRenderer(x => x.Vol600MlBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("0.6л\nфакт")
+					.AddTextRenderer(x => x.Vol600MlBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("обор.\nплан")
+					.AddNumericRenderer(x => x.EquipmentCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("обор.\nфакт")
+					.AddTextRenderer(x => x.EquipmentActualCount)
+					.XAlign(0.5f);
+			}
+
+			columnsConfig
+				.AddColumn("     19л\nнедовозы")
+					.AddTextRenderer(x => x.Vol19LUndelivered)
+					.XAlign(0.5f)
+				.AddColumn("ЗП водителя за МЛ\n (факт+план)")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DriverRouteListWageForDriverCarGroupingString)
+					.XAlign(0.5f)
+				.AddColumn("Закреплённые районы")
+					.AddTextRenderer(x => x.DriverAssignedDistricts)
+					.WrapMode(WrapMode.WordChar)
+					.WrapWidth(500)
+				.AddColumn("Планируемые районы")
+					.AddTextRenderer(x => x.DriverPlannedDistricts)
+					.WrapMode(WrapMode.WordChar)
+					.WrapWidth(500)
+				.AddColumn("Фактические районы")
+					.AddTextRenderer(x => x.DriverFactDistricts)
+					.WrapMode(WrapMode.WordChar)
+					.WrapWidth(500)				
+				.AddColumn("Код водителя")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.DriverId)
+				.AddColumn("Статус водителя")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.DriverStatus)
+					.XAlign(0.5f)
+				.AddColumn("ЗП водителя\n  за период")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DriverPeriodWageString)
+					.XAlign(0.5f)
+				.AddColumn(" Кол-во отраб.\nдней за период")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.DriverDaysWorkedCount)
+					.XAlign(0.5f)
+				.AddColumn("Дата первого МЛ")
+					.AddTextRenderer(x => x.DriverFirstRouteListDateString)
+					.XAlign(0.5f)
+				.AddColumn("Дата последнего МЛ")
+					.AddTextRenderer(x => x.DriverLastRouteListDateString)
+					.XAlign(0.5f);
+
+			ytreeDriversInfo.ColumnsConfig = columnsConfig.Finish();
 		}
 	}
 }

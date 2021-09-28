@@ -62,10 +62,14 @@
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\PayoutRequestBase.cs" />
+    <Compile Include="Domain\Cash\MissingOrdersWithCashlessPaymentTypeException.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
-    <Compile Include="Domain\Documents\DriverTerminalTransferDocument.cs" />
+    <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
+    <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
+    <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
+    <Compile Include="Domain\Documents\DriverTerminalTransfer\AnotherDriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DocumentPrintHistory.cs" />
     <Compile Include="Domain\Client\DeliveryPointEstimatedCoordinate.cs" />
     <Compile Include="Domain\Complaints\DriverComplaintReason.cs" />
@@ -253,7 +257,6 @@
     <Compile Include="EntityRepositories\Counterparties\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
-    <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
@@ -270,7 +273,7 @@
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
-    <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentBaseMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminal\DriverAttachedTerminalDocumentsMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
@@ -319,6 +322,7 @@
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
+    <Compile Include="Parameters\DebtorsParameters.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
@@ -327,6 +331,7 @@
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\ProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Parameters\OrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
@@ -556,10 +561,12 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
+    <Compile Include="Services\IDebtorsParameters.cs" />
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />

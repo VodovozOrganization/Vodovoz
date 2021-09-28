@@ -18,6 +18,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -203,7 +204,7 @@ namespace Vodovoz
 			if(isRightPanel)
 			{
 				config.AddColumn("Нужна загрузка").AddToggleRenderer(node => node.NeedToReload)
-					  .AddSetter((c, n) => c.Sensitive = n.WasTransfered);
+					.Editing(false);
 			}
 			else
 			{
@@ -400,7 +401,7 @@ namespace Vodovoz
 
 				routeListTo.ObservableAddresses.Add(newItem);
 
-				item.TransferedTo = newItem;
+				routeListFrom.TransferAddressTo(item.Id, newItem);
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
@@ -411,7 +412,7 @@ namespace Vodovoz
 
 				if(routeListTo.ClosingFilled)
 				{
-					newItem.FirstFillClosing(UoW, _wageParameterService);
+					newItem.FirstFillClosing(_wageParameterService);
 				}
 
 				UoW.Save(item);
@@ -487,30 +488,20 @@ namespace Vodovoz
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
 					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
 
+				var previousRouteList = pastPlace?.RouteList;
+
 				if(pastPlace != null)
 				{
-					pastPlace.SetStatusWithoutOrderChange(address.Status);
-					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
-					pastPlace.TransferedTo = null;
-
-					if(pastPlace.RouteList.ClosingFilled)
-					{
-						pastPlace.FirstFillClosing(UoW, _wageParameterService);
-					}
-
+					previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
+					pastPlace.RecalculateTotalCash();
 					UoW.Save(pastPlace);
 				}
 
 				address.RouteList.ObservableAddresses.Remove(address);
 				UoW.Save(address.RouteList);
 			}
-
-			foreach (var routeListItem in toRevert)
-			{
-				routeListItem.RecalculateTotalCash();
-			}
-
+			
 			UoW.Commit();
 			UpdateNodes();
 		}
@@ -582,7 +573,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,
@@ -651,7 +642,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,
@@ -685,20 +676,8 @@ namespace Vodovoz
 		public string Address => RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";
 		public RouteListItemStatus Status => RouteListItem.Status;
 
-		public bool NeedToReload
-		{
-			get => RouteListItem.NeedToReload;
-			set
-			{
-				if(RouteListItem.WasTransfered)
-				{
-					RouteListItem.NeedToReload = value;
-					RouteListItem.RouteList.UoW.Save(RouteListItem);
-					RouteListItem.RouteList.UoW.Commit();
-				}
-			}
-		}
-
+		public bool NeedToReload => RouteListItem.NeedToReload;
+		
 		bool _leftNeedToReload;
 		public bool LeftNeedToReload
 		{

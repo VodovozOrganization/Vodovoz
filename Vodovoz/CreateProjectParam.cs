@@ -16,6 +16,9 @@ using QS.Permissions;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
+using QS.Report;
+using QS.Report.ViewModels;
+using QS.Report.Views;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -317,6 +320,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<SalaryByEmployeeJournalFilterViewModel, SalaryByEmployeeFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductGroupJournalFilterViewModel, ProductGroupJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -468,7 +472,11 @@ namespace Vodovoz
 			builder.Register((ctx) => new AutofacTdiPageFactory(AppDIContainer)).As<ITdiPageFactory>();
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>().SingleInstance();
-			builder.Register(cc => new ClassNamesBaseGtkViewResolver(typeof(InternalTalkView), typeof(DeletionView))).As<IGtkViewResolver>();
+			builder.Register(cc => new ClassNamesBaseGtkViewResolver(
+				typeof(InternalTalkView),
+				typeof(DeletionView),
+				typeof(RdlViewerView))
+			).As<IGtkViewResolver>();
 			#endregion
 
 			#region Старые диалоги
@@ -491,6 +499,7 @@ namespace Vodovoz
 				.AsSelf();
 			builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
 			builder.RegisterType<DeletionProcessViewModel>().As<IOnCloseActionViewModel>().AsSelf();
+			builder.RegisterType<RdlViewerViewModel>().AsSelf();
 
 			#endregion
 

@@ -337,19 +337,23 @@ namespace Android
 						return false;
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
-					if(routeListItem == null)
+					var routeList = routeListItem?.RouteList;
+					if(routeListItem == null || routeList == null)
+					{
 						return false;
+					}
 
 					if(routeListItem.Status == RouteListItemStatus.Transfered) {
 						logger.Error("Попытка переключить статус у переданного адреса. address_id = {0}", routeListItem.Id);
 						return false;
 					}
 
-					switch(status) {
-						case "EnRoute": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.EnRoute); break;
-						case "Completed": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Completed); break;
-						case "Canceled": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Canceled); break;
-						case "Overdue": routeListItem.UpdateStatus(orderUoW, RouteListItemStatus.Overdue); break;
+					switch(status)
+					{
+						case "EnRoute": routeList.ChangeAddressStatus(orderUoW, routeListItem.Id, RouteListItemStatus.EnRoute); break;
+						case "Completed": routeList.ChangeAddressStatus(orderUoW, routeListItem.Id, RouteListItemStatus.Completed); break;
+						case "Canceled": routeList.ChangeAddressStatus(orderUoW, routeListItem.Id, RouteListItemStatus.Canceled); break;
+						case "Overdue": routeList.ChangeAddressStatus(orderUoW, routeListItem.Id, RouteListItemStatus.Overdue); break;
 						default: return false;
 					}
 
