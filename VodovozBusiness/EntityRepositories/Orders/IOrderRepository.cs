@@ -147,6 +147,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+		Domain.Orders.Order GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId);
     }
 
 	public class ClientEquipmentNode

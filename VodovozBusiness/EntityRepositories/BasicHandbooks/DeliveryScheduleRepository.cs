@@ -21,5 +21,12 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		{
 			return uow.Session.QueryOver<DeliverySchedule>().List<DeliverySchedule>();
 		}
+
+		public DeliverySchedule GetByBitrixId(IUnitOfWork uow, uint bitrixId)
+		{
+			return uow.Session.QueryOver<DeliverySchedule>()
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+		}
 	}
 }

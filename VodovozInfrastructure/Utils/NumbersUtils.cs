@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace VodovozInfrastructure.Utils
 {
+	public class NumbersUtils {
+		public static IEnumerable<int> GetNumbersFromString(string str) => 
+			Regex.Matches(str, @"\d+").OfType<Match>().Select(m => int.Parse(m.Value));
+	}
 	public class PhoneUtils
 	{
 	
@@ -17,11 +23,12 @@ namespace VodovozInfrastructure.Utils
 		}
 	
 		/// <summary>
-		/// Возвращает обработанную строку и true если номер нужно поискать и до и после обработки.
+		/// Возвращает только цифры номера без +7/8/()/- и true если номер нужно поискать и до и после обработки
+		/// на случай если это домаший.
 		/// </summary>
 		/// <returns>Возвращает только цифры номера без +7/8/()/- .</returns>
 		/// <param name="number">Номер телефона.</param>
-		/// <param name="needSearchBoth">Если <c>true</c> нужно поискать и до и после обработки.</param>
+		/// <param name="needSearchBoth">Если <c>true</c> нужно поискать и до и после обработки тк кк возможно это домашний.</param>
 		public static string NumberTrim(string number, out bool needSearchBoth)
 		{
 			var temp = RemoveNonDigit(number);
@@ -40,6 +47,20 @@ namespace VodovozInfrastructure.Utils
 			}
 
 			return temp;
+		}
+
+		public static string ToDigitNumberWithoutCountryCode(string number)
+		{
+			var digitNumber = RemoveNonDigit(number);
+			var startedWith7 = digitNumber.StartsWith("7", StringComparison.Ordinal);
+			var startedWith8 = digitNumber.StartsWith("8", StringComparison.Ordinal) && digitNumber.Length == 11;
+
+			if(startedWith7 || startedWith8)
+			{
+				return digitNumber.Substring(1);
+			}
+
+			return digitNumber;
 		}
 
 	}

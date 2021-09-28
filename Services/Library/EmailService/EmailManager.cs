@@ -77,10 +77,7 @@ namespace EmailService
 			}
 		}
 
-		public static int GetEmailsInQueue()
-		{
-			return emailsQueue.Count;
-		}
+		public static int CountEmailsInQueue() => emailsQueue.Count;
 
 		public static void AddEvent(MailjetEvent mailjetEvent)
 		{
@@ -170,6 +167,7 @@ namespace EmailService
 			}
 		}
 
+		//Отправка письма с обработкой ответа
 		static async Task ProcessEmailMailjet()
 		{
 			Thread.CurrentThread.Name = "EmailSendWorker";
@@ -270,6 +268,7 @@ namespace EmailService
 			}
 		}
 
+		//Вебхук куда поступают письма на обработку
 		static void ProcessEvent(MailjetEvent mailjetEvent)
 		{
 			if(mailjetEvent.AttemptCount > 0) {

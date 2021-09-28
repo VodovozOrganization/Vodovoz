@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Client
 
 		#region Свойства
 
-		private IList<CounterpartyContract> counterpartyContracts;
+		private IList<CounterpartyContract> counterpartyContracts = new List<CounterpartyContract>();
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts {
@@ -150,6 +150,14 @@ namespace Vodovoz.Domain.Client
 		public virtual decimal MaxCredit {
 			get => maxCredit;
 			set => SetField(ref maxCredit, value, () => MaxCredit);
+		}
+		
+		uint? bitrixId;
+
+		[Display(Name = "Id контрагента в битриксе")]
+		public virtual uint? BitrixId {
+			get => bitrixId;
+			set => SetField(ref bitrixId, value);
 		}
 
 		string name;
@@ -930,6 +938,11 @@ namespace Vodovoz.Domain.Client
 			KPP = string.Empty;
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;
+		}
+		
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
 		}
 
 		#region IValidatableObject implementation

@@ -112,6 +112,13 @@ namespace Vodovoz.Domain.Orders
 			get => isFirstOrder;
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
 		}
+		
+		uint? bitrixDealId;
+		[Display(Name = "Id заказа в битриксе")]
+		public virtual uint? BitrixDealId {
+			get => bitrixDealId;
+			set => SetField(ref bitrixDealId, value);
+		}
 
 		OrderStatus orderStatus;
 
@@ -1096,7 +1103,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			if(PaymentType == PaymentType.ByCard && (OnlineOrder == null || BitrixDealId == null))
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
@@ -1630,22 +1637,22 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? cnt = null)
+		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? count = null)
 		{
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(!acceptableCategories.Contains(nomenclature.Category)) {
 				return;
 			}
 
-			var count = (nomenclature.Category == NomenclatureCategory.service
+			var resultCount = (nomenclature.Category == NomenclatureCategory.service
 						 || nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
 
-			if(cnt.HasValue)
-				count = cnt.Value;
+			if(count.HasValue)
+				resultCount = count.Value;
 
 			var newItem = new OrderItem {
 				Order = this,
-				Count = count,
+				Count = resultCount,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice(1)
@@ -1935,9 +1942,12 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(newItem);
 		}
 
+		/// <summary>
+		/// У Contact обязательно должен быть установлен Counterparty
+		/// </summary>
 		public virtual void AddNomenclature(
 			Nomenclature nomenclature, 
-			decimal count = 0, 
+			decimal count = 1, 
 			decimal discount = 0, 
 			bool discountInMoney = false, 
 			DiscountReason discountReason = null, 

@@ -10,6 +10,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -176,10 +177,10 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref isSerial, value, () => IsSerial);
 		}
 
-		private MeasurementUnits unit;
+		private MeasurementUnit unit;
 
 		[Display(Name = "Единица измерения")]
-		public virtual MeasurementUnits Unit {
+		public virtual MeasurementUnit Unit {
 			get => unit;
 			set => SetField(ref unit, value, () => Unit);
 		}
@@ -605,6 +606,14 @@ namespace Vodovoz.Domain.Goods
 			get => amountInAPackage;
 			set => SetField(ref amountInAPackage, value);
 		}
+		
+		private uint? bitrixId;
+
+		[Display(Name = "Id в битриксе")]
+		public virtual uint? BitrixId {
+			get => bitrixId;
+			set => SetField(ref bitrixId, value);
+		}
 
 
         private int? planDay;
@@ -640,6 +649,8 @@ namespace Vodovoz.Domain.Goods
 
 		public override string ToString() => $"id ={Id} Name = {Name}";
 
+		public virtual bool IsOnlineStoreNomenclature => OnlineStore != null;
+
 		#endregion
 
 		#region Методы
@@ -666,6 +677,17 @@ namespace Vodovoz.Domain.Goods
 				price = nomPrice?.Price ?? 0;
 			}
 			return price;
+		}
+
+		public virtual void UpdatePrice(decimal price, int minCount)
+		{
+			var nomenclaturePrice =  NomenclaturePrice.FirstOrDefault(x => x.MinCount == minCount);
+			if(nomenclaturePrice == null) {
+				nomenclaturePrice = new NomenclaturePrice();
+				nomenclaturePrice.Nomenclature = this;
+			}
+			nomenclaturePrice.MinCount = minCount;
+			nomenclaturePrice.Price = price;
 		}
 
 		/// <summary>

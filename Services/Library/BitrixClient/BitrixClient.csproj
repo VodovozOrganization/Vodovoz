@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>8</LangVersion>
+        <RootNamespace>Bitrix</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="GeoAPI" Version="1.7.5" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <PackageReference Include="NLog" Version="4.7.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="VodovozBusiness, Version=1.0.7704.998, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\Services\Application\VodovozEmailService\bin\Debug\VodovozBusiness.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\QSProjects\QS.Osm\QS.Osm.csproj" />
+      <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
+      <ProjectReference Include="..\..\..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

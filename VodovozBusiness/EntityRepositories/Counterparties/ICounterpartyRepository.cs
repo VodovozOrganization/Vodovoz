@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -20,5 +20,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		bool IsCashPayment(PaymentType payment);
 		bool IsCashlessPayment(PaymentType payment);
 		IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow);
+		Counterparty GetCounterpartyByBitrixId(IUnitOfWork uow, uint bitrixId);
+		IList<Counterparty> GetCounterpartiesByNameAndPhone(IUnitOfWork uow, string partOfName, string phoneDigitNumber);
 	}
 }

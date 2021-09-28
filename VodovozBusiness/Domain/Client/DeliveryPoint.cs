@@ -47,6 +47,14 @@ namespace Vodovoz.Domain.Client
 			get => minutesToUnload;
 			set => SetField(ref minutesToUnload, value, () => MinutesToUnload);
 		}
+		
+		// uint? bitrixId;
+		//
+		// [Display(Name = "Id в Bitrix")]
+		// public virtual uint? BitrixId {
+		// 	get => bitrixId;
+		// 	set => SetField(ref bitrixId, value);
+		// }
 
 		string letter;
 
@@ -177,6 +185,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string City {
 			get => city;
 			set {
+				// Если город поменялся то сбрасываем остальные части адреса
 				if(SetField(ref city, value, () => City)) {
 					Building = null;
 					Street = null;

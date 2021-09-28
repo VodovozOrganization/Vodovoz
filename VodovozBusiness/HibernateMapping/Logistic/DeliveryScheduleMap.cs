@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Name).Column ("name");
 			Map(x => x.From).Column ("from_time").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.To).Column ("to_time").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.BitrixId).Column ("bitrix_id");
 			Map(x => x.IsArchive).Column ("is_archive");
 		}
 	}

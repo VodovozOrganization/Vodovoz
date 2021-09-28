@@ -61,6 +61,8 @@
     <Compile Include="Domain\Cash\MissingOrdersWithCashlessPaymentTypeException.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
+    <Compile Include="Domain\Common\MeasurementUnit.cs" />
+    <Compile Include="Domain\BitrixDealRegistration.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
@@ -156,6 +158,8 @@
     <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
+    <Compile Include="EntityRepositories\Common\IMeasurementUnitsRepository.cs" />
+    <Compile Include="EntityRepositories\Common\MeasurementUnitsRepository.cs" />
     <Compile Include="EntityRepositories\Accounting\AccountExpenseRepository.cs" />
     <Compile Include="EntityRepositories\Accounting\AccountIncomeRepository.cs" />
     <Compile Include="EntityRepositories\Accounting\IAccountExpenseRepository.cs" />
@@ -176,7 +180,6 @@
     <Compile Include="EntityRepositories\Chats\ILastReadedRepository.cs" />
     <Compile Include="EntityRepositories\Chats\LastReadedRepository.cs" />
     <Compile Include="EntityRepositories\Chats\UnreadedChatDTO.cs" />
-    <Compile Include="EntityRepositories\Counterparties\CounterpartyContractFactory.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
@@ -245,6 +248,10 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="EntityRepositories\Online\BitrixRepository.cs" />
+    <Compile Include="EntityRepositories\Online\IBitrixRepository.cs" />
+    <Compile Include="HibernateMapping\Common\MeasurementUnitMap.cs" />
+    <Compile Include="HibernateMapping\DealFromBitrixMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
@@ -309,9 +316,11 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
+    <Compile Include="Domain\Common\Coordinate.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
+    <Compile Include="Parameters\BitrixServiceSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
@@ -486,7 +495,6 @@
     <Compile Include="HibernateMapping\Goods\ManufacturerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
-    <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
     <Compile Include="HibernateMapping\Logistic\CarMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
@@ -556,6 +564,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
+    <Compile Include="Services\IBitrixServiceSettings.cs" />
     <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Services\IDebtorsParameters.cs" />
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />

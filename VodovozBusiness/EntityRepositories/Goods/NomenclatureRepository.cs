@@ -335,6 +335,37 @@ namespace Vodovoz.EntityRepositories.Goods
 						 .GroupBy(x => (int)x[1])
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
+		
+		public Nomenclature GetNommenclatureByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+			uow.Session.QueryOver<Nomenclature>()
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+
+		public Nomenclature GetNomenclatureByName(IUnitOfWork uow, string productName)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+				.Where(x => x.Name == productName)
+				.List().FirstOrDefault();
+		}
+		
+		public ProductGroup GetProductGroupByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+			uow.Session.QueryOver<ProductGroup>()
+				.Where(x => x.BitrixId == bitrixId)
+				.SingleOrDefault();
+		
+		public ProductGroup GetProductGroupByName(IUnitOfWork uow, string productGroup)
+		{
+			var a = uow.Session.QueryOver<ProductGroup>()
+				.Where(x => x.Name == productGroup)
+				.List();
+			if (a.Count == 0)
+				return null;
+			else 
+				return a.First();
+			//Если несколько то на SingleOrDefault вылетает, если 0 то на List вылетает
+			
+		}
+		
 
 		#region Получение номенклатур воды
 

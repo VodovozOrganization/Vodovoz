@@ -131,6 +131,32 @@ namespace Vodovoz.EntityRepositories.Counterparties
 						   .List<CounterpartyTo1CNode>();
 			return query.Where(x => !String.IsNullOrEmpty(x.EMails) || !String.IsNullOrEmpty(x.Phones)).ToList();
 		}
+
+
+
+		/// <summary>
+		/// Возвращает список контрагентов содержащих соответсвующую строку в поле fullName например фамилию имя или отчество
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="partOfName">Часть ФИО</param>
+		/// <param name="phoneDigitNumber">Номер телефона в формате 9999999999 (10 цифр)</param>
+		/// <exception cref="ArgumentNullException">This exception is thrown if the partOfName == null</exception>
+		/// <returns></returns>
+		public IList<Counterparty> GetCounterpartiesByNameAndPhone(IUnitOfWork uow, string partOfName, string phoneDigitNumber)
+		{
+			if(partOfName == null) throw new ArgumentNullException();
+
+			Phone phoneAlias = null;
+			return uow.Session.QueryOver<Counterparty>()
+				.JoinAlias(co => co.Phones, () => phoneAlias)
+				.Where(Restrictions.On<Counterparty>(c => c.FullName).IsLike("%" + partOfName + "%"))
+				.Where(() => phoneAlias.DigitsNumber == phoneDigitNumber)
+				.List();
+		}
+
+		public Counterparty GetCounterpartyByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+			uow.Session.QueryOver<Counterparty>()
+			.Where(x => x.BitrixId == bitrixId)
+			.SingleOrDefault();
 	}
 }
-

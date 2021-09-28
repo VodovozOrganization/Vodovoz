@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
+    <Compile Include="Domain\Common\CoordinateTests.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceControllerTests.cs" />
     <Compile Include="Domain\WaterFixedPricesGeneratorTests.cs" />
     <Compile Include="Employees\PersonnelTests.cs" />

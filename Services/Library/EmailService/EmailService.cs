@@ -36,7 +36,7 @@ namespace EmailService
 
 		public bool ServiceStatus()
 		{
-			int emailsInQueue = EmailManager.GetEmailsInQueue();
+			int emailsInQueue = EmailManager.CountEmailsInQueue();
 			if(emailsInQueue > emailServiceSettings.MaxEmailsInQueueForWorkingService) {
 				return false;
 			}

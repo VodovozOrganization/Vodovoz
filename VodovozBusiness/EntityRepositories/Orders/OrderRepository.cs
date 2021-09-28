@@ -749,6 +749,13 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipt != null;
 		}
 
+		public VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId)
+		{
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(x => x.BitrixDealId == bitrixId)
+				.SingleOrDefault();
+		}
+		
 		public bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
