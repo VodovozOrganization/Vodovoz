@@ -1,19 +1,20 @@
-﻿using System;
+﻿using BitrixIntegration.Processors;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BitrixIntegration
 {
-	public class DealWorker 
+	public class DealWorker
 	{
-        private readonly DealProcessor _dealProcessor;
+		private readonly DealProcessor _dealProcessor;
 		private readonly int _interval;
-		private CancellationTokenSource _cts;
+		private CancellationTokenSource _cancellationTokenSource;
 		private DateTime? _lastDay;
 
 		public DealWorker(DealProcessor dealProcessor, int interval = 60000)
-        {
-            _dealProcessor = dealProcessor ?? throw new ArgumentNullException(nameof(dealProcessor));
+		{
+			_dealProcessor = dealProcessor ?? throw new ArgumentNullException(nameof(dealProcessor));
 
 			if(interval < 1)
 			{
@@ -24,21 +25,22 @@ namespace BitrixIntegration
 
 		public void Start()
 		{
-			_cts?.Dispose();
-			_cts = new CancellationTokenSource();
-			Iteration(_cts.Token);
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = new CancellationTokenSource();
+			Iteration(_cancellationTokenSource.Token);
 		}
 
 		public void Stop()
 		{
-			_cts?.Cancel();
+			_cancellationTokenSource?.Cancel();
 		}
 
 		private void Iteration(CancellationToken cancellationToken)
 		{
-			Task.Run(Work, cancellationToken).ContinueWith((delayTask) => {
+			Task.Run(Work, cancellationToken).ContinueWith((delayTask) =>
+			{
 				Task.Delay(_interval, cancellationToken).ContinueWith((worTask) => Iteration(cancellationToken), cancellationToken);
-			}, cancellationToken);			
+			}, cancellationToken);
 		}
 
 		private void Work()
@@ -54,5 +56,5 @@ namespace BitrixIntegration
 			}
 			_lastDay = today;
 		}
-    }
+	}
 }

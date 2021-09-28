@@ -10,7 +10,7 @@ namespace Bitrix.DTO
 {
 	public class Deal
 	{
-		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		[JsonProperty("ID")] 
 		public uint Id { get; set; }
@@ -224,7 +224,10 @@ namespace Bitrix.DTO
 		public EntranceType GetEntranceType()
 		{
 			if(EntranceType == null)
+			{
 				throw new ArgumentNullException(nameof(EntranceType));
+			}
+
 			return EntranceType switch
 			{
 				"182" => Vodovoz.Domain.Client.EntranceType.Entrance,
@@ -261,7 +264,9 @@ namespace Bitrix.DTO
 		public string GetRoom()
 		{
 			if(HouseAndBuilding == null)
+			{
 				throw new ArgumentNullException(nameof(HouseAndBuilding));
+			}
 
 			var a = NumbersUtils.GetNumbersFromString(HouseAndBuilding).ToArray();
 			if(a.Count() == 2)
@@ -277,7 +282,9 @@ namespace Bitrix.DTO
 		public string GetBuilding()
 		{
 			if(HouseAndBuilding == null)
+			{
 				throw new ArgumentNullException(nameof(HouseAndBuilding));
+			}
 
 			var nums = NumbersUtils.GetNumbersFromString(HouseAndBuilding).ToArray();
 			if(nums.Count() == 2)
@@ -286,7 +293,7 @@ namespace Bitrix.DTO
 			}
 			else
 			{
-				logger.Warn($"Поле 'Дом и корпус': {HouseAndBuilding} не содержат 2х чисел");
+				_logger.Warn($"Поле 'Дом и корпус': {HouseAndBuilding} не содержат 2х чисел");
 				//Может быть ситуация что в поле попал только номер дома или только квартира
 				if(DeliveryAddressWithoutHouse.Contains(HouseAndBuilding))
 				{
@@ -295,7 +302,7 @@ namespace Bitrix.DTO
 				else
 				{
 					var firstNum = nums.First().ToString();
-					logger.Warn($"Поле адрес без дома:{DeliveryAddressWithoutHouse} не содержит текст поля {HouseAndBuilding}," +
+					_logger.Warn($"Поле адрес без дома:{DeliveryAddressWithoutHouse} не содержит текст поля {HouseAndBuilding}," +
 								$" попытка сопоставить по числам");
 
 					if(DeliveryAddressWithoutHouse.Contains(firstNum))

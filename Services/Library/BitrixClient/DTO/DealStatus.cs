@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Bitrix.DTO
+﻿namespace Bitrix.DTO
 {
 	/// <summary>
 	/// Стадии сделки

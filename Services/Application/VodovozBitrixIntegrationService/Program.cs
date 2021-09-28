@@ -1,5 +1,6 @@
 ﻿using Bitrix;
 using BitrixIntegration;
+using BitrixIntegration.Processors;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -79,7 +80,10 @@ namespace VodovozBitrixIntegrationService
 			finally
 			{
 				if(Environment.OSVersion.Platform == PlatformID.Unix)
+				{
 					Thread.CurrentThread.Abort();
+				}
+
 				Environment.Exit(0);
 			}
 		}
@@ -122,7 +126,7 @@ namespace VodovozBitrixIntegrationService
 				var conStrBuilder = new MySqlConnectionStringBuilder
 				{
 					Server = _mysqlServerHostName,
-					Port = UInt32.Parse(_mysqlServerPort),
+					Port = uint.Parse(_mysqlServerPort),
 					Database = _mysqlDatabase,
 					UserID = _mysqlUser,
 					Password = _mysqlPassword,
@@ -181,18 +185,24 @@ namespace VodovozBitrixIntegrationService
 
 				var deliveryScheduleRepository = new DeliveryScheduleRepository();
 
+				var deliveryPointProcessor = new DeliveryPointProcessor();
+
+				var productGroupProcessor = new ProductGroupProcessor(bitrixClient, nomenclatureRepository);
+
+				var productProcessor = new ProductProcessor(bitrixClient, nomenclatureRepository, productGroupProcessor, measurementUnitsRepository);
+
 				var dealProcessor = new DealProcessor(
 					uowFactory,
 					bitrixClient,
 					counterpartyContractRepository,
 					counterpartyContractFactory,
 					dealRegistrator,
-					measurementUnitsRepository,
 					bitrixServiceSettings,
 					orderRepository,
 					counterpartyRepository,
-					nomenclatureRepository,
-					deliveryScheduleRepository
+					deliveryScheduleRepository,
+					deliveryPointProcessor,
+					productProcessor
 				);
 					
 				var dealWorker = new DealWorker(dealProcessor);

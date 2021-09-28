@@ -67,11 +67,7 @@ namespace BitrixIntegration
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var order = uow.GetById<Order>(orderId);
-				if(order == null)
-				{
-					throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
-				}
+				var order = uow.GetById<Order>(orderId) ?? throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
 
 				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
 
@@ -106,11 +102,7 @@ namespace BitrixIntegration
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var order = uow.GetById<Order>(orderId);
-				if(order == null)
-				{
-					throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
-				}
+				var order = uow.GetById<Order>(orderId) ?? throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
 
 				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
 
@@ -148,11 +140,7 @@ namespace BitrixIntegration
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var order = uow.GetById<Order>(orderId);
-				if(order == null)
-				{
-					throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
-				}
+				var order = uow.GetById<Order>(orderId) ?? throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
 
 				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
 

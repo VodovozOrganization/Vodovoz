@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Bitrix
+﻿namespace Bitrix
 {
 	public static class Constants
 	{
@@ -16,8 +12,5 @@ namespace Bitrix
 		public const string DVErrorDealStageId = "НЕОБХОДИМО УТОЧНИТЬ";
 		public const string FailDealStageId = "НЕОБХОДИМО УТОЧНИТЬ";
 		public const string SuccessDealStageId = "НЕОБХОДИМО УТОЧНИТЬ";
-
-
-
 	}
 }

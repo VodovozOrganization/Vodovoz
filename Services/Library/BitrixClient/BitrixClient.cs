@@ -12,6 +12,11 @@ namespace Bitrix
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly HttpClient _httpClient = new HttpClient();
 
+		private readonly string _token;
+		private readonly string _userId;
+
+		private string _apiBase => $"{Constants.ApiUrl}/rest/{_userId}/{_token}/";
+
 		static BitrixClient()
 		{
 			var jsonHeader = new MediaTypeWithQualityHeaderValue("application/json");
@@ -20,8 +25,7 @@ namespace Bitrix
 			_httpClient.DefaultRequestHeaders.Accept.Add(jsonHeader);
 		}
 
-		private readonly string _token;
-		private readonly string _userId;
+
 
 		public BitrixClient(string userId, string token)
 		{
@@ -35,15 +39,15 @@ namespace Bitrix
 				throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
 			}
 
-			this._userId = userId;
-			this._token = token;
+			_userId = userId;
+			_token = token;
 		}
 
 		#region real
 
 		public Contact GetContact(uint id)
 		{
-			string requestUri = $"{Constants.ApiUrl}/rest/{_userId}/{_token}/crm.contact.get.json?id={id}";
+			string requestUri = $"{_apiBase}/crm.contact.get.json?id={id}";
 
 			ContactResponse response = Get<ContactResponse>(requestUri);
 
@@ -57,7 +61,7 @@ namespace Bitrix
 
 		public Company GetCompany(uint id)
 		{
-			string requestUri = $"{Constants.ApiUrl}/rest/{_userId}/{_token}/crm.company.get.json?id={id}";
+			string requestUri = $"{_apiBase}/crm.company.get.json?id={id}";
 
 			CompanyResponse response = Get<CompanyResponse>(requestUri);
 
@@ -71,7 +75,7 @@ namespace Bitrix
 
 		public Product GetProduct(uint id)
 		{
-			string requestUri = $"{Constants.ApiUrl}/rest/{_userId}/{_token}/crm.product.get.json?id={id}";
+			string requestUri = $"{_apiBase}/crm.product.get.json?id={id}";
 
 			ProductResponse response = Get<ProductResponse>(requestUri);
 
@@ -85,7 +89,7 @@ namespace Bitrix
 
 		public IList<DealProductItem> GetProductsForDeal(uint dealId)
 		{
-			string requestUri = $"{Constants.ApiUrl}/rest/{_userId}/{_token}/crm.deal.productrows.get.json?id={dealId}";
+			string requestUri = $"{_apiBase}/crm.deal.productrows.get.json?id={dealId}";
 
 			DealProductItemResponse response = Get<DealProductItemResponse>(requestUri);
 
@@ -108,7 +112,7 @@ namespace Bitrix
 			bool hasNext = true;
 			do
 			{
-				string requestUri = $"{Constants.ApiUrl}/rest/{_userId}/{_token}/crm.deal.list.json?" +
+				string requestUri = $"{_apiBase}/crm.deal.list.json?" +
 					$"FILTER[>DATE_CREATE]={dateFrom}&" +
 					$"FILTER[<DATE_CREATE]={dateTo}&" +
 					//Включаем сделки только со временем доставки
@@ -139,7 +143,7 @@ namespace Bitrix
 
 		private T Get<T>(string requestUri) where T : class
 		{
-			T response = null;
+			T response;
 			try
 			{
 				var requestTask = _httpClient.GetStringAsync(requestUri);
@@ -195,7 +199,7 @@ namespace Bitrix
 					throw new InvalidOperationException("Неизвестный статус сделки");
 			}
 
-			string requestUri = $"{Constants.ApiUrl}/rest/{_userId}/{_token}/crm.deal.update.json?id={dealId}&FIELDS[STAGE_ID]={stageId}";
+			string requestUri = $"{_apiBase}/crm.deal.update.json?id={dealId}&FIELDS[STAGE_ID]={stageId}";
 
 			var response = Get<ChangeStatusResult>(requestUri);
 

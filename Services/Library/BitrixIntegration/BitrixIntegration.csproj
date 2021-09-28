@@ -48,9 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DealProcessor.cs" />
+    <Compile Include="Processors\DealProcessor.cs" />
     <Compile Include="DealRegistrator.cs" />
     <Compile Include="DealWorker.cs" />
+    <Compile Include="Processors\DeliveryPointProcessor.cs" />
+    <Compile Include="Processors\IDeliveryPointProcessor.cs" />
+    <Compile Include="Processors\IProductGroupProcessor.cs" />
+    <Compile Include="Processors\IProductProcessor.cs" />
+    <Compile Include="Processors\ProductGroupProcessor.cs" />
+    <Compile Include="Processors\ProductProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
