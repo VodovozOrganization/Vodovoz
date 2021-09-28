@@ -28,18 +28,10 @@ namespace VodovozBitrixIntegrationService
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		private static readonly string _configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
-			
-		//Mysql
-		private static string _mysqlHostname;
-		private static int _mysqlPort;
-		private static string _mysqlUsername;
-		private static string _mysqlPassword;
-		private static string _mysqlDatabase;
-		
-		//Bitrix
-		private static string _token;
-		private static string _userId;
-		
+
+		private static MysqlSettings _mysqlSettings;
+
+		private static BitrixSettings _bitrixSettings;
 
 		public static void Main(string[] args)
 		{
@@ -99,18 +91,12 @@ namespace VodovozBitrixIntegrationService
 
 				var configuration = builder.Build();
 
-				var mysqlSection = configuration.GetSection("Mysql");
+				_mysqlSettings = new MysqlSettings();
+				configuration.GetSection(nameof(MysqlSettings)).Bind(_mysqlSettings);
 
-				_mysqlHostname = configuration.GetValue<string>("hostname");
-				_mysqlPort = configuration.GetValue("port", 3306);
-				_mysqlUsername = configuration.GetValue<string>("username");
-				_mysqlPassword = configuration.GetValue<string>("password");
-				_mysqlDatabase = configuration.GetValue<string>("database");
+				_bitrixSettings = new BitrixSettings();
+				configuration.GetSection(nameof(BitrixSettings)).Bind(_bitrixSettings);
 
-				var bitrixSection = configuration.GetSection("Bitrix");
-
-				_token = bitrixSection.GetValue<string>("api_key");
-				_userId = bitrixSection.GetValue<string>("user_id");
 			}
 			catch(Exception ex)
 			{
@@ -125,11 +111,11 @@ namespace VodovozBitrixIntegrationService
 			{
 				var conStrBuilder = new MySqlConnectionStringBuilder
 				{
-					Server = _mysqlHostname,
-					Port = (uint)_mysqlPort,
-					Database = _mysqlDatabase,
-					UserID = _mysqlUsername,
-					Password = _mysqlPassword,
+					Server = _mysqlSettings.Hostname,
+					Port = _mysqlSettings.Port,
+					Database = _mysqlSettings.Database,
+					UserID = _mysqlSettings.Username,
+					Password = _mysqlSettings.Password,
 					SslMode = MySqlSslMode.None
 				};
 
@@ -165,7 +151,7 @@ namespace VodovozBitrixIntegrationService
 			{
 				var parametersProvider = new ParametersProvider();
 				var uowFactory = new DefaultUnitOfWorkFactory(new DefaultSessionProvider());
-				var bitrixClient = new BitrixClient(_userId, _token);
+				var bitrixClient = new BitrixClient(_bitrixSettings.UserId, _bitrixSettings.ApiKey);
 
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
