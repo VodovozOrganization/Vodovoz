@@ -22,19 +22,13 @@ namespace Vodovoz.Reports.Logistic
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по опозданиям";
-			}
-		}
+		public string Title => "Отчет по опозданиям";
 
 		#endregion
 
-		void OnUpdate (bool hide = false)
+		private void OnUpdate (bool hide = false)
 		{
-			if (LoadReport != null) {
-				LoadReport (this, new LoadReportEventArgs (GetReportInfo (), hide));
-			}
+			LoadReport?.Invoke (this, new LoadReportEventArgs (GetReportInfo (), hide));
 		}
 
 		private ReportInfo GetReportInfo ()
