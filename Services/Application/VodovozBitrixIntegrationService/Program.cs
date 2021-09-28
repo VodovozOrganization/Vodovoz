@@ -1,9 +1,9 @@
 ﻿using Bitrix;
 using BitrixIntegration;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
-using Nini.Config;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -90,18 +90,23 @@ namespace VodovozBitrixIntegrationService
 		{
 			try
 			{
-				IniConfigSource confFile = new IniConfigSource(_configFile);
-				confFile.Reload();
-				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				_mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				_mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				_mysqlUser = mysqlConfig.GetString("mysql_user");
-				_mysqlPassword = mysqlConfig.GetString("mysql_password");
-				_mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				var builder = new ConfigurationBuilder()
+					.AddIniFile(_configFile, optional: false);
 
-				IConfig bitrixConfig = confFile.Configs["Bitrix"];
-				_token = bitrixConfig.GetString("api_key");
-				_userId = bitrixConfig.GetString("user_id");
+				var configuration = builder.Build();
+
+				var mysqlSection = configuration.GetSection("Mysql");
+
+				_mysqlServerHostName = configuration.GetValue<string>("mysql_server_host_name");
+				_mysqlServerPort = configuration.GetValue("mysql_server_port", "3306");
+				_mysqlUser = configuration.GetValue<string>("mysql_user");
+				_mysqlPassword = configuration.GetValue<string>("mysql_password");
+				_mysqlDatabase = configuration.GetValue<string>("mysql_database");
+
+				var bitrixSection = configuration.GetSection("Bitrix");
+
+				_token = bitrixSection.GetValue<string>("api_key");
+				_userId = bitrixSection.GetValue<string>("user_id");
 			}
 			catch(Exception ex)
 			{
