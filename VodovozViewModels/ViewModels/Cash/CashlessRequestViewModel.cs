@@ -22,10 +22,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
+		private readonly IExpenseCategorySelectorFactory _expenseCategoryJournalFactory;
+		private IEntityAutocompleteSelectorFactory _expenseCategoryAutocompleteSelectorFactory;
 
 		public CashlessRequestViewModel(
 			IFilePickerService filePickerService,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
+			IExpenseCategorySelectorFactory expenseCategoryJournalFactory,
 			IUserRepository userRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeRepository employeeRepository,
@@ -38,9 +40,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
-			ExpenceCategoryAutocompleteSelector =
-				(expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory)))
-				.CreateSimpleExpenseCategoryAutocompleteSelectorFactory();
+			_expenseCategoryJournalFactory =
+				expenseCategoryJournalFactory ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFactory));
 
 			_currentEmployee =
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
@@ -54,8 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				Entity.PayoutRequestState = PayoutRequestState.New;
 			}
 
-			var userId = userRepository.GetCurrentUser(UoW).Id;
-			UserRoles = GetUserRoles(userId);
+			UserRoles = GetUserRoles(CurrentUser.Id);
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
 
@@ -74,7 +74,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public CashlessRequestFilesViewModel CashlessRequestFilesViewModel { get; }
 		public IEnumerable<Organization> OurOrganisations { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
-		public IEntityAutocompleteSelectorFactory ExpenceCategoryAutocompleteSelector { get; }
+		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory =>
+			_expenseCategoryAutocompleteSelectorFactory
+		    ?? (_expenseCategoryAutocompleteSelectorFactory =
+				_expenseCategoryJournalFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
+
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 
 		#endregion

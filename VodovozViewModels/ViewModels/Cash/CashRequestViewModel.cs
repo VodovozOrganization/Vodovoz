@@ -23,13 +23,19 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
 	public class CashRequestViewModel : EntityTabViewModelBase<CashRequest>
 	{
-		public Employee CurrentEmployee { get; }
-		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
-		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
-		public string StateName => Entity.PayoutRequestState.GetEnumTitle();
-
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
+		private IEntityAutocompleteSelectorFactory _expenseCategoryAutocompleteSelectorFactory;
+		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
+		public Employee CurrentEmployee { get; }
+
+		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory =>
+			_expenseCategoryAutocompleteSelectorFactory
+			?? (_expenseCategoryAutocompleteSelectorFactory =
+				_expenseCategorySelectorFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
+
+		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+		public string StateName => Entity.PayoutRequestState.GetEnumTitle();
 
 		public CashRequestViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -47,17 +53,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
-			ExpenseCategoryAutocompleteSelectorFactory =
-				expenseCategorySelectorFactory?.CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
-			 ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+			_expenseCategorySelectorFactory =
+				expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 			CurrentEmployee = employeeRepository?.GetEmployeeForCurrentUser(UoW)
 			               ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			TabName = IsNewEntity ? "Создание новой заявки на выдачу ДС" : $"{Entity.Title}";
 
-			var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-
-			UserRoles = GetUserRoles(userId);
+			UserRoles = GetUserRoles(CurrentUser.Id);
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
 

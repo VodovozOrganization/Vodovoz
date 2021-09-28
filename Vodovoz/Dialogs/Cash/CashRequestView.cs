@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
@@ -24,6 +25,8 @@ namespace Vodovoz.Dialogs.Cash
 		{
 			#region EntityViewModelEntry
 
+			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
+
 			//Автор
 			var currentEmployee = ViewModel.CurrentEmployee;
 			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
@@ -46,8 +49,6 @@ namespace Vodovoz.Dialogs.Cash
 			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
 
 			//Причина расхода
-			ExpenseCategoryEntityviewmodelentry
-				.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
 
 			ExpenseCategoryEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.ExpenseCategory, w => w.Subject)
 				.InitializeFromSource();
@@ -213,6 +214,15 @@ namespace Vodovoz.Dialogs.Cash
 				yentryGround.Sensitive = false;
 				yentryCancelReason.Sensitive = false;
 				yentryReasonForSendToReapproval.Sensitive = false;
+			}
+		}
+
+		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.ExpenseCategoryVisibility) && ViewModel.ExpenseCategoryVisibility)
+			{
+				ExpenseCategoryEntityviewmodelentry
+					.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
 			}
 		}
 
