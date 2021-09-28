@@ -2816,6 +2816,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\Logistic\AnalyticsForUndelivery.rdl" />
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
