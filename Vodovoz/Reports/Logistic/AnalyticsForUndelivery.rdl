@@ -19,7 +19,7 @@
         <Width>476.16pt</Width>
         <Value>="Аналитика недовозов на " + {?title_date}</Value>
         <ZIndex>1</ZIndex>
-        <Left>43.5pt</Left>
+        <Left>60.4pt</Left>
         <Top>22.9pt</Top>
         <Style>
           <BorderStyle />
@@ -158,7 +158,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Count({Addresses})</Value>
+                      <Value>=Iif(Fields!Addresses.IsMissing, 0, Count({Addresses}))</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -174,7 +174,11 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum({Minutes})</Value>
+                      <Value>=Iif(Fields!Minutes.IsMissing
+,0
+,
+Sum({Minutes})
+)</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -319,7 +323,7 @@
                         <BorderWidth />
                         <BackgroundColor>=Iif
 (
-First({Addresses},'deliveries_late_Set_2')&gt;First({Addresses},'deliveries_late_Set')
+Count({Addresses},'deliveries_late_Set_2')&gt;Count({Addresses},'deliveries_late_Set')
 , 
 Red
 , 
@@ -360,7 +364,7 @@ Count(Fields!Addresses.Value)
                         <BorderWidth />
                         <BackgroundColor>=Iif
 (
-First({Minutes},'deliveries_late_Set_2')&gt;First({Minutes},'deliveries_late_Set')
+Sum({Minutes},'deliveries_late_Set_2')&gt;Sum({Minutes},'deliveries_late_Set')
 , 
 Red
 , 
@@ -1851,7 +1855,7 @@ HAVING delay &gt; 0</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    (
+(
         if(CAST(SUM(T.bottles_monday) as SIGNED) is null,0,CAST(SUM(T.bottles_monday) as SIGNED)) +
         if(CAST(SUM(T.bottles_tuesday) as SIGNED) is null,0,CAST(SUM(T.bottles_tuesday) as SIGNED)) +
         if(CAST(SUM(T.bottles_wednesday) as SIGNED) is null,0,CAST(SUM(T.bottles_wednesday) as SIGNED)) +
@@ -1932,15 +1936,22 @@ FROM
          delivery_points ON delivery_point_id = delivery_points.id
              INNER JOIN
          delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-     WHERE
-             orders.delivery_date = @first_date
+             LEFT JOIN
+        districts ON delivery_points.district_id = districts.id
+            LEFT JOIN
+        geographic_groups ON geographic_groups.id = districts.geographic_group_id
+     WHERE orders.delivery_date = @first_date
        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment', 'DeliveryCanceled', 'NotDelivered')
        AND !orders.self_delivery
        AND !orders.is_contract_closer
-       AND !orders.service) as T</CommandText>
+       AND orders.order_address_type != 'Service'
+       AND geographic_groups.id in (@geoparts)) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
             <Value>=Parameters!first_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="geoparts">
+            <Value>=Parameters!geoparts</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2089,15 +2100,23 @@ FROM
          delivery_points ON delivery_point_id = delivery_points.id
              INNER JOIN
          delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+             LEFT JOIN
+        districts ON delivery_points.district_id = districts.id
+            LEFT JOIN
+        geographic_groups ON geographic_groups.id = districts.geographic_group_id
      WHERE
-             orders.delivery_date = @second_date
+       orders.delivery_date = @second_date
        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment', 'DeliveryCanceled', 'NotDelivered')
        AND !orders.self_delivery
        AND !orders.is_contract_closer
-       AND !orders.service) as T</CommandText>
+       AND orders.order_address_type != 'Service'
+       AND geographic_groups.id in (@geoparts)) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
             <Value>=Parameters!second_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="geoparts">
+            <Value>=Parameters!geoparts</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
