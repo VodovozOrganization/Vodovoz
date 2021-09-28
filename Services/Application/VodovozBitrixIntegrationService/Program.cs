@@ -30,9 +30,9 @@ namespace VodovozBitrixIntegrationService
 		private static readonly string _configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
 			
 		//Mysql
-		private static string _mysqlServerHostName;
-		private static string _mysqlServerPort;
-		private static string _mysqlUser;
+		private static string _mysqlHostname;
+		private static int _mysqlPort;
+		private static string _mysqlUsername;
 		private static string _mysqlPassword;
 		private static string _mysqlDatabase;
 		
@@ -101,11 +101,11 @@ namespace VodovozBitrixIntegrationService
 
 				var mysqlSection = configuration.GetSection("Mysql");
 
-				_mysqlServerHostName = configuration.GetValue<string>("mysql_server_host_name");
-				_mysqlServerPort = configuration.GetValue("mysql_server_port", "3306");
-				_mysqlUser = configuration.GetValue<string>("mysql_user");
-				_mysqlPassword = configuration.GetValue<string>("mysql_password");
-				_mysqlDatabase = configuration.GetValue<string>("mysql_database");
+				_mysqlHostname = configuration.GetValue<string>("hostname");
+				_mysqlPort = configuration.GetValue("port", 3306);
+				_mysqlUsername = configuration.GetValue<string>("username");
+				_mysqlPassword = configuration.GetValue<string>("password");
+				_mysqlDatabase = configuration.GetValue<string>("database");
 
 				var bitrixSection = configuration.GetSection("Bitrix");
 
@@ -125,10 +125,10 @@ namespace VodovozBitrixIntegrationService
 			{
 				var conStrBuilder = new MySqlConnectionStringBuilder
 				{
-					Server = _mysqlServerHostName,
-					Port = uint.Parse(_mysqlServerPort),
+					Server = _mysqlHostname,
+					Port = (uint)_mysqlPort,
 					Database = _mysqlDatabase,
-					UserID = _mysqlUser,
+					UserID = _mysqlUsername,
 					Password = _mysqlPassword,
 					SslMode = MySqlSslMode.None
 				};
