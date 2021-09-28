@@ -882,7 +882,7 @@ public partial class MainWindow : Gtk.Window
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
     {
 	    var subdivisionJournalFactory = new SubdivisionJournalFactory();
-
+	    var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 	    var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
         tdiMain.OpenTab(
@@ -893,7 +893,8 @@ public partial class MainWindow : Gtk.Window
 	            VodovozGtkServicesConfig.EmployeeService,
 	            SubdivisionParametersProvider.Instance,
 	            subdivisionJournalFactory,
-	            counterpartyJournalFactory
+	            counterpartyJournalFactory,
+	            subdivisionRepository
             ));
     }
 

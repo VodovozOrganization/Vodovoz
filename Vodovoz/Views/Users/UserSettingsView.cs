@@ -1,7 +1,10 @@
 ﻿using System.Linq;
+using Gamma.ColumnConfig;
+using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Users;
 
@@ -41,6 +44,15 @@ namespace Vodovoz.Views.Users
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject).InitializeFromSource();
 
 			ycheckbuttonUse.Binding.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active).InitializeFromSource();
+
+			frameSortingCashInfo.Visible = ViewModel.UserIsCashier;
+			treeViewSubdivisionsToSort.ColumnsConfig = FluentColumnsConfig<CashSubdivisionSortingSettings>.Create()
+				.AddColumn("№").AddNumericRenderer(x => x.SortingIndex)
+				.AddColumn("Подразделение кассы").AddTextRenderer(x => x.CashSubdivision.Name)
+				.Finish();
+			treeViewSubdivisionsToSort.EnableGridLines = TreeViewGridLines.Vertical;
+			treeViewSubdivisionsToSort.SetItemsSource(ViewModel.SubdivisionSortingSettings);
+			treeViewSubdivisionsToSort.DragDataReceived += (o, args) => ViewModel.UpdateIndices();
 
 			if (ViewModel.IsUserFromOkk)
 			{
