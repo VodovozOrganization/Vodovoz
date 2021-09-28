@@ -14,6 +14,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -571,6 +572,18 @@ namespace Vodovoz.Domain.Logistic
 			TransferedTo = targetAddress;
 			SetStatusWithoutOrderChange(RouteListItemStatus.Transfered);
 		}
+		
+		protected internal virtual void RevertTransferAddress(WageParameterService wageParameterService, RouteListItem revertedAddress)
+		{
+			SetStatusWithoutOrderChange(revertedAddress.Status);
+			TransferedTo = null;
+			DriverBottlesReturned = revertedAddress.DriverBottlesReturned;
+			
+			if(RouteList.ClosingFilled)
+			{
+				FirstFillClosing(wageParameterService);
+			}
+		}
 
 		public virtual void RecalculateTotalCash() => TotalCash = CalculateTotalCash();
 
@@ -605,8 +618,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
-		/// <param name="uow">Uow.</param>
-		public virtual void FirstFillClosing(IUnitOfWork uow, WageParameterService wageParameterService)
+		public virtual void FirstFillClosing(WageParameterService wageParameterService)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)

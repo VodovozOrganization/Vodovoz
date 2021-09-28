@@ -1203,6 +1203,10 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
+		public virtual void RevertTransferAddress(
+			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress) =>
+				targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+
 		private void UpdateClosedInformation()
 		{
 			if(Status == RouteListStatus.Closed)
@@ -1549,7 +1553,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				routeListItem.FirstFillClosing(UoW, wageParameterService);
+				routeListItem.FirstFillClosing(wageParameterService);
 				PerformanceHelper.EndPointsGroup();
 			}
 

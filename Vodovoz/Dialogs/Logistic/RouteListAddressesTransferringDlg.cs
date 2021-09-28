@@ -204,7 +204,7 @@ namespace Vodovoz
 			if(isRightPanel)
 			{
 				config.AddColumn("Нужна загрузка").AddToggleRenderer(node => node.NeedToReload)
-					  .AddSetter((c, n) => c.Sensitive = n.WasTransfered);
+					.Editing(false);
 			}
 			else
 			{
@@ -412,7 +412,7 @@ namespace Vodovoz
 
 				if(routeListTo.ClosingFilled)
 				{
-					newItem.FirstFillClosing(UoW, _wageParameterService);
+					newItem.FirstFillClosing(_wageParameterService);
 				}
 
 				UoW.Save(item);
@@ -492,29 +492,16 @@ namespace Vodovoz
 
 				if(pastPlace != null)
 				{
-					previousRouteList.SetAddressStatusWithoutOrderChange(pastPlace.Id, address.Status);
-					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
-					previousRouteList.TransferAddressTo(pastPlace.Id, null);
-
-					if(pastPlace.RouteList.ClosingFilled)
-					{
-						pastPlace.FirstFillClosing(UoW, _wageParameterService);
-					}
-
+					previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
+					pastPlace.RecalculateTotalCash();
 					UoW.Save(pastPlace);
-					UoW.Save(previousRouteList);
 				}
 
 				address.RouteList.ObservableAddresses.Remove(address);
 				UoW.Save(address.RouteList);
 			}
-
-			foreach (var routeListItem in toRevert)
-			{
-				routeListItem.RecalculateTotalCash();
-			}
-
+			
 			UoW.Commit();
 			UpdateNodes();
 		}
@@ -689,20 +676,8 @@ namespace Vodovoz
 		public string Address => RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";
 		public RouteListItemStatus Status => RouteListItem.Status;
 
-		public bool NeedToReload
-		{
-			get => RouteListItem.NeedToReload;
-			set
-			{
-				if(RouteListItem.WasTransfered)
-				{
-					RouteListItem.NeedToReload = value;
-					RouteListItem.RouteList.UoW.Save(RouteListItem);
-					RouteListItem.RouteList.UoW.Commit();
-				}
-			}
-		}
-
+		public bool NeedToReload => RouteListItem.NeedToReload;
+		
 		bool _leftNeedToReload;
 		public bool LeftNeedToReload
 		{
