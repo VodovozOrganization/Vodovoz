@@ -200,7 +200,13 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get => status;
-			protected set => SetField(ref status, value, () => Status);
+			protected set
+			{
+				if(SetField(ref status, value))
+				{
+					OnPropertyChanged(() => CanChangeStatusToDelivered);
+				}
+			}
 		}
 
 		DateTime? closingDate;
@@ -553,6 +559,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
+
+		public virtual bool CanChangeStatusToDelivered => Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
 
 		#endregion
 
@@ -1153,6 +1161,42 @@ namespace Vodovoz.Domain.Logistic
 			UpdateClosedInformation();
 		}
 
+		public virtual void ChangeAddressStatus(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatus(uow, newAddressStatus);
+			UpdateStatus();
+		}
+
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, CallTaskWorker callTaskWorker)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
+			UpdateStatus();
+		}
+
+		public virtual void SetAddressStatusWithoutOrderChange(int routeListAddressid, RouteListItemStatus newAddressStatus)
+		{
+			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(newAddressStatus);
+			UpdateStatus();
+		}
+
+		public virtual void UpdateStatus()
+		{
+			if(CanChangeStatusToDelivered)
+			{
+				ChangeStatus(RouteListStatus.Delivered);
+			}
+		}
+
+		public virtual void TransferAddressTo(int id, RouteListItem targetAddress)
+		{
+			Addresses.First(a => a.Id == id).TransferTo(targetAddress);
+			UpdateStatus();
+		}
+
+		public virtual void RevertTransferAddress(
+			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress) =>
+				targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+
 		private void UpdateClosedInformation()
 		{
 			if(Status == RouteListStatus.Closed)
@@ -1399,7 +1443,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				routeListItem.FirstFillClosing(UoW, wageParameterService);
+				routeListItem.FirstFillClosing(wageParameterService);
 				PerformanceHelper.EndPointsGroup();
 			}
 

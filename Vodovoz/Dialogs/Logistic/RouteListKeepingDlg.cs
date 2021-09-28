@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using Chats;
+using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
@@ -156,6 +157,8 @@ namespace Vodovoz
 
 			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_retrieve_routelist_en_route");
+
+			btnReDeliver.Binding.AddBinding(Entity, e => e.CanChangeStatusToDelivered, w => w.Sensitive).InitializeFromSource();
 
 			buttonNewFine.Sensitive = allEditing;
 
@@ -394,10 +397,7 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
-				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
-				{
-					Entity.ChangeStatusAndCreateTask(RouteListStatus.Delivered, CallTaskWorker);
-				}
+
 				Entity.CalculateWages(wageParameterService);
 
 				UoWGeneric.Save();
@@ -483,7 +483,7 @@ namespace Vodovoz
 			foreach(RouteListKeepingItemNode item in selectedObjects) {
 				if(item.Status == RouteListItemStatus.Transfered)
 					continue;
-				item.RouteListItem.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, CallTaskWorker);
+				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}
 
@@ -503,6 +503,11 @@ namespace Vodovoz
 		protected void OnButtonRetriveEnRouteClicked(object sender, EventArgs e)
 		{
 			Entity.RollBackEnRouteStatus();
+		}
+
+		protected void OnBtnReDeliverClicked(object sender, EventArgs e)
+		{
+			Entity.UpdateStatus();
 		}
 	}
 
@@ -573,7 +578,7 @@ namespace Vodovoz
 		public void UpdateStatus(RouteListItemStatus value, CallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.UpdateStatusAndCreateTask(uow, value, callTaskWorker);
+			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);
 			HasChanged = true;
 			OnPropertyChanged<RouteListItemStatus>(() => Status);
 		}

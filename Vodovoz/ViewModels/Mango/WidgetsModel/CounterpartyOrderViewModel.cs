@@ -29,7 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class CounterpartyOrderViewModel : ViewModelBase, IDisposable
+	public class CounterpartyOrderViewModel : ViewModelBase
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
@@ -182,9 +182,10 @@ namespace Vodovoz.ViewModels.Mango
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
-						routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
+						routeListItem.RouteList.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
 						routeListItem.StatusLastUpdate = DateTime.Now;
 						routeListItem.FillCountsOnCanceled();
+						UoW.Save(routeListItem.RouteList);
 						UoW.Save(routeListItem);
 					}
 
@@ -217,10 +218,5 @@ namespace Vodovoz.ViewModels.Mango
 			}
 		}
 		#endregion
-
-		public void Dispose()
-		{
-			UoW?.Dispose();
-		}
 	}
 }
