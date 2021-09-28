@@ -19,8 +19,8 @@
         <Width>476.16pt</Width>
         <Value>="Аналитика недовозов на " + {?title_date}</Value>
         <ZIndex>1</ZIndex>
-        <Left>51.3pt</Left>
-        <Top>18.3pt</Top>
+        <Left>43.5pt</Left>
+        <Top>22.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1746,21 +1746,6 @@ LightGreen
         <Left>344.9pt</Left>
         <Top>114.8pt</Top>
       </Table>
-      <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>531.26pt</Height>
-        <Width>0.09pt</Width>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth>
-            <Default>3pt</Default>
-          </BorderWidth>
-        </Style>
-        <Left>292.90pt</Left>
-        <Top>0.80pt</Top>
-      </Line>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -1863,7 +1848,7 @@ HAVING delay &gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="bottles_addresses_set">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     (
@@ -1959,7 +1944,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2020,7 +2005,7 @@ HAVING delay &gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="bottles_addresses_set_2">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     (
@@ -2116,7 +2101,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2253,7 +2238,7 @@ where o.delivery_date = @second_date</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="LO_Only">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
     count(und.id) as Quantity
@@ -2286,7 +2271,7 @@ union (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Quantity">
           <DataField>Quantity</DataField>
           <TypeName>System.Int32</TypeName>
