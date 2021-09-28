@@ -1852,7 +1852,7 @@ HAVING delay &gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="bottles_addresses_set">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 (
@@ -1945,14 +1945,17 @@ FROM
        AND !orders.self_delivery
        AND !orders.is_contract_closer
        AND orders.order_address_type != 'Service'
-       AND geographic_groups.id in (1,2,3)) as T</CommandText>
+       AND geographic_groups.id in (@geoparts)) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
             <Value>=Parameters!first_date</Value>
           </QueryParameter>
+          <QueryParameter Name="geoparts">
+            <Value>=Parameters!geoparts</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2013,7 +2016,7 @@ HAVING delay &gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="bottles_addresses_set_2">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     (
@@ -2107,14 +2110,17 @@ FROM
        AND !orders.self_delivery
        AND !orders.is_contract_closer
        AND orders.order_address_type != 'Service'
-       AND geographic_groups.id in (1,2,3)) as T</CommandText>
+       AND geographic_groups.id in (@geoparts)) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
             <Value>=Parameters!second_date</Value>
           </QueryParameter>
+          <QueryParameter Name="geoparts">
+            <Value>=Parameters!geoparts</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2421,7 +2427,7 @@ group by a.geographic_group_id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="first_date">
       <DataType>String</DataType>
       <DefaultValue>
