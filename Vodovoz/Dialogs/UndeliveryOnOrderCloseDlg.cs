@@ -19,7 +19,7 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly ISmsNotifierParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly ISmsNotifierParametersProvider _smsNotifierParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		UndeliveredOrder undelivery;
 		Order order;
@@ -84,7 +84,7 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			var smsNotifier = new SmsNotifier(_baseParametersProvider);
+			var smsNotifier = new SmsNotifier(_smsNotifierParametersProvider);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery);
 		}
 
