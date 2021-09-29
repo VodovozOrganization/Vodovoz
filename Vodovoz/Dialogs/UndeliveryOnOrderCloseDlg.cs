@@ -73,7 +73,8 @@ namespace Vodovoz.Dialogs
 			}
 
 			undeliveryView.BeforeSaving();
-			if(!CanCreateUndelivery()) {
+			if(!CanCreateUndelivery())
+			{
 				OnCloseTab(false);
 				return false;
 			}
@@ -85,7 +86,7 @@ namespace Vodovoz.Dialogs
 		private void ProcessSmsNotification()
 		{
 			var smsNotifier = new SmsNotifier(_smsNotifierParametersProvider);
-			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery);
+			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery, UoW);
 		}
 
 		/// <summary>
