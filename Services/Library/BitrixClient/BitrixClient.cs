@@ -1,31 +1,16 @@
 ﻿using Bitrix.DTO;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace Bitrix
 {
 	public class BitrixClient : IBitrixClient
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private static readonly HttpClient _httpClient = new HttpClient();
-
-		private readonly string _token;
-		private readonly string _userId;
-
-		private string _apiBase => $"{Constants.ApiUrl}/rest/{_userId}/{_token}/";
-
-		static BitrixClient()
-		{
-			var jsonHeader = new MediaTypeWithQualityHeaderValue("application/json");
-
-			_httpClient.DefaultRequestHeaders.Accept.Clear();
-			_httpClient.DefaultRequestHeaders.Accept.Add(jsonHeader);
-		}
-
-
+		private readonly HttpClient _httpClient;
 
 		public BitrixClient(string userId, string token)
 		{
@@ -39,82 +24,88 @@ namespace Bitrix
 				throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
 			}
 
-			_userId = userId;
-			_token = token;
+			_httpClient = new HttpClient()
+			{
+				BaseAddress = new Uri($"{Constants.ApiUrl}/rest/{userId}/{token}/")
+			};
+
+			_httpClient.DefaultRequestHeaders.Accept.Clear();
+			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 		}
 
 		#region real
 
-		public Contact GetContact(uint id)
+		public async Task<Contact> GetContact(uint id)
 		{
-			string requestUri = $"{_apiBase}/crm.contact.get.json?id={id}";
+			string requestUri = $"crm.contact.get.json?id={id}";
 
-			ContactResponse response = Get<ContactResponse>(requestUri);
+			using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+			var contactResponse = await response.Content.ReadAsAsync<ContactResponse>();
 
-			if(response == null)
+			if(contactResponse == null)
 			{
 				return null;
 			}
 
-			return response.Result;
+			return contactResponse.Result;
 		}
 
-		public Company GetCompany(uint id)
+		public async Task<Company> GetCompany(uint id)
 		{
-			string requestUri = $"{_apiBase}/crm.company.get.json?id={id}";
+			string requestUri = $"crm.company.get.json?id={id}";
 
-			CompanyResponse response = Get<CompanyResponse>(requestUri);
+			using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+			var companyResponse = await response.Content.ReadAsAsync<CompanyResponse>();
 
-			if(response == null)
+			if(companyResponse == null)
 			{
 				return null;
 			}
 
-			return response.Result;
+			return companyResponse.Result;
 		}
 
-		public Product GetProduct(uint id)
+		public async Task<Product> GetProduct(uint id)
 		{
-			string requestUri = $"{_apiBase}/crm.product.get.json?id={id}";
+			string requestUri = $"crm.product.get.json?id={id}";
 
-			ProductResponse response = Get<ProductResponse>(requestUri);
+			using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+			var productResponse = await response.Content.ReadAsAsync<ProductResponse>();
 
-			if(response == null)
+			if(productResponse == null)
 			{
 				return null;
 			}
 
-			return response.Result;
+			return productResponse.Result;
 		}
 
-		public IList<DealProductItem> GetProductsForDeal(uint dealId)
+		public async Task<IList<DealProductItem>> GetProductsForDeal(uint dealId)
 		{
-			string requestUri = $"{_apiBase}/crm.deal.productrows.get.json?id={dealId}";
+			string requestUri = $"crm.deal.productrows.get.json?id={dealId}";
 
-			DealProductItemResponse response = Get<DealProductItemResponse>(requestUri);
+			using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+			var dealProductItemResponse = await response.Content.ReadAsAsync<DealProductItemResponse>();
 
-			if(response == null || response.Result == null)
+			if(dealProductItemResponse == null || dealProductItemResponse.Result == null)
 			{
 				return new List<DealProductItem>();
 			}
 
-			return response.Result;
+			return dealProductItemResponse.Result;
 		}
 
-		public IList<Deal> GetDeals(DateTime dateTimeFrom, DateTime dateTimeTo)
+		public async Task<IList<Deal>> GetDeals(DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
 			List<Deal> deals = new List<Deal>();
-
-			string dateFrom = dateTimeFrom.ToString("dd.MM.yyyy HH:mm:ss");
-			string dateTo = dateTimeTo.ToString("dd.MM.yyyy HH:mm:ss");
 
 			int next = 0;
 			bool hasNext = true;
 			do
 			{
-				string requestUri = $"{_apiBase}/crm.deal.list.json?" +
-					$"FILTER[>DATE_CREATE]={dateFrom}&" +
-					$"FILTER[<DATE_CREATE]={dateTo}&" +
+				string requestUri = $"crm.deal.list.json?" +
+					$"FILTER[>DATE_CREATE]={dateTimeFrom:dd.MM.yyyy HH:mm:ss}&" +
+					$"FILTER[<DATE_CREATE]={dateTimeTo:dd.MM.yyyy HH:mm:ss}&" +
 					//Включаем сделки только со временем доставки
 					$"FILTER[>{UserFieldNames.DealDeliverySchedule}]=0&" +
 					//Включаем сделки только в статусе Завести в ДВ
@@ -123,87 +114,46 @@ namespace Bitrix
 					$"&select[]=*&select[]=UF_*" +
 					$"&start={next}";
 
+				using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+				var dealsResponse = await response.Content.ReadAsAsync<DealsResponse>();
 
-				DealsResponse response = Get<DealsResponse>(requestUri);
-
-				if(response == null || response.Result == null)
+				if(dealsResponse == null || dealsResponse.Result == null)
 				{
 					continue;
 				}
 
-				deals.AddRange(response.Result);
+				deals.AddRange(dealsResponse.Result);
 
-				_logger.Info($"Загружено сделок {deals.Count}/{response.Total}");
-				hasNext = response.Next.HasValue;
-				next = response.Next.HasValue ? response.Next.Value : 0;
-			} while(hasNext);
+				_logger.Info($"Загружено сделок {deals.Count}/{dealsResponse.Total}");
+				hasNext = dealsResponse.Next.HasValue;
+				next = dealsResponse.Next ?? 0;
+			}
+			while(hasNext);
 
 			return deals;
-		}
-
-		private T Get<T>(string requestUri) where T : class
-		{
-			T response;
-			try
-			{
-				var requestTask = _httpClient.GetStringAsync(requestUri);
-				requestTask.Wait();
-				var responseString = requestTask.Result;
-
-				response = JsonConvert.DeserializeObject<T>(responseString);
-			}
-			catch(HttpRequestException ex)
-			{
-				_logger.Error(ex, "Не удалось получить ответ по запросу");
-				throw;
-			}
-			catch(JsonException ex)
-			{
-				_logger.Error(ex, "Не удалось распарсить одну из сделок");
-				throw;
-			}
-
-			return response;
 		}
 
 		#endregion
 
 		#region Отправка статуса
 
-		public bool SetStatusToDeal(DealStatus status, uint dealId)
+		public async Task<bool> SetStatusToDeal(DealStatus status, uint dealId)
 		{
-			//Вадим: Тут когда-то была эта задержка, не уверен что она сейчас нужна, необходимо проверить.
-			//Задержка в 10сек, это необходимо из-за битрикса, он не успевает обработать какие-то скрипты
-			//Thread.Sleep(10000);
-
-			string stageId;
-
-			switch(status)
+			string stageId = status switch
 			{
-				case DealStatus.ToCreate:
-					stageId = Constants.CreateInDVDealStageId;
-					break;
-				case DealStatus.InProgress:
-					stageId = Constants.InProgressDealStageId;
-					break;
-				case DealStatus.Error:
-					stageId = Constants.DVErrorDealStageId;
-					break;
-				case DealStatus.Success:
-					stageId = Constants.SuccessDealStageId;
-					break;
-				case DealStatus.Fail:
-					stageId = Constants.FailDealStageId;
-					break;
-				default:
-					throw new InvalidOperationException("Неизвестный статус сделки");
-			}
+				DealStatus.ToCreate => Constants.CreateInDVDealStageId,
+				DealStatus.InProgress => Constants.InProgressDealStageId,
+				DealStatus.Error => Constants.DVErrorDealStageId,
+				DealStatus.Success => Constants.SuccessDealStageId,
+				DealStatus.Fail => Constants.FailDealStageId,
+				_ => throw new InvalidOperationException("Неизвестный статус сделки"),
+			};
+			string requestUri = $"crm.deal.update.json?id={dealId}&FIELDS[STAGE_ID]={stageId}";
 
-			string requestUri = $"{_apiBase}/crm.deal.update.json?id={dealId}&FIELDS[STAGE_ID]={stageId}";
+			using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+			var changeStatusResponse = await response.Content.ReadAsAsync<ChangeStatusResult>();
 
-			var response = Get<ChangeStatusResult>(requestUri);
-
-			return response.Result;
+			return changeStatusResponse.Result;
 		}
 
 		#endregion

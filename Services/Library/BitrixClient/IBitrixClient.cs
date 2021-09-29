@@ -5,14 +5,13 @@ using Bitrix.DTO;
 
 namespace Bitrix
 {
-    public interface IBitrixClient
-    {
-		Company GetCompany(uint id);
-		Contact GetContact(uint id);
-		IList<Deal> GetDeals(DateTime dateTimeFrom, DateTime dateTimeTo);
-		Product GetProduct(uint id);
-		IList<DealProductItem> GetProductsForDeal(uint dealId);
-
-		bool SetStatusToDeal(DealStatus status, uint dealId);
+	public interface IBitrixClient
+	{
+		Task<Company> GetCompany(uint id);
+		Task<Contact> GetContact(uint id);
+		Task<IList<Deal>> GetDeals(DateTime dateTimeFrom, DateTime dateTimeTo);
+		Task<Product> GetProduct(uint id);
+		Task<IList<DealProductItem>> GetProductsForDeal(uint dealId);
+		Task<bool> SetStatusToDeal(DealStatus status, uint dealId);
 	}
 }

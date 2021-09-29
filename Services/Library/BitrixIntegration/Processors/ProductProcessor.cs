@@ -31,10 +31,10 @@ namespace BitrixIntegration.Processors
 
 		public void ProcessProducts(IUnitOfWork uow, Deal deal, Order order)
 		{
-			var dealProductItems = _bitrixClient.GetProductsForDeal(deal.Id);
+			var dealProductItems = _bitrixClient.GetProductsForDeal(deal.Id).GetAwaiter().GetResult();
 			foreach(var dealProductItem in dealProductItems)
 			{
-				Product product = _bitrixClient.GetProduct(dealProductItem.ProductId);
+				Product product = _bitrixClient.GetProduct(dealProductItem.ProductId).GetAwaiter().GetResult();
 				bool isOurProduct = IsOurProduct(product);
 
 				if(isOurProduct)
@@ -53,7 +53,8 @@ namespace BitrixIntegration.Processors
 			Nomenclature nomenclature = GetNomenclatureForOurProduct(uow, product);
 			if(nomenclature == null)
 			{
-				throw new InvalidOperationException($"Не найдена номенклатура для добавления нашего товара из битрикса. Id номенклатуры в битриксе {product.NomenclatureInfo?.NomenclatureId}");
+				throw new InvalidOperationException($"Не найдена номенклатура для добавления нашего товара из битрикса. " +
+					$"Id номенклатуры в битриксе {product.NomenclatureInfo?.NomenclatureId}");
 			}
 			decimal discount = Math.Abs(nomenclature.GetPrice(1) - dealProductItem.Price);
 			order.AddNomenclature(nomenclature, dealProductItem.Count, discount, true);

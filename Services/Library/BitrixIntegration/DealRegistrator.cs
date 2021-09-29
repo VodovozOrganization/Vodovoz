@@ -38,7 +38,7 @@ namespace BitrixIntegration
 					dealRegistration = CreateNew(dealId);
 				}
 
-				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.InProgress, dealId);
+				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.InProgress, dealId).GetAwaiter().GetResult();
 				if(!statusSetted)
 				{
 					_logger.Warn($"Не удалось установить в битриксе статус ({DealStatus.InProgress}) для сделки Id {dealId}");
@@ -71,7 +71,7 @@ namespace BitrixIntegration
 
 				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
 
-				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Error, dealId);
+				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Error, dealId).GetAwaiter().GetResult();
 				if(!statusSetted)
 				{
 					_logger.Warn($"Не удалось установить в битриксе статус ({DealStatus.Error}) для сделки Id {dealId}");
@@ -106,7 +106,7 @@ namespace BitrixIntegration
 
 				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
 
-				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Fail, dealId);
+				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Fail, dealId).GetAwaiter().GetResult();
 				if(statusSetted)
 				{
 					dealRegistration.NeedSync = false;
@@ -144,7 +144,7 @@ namespace BitrixIntegration
 
 				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
 
-				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Success, dealId);
+				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Success, dealId).GetAwaiter().GetResult();
 				if(statusSetted)
 				{
 					dealRegistration.NeedSync = false;

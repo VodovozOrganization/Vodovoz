@@ -23,7 +23,7 @@ namespace BitrixIntegration.Processors
 
 		public ProductGroup ProcessProductGroup(IUnitOfWork uow, DealProductItem productFromDeal)
 		{
-			var product = _bitrixClient.GetProduct(productFromDeal.ProductId);
+			var product = _bitrixClient.GetProduct(productFromDeal.ProductId).GetAwaiter().GetResult();
 			if(product == null)
 			{
 				throw new Exception($"Продукт с id {productFromDeal.ProductId} не найден в битриксе");
@@ -39,8 +39,10 @@ namespace BitrixIntegration.Processors
 
 			var reversedProductGroups = allProductGroups.Take(allProductGroups.Length - 1).Reverse();
 
-			IList<ProductGroup> allNewProductGroups = new List<ProductGroup>();
-			allNewProductGroups.Add(new ProductGroup { Name = lastGroupName });
+			IList<ProductGroup> allNewProductGroups = new List<ProductGroup>
+			{
+				new ProductGroup { Name = lastGroupName }
+			};
 
 			foreach(var reversedProductGroupName in reversedProductGroups)
 			{

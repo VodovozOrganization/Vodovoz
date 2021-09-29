@@ -11,7 +11,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Services;
@@ -70,7 +69,7 @@ namespace BitrixIntegration.Processors
 			var startDay = date.Date;
 			var endDay = date.Date.AddDays(1).AddMilliseconds(-1);
 
-			var deals = _bitrixClient.GetDeals(startDay, endDay);
+			var deals = _bitrixClient.GetDeals(startDay, endDay).GetAwaiter().GetResult();
 			foreach(var deal in deals)
 			{
 				_dealRegistrator.RegisterDealAsInProgress(deal.Id);
@@ -195,11 +194,8 @@ namespace BitrixIntegration.Processors
 		{
 			_logger.Info("Обработка контрагента как контакта");
 
-			var contact = _bitrixClient.GetContact(deal.ContactId);
-			if(contact == null)
-			{
-				throw new InvalidOperationException($"Не удалось загрузить контакт №{deal.ContactId}");
-			}
+			var contact = _bitrixClient.GetContact(deal.ContactId).GetAwaiter().GetResult()
+				?? throw new InvalidOperationException($"Не удалось загрузить контакт №{deal.ContactId}");
 
 			Counterparty counterparty = GetCounterpartyOrNull(uow, contact);
 			if(counterparty == null)
@@ -226,11 +222,8 @@ namespace BitrixIntegration.Processors
 		{
 			_logger.Info("Обработка контрагента как компании");
 
-			var company = _bitrixClient.GetCompany(deal.CompanyId);
-			if(company == null)
-			{
-				throw new InvalidOperationException($"Не удалось загрузить компанию №{deal.CompanyId}");
-			}
+			var company = _bitrixClient.GetCompany(deal.CompanyId).GetAwaiter().GetResult()
+				?? throw new InvalidOperationException($"Не удалось загрузить компанию №{deal.CompanyId}");
 
 			Counterparty counterparty = GetCounterpartyOrNull(uow, company);
 			if(counterparty == null)
