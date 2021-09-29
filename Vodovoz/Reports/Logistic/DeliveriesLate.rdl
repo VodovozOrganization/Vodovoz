@@ -16,14 +16,7 @@
         <CommandText>SELECT
     route_lists.id,
     route_lists.driver_id,
-    CONCAT_WS('',
-              CONCAT(driver.last_name, ' '),
-              IF(driver.name = '',
-                 '',
-                 CONCAT(LEFT(driver.name, 1), '.')),
-              IF(driver.patronymic = '',
-                 '',
-                 CONCAT(LEFT(driver.patronymic, 1), '.'))) AS driver_name,
+    GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) AS driver_name,
     counterparty.name AS counterparty_name,
     delivery_points.compiled_address_short,
     delivery_schedule.name AS delivery_schedule,
@@ -36,14 +29,8 @@
     lar.name as late_reason_name,
 
     route_list_addresses.comment_for_fine as lo_comment,
-    CONCAT_WS('',
-              CONCAT(lo_comment_author.last_name, ' '),
-              IF(lo_comment_author.name = '',
-                 '',
-                 CONCAT(LEFT(lo_comment_author.name, 1), '.')),
-              IF(lo_comment_author.patronymic = '',
-                 '',
-                 CONCAT(LEFT(lo_comment_author.patronymic, 1), '.'))) AS lo_comment_author_name,
+    GET_PERSON_NAME_WITH_INITIALS(lo_comment_author.last_name, lo_comment_author.name, lo_comment_author.patronymic
+            ) AS lo_comment_author_name,
 
      IFNULL(fine.total_money + ' р.','')  as fines
 FROM
