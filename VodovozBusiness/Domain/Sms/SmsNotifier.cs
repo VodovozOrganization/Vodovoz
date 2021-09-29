@@ -150,33 +150,28 @@ namespace Vodovoz.Domain.Sms
 			//замена метки на время доставки
 			msgToSend = msgToSend.Replace(deliveryTimeVariable, $"{orderScheduleTimeString}");
 
+			void FillNotification(UndeliveryNotApprovedSmsNotification notification)
+			{
+				notification.UndeliveredOrder = undeliveredOrder;
+				notification.Counterparty = undeliveredOrder.NewOrder.Client;
+				notification.NotifyTime = DateTime.Now;
+				notification.MobilePhone = mobilePhoneNumber;
+				notification.Status = SmsNotificationStatus.New;
+				notification.MessageText = msgToSend;
+				notification.ExpiredTime = DateTime.Now.AddMinutes(30);
+			}
 			//создание нового уведомления для отправки
 			if(externalUow != null)
 			{
-				var notification = new UndeliveryNotApprovedSmsNotification()
-				{
-					UndeliveredOrder = undeliveredOrder,
-					Counterparty = undeliveredOrder.NewOrder.Client,
-					NotifyTime = DateTime.Now,
-					MobilePhone = mobilePhoneNumber,
-					Status = SmsNotificationStatus.New,
-					MessageText = msgToSend,
-					ExpiredTime = DateTime.Now.AddMinutes(30)
-				};
+				var notification = new UndeliveryNotApprovedSmsNotification();
+				FillNotification(notification);
 				externalUow.Save(notification);
 				return;
 			}
 
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<UndeliveryNotApprovedSmsNotification>())
 			{
-				uow.Root.UndeliveredOrder = undeliveredOrder;
-				uow.Root.Counterparty = undeliveredOrder.NewOrder.Client;
-				uow.Root.NotifyTime = DateTime.Now;
-				uow.Root.MobilePhone = mobilePhoneNumber;
-				uow.Root.Status = SmsNotificationStatus.New;
-				uow.Root.MessageText = msgToSend;
-				uow.Root.ExpiredTime = DateTime.Now.AddMinutes(30);
-				
+				FillNotification(uow.Root);
 				uow.Save();
 			}
 		}

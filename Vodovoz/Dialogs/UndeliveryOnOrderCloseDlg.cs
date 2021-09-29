@@ -61,6 +61,7 @@ namespace Vodovoz.Dialogs
 			{
 				ProcessSmsNotification();
 			}
+			OnCloseTab(false);
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
 		}
 
@@ -73,12 +74,11 @@ namespace Vodovoz.Dialogs
 			}
 
 			undeliveryView.BeforeSaving();
-			if(!CanCreateUndelivery()) {
-				OnCloseTab(false);
+			if(!CanCreateUndelivery())
+			{
 				return false;
 			}
 			UoW.Save(undelivery);
-			OnCloseTab(false);
 			return true;
 		}
 

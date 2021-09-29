@@ -25,6 +25,7 @@ namespace Vodovoz.Dialogs
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private bool _needClose = true;
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
@@ -87,7 +88,7 @@ namespace Vodovoz.Dialogs
 		public void ConfigureDlg()
 		{
 			undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
-			undeliveryView.isSaved += () => Save(false);
+			undeliveryView.isSaved += () => _needClose = false;
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
@@ -104,26 +105,29 @@ namespace Vodovoz.Dialogs
 			unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
 		}
 
-		public virtual bool Save(bool needClose = true)
+		private bool Save(bool needClose = true)
 		{
 			var valid = new QSValidator<UndeliveredOrder>(UndeliveredOrder);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			{
 				return false;
-			if(UndeliveredOrder.Id == 0) {
+			}
+
+			if(UndeliveredOrder.Id == 0)
+			{
 				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
 			undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
-			if(!CanCreateUndelivery()){
+			if(!CanCreateUndelivery())
+			{
 				UoW.Save(UndeliveredOrder.OldOrder);
 				UoW.Commit();
-				this.OnCloseTab(false);
+				_needClose = true;
 				return false;
 			}
 
 			UoW.Save(UndeliveredOrder);
-			if(needClose)
-				this.OnCloseTab(false);
 			return true;
 		}
 
@@ -152,6 +156,10 @@ namespace Vodovoz.Dialogs
 			          && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
 			{
 				ProcessSmsNotification();
+			}
+			if(_needClose)
+			{
+				OnCloseTab(false);
 			}
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
 		}
