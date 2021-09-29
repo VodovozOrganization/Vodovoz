@@ -39,7 +39,7 @@ namespace BitrixIntegration
 		{
 			Task.Run(Work, cancellationToken).ContinueWith((delayTask) =>
 			{
-				Task.Delay(_interval, cancellationToken).ContinueWith((worTask) => Iteration(cancellationToken), cancellationToken);
+				Task.Delay(_interval, cancellationToken).ContinueWith((workTask) => Iteration(cancellationToken), cancellationToken);
 			}, cancellationToken);
 		}
 

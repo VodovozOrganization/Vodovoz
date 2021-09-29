@@ -103,18 +103,24 @@ namespace Bitrix
 			bool hasNext = true;
 			do
 			{
-				string requestUri = $"crm.deal.list.json?" +
-					$"FILTER[>DATE_CREATE]={dateTimeFrom:dd.MM.yyyy HH:mm:ss}&" +
-					$"FILTER[<DATE_CREATE]={dateTimeTo:dd.MM.yyyy HH:mm:ss}&" +
-					//Включаем сделки только со временем доставки
-					$"FILTER[>{UserFieldNames.DealDeliverySchedule}]=0&" +
-					//Включаем сделки только в статусе Завести в ДВ
-					$"FILTER[STAGE_ID]={Constants.CreateInDVDealStageId}" +
-					//Добавляем в выгрузку все пользовательские поля
-					$"&select[]=*&select[]=UF_*" +
-					$"&start={next}";
+				string query = "crm.deal.list.json?";
 
-				using HttpResponseMessage response = await _httpClient.GetAsync(requestUri);
+				using(var content = new FormUrlEncodedContent(
+					new KeyValuePair<string, string>[]
+					{
+						new KeyValuePair<string, string>("FILTER[>DATE_CREATE]", $"{dateTimeFrom:dd.MM.yyyy HH:mm:ss}"),
+						new KeyValuePair<string, string>("FILTER[<DATE_CREATE]", $"{dateTimeTo:dd.MM.yyyy HH:mm: ss}"),
+						new KeyValuePair<string, string>($"FILTER[>{UserFieldNames.DealDeliverySchedule}]", "0"),
+						new KeyValuePair<string, string>($"FILTER[STAGE_ID]={Constants.CreateInDVDealStageId}", Constants.CreateInDVDealStageId),
+						new KeyValuePair<string, string>("select[]", "*"),
+						new KeyValuePair<string, string>("select[]", "UF_*"),
+						new KeyValuePair<string, string>("start", $"{next}"),
+					}))
+				{
+					query += await content.ReadAsStringAsync();
+				}
+
+				using HttpResponseMessage response = await _httpClient.GetAsync(query);
 				var dealsResponse = await response.Content.ReadAsAsync<DealsResponse>();
 
 				if(dealsResponse == null || dealsResponse.Result == null)
