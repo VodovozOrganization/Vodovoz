@@ -6,8 +6,12 @@ using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -37,6 +41,8 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
@@ -303,11 +309,27 @@ namespace Vodovoz.ViewModel
 			RouteListStatus.Closed
 		};
 
-		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus> {
-			RouteListStatus.New,
-			RouteListStatus.Confirmed,
-			RouteListStatus.InLoading
-		};
+		private bool CanDeleteRouteList(RouteListsVMNode selectedNode)
+		{
+			bool result = false;
+			
+			if(selectedNode.StatusEnum == RouteListStatus.New)
+			{
+				RouteListRepository rep = new RouteListRepository(
+					new StockRepository(), 
+					new BaseParametersProvider(new ParametersProvider())); 
+				if(rep.RouteListContainsGivedFuelLiters(UoW, selectedNode.Id))
+				{
+					result = false;
+				}
+				else
+				{
+					result = true;
+				}
+			}
+
+			return result;
+		}
 
 		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus> {
 			RouteListStatus.New,
@@ -614,7 +636,7 @@ namespace Vodovoz.ViewModel
 							UpdateNodes();
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+					(selectedItems) => selectedItems.Any(x => CanDeleteRouteList(x as RouteListsVMNode))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Выдать топливо",
@@ -640,6 +662,25 @@ namespace Vodovoz.ViewModel
 						}
 					},
 					(selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
+
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible(
+					"Перенести терминал на вторую ходку",
+					(selectedItems) =>
+					{
+						if(selectedItems.FirstOrDefault() is RouteListsVMNode selectedNode)
+						{
+							var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+							routeList?.CreateSelfDriverTerminalTransferDocument();
+						}
+					},
+					(selectedItems) =>
+					{
+						var userPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(
+							typeof(SelfDriverTerminalTransferDocument), ServicesConfig.UserService.CurrentUserId);
+
+						return userPermission.CanCreate;
+					}
 				));
 
 				return result;

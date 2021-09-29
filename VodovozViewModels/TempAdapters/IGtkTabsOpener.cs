@@ -10,7 +10,7 @@ namespace Vodovoz.TempAdapters
 		void OpenOrderDlg(ITdiTab tab, int id);
 		
 		void OpenCreateRouteListDlg(ITdiTab tab, int id);
-		
+		ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId);
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0);
 
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);

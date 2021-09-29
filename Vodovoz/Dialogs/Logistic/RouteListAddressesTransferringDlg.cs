@@ -18,6 +18,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -572,7 +573,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,
@@ -641,7 +642,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var driverTerminalTransferDocument = new DriverTerminalTransferDocument()
+					var driverTerminalTransferDocument = new AnotherDriverTerminalTransferDocument()
 					{
 						Author = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId),
 						CreateDate = DateTime.Now,

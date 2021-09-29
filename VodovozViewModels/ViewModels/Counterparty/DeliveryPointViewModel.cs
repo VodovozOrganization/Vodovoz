@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters) {PhonesList = Entity.ObservablePhones};
+			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters) { PhonesList = Entity.ObservablePhones, DeliveryPoint = Entity };
 
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));
 			StreetsDataLoader = streetsDataLoader ?? throw new ArgumentNullException(nameof(streetsDataLoader));

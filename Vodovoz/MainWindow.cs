@@ -115,6 +115,7 @@ using QS.Osm;
 using QS.Osm.Loaders;
 using QS.Osm.Osrm;
 using QS.Project.Repositories;
+using QS.Report.ViewModels;
 using QS.ViewModels;
 using Vodovoz.Core.Journal;
 using Vodovoz.Domain.EntityFactories;
@@ -142,6 +143,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Rent;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
@@ -2461,5 +2463,38 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices);
 
 		tdiMain.AddTab(journal);
+	}
+
+	protected void OnActionDayOfSalaryGiveoutReport_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
+	}
+	
+	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
+	{
+		IFilePickerService filePickerService = new GtkFilePicker();
+		IParametersProvider parametersProvider = new ParametersProvider();
+		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
+
+		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, filePickerService, productionWarehouseMovementReportProvider);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
+			() => new QSReport.ReportViewDlg(new SalaryRatesReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices
+				)));
+	}
+	
+	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
+		);
 	}
 }
