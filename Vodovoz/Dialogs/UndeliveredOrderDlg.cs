@@ -25,7 +25,6 @@ namespace Vodovoz.Dialogs
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		private bool _needClose = true;
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
@@ -88,7 +87,7 @@ namespace Vodovoz.Dialogs
 		public void ConfigureDlg()
 		{
 			undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
-			undeliveryView.isSaved += () => _needClose = false;
+			undeliveryView.isSaved += () => Save(false);
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
@@ -123,11 +122,22 @@ namespace Vodovoz.Dialogs
 			{
 				UoW.Save(UndeliveredOrder.OldOrder);
 				UoW.Commit();
-				_needClose = true;
+				this.OnCloseTab(false);
 				return false;
 			}
 
 			UoW.Save(UndeliveredOrder);
+			if(UndeliveredOrder.NewOrder != null
+			   && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved
+			   && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
+			{
+				ProcessSmsNotification();
+			}
+
+			if(needClose)
+			{
+				this.OnCloseTab(false);
+			}
 			return true;
 		}
 
@@ -151,19 +161,10 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if(Save() && UndeliveredOrder.NewOrder != null
-			          && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved 
-			          && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
-			{
-				ProcessSmsNotification();
-			}
-			if(_needClose)
-			{
-				OnCloseTab(false);
-			}
+			Save();
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
 		}
-	
+
 		private void ProcessSmsNotification()
 		{
 			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
