@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using NLog;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
@@ -38,7 +39,12 @@ namespace VodovozSalesReceiptsService
 
 					var receiptsToSend = ordersAndReceiptNodes.Count(r => r.ReceiptId == null || r.WasSent.HasValue && !r.WasSent.Value);
 					_logger.Info($"Количество чеков на отправку: {receiptsToSend}");
-					return receiptsToSend <= _salesReceiptsServiceSettings.MaxUnsendedCashReceiptsForWorkingService;
+
+					var activeUoWCount = UowWatcher.GetActiveUoWCount();
+					_logger.Info($"Количество активных UoW: {activeUoWCount}");
+
+					return receiptsToSend <= _salesReceiptsServiceSettings.MaxUnsendedCashReceiptsForWorkingService
+						&& activeUoWCount <= _salesReceiptsServiceSettings.MaxUoWAllowed;
 				}
 			}
 			catch(Exception ex)

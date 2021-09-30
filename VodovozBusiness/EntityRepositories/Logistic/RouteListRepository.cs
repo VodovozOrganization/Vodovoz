@@ -11,6 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -416,6 +417,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return null;
 			}
 
+			if(GetSelfDriverTerminalTransferDocument(uow, routeList.Driver, routeList) != null)
+			{//если терминал был перенесён на вторую ходку, то не надо его грузить
+				return null;
+			}
+
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 
 			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
@@ -564,7 +570,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				throw new ArgumentNullException(nameof(routeList));
 			}
 
-			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocument>()
+			var termanalTransferDocumentItems = unitOfWork.Session.Query<DriverTerminalTransferDocumentBase>()
 				.Where(dttd => dttd.RouteListTo.Id == routeList.Id
 							|| dttd.RouteListFrom.Id == routeList.Id)
 				.ToList();
@@ -850,6 +856,32 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
+		
+		public bool RouteListContainsGivedFuelLiters(IUnitOfWork uow, int id)
+		{
+			bool result = false;
+
+			var routeList = uow.Session.QueryOver<RouteList>()
+				.Where(x => x.Id == id)
+				.SingleOrDefault<RouteList>();
+
+			foreach(var fuelDocument in routeList.FuelDocuments)
+			{
+				decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
+				decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
+				if(litersGived > 0 || payedLiters > 0)
+				{
+					result = true;
+				}
+			}
+
+			return result;
+		}
+
+		public SelfDriverTerminalTransferDocument GetSelfDriverTerminalTransferDocument(IUnitOfWork unitOfWork, Employee driver, RouteList routeList) =>
+			unitOfWork.Session.QueryOver<SelfDriverTerminalTransferDocument>()
+				.Where(d => d.DriverTo == driver && d.RouteListTo == routeList)
+				.SingleOrDefault();
 	}
 
 	#region DTO
