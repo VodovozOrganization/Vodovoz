@@ -106,15 +106,15 @@ namespace Bitrix
 				string query = "crm.deal.list.json?";
 
 				using(var content = new FormUrlEncodedContent(
-					new KeyValuePair<string, string>[]
+					new[]
 					{
 						new KeyValuePair<string, string>("FILTER[>DATE_CREATE]", $"{dateTimeFrom:dd.MM.yyyy HH:mm:ss}"),
-						new KeyValuePair<string, string>("FILTER[<DATE_CREATE]", $"{dateTimeTo:dd.MM.yyyy HH:mm: ss}"),
+						new KeyValuePair<string, string>("FILTER[<DATE_CREATE]", $"{dateTimeTo:dd.MM.yyyy HH:mm:ss}"),
 						new KeyValuePair<string, string>($"FILTER[>{UserFieldNames.DealDeliverySchedule}]", "0"),
-						new KeyValuePair<string, string>($"FILTER[STAGE_ID]={Constants.CreateInDVDealStageId}", Constants.CreateInDVDealStageId),
+						new KeyValuePair<string, string>("FILTER[STAGE_ID]=", Constants.CreateInDVDealStageId),
 						new KeyValuePair<string, string>("select[]", "*"),
 						new KeyValuePair<string, string>("select[]", "UF_*"),
-						new KeyValuePair<string, string>("start", $"{next}"),
+						new KeyValuePair<string, string>("start", $"{next}")
 					}))
 				{
 					query += await content.ReadAsStringAsync();
@@ -123,7 +123,7 @@ namespace Bitrix
 				using HttpResponseMessage response = await _httpClient.GetAsync(query);
 				var dealsResponse = await response.Content.ReadAsAsync<DealsResponse>();
 
-				if(dealsResponse == null || dealsResponse.Result == null)
+				if(dealsResponse?.Result == null)
 				{
 					continue;
 				}
