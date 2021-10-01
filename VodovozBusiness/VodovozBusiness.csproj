@@ -253,7 +253,6 @@
     <Compile Include="EntityRepositories\Counterparties\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
-    <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
@@ -328,6 +327,7 @@
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\ProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Parameters\OrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
@@ -562,6 +562,7 @@
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />

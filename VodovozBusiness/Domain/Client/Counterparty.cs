@@ -699,13 +699,13 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		private bool alwaysSendReceitps;
+		private bool _alwaysSendReceipts;
         [RestrictedHistoryProperty]
         [IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
-		public virtual bool AlwaysSendReceitps {
-			get => alwaysSendReceitps;
-			set => SetField(ref alwaysSendReceitps, value);
+		public virtual bool AlwaysSendReceipts {
+			get => _alwaysSendReceipts;
+			set => SetField(ref _alwaysSendReceipts, value);
 		}
 
 		private IList<NomenclatureFixedPrice> nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
