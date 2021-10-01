@@ -84,7 +84,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.Label label17;
 
-		private global::QSAttachment.Attachment attachmentFiles;
+		private global::QSAttachment.Views.Widgets.AttachmentsView attachmentsView;
 
 		private global::Gtk.Label label24;
 
@@ -525,6 +525,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.accountsView = new global::QSBanks.AccountsView();
 			this.accountsView.Events = ((global::Gdk.EventMask)(256));
 			this.accountsView.Name = "accountsView";
+			this.accountsView.CanEdit = true;
 			this.vbox5.Add(this.accountsView);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.accountsView]));
 			w39.Position = 1;
@@ -538,17 +539,17 @@ namespace Vodovoz.Dialogs.Employees
 			this.notebookMain.SetTabLabel(this.vbox5, this.label17);
 			this.label17.ShowAll();
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
-			this.attachmentFiles = new global::QSAttachment.Attachment();
-			this.attachmentFiles.Events = ((global::Gdk.EventMask)(256));
-			this.attachmentFiles.Name = "attachmentFiles";
-			this.notebookMain.Add(this.attachmentFiles);
-			global::Gtk.Notebook.NotebookChild w41 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.attachmentFiles]));
+			this.attachmentsView = new global::QSAttachment.Views.Widgets.AttachmentsView();
+			this.attachmentsView.Events = ((global::Gdk.EventMask)(256));
+			this.attachmentsView.Name = "attachmentsView";
+			this.notebookMain.Add(this.attachmentsView);
+			global::Gtk.Notebook.NotebookChild w41 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.attachmentsView]));
 			w41.Position = 2;
 			// Notebook tab
 			this.label24 = new global::Gtk.Label();
 			this.label24.Name = "label24";
 			this.label24.LabelProp = global::Mono.Unix.Catalog.GetString("Файлы");
-			this.notebookMain.SetTabLabel(this.attachmentFiles, this.label24);
+			this.notebookMain.SetTabLabel(this.attachmentsView, this.label24);
 			this.label24.ShowAll();
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.vbox7 = new global::Gtk.VBox();

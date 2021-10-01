@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Data.Bindings.Utilities;
 using System.Linq;
 using System.Reflection;
 using NLog;
+using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -17,7 +17,9 @@ namespace Vodovoz.Domain.Employees
 	public abstract class Personnel : PropertyChangedBase, IValidatableObject, IPersonnel
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
+		private IList<Attachment> _attachments = new List<Attachment>();
+		private GenericObservableList<Attachment> _observableAttachments;
+		
 		public virtual IUnitOfWork UoW { set; get; }
 
 		public virtual int Id { get; set; }
@@ -69,7 +71,7 @@ namespace Vodovoz.Domain.Employees
 			get { return citizenship; }
 			set { SetField(ref citizenship, value, () => Citizenship); }
 		}
-
+		
 		IList<EmployeeDocument> documents = new List<EmployeeDocument>();
 
 		[Display(Name = "Документы")]
@@ -220,8 +222,19 @@ namespace Vodovoz.Domain.Employees
 			}
 			return mainDocuments;
 		}
+		
+		[Display(Name = "Прикрепленные файлы")]
+		public virtual IList<Attachment> Attachments
+		{
+			get => _attachments;
+			set => SetField(ref _attachments, value);
+		}
 
-        public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Attachment> ObservableAttachments => 
+			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
+
+		public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
 
         #region IValidatableObject implementation
 
