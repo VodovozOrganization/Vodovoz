@@ -48,10 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Processors\DealProcessor.cs" />
     <Compile Include="DealRegistrator.cs" />
     <Compile Include="DealWorker.cs" />
+    <Compile Include="Processors\CounterpartyProcessor.cs" />
+    <Compile Include="Processors\DealProcessor.cs" />
     <Compile Include="Processors\DeliveryPointProcessor.cs" />
+    <Compile Include="Processors\ICounterpartyProcessor.cs" />
     <Compile Include="Processors\IDeliveryPointProcessor.cs" />
     <Compile Include="Processors\IProductGroupProcessor.cs" />
     <Compile Include="Processors\IProductProcessor.cs" />

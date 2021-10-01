@@ -175,7 +175,10 @@ namespace VodovozBitrixIntegrationService
 
 				var productGroupProcessor = new ProductGroupProcessor(bitrixClient, nomenclatureRepository);
 
-				var productProcessor = new ProductProcessor(bitrixClient, nomenclatureRepository, productGroupProcessor, measurementUnitsRepository);
+				var productProcessor = new ProductProcessor(bitrixClient, nomenclatureRepository, productGroupProcessor,
+					measurementUnitsRepository);
+
+				var counterpartyProcessor = new CounterpartyProcessor(bitrixClient, counterpartyRepository);
 
 				var dealProcessor = new DealProcessor(
 					uowFactory,
@@ -185,12 +188,12 @@ namespace VodovozBitrixIntegrationService
 					dealRegistrator,
 					bitrixServiceSettings,
 					orderRepository,
-					counterpartyRepository,
 					deliveryScheduleRepository,
 					deliveryPointProcessor,
-					productProcessor
+					productProcessor,
+					counterpartyProcessor
 				);
-					
+
 				var dealWorker = new DealWorker(dealProcessor);
 				dealWorker.Start();
 			}
