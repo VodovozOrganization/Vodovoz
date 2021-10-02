@@ -5,7 +5,7 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
-	public class CarVersion : IDomainObject, INotifyPropertyChanged
+	public class CarVersion : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; }
 		
@@ -14,8 +14,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual DateTime? EndDate { get; set; }
 		
 		public virtual OwnershipCar OwnershipCar { get; set; }
-		
-		public virtual Car Car { get; set; }
+
+		private Car _car;
+		public virtual Car Car 
+		{ 
+			get => _car;
+			set => SetField(ref _car, value); 
+		}
 	}
 
 	public enum OwnershipCar
