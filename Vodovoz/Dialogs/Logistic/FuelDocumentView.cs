@@ -9,6 +9,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz

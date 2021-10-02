@@ -4,6 +4,7 @@ using QS.Project.Filter;
 using QS.Project.Journal;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Filters.ViewModels
 {

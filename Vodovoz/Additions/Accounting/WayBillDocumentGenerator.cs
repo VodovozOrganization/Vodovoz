@@ -24,6 +24,7 @@ using QSDocTemplates;
 using QS.DocTemplates;
 using System.IO;
 using QS.Dialog.GtkUI;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Additions.Accounting

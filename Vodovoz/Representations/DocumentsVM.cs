@@ -17,6 +17,7 @@ using Vodovoz.Domain.Goods;
 using Gtk;
 using Gdk;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewModel

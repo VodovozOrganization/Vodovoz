@@ -17,6 +17,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {

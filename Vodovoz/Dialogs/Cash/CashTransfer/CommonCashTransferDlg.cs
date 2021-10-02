@@ -14,6 +14,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 

@@ -12,6 +12,7 @@ using Vodovoz.Domain.Sale;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Logistic;
 using QS.Dialog.GtkUI;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 

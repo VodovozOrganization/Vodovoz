@@ -13,6 +13,7 @@ using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Services;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;

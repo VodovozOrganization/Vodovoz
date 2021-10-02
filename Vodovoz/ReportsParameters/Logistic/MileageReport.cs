@@ -8,6 +8,7 @@ using QS.Dialog.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Logistic

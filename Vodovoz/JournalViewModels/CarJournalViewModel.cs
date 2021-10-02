@@ -10,6 +10,7 @@ using QS.Services;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 

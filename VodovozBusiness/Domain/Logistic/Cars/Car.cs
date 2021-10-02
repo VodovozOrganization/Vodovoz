@@ -11,7 +11,7 @@ using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
@@ -27,11 +27,11 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int Id { get; set; }
 
-		string model;
+		private ModelCar _model;
 		[Display(Name = "Модель")]
-		public virtual string Model {
-			get { return model; }
-			set { SetField(ref model, value, () => Model); }
+		public virtual ModelCar Model {
+			get => _model;
+			set => SetField(ref _model, value);
 		}
 
 		string registrationNumber;
@@ -153,46 +153,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
-		bool isArchive;
-
-		[Display(Name = "Архивный")]
-		public virtual bool IsArchive {
-			get { return isArchive; }
-			set { SetField(ref isArchive, value, () => IsArchive); }
-		}
-
-		private bool isRaskat;
-
-		[Display(Name = "Раскат")]
-		public virtual bool IsRaskat {
-			get { return isRaskat; }
-			set { SetField(ref isRaskat, value, () => IsRaskat); }
-		}
-
-		private CarTypeOfUse? typeOfUse;
-
-		[Display(Name = "Тип использования")]
-		public virtual CarTypeOfUse? TypeOfUse {
-			get { return typeOfUse; }
-			set { SetField(ref typeOfUse, value, () => TypeOfUse); }
-		}
-
-		double maxVolume;
-
-		[Display(Name = "Объём")]
-		public virtual double MaxVolume {
-			get { return maxVolume; }
-			set { SetField(ref maxVolume, value, () => MaxVolume); }
-		}
-
-		int maxWeight;
-
-		[Display(Name = "Грузоподъёмность")]
-		public virtual int MaxWeight {
-			get { return maxWeight; }
-			set { SetField(ref maxWeight, value, () => MaxWeight); }
-		}
-
 		int minBottles;
 
 		[Display(Name = "Минимум бутылей")]
@@ -288,27 +248,17 @@ namespace Vodovoz.Domain.Logistic
 		public virtual GenericObservableList<Attachment> ObservableAttachments =>
 			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
 
-		private RaskatType? raskatType;
-		[Display(Name = "Тип раската")]
-		public virtual RaskatType? RaskatType
-		{
-			get { return raskatType; }
-			set { SetField(ref raskatType, value); }
-		}
-
 		#endregion
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
 		public virtual bool CanEditFuelCardNumber => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
 
-		[Display(Name = "Имущество компании")]
-		public virtual bool IsCompanyCar => TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);
+		[Display(Name = "Имущество компании")] public virtual bool IsCompanyCar => true; //TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);
 
 		public static CarTypeOfUse[] GetCompanyHavingsTypes() => new CarTypeOfUse[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyTruck };
 
 		public Car()
 		{
-			Model = String.Empty;
 			RegistrationNumber = String.Empty;
 		}
 
@@ -316,8 +266,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(string.IsNullOrWhiteSpace(Model))
-				yield return new ValidationResult("Модель автомобиля должна быть заполнена", new[] { "Model" });
+			// if(string.IsNullOrWhiteSpace(Model))
+			// 	yield return new ValidationResult("Модель автомобиля должна быть заполнена", new[] { "Model" });
 
 			if(string.IsNullOrWhiteSpace(RegistrationNumber))
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { "RegistrationNumber" });
@@ -328,8 +278,8 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelConsumption <= 0)
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { "FuelConsumption" });
 
-			if(!TypeOfUse.HasValue)
-				yield return new ValidationResult("Вид автомобиля должен быть заполнен", new[] { nameof(TypeOfUse) });
+			// if(!TypeOfUse.HasValue)
+			// 	yield return new ValidationResult("Вид автомобиля должен быть заполнен", new[] { nameof(TypeOfUse) });
 
 			var cars = UoW.Session.QueryOver<Car>()
 				.Where(c => c.RegistrationNumber == this.RegistrationNumber)
@@ -347,11 +297,11 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-            if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
-                yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
-
-			if (IsRaskat && RaskatType == null)
-				yield return new ValidationResult("Для раскатного авто необходимо указать тип раската", new[] { nameof(IsRaskat), nameof(RaskatType) });
+   //          if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
+   //              yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
+   //
+			// if (IsRaskat && RaskatType == null)
+			// 	yield return new ValidationResult("Для раскатного авто необходимо указать тип раската", new[] { nameof(IsRaskat), nameof(RaskatType) });
 		}
 
 		#endregion

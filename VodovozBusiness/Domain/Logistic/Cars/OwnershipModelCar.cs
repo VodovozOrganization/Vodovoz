@@ -1,0 +1,13 @@
+﻿using QS.DomainModel.Entity;
+
+namespace Vodovoz.Domain.Logistic.Cars
+{
+	public class OwnershipModelCar : IDomainObject
+	{
+		public virtual int Id { get; }
+		
+		public virtual ModelCar ModelCar { get; set; }
+		
+		public virtual OwnershipCar OwnershipCar { get; set; }
+	}
+}

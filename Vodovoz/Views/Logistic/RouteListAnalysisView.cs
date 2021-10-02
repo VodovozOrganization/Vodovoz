@@ -11,6 +11,7 @@ using QS.Project.Services;
 using QS.Validation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;

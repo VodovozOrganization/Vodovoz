@@ -112,6 +112,11 @@
     <Compile Include="Domain\Flyer.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\CarEvent.cs" />
+    <Compile Include="Domain\Logistic\Cars\Car.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarVersion.cs" />
+    <Compile Include="Domain\Logistic\Cars\ManufacturerCars.cs" />
+    <Compile Include="Domain\Logistic\Cars\ModelCar.cs" />
+    <Compile Include="Domain\Logistic\Cars\OwnershipModelCar.cs" />
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
@@ -399,7 +404,6 @@
     <Compile Include="Domain\Goods\Equipment.cs" />
     <Compile Include="Domain\Goods\Nomenclature.cs" />
     <Compile Include="Domain\Goods\NomenclaturePrice.cs" />
-    <Compile Include="Domain\Logistic\Car.cs" />
     <Compile Include="Domain\Logistic\DeliverySchedule.cs" />
     <Compile Include="Domain\Logistic\DeliveryShift.cs" />
     <Compile Include="Domain\Logistic\FuelType.cs" />

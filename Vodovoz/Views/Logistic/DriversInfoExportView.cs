@@ -10,6 +10,7 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using WrapMode = Pango.WrapMode;
 

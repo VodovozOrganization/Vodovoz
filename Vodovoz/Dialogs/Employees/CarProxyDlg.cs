@@ -12,6 +12,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;

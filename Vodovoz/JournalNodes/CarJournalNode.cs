@@ -1,5 +1,6 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.JournalNodes
 {

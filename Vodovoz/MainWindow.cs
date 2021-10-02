@@ -119,6 +119,7 @@ using QS.Report.ViewModels;
 using QS.ViewModels;
 using Vodovoz.Core.Journal;
 using Vodovoz.Domain.EntityFactories;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ReportsParameters.Employees;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;

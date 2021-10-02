@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.HibernateMapping.Employees
 {

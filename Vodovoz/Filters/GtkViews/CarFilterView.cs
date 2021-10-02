@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Filters.GtkViews

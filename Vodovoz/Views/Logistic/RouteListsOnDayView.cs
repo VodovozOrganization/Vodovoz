@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic

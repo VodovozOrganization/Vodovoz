@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;

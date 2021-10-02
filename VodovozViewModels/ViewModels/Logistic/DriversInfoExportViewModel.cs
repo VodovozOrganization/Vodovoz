@@ -24,6 +24,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -143,7 +144,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				interactiveService.ShowMessage(
 					ImportanceLevel.Info,
 					"В отчёт попадают все МЛ, кроме тех, у которых:\n" +
-					$" - Тип автомобиля '{Domain.Logistic.CarTypeOfUse.CompanyTruck.GetEnumTitle()}'\n" +
+					$" - Тип автомобиля '{Domain.Logistic.Cars.CarTypeOfUse.CompanyTruck.GetEnumTitle()}'\n" +
 					" - Водитель является выездным мастером\n\n" +
 					"Планирумая ЗП водителя считается только для незакрытых МЛ\n" +
 					"Фактическая - только для закрытых\n" +
@@ -256,7 +257,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				query.Where(() => carAlias.IsRaskat == isRaskat);
 			}
 
-			query.Where(() => carAlias.TypeOfUse != Domain.Logistic.CarTypeOfUse.CompanyTruck);
+			query.Where(() => carAlias.TypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.CompanyTruck);
 			query.Where(() => !driverAlias.VisitingMaster);
 
 			#endregion

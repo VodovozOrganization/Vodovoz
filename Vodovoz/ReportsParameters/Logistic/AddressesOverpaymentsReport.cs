@@ -11,6 +11,7 @@ using QS.Services;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {

@@ -6,6 +6,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Fuel;
 
 namespace VodovozBusinessTests.Domain.Fuel

@@ -5,6 +5,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using System.Collections;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {

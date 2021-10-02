@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections;
 using NSubstitute.Extensions;
 using Vodovoz;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;

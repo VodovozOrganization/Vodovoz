@@ -9,6 +9,7 @@ using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 
