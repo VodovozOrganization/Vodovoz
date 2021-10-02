@@ -1689,6 +1689,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AnalyticsForUndeliveryReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRatesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
+    <Compile Include="Views\Logistic\ModelCarView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ModelCarView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

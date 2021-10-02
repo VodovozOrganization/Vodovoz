@@ -56,11 +56,11 @@ namespace Vodovoz
 
 			CreateAttachmentsViewModel();
 
-			dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
+			//dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
 			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
 
-			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
-			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
+			//comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			//comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
 			
 			comboDriverCarKind.ItemsList = UoW.GetAll<DriverCarKind>();
 			comboDriverCarKind.Binding.AddBinding(Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
@@ -94,8 +94,8 @@ namespace Vodovoz
 			radiobuttonMain.Active = true;
 
 			dataspinbutton1.Binding.AddBinding(Entity, e => e.FuelConsumption, w => w.Value).InitializeFromSource();
-			maxWeightSpin.Binding.AddBinding(Entity, e => e.MaxWeight, w => w.ValueAsInt).InitializeFromSource();
-			maxVolumeSpin.Binding.AddBinding(Entity, e => e.MaxVolume, w => w.Value).InitializeFromSource();
+			//maxWeightSpin.Binding.AddBinding(Entity, e => e.MaxWeight, w => w.ValueAsInt).InitializeFromSource();
+			//maxVolumeSpin.Binding.AddBinding(Entity, e => e.MaxVolume, w => w.Value).InitializeFromSource();
 			minBottlesSpin.Binding.AddBinding(Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
 			maxBottlesSpin.Binding.AddBinding(Entity, e => e.MaxBottles, w => w.ValueAsInt).InitializeFromSource();
 			minBottlesFromAddressSpin.Binding.AddBinding(Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
@@ -108,32 +108,32 @@ namespace Vodovoz
 			
 			_carRepository = new CarRepository();
 
-			checkIsRaskat.Active = Entity.IsRaskat;
+			//checkIsRaskat.Active = Entity.IsRaskat;
 
-			Entity.PropertyChanged += (s, e) => {
-				if (e.PropertyName == nameof(Entity.IsRaskat) && checkIsRaskat.Active != Entity.IsRaskat) {
-					checkIsRaskat.Active = Entity.IsRaskat;
-				}
-			};
+			//Entity.PropertyChanged += (s, e) => {
+			//	if (e.PropertyName == nameof(Entity.IsRaskat) && checkIsRaskat.Active != Entity.IsRaskat) {
+			//		checkIsRaskat.Active = Entity.IsRaskat;
+			//	}
+			//};
 
-			checkIsRaskat.Toggled += (s, e) => {
-				if(Entity.Id == 0 || !_carRepository.IsInAnyRouteList(UoW, Entity)) {
-					Entity.IsRaskat = checkIsRaskat.Active;
-				}
-				else if(checkIsRaskat.Active != Entity.IsRaskat) {
-					checkIsRaskat.Active = Entity.IsRaskat;
-					MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
-				}
-			};
-			labelRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
+			//checkIsRaskat.Toggled += (s, e) => {
+			//	if(Entity.Id == 0 || !_carRepository.IsInAnyRouteList(UoW, Entity)) {
+			//		Entity.IsRaskat = checkIsRaskat.Active;
+			//	}
+			//	else if(checkIsRaskat.Active != Entity.IsRaskat) {
+			//		checkIsRaskat.Active = Entity.IsRaskat;
+			//		MessageDialogHelper.RunWarningDialog("На данном автомобиле есть МЛ, смена типа невозможна");
+			//	}
+			//};
+			//labelRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
 			
-			enumRaskatType.ItemsEnum = typeof(RaskatType);
-			enumRaskatType.ShowSpecialStateNot = true;
-			enumRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
-			enumRaskatType.Binding.AddBinding(Entity, e => e.RaskatType, w => w.SelectedItemOrNull).InitializeFromSource();
-			enumRaskatType.Binding.AddFuncBinding(Entity, e => e.Id == 0, w => w.Sensitive).InitializeFromSource();
+			//enumRaskatType.ItemsEnum = typeof(RaskatType);
+			//enumRaskatType.ShowSpecialStateNot = true;
+			//enumRaskatType.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
+			//enumRaskatType.Binding.AddBinding(Entity, e => e.RaskatType, w => w.SelectedItemOrNull).InitializeFromSource();
+			//enumRaskatType.Binding.AddFuncBinding(Entity, e => e.Id == 0, w => w.Sensitive).InitializeFromSource();
 
-			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			//checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			
 			OnEntryDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
@@ -147,11 +147,11 @@ namespace Vodovoz
 			bool canChangeBottlesFromAddress = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_bottles_from_address", currentUserId);
 
 			dataspinbutton1.Sensitive = canChangeVolumeWeightConsumption;
-			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
-			maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
+			//maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
+			//maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
 
-			checkIsRaskat.Sensitive = CarTypeIsEditable() || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_is_raskat");
-			comboTypeOfUse.Sensitive = CarTypeIsEditable();
+			//checkIsRaskat.Sensitive = CarTypeIsEditable() || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_is_raskat");
+			//comboTypeOfUse.Sensitive = CarTypeIsEditable();
 
 			minBottlesFromAddressSpin.Sensitive = canChangeBottlesFromAddress;
 			maxBottlesFromAddressSpin.Sensitive = canChangeBottlesFromAddress;
