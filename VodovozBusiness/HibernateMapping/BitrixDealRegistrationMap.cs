@@ -3,10 +3,10 @@ using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
 namespace Vodovoz.HibernateMapping {
-    public class DealFromBitrixMap : ClassMap<BitrixDealRegistration> {
-        public DealFromBitrixMap()
+    public class BitrixDealRegistrationMap : ClassMap<BitrixDealRegistration> {
+        public BitrixDealRegistrationMap()
         {
-            Table("deals_from_bitrix");
+            Table("bitrix_deal_registration");
             Id(x => x.Id).Column("id");
             
             Map(x => x.Success).Column("success");
@@ -14,9 +14,9 @@ namespace Vodovoz.HibernateMapping {
             Map(x => x.ProcessedDate).Column("processed_date");
             Map(x => x.ErrorDescription).Column("exception_text");
             Map(x => x.BitrixId).Column("bitrix_id");
+            Map(x => x.NeedSync).Column("need_sync");
 
             References(x => x.Order).Column("order_id").Not.LazyLoad();
-
         }
     }
 }

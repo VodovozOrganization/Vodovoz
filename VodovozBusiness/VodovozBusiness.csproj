@@ -251,7 +251,7 @@
     <Compile Include="EntityRepositories\Online\BitrixRepository.cs" />
     <Compile Include="EntityRepositories\Online\IBitrixRepository.cs" />
     <Compile Include="HibernateMapping\Common\MeasurementUnitMap.cs" />
-    <Compile Include="HibernateMapping\DealFromBitrixMap.cs" />
+    <Compile Include="HibernateMapping\BitrixDealRegistrationMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
