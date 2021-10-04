@@ -873,7 +873,7 @@ WHERE
             <Width>55pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>116pt</Width>
+            <Width>110pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>52pt</Width>
@@ -882,10 +882,10 @@ WHERE
             <Width>72pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.6pt</Width>
+            <Width>35.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.7pt</Width>
+            <Width>35.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51pt</Width>
@@ -924,7 +924,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1010,7 +1010,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1027,7 +1027,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1044,8 +1044,8 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >9pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1062,7 +1062,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1079,7 +1079,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1097,7 +1097,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -1117,7 +1117,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -1136,7 +1136,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1166,8 +1166,8 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <PaddingBottom >2pt</PaddingBottom>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -1186,15 +1186,14 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox12">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
-                            <BorderColor  />
-                            <BorderWidth >
+                            <BorderColor />
+                            <BorderWidth>
                               <Top>1pt</Top>
                             </BorderWidth>
                           </Style>
@@ -1204,15 +1203,14 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox13">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
-                            <BorderColor  />
-                            <BorderWidth >
+                            <BorderColor />
+                            <BorderWidth>
                               <Top>1pt</Top>
                             </BorderWidth>
                           </Style>
@@ -1227,15 +1225,15 @@ WHERE
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1249,18 +1247,18 @@ WHERE
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <FontWeight>Bold</FontWeight>
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
-                            <FontSize >10pt</FontSize>
+                            <FontSize>10pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1273,14 +1271,14 @@ WHERE
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
@@ -1295,14 +1293,14 @@ WHERE
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
@@ -1316,14 +1314,14 @@ WHERE
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
@@ -1337,14 +1335,14 @@ WHERE
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
@@ -1359,17 +1357,17 @@ WHERE
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize >10pt</FontSize>
+                            <FontSize>10pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1377,17 +1375,16 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox25">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <BorderColor  />
-                            <BorderWidth >
+                            <BorderColor />
+                            <BorderWidth>
                               <Top>1pt</Top>
                             </BorderWidth>
                           </Style>
@@ -1399,17 +1396,16 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox55">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <BorderColor  />
-                            <BorderWidth >
+                            <BorderColor />
+                            <BorderWidth>
                               <Top>1pt</Top>
                             </BorderWidth>
                           </Style>
@@ -1426,17 +1422,17 @@ WHERE
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top >Solid</Top>
+                              <Top>Solid</Top>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Center</TextAlign>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth>
-                              <Top >1pt</Top>
+                              <Top>1pt</Top>
                             </BorderWidth>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize >9pt</FontSize>
+                            <FontSize>9pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1449,8 +1445,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox38">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1462,8 +1457,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox39">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1485,7 +1479,7 @@ WHERE
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1505,7 +1499,7 @@ WHERE
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize >10pt</FontSize>
+                            <FontSize>10pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1513,8 +1507,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox46">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1531,8 +1524,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox47">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1549,8 +1541,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox48">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1567,8 +1558,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox62">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1585,8 +1575,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox49">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1603,8 +1592,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox50">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1620,8 +1608,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox56">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1637,8 +1624,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox51">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1685,7 +1671,7 @@ WHERE
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1705,7 +1691,7 @@ WHERE
                         <Format>d</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -1746,7 +1732,7 @@ WHERE
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -1767,7 +1753,7 @@ WHERE
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1856,7 +1842,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1917,7 +1903,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1934,8 +1920,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1947,8 +1932,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1972,7 +1956,7 @@ WHERE
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1994,7 +1978,7 @@ WHERE
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2088,7 +2072,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2096,8 +2080,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2113,8 +2096,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2142,7 +2124,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2231,7 +2213,7 @@ ___________(                   )
           <BorderWidth />
           <TextAlign>Right</TextAlign>
           <FontWeight>Bold</FontWeight>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox20">
@@ -2248,8 +2230,8 @@ ___________(                   )
           <Format>0 шт.</Format>
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
-          <VerticalAlign >Middle</VerticalAlign>
-          <PaddingLeft >2pt</PaddingLeft>
+          <VerticalAlign>Middle</VerticalAlign>
+          <PaddingLeft>2pt</PaddingLeft>
         </Style>
       </Textbox>
       <Textbox Name="Textbox31">
@@ -2265,7 +2247,7 @@ ___________(                   )
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox32" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2281,8 +2263,8 @@ ___________(                   )
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
-          <VerticalAlign >Middle</VerticalAlign>
-          <PaddingLeft >2pt</PaddingLeft>
+          <VerticalAlign>Middle</VerticalAlign>
+          <PaddingLeft>2pt</PaddingLeft>
         </Style>
       </Textbox>
       <Textbox Name="Textbox33">
@@ -2298,7 +2280,7 @@ ___________(                   )
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2314,8 +2296,8 @@ ___________(                   )
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
-          <VerticalAlign >Middle</VerticalAlign>
-          <PaddingLeft >2pt</PaddingLeft>
+          <VerticalAlign>Middle</VerticalAlign>
+          <PaddingLeft>2pt</PaddingLeft>
         </Style>
       </Textbox>
       <Textbox Name="Textbox57">
@@ -2361,7 +2343,7 @@ ___________(                   )
           <BorderColor />
           <BorderWidth />
           <FontWeight>Normal</FontWeight>
-          <PaddingLeft >2pt</PaddingLeft>
+          <PaddingLeft>2pt</PaddingLeft>
         </Style>
         <CanGrow>true</CanGrow>
         <CanShrink>false</CanShrink>
@@ -2379,8 +2361,8 @@ ___________(                   )
           <BorderColor />
           <BorderWidth />
           <FontWeight>Normal</FontWeight>
-          <VerticalAlign >Top</VerticalAlign>
-          <PaddingLeft >2pt</PaddingLeft>
+          <VerticalAlign>Top</VerticalAlign>
+          <PaddingLeft>2pt</PaddingLeft>
         </Style>
         <CanGrow>true</CanGrow>
         <CanShrink>false</CanShrink>
@@ -2398,7 +2380,7 @@ ___________(                   )
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
         <Visibility>
           <Hidden>=!{?show_stock_bottle}</Hidden>
@@ -2418,7 +2400,7 @@ ___________(                   )
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
           <VerticalAlign>Middle</VerticalAlign>
-          <PaddingLeft >2pt</PaddingLeft>
+          <PaddingLeft>2pt</PaddingLeft>
         </Style>
         <Visibility>
           <Hidden>=!{?show_stock_bottle}</Hidden>
@@ -2471,8 +2453,7 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="delivery_point_id">
       <DataType>Integer</DataType>
@@ -2484,8 +2465,7 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
@@ -2497,8 +2477,7 @@ ___________(                   )
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
@@ -2510,8 +2489,7 @@ ___________(                   )
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="show_stock_bottle">
       <DataType>Boolean</DataType>
