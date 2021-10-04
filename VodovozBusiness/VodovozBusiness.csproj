@@ -111,8 +111,9 @@
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
-    <Compile Include="Domain\Logistic\CarEvent.cs" />
     <Compile Include="Domain\Logistic\Cars\Car.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarEvent.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarEventType.cs" />
     <Compile Include="Domain\Logistic\Cars\CarVersion.cs" />
     <Compile Include="Domain\Logistic\Cars\ManufacturerCars.cs" />
     <Compile Include="Domain\Logistic\Cars\ModelCar.cs" />
@@ -123,7 +124,6 @@
     <Compile Include="Domain\Logistic\DriverCarKind.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
-    <Compile Include="Domain\Logistic\CarEventType.cs" />
     <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionRecord.cs" />
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
@@ -283,13 +283,17 @@
     <Compile Include="HibernateMapping\FlyerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\CarEventMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarEventTypeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarOwnershipMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarVersionMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\ModelCarMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverCarKindMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverMobileAppActionRecordMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\CarEventTypeMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
@@ -491,7 +495,6 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
     <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\CarMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelTypeMap.cs" />

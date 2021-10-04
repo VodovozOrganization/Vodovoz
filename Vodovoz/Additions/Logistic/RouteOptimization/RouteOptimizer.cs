@@ -126,7 +126,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			// Создаем список поездок всех водителей. Тут перебираем всех водителей с машинами
 			// и создаем поездки для них, в зависимости от выбранного режима работы.
-			var trips = Drivers.Where(x => x.Car != null)
+			var trips = Drivers.Where(x => x.CarVersion != null)
 							   .OrderBy(x => x.PriorityAtDay)
 							   .SelectMany(drv => drv.DaySchedule != null
 												? drv.DaySchedule.Shifts.Where(s => s.StartTime >= drvStartTime && s.StartTime < drvEndTime)
@@ -210,13 +210,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
 			// Ниже заполняем все измерения для учета бутылей, веса, адресов, объема.
-			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
+			var bottlesCapacity = possibleRoutes.Select(x => (long)x.CarVersion.Car.MaxBottles).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles");
 
-			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight).ToArray();
+			var weightCapacity = possibleRoutes.Select(x => (long)x.CarVersion.Car.Model.MaxWeight).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
+			var volumeCapacity = possibleRoutes.Select(x => (long)(x.CarVersion.Car.Model.MaxVolume * 1000)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
 			var addressCapacity = possibleRoutes.Select(x => (long)(x.Driver.MaxRouteAddresses)).ToArray();
@@ -596,20 +596,20 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				AddWarning("Водителям {0} не будут назначены заказы, так как максимальное количество адресов у них меньше 1.",
 						   string.Join(", ", addressProblems.Select(x => x.ShortName)));
 
-			var bottlesProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxBottles < 1).ToList();
+			var bottlesProblems = trips.Select(x => x.CarVersion).Distinct().Where(x => x.Car.MaxBottles < 1).ToList();
 			if(bottlesProblems.Count > 1)
 				AddWarning("Автомобили {0} не смогут везти воду, так как максимальное количество бутылей у них меньше 1.",
-						   string.Join(", ", bottlesProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", bottlesProblems.Select(x => x.Car.RegistrationNumber)));
 
-			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxVolume < 1).ToList();
+			var volumeProblems = trips.Select(x => x.CarVersion).Distinct().Where(x => x.Car.Model.MaxVolume < 1).ToList();
 			if(volumeProblems.Count > 1)
 				AddWarning("Автомобили {0} смогут погрузить только безобъёмные товары, так как максимальный объём погрузки у них меньше 1.",
-						   string.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", volumeProblems.Select(x => x.Car.RegistrationNumber)));
 
-			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxWeight < 1).ToList();
+			var weightProblems = trips.Select(x => x.CarVersion).Distinct().Where(x => x.Car.Model.MaxWeight < 1).ToList();
 			if(weightProblems.Count > 1)
 				AddWarning("Автомобили {0} не смогут везти грузы, так как грузоподъёмность у них меньше 1 кг.",
-						   string.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));
+						   string.Join(", ", weightProblems.Select(x => x.Car.RegistrationNumber)));
 
 		}
 	}

@@ -16,7 +16,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.LitersOutlayed) .Column ("liters_outlayed");
 			Map (x => x.IsFine) 		.Column ("is_fine");
 
-			References (x => x.Car)	  .Column ("car_id");
+			References (x => x.CarVersion)	  .Column ("car_id");
 			References (x => x.Driver).Column ("driver_id");
 			References (x => x.Fuel)  .Column ("fuel_type_id");
 		}

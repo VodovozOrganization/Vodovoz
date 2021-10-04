@@ -40,7 +40,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(false);
 
 			Organization organisationMock = Substitute.For<Organization>();
@@ -63,7 +63,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -80,7 +80,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			AssertsAccumulator.Create
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelCoupons), "Количество топлива в операции не совпадает с количеством в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.PayedLiters, Is.EqualTo(fuelDocument.PayedLiters), "Количество топлива оплаченного деньгами не совпадает с количеством топлива оплаченного деньгами в документе"))
-				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Car, Is.Null, "Автомобиль не должен быть заполнен"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.CarVersion, Is.Null, "Автомобиль не должен быть заполнен"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Driver, Is.SameAs(fuelDocument.Driver), "Водитель в операции не совпадает с водителем в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Fuel, Is.SameAs(fuelDocument.Fuel), "Тип топлива в операции не совпадает с типом топлива в документе"))
 				.Release();
@@ -97,7 +97,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(true);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -120,7 +120,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -137,7 +137,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			AssertsAccumulator.Create
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelCoupons), "Количество топлива в операции не совпадает с количеством в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.PayedLiters, Is.EqualTo(fuelDocument.PayedLiters), "Количество топлива оплаченного деньгами не совпадает с количеством топлива оплаченного деньгами в документе"))
-				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Car, Is.SameAs(fuelDocument.Car), "Автомобиль в операции не совпадает с автомобилем в документе"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.CarVersion, Is.SameAs(fuelDocument.CarVersion), "Автомобиль в операции не совпадает с автомобилем в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Driver, Is.Null, "Водитель не должен быть заполнен"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Fuel, Is.SameAs(fuelDocument.Fuel), "Тип топлива в операции не совпадает с типом топлива в документе"))
 				.Release();
@@ -185,7 +185,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(true);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -208,7 +208,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -240,7 +240,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(false);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -263,7 +263,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -327,7 +327,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(true);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -350,7 +350,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -414,7 +414,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(true);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -437,7 +437,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -464,7 +464,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(true);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -487,7 +487,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -515,7 +515,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(true);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -538,7 +538,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -566,7 +566,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(false);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -589,7 +589,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
 			fuelDocument.FuelPaymentType = FuelPaymentType.Cash;
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;
@@ -631,7 +631,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
 
-			Car carMock = Substitute.For<Car>();
+			CarVersion carMock = Substitute.For<CarVersion>();
 			carMock.IsCompanyCar.Returns(false);
 			
 			Organization organisationMock = Substitute.For<Organization>();
@@ -654,7 +654,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
-			fuelDocument.Car = carMock;
+			fuelDocument.CarVersion = carMock;
 			fuelDocument.FuelPaymentType = FuelPaymentType.Cash;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;

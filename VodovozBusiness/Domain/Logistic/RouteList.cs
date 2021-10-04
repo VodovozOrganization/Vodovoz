@@ -124,24 +124,24 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref logistician, value, () => Logistician);
 		}
 
-		Car car;
+		CarVersion _carVersion;
 
 		[Display(Name = "Машина")]
-		public virtual Car Car {
-			get => car;
+		public virtual CarVersion CarVersion {
+			get => _carVersion;
 			set {
-				Car oldCar = car;
-				if(SetField(ref car, value, () => Car)) {
+				CarVersion oldCar = _carVersion;
+				if(SetField(ref _carVersion, value, () => CarVersion)) {
 					ChangeFuelDocumentsChangeCar(oldCar);
 
-					if(value?.Driver != null && value?.Driver.Status != EmployeeStatus.IsFired)
-						Driver = value.Driver;
+					if(value?.Car.Driver != null && value.Car.Driver.Status != EmployeeStatus.IsFired)
+						Driver = value.Car.Driver;
 
 					if(Id == 0) {
 						while(ObservableGeographicGroups.Any())
 							ObservableGeographicGroups.Remove(ObservableGeographicGroups.FirstOrDefault());
 						if(value != null)
-							foreach(var group in value.GeographicGroups)
+							foreach(var group in value.Car.GeographicGroups)
 								ObservableGeographicGroups.Add(group);
 					}
 				}
@@ -532,11 +532,11 @@ namespace Vodovoz.Domain.Logistic
 															  .Distinct()
 															  .Count();
 
-		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.CompanyTruck && Car.IsCompanyCar;
+		public virtual bool NeedMileageCheck => CarVersion.OwnershipCar == OwnershipCar.CompanyCar && CarVersion.Car.Model.CarTypeOfUse != CarTypeOfUse.Truck;
 
 		public virtual decimal PhoneSum {
 			get {
-				if(Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster)
+				if(CarVersion.OwnershipCar == OwnershipCar.CompanyCar && CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)
 					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
@@ -622,15 +622,15 @@ namespace Vodovoz.Domain.Logistic
 			return null;
 		}
 
-		public virtual void ChangeFuelDocumentsChangeCar(Car oldCar)
+		public virtual void ChangeFuelDocumentsChangeCar(CarVersion oldCar)
 		{
-			if(oldCar == null || Car == oldCar || !FuelDocuments.Any()) {
+			if(oldCar == null || CarVersion == oldCar || !FuelDocuments.Any()) {
 				return;
 			}
 
 			foreach(FuelDocument item in ObservableFuelDocuments) {
-				item.Car = Car;
-				item.FuelOperation.Car = Car;
+				item.CarVersion = CarVersion;
+				item.FuelOperation.CarVersion = CarVersion;
 			}
 		}
 
@@ -650,8 +650,8 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOutlayedOperation == null) {
 				return false;
 			}
-			var carDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Car != null && x.Car.Id != Car.Id)
-									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
+			var carDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.CarVersion != null && x.CarVersion.Id != CarVersion.Id)
+									   || (FuelOutlayedOperation.CarVersion != null && FuelOutlayedOperation.CarVersion.Id != CarVersion.Id);
 			var driverDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
 										  || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
 			return carDiff || driverDiff;
@@ -1021,8 +1021,8 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.Delivered && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
-					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
+					(Status == RouteListStatus.Delivered && (CarVersion.OwnershipCar == OwnershipCar.CompanyCar && CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || !NeedMileageCheckByWage))
+					|| (Status == RouteListStatus.Confirmed && (CarVersion.OwnershipCar == OwnershipCar.CompanyCar && CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Truck))
 					|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.Delivered
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
@@ -1131,8 +1131,8 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
-					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
+					(Status == RouteListStatus.EnRoute && (CarVersion.OwnershipCar == OwnershipCar.CompanyCar && CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || !NeedMileageCheckByWage))
+					|| (Status == RouteListStatus.Confirmed && (CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Truck))
 					|| Status == RouteListStatus.MileageCheck 
 					|| Status == RouteListStatus.Delivered
 					|| Status == RouteListStatus.Closed) {
@@ -1462,9 +1462,9 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
 
-			if(Car == null)
+			if(CarVersion == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.CarVersion) });
 
 			if(MileageComment?.Length > 500)
 			{
@@ -1488,7 +1488,7 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		private bool NeedMileageCheckByWage {
 			get {
-				if(Car.IsCompanyCar) {
+				if(CarVersion.OwnershipCar == OwnershipCar.CompanyCar) {
 					return true;
 				}
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
@@ -1810,11 +1810,11 @@ namespace Vodovoz.Domain.Logistic
 				if(FuelOutlayedOperation == null) {
 					FuelOutlayedOperation = new FuelOperation();
 				}
-				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * ConfirmedDistance;
+				decimal litresOutlayed = (decimal)CarVersion.Car.FuelConsumption / 100 * ConfirmedDistance;
 
-				FuelOutlayedOperation.Driver = Car.IsCompanyCar ? null : Driver;
-				FuelOutlayedOperation.Car = Car.IsCompanyCar ? Car : null;
-				FuelOutlayedOperation.Fuel = Car.FuelType;
+				FuelOutlayedOperation.Driver = CarVersion.OwnershipCar == OwnershipCar.CompanyCar ? null : Driver;
+				FuelOutlayedOperation.CarVersion = CarVersion.OwnershipCar == OwnershipCar.CompanyCar ? CarVersion : null;
+				FuelOutlayedOperation.Fuel = CarVersion.Car.FuelType;
 				FuelOutlayedOperation.OperationTime = Date;
 				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
 			}
@@ -1829,8 +1829,8 @@ namespace Vodovoz.Domain.Logistic
 				FuelOutlayedOperation = new FuelOperation() {
 					OperationTime = DateTime.Now,
 					Driver = this.Driver,
-					Car = this.Car,
-					Fuel = this.Car.FuelType
+					CarVersion = this.CarVersion,
+					Fuel = this.CarVersion.Car.FuelType
 				};
 			}
 
@@ -1839,13 +1839,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal GetLitersOutlayed()
 		{
-			return (decimal)Car.FuelConsumption
+			return (decimal)CarVersion.Car.FuelConsumption
 				/ 100 * this.ConfirmedDistance;
 		}
 
 		public virtual decimal GetLitersOutlayed(decimal km)
 		{
-			return (decimal)Car.FuelConsumption
+			return (decimal)CarVersion.Car.FuelConsumption
 				/ 100 * km;
 		}
 
@@ -2090,11 +2090,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual long TimeOnLoadMinuts {
-			get {
-				return Car.TypeOfUse == CarTypeOfUse.CompanyLargus ? 15 : 30;
-			}
-		}
+		public virtual long TimeOnLoadMinuts =>
+			CarVersion.OwnershipCar == OwnershipCar.CompanyCar && CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
 
 		public virtual long[] GenerateHashPointsOfRoute()
 		{
@@ -2112,17 +2109,23 @@ namespace Vodovoz.Domain.Logistic
 		/// <returns>Вес в килограммах</returns>
 		public virtual double GetTotalWeight() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
 														   .Sum(item => item.Order.FullWeight());
+
 		/// <summary>
 		/// Проверка на перегруз автомобиля
 		/// </summary>
 		/// <returns><c>true</c>, если автомобиль "Ларгус" или "раскат" и имеется его перегруз, <c>false</c> в остальных случаях.</returns>
-		public virtual bool HasOverweight() => Car != null && (Car.IsRaskat || Car.TypeOfUse == CarTypeOfUse.CompanyLargus || Car.TypeOfUse == CarTypeOfUse.CompanyGAZelle) && Car.MaxWeight < GetTotalWeight();
+		public virtual bool HasOverweight() => CarVersion != null && (CarVersion.OwnershipCar == OwnershipCar.RaskatCar ||
+		                                                              CarVersion.OwnershipCar == OwnershipCar.CompanyCar &&
+		                                                              CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Largus ||
+		                                                              CarVersion.OwnershipCar == OwnershipCar.CompanyCar &&
+		                                                              CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.GAZelle) &&
+		                                       CarVersion.Car.Model.MaxWeight < GetTotalWeight();
 
 		/// <summary>
 		/// Перегруз в килограммах
 		/// </summary>
 		/// <returns>Возрат значения перегруза в килограммах.</returns>
-		public virtual double Overweight() => HasOverweight() ? Math.Round(GetTotalWeight() - Car.MaxWeight, 2) : 0;
+		public virtual double Overweight() => HasOverweight() ? Math.Round(GetTotalWeight() - CarVersion.Car.Model.MaxWeight, 2) : 0;
 		#endregion Вес
 
 		#region Объём
@@ -2136,13 +2139,13 @@ namespace Vodovoz.Domain.Logistic
 		/// Проверка на превышение объёма груза автомобиля
 		/// </summary>
 		/// <returns><c>true</c>, если имеется превышение объёма, <c>false</c> в остальных случаях.</returns>
-		public virtual bool HasVolumeExecess() => Car.MaxVolume < GetTotalVolume();
+		public virtual bool HasVolumeExecess() => CarVersion.Car.Model.MaxVolume < GetTotalVolume();
 
 		/// <summary>
 		/// Величина, на оторую превышен объём груза
 		/// </summary>
 		/// <returns>Возрат значения превышения объёма груза в метрах кубических.</returns>
-		public virtual double VolumeExecess() => HasVolumeExecess() ? Math.Round(GetTotalVolume() - Car.MaxVolume, 3) : 0;
+		public virtual double VolumeExecess() => HasVolumeExecess() ? Math.Round(GetTotalVolume() - CarVersion.Car.Model.MaxVolume, 3) : 0;
 		#endregion Объём
 
 		/// <summary>

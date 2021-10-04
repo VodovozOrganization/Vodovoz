@@ -40,14 +40,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public bool DriverOfOurCar => rl.Car.IsCompanyCar;
+		public bool DriverOfOurCar => rl.CarVersion.OwnershipCar == OwnershipCar.CompanyCar;
 
-		public bool IsLargusOrGazelle => rl.Car.TypeOfUse.HasValue 
-			&& (rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyLargus || rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyGAZelle);
+		public bool IsLargusOrGazelle => rl.CarVersion.Car.Model.CarTypeOfUse.HasValue 
+			&& (rl.CarVersion.Car.Model.CarTypeOfUse.Value == CarTypeOfUse.Largus || rl.CarVersion.Car.Model.CarTypeOfUse.Value == CarTypeOfUse.GAZelle);
 
 		public DateTime RouteListDate => rl.Date;
 
-		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyTruck;
+		public bool IsTruck => rl.CarVersion.Car.Model.CarTypeOfUse.HasValue && rl.CarVersion.Car.Model.CarTypeOfUse.Value == CarTypeOfUse.Truck;
 
 		public int RouteListId => rl.Id;
 

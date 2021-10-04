@@ -94,10 +94,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 
 			// малотоннажник
-			bool isLightTonnage = Trip.Car.MaxBottles <= 55;
+			bool isLightTonnage = Trip.CarVersion.Car.MaxBottles <= 55;
 
-			bool isRightAddress = Nodes[second_index - 1].Bottles >= Trip.Car.MinBottlesFromAddress &&
-									Nodes[second_index - 1].Bottles <= Trip.Car.MaxBottlesFromAddress;
+			bool isRightAddress = Nodes[second_index - 1].Bottles >= Trip.CarVersion.Car.MinBottlesFromAddress &&
+									Nodes[second_index - 1].Bottles <= Trip.CarVersion.Car.MaxBottlesFromAddress;
 
 			long distance = 0;
 

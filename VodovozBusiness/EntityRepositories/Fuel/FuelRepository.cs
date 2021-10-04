@@ -143,7 +143,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 			return balance;
 		}
 		
-		public decimal GetFuelBalance(IUnitOfWork uow, Employee driver, Car car, DateTime? before = null, params int[] excludeOperationsIds)
+		public decimal GetFuelBalance(IUnitOfWork uow, Employee driver, CarVersion carVersion, DateTime? before = null, params int[] excludeOperationsIds)
 		{
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
@@ -155,9 +155,9 @@ namespace Vodovoz.EntityRepositories.Fuel
 				queryResult.Where(() => operationAlias.Driver.Id == driver.Id);
 			}
 
-			if(car != null)
+			if(carVersion != null)
 			{
-				queryResult.Where(() => operationAlias.Car.Id == car.Id);
+				queryResult.Where(() => operationAlias.CarVersion.Id == carVersion.Id);
 			}
 
 			if (before.HasValue)

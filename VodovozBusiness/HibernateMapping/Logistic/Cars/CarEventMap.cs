@@ -17,7 +17,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 
 			References(x => x.CarEventType).Column("car_event_type_id");
 			References(x => x.Author).Column("author_id");
-			References(x => x.Car).Column("car_id");
+			// References(x => x.Car).Column("car_id");
 			References(x => x.Driver).Column("driver_id");
 		}
 	}

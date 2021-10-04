@@ -144,7 +144,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				interactiveService.ShowMessage(
 					ImportanceLevel.Info,
 					"В отчёт попадают все МЛ, кроме тех, у которых:\n" +
-					$" - Тип автомобиля '{Domain.Logistic.Cars.CarTypeOfUse.CompanyTruck.GetEnumTitle()}'\n" +
+					$" - Тип автомобиля '{Domain.Logistic.Cars.CarTypeOfUse.Truck.GetEnumTitle()}'\n" +
 					" - Водитель является выездным мастером\n\n" +
 					"Планирумая ЗП водителя считается только для незакрытых МЛ\n" +
 					"Фактическая - только для закрытых\n" +
@@ -216,14 +216,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			District districtAlias = null;
 			RouteList routeListAlias2 = null;
 			WagesMovementOperations driverWageOperationAlias2 = null;
-
+			CarVersion carVersionAlias = null;
+			ModelCar modelCarAlias = null;
+			
 			#endregion
 
 			#region Joins & Filters
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Inner.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Inner.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Inner.JoinAlias(() => routeListAlias.CarVersion, () => carVersionAlias)
 				.JoinEntityAlias(
 					() => driverWageOperationAlias,
 					() => routeListAlias.Status == RouteListStatus.Closed
@@ -234,7 +236,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => carVersionAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.Model, () => modelCarAlias);
 
 			if(startDate != null)
 			{
@@ -250,14 +254,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			if(carTypeOfUse != null)
 			{
-				query.Where(() => carAlias.TypeOfUse == carTypeOfUse);
+				query.Where(() => modelCarAlias.CarTypeOfUse == carTypeOfUse);
 			}
 			if(isRaskat != null)
 			{
-				query.Where(() => carAlias.IsRaskat == isRaskat);
+				query.Where(() => carVersionAlias.OwnershipCar == OwnershipCar.RaskatCar);
 			}
 
-			query.Where(() => carAlias.TypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.CompanyTruck);
+			query.Where(() => modelCarAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck);
 			query.Where(() => !driverAlias.VisitingMaster);
 
 			#endregion
@@ -298,9 +302,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 				.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
 				.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-				.Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.CarIsRaskat)
+				.Select(() => carVersionAlias.OwnershipCar == OwnershipCar.RaskatCar).WithAlias(() => resultAlias.CarIsRaskat)
 				.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegNumber)
-				.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				.Select(() => modelCarAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.OrderItemsCount)
 				.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultAlias.OrderItemsActualCount)
 				.Select(() => nomenclatureAlias.TareVolume).WithAlias(() => resultAlias.NomecnaltureTareVolume)
@@ -828,7 +832,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Where(x => 
 						x.Driver.Id == driverInfoNode.DriverId
 						&& x.Date == driverInfoNode.RouteListDate
-						&& x.Car.RegistrationNumber == driverInfoNode.CarRegNumber)
+						&& x.CarVersion.Car.RegistrationNumber == driverInfoNode.CarRegNumber)
 					.Sum(x => x.GetDriversTotalWage());
 			}
 

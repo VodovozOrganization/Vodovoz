@@ -60,8 +60,8 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Driver.ShortName)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyCar ? _vodovozCarIcon : null)
-					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
+					.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.CarVersion != null && (x.Document as RouteListPrintableDocs).routeList.CarVersion.IsCompanyCar ? _vodovozCarIcon : null)
+					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.CarVersion != null ? (x.Document as RouteListPrintableDocs).routeList.CarVersion.Car.RegistrationNumber : "нет")
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
 				.AddColumn("Время печати")
@@ -166,7 +166,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var ggIds = _geographicGroups.Select(x => x.Id).ToList();
 			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(_uow.Session);
 			_routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
-							   .Fetch(SelectMode.Fetch, x => x.Car)
+							   .Fetch(SelectMode.Fetch, x => x.CarVersion)
 							   .List()
 							   .Select(x => new SelectablePrintDocument(new RouteListPrintableDocs(_uow, x, RouteListPrintableDocuments.RouteList)))
 							   .OrderBy(x => (x.Document as RouteListPrintableDocs).routeList.Driver.LastName)

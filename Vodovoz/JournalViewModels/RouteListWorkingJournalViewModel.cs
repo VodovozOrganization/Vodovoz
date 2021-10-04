@@ -98,7 +98,7 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.Car, () => carAlias)
+				.Left.JoinAlias(o => o.CarVersion, () => carAlias)
 				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias);
 
@@ -228,7 +228,7 @@ namespace Vodovoz.JournalViewModels
 					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					   .Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
 					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
-					   .Select(() => carAlias.TypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
+					   .Select(() => carAlias.TypeOfUse).WithAlias(() => routeListJournalNodeAlias.OwnershipCar)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 

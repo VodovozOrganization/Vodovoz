@@ -532,8 +532,8 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCarsActivated(object sender, EventArgs e)
     {
-        CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
-        var carJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+	    CarVersionFilterViewModel filter = new CarVersionFilterViewModel();
+        var carJournal = new CarVersionJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
         tdiMain.AddTab(carJournal);
     }
 
@@ -2211,7 +2211,7 @@ public partial class MainWindow : Gtk.Window
 						IncludeArchive = false,
 						VisitingMasters = AllYesNo.No,
 						RestrictedCarTypesOfUse = new List<CarTypeOfUse>(
-							new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.DriverCar })
+							new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle})
 					};
 					filter.SetFilterSensitivity(false);
 					filter.CanChangeRaskat = true;

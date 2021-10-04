@@ -31,7 +31,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public Employee Forwarder => OldRoute != null ? OldRoute.Forwarder : atWorkDriver.WithForwarder?.Employee;
 
-		public Car Car => OldRoute != null ? OldRoute.Car : atWorkDriver.Car;
+		public CarVersion CarVersion => OldRoute != null ? OldRoute.CarVersion : atWorkDriver.CarVersion;
 
 		public GeographicGroup GeographicGroup => OldRoute != null ? OldRoute.GeographicGroups.FirstOrDefault() : atWorkDriver.GeographicGroup;
 

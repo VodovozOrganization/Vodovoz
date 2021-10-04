@@ -8,23 +8,17 @@ namespace Vodovoz.HibernateMapping
 	{
 		public CarMap ()
 		{
-			Table("cars");
+			Table("new_cars");
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 
-			Map(x => x.Model)                  .Column ("model");
 			Map(x => x.RegistrationNumber)     .Column ("reg_number");
 			Map(x => x.FuelConsumption)        .Column ("fuel_consumption");
-			Map(x => x.IsArchive)              .Column ("is_archive");
 			Map(x => x.Photo)                  .Column ("photo").CustomSqlType ("BinaryBlob").LazyLoad ();
-			Map(x => x.TypeOfUse)              .Column ("type_of_use").CustomType<CarTypeOfUseStringType>();
-			Map(x => x.MaxVolume)              .Column ("max_volume");
-			Map(x => x.MaxWeight)              .Column ("max_weight");
 			Map(x => x.MinBottles)             .Column ("min_bottles");
 			Map(x => x.MaxBottles)             .Column ("max_bottles");
 			Map(x => x.MinBottlesFromAddress)  .Column("min_bottles_from_address");
 			Map(x => x.MaxBottlesFromAddress)  .Column("max_bottles_from_address");
-			Map(x => x.IsRaskat)               .Column ("is_raskat");
 			Map(x => x.VIN)                    .Column ("VIN");
 			Map(x => x.ManufactureYear)        .Column ("manufacture_year");
 			Map(x => x.MotorNumber)            .Column ("motor_number");
@@ -39,14 +33,13 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DocPTSNumber)           .Column ("doc_pts_num");
 			Map(x => x.DocPTSSeries)           .Column ("doc_pts_series");
 			Map(x => x.OrderNumber)            .Column ("car_order_number");
-			Map(x => x.RaskatType)			   .Column("raskat_type").CustomType<RaskatTypeStringType>();
-
 			References(x => x.Driver)          .Column("driver_id");
 			References(x => x.FuelType)        .Column("fuel_type_id");
 			References(x => x.DriverCarKind)   .Column("driver_car_kind_id");
+			References(x => x.Model)                  .Column ("car_model_id");
 			
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("car_id");
-
+			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id").LazyLoad();
 			HasManyToMany(x => x.GeographicGroups)
 				.Table("geographic_groups_to_entities")
 				.ParentKeyColumn("car_id")

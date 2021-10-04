@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
         public string ClosinComments { get; set; }
         public string ClosingSubdivision { get; set; }
         public bool NotFullyLoaded { get; set; }
-        public CarTypeOfUse CarTypeOfUse { get; set; }
-        public bool UsesCompanyCar => !CarTypeOfUse.Equals(CarTypeOfUse.DriverCar);
+        public OwnershipCar OwnershipCar { get; set; }
+        public bool UsesCompanyCar => OwnershipCar.Equals(OwnershipCar.CompanyCar);
     }
 }

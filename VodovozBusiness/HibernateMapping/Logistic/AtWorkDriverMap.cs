@@ -22,7 +22,7 @@ namespace Vodovoz.HibernateMapping
 			
 
 			References(x => x.Employee).Column("employee_id");
-			References(x => x.Car).Column("car_id");
+			References(x => x.CarVersion).Column("car_id");
 			References(x => x.DaySchedule).Column("delivery_day_schedule_id");
 			References(x => x.WithForwarder).Column("forwarder_id");
 			References(x => x.GeographicGroup).Column("geographic_group_id");

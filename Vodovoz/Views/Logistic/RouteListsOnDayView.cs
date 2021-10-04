@@ -123,14 +123,14 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>
 				.Create()
 					.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
-					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
-						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.CarVersion != null && x.CarVersion.IsCompanyCar ? vodovozCarIcon : null)
+						.AddTextRenderer(x => x.CarVersion != null ? x.CarVersion.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
 						.FillItems(ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
 						.AddSetter(
 							(c, n) => {
-								c.Editable = n.Car != null;
-								c.BackgroundGdk = n.GeographicGroup == null && n.Car != null
+								c.Editable = n.CarVersion != null;
+								c.BackgroundGdk = n.GeographicGroup == null && n.CarVersion != null
 									? colorLightRed
 									: colorWhite;
 							}
@@ -652,7 +652,7 @@ namespace Vodovoz.Views.Logistic
 					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
 				carrierInfo = string.Concat(
 					carrierInfo,
-					string.Format("; {0} кг; {1} куб.м.", route.Car?.MaxWeight, route.Car?.MaxVolume)
+					string.Format("; {0} кг; {1} куб.м.", route.CarVersion?.Car.Model.MaxWeight, route.CarVersion?.Car.Model.MaxVolume)
 				);
 				var item = new MenuItemId<RouteList>(carrierInfo) {
 					ID = route
@@ -880,7 +880,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			var SelectDriverCar = new OrmReference(
 				ViewModel.UoW,
-				ViewModel.CarRepository.ActiveCompanyCarsQuery()
+				ViewModel.CarRepository.ActiveCompanyCarVersionsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;
@@ -891,7 +891,7 @@ namespace Vodovoz.Views.Logistic
 
 		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			ViewModel.SelectCarForDriver(e.Tag as AtWorkDriver, e.Subject as Car);
+			ViewModel.SelectCarForDriver(e.Tag as AtWorkDriver, e.Subject as CarVersion);
 		}
 
 		void OnLoadTimeEdited(object o, EditedArgs args)

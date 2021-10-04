@@ -63,7 +63,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = string.Format("Контроль за километражем маршрутного листа №{0}", Entity.Id);
 			var canConfirmMileage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
-			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
+			editing &= canConfirmMileage || !(Entity.CarVersion.Car.Model.CarTypeOfUse.HasValue && Entity.CarVersion.IsCompanyCar && new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.CarVersion.Car.Model.CarTypeOfUse.Value));
 
 			ConfigureDlg();
 		}
@@ -82,7 +82,7 @@ namespace Vodovoz
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.CarVersion, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			referenceDriver.RepresentationModel = new EmployeesVM();
@@ -171,7 +171,7 @@ namespace Vodovoz
 			}
 			
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.CarVersion.IsCompanyCar && Entity.CarVersion.Car.Model.CarTypeOfUse != CarTypeOfUse.Truck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			Entity.CalculateWages(_wageParameterService);
 
@@ -195,7 +195,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.CarVersion.IsCompanyCar && Entity.CarVersion.Car.Model.CarTypeOfUse != CarTypeOfUse.Truck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			Entity.AcceptMileage(CallTaskWorker);
 

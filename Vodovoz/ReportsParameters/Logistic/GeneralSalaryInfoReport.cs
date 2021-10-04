@@ -55,7 +55,7 @@ namespace Vodovoz.ReportsParameters.Logistic
             comboCategory.AddEnumToHideList(new Enum[] {EmployeeCategory.office});
 
             comboDriverOf.ItemsEnum = typeof(CarTypeOfUse);
-            comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.CompanyTruck});
+            comboDriverOf.AddEnumToHideList(new Enum[] {CarTypeOfUse.Truck});
             comboDriverOf.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
             entryEmployee.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
@@ -171,7 +171,7 @@ namespace Vodovoz.ReportsParameters.Logistic
                     return;
                 }
 
-                if (empl.DriverOf == CarTypeOfUse.CompanyTruck)
+                if (empl.DriverOf == CarTypeOfUse.Truck)
                 {
                     _interactiveService.ShowMessage(ImportanceLevel.Warning,
                         "Нельзя выбрать водителя, управляющего фурой");

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
@@ -21,6 +20,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 			get => _car;
 			set => SetField(ref _car, value); 
 		}
+
+		[Display(Name = "Имущество компании")] public virtual bool IsCompanyCar => OwnershipCar == OwnershipCar.CompanyCar;
+		
+		public virtual bool IsRaskat => OwnershipCar == OwnershipCar.RaskatCar;
 	}
 
 	public enum OwnershipCar
@@ -31,5 +34,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 		RaskatCar,
 		[Display(Name = "ТС наёмников")]
 		HiredCar
+	}
+	
+	public class OwnershipCarStringType : NHibernate.Type.EnumStringType
+	{
+		public OwnershipCarStringType() : base(typeof(OwnershipCar)) { }
 	}
 }

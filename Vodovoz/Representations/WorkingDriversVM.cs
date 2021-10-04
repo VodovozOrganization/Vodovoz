@@ -59,11 +59,11 @@ namespace Vodovoz.ViewModel
 
 			var result = query
 				.JoinAlias(rl => rl.Driver, () => driverAlias)
-				.JoinAlias(rl => rl.Car, () => carAlias)
+				.JoinAlias(rl => rl.CarVersion, () => carAlias)
 
 				.Where(rl => rl.Status == RouteListStatus.EnRoute)
 				.Where(rl => rl.Driver != null)
-				.Where(rl => rl.Car != null)
+				.Where(rl => rl.CarVersion != null)
 
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)

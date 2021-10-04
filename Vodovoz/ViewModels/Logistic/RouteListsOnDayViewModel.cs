@@ -235,7 +235,7 @@ namespace Vodovoz.ViewModels.Logistic
 					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
-						var allCars = CarRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+						var allCars = CarRepository.GetCarVersionsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 						foreach(var n in selectedNodes) {
 							var drv = UoW.GetById<Employee>(n.Id);
@@ -250,7 +250,7 @@ namespace Vodovoz.ViewModels.Logistic
 							var driver = new AtWorkDriver(
 									drv,
 									DateForRouting,
-									allCars.FirstOrDefault(x => x.Driver.Id == n.Id),
+									allCars.FirstOrDefault(x => x.Car.Driver.Id == n.Id),
 									daySchedule
 								);
 
@@ -635,7 +635,7 @@ namespace Vodovoz.ViewModels.Logistic
 				return string.Format("МЛ №{0} - {1}({2})",
 					rl.Id,
 					rl.Driver.ShortName,
-					rl.Car.RegistrationNumber
+					rl.CarVersion.Car.RegistrationNumber
 				);
 			}
 			if(row is RouteListItem rli)
@@ -693,7 +693,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var bottles = rl.Addresses.Sum(x => x.Order.Total19LBottlesToDeliver);
-				return FormatOccupancy(bottles, rl.Car.MinBottles, rl.Car.MaxBottles);
+				return FormatOccupancy(bottles, rl.CarVersion.Car.MinBottles, rl.CarVersion.Car.MaxBottles);
 			}
 
 			if(row is RouteListItem rli)
@@ -725,7 +725,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
-				return FormatOccupancy(weight, null, rl.Car.MaxWeight);
+				return FormatOccupancy(weight, null, rl.CarVersion.Car.Model.MaxWeight);
 			}
 
 			if(row is RouteListItem rli)
@@ -737,7 +737,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var volume = rl.Addresses.Sum(x => x.Order.TotalVolume);
-				return FormatOccupancy(volume, null, rl.Car.MaxVolume);
+				return FormatOccupancy(volume, null, rl.CarVersion.Car.Model.MaxVolume);
 			}
 
 			if(row is RouteListItem rli)
@@ -964,10 +964,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(drivers.Count > 0) {
 				foreach(var driver in drivers) {
-					var car = CarRepository.GetCarByDriver(UoW, driver);
+					var car = CarRepository.GetCarVersionByDriver(UoW, driver);
 
 					if(car != null)
-						totalBottles += car.MaxBottles;
+						totalBottles += car.Car.MaxBottles;
 
 					totalAddresses += driver.MaxRouteAddresses;
 				}
@@ -1054,7 +1054,7 @@ namespace Vodovoz.ViewModels.Logistic
 			bool volExcess = routeList.HasVolumeExecess();
 
 			if(overweight || volExcess) {
-				StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", routeList.Car.Title, routeList.Id));
+				StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", routeList.CarVersion.Car.Title, routeList.Id));
 				if(overweight)
 					warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", routeList.Overweight()));
 				if(volExcess)
@@ -1108,7 +1108,7 @@ namespace Vodovoz.ViewModels.Logistic
 					route.RecalculatePlanedDistance(DistanceCalculator);
 					var noPlan = route.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)
-						warnings.Add($"Для маршрута №{route.Id} - {route.Driver?.ShortName}({route.Car?.RegistrationNumber}) незапланировано {noPlan} адресов.");
+						warnings.Add($"Для маршрута №{route.Id} - {route.Driver?.ShortName}({route.CarVersion?.Car.RegistrationNumber}) незапланировано {noPlan} адресов.");
 				} else {
 					warnings.Add($"Маршрут {route.Id} не был перестроен.");
 				}
@@ -1290,7 +1290,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CreateRoutesAutomatically(Action<string> statisticsUpdateAction)
 		{
-			if(DriversOnDay.Any(d => d.Car != null && d.GeographicGroup == null)) {
+			if(DriversOnDay.Any(d => d.CarVersion != null && d.GeographicGroup == null)) {
 				ShowWarningMessage("Не всем автомобилям назначена \"База\" для погрузки-разгрузки. Пожалуйста укажите.");
 				return false;
 			}
@@ -1314,7 +1314,7 @@ namespace Vodovoz.ViewModels.Logistic
 				foreach(var propose in optimizer.ProposedRoutes) {
 					var rl = propose.Trip.OldRoute ?? new RouteList();
 					rl.UoW = UoW;
-					rl.Car = propose.Trip.Car;
+					rl.CarVersion = propose.Trip.CarVersion;
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;
 					rl.Date = DateForRouting;
@@ -1341,21 +1341,21 @@ namespace Vodovoz.ViewModels.Logistic
 			return true;
 		}
 
-		public void SelectCarForDriver(AtWorkDriver driver, Car car)
+		public void SelectCarForDriver(AtWorkDriver driver, CarVersion carVersion)
 		{
-			var driverNames = string.Join("\", \"", DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).Select(x => x.Employee.ShortName));
+			var driverNames = string.Join("\", \"", DriversOnDay.Where(x => x.CarVersion != null && x.CarVersion.Id == carVersion.Id).Select(x => x.Employee.ShortName));
 			if(
 				string.IsNullOrEmpty(driverNames) || AskQuestion(
 					string.Format(
 						"Автомобиль \"{0}\" уже назначен \"{1}\". Переназначить его водителю \"{2}\"?",
-						car.RegistrationNumber,
+						carVersion.Car.RegistrationNumber,
 						driverNames,
 						driver.Employee.ShortName
 					)
 				)
 			) {
-				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
-				driver.Car = car;
+				DriversOnDay.Where(x => x.CarVersion != null && x.CarVersion.Id == carVersion.Id).ToList().ForEach(x => { x.CarVersion = null; x.GeographicGroup = null; });
+				driver.CarVersion = carVersion;
 			}
 		}
 

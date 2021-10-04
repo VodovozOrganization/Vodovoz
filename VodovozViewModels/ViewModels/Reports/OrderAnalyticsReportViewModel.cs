@@ -255,7 +255,7 @@ namespace Vodovoz.ViewModels.Reports
                 .Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
                 .JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
                 .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-                .Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+                .Left.JoinAlias(() => routeListAlias.CarVersion, () => carAlias)
                 .Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
                 .Left.JoinAlias(() => routeListAlias.Forwarder, () => forwarderAlias);
 

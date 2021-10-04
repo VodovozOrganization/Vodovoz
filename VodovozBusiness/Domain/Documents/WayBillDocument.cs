@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -64,11 +65,11 @@ namespace Vodovoz.Domain.Documents
             set => SetField(ref organizationName, value);
         }
         
-        string carModel;
+        ModelCar _carModel;
         [Display (Name = "Модель автомобиля")]
-        public virtual string CarModel {
-            get => carModel;
-            set => SetField(ref carModel, value);
+        public virtual ModelCar CarModel {
+            get => _carModel;
+            set => SetField(ref _carModel, value);
         }
         
         string carRegistrationNumber;

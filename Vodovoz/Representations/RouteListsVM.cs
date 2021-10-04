@@ -171,7 +171,7 @@ namespace Vodovoz.ViewModel
 			
 			var result = query
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.Car, () => carAlias)
+				.Left.JoinAlias(o => o.CarVersion, () => carAlias)
 				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)

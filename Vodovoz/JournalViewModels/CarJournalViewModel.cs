@@ -37,7 +37,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel != null) {
 				if(!FilterViewModel.IncludeArchive) {
-					query.Where(c => !c.IsArchive);
+					query.Where(c => !c.Model.IsArchive);
 				}
 
 				switch(FilterViewModel.VisitingMasters) {
@@ -53,23 +53,23 @@ namespace Vodovoz.JournalViewModels
 						break;
 				}
 				
-				switch(FilterViewModel.Raskat) {
-					case AllYesNo.All:
-						break;
-					case AllYesNo.Yes:
-						query.Where(() => carAlias.IsRaskat);
-						break;
-					case AllYesNo.No:
-						query.Where(() => !carAlias.IsRaskat);
-						break;
-				}
+				// switch(FilterViewModel.Raskat) {
+				// 	case AllYesNo.All:
+				// 		break;
+				// 	case AllYesNo.Yes:
+				// 		query.Where(() => carAlias.IsRaskat);
+				// 		break;
+				// 	case AllYesNo.No:
+				// 		query.Where(() => !carAlias.IsRaskat);
+				// 		break;
+				// }
 
 				if(FilterViewModel.RestrictedCarTypesOfUse != null) {
 					if(!FilterViewModel.RestrictedCarTypesOfUse.Any()) {
 						query.Where(Restrictions.IsNull(Projections.Property(() => carAlias.Id)));
 					}
 					else {
-						query.WhereRestrictionOn(c => c.TypeOfUse)
+						query.WhereRestrictionOn(c => c.Model.CarTypeOfUse)
 							.IsIn(FilterViewModel.RestrictedCarTypesOfUse.ToArray());
 					}
 				}
@@ -88,7 +88,7 @@ namespace Vodovoz.JournalViewModels
 			.Select(c => c.Id).WithAlias(() => carJournalNodeAlias.Id)
 			.Select(c => c.Model).WithAlias(() => carJournalNodeAlias.Model)
 			.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
-			.Select(c => c.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
+			.Select(c => c.Model.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
 			.Select(Projections.SqlFunction(
 					   new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
 					   NHibernateUtil.String,

@@ -34,6 +34,20 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _model, value);
 		}
 
+		private IList<CarVersion> _carVersions = new List<CarVersion>();
+
+		public IList<CarVersion> CarVersions
+		{
+			get => _carVersions;
+			set => SetField(ref _carVersions, value);
+		}
+
+		private GenericObservableList<CarVersion> _observableCarVersions;
+
+		public virtual GenericObservableList<CarVersion> ObservableCarVersions => _observableCarVersions ??
+		                                                                             (_observableCarVersions = new GenericObservableList<CarVersion>(CarVersions));
+
+
 		string registrationNumber;
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber {
@@ -253,9 +267,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
 		public virtual bool CanEditFuelCardNumber => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
 
-		[Display(Name = "Имущество компании")] public virtual bool IsCompanyCar => true; //TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);
+		public virtual CarVersion GetActiveCarVersion(DateTime? activationTime = null)
+		{
+			if(activationTime.HasValue)
+				return ObservableCarVersions.SingleOrDefault(x =>
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+			return ObservableCarVersions.SingleOrDefault(x =>
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+		}
+		//TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);
 
-		public static CarTypeOfUse[] GetCompanyHavingsTypes() => new CarTypeOfUse[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyTruck };
+		public static CarTypeOfUse[] GetCompanyHavingsTypes() => new CarTypeOfUse[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus, CarTypeOfUse.Truck };
 
 		public Car()
 		{
@@ -309,14 +331,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 	public enum CarTypeOfUse
 	{
-		[Display(Name = "Ларгус компании")]
-		CompanyLargus,
-		[Display(Name = "Фура компании")]
-		CompanyTruck,
-		[Display(Name = "ГАЗель компании")]
-		CompanyGAZelle,
-		[Display(Name = "Автомобиль водителя")]
-		DriverCar
+		[Display(Name = "Ларгус")]
+		Largus,
+		[Display(Name = "Фура")]
+		Truck,
+		[Display(Name = "ГАЗель")]
+		GAZelle
 	}
 
 	public enum RaskatType

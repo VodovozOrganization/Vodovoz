@@ -142,17 +142,17 @@ namespace Vodovoz
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.CarVersion, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.ChangedByUser += (sender, e) =>
 			{
-				if(Entity.Car != null)
+				if(Entity.CarVersion != null)
 				{
-					Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.Car.Driver : null;
-					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
+					Entity.Driver = (Entity.CarVersion.Car.Driver != null && Entity.CarVersion.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.CarVersion.Car.Driver : null;
+					referenceDriver.Sensitive = Entity.Driver == null || Entity.CarVersion.IsCompanyCar;
 					//Водители на Авто компании катаются без экспедитора
-					Entity.Forwarder = Entity.Car.IsCompanyCar ? null : Entity.Forwarder;
-					referenceForwarder.IsEditable = !Entity.Car.IsCompanyCar;
+					Entity.Forwarder = Entity.CarVersion.IsCompanyCar ? null : Entity.Forwarder;
+					referenceForwarder.IsEditable = !Entity.CarVersion.IsCompanyCar;
 				}
 			};
 
@@ -420,12 +420,12 @@ namespace Vodovoz
 					ServicesConfig.CommonServices.UserService,
 					SingletonErrorReporter.Instance);
 
-				if(Entity.Car == null)
+				if(Entity.CarVersion == null)
 				{
 					MessageDialogHelper.RunWarningDialog("Не заполнен автомобиль");
 					return;
 				}
-				StringBuilder warningMsg = new StringBuilder($"Автомобиль '{ Entity.Car.Title }':");
+				StringBuilder warningMsg = new StringBuilder($"Автомобиль '{ Entity.CarVersion.Car.Title }':");
 				if(Entity.HasOverweight())
 				{
 					warningMsg.Append($"\n\t- перегружен на { Entity.Overweight() } кг");
@@ -496,7 +496,7 @@ namespace Vodovoz
 
 					Save();
 
-					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck && !Entity.NeedToLoad)
+					if(Entity.CarVersion.IsCompanyCar && Entity.CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.Truck && !Entity.NeedToLoad)
 					{
 						if(MessageDialogHelper.RunQuestionDialog(
 							"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
@@ -573,9 +573,9 @@ namespace Vodovoz
 				Entity.ObservableGeographicGroups.Remove(Entity.ObservableGeographicGroups.FirstOrDefault());
 			}
 
-			if(Entity.Car != null)
+			if(Entity.CarVersion != null)
 			{
-				foreach(var group in Entity.Car.GeographicGroups)
+				foreach(var group in Entity.CarVersion.Car.GeographicGroups)
 				{
 					Entity.ObservableGeographicGroups.Add(group);
 				}

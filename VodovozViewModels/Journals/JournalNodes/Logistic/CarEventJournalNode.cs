@@ -29,31 +29,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 			{
 				switch(CarTypeOfUse)
 				{
-					case CarTypeOfUse.CompanyGAZelle:
+					case CarTypeOfUse.GAZelle:
 						return "ГК";
 
-					case CarTypeOfUse.CompanyLargus:
+					case CarTypeOfUse.Largus:
 						return "ЛК";
-
-					case CarTypeOfUse.DriverCar:
-					{
-						if(IsRaskat)
-						{
-							switch(CarRaskatType)
-							{
-								case RaskatType.RaskatGazelle:
-									return "НРГ";
-								case RaskatType.RaskatLargus:
-									return "НРЛ";
-							}
-
-							break;
-						}
-						else
-						{
-							return "Н";
-						}
-					}
 				}
 
 				return CarTypeOfUse.GetEnumTitle();

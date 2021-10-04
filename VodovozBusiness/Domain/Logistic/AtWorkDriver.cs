@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class AtWorkDriver : AtWorkBase
 	{
-		private Car car;
+		private CarVersion _carVersion;
 		
 		public enum DriverStatus
 		{
@@ -22,9 +22,9 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Автомобиль")]
-		public virtual Car Car {
-			get => car;
-			set => SetField(ref car, value, () => Car);
+		public virtual CarVersion CarVersion {
+			get => _carVersion;
+			set => SetField(ref _carVersion, value);
 		}
 
 		private short priorityAtDay;
@@ -152,12 +152,12 @@ namespace Vodovoz.Domain.Logistic
 
 		protected AtWorkDriver() { }
 
-		public AtWorkDriver(Employee driver, DateTime date, Car car, DeliveryDaySchedule daySchedule = null)
+		public AtWorkDriver(Employee driver, DateTime date, CarVersion carVersion, DeliveryDaySchedule daySchedule = null)
 		{
 			Date = date;
 			Employee = driver;
 			priorityAtDay = driver.TripPriority;
-			this.car = car;
+			_carVersion = carVersion;
 			DaySchedule = daySchedule;
 
 			var activePrioritySet = driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
@@ -166,8 +166,8 @@ namespace Vodovoz.Domain.Logistic
 					activePrioritySet.DriverDistrictPriorities.Select(x => x.CreateAtDay(this))
 				);
 			}
-			if(car?.GeographicGroups.Count() == 1) {
-				this.GeographicGroup = car.GeographicGroups[0];
+			if(carVersion?.Car?.GeographicGroups.Count() == 1) {
+				GeographicGroup = carVersion.Car.GeographicGroups[0];
 			}
 		}
 

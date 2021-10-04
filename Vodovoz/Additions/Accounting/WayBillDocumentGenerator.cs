@@ -173,17 +173,18 @@ namespace Vodovoz.Additions.Accounting
                 .WhereStringIsNotNullOrEmpty(x => x.DrivingLicense)
                 .And(x => x.Registration == RegistrationType.LaborCode)
                 .List();
-            
-            var cars = uow.Session.QueryOver<Car>()
-                .And(Restrictions.On<Car>(x => x.TypeOfUse)
-                    .IsIn(new[] {CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle}))
-                .List<Car>();
+
+            var carsVersions = uow.Session.QueryOver<CarVersion>()
+	            .And(Restrictions.On<CarVersion>(x => x.OwnershipCar)
+		            .IsIn(new[] { OwnershipCar.CompanyCar }))
+	            .And(x => x.Car.Model.CarTypeOfUse == CarTypeOfUse.Largus || x.Car.Model.CarTypeOfUse == CarTypeOfUse.GAZelle)
+	            .List<CarVersion>();
             
             //Распределяем автомобили на сотрудников
-            var employeeToCars = new Dictionary<Employee, Car>();
-            Stack<Car> carsStack = new Stack<Car>(cars);
+            var employeeToCars = new Dictionary<Employee, CarVersion>();
+            Stack<CarVersion> carsStack = new Stack<CarVersion>(carsVersions);
             
-            if (cars.Count < manOfficialWithCarEmployeers.Count)
+            if (carsVersions.Count < manOfficialWithCarEmployeers.Count)
             {
                 MessageDialogHelper.RunWarningDialog("Количество водителей больше количества автомобилей");
                 return;
@@ -208,7 +209,7 @@ namespace Vodovoz.Additions.Accounting
             }
         }
 
-        private void GenerateWayBill(IList<Order> orders, int waypointsCount, DateTime generationDate, TimeSpan[] timeInterval, Employee employee, Car car)
+        private void GenerateWayBill(IList<Order> orders, int waypointsCount, DateTime generationDate, TimeSpan[] timeInterval, Employee employee, CarVersion carVersion)
         {
             var wayBillDocument = new WayBillDocument();
 
@@ -292,8 +293,8 @@ namespace Vodovoz.Additions.Accounting
             }
 
             wayBillDocument.Date = generationDate.Date;
-            wayBillDocument.CarModel = car.Model;
-            wayBillDocument.CarRegistrationNumber = car.RegistrationNumber;
+            wayBillDocument.CarModel = carVersion.Car.Model;
+            wayBillDocument.CarRegistrationNumber = carVersion.Car.RegistrationNumber;
             wayBillDocument.DriverFIO = employee.FullName;
             wayBillDocument.DriverLastName = employee.LastName;
 
@@ -302,13 +303,13 @@ namespace Vodovoz.Additions.Accounting
 
             wayBillDocument.DriverLicense = employee.DrivingLicense;
 
-            wayBillDocument.CarPassportSerialNumber = car.DocPTSSeries;
-            wayBillDocument.CarPassportNumber = car.DocPTSNumber;
+            wayBillDocument.CarPassportSerialNumber = carVersion.Car.DocPTSSeries;
+            wayBillDocument.CarPassportNumber = carVersion.Car.DocPTSNumber;
 
             wayBillDocument.GarageLeavingDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
             wayBillDocument.GarageReturningDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
-            wayBillDocument.CarFuelType = car.FuelType;
-            wayBillDocument.CarFuelConsumption = (decimal)car.FuelConsumption;
+            wayBillDocument.CarFuelType = carVersion.Car.FuelType;
+            wayBillDocument.CarFuelConsumption = (decimal)carVersion.Car.FuelConsumption;
 
             wayBillDocument.OrganizationName = "vodovoz-spb.ru";
             wayBillDocument.RecalculatePlanedDistance(_distanceCalculator);

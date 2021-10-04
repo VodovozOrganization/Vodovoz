@@ -143,7 +143,7 @@ namespace Vodovoz
 			bool canChangeVolumeWeightConsumption = 
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId)
 				|| Entity.Id == 0
-				|| !(Entity.IsCompanyCar || Entity.IsRaskat);
+				|| !(Entity.GetActiveCarVersion().IsCompanyCar || Entity.GetActiveCarVersion().IsRaskat);
 
 			bool canChangeBottlesFromAddress = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_bottles_from_address", currentUserId);
 
@@ -254,17 +254,18 @@ namespace Vodovoz
 		{
 			UpdateSensitivity();
 
-			if(Entity.IsCompanyCar) {
+			var activeCarVersion = Entity.GetActiveCarVersion();
+			if(activeCarVersion.IsCompanyCar) {
 				Entity.Driver = null;
 				Entity.DriverCarKind = null;
 			}
 			if(CarTypeIsEditable())
-				Entity.IsRaskat = false;
+				activeCarVersion.OwnershipCar = OwnershipCar.CompanyCar;
 		}
 
 		private void UpdateSensitivity()
 		{
-			comboDriverCarKind.Sensitive = Entity.TypeOfUse.HasValue && !Entity.IsCompanyCar;
+			comboDriverCarKind.Sensitive = Entity.Model.CarTypeOfUse.HasValue && !Entity.GetActiveCarVersion().IsCompanyCar;
 		}
 		
 		public override void Destroy()
