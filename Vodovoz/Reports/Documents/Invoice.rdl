@@ -13,7 +13,8 @@
     <DataSet Name="Order">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
+    orders.order_payment_status as payment_status, 
 	orders.id AS order_id,
 	IFNULL(orders.e_shop_order, "") AS e_shop_order,
 	orders.delivery_date AS order_date,
@@ -250,6 +251,10 @@ WHERE
         </Field>
         <Field Name="is_before_interval_delivery">
           <DataField>is_before_interval_delivery</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payment_status">
+          <DataField>payment_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1372,8 +1377,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3385,6 +3389,137 @@ WHERE stored_resource.id = @id1</CommandText>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>135.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>65.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=
+Iif(First({order_payment_type}, "Order")='ByCard' 
+,
+"ОПЛАЧЕНО"
+,
+Iif(First({payment_status},"Order") = "Paid"
+,
+"ОПЛАЧЕНО"
+,
+Iif( {?payment_by_sms} != true,
+Iif(
+First({pay_type}, "Order") = "НАЛ"
+,
+"К оплате: НАЛИЧНЫМИ "
++
+        Convert.ToString(
+            Iif(First({order_payment_type}, "Order")!='ByCard'
+                ,
+                (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+                ,
+                0
+            )
+        )
++"\n" +
+    Iif(
+    First({trifle},'Order')&gt;0
+    ,
+    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р."
+    ,
+    " "
+    )
+,
+    Iif(
+    {?payment_by_sms} = true    
+    ,   
+    "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS"
++"\n" +
+    Iif(
+    First({trifle},'Order')&gt;0
+    ,
+    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р."
+    ,
+    " "
+    )
+
+    ,
+        Iif(
+        First({pay_type}, "Order") = "ТЕРМИНАЛ"
+    ,
+    "К оплате: \nПО ТЕРМИНАЛУ "
+    +
+    Convert.ToString(
+            Iif(First({order_payment_type}, "Order")!='ByCard'
+                ,
+                (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+                ,
+                0
+            )
+        )
+     ,
+    "0"
+        )
+    )
+)
+,
+"К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS"
++"\n" +
+    Iif(
+    First({trifle},'Order')&gt;0
+    ,
+    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р."
+    ,
+    " "
+    )
+)
+)
+)
+</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Double</Left>
+                          <Right>Double</Right>
+                          <Top>Double</Top>
+                          <Bottom>Double</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bolder</FontWeight>
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <Color>Black</Color>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>236.9pt</Left>
+        <Top>57.8pt</Top>
+      </fyi:Grid>
     </ReportItems>
   </Body>
   <PageFooter>
