@@ -55,8 +55,8 @@ namespace BitrixIntegration.Processors
 				             ", создаем нового контрагента");
 				counterparty = new Counterparty()
 				{
-					FullName = contact.SecondName + " " + contact.Name + " " + contact.LastName,
-					Name = contact.SecondName + " " + contact.Name + " " + contact.LastName,
+					FullName = contact.LastName + " " + contact.Name + " " + contact.SecondName,
+					Name = contact.LastName + " " + contact.Name + " " + contact.SecondName,
 					BitrixId = contact.Id,
 					PersonType = PersonType.natural,
 					CreateDate = contact.CreatedDate,
