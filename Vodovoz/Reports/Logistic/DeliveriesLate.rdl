@@ -38,8 +38,10 @@ FROM
         INNER JOIN employees driver ON
                 driver.id = route_lists.driver_id AND
                 driver.visiting_master = 0 AND
-                driver.category != 'office' AND
-                driver.driver_of != 'CompanyTruck'
+                ((@exclude_truck_drivers_office_employees = 1 AND 
+                        driver.category != 'office' AND
+                        driver.driver_of != 'CompanyTruck')
+                OR @exclude_truck_drivers_office_employees = 0)
         LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN orders ON orders.id = route_list_addresses.order_id
         LEFT JOIN counterparty ON counterparty.id = orders.client_id
@@ -64,6 +66,9 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
           <QueryParameter Name="geographic_group_id">
             <Value>={?geographic_group_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_truck_drivers_office_employees">
+              <Value>={?exclude_truck_drivers_office_employees}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1304,6 +1309,13 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="exclude_truck_drivers_office_employees">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
