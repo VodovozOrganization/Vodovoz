@@ -53,23 +53,17 @@ namespace BitrixIntegration
 			}
 		}
 
-		public void RegisterDealAsError(uint dealId, int orderId, string errorDescription)
+		public void RegisterDealAsError(uint dealId, string errorDescription)
 		{
 			if(dealId == 0)
 			{
 				throw new ArgumentException($"Номер сделки должен быть указан", nameof(dealId));
 			}
 
-			if(orderId < 1)
-			{
-				throw new ArgumentException($"Номер заказа должен быть указан", nameof(orderId));
-			}
-
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var order = uow.GetById<Order>(orderId) ?? throw new InvalidOperationException($"В бд не найден заказ с Id {orderId}");
-
-				var dealRegistration = GetExistingRegistrationOrCreate(uow, dealId, orderId);
+				var dealRegistration = _bitrixRepository.GetDealRegistration(uow, dealId) ??
+				                       throw new InvalidOperationException($"В бд не найдена сделка с Id {dealId}");
 
 				bool statusSetted = _bitrixClient.SetStatusToDeal(DealStatus.Error, dealId).GetAwaiter().GetResult();
 				if(!statusSetted)
@@ -77,7 +71,6 @@ namespace BitrixIntegration
 					_logger.Warn($"Не удалось установить в битриксе статус ({DealStatus.Error}) для сделки Id {dealId}");
 				}
 
-				dealRegistration.Order = order;
 				dealRegistration.ProcessedDate = DateTime.Now;
 				dealRegistration.Success = false;
 				dealRegistration.NeedSync = true;

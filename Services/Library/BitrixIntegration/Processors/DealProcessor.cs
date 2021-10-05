@@ -68,7 +68,14 @@ namespace BitrixIntegration.Processors
 			foreach(var deal in deals)
 			{
 				_dealRegistrator.RegisterDealAsInProgress(deal.Id);
-				ProcessDeal(deal);
+				try
+				{
+					ProcessDeal(deal);
+				}
+				catch(Exception e)
+				{
+					_dealRegistrator.RegisterDealAsError(deal.Id, e.Message);
+				}
 			}
 		}
 
@@ -91,6 +98,8 @@ namespace BitrixIntegration.Processors
 
 				_logger.Info("Обработка контрагента");
 				Counterparty counterparty = _counterpartyProcessor.ProcessCounterparty(uow, deal);
+				//для возможности создать контракт в заказе
+				uow.Save(counterparty);
 
 				_logger.Info("Сборка заказа");
 				order = CreateOrder(uow, deal, counterparty);
