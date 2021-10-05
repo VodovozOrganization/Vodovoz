@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
@@ -44,7 +45,8 @@ namespace Vodovoz.SidePanel
 					return new CashInfoPanelView(
 						UnitOfWorkFactory.GetDefaultFactory,
 						new CashRepository(),
-						new SubdivisionRepository(new ParametersProvider()));
+						new SubdivisionRepository(new ParametersProvider()),
+						new UserRepository());
 				default:
 					throw new NotSupportedException();
 			}

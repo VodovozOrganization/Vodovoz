@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Utilities;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.SidePanel.InfoProviders;
@@ -18,21 +19,28 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly ICashRepository _cashRepository;
 		private readonly IList<int> _sortedSubdivisionsIds;
 
-		public CashInfoPanelView(IUnitOfWorkFactory uowFactory, ICashRepository cashRepository, ISubdivisionRepository subdivisionRepository)
+		public CashInfoPanelView(IUnitOfWorkFactory uowFactory,
+			ICashRepository cashRepository,
+			ISubdivisionRepository subdivisionRepository,
+			IUserRepository userRepository)
 		{
 			this.Build();
 			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser(_uow);
-			var needSave = CurrentUserSettings.Settings.UpdateCashSortingSettings(
-				subdivisionRepository.GetCashSubdivisionsAvailableForUser(_uow, currentUser).ToList());
+			var availableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(_uow, currentUser).ToList();
+			var settings =
+				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
+				.GetCurrentUserSettings(_uow);
+			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions);
 			if(needSave)
 			{
-				CurrentUserSettings.SaveSettings();
+				_uow.Save(settings);
+				_uow.Commit();
 			}
 
-			_sortedSubdivisionsIds = CurrentUserSettings.Settings.CashSubdivisionSortingSettings
+			_sortedSubdivisionsIds = settings.CashSubdivisionSortingSettings
 				.OrderBy(x => x.SortingIndex)
 				.Select(x => x.CashSubdivision.Id)
 				.ToList();
