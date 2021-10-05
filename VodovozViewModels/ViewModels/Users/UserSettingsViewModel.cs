@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Users
 
 		public override void Close(bool askSave, CloseSource source)
 		{
-			if(_sortingSettingsUpdated)
+			if(_sortingSettingsUpdated && source == CloseSource.Cancel)
 			{
 				if(CommonServices.InteractiveService.Question(
 					"Ваши настройки сортировки касс были автоматически обновлены. Выйти без сохранения?"))
