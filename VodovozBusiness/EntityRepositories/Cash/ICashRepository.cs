@@ -24,5 +24,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null);
 		bool OrderHasIncome(IUnitOfWork uow, int orderId);
 		IList<OperationNode> GetCashBalanceForOrganizations(IUnitOfWork uow);
+		decimal GetIncomeSumByRouteListId(IUnitOfWork uow, int routeListId, IncomeType[] includedIncomeTypes = null, IncomeType[] excludedIncomeTypes = null);
+		decimal GetExpenseSumByRouteListId(IUnitOfWork uow, int routeListId, ExpenseType[] includedExpenseTypes = null, ExpenseType[] excludedExpenseTypes = null);
 	}
 }
