@@ -820,8 +820,8 @@ namespace Vodovoz
 			}
 
 			INewDriverAdvanceParametersProvider newDriverAdvanceParametersProvider = new NewDriverAdvanceParametersProvider(_parametersProvider);
-			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(newDriverAdvanceParametersProvider, Entity);
-			if(newDriverAdvanceModel.NeedNewDriverAdvance(UoW) == true)
+			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(newDriverAdvanceParametersProvider, _routeListRepository, Entity);
+			if(newDriverAdvanceModel.NeedNewDriverAdvance(UoW))
 			{
 				if(newDriverAdvanceModel.UnclosedRouteLists(UoW).Any()
 				   && !MessageDialogHelper.RunQuestionDialog(
