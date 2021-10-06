@@ -104,17 +104,22 @@ namespace Vodovoz.Dialogs
 			unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
 		}
 
-		public virtual bool Save(bool needClose = true)
+		private bool Save(bool needClose = true)
 		{
 			var valid = new QSValidator<UndeliveredOrder>(UndeliveredOrder);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			{
 				return false;
-			if(UndeliveredOrder.Id == 0) {
+			}
+
+			if(UndeliveredOrder.Id == 0)
+			{
 				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
 			undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
-			if(!CanCreateUndelivery()){
+			if(!CanCreateUndelivery())
+			{
 				UoW.Save(UndeliveredOrder.OldOrder);
 				UoW.Commit();
 				this.OnCloseTab(false);
@@ -122,8 +127,17 @@ namespace Vodovoz.Dialogs
 			}
 
 			UoW.Save(UndeliveredOrder);
+			if(UndeliveredOrder.NewOrder != null
+			   && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved
+			   && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
+			{
+				ProcessSmsNotification();
+			}
+
 			if(needClose)
+			{
 				this.OnCloseTab(false);
+			}
 			return true;
 		}
 
@@ -147,15 +161,10 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if(Save() && UndeliveredOrder.NewOrder != null
-			          && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved 
-			          && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
-			{
-				ProcessSmsNotification();
-			}
+			Save();
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
 		}
-	
+
 		private void ProcessSmsNotification()
 		{
 			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);

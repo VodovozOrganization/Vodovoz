@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Attachments.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -20,6 +21,9 @@ namespace Vodovoz.Domain.Logistic
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
+
+		private IList<Attachment> _attachments = new List<Attachment>();
+		private GenericObservableList<Attachment> _observableAttachments;
 
 		public virtual int Id { get; set; }
 
@@ -264,6 +268,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref geographicGroups, value, () => GeographicGroups);
 		}
 
+		[Display(Name = "Прикрепленные файлы")]
+		public virtual IList<Attachment> Attachments {
+			get => _attachments;
+			set => SetField(ref _attachments, value);
+		}
+		
 		GenericObservableList<GeographicGroup> observableGeographicGroups;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
@@ -273,6 +283,10 @@ namespace Vodovoz.Domain.Logistic
 				return observableGeographicGroups;
 			}
 		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Attachment> ObservableAttachments =>
+			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
 
 		private RaskatType? raskatType;
 		[Display(Name = "Тип раската")]

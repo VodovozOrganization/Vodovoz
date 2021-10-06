@@ -14,6 +14,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -72,10 +73,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Перенесен в другой маршрутный лист")]
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
-			set {
-				if(SetField(ref transferedTo, value) && value != null)
-					Status = RouteListItemStatus.Transfered;
-			}
+			protected set => SetField(ref transferedTo, value);
 		}
 
 		private bool needToReload;
@@ -501,7 +499,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
+		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;
@@ -533,8 +531,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 			uow.Save(Order);
 		}
-		
-		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
+
+		protected internal virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
 		{
 			if(Status == status)
 			{
@@ -567,6 +565,24 @@ namespace Vodovoz.Domain.Logistic
 					break;
 			}
 			uow.Save(Order);
+		}
+
+		protected internal virtual void TransferTo(RouteListItem targetAddress)
+		{
+			TransferedTo = targetAddress;
+			SetStatusWithoutOrderChange(RouteListItemStatus.Transfered);
+		}
+		
+		protected internal virtual void RevertTransferAddress(WageParameterService wageParameterService, RouteListItem revertedAddress)
+		{
+			SetStatusWithoutOrderChange(revertedAddress.Status);
+			TransferedTo = null;
+			DriverBottlesReturned = revertedAddress.DriverBottlesReturned;
+			
+			if(RouteList.ClosingFilled)
+			{
+				FirstFillClosing(wageParameterService);
+			}
 		}
 
 		public virtual void RecalculateTotalCash() => TotalCash = CalculateTotalCash();
@@ -602,8 +618,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
-		/// <param name="uow">Uow.</param>
-		public virtual void FirstFillClosing(IUnitOfWork uow, WageParameterService wageParameterService)
+		public virtual void FirstFillClosing(WageParameterService wageParameterService)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)
@@ -692,7 +707,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RemovedFromRoute() => Order.OrderStatus = OrderStatus.Accepted;
 
-		public virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
+		protected internal virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
 
 		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
 		public virtual string GetTransferText(RouteListItem item)

@@ -8,6 +8,7 @@ using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -856,11 +857,79 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
+		
+		public bool RouteListContainsGivedFuelLiters(IUnitOfWork uow, int id)
+		{
+			bool result = false;
+
+			var routeList = uow.Session.QueryOver<RouteList>()
+				.Where(x => x.Id == id)
+				.SingleOrDefault<RouteList>();
+
+			foreach(var fuelDocument in routeList.FuelDocuments)
+			{
+				decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
+				decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
+				if(litersGived > 0 || payedLiters > 0)
+				{
+					result = true;
+				}
+			}
+
+			return result;
+		}
 
 		public SelfDriverTerminalTransferDocument GetSelfDriverTerminalTransferDocument(IUnitOfWork unitOfWork, Employee driver, RouteList routeList) =>
 			unitOfWork.Session.QueryOver<SelfDriverTerminalTransferDocument>()
 				.Where(d => d.DriverTo == driver && d.RouteListTo == routeList)
 				.SingleOrDefault();
+
+		public IList<NewDriverAdvanceRouteListNode> GetOldUnclosedRouteLists(IUnitOfWork uow, DateTime routeListDate, int driverId)
+		{
+			NewDriverAdvanceRouteListNode resultAlias = null;
+
+			var unclosedRouteLists = uow.Session.QueryOver<RouteList>()
+				.Where(x => x.Date < routeListDate)
+				.And(x => x.Status != RouteListStatus.Closed)
+				.And(x => x.Driver.Id == driverId)
+				.SelectList(list => list
+					.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+					.Select(x => x.Date).WithAlias(() => resultAlias.Date)
+				)
+				.TransformUsing(Transformers.AliasToBean<NewDriverAdvanceRouteListNode>())
+				.List<NewDriverAdvanceRouteListNode>();
+
+			return unclosedRouteLists;
+		}
+
+		public bool HasEmployeeAdvance(IUnitOfWork uow, int routeListId, int driverId) =>
+			uow.Session.QueryOver<Expense>()
+				.Where(x => x.RouteListClosing.Id == routeListId)
+				.And(x => x.Employee.Id == driverId)
+				.And(x => x.TypeOperation == ExpenseType.EmployeeAdvance)
+				.RowCount() > 0;
+
+		public DateTime GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarTypeOfUse? carTypeOfUse = null)
+		{
+			Employee employeeAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>()
+				.JoinAlias(x => x.Driver, () => employeeAlias)
+				.Where(x => x.Driver.Id == driverId);
+
+			if(carTypeOfUse != null)
+			{
+				query.Where(() => employeeAlias.DriverOf == carTypeOfUse);
+			}
+
+			return query
+				.SelectList(list => list
+					.SelectGroup(x => x.Date))
+				.OrderBy(x => x.Date).Asc
+				.Skip(dayNumber - 1)
+				.Take(1)
+				.SingleOrDefault<DateTime>();
+		}
 	}
 
 	#region DTO
@@ -912,6 +981,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public OwnTypes OwnType { get; set; }
 		public decimal? ExpireDatePercent { get; set; } = null;
 		public decimal Amount { get; set; }
+	}
+
+	public class NewDriverAdvanceRouteListNode
+	{
+		public int Id { get; set; }
+		public DateTime Date { get; set; }
 	}
 
 	#endregion
