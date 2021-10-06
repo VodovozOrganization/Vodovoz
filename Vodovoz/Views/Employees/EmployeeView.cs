@@ -19,6 +19,7 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
@@ -97,12 +98,13 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 			
 			ConfigureSubdivision();
-			
-			referenceUser.SubjectType = typeof(User);
-			referenceUser.CanEditReference = false;
-			referenceUser.Binding.AddBinding(ViewModel.Entity, e => e.User, w => w.Subject).InitializeFromSource();
-			referenceUser.Sensitive = ViewModel.CanManageUsers;
-			
+
+			var usersJournalFactory = new UserJournalFactory();
+			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateUserAutocompleteSelectorFactory());
+			entityviewmodelUser.Binding.AddBinding(ViewModel.Entity, e => e.User, w => w.Subject).InitializeFromSource();
+			entityviewmodelUser.Sensitive = ServicesConfig.CommonServices
+				.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
+
 			ylblUserLogin.TooltipText =
 				"При сохранении сотрудника создаёт нового пользователя с введённым логином " +
 				"и отправляет сотруднику SMS с сгенерированным паролем";

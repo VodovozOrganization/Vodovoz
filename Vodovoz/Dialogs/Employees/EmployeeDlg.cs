@@ -54,6 +54,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using Vodovoz.Factories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 namespace Vodovoz
 {
@@ -272,9 +273,9 @@ namespace Vodovoz
 			referenceCitizenship.SubjectType = typeof(Citizenship);
 			referenceCitizenship.Binding
 				.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
-
-			referenceUser.SubjectType = typeof(User);
-			referenceUser.CanEditReference = false;
+				
+			var usersJournalFactory = new UserJournalFactory();
+			referenceUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateUserAutocompleteSelectorFactory());
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
 			referenceUser.Sensitive = ServicesConfig.CommonServices
 				.CurrentPermissionService.ValidatePresetPermission("can_manage_users");

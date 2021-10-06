@@ -148,7 +148,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReference referenceCitizenship;
 
-		private global::Gamma.Widgets.yEntryReference referenceUser;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry referenceUser;
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepicker1;
 
@@ -1112,9 +1112,10 @@ namespace Vodovoz
 			w71.XOptions = ((global::Gtk.AttachOptions)(4));
 			w71.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.referenceUser = new global::Gamma.Widgets.yEntryReference();
+			this.referenceUser = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.referenceUser.Events = ((global::Gdk.EventMask)(256));
 			this.referenceUser.Name = "referenceUser";
+			this.referenceUser.CanEditReference = true;
 			this.datatableMain.Add(this.referenceUser);
 			global::Gtk.Table.TableChild w72 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.referenceUser]));
 			w72.TopAttach = ((uint)(10));
