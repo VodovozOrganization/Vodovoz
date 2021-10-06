@@ -309,6 +309,7 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
+    <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
@@ -324,9 +325,11 @@
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
+    <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\NewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\ProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Parameters\OrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
