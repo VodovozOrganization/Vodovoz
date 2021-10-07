@@ -10,16 +10,27 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
 using System;
+using System.Linq;
 using System.Threading;
+using QS.ErrorReporting;
+using QS.Project.Services;
+using QS.Project.Versioning;
+using QS.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.BasicHandbooks;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Common;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace VodovozBitrixIntegrationService
 {
@@ -133,6 +144,18 @@ namespace VodovozBitrixIntegrationService
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase))
 					});
 
+				var serviceUserId = 0;
+
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение id пользователя"))
+				{
+					serviceUserId = uow.Session.Query<Vodovoz.Domain.Employees.User>()
+						.Where(u => u.Login == _mysqlSettings.Username)
+						.Select(u => u.Id)
+						.FirstOrDefault();
+				}
+
+				QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
+
 				QS.HistoryLog.HistoryMain.Enable();
 			}
 			catch(Exception ex)
@@ -180,6 +203,29 @@ namespace VodovozBitrixIntegrationService
 
 				var counterpartyProcessor = new CounterpartyProcessor(bitrixClient, counterpartyRepository);
 
+				var callTaskRepository = new CallTaskRepository();
+				var employeeRepository = new EmployeeRepository();
+				IPersonProvider personProvider = new BaseParametersProvider(new ParametersProvider());
+				var userService = new UserService();
+				SingletonErrorReporter.Initialize(
+					ReportWorker.GetReportService(),
+					new ApplicationVersionInfo(),
+					new LogService(),
+					_mysqlSettings.Database,
+					canSendAutomatically: true,
+					autoSendLogRowCount: null);
+
+				var callTaskWorker = new CallTaskWorker(
+					CallTaskSingletonFactory.GetInstance(),
+					callTaskRepository,
+					orderRepository,
+					employeeRepository,
+					personProvider,
+					ServicesConfig.UserService,
+					SingletonErrorReporter.Instance,
+					taskCreationInteractive: null
+				);
+
 				var dealProcessor = new DealProcessor(
 					uowFactory,
 					bitrixClient,
@@ -191,7 +237,8 @@ namespace VodovozBitrixIntegrationService
 					deliveryScheduleRepository,
 					deliveryPointProcessor,
 					productProcessor,
-					counterpartyProcessor
+					counterpartyProcessor,
+					callTaskWorker
 				);
 
 				var dealWorker = new DealWorker(dealProcessor);

@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
 using BitrixPhone = Bitrix.DTO.Phone;
 
 namespace BitrixIntegration.Processors
@@ -31,6 +32,7 @@ namespace BitrixIntegration.Processors
 		private readonly IDeliveryPointProcessor _deliveryPointProcessor;
 		private readonly IProductProcessor _productProcessor;
 		private readonly ICounterpartyProcessor _counterpartyProcessor;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public DealProcessor(
 			IUnitOfWorkFactory uowFactory,
@@ -43,7 +45,8 @@ namespace BitrixIntegration.Processors
 			IDeliveryScheduleRepository deliveryScheduleRepository,
 			IDeliveryPointProcessor deliveryPointProcessor,
 			IProductProcessor productProcessor,
-			ICounterpartyProcessor counterpartyProcessor
+			ICounterpartyProcessor counterpartyProcessor,
+			ICallTaskWorker callTaskWorker
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -57,6 +60,7 @@ namespace BitrixIntegration.Processors
 			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_dealRegistrator = dealRegistrator ?? throw new ArgumentNullException(nameof(dealRegistrator));
 			_counterpartyProcessor = counterpartyProcessor ?? throw new ArgumentNullException(nameof(counterpartyProcessor));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
 		public void ProcessDeals(DateTime date)
@@ -155,7 +159,7 @@ namespace BitrixIntegration.Processors
 				DeliverySchedule = deliverySchedule,
 				Client = counterparty,
 				DeliveryPoint = deliveryPoint,
-				OrderStatus = OrderStatus.Accepted,
+				OrderStatus = OrderStatus.NewOrder,
 				Author = bitrixAccount,
 				LastEditor = bitrixAccount,
 				LastEditedTime = DateTime.Now,
@@ -164,7 +168,7 @@ namespace BitrixIntegration.Processors
 				SelfDelivery = deal.IsSelfDelivery,
 				Comment = deal.Comment,
 				Trifle = deal.Trifle ?? 0,
-				BottlesReturn = deal.BottlesToReturn,
+				BottlesReturn = deal.BottlesToReturn ?? 0,
 				EShopOrder = (int)deal.Id,
 				OnlineOrder = deal.OrderNumber ?? null
 			};
@@ -175,6 +179,8 @@ namespace BitrixIntegration.Processors
 			}
 
 			order.UpdateOrCreateContract(uow, _counterpartyContractRepository, _counterpartyContractFactory);
+			order.CalculateDeliveryPrice();
+			order.AcceptOrder(bitrixAccount, _callTaskWorker);
 
 			return order;
 		}

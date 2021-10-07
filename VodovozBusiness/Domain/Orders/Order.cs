@@ -2635,7 +2635,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
-		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			ChangeStatus(newStatus);
 			callTaskWorker.CreateTasks(this);
@@ -2979,7 +2979,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Принятие заказа с самовывозом
 		/// </summary>
-		private void AcceptSelfDeliveryOrder(CallTaskWorker callTaskWorker)
+		private void AcceptSelfDeliveryOrder(ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
 				return;
@@ -3002,7 +3002,7 @@ namespace Vodovoz.Domain.Orders
 					oi.ActualCount = oi.Count > 0 ? oi.Count : (oi.ActualCount ?? 0);
 		}
 
-		public virtual void AcceptOrder(Employee currentEmployee, CallTaskWorker callTaskWorker)
+		public virtual void AcceptOrder(Employee currentEmployee, ICallTaskWorker callTaskWorker)
 		{
 			if(SelfDelivery)
 				AcceptSelfDeliveryOrder(callTaskWorker);
