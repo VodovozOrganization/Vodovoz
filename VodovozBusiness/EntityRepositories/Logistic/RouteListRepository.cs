@@ -909,7 +909,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.And(x => x.TypeOperation == ExpenseType.EmployeeAdvance)
 				.RowCount() > 0;
 
-		public DateTime GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarTypeOfUse? carTypeOfUse = null)
+		public DateTime? GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarTypeOfUse? carTypeOfUse = null)
 		{
 			Employee employeeAlias = null;
 
@@ -928,7 +928,28 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.OrderBy(x => x.Date).Asc
 				.Skip(dayNumber - 1)
 				.Take(1)
-				.SingleOrDefault<DateTime>();
+				.SingleOrDefault<DateTime?>();
+		}
+
+		public DateTime? GetLastRouteListDateByDriver(IUnitOfWork uow, int driverId, CarTypeOfUse? carTypeOfUse = null)
+		{
+			Employee employeeAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>()
+				.JoinAlias(x => x.Driver, () => employeeAlias)
+				.Where(x => x.Driver.Id == driverId);
+
+			if(carTypeOfUse != null)
+			{
+				query.Where(() => employeeAlias.DriverOf == carTypeOfUse);
+			}
+
+			return query
+				.SelectList(list => list
+					.Select(x => x.Date))
+				.OrderBy(x => x.Date).Desc
+				.Take(1)
+				.SingleOrDefault<DateTime?>();
 		}
 	}
 
