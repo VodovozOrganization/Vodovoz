@@ -31,14 +31,16 @@ namespace Vodovoz.Models
 				return false;
 			}
 
-			DateTime firstAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id, 
+			DateTime? lastRouteListDate = _routeListRepository.GetLastRouteListDateByDriver(uow, _routeList.Driver.Id, CarTypeOfUse.DriverCar);
+
+			DateTime? firstAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
 				_newDriverAdvanceParametersProvider.NewDriverAdvanceFirstDay, CarTypeOfUse.DriverCar);
 
-			DateTime lastAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
+			DateTime? lastAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
 				_newDriverAdvanceParametersProvider.NewDriverAdvanceLastDay, CarTypeOfUse.DriverCar);
 
 			bool needNewDriverAdvance = (firstAdvanceDate <= _routeList.Date)
-			                           && (_routeList.Date <= lastAdvanceDate);
+										&& (_routeList.Date <= (lastAdvanceDate ?? lastRouteListDate));
 
 			return needNewDriverAdvance;
 		}
