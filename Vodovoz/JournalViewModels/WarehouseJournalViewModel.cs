@@ -12,40 +12,40 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class WarehouseJournalViewModel : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
-    {
+	public class WarehouseJournalViewModel : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
+	{
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly WarehouseJournalFilterViewModel _filterViewModel;
 		
 		public WarehouseJournalViewModel(
-            IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices,
-            ISubdivisionRepository subdivisionRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionRepository,
 			WarehouseJournalFilterViewModel filterViewModel = null)
 				: base(unitOfWorkFactory, commonServices)
-        {
-            TabName = "Журнал складов";
-            _subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+		{
+			TabName = "Журнал складов";
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_filterViewModel = filterViewModel;
 
-            UpdateOnChanges(
-                typeof(Warehouse)
-            );
-        }
+			UpdateOnChanges(
+				typeof(Warehouse)
+			);
+		}
 
 		protected override void CreateNodeActions()
-        {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-            CreateDefaultEditAction();
-            CreateDefaultAddActions();
-        }
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultEditAction();
+			CreateDefaultAddActions();
+		}
 
-        protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
-            Warehouse warehouseAlias = null;
-            WarehouseJournalNode warehouseNodeAlias = null;
+		protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
+			Warehouse warehouseAlias = null;
+			WarehouseJournalNode warehouseNodeAlias = null;
 
-            var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
+			var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
 
 			if(_filterViewModel?.ExcludeWarehousesIds != null)
 			{
@@ -53,31 +53,31 @@ namespace Vodovoz.JournalViewModels
 			}
 
 			query.Where(GetSearchCriterion(
-                () => warehouseAlias.Id,
-                () => warehouseAlias.Name
-            ));
-            var result = query.SelectList(list => list
-                    .Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
-                    .Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name))
-                .OrderBy(w => w.Name).Asc
-                .TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
-            return result;
-        };
+				() => warehouseAlias.Id,
+				() => warehouseAlias.Name
+			));
+			var result = query.SelectList(list => list
+					.Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
+					.Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name))
+				.OrderBy(w => w.Name).Asc
+				.TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
+			return result;
+		};
 
-        protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
-            EntityUoWBuilder.ForCreate(),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices,
-            _subdivisionRepository
-        );
+		protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
+			EntityUoWBuilder.ForCreate(),
+			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			commonServices,
+			_subdivisionRepository
+		);
 
-        protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
-            EntityUoWBuilder.ForOpen(node.Id),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices,
-            _subdivisionRepository
-        );
-    }
+		protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
+			EntityUoWBuilder.ForOpen(node.Id),
+			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			commonServices,
+			_subdivisionRepository
+		);
+	}
 
 	public class WarehouseJournalFilterViewModel
 	{
