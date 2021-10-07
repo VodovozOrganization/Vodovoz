@@ -12,114 +12,114 @@ namespace Bitrix.DTO
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		[JsonProperty("ID")] 
+		[JsonProperty("ID")]
 		public uint Id { get; set; }
 
-		[JsonProperty("TITLE")] 
+		[JsonProperty("TITLE")]
 		public string Title { get; set; }
 
-		[JsonProperty("TYPE_ID")] 
+		[JsonProperty("TYPE_ID")]
 		public string TypeId { get; set; }
 
-		[JsonProperty("STAGE_ID")] 
+		[JsonProperty("STAGE_ID")]
 		public string StageId { get; set; }
 
-		[JsonProperty("CURRENCY_ID")] 
+		[JsonProperty("CURRENCY_ID")]
 		public string CurrencyId { get; set; }
 
-		[JsonProperty("OPPORTUNITY")] 
+		[JsonProperty("OPPORTUNITY")]
 		public decimal Opportunity { get; set; }
 
-		[JsonProperty("IS_MANUAL_OPPORTUNITY")] 
+		[JsonProperty("IS_MANUAL_OPPORTUNITY")]
 		public string IsManualOpportunity { get; set; }
 
-		[JsonProperty("TAX_VALUE")] 
+		[JsonProperty("TAX_VALUE")]
 		public decimal? TaxValue { get; set; }
 
-		[JsonProperty("LEAD_ID")] 
+		[JsonProperty("LEAD_ID")]
 		public string LeadId { get; set; }
 
-		[JsonProperty("COMPANY_ID")] 
+		[JsonProperty("COMPANY_ID")]
 		public uint CompanyId { get; set; }
 
-		[JsonProperty("CONTACT_ID")] 
+		[JsonProperty("CONTACT_ID")]
 		public uint ContactId { get; set; }
 
-		[JsonProperty("COMMENTS")] 
+		[JsonProperty("COMMENTS")]
 		public string Comment { get; set; }
 
-		[JsonProperty("QUOTE_ID")] 
+		[JsonProperty("QUOTE_ID")]
 		public string QuoteId { get; set; }
 
-		[JsonProperty("BEGINDATE")] 
+		[JsonProperty("BEGINDATE")]
 		public DateTime BegunDate { get; set; }
 
-		[JsonProperty("CLOSEDATE")] 
-		public DateTime CloseDate { get; set; }
+		[JsonProperty("CLOSEDATE")]
+		public DateTime? CloseDate { get; set; }
 
-		[JsonProperty("ASSIGNED_BY_ID")] 
+		[JsonProperty("ASSIGNED_BY_ID")]
 		public int AssignedById { get; set; }
 
-		[JsonProperty("CREATED_BY_ID")] 
+		[JsonProperty("CREATED_BY_ID")]
 		public int CreatedById { get; set; }
 
-		[JsonProperty("MODIFY_BY_ID")] 
+		[JsonProperty("MODIFY_BY_ID")]
 		public int ModifyById { get; set; }
 
-		[JsonProperty("DATE_CREATE")] 
+		[JsonProperty("DATE_CREATE")]
 		public DateTime CreateDate { get; set; }
 
-		[JsonProperty("DATE_MODIFY")] 
+		[JsonProperty("DATE_MODIFY")]
 		public DateTime ModifyDate { get; set; }
 
-		[JsonProperty(UserFieldNames.DealGeographicGroup)] 
+		[JsonProperty(UserFieldNames.DealGeographicGroup)]
 		public string GeographicGroup { get; set; }
 
-		[JsonProperty(UserFieldNames.DealPaymentStatus)] 
+		[JsonProperty(UserFieldNames.DealPaymentStatus)]
 		public string PaymentStatus { get; set; }
 
-		[JsonProperty(UserFieldNames.DealDeliveryDate)] 
+		[JsonProperty(UserFieldNames.DealDeliveryDate)]
 		public DateTime DeliveryDate { get; set; }
 
-		[JsonProperty("OPENED")] 
+		[JsonProperty("OPENED")]
 		public string Opened { get; set; }
 
-		[JsonProperty("CLOSED")] 
+		[JsonProperty("CLOSED")]
 		public string Closed { get; set; }
 
-		[JsonProperty("CATEGORY_ID")] 
+		[JsonProperty("CATEGORY_ID")]
 		public int CategoryId { get; set; }
 
-		[JsonProperty(UserFieldNames.DealStatus)] 
+		[JsonProperty(UserFieldNames.DealStatus)]
 		public string Status { get; set; }
 
-		[JsonProperty(UserFieldNames.DealCoordinates)] 
+		[JsonProperty(UserFieldNames.DealCoordinates)]
 		public string Coordinates { get; set; }
 
-		[JsonProperty(UserFieldNames.DealDeliveryAddressWithoutHouse)] 
+		[JsonProperty(UserFieldNames.DealDeliveryAddressWithoutHouse)]
 		public string DeliveryAddressWithoutHouse { get; set; }
 
 		//Пример значения: "143"
-		[JsonProperty(UserFieldNames.DealRoomNumber)] 
+		[JsonProperty(UserFieldNames.DealRoomNumber)]
 		public string RoomNumber { get; set; }
 
 		//Пример значения: "д 104"
-		[JsonProperty(UserFieldNames.DealHouseAndBuilding)] 
+		[JsonProperty(UserFieldNames.DealHouseAndBuilding)]
 		public string HouseAndBuilding { get; set; }
 
 		// Может быть Null or empty
-		[JsonProperty(UserFieldNames.DealPromocode)] 
+		[JsonProperty(UserFieldNames.DealPromocode)]
 		public string Promocode { get; set; }
 
 		//624 - Курьерская, 626 - Самовывоз
-		[JsonProperty(UserFieldNames.DealDeliveryType)] 
+		[JsonProperty(UserFieldNames.DealDeliveryType)]
 		public string DeliveryType { get; set; }
 
 		//158 - Курьеру наличными, 160 - Картой на сайте, 162 - На расчетный счет, 1108 - Курьеру по смс, 1162 - Курьеру по терминалу
-		[JsonProperty(UserFieldNames.DealPaymentMethod)] 
+		[JsonProperty(UserFieldNames.DealPaymentMethod)]
 		public string PaymentMethod { get; set; }
 
-		[JsonProperty(UserFieldNames.DealCity)] 
+		[JsonProperty(UserFieldNames.DealCity)]
 		public string City { get; set; }
 
 		//Парадная/Торговый комплекс/Торговый центр...
@@ -152,15 +152,12 @@ namespace Bitrix.DTO
 		{
 			get
 			{
-				if(string.IsNullOrWhiteSpace(DeliveryType))
-				{
-					throw new ArgumentNullException(nameof(DeliveryType));
-				}
-
 				return DeliveryType switch
 				{
 					"624" => false,
 					"626" => true,
+					var dt when string.IsNullOrWhiteSpace(dt)
+						=> throw new ArgumentException($"Не указан id способа доставки {DeliveryType}"),
 					_ => throw new ArgumentException($"Неизвестный id способа доставки {DeliveryType}")
 				};
 			}
@@ -216,28 +213,24 @@ namespace Bitrix.DTO
 				"Не оплачен" => OrderPaymentStatus.UnPaid,
 				"Оплачен" => OrderPaymentStatus.Paid,
 				"Частично оплачен" => OrderPaymentStatus.PartiallyPaid,
-				"Нет" => OrderPaymentStatus.None,
+				var ps when string.IsNullOrWhiteSpace(ps) || ps == "Нет"
+					=> OrderPaymentStatus.None,
 				_ => throw new ArgumentException($"Неизвестный статус оплаты {PaymentStatus}")
 			};
 		}
 
-		public EntranceType GetEntranceType()
-		{
-			if(EntranceType == null)
-			{
-				throw new ArgumentNullException(nameof(EntranceType));
-			}
-
-			return EntranceType switch
+		public EntranceType GetEntranceType() =>
+			EntranceType switch
 			{
 				"182" => Vodovoz.Domain.Client.EntranceType.Entrance,
 				"184" => Vodovoz.Domain.Client.EntranceType.TradeComplex,
 				"186" => Vodovoz.Domain.Client.EntranceType.BusinessCenter,
 				"190" => Vodovoz.Domain.Client.EntranceType.School,
 				"192" => Vodovoz.Domain.Client.EntranceType.Hostel,
+				var et when string.IsNullOrWhiteSpace(et)
+					=> throw new ArgumentException($"Не указан id Подтипа объекта {EntranceType}"),
 				_ => throw new ArgumentException($"Неизвестный id Подтипа объекта {EntranceType}")
 			};
-		}
 
 		public bool IsSmsPayment => PaymentMethod == "1108";
 
@@ -251,12 +244,14 @@ namespace Bitrix.DTO
 				"160" => PaymentType.ByCard,
 				//На расчетный счет
 				"162" => PaymentType.cashless,
-				//Курьеру по смс //TODO gavr добавлять в заказ галку 
+				//Курьеру по смс //TODO gavr добавлять в заказ галку
 				"1108" => PaymentType.cash,
 				//Курьеру по терминалу
 				"1162" => PaymentType.Terminal,
 				//Оплата по счету
 				"1262" => PaymentType.cashless,
+				var pm when string.IsNullOrWhiteSpace(pm)
+					=> throw new ArgumentException($"Не указан id типа оплаты {PaymentMethod}"),
 				_ => throw new ArgumentException($"Неизвестный id типа оплаты {PaymentMethod}")
 			};
 		}
