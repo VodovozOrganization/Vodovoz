@@ -5,9 +5,9 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "телефоны",
-		Nominative = "телефон")]
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "зарегистрированные Bitrix-сделки",
+		Nominative = "зарегистрированная Bitrix-сделка")]
 	public class BitrixDealRegistration : PropertyChangedBase, IDomainObject
 	{
 		private uint _bitrixId;
