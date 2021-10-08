@@ -241,7 +241,9 @@ namespace VodovozBitrixIntegrationService
 					callTaskWorker
 				);
 
-				var dealWorker = new DealWorker(dealProcessor);
+				var dealSynchronizer = new DealSynchronizer(bitrixRepository, uowFactory, bitrixClient);
+
+				var dealWorker = new DealWorker(dealProcessor, dealSynchronizer);
 				dealWorker.Start();
 			}
 			catch (Exception e)

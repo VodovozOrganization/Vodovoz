@@ -46,7 +46,7 @@ namespace BitrixIntegration
 
 				dealRegistration.ProcessedDate = DateTime.Now;
 				dealRegistration.Success = false;
-				dealRegistration.NeedSync = true;
+				dealRegistration.NeedSync = false;
 
 				uow.Save(dealRegistration);
 				uow.Commit();
@@ -73,7 +73,7 @@ namespace BitrixIntegration
 
 				dealRegistration.ProcessedDate = DateTime.Now;
 				dealRegistration.Success = false;
-				dealRegistration.NeedSync = true;
+				dealRegistration.NeedSync = false;
 				dealRegistration.ErrorDescription = errorDescription;
 
 				uow.Save(dealRegistration);
@@ -110,7 +110,6 @@ namespace BitrixIntegration
 					dealRegistration.NeedSync = true;
 				}
 
-				dealRegistration.Order = order;
 				dealRegistration.ProcessedDate = DateTime.Now;
 				dealRegistration.Success = false;
 
@@ -148,9 +147,35 @@ namespace BitrixIntegration
 					dealRegistration.NeedSync = true;
 				}
 
-				dealRegistration.Order = order;
 				dealRegistration.ProcessedDate = DateTime.Now;
 				dealRegistration.Success = true;
+
+				uow.Save(dealRegistration);
+				uow.Commit();
+			}
+		}
+
+		public void BindOrderToRegistration(uint dealId, Order order)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var dealRegistration = _bitrixRepository.GetDealRegistration(uow, dealId);
+				if(dealRegistration.Order != null)
+				{
+					if(dealRegistration.Order.Id != order.Id)
+					{
+						throw new InvalidOperationException($"Для сделки {dealId} уже привязан заказ с id {dealRegistration.Order.Id}." +
+						                                    $" Попытка изменить привязанный заказ на заказ с id {order.Id}");
+					}
+					else
+					{
+						return;
+					}
+				}
+
+				dealRegistration.Order = order;
+				dealRegistration.ProcessedDate = DateTime.Now;
+				dealRegistration.NeedSync = true;
 
 				uow.Save(dealRegistration);
 				uow.Commit();

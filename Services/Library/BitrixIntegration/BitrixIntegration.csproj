@@ -11,6 +11,7 @@
     <AssemblyName>BitrixIntegration</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DealRegistrator.cs" />
+    <Compile Include="DealSynchronizer.cs" />
     <Compile Include="DealWorker.cs" />
     <Compile Include="Processors\CounterpartyProcessor.cs" />
     <Compile Include="Processors\DealProcessor.cs" />

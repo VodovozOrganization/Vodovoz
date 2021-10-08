@@ -1,4 +1,6 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Collections.Generic;
+using NHibernate;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 
 namespace Vodovoz.EntityRepositories
@@ -8,15 +10,22 @@ namespace Vodovoz.EntityRepositories
 		public BitrixDealRegistration GetDealRegistration(IUnitOfWork uow, uint bitrixDealId)
 		{
 			return uow.Session.QueryOver<BitrixDealRegistration>()
-				.Where(dp => dp.BitrixId == bitrixDealId)
+				.Where(bdr => bdr.BitrixId == bitrixDealId)
 				.SingleOrDefault();
 		}
 
 		public BitrixDealRegistration GetDealRegistrationByOrder(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<BitrixDealRegistration>()
-				.Where(dp => dp.Order.Id == orderId)
+				.Where(bdr => bdr.Order.Id == orderId)
 				.SingleOrDefault();
+		}
+
+		public IList<BitrixDealRegistration> GetDealRegistrationsToSync(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<BitrixDealRegistration>()
+				.Where(bdr => bdr.NeedSync)
+				.List();
 		}
 	}
 }

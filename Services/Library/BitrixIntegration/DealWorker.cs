@@ -8,13 +8,15 @@ namespace BitrixIntegration
 	public class DealWorker
 	{
 		private readonly DealProcessor _dealProcessor;
+		private readonly DealSynchronizer _dealSynchronizer;
 		private readonly int _interval;
 		private CancellationTokenSource _cancellationTokenSource;
 		private DateTime? _lastDay;
 
-		public DealWorker(DealProcessor dealProcessor, int interval = 60000)
+		public DealWorker(DealProcessor dealProcessor, DealSynchronizer dealSynchronizer, int interval = 60000)
 		{
 			_dealProcessor = dealProcessor ?? throw new ArgumentNullException(nameof(dealProcessor));
+			_dealSynchronizer = dealSynchronizer ?? throw new ArgumentNullException(nameof(dealSynchronizer));
 
 			if(interval < 1)
 			{
@@ -55,6 +57,7 @@ namespace BitrixIntegration
 				_dealProcessor.ProcessDeals(today);
 			}
 			_lastDay = today;
+			_dealSynchronizer.SynchronizeDeals();
 		}
 	}
 }

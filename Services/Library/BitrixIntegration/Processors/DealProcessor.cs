@@ -74,7 +74,8 @@ namespace BitrixIntegration.Processors
 				_dealRegistrator.RegisterDealAsInProgress(deal.Id);
 				try
 				{
-					ProcessDeal(deal);
+					var order = ProcessDeal(deal);
+					_dealRegistrator.BindOrderToRegistration(deal.Id, order);
 				}
 				catch(Exception e)
 				{
@@ -83,7 +84,7 @@ namespace BitrixIntegration.Processors
 			}
 		}
 
-		private void ProcessDeal(Deal deal)
+		private Order ProcessDeal(Deal deal)
 		{
 			_logger.Info($"Обработка сделки: {deal.Id}");
 
@@ -97,7 +98,7 @@ namespace BitrixIntegration.Processors
 				if(order != null)
 				{
 					_logger.Info($"Обработка сделки пропущена. Для сделки №{deal.Id} уже есть существующий заказ №{order.Id}.");
-					return;
+					return order;
 				}
 
 				_logger.Info("Обработка контрагента");
@@ -118,6 +119,7 @@ namespace BitrixIntegration.Processors
 
 				uow.Save(order);
 				uow.Commit();
+				return order;
 			}
 		}
 
