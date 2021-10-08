@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -30,12 +31,17 @@ namespace Vodovoz.Models
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
+			if(!order.DeliveryDate.HasValue)
+			{
+				throw new InvalidOperationException("Order delivery date cannot be null");
+			}
 
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
-			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.OrderItems, order.PaymentByCardFrom);
+			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
+				order.PaymentByCardFrom);
 		}
 
-		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
+		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime deliveryDate,
 			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null)
 		{
 			if(uow == null)
@@ -49,11 +55,12 @@ namespace Vodovoz.Models
 			}
 
 			return isSelfDelivery
-				? GetOrganizationForSelfDelivery(uow, paymentType, paymentFrom)
-				: GetOrganizationForOtherOptions(uow, paymentType, paymentFrom);
+				? GetOrganizationForSelfDelivery(uow, paymentType, deliveryDate, paymentFrom)
+				: GetOrganizationForOtherOptions(uow, paymentType, deliveryDate, paymentFrom);
 		}
 
-		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, PaymentFrom paymentFrom = null)
+		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime deliveryDate,
+			PaymentFrom paymentFrom = null)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -67,6 +74,8 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
+					organizationId = GetOrganizationIdForTerminalByDeliveryDate(deliveryDate);
+					break;
 				case PaymentType.ByCard:
 					organizationId =
 						paymentFrom != null
@@ -98,7 +107,8 @@ namespace Vodovoz.Models
 			return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
 		}
 
-		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, PaymentFrom paymentFrom = null)
+		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime deliveryDate,
+			PaymentFrom paymentFrom = null)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -112,6 +122,8 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
+					organizationId = GetOrganizationIdForTerminalByDeliveryDate(deliveryDate);
+					break;
 				case PaymentType.ByCard:
 					organizationId =
 						paymentFrom != null
@@ -151,6 +163,20 @@ namespace Vodovoz.Models
 		{
 			return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x =>
 				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
+		}
+
+		//FIXME убрать проверку после 2021-10-27. Выставить для терминала по умолчанию всегда Север
+		private int GetOrganizationIdForTerminalByDeliveryDate(DateTime deliveryDate)
+		{
+			if(deliveryDate <= Convert.ToDateTime("2021-10-12"))
+			{
+				return _organizationParametersProvider.VodovozSouthOrganizationId;
+			}
+			if(deliveryDate >= Convert.ToDateTime("2021-10-14"))
+			{
+				return _organizationParametersProvider.VodovozNorthOrganizationId;
+			}
+			return _organizationParametersProvider.VodovozNorthOrganizationId;
 		}
 	}
 }
