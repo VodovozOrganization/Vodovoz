@@ -80,7 +80,11 @@ namespace SmsPaymentService
                         CreationDate = DateTime.Now,
                         PhoneNumber = phoneNumber
                     };
-
+                    if(!order.DeliveryDate.HasValue)
+                    {
+	                    _logger.Error("Запрос на отправку платежа пришёл без даты доставки");
+	                    return new PaymentResult("Нельзя отправить платеж на заказ, в котором не указана дата доставки");
+                    }
                     if(order.OrderDepositItems.Any()) {
                         _logger.Error("Запрос на отправку платежа пришёл с возвратами залогов");
                         return new PaymentResult("Нельзя отправить платеж на заказ, в котором есть возврат залогов");
