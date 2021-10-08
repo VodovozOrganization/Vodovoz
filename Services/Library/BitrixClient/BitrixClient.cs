@@ -33,7 +33,7 @@ namespace Bitrix
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 		}
 
-		#region real
+		#region Client
 
 		public async Task<Contact> GetContact(uint id)
 		{
@@ -65,6 +65,10 @@ namespace Bitrix
 			return companyResponse.Result;
 		}
 
+		#endregion
+
+		#region Product
+
 		public async Task<Product> GetProduct(uint id)
 		{
 			string requestUri = $"crm.product.get.json?id={id}";
@@ -94,6 +98,10 @@ namespace Bitrix
 
 			return dealProductItemResponse.Result;
 		}
+
+		#endregion
+
+		#region Deal
 
 		public async Task<IList<Deal>> GetDeals(DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
@@ -138,10 +146,6 @@ namespace Bitrix
 
 			return deals;
 		}
-
-		#endregion
-
-		#region Отправка статуса
 
 		public async Task<bool> SetStatusToDeal(DealStatus status, uint dealId)
 		{
