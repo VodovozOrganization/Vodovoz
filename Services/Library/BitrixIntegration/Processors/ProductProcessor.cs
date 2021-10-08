@@ -90,7 +90,7 @@ namespace BitrixIntegration.Processors
 			if(nomenclature == null)
 			{
 				nomenclature = CreateOnlineStoreNomenclature(uow, dealProductItem);
-				nomenclature.UpdatePrice(dealProductItem.Price, dealProductItem.Count);
+				nomenclature.UpdatePrice(dealProductItem.Price, (int)dealProductItem.Count);
 			}
 			else
 			{
@@ -101,7 +101,7 @@ namespace BitrixIntegration.Processors
 				}
 				else
 				{
-					nomenclature.UpdatePrice(dealProductItem.Price, dealProductItem.Count);
+					nomenclature.UpdatePrice(dealProductItem.Price, (int)dealProductItem.Count);
 				}
 			}
 

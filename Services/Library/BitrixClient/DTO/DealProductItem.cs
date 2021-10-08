@@ -5,7 +5,7 @@ namespace Bitrix.DTO
 	public class DealProductItem
 	{
 		[JsonProperty("OWNER_ID")]
-		public string OwnerId { get; set; }
+		public uint OwnerId { get; set; }
 
 		[JsonProperty("OWNER_TYPE")]
 		public string OwnerType { get; set; }
@@ -32,19 +32,19 @@ namespace Bitrix.DTO
 		public string PriceAccount { get; set; }
 
 		[JsonProperty("QUANTITY")]
-		public int Count { get; set; }
+		public decimal Count { get; set; }
 
 		[JsonProperty("DISCOUNT_TYPE_ID")]
 		public int DiscountTypeId { get; set; }
 
 		[JsonProperty("DISCOUNT_RATE")]
-		public int DiscountRate { get; set; }
+		public decimal DiscountRate { get; set; }
 
 		[JsonProperty("DISCOUNT_SUM")]
-		public int DiscountSum { get; set; }
+		public decimal DiscountSum { get; set; }
 
 		[JsonProperty("TAX_RATE")]
-		public int TaxRate { get; set; }
+		public decimal TaxRate { get; set; }
 
 		[JsonProperty("TAX_INCLUDED")]
 		public string TaxIncluded { get; set; } // Bool
@@ -53,7 +53,7 @@ namespace Bitrix.DTO
 		public string Customized { get; set; }
 
 		[JsonProperty("MEASURE_CODE")]
-		public string MeasureCode { get; set; }
+		public uint MeasureCode { get; set; }
 
 		[JsonProperty("MEASURE_NAME")]
 		public string MeasureName { get; set; } // шт
