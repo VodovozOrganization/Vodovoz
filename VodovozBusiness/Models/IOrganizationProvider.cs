@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -11,7 +12,7 @@ namespace Vodovoz.Models
 	{
 		Organization GetOrganization(IUnitOfWork uow, Order order);
 
-		Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
+		Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime deliveryDate,
 			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null);
 
 		Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order);
