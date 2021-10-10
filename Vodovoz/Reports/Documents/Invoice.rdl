@@ -3411,81 +3411,57 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox62">
                       <Value>=
-Iif(First({order_payment_type}, "Order")='ByCard' 
-,
-"ОПЛАЧЕНО"
-,
-Iif(First({payment_status},"Order") = "Paid"
-,
-"ОПЛАЧЕНО"
-,
-Iif( {?payment_by_sms} != true,
-Iif(
-First({pay_type}, "Order") = "НАЛ"
-,
-"К оплате: НАЛИЧНЫМИ "
-+
-        Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='ByCard'
-                ,
-                (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
-                ,
-                0
+Iif(First({order_payment_type}, "Order")='ByCard',
+        "ОПЛАЧЕНО",
+        Iif({?payment_by_sms} != true,
+            Iif(
+                First({pay_type}, "Order") = "НАЛ",
+                "К оплате: НАЛИЧНЫМИ "
+                +
+                Convert.ToString
+                (
+                Iif(First({order_payment_type}, "Order")!='ByCard',
+                    (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р.",
+                    0
+                   )
+                )
+                +"\n" +
+                Iif(
+                First({trifle},'Order')&gt;0,
+                "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+                " "
+                    ),
+            Iif({?payment_by_sms} = true,   
+                "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS"
+                +"\n" +
+                Iif(
+                    First({trifle},'Order')&gt;0,
+                    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+                    " "
+                   ),
+                Iif(
+                    First({pay_type}, "Order") = "ТЕРМИНАЛ",
+                    "К оплате: \nПО ТЕРМИНАЛУ "
+                    +
+                    Convert.ToString
+                    (
+                        Iif(First({order_payment_type}, "Order")!='ByCard',
+                            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р.",
+                            0
+                        )
+                    ),
+                    "0"
+                    )
             )
-        )
-+"\n" +
-    Iif(
-    First({trifle},'Order')&gt;0
-    ,
-    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р."
-    ,
-    " "
-    )
-,
-    Iif(
-    {?payment_by_sms} = true    
-    ,   
+            ),
     "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS"
-+"\n" +
-    Iif(
-    First({trifle},'Order')&gt;0
-    ,
-    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р."
-    ,
-    " "
-    )
-
-    ,
+    +"\n" +
         Iif(
-        First({pay_type}, "Order") = "ТЕРМИНАЛ"
-    ,
-    "К оплате: \nПО ТЕРМИНАЛУ "
-    +
-    Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='ByCard'
-                ,
-                (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
-                ,
-                0
-            )
-        )
-     ,
-    "0"
+        First({trifle},'Order')&gt;0,
+        "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+        " "
         )
     )
-)
-,
-"К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS"
-+"\n" +
-    Iif(
-    First({trifle},'Order')&gt;0
-    ,
-    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р."
-    ,
-    " "
-    )
-)
-)
 )
 </Value>
                       <CanGrow>true</CanGrow>
