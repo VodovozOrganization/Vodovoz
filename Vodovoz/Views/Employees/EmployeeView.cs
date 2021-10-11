@@ -219,16 +219,8 @@ namespace Vodovoz.Views.Employees
 			accountsView.SetTitle("Банковские счета сотрудника");
 			
 			//Вкладка Файлы
-			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Employee));
 			
-			if(ViewModel.Entity.Id != 0)
-			{
-				attachmentFiles.ItemId =  ViewModel.Entity.Id;
-				attachmentFiles.UpdateFileList();
-			}
-
-			ViewModel.SaveAttachmentFilesChangesAction += SaveAttachmentFilesChanges;
-			ViewModel.HasAttachmentFilesChangesFunc += HasAttachmentsFilesChanges;
+			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
 			//Вкладка Документы
 			if(radioTabEmployeeDocument.Sensitive = ViewModel.CanReadEmployeeDocuments)
@@ -251,18 +243,6 @@ namespace Vodovoz.Views.Employees
 			wageParametersView.ViewModel = 
 				ViewModel.EmployeeWageParametersFactory.CreateEmployeeWageParametersViewModel(ViewModel.Entity, ViewModel, ViewModel.UoW);
 		}
-
-		private void SaveAttachmentFilesChanges()
-		{
-			if(ViewModel.UoWGeneric.IsNew)
-			{
-				attachmentFiles.ItemId = ViewModel.Entity.Id;
-			}
-			
-			attachmentFiles.SaveChanges();
-		}
-
-		private bool HasAttachmentsFilesChanges() => attachmentFiles.HasChanges;
 		
 		private void ConfigureRadioButtons()
 		{
@@ -697,15 +677,13 @@ namespace Vodovoz.Views.Employees
 
 		public override void Destroy()
 		{
-			ViewModel.SaveAttachmentFilesChangesAction -= SaveAttachmentFilesChanges;
-			ViewModel.HasAttachmentFilesChangesFunc -= HasAttachmentsFilesChanges;
-			
+			attachmentsView?.Destroy();			
 			base.Destroy();
 		}
 
 		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
 		{
-			ViewModel.RegisterDriverModileUserCommand.Execute();
+			ViewModel.RegisterDriverModuleUserCommand.Execute();
 		}
 	}
 }

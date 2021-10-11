@@ -18,6 +18,8 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton ychkDriverSort;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckExcludeTruckAndOfficeEmployees;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -100,16 +102,28 @@ namespace Vodovoz.Reports.Logistic
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.ycheckExcludeTruckAndOfficeEmployees = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckExcludeTruckAndOfficeEmployees.CanFocus = true;
+			this.ycheckExcludeTruckAndOfficeEmployees.Name = "ycheckExcludeTruckAndOfficeEmployees";
+			this.ycheckExcludeTruckAndOfficeEmployees.Label = global::Mono.Unix.Catalog.GetString("Исключить водителей фур и офисных работников");
+			this.ycheckExcludeTruckAndOfficeEmployees.DrawIndicator = true;
+			this.ycheckExcludeTruckAndOfficeEmployees.UseUnderline = true;
+			this.vbox1.Add(this.ycheckExcludeTruckAndOfficeEmployees);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckExcludeTruckAndOfficeEmployees]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w7.Position = 3;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

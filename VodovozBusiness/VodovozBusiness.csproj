@@ -255,7 +255,6 @@
     <Compile Include="EntityRepositories\Counterparties\ICounterpartyContractRepository.cs" />
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
-    <Compile Include="EntityRepositories\Orders\ExtendedReceiptForOrderNode.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
@@ -313,6 +312,7 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPrioritySetMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
+    <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
@@ -328,9 +328,12 @@
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
+    <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
+    <Compile Include="Parameters\NewDriverAdvanceParametersProvider.cs" />
+    <Compile Include="Parameters\ProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Parameters\OrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
     <Compile Include="Parameters\OrderParametersProvider.cs" />
@@ -565,6 +568,7 @@
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
@@ -1107,6 +1111,10 @@
     <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
       <Name>System.Data.Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
+      <Name>QS.Attachments</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>

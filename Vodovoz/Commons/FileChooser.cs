@@ -1,11 +1,11 @@
-using Gtk;
+﻿using Gtk;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz
 {
-    public class FileChooser: Gtk.FileChooserDialog, IFileChooserProvider
-    {
-        private Gtk.FileChooserDialog fileChooser;
+	public class FileChooser: FileChooserDialog, IFileChooserProvider
+	{
+		 private Gtk.FileChooserDialog fileChooser;
         private string fileName;
         public FileChooser(string fileName)
         {
@@ -70,5 +70,5 @@ namespace Vodovoz
         {
             fileChooser.Destroy();
         }
-    }
+	}
 }

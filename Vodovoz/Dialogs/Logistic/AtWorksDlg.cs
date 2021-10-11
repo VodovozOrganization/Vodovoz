@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -62,7 +63,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
         private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		
+        private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -393,7 +395,8 @@ namespace Vodovoz.Dialogs.Logistic
 					_driverApiRegistrationEndpoint,
 					CurrentUserSettings.Settings,
 					_userRepository,
-					_baseParametersProvider);
+					_baseParametersProvider,
+					_attachmentsViewModelFactory);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using NLog;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -11,6 +12,8 @@ namespace Vodovoz.Filters.GtkViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderFilterView : FilterViewBase<OrderJournalFilterViewModel>
 	{
+		private static readonly Logger _logger =  LogManager.GetCurrentClassLogger();
+		
 		public OrderFilterView(OrderJournalFilterViewModel orderJournalFilterViewModel) : base(orderJournalFilterViewModel)
 		{
 			this.Build();
@@ -130,6 +133,14 @@ namespace Vodovoz.Filters.GtkViews
 			}
 
 			#endregion PaymentTypeRestriction
+		}
+
+		public override void Destroy()
+		{
+			_logger.Info($"Вызван Destroy() у {typeof(OrderFilterView)}");
+			entryCounterparty.DestroyEntry();
+			entryDeliveryPoint.DestroyEntry();
+			base.Destroy();
 		}
 	}
 }

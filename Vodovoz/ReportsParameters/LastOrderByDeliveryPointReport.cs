@@ -15,7 +15,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
-			BottleDeptEntry.ValidationMode =ValidationType.numeric;
+			BottleDeptEntry.ValidationMode = ValidationType.numeric;
 		}
 
 		#region IParametersWidget implementation

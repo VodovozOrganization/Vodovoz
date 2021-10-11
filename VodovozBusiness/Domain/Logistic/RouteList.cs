@@ -202,7 +202,13 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get => status;
-			protected set => SetField(ref status, value, () => Status);
+			protected set
+			{
+				if(SetField(ref status, value))
+				{
+					OnPropertyChanged(() => CanChangeStatusToDelivered);
+				}
+			}
 		}
 
 		DateTime? closingDate;
@@ -555,6 +561,15 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
+
+		public virtual bool CanChangeStatusToDelivered => Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
+		
+		/// <summary>
+		/// МЛ находится в статусе для открытия диалога закрытия
+		/// </summary>
+		public virtual bool CanBeOpenedInClosingDlg
+			=> new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
+				.Contains(Status);
 
 		#endregion
 
@@ -1176,7 +1191,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateStatus()
 		{
-			if(Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute))
+			if(CanChangeStatusToDelivered)
 			{
 				ChangeStatus(RouteListStatus.Delivered);
 			}
@@ -1187,6 +1202,10 @@ namespace Vodovoz.Domain.Logistic
 			Addresses.First(a => a.Id == id).TransferTo(targetAddress);
 			UpdateStatus();
 		}
+
+		public virtual void RevertTransferAddress(
+			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress) =>
+				targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
 
 		private void UpdateClosedInformation()
 		{
@@ -1264,13 +1283,11 @@ namespace Vodovoz.Domain.Logistic
 			};
 			_printsHistory.Add(newHistory);
 		}
-		
+
 		/// <summary>
 		/// Указывает, находится ли МЛ в таком статусе, что его надо печатать как ClosedRouteList.rdl
 		/// </summary>
-		public virtual bool PrintAsClosed() =>
-			new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
-				.Contains(Status);
+		public virtual bool PrintAsClosed() => CanBeOpenedInClosingDlg;
 
 		public virtual void CreateSelfDriverTerminalTransferDocument()
 		{
@@ -1536,7 +1553,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				routeListItem.FirstFillClosing(UoW, wageParameterService);
+				routeListItem.FirstFillClosing(wageParameterService);
 				PerformanceHelper.EndPointsGroup();
 			}
 

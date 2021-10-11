@@ -181,5 +181,43 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
 				.SingleOrDefault<decimal>();
 		}
+
+		public decimal GetIncomeSumByRouteListId(IUnitOfWork uow, int routeListId, IncomeType[] includedIncomeTypes = null, IncomeType[] excludedIncomeTypes = null)
+		{
+			var query = uow.Session.QueryOver<Income>()
+				.Where(inc => inc.RouteListClosing.Id == routeListId)
+				.Select(Projections.Sum<Income>(inc => inc.Money));
+
+			if(includedIncomeTypes != null)
+			{
+				query.Where(inc => inc.IsIn(includedIncomeTypes));
+			}
+
+			if(excludedIncomeTypes != null)
+			{
+				query.Where(inc => !inc.IsIn(excludedIncomeTypes));
+			}
+
+			return query.SingleOrDefault<decimal>();
+		}
+
+		public decimal GetExpenseSumByRouteListId(IUnitOfWork uow, int routeListId, ExpenseType[] includedExpenseTypes = null, ExpenseType[] excludedExpenseTypes = null)
+		{
+			var query = uow.Session.QueryOver<Expense>()
+				.Where(exp => exp.RouteListClosing.Id == routeListId)
+				.Select(Projections.Sum<Expense>(exp => exp.Money));
+
+			if(includedExpenseTypes != null)
+			{
+				query.Where(exp => exp.TypeOperation.IsIn(includedExpenseTypes));
+			}
+
+			if(excludedExpenseTypes != null)
+			{
+				query.Where(exp => !exp.TypeOperation.IsIn(excludedExpenseTypes));
+			}
+
+			return query.SingleOrDefault<decimal>();
+		}
 	}
 }

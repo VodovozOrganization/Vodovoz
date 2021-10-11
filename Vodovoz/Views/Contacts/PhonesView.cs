@@ -8,6 +8,7 @@ using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
 using QSWidgetLib;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
@@ -57,6 +58,8 @@ namespace Vodovoz.Views.Contacts
 				PhonesList = phones != null ? new GenericObservableList<Phone>(phones) : null;
 			}
 		}
+
+		public Counterparty Counterparty { get; set; }
 
 		public GenericObservableList<Phone> PhonesList {
 			get {
@@ -120,7 +123,9 @@ namespace Vodovoz.Views.Contacts
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			PhonesList.Add(new Phone().Init(ContactParametersProvider.Instance));
+			var phone = new Phone().Init(ContactParametersProvider.Instance);
+			phone.Counterparty = Counterparty;
+			PhonesList.Add(phone);
 		}
 
 		private void AddPhoneRow(Phone newPhone)

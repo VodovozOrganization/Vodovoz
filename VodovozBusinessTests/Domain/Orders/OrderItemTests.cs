@@ -14,13 +14,38 @@ namespace VodovozBusinessTests.Domain.Orders
 	{
 		private static IEnumerable DiscountByStockTestSource()
 		{
+			//	Скидка без учёта скидки по акции "Бутыль" расчитывается по формуле:
+			//		originalExistingPercent =  100 * (existingPercent - DiscountByStock) / (100 - DiscountByStock),
+			//		где existingPercent это уже имеющийся общий процент скидки, а DiscountByStock процент скидки по акции "Бутыль".
+			//	Итоговоя скидка resultDiscount = originalExistingPercent + (100 - originalExistingPercent) / 100 * discountPercent.
+
+			// originalExistingPercent = 100 * (100 - 0) / (100 - 0) = 100
+			// resultDiscount = 100 + (100 - 100) / 100 * 20 = 100
 			yield return new object[] { 1000m, 100m, 0m, 20m, 100m };
-			yield return new object[] { 600m, 60m, 10m, 20m, 70m };
-			yield return new object[] { 800m, 80m, 0m, 20m, 100m };
-			yield return new object[] { 850m, 85m, 0m, 20m, 100m };
-			yield return new object[] { 950m, 95m, 10m, 20m, 100m };
+
+			// originalExistingPercent = 100 * (60 - 10) / (100 - 10) = 55.555
+			// resultDiscount = 55.555 + (100 - 55.555) / 100 * 20 = 64.44
+			yield return new object[] { 600m, 60m, 10m, 20m, 64.44m };
+
+			// originalExistingPercent = 100 * (80 - 0) / (100 - 0) = 80
+			// resultDiscount = 80 + (100 - 80) / 100 * 20 = 84
+			yield return new object[] { 800m, 80m, 0m, 20m, 84m };
+
+			// originalExistingPercent = 100 * (85 - 0) / (100 - 0) = 85
+			// resultDiscount = 85 + (100 - 85) / 100 * 20 = 88
+			yield return new object[] { 850m, 85m, 0m, 20m, 88m };
+
+			// originalExistingPercent = 100 * (95 - 10) / (100 - 10) = 94.444
+			// resultDiscount = 94.444 + (100 - 94.444) / 100 * 20 = 95.56
+			yield return new object[] { 950m, 95m, 10m, 20m, 95.56m };
+
+			// originalExistingPercent = 100 * (0 - 0) / (100 - 0) = 0
+			// resultDiscount = 0 + (100 - 0) / 100 * 20 = 20
 			yield return new object[] { 0m, 0m, 0m, 20m, 20m };
-			yield return new object[] { 503.1m, 50.31m, 0m, 11.67m, 61.98m };
+
+			// originalExistingPercent = 100 * (50.31 - 0) / (100 - 0) = 50,31
+			// resultDiscount = 50,31 + (100 - 50,31) / 100 * 11.67 = 56.11
+			yield return new object[] { 503.1m, 50.31m, 0m, 11.67m, 56.11m };
 		}
 
 		[Test(Description = "Проверка добавления скидки в процентах, для товара на сумму 1000, в котором скидка установлена деньгами")]
@@ -42,7 +67,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
 
 			// assert
-			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
+			Assert.That(decimal.Round(testedOrderItem.Discount,2), Is.EqualTo(result));
 		}
 
 		[Test(Description = "Проверка добавления скидки в процентах, для товара на сумму 1000, в котором скидка установлена процентами")]
@@ -64,19 +89,40 @@ namespace VodovozBusinessTests.Domain.Orders
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
 
 			// assert
-			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
+			Assert.That(decimal.Round(testedOrderItem.Discount, 2), Is.EqualTo(result));
 		}
 
 		private static IEnumerable DiscountByStockForAddAndDeleteTestSource()
 		{
+			//	Скидка без учёта скидки по акции "Бутыль" расчитывается по формуле:
+			//		originalExistingPercent =  100 * (existingPercent - DiscountByStock) / (100 - DiscountByStock),
+			//		где existingPercent это уже имеющийся общий процент скидки, а DiscountByStock процент скидки по акции "Бутыль".
+
+			// originalExistingPercent = 100 * (100 - 0) / (100 - 0) = 100
 			yield return new object[] { 1000m, 100m, 0m, 20m, 100m };
-			yield return new object[] { 1000m, 100m, 20m, 20m, 80m };
-			yield return new object[] { 1000m, 100m, 20m, 10m, 80m };
+
+			// originalExistingPercent = 100 * (100 - 20) / (100 - 20) = 100
+			yield return new object[] { 1000m, 100m, 20m, 20m, 100m };
+
+			// originalExistingPercent = 100 * (100 - 20) / (100 - 20) = 100
+			yield return new object[] { 1000m, 100m, 20m, 10m, 100m };
+
+			// originalExistingPercent = 100 * (50 - 0) / (100 - 0) = 50
 			yield return new object[] { 500m, 50m, 0m, 20m, 50m };
-			yield return new object[] { 700m, 70m, 20m, 20m, 50m };
+
+			// originalExistingPercent = 100 * (70 - 20) / (100 - 20) = 62.5
+			yield return new object[] { 700m, 70m, 20m, 20m, 62.5m };
+
+			// originalExistingPercent = 100 * (90 - 0) / (100 - 0) = 90
 			yield return new object[] { 900m, 90m, 0m, 20m, 90m };
-			yield return new object[] { 950m, 95m, 20m, 20m, 75m };
-			yield return new object[] { 950m, 95m, 10m, 20m, 85m };
+
+			// originalExistingPercent = 100 * (95 - 20) / (100 - 20) = 93.75
+			yield return new object[] { 950m, 95m, 20m, 20m, 93.75m };
+
+			// originalExistingPercent = 100 * (95 - 10) / (100 - 10) = 94.44
+			yield return new object[] { 950m, 95m, 10m, 20m, 94.44m };
+
+			// originalExistingPercent = 100 * (0 - 0) / (100 - 0) = 0
 			yield return new object[] { 0m, 0m, 0m, 20m, 0m };
 		}
 
@@ -100,7 +146,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			testedOrderItem.SetDiscountByStock(discountReason, 0);
 
 			// assert
-			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
+			Assert.That(decimal.Round(testedOrderItem.Discount, 2), Is.EqualTo(result));
 		}
 
 		[Test(Description = "Если добавить и потом удалить скидку по акции, сумма товара должна вернутся на первоначальный уровень. Скидка в деньгах")]
@@ -123,7 +169,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			testedOrderItem.SetDiscountByStock(discountReason, 0);
 
 			// assert
-			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
+			Assert.That(decimal.Round(testedOrderItem.Discount,2), Is.EqualTo(result));
 		}
 
 		[Test(Description = "При установке актуального кол-ва в 0 НДС и сумма становятся 0")]
@@ -143,7 +189,7 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			// assert
 			Assert.That(orderItem.ActualSum, Is.EqualTo(0));
-			Assert.That(orderItem.IncludeNDS, Is.EqualTo(0));
+			Assert.That(orderItem.IncludeNDS, Is.EqualTo(null));
 		}
 
 		static IEnumerable PercentDiscountValues()

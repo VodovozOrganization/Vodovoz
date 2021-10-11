@@ -465,37 +465,37 @@ payment_type='ToClient'</CommandText>
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>207.7pt</Width>
+            <Width>205pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>24.7pt</Width>
+            <Width>59pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.7pt</Width>
+            <Width>30pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.5pt</Width>
+            <Width>52pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.1pt</Width>
+            <Width>45pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
           </TableColumn>
           <TableColumn>
-            <Width>58.6pt</Width>
+            <Width>65pt</Width>
             <Visibility>
               <Hidden>=Iif(SUM({item_discount}, 'Goods')&gt;0,'false','true')</Hidden>
             </Visibility>
           </TableColumn>
           <TableColumn>
-            <Width>58.6pt</Width>
+            <Width>65pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>20 pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -612,7 +612,7 @@ payment_type='ToClient'</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>Сум.без скидки</Value>
+                      <Value>Сумма без скидки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -792,8 +792,8 @@ payment_type='ToClient'</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>52.9pt</Left>
-        <Top>190.2pt</Top>
+        <Left>29pt</Left>
+        <Top>180pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1550,11 +1550,11 @@ payment_type='ToClient'</CommandText>
       </Textbox>
       <Textbox Name="Textbox76" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
-        <Width>55.00pt</Width>
+        <Width>57.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>91.7pt</Left>
-        <Top>162.0pt</Top>
+        <Left>89pt</Left>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1562,6 +1562,7 @@ payment_type='ToClient'</CommandText>
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
           <TextAlign>Left</TextAlign>
+          <VerticalAlign >Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox77" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1569,29 +1570,31 @@ payment_type='ToClient'</CommandText>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
         <ZIndex>1</ZIndex>
-        <Left>24.8pt</Left>
-        <Top>162.0pt</Top>
+        <Left>24pt</Left>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
           <TextAlign>Right</TextAlign>
+          <VerticalAlign >Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox78" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12pt</Height>
-        <Width>49.28pt</Width>
+        <Width>49pt</Width>
         <Value>Договор:</Value>
         <ZIndex>1</ZIndex>
-        <Left>146.0pt</Left>
-        <Top>162.0pt</Top>
+        <Left>140.0pt</Left>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
-          <TextAlign>Left</TextAlign>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox79" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1826,13 +1829,14 @@ payment_type='ToClient'</CommandText>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
         <ZIndex>1</ZIndex>
         <Left>286.8pt</Left>
-        <Top>162.0pt</Top>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
           <TextAlign>Right</TextAlign>
+          <VerticalAlign >Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1841,7 +1845,7 @@ payment_type='ToClient'</CommandText>
         <Value>=Max({lunch_time}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>325.20pt</Left>
-        <Top>162.00pt</Top>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1849,20 +1853,22 @@ payment_type='ToClient'</CommandText>
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
           <TextAlign>Left</TextAlign>
+          <VerticalAlign >Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox8">
         <Height>12.00pt</Height>
-        <Width>148.11pt</Width>
+        <Width>147pt</Width>
         <Value>Доставка раньше интервала:</Value>
         <ZIndex>1</ZIndex>
-        <Left>395.3pt</Left>
-        <Top>161.2pt</Top>
+        <Left>395pt</Left>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox9">
@@ -1871,27 +1877,30 @@ payment_type='ToClient'</CommandText>
         <Value>=Max({is_before_interval_delivery}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>543.90pt</Left>
-        <Top>161.70pt</Top>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Left</TextAlign>
+          <VerticalAlign >Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox10">
         <Height>12pt</Height>
-        <Width>104.58pt</Width>
+        <Width>108pt</Width>
         <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>190.30pt</Left>
-        <Top>162.00pt</Top>
+        <Left>187pt</Left>
+        <Top>163pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Left</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>

@@ -13,7 +13,8 @@ namespace VodovozSalesReceiptsService
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		public static void StartService(string serviceHostName, string servicePort, string modulKassaBaseAddress, IEnumerable<CashBox> cashboxes)
+		public static void StartService(string serviceHostName, string servicePort, string modulKassaBaseAddress,
+			IEnumerable<CashBox> cashboxes)
 		{
 			_logger.Info("Запуск службы фискализации и печати кассовых чеков...");
 
@@ -23,20 +24,16 @@ namespace VodovozSalesReceiptsService
 				new OrderRepository(),
 				new SalesReceiptSender(modulKassaBaseAddress),
 				new OrderParametersProvider(parametersProvider),
-				new OrganizationParametersProvider(parametersProvider),
-				new SalesReceiptsParametersProvider(parametersProvider),
 				cashboxes
 			);
 			fiscalizationWorker.Start();
-			
+
 			_logger.Info("Служба фискализации запущена");
 
 			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
 				new BaseParametersProvider(parametersProvider),
 				new OrderRepository(),
-				new OrderParametersProvider(parametersProvider),
-				new OrganizationParametersProvider(parametersProvider),
-				new SalesReceiptsParametersProvider(parametersProvider)
+				new OrderParametersProvider(parametersProvider)
 			);
 			WebServiceHost salesReceiptsHost = new SalesReceiptsServiceHost(salesReceiptsInstanceProvider);
 			salesReceiptsHost.AddServiceEndpoint(
