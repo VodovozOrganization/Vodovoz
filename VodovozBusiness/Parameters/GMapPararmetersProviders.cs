@@ -4,13 +4,13 @@ namespace Vodovoz.Parameters
 {
 	public class GMapPararmetersProviders : IGMapParametersProviders
 	{
-		private readonly IParametersProvider parametersProvider;
+		private readonly IParametersProvider _parametersProvider;
 
 		public GMapPararmetersProviders(IParametersProvider parametersProvider)
 		{
-			parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
 		
-		public string SquidServer => parametersProvider.GetParameterValue("squidServer");
+		public string SquidServer => _parametersProvider.GetParameterValue("squidServer");
 	}
 }
