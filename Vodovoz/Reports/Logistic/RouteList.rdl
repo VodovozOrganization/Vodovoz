@@ -489,7 +489,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -730,8 +730,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <FontSize >8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1624,7 +1624,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>8 (967) 530 - 43 - 36</Value>
+                      <Value>Юг: 8 (967) 530 - 43 - 36 / Север: 8 (964) 378 32 89</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
