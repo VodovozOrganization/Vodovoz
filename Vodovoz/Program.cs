@@ -137,6 +137,8 @@ namespace Vodovoz
 			);
 
 			//Настройка карты
+			IGMapParametersProviders gMapParametersProviders = new GMapPararmetersProviders(parametersProvider); 
+			
 			GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				applicationInfo.ProductName,
 				applicationInfo.Version.VersionToShortString(),
@@ -144,7 +146,7 @@ namespace Vodovoz
 				Environment.OSVersion.VersionString
 			);
 			GMapProvider.Language = GMap.NET.LanguageType.Russian;
-			GMapProvider.WebProxy = new WebProxy(parametersProvider.GetParameterValue("squidServer"));
+			GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
 			
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
