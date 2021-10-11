@@ -144,7 +144,7 @@ namespace Vodovoz
 				Environment.OSVersion.VersionString
 			);
 			GMapProvider.Language = GMap.NET.LanguageType.Russian;
-			GMapProvider.WebProxy = new WebProxy("http://192.168.10.29:80/");
+			GMapProvider.WebProxy = new WebProxy(parametersProvider.GetParameterValue("squidServer"));
 			
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
