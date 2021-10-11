@@ -1,7 +1,10 @@
 ﻿using System.Linq;
+using Gamma.ColumnConfig;
+using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Users;
 
@@ -15,7 +18,7 @@ namespace Vodovoz.Views.Users
 			ConfigureDlg();
 		}
 
-		void ConfigureDlg()
+		private void ConfigureDlg()
 		{
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			yentryrefWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject).InitializeFromSource();
@@ -37,10 +40,19 @@ namespace Vodovoz.Views.Users
 			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.DefaultComplaintStatus, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			frame2.Visible = ViewModel.IsUserFromRetail;
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject).InitializeFromSource();
 
 			ycheckbuttonUse.Binding.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active).InitializeFromSource();
+
+			frameSortingCashInfo.Visible = ViewModel.UserIsCashier;
+			treeViewSubdivisionsToSort.ColumnsConfig = FluentColumnsConfig<CashSubdivisionSortingSettings>.Create()
+				.AddColumn("№").AddNumericRenderer(x => x.SortingIndex)
+				.AddColumn("Подразделение кассы").AddTextRenderer(x => x.CashSubdivision.Name)
+				.Finish();
+			treeViewSubdivisionsToSort.EnableGridLines = TreeViewGridLines.Vertical;
+			treeViewSubdivisionsToSort.SetItemsSource(ViewModel.SubdivisionSortingSettings);
+			treeViewSubdivisionsToSort.DragDataReceived += (o, args) => ViewModel.UpdateIndices();
 
 			if (ViewModel.IsUserFromOkk)
 			{
@@ -52,7 +64,7 @@ namespace Vodovoz.Views.Users
 
 				ycheckbuttonUse.Toggled += (sender, e) =>
 				{
-					bool useEmployeeSubdivision = ViewModel.Entity.UseEmployeeSubdivision;
+					var useEmployeeSubdivision = ViewModel.Entity.UseEmployeeSubdivision;
 					yentrySubdivision.Sensitive = !useEmployeeSubdivision;
 
 					if (useEmployeeSubdivision)
@@ -62,7 +74,7 @@ namespace Vodovoz.Views.Users
 
 				};
 
-				yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory());
+				yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionSelectorDefaultFactory);
 				yentrySubdivision.Binding.AddBinding(ViewModel.Entity, s => s.DefaultSubdivision, w => w.Subject).InitializeFromSource();
 			}
 		}

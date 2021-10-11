@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.TempAdapters
 {
@@ -43,6 +44,7 @@ namespace Vodovoz.TempAdapters
 		private IPhonesViewModelFactory _phonesViewModelFactory;
 		private IWarehouseRepository _warehouseRepository;
 		private IRouteListRepository _routeListRepository;
+		private IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 
 		public EmployeeJournalFactory(
 			EmployeeFilterViewModel employeeJournalFilter = null)
@@ -57,16 +59,19 @@ namespace Vodovoz.TempAdapters
 
 			_driverApiUserRegisterEndpoint = driverApiRegisterEndpoint;
 			_employeeJournalFilter = employeeJournalFilter;
-		}
 
-		private void CreateNewDependencies()
-		{
 			_authorizationServiceFactory = new AuthorizationServiceFactory();
 			_employeeWageParametersFactory = new EmployeeWageParametersFactory();
 			_employeeJournalFactory = this;
 			_subdivisionJournalFactory = new SubdivisionJournalFactory();
 			_employeePostsJournalFactory = new EmployeePostsJournalFactory();
-		
+			_validationContextFactory = new ValidationContextFactory();
+			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		}
+
+		private void CreateNewDependencies()
+		{
 			_cashDistributionCommonOrganisationProvider =
 				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 		
@@ -74,33 +79,16 @@ namespace Vodovoz.TempAdapters
 			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 			_wageCalculationRepository = new WageCalculationRepository();
 			_employeeRepository = new EmployeeRepository();
-			_validationContextFactory = new ValidationContextFactory();
-			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_warehouseRepository = new WarehouseRepository();
 			_routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		}
 
-		public void SetEmployeeFilterViewModel(EmployeeFilterViewModel filter)
-		{
-			_employeeJournalFilter = filter;
-		}
-		
-		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
+		public EmployeesJournalViewModel CreateEmployeesJournal(EmployeeFilterViewModel filterViewModel = null)
 		{
 			CreateNewDependencies();
-			
-			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
-				typeof(Employee),
-				CreateEmployeeJournal
-			);
-		}
-		
-		public EmployeesJournalViewModel CreateEmployeeJournal()
-		{
-			CreateNewDependencies();
-			
+
 			return new EmployeesJournalViewModel(
-				_employeeJournalFilter ?? new EmployeeFilterViewModel(),
+				filterViewModel ?? _employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
 				_employeeWageParametersFactory,
 				_employeeJournalFactory,
@@ -118,7 +106,23 @@ namespace Vodovoz.TempAdapters
 				_phonesViewModelFactory,
 				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory
+				UnitOfWorkFactory.GetDefaultFactory,
+				_attachmentsViewModelFactory
+			);
+		}
+
+		public void SetEmployeeFilterViewModel(EmployeeFilterViewModel filter)
+		{
+			_employeeJournalFilter = filter;
+		}
+		
+		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
+		{
+			CreateNewDependencies();
+			
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() => CreateEmployeesJournal()
 			);
 		}
 
@@ -138,31 +142,12 @@ namespace Vodovoz.TempAdapters
 			{
 				HidenByDefault = true,
 			};
+
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.Category = EmployeeCategory.driver);
-					
-			return new EmployeesJournalViewModel(
-				driverFilter,
-				_authorizationServiceFactory,
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
-				_emailServiceSettingAdapter,
-				_wageCalculationRepository,
-				_employeeRepository,
-				_warehouseRepository,
-				_routeListRepository,
-				CurrentUserSettings.Settings,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_driverApiUserRegisterEndpoint,
-				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory
-			);
+
+			return CreateEmployeesJournal(driverFilter);
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
@@ -177,31 +162,12 @@ namespace Vodovoz.TempAdapters
 					{
 						HidenByDefault = true,
 					};
+
 					officeFilter.SetAndRefilterAtOnce(
 						x => x.Status = EmployeeStatus.IsWorking,
 						x => x.Category = EmployeeCategory.office);
 					
-					return new EmployeesJournalViewModel(
-						officeFilter,
-						_authorizationServiceFactory,
-						_employeeWageParametersFactory,
-						_employeeJournalFactory,
-						_subdivisionJournalFactory,
-						_employeePostsJournalFactory,
-						_cashDistributionCommonOrganisationProvider,
-						_subdivisionService,
-						_emailServiceSettingAdapter,
-						_wageCalculationRepository,
-						_employeeRepository,
-						_warehouseRepository,
-						_routeListRepository,
-						CurrentUserSettings.Settings,
-						_validationContextFactory,
-						_phonesViewModelFactory,
-						_driverApiUserRegisterEndpoint,
-						ServicesConfig.CommonServices,
-						UnitOfWorkFactory.GetDefaultFactory
-					);
+					return CreateEmployeesJournal(officeFilter);
 				}
 			);
 		}
@@ -266,27 +232,7 @@ namespace Vodovoz.TempAdapters
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.Category = EmployeeCategory.forwarder);
 					
-			return new EmployeesJournalViewModel(
-				forwarderFilter,
-				_authorizationServiceFactory,
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
-				_emailServiceSettingAdapter,
-				_wageCalculationRepository,
-				_employeeRepository,
-				_warehouseRepository,
-				_routeListRepository,
-				CurrentUserSettings.Settings,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_driverApiUserRegisterEndpoint,
-				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory
-			);
+			return CreateEmployeesJournal(forwarderFilter);
 		}
 	}
 }

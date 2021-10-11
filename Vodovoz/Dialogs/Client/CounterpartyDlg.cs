@@ -395,7 +395,7 @@ namespace Vodovoz
 
 			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
 
-			ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceitps, w => w.Active).InitializeFromSource();
+			ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active).InitializeFromSource();
 			ycheckAlwaysSendReceitps.Visible =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
 

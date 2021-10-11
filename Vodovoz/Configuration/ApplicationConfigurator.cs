@@ -92,7 +92,8 @@ namespace Vodovoz.Configuration
                     System.Reflection.Assembly.GetAssembly(typeof(HibernateMapping.OrganizationMap)),
                     System.Reflection.Assembly.GetAssembly(typeof(Bank)),
                     System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-                },
+                    System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+				},
                 cnf => {
                     cnf.DataBaseIntegration(
                         dbi => {

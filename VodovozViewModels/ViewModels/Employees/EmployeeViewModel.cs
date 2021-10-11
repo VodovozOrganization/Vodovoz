@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using QS.Attachments.ViewModels.Widgets;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -47,14 +48,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
-
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
@@ -76,12 +75,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _copyDriverWorkScheduleSetCommand;
 		private DelegateCommand _removeEmployeeDocumentsCommand;
 		private DelegateCommand _removeEmployeeContractsCommand;
-		private DelegateCommand _registerDriverModileUserCommand;
+		private DelegateCommand _registerDriverModuleUserCommand;
 
 		public IReadOnlyList<Organization> organizations;
 
-		public event Action SaveAttachmentFilesChangesAction;
-		public event Func<bool> HasAttachmentFilesChangesFunc;
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public EmployeeViewModel(
@@ -105,6 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			UserSettings userSettings,
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			bool traineeToEmployee = false,
 			INavigationManager navigationManager = null
 			) : base(commonServices?.InteractiveService, navigationManager)
@@ -115,12 +113,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
-			
-			if(commonOrganisationProvider == null)
-			{
-				throw new ArgumentNullException(nameof(commonOrganisationProvider));
-			}
-			
 			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
 			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
@@ -134,17 +126,22 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 
+			if(commonOrganisationProvider == null)
+			{
+				throw new ArgumentNullException(nameof(commonOrganisationProvider));
+			}
+
 			if(validationContextFactory == null)
 			{
 				throw new ArgumentNullException(nameof(validationContextFactory));
 			}
-
-			ConfigureValidationContext(validationContextFactory);
-
+			
 			if(phonesViewModelFactory == null)
 			{
 				throw new ArgumentNullException(nameof(phonesViewModelFactory));
 			}
+			
+			ConfigureValidationContext(validationContextFactory);
 
 			PhonesViewModel = phonesViewModelFactory.CreateNewPhonesViewModel(UoW);
 			
@@ -152,12 +149,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
 				FillHiddenCategories(traineeToEmployee);
+
 				TabName = "Новый сотрудник";
 			}
 			else
 			{
 				TabName = Entity.GetPersonNameWithInitials();
 			}
+			
+			AttachmentsViewModel = (attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
+				.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			
 			if(Entity.Phones == null)
 			{
@@ -177,14 +178,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			if(!permissionResult.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
-			}
-		}
-
-		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
-			{
-				OnPropertyChanged(nameof(IsValidNewMobileUser));
 			}
 		}
 
@@ -222,11 +215,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				PhonesViewModel.RemoveEmpty();
 
-				var attachmentFilesHasChanges = HasAttachmentFilesChangesFunc?.Invoke() ?? false;
-				
 				return UoWGeneric.HasChanges
-					   || attachmentFilesHasChanges
-					   || !string.IsNullOrEmpty(Entity.LoginForNewUser)
+				       || !string.IsNullOrEmpty(Entity.LoginForNewUser)
 					   || (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
@@ -235,19 +225,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
 
 		public PhonesViewModel PhonesViewModel { get; }
+		
+		public AttachmentsViewModel AttachmentsViewModel { get; }
 
-		public TerminalManagementViewModel TerminalManagementViewModel => _terminalManagementViewModel ??
-		                                                                  (_terminalManagementViewModel =
-			                                                                  new TerminalManagementViewModel(
-				                                                                  _userSettings.DefaultWarehouse,
-				                                                                  Entity,
-				                                                                  this as ITdiTab,
-				                                                                  _employeeRepository,
-				                                                                  _warehouseRepository,
-				                                                                  _routeListRepository,
-				                                                                  _commonServices,
-				                                                                  UoW,
-				                                                                  _baseParametersProvider));
+		public TerminalManagementViewModel TerminalManagementViewModel =>
+			_terminalManagementViewModel ?? (_terminalManagementViewModel =
+				new TerminalManagementViewModel(
+					_userSettings.DefaultWarehouse,
+				    Entity,
+				    this as ITdiTab,
+				    _employeeRepository,
+				    _warehouseRepository,
+				    _routeListRepository,
+				    _commonServices,
+				    UoW,
+				    _baseParametersProvider));
 
 		public bool CanReadEmployeeDocuments { get; private set; }
 		public bool CanAddEmployeeDocument { get; private set; }
@@ -584,8 +576,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				)
 			);
 
-		public DelegateCommand RegisterDriverModileUserCommand =>
-			_registerDriverModileUserCommand ?? (_registerDriverModileUserCommand = new DelegateCommand(
+		public DelegateCommand RegisterDriverModuleUserCommand =>
+			_registerDriverModuleUserCommand ?? (_registerDriverModuleUserCommand = new DelegateCommand(
 					() =>
 					{
 						try
@@ -614,6 +606,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.AndroidLogin) || e.PropertyName == nameof(Entity.AndroidPassword))
+			{
+				OnPropertyChanged(nameof(IsValidNewMobileUser));
+			}
+		}
 
 		private void SetPermissions()
 		{
@@ -790,7 +790,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			try
 			{
 				UoWGeneric.Save();
-				SaveAttachmentFilesChangesAction?.Invoke();
 			}
 			catch(Exception ex)
 			{
@@ -814,12 +813,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private string GenerateHashName(int id)
 		{
 			return DomainHelper.GenerateDialogHashName(typeof(Employee), id);
-		}
-		
-		public override void Close(bool askSave, CloseSource source)
-		{
-			base.Close(askSave, source);
-			Dispose();
 		}
 		
 		public override void Dispose()

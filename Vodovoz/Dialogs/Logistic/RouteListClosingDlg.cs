@@ -49,6 +49,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Models;
 
 namespace Vodovoz
 {
@@ -819,6 +820,30 @@ namespace Vodovoz
 				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
+			INewDriverAdvanceParametersProvider newDriverAdvanceParametersProvider = new NewDriverAdvanceParametersProvider(_parametersProvider);
+			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(newDriverAdvanceParametersProvider, _routeListRepository, Entity);
+			if(newDriverAdvanceModel.NeedNewDriverAdvance(UoW))
+			{
+				if(newDriverAdvanceModel.UnclosedRouteLists(UoW).Any()
+				   && !MessageDialogHelper.RunQuestionDialog(
+					   "У водителя есть незакрытые МЛ:\n"
+					   + newDriverAdvanceModel.UnclosedRouteListStrings(UoW) 
+					   + "\nТекущий МЛ будет закрыт без выдачи аванса.\nПродолжить?"))
+				{
+					return;
+				}
+				else
+				{
+					var newDriverAdvanceSumParameter = newDriverAdvanceParametersProvider.NewDriverAdvanceSum;
+					var driverWage = Entity.GetDriversTotalWage();
+					if(driverWage > 0)
+					{
+						var newDriverAdvanceSum = driverWage > newDriverAdvanceSumParameter ? newDriverAdvanceSumParameter : driverWage * 0.5m;
+						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _categoryRepository, newDriverAdvanceSum);
+					}
+				}
+			}
+
 			var cash = _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
@@ -860,11 +885,28 @@ namespace Vodovoz
 			
 			Entity.WasAcceptedByCashier = true;
 
+			ShowCashSummaryMessage();
+
 			SaveAndClose();
 			
 			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");
 			
 			PerformanceHelper.Main.PrintAllPoints(logger);
+		}
+
+		private void ShowCashSummaryMessage()
+		{
+			var income = _cashRepository.GetIncomeSumByRouteListId(UoW, Entity.Id);
+			var expenseWithEmployeeAdvance = _cashRepository.GetExpenseSumByRouteListId(UoW, Entity.Id, new ExpenseType[] { ExpenseType.EmployeeAdvance });
+			var expenseWithoutEmployeeAdvance =
+				_cashRepository.GetExpenseSumByRouteListId(UoW, Entity.Id, null, new ExpenseType[] { ExpenseType.EmployeeAdvance });
+
+			StringBuilder resultMessageBuilder = new StringBuilder();
+			resultMessageBuilder.AppendLine($"<span size=\"x-large\">Приходные ордера на сумму { income.ToString("N2") } руб.</span>");
+			resultMessageBuilder.AppendLine($"<span color=\"red\" size=\"x-large\">Расходные ордера на сумму { expenseWithoutEmployeeAdvance.ToString("N2") } руб.</span>");
+			resultMessageBuilder.AppendLine($"<span foreground=\"red\" size=\"x-large\">Авансы на сумму {expenseWithEmployeeAdvance.ToString("N2")} руб.</span>");
+
+			MessageDialogHelper.RunInfoDialog(resultMessageBuilder.ToString());
 		}
 
 		void PrintSelectedDocument(RouteListPrintDocuments choise)
