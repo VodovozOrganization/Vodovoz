@@ -84,7 +84,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var employeeJournal = _employeeFactory.CreateEmployeeJournal();
+			var employeeJournal = _employeeFactory.CreateEmployeesJournal();
 			employeeJournal.SelectionMode = JournalSelectionMode.Single;
 			employeeJournal.OnEntitySelectedResult += OnEmployeeSelectedFromJournal;
 			MyTab.TabParent.AddSlaveTab(MyTab, employeeJournal);

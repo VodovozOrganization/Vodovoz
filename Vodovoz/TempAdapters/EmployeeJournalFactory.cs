@@ -205,7 +205,8 @@ namespace Vodovoz.TempAdapters
 						_phonesViewModelFactory,
 						_driverApiUserRegisterEndpoint,
 						ServicesConfig.CommonServices,
-						UnitOfWorkFactory.GetDefaultFactory
+						UnitOfWorkFactory.GetDefaultFactory,
+						_attachmentsViewModelFactory
 					);
 				}
 			);
