@@ -76,7 +76,6 @@ namespace Vodovoz.HibernateMapping
 				.CustomType<OrderSourceStringType>();
 			Map(x => x.OrderPaymentStatus)                .Column("order_payment_status")
 				.CustomType<OrderPaymentStatusStringType>();
-			Map(x => x.BitrixDealId)					  .Column("bitrix_id");
 			Map(x => x.OrderAddressType)				  .Column("order_address_type")
 				.CustomType<OrderAddressTypeStringType>();
 
@@ -116,6 +115,8 @@ namespace Vodovoz.HibernateMapping
 				.ParentKeyColumn("order_id")
 				.ChildKeyColumn("promotional_set_id")
 				.LazyLoad();
+			HasOne(o => o.BitrixDealRegistration)
+				.PropertyRef(bdr => bdr.Order);
 		}
 	}
 }

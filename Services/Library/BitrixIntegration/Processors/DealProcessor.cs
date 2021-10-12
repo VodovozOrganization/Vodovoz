@@ -154,7 +154,6 @@ namespace BitrixIntegration.Processors
 			var order = new Order()
 			{
 				UoW = uow,
-				BitrixDealId = deal.Id,
 				PaymentType = deal.GetPaymentMethod(),
 				CreateDate = deal.CreateDate,
 				DeliveryDate = deal.DeliveryDate,

@@ -112,12 +112,12 @@ namespace Vodovoz.Domain.Orders
 			get => isFirstOrder;
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
 		}
-		
-		uint? bitrixDealId;
-		[Display(Name = "Id заказа в битриксе")]
-		public virtual uint? BitrixDealId {
-			get => bitrixDealId;
-			set => SetField(ref bitrixDealId, value);
+
+		private BitrixDealRegistration _bitrixDealRegistration;
+		public virtual BitrixDealRegistration BitrixDealRegistration
+		{
+			get => _bitrixDealRegistration;
+			set => SetField(ref _bitrixDealRegistration, value);
 		}
 
 		OrderStatus orderStatus;
@@ -1103,7 +1103,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.ByCard && (OnlineOrder == null || BitrixDealId == null))
+			if(PaymentType == PaymentType.ByCard && (OnlineOrder == null || BitrixDealRegistration == null))
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
@@ -2640,9 +2640,39 @@ namespace Vodovoz.Domain.Orders
 			ChangeStatus(newStatus);
 			callTaskWorker.CreateTasks(this);
 		}
+
+		/// <summary>
+		/// Здесь проводятся все проверки на возможность и необходимость синхронизации с битриксом, и устанавливается флаг для сделки
+		/// </summary>
+		public virtual void TryToRequireSyncWithBitrix(OrderStatus newStatus)
+		{
+			if(BitrixDealRegistration == null)
+			{
+				return;
+			}
+
+			var oldStatus = OrderStatus;
+			var inProgress = new[]
+			{
+				OrderStatus.Accepted, OrderStatus.NewOrder, OrderStatus.WaitForPayment, OrderStatus.Accepted, OrderStatus.InTravelList,
+				OrderStatus.OnLoading, OrderStatus.OnTheWay
+			};
+
+			var failStatuses = new[] { OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered };
+			var successStatuses = new[] { OrderStatus.Closed, OrderStatus.Shipped, OrderStatus.UnloadingOnStock };
+
+			if(successStatuses.Contains(newStatus) && failStatuses.Concat(inProgress).Contains(oldStatus)
+			   || failStatuses.Contains(newStatus) && successStatuses.Concat(inProgress).Contains(oldStatus)
+			   || inProgress.Contains(newStatus) && failStatuses.Concat(successStatuses).Contains(oldStatus))
+			{
+				BitrixDealRegistration.NeedSync = true;
+				BitrixDealRegistration.ProcessedDate = DateTime.Now;
+			}
+		}
 		
 		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
+			TryToRequireSyncWithBitrix(newStatus);
 			var initialStatus = OrderStatus;
 			OrderStatus = newStatus;
 			switch(newStatus) {

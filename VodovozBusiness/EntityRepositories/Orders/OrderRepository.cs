@@ -751,8 +751,10 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public VodovozOrder GetOrderByBitrixId(IUnitOfWork uow, uint bitrixId)
 		{
+			BitrixDealRegistration bdrAlias = null;
 			return uow.Session.QueryOver<VodovozOrder>()
-				.Where(x => x.BitrixDealId == bitrixId)
+				.JoinAlias(x => x.BitrixDealRegistration, () => bdrAlias)
+				.Where(() => bdrAlias.Id == bitrixId)
 				.SingleOrDefault();
 		}
 		
