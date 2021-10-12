@@ -1672,7 +1672,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>8 (931) 009 - 46 - 79</Value>
+                      <Value>8 (931) 009 - 46 - 79 / Механик: 8 (965) 049 - 32 - 76</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
