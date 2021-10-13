@@ -101,12 +101,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			return income - expense;
 		}
 
-		public IEnumerable<OperationNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds)
+		public IEnumerable<BalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds)
 		{
 			Subdivision subdivisionAlias = null;
 			Income incomeAlias = null;
 			Expense expenseAlias = null;
-			OperationNode resultAlias = null;
+			BalanceNode resultAlias = null;
 
 			var expenseSub = QueryOver.Of(() => expenseAlias)
 				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
@@ -126,11 +126,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			var results = uow.Session
 				.QueryOver(() => subdivisionAlias)
 				.Where(() => subdivisionAlias.Id.IsIn(subdivisionIds)).SelectList(list => list
+					.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(projection).WithAlias(() => resultAlias.Balance)
 				)
-				.TransformUsing(Transformers.AliasToBean<OperationNode>())
-				.List<OperationNode>();
+				.TransformUsing(Transformers.AliasToBean<BalanceNode>())
+				.List<BalanceNode>();
 			return results;
 		}
 
@@ -180,6 +181,43 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
 				.SingleOrDefault<decimal>();
 		}
+
+		public decimal GetIncomeSumByRouteListId(IUnitOfWork uow, int routeListId, IncomeType[] includedIncomeTypes = null, IncomeType[] excludedIncomeTypes = null)
+		{
+			var query = uow.Session.QueryOver<Income>()
+				.Where(inc => inc.RouteListClosing.Id == routeListId)
+				.Select(Projections.Sum<Income>(inc => inc.Money));
+
+			if(includedIncomeTypes != null)
+			{
+				query.Where(inc => inc.IsIn(includedIncomeTypes));
+			}
+
+			if(excludedIncomeTypes != null)
+			{
+				query.Where(inc => !inc.IsIn(excludedIncomeTypes));
+			}
+
+			return query.SingleOrDefault<decimal>();
+		}
+
+		public decimal GetExpenseSumByRouteListId(IUnitOfWork uow, int routeListId, ExpenseType[] includedExpenseTypes = null, ExpenseType[] excludedExpenseTypes = null)
+		{
+			var query = uow.Session.QueryOver<Expense>()
+				.Where(exp => exp.RouteListClosing.Id == routeListId)
+				.Select(Projections.Sum<Expense>(exp => exp.Money));
+
+			if(includedExpenseTypes != null)
+			{
+				query.Where(exp => exp.TypeOperation.IsIn(includedExpenseTypes));
+			}
+
+			if(excludedExpenseTypes != null)
+			{
+				query.Where(exp => !exp.TypeOperation.IsIn(excludedExpenseTypes));
+			}
+
+			return query.SingleOrDefault<decimal>();
+		}
 	}
 }
-

@@ -402,6 +402,7 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
+    <Compile Include="Factories\AttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
@@ -1701,6 +1702,10 @@
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
+      <Name>QS.Attachments</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
@@ -2821,6 +2826,11 @@
     <None Include="Reports\Cash\DayOfSalaryGiveout.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\Logistic\AnalyticsForUndelivery.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

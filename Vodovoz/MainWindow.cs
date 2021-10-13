@@ -526,7 +526,7 @@ public partial class MainWindow : Gtk.Window
 
         var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
         
-        tdiMain.AddTab(employeeJournalFactory.CreateEmployeeJournal());
+        tdiMain.AddTab(employeeJournalFactory.CreateEmployeesJournal());
     }
 
     protected void OnActionCarsActivated(object sender, EventArgs e)
@@ -886,10 +886,8 @@ public partial class MainWindow : Gtk.Window
     protected void OnPropertiesActionActivated(object sender, EventArgs e)
     {
 	    var subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-        var counterpartyAutocompleteSelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-	            ServicesConfig.CommonServices);
+	    var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+	    var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
         tdiMain.OpenTab(
             () => new UserSettingsViewModel(
@@ -899,7 +897,8 @@ public partial class MainWindow : Gtk.Window
 	            VodovozGtkServicesConfig.EmployeeService,
 	            SubdivisionParametersProvider.Instance,
 	            subdivisionJournalFactory,
-	            counterpartyAutocompleteSelectorFactory
+	            counterpartyJournalFactory,
+	            subdivisionRepository
             ));
     }
 

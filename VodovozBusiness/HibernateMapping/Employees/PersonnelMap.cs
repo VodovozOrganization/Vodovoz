@@ -32,6 +32,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Documents).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
+			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 		}
 
 		public class EmployeeMap : SubclassMap<Employee>

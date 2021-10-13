@@ -1,4 +1,4 @@
-namespace VodovozInfrastructure.Interfaces
+﻿namespace VodovozInfrastructure.Interfaces
 {
 	public interface IFileChooserProvider
 	{
