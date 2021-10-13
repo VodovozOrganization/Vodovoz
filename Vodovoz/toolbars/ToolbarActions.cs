@@ -1141,11 +1141,6 @@ public partial class MainWindow : Window
 	{
 		tdiMain.AddTab(new SectorsViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices, new SectorsRepository()));
-
-		// var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		// tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
-		// 	EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), new DeliveryRulesParametersProvider(new ParametersProvider())
-		// 	, true, true));
 	}
 
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)

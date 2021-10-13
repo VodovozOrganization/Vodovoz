@@ -59,8 +59,14 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			treeViewMainDistricts.Binding.AddBinding(ViewModel, s => s.ObservableSectorNodeViewModels, t => t.ItemsDataSource).InitializeFromSource();
 			treeViewMainDistricts.Selection.Changed += (sender, args) =>
+			{
 				ViewModel.SelectedSectorNodeViewModel = treeViewMainDistricts.GetSelectedObject<SectorNodeViewModel>();
-
+				treeViewMainProperty.SetItemsSource(ViewModel.ObservableSectorVersions);
+				treeViewRulesDelivery.SetItemsSource(ViewModel.ObservableSectorDeliveryRuleVersions);
+				treeViewScheduleVersions.SetItemsSource(ViewModel.ObservableSectorWeekDayScheduleVersions);
+				treeViewDeliveryRules.SetItemsSource(ViewModel.ObservableSectorWeekDayDeliveryRuleVersions);
+			};
+			
 			treeViewMainProperty.ColumnsConfig = FluentColumnsConfig<SectorVersion>
 				.Create()
 				.AddColumn("Начало")
@@ -96,7 +102,7 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Тарифная зона")
 					.AddComboRenderer(x => x.TariffZone)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList(), "Нет")
+					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList())
 					.AddSetter((c, n) => c.Editable = n.Status != SectorsSetStatus.Active)
 				.AddColumn("Мин. бутылей")
 					.HeaderAlignment(0.5f)
@@ -109,14 +115,14 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Часть города")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.UoW.GetAll<GeographicGroup>().ToList(), "Нет")
+					.FillItems(ViewModel.UoW.GetAll<GeographicGroup>().ToList())
 					.AddSetter((c, n) => c.Editable = n.Status != SectorsSetStatus.Active)
 				.AddColumn("Зарплатный тип")
 					.AddEnumRenderer(x => x.PriceType)
 				.AddColumn("Город/пригород")
 					.AddComboRenderer(x => x.WageSector)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.UoW.GetAll<WageSector>().ToList(), "Нет")
+					.FillItems(ViewModel.UoW.GetAll<WageSector>().ToList())
 					.AddSetter((combo, version) => combo.Editable =
 						ViewModel.CanEditSector && ViewModel.CanChangeSectorWageTypePermissionResult &&
 						version.Status != SectorsSetStatus.Active)
@@ -186,7 +192,7 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(p => p.DeliveryPriceRule)
 					.SetDisplayFunc(x=>x.Title)
-					.FillItems(ViewModel.ObservablePriceRule, "Нет")
+					.FillItems(ViewModel.ObservablePriceRule)
 					.AddSetter((c, r) => c.Editable = ViewModel.SelectedSectorDeliveryRuleVersion?.Status != SectorsSetStatus.Active)
 				.Finish();
 			treeViewRules.Binding.AddBinding(ViewModel, s => s.ObservableCommonDistrictRuleItems, t => t.ItemsDataSource);
@@ -288,7 +294,7 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(p => p.DeliveryPriceRule)
 					.SetDisplayFunc(x=>x.Title)
-					.FillItems(ViewModel.ObservablePriceRule, "Нет")
+					.FillItems(ViewModel.ObservablePriceRule)
 					.Editing()
 				.Finish();
 			treeViewSpecialRules.Binding.AddBinding(ViewModel, s => s.ObservableWeekDayDistrictRuleItems, t => t.ItemsDataSource);
@@ -504,6 +510,7 @@ namespace Vodovoz.Views.Logistic
 			enumStatusDistrict.Binding.AddBinding(ViewModel, vm => vm.Status, t => t.SelectedItemOrNull).InitializeFromSource();
 			enumStatusDistrict.ItemsEnum = typeof(SectorsSetStatus);
 			enumStatusDistrict.EnumItemSelected += (sender, args) => ViewModel.Status = ((SectorsSetStatus) args.SelectedItem);
+			enumStatusDistrict.SelectedItem = SectorsSetStatus.Active;
 			
 			#endregion
 			

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Gamma.Utilities;
@@ -36,5 +37,7 @@ namespace Vodovoz.Domain.Sale
             };
             return newWeekDayDistrictRuleItem;
         }
+
+        
     }
 }

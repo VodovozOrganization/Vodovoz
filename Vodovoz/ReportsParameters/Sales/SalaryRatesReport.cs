@@ -49,8 +49,8 @@ namespace Vodovoz.ReportsParameters.Sales
 		
 		private ReportInfo GetReportInfo()
 		{
-			var cityDistrict = UoW.Session.QueryOver<WageDistrict>().Where(x => x.Id == 1).SingleOrDefault();
-			var suburbDistrict = UoW.Session.QueryOver<WageDistrict>().Where(x => x.Id == 1).SingleOrDefault();
+			var cityDistrict = UoW.Session.QueryOver<WageSector>().Where(x => x.Id == 1).SingleOrDefault();
+			var suburbDistrict = UoW.Session.QueryOver<WageSector>().Where(x => x.Id == 1).SingleOrDefault();
 			return new ReportInfo
 			{
 				Identifier = "Sales.SalaryRatesReport",

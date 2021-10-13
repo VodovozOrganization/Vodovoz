@@ -9,6 +9,7 @@ using Gamma.Utilities;
 using GMap.NET;
 using MoreLinq;
 using NetTopologySuite.Geometries;
+using NHibernate.Criterion;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		private GenericObservableList<Sector> _observableSectors;
 		private GenericObservableList<SectorNodeViewModel> _observableSectorNodeViewModels;
+		private List<SectorNodeViewModel> _sectorNodeViewModels;
 		private GenericObservableList<DeliveryScheduleRestriction> _observableDeliveryScheduleRestrictionsInSession;
 		
 		private GenericObservableList<Sector> _observableSectorsInSession;
@@ -102,7 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
 
 			ObservableSectors = new GenericObservableList<Sector>(UoW.GetAll<Sector>().ToList());
-
+			SectorNodeViewModels = new List<SectorNodeViewModel>();
 			var allSectors = UoW.GetAll<Sector>().Select(x => new {x.Id, x.DateCreated, SectorVersions = x.SectorVersions.Select(y => new {y.Status, y.SectorName})});
 			
 			allSectors.ForEach(x =>
@@ -110,9 +112,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var sectorVersionForNode = x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.Active) ??
 				                           x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
 				                           x.SectorVersions.LastOrDefault(z => z.Status == SectorsSetStatus.Draft);
-				ObservableSectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated, sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
+				SectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated, sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
 			
 			});
+			ObservableSectorNodeViewModels = new GenericObservableList<SectorNodeViewModel>(SectorNodeViewModels);
 
 			ObservablePriceRule = new GenericObservableList<DeliveryPriceRule>(UoW.GetAll<DeliveryPriceRule>().ToList());
 			
@@ -203,10 +206,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => _observableSectors = value;
 		}
 
-		public GenericObservableList<SectorNodeViewModel> ObservableSectorNodeViewModels => _observableSectorNodeViewModels ??
-		                                                                                    (_observableSectorNodeViewModels =
-			                                                                                    new GenericObservableList<
-				                                                                                    SectorNodeViewModel>());
+		public GenericObservableList<SectorNodeViewModel> ObservableSectorNodeViewModels
+		{
+			get => _observableSectorNodeViewModels;
+			set => _observableSectorNodeViewModels = value;
+		}
+		
+		public List<SectorNodeViewModel> SectorNodeViewModels
+		{
+			get => _sectorNodeViewModels;
+			set => _sectorNodeViewModels = value;
+		}
 
 		private GenericObservableList<Sector> ObservableSectorsInSession =>
 			_observableSectorsInSession ?? (_observableSectorsInSession = new GenericObservableList<Sector>());
@@ -218,11 +228,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				if(!SetField(ref _selectedSectorNodeViewModel,value))
 					return;
+				
 				if(_selectedSectorNodeViewModel != null)
 				{
 					if(!SelectedWeekDayName.HasValue)
 						_selectedWeekDayName = WeekDayName.Today;
-					
+					OnPropertyChanged(nameof(SelectedSector));
+					SelectedSectorVersion = null;
 					OnPropertyChanged(nameof(ObservableSectorVersions));
 					OnPropertyChanged(nameof(ObservableSectorDeliveryRuleVersions));
 					SelectedSectorDeliveryRuleVersion = null;
@@ -235,7 +247,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		private Sector SelectedSector =>
-			ObservableSectors.Any() ? ObservableSectors.SingleOrDefault(x => x.Id == SelectedSectorNodeViewModel.Id) : null;
+			ObservableSectors.Any() && SelectedSectorNodeViewModel != null ? ObservableSectors?.SingleOrDefault(x => x.Id == SelectedSectorNodeViewModel?.Id) : null;
 
 		private DelegateCommand _addSector;
 
@@ -268,7 +280,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Операции над версиями секторов(основные характеристики)
 		
-		public GenericObservableList<SectorVersion> ObservableSectorVersions => SelectedSector.ObservableSectorVersions;
+		public GenericObservableList<SectorVersion> ObservableSectorVersions => SelectedSector?.ObservableSectorVersions;
 
 		private GenericObservableList<SectorVersion> ObservableSectorVersionsInSession =>
 			_observableSectorVersionsInSession ?? (_observableSectorVersionsInSession = new GenericObservableList<SectorVersion>());
@@ -332,7 +344,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Операции над обычными графиками доставки районов
 
 		public GenericObservableList<SectorDeliveryRuleVersion> ObservableSectorDeliveryRuleVersions =>
-			SelectedSector.ObservableSectorDeliveryRuleVersions;
+			SelectedSector?.ObservableSectorDeliveryRuleVersions;
 
 		private GenericObservableList<SectorDeliveryRuleVersion> ObservableSectorDeliveryRuleVersionsInSession =>
 			_observableSectorDeliveryRuleVersionsInSession ?? (_observableSectorDeliveryRuleVersionsInSession =
@@ -449,7 +461,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Операции над графиками доставки района по дням
 
 		public GenericObservableList<SectorWeekDayScheduleVersion> ObservableSectorWeekDayScheduleVersions =>
-			SelectedSector.ObservableSectorWeekDayScheduleVersions;
+			SelectedSector?.ObservableSectorWeekDayScheduleVersions;
 
 		private GenericObservableList<SectorWeekDayScheduleVersion> ObservableSectorWeekDayScheduleVersionsInSession =>
 			_observableSectorWeekDayScheduleVersionsInSession ?? (_observableSectorWeekDayScheduleVersionsInSession =
@@ -597,6 +609,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				acceptBefore =>
 				{
 					SelectedDeliveryScheduleRestriction.AcceptBefore = acceptBefore;
+					OnPropertyChanged(
+						nameof(SelectedDeliveryScheduleRestriction));
 				},
 				acceptBefore => acceptBefore != null && SelectedSectorWeekDayScheduleVersion != null
 			));
@@ -640,7 +654,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _selectedWeekDayDistrictRuleItem, value);
 		}
 		public GenericObservableList<SectorWeekDayDeliveryRuleVersion> ObservableSectorWeekDayDeliveryRuleVersions =>
-			SelectedSector.ObservableSectorWeekDayDeliveryRuleVersions;
+			SelectedSector?.ObservableSectorWeekDayDeliveryRuleVersions;
 
 		private GenericObservableList<SectorWeekDayDeliveryRuleVersion> ObservableSectorWeekDayDeliveryRuleVersionsInSession =>
 			_observableSectorWeekDayDeliveryRuleVersionsInSession ?? (_observableSectorWeekDayDeliveryRuleVersionsInSession =
@@ -858,8 +872,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public DelegateCommand FilterableSectors => _filterableSectors ?? (_filterableSectors = new DelegateCommand(() =>
 		{
-			ObservableSectorNodeViewModels.Clear();
-			ObservableSectors.Clear();
+			ObservableSectors?.Clear();
+
 			var querySectors = UoW.GetAll<Sector>()
 				.Select(x =>
 					new
@@ -884,17 +898,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			});
 
 			filterableSectors = filterableSectors.Distinct().ToList();
-			
 			ObservableSectors = new GenericObservableList<Sector>(filterableSectors);
-			ObservableSectors.ForEach(x =>
-			{
-				var sectorVersionForNode = x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.Active) ??
-				                           x.SectorVersions.SingleOrDefault(y => y.Status == SectorsSetStatus.OnActivation) ??
-				                           x.SectorVersions.LastOrDefault(z => z.Status == SectorsSetStatus.Draft);
-				ObservableSectorNodeViewModels.Add(new SectorNodeViewModel(x.Id, x.DateCreated,
-					sectorVersionForNode != null ? sectorVersionForNode.SectorName : ""));
-			});
-			OnPropertyChanged(nameof(ObservableSectors));
+			ObservableSectorNodeViewModels = new GenericObservableList<SectorNodeViewModel>(SectorNodeViewModels
+				.Where(x => ObservableSectors.FirstOrDefault(y => y.Id == x.Id) != null).ToList());
+
+			OnPropertyChanged(nameof(SelectedSector));
+			OnPropertyChanged(nameof(ObservableSectorNodeViewModels));
+			// OnPropertyChanged(nameof(ObservableSectorVersions));
+			// OnPropertyChanged(nameof(ObservableSectorDeliveryRuleVersions));
+			// OnPropertyChanged(nameof(ObservableSectorWeekDayScheduleVersions));
+			// OnPropertyChanged(nameof(ObservableSectorWeekDayDeliveryRuleVersions));
 		}));
 
 		private SectorsSetStatus? _status;
@@ -1152,8 +1165,48 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Сохранение
 
 		public override bool Save(bool close)
-		{ 
-			ObservableSectors.ForEach(x => UoW.Save(x));
+		{
+			foreach(Sector sector in ObservableSectors)
+			{
+				foreach(var deliveryRuleVersion in sector.ObservableSectorDeliveryRuleVersions)
+				{
+					ValidationContext validationContext = new ValidationContext(deliveryRuleVersion);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(!_commonServices.ValidationService.Validate(deliveryRuleVersion, validationContext))
+					{
+						return false;
+					}
+				}
+				foreach(var sectorVersion in sector.ObservableSectorVersions)
+				{
+					ValidationContext validationContext = new ValidationContext(sectorVersion);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(!_commonServices.ValidationService.Validate(sectorVersion, validationContext))
+					{
+						return false;
+					}
+				}
+				foreach(var weekDaySchedule in sector.ObservableSectorWeekDayScheduleVersions)
+				{
+					ValidationContext validationContext = new ValidationContext(weekDaySchedule);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(!_commonServices.ValidationService.Validate(weekDaySchedule, validationContext))
+					{
+						return false;
+					}
+				}
+				foreach(var weekDayDeliveryRule in sector.ObservableSectorWeekDayDeliveryRuleVersions)
+				{
+					ValidationContext validationContext = new ValidationContext(weekDayDeliveryRule);
+					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
+					if(!_commonServices.ValidationService.Validate(weekDayDeliveryRule, validationContext))
+					{
+						return false;
+					}
+				}
+				
+				UoW.Save(sector);
+			}
 			UoW.Commit();
 			return false;
 		}
