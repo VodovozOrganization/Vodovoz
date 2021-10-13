@@ -93,13 +93,15 @@ namespace VodovozSmsPaymentService
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 										 .ConnectionString(QSMain.ConnectionString);
-				
+
 				OrmConfig.ConfigureOrm(dbConfig,
-					new[] {
-						System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
+					new[]
+					{
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
 
 				QS.HistoryLog.HistoryMain.Enable();

@@ -29,6 +29,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DefaultWarehouse).Column("default_warehouse_id");
             References(x => x.DefaultSubdivision).Column("default_subdivision_id");
             References(x => x.DefaultCounterparty).Column("default_counterparty_id");
+
+            HasMany(x => x.CashSubdivisionSortingSettings).KeyColumn("user_settings_id")
+	            .Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("sorting_index");
         }
 	}
 }
