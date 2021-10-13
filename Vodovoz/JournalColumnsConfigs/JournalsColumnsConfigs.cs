@@ -193,6 +193,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
+					.AddColumn("Кол-во точек доставки").AddTextRenderer(node => node.CountOfDeliveryPoint.ToString())
 					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
 					.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)
@@ -806,9 +807,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
-			//CashRequestJournalViewModel
-			TreeViewColumnsConfigFactory.Register<CashRequestJournalViewModel>(
-				() => FluentColumnsConfig<CashRequestJournalNode>.Create()
+			//PayoutRequestsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PayoutRequestsJournalViewModel>(
+				() => FluentColumnsConfig<PayoutRequestJournalNode>.Create()
 					.AddColumn("№")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
@@ -819,19 +820,21 @@ namespace Vodovoz.JournalColumnsConfigs
 						.XAlign(0.5f)
 					.AddColumn("Тип документа")
 						.HeaderAlignment(0.5f)
-						.AddEnumRenderer(n => n.DocumentType)
+						.AddTextRenderer(n => n.PayoutRequestDocumentType.GetEnumTitle())
+						.WrapWidth(155)
+						.WrapMode(WrapMode.WordChar)
 						.XAlign(0.5f)
 					.AddColumn("Статус")
 						.HeaderAlignment(0.5f)
-						.AddEnumRenderer(n => n.State)
+						.AddEnumRenderer(n => n.PayoutRequestState)
 						.XAlign(0.5f)
 					.AddColumn("Автор")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n =>  n.Author )
 						.XAlign(0.5f)
-					.AddColumn("Подотчетное лицо")
+					.AddColumn("Подотчетное лицо /\r\n\tПоставщик")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.AccountablePerson)
+						.AddTextRenderer(n => !string.IsNullOrWhiteSpace(n.AccountablePerson) ? n.AccountablePerson : n.CounterpartyName)
 						.XAlign(0.5f)
 					.AddColumn("Сумма")
 						.HeaderAlignment(0.5f)

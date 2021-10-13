@@ -13,6 +13,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>360</Timeout>
         <CommandText>SELECT
 	CASE cars.type_of_use
 		WHEN 'CompanyLargus' THEN 'Ларгусы'

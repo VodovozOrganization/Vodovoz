@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -31,6 +32,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
@@ -53,7 +55,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly UserSettings _userSettings;
-		
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+
+		//Новые зависимости создаем в журнале, скоро внедрим autofac
+		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
 			IAuthorizationServiceFactory authorizationServiceFactory,
@@ -73,10 +80,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IPhonesViewModelFactory phonesViewModelFactory,
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
-			IUnitOfWorkFactory unitOfWorkFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
-		
+
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
@@ -96,6 +104,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
 			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
@@ -400,8 +409,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_routeListRepository,
 			_driverApiUserRegisterEndpoint,
 			_userSettings,
-			new UserRepository(),
-			new BaseParametersProvider(new ParametersProvider()));
+			_userRepository,
+			_baseParametersProvider,
+			_attachmentsViewModelFactory);
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
@@ -423,7 +433,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_routeListRepository,
 				_driverApiUserRegisterEndpoint,
 				_userSettings,
-				new UserRepository(),
-				new BaseParametersProvider(new ParametersProvider()));
+				_userRepository,
+				_baseParametersProvider,
+				_attachmentsViewModelFactory);
 	}
 }

@@ -1071,6 +1071,11 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<CashRequestSumItem>()
 				.AddDeleteDependence<Expense>(x => x.CashRequestSumItem);
 
+			DeleteConfig.AddHibernateDeleteInfo<CashlessRequest>()
+				.AddDeleteDependence<CashlessRequestFile>(x => x.CashlessRequest);
+
+			DeleteConfig.AddHibernateDeleteInfo<CashlessRequestFile>();
+
 			DeleteConfig.AddHibernateDeleteInfo<OrganizationCashTransferDocument>()
 				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationFrom)
 				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationTo);

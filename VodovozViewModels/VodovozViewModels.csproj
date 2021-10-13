@@ -47,6 +47,7 @@
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Factories\IAttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
@@ -56,7 +57,7 @@
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Infrastructure\Print\RouteListPrintableDocuments.cs" />
     <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
-    <Compile Include="Journals\FilterViewModels\Cash\CashRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\PayoutRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\OrganizationCashTransferDocumentFilterViewModel.cs" />
@@ -102,7 +103,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />
@@ -138,7 +139,7 @@
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
-    <Compile Include="Journals\JournalViewModels\Cash\CashRequestJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\PayoutRequestsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
@@ -173,7 +174,11 @@
     <Compile Include="TempAdapters\IDeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
+    <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />
+    <Compile Include="TempAdapters\IIncomeCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
+    <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
+    <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
@@ -248,6 +253,8 @@
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\GeographicGroupNode.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\WageDistrictNode.cs" />
@@ -268,6 +275,10 @@
     <Compile Include="ViewModels\Reports\OrderAnalyticsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\NomenclaturePlanReport\ScrollPositionNode.cs" />
     <Compile Include="ViewModels\Reports\NomenclaturePlanReport\SubdivisionReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportDataBaseNode.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNomenclature.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
@@ -415,6 +426,10 @@
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
+      <Name>QS.Attachments</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>

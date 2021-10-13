@@ -62,7 +62,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.TechnicalProcessingDelay).Column("delay_days_for_technical_processing");
 			Map(x => x.TaxType).Column("tax_type").CustomType<TaxTypeStringType>();
 			Map(x => x.CreateDate).Column("create_date");
-			Map(x => x.AlwaysSendReceitps).Column("always_send_receipts");
+			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
@@ -74,7 +74,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");
-			HasMany(x => x.Phones).Cascade.All().LazyLoad()
+			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");

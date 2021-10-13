@@ -402,6 +402,7 @@
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
+    <Compile Include="Factories\AttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
@@ -411,6 +412,7 @@
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumView.cs" />
@@ -501,6 +503,8 @@
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
+    <Compile Include="TempAdapters\ExpenseCategorySelectorFactory.cs" />
+    <Compile Include="TempAdapters\IncomeCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\PremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
@@ -520,6 +524,7 @@
     <Compile Include="JournalViewModels\RouteListWorkingJournalViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
+    <Compile Include="Views\Cash\CashlessRequestView.cs" />
     <Compile Include="Views\Cash\OrganizationCashTransferDocumentView.cs" />
     <Compile Include="Views\Employees\PremiumRaskatGAZelleView.cs" />
     <Compile Include="Views\Employees\PremiumView.cs" />
@@ -1543,8 +1548,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.UserView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestView.cs" />
-    <Compile Include="Filters\GtkViews\CashRequestJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CashRequestJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\PayoutRequestJournalFilterView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestItemView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestItemView.cs" />
     <Compile Include="JournalFilters\Cash\CashTransferDocumentsFilter.cs" />
@@ -1669,10 +1673,19 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
     <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
+    <Compile Include="Views\Cash\CashlessRequestFilesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestFilesView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PayoutRequestJournalFilterView.cs" />
     <Compile Include="Views\ReportsParameters\Cash\DayOfSalaryGiveoutReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Cash.DayOfSalaryGiveoutReportView.cs" />
+    <Compile Include="Views\Reports\ProductionWarehouseMovementReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.ProductionWarehouseMovementReportView.cs" />
+    <Compile Include="ReportsParameters\Logistic\AnalyticsForUndeliveryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AnalyticsForUndeliveryReport.cs" />
+    <Compile Include="ReportsParameters\Sales\SalaryRatesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
     <Compile Include="Views\Logistic\SectorsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SectorsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SectorJournalFilterView.cs" />
@@ -1682,6 +1695,10 @@
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
+      <Name>QS.Attachments</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
@@ -2572,6 +2589,9 @@
     <None Include="Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  	<None Include="Reports\Sales\SalaryRatesReport.rdl">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  	</None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
@@ -2800,6 +2820,11 @@
     <None Include="Reports\Cash\DayOfSalaryGiveout.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\Logistic\AnalyticsForUndelivery.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

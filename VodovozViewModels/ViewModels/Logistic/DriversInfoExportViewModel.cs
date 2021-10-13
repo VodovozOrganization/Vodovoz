@@ -130,6 +130,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public DriversInfoExportType DriversInfoExportType { get; set; }
 
+		public DriversInfoExportPlanFactType DriversInfoExportPlanFactType { get; set; }
+
+		public bool IsPlan => DriversInfoExportPlanFactType == DriversInfoExportPlanFactType.Plan
+		                      || DriversInfoExportPlanFactType == DriversInfoExportPlanFactType.PlanFact;
+
+		public bool IsFact => DriversInfoExportPlanFactType == DriversInfoExportPlanFactType.Fact
+		                      || DriversInfoExportPlanFactType == DriversInfoExportPlanFactType.PlanFact;
+
 		public DelegateCommand HelpCommand => helpCommand ?? (helpCommand = new DelegateCommand(
 			() =>
 			{
@@ -153,7 +161,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					{
 						throw new InvalidOperationException($"Не был заполнен путь выгрузки: {nameof(ExportPath)}");
 					}
-					var exportString = GetCsvString(Items, DriversInfoExportType);
+					var exportString = GetCsvString(Items, DriversInfoExportType, IsPlan, IsFact);
 					try
 					{
 						File.WriteAllText(ExportPath, exportString, Encoding.UTF8);
@@ -578,8 +586,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				routeList.RecalculateAllWages(wageParameterService);
 				var driverWage = routeList.GetDriversTotalWage();
-				driverInfoNodes.First(x => x.RouteListId == routeList.Id).DriverRouteListWagePlannedString =
-					driverWage == 0 ? "" : driverWage.ToString(CultureInfo.CurrentCulture);
+				driverInfoNodes.First(x => x.RouteListId == routeList.Id).DriverRouteListWagePlanned = driverWage;
 			}
 
 			#endregion
@@ -758,7 +765,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			#region WorkDays & AssignedDistricts & PlannedWage Calculation
 
 			//Рабочие дни
-
 			foreach(var driverInfoNode in driverInfoNodes.GroupBy(x => x.DriverId).Select(g => g.First()))
 			{
 				var driverNodes = driverInfoNodes
@@ -772,7 +778,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			//Привязанные районы
-
 			var driverListNodes = uow.Session.QueryOver(() => driverAlias)
 				.Inner.JoinAlias(() => driverAlias.DriverDistrictPrioritySets, () => driverDistrictPrioritySetAlias)
 				.Inner.JoinAlias(() => driverDistrictPrioritySetAlias.DriverDistrictPriorities, () => driverDistrictPriorityAlias)
@@ -807,12 +812,35 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Select(x => x.RouteListId)
 				.ToArray();
 
+			//Fetching. Как это работает: https://github.com/nhibernate/nhibernate-core/pull/1599
 			var routeListsFuture = uow.Session.QueryOver(() => routeListAlias)
 				.WhereRestrictionOn(x => x.Id).IsIn(notClosedRouteListIds)
 				.Future();
 
-			//Планируемая ЗП
+			uow.Session.QueryOver(() => routeListAlias)
+				.Fetch(SelectMode.ChildFetch, () => routeListAlias)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Addresses)
+				.WhereRestrictionOn(x => x.Id).IsIn(notClosedRouteListIds)
+				.Future();
 
+			uow.Session.QueryOver(() => routeListAlias)
+				.Fetch(SelectMode.ChildFetch, () => routeListAlias, () => routeListAlias.Addresses)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Addresses[0].Order)
+				.WhereRestrictionOn(x => x.Id).IsIn(notClosedRouteListIds)
+				.Future();
+
+			uow.Session.QueryOver(() => routeListAlias)
+				.Fetch(SelectMode.Fetch, x => x.Driver)
+				.WhereRestrictionOn(x => x.Id).IsIn(notClosedRouteListIds)
+				.Future();
+
+			uow.Session.QueryOver(() => routeListAlias)
+				.Fetch(SelectMode.ChildFetch, () => routeListAlias, () => routeListAlias.Driver)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Driver.WageParameters)
+				.WhereRestrictionOn(x => x.Id).IsIn(notClosedRouteListIds)
+				.Future();
+
+			//Планируемая ЗП
 			foreach(var routeList in routeListsFuture)
 			{
 				routeList.RecalculateAllWages(wageParameterService);
@@ -820,12 +848,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			foreach(var driverInfoNode in driverInfoNodes)
 			{
-				driverInfoNode.DriverRouteListWagePlannedString = routeListsFuture
+				driverInfoNode.DriverRouteListWagePlanned = routeListsFuture
 					.Where(x => 
 						x.Driver.Id == driverInfoNode.DriverId
 						&& x.Date == driverInfoNode.RouteListDate
 						&& x.Car.RegistrationNumber == driverInfoNode.CarRegNumber)
-					.Sum(x => x.GetDriversTotalWage()).ToString(CultureInfo.CurrentCulture);
+					.Sum(x => x.GetDriversTotalWage());
 			}
 
 			#endregion
@@ -839,35 +867,163 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Items.ElementRemoved += (list, idx, aObject) => { OnPropertyChanged(nameof(CanExport)); };
 		}
 
-		private static string GetCsvString(IList<DriverInfoNode> exportData, DriversInfoExportType driversInfoExportType)
+		private static string GetCsvString(IList<DriverInfoNode> exportData, DriversInfoExportType driversInfoExportType, bool isPlan, bool isFact)
 		{
 			return driversInfoExportType == DriversInfoExportType.RouteListGrouping
-				? GetRouteListGroupingCsvString(exportData)
-				: GetDriverCarGroupingCsvString(exportData);
+				? GetRouteListGroupingCsvString(exportData, isPlan, isFact)
+				: GetDriverCarGroupingCsvString(exportData, isPlan, isFact);
 		}
 
-		private static string GetRouteListGroupingCsvString(IList<DriverInfoNode> exportData)
+		private static string GetRouteListGroupingCsvString(IList<DriverInfoNode> exportData, bool isPlan, bool isFact)
 		{
 			var sb = new StringBuilder();
-			sb.AppendLine("Код МЛ;Дата МЛ;Статус МЛ;Код водителя;Водитель;Статус водителя;ЗП водителя за МЛ план;ЗП водителя за МЛ факт;" +
-				"ЗП водителя за период;Гос. номер авто;Раскат;Принадлежность авто;Кол-во отраб. дней за период;" +
-				"Адреса план;Адреса факт;19л от клиента;19л план;19л факт;6л план;6л факт;1.5л план;1.5л факт;0.6л план;0.6л факт;" +
-				"обор. план;обор. факт;19л недовозы;Дата первого МЛ;Дата последнего МЛ;" +
-				"Закреплённые районы;Планируемые районы;Фактические районы");
+			sb.Append("Код МЛ;Дата МЛ;Статус МЛ;Код водителя;Водитель;Статус водителя;ЗП водителя за МЛ (план+факт);" +
+			              "ЗП водителя за период;Гос. номер авто;Раскат;Принадлежность авто;Кол-во отраб. дней за период;");
+
+			if(isPlan)
+			{
+				sb.Append("Адреса план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("Адреса факт;");
+			}
+
+			sb.Append("19л от клиента;");
+
+			if(isPlan)
+			{
+				sb.Append("19л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("19л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("6л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("6л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("1.5л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("1.5л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("0.6л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("0.6л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("обор. план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("обор. факт;");
+			}
+
+			sb.Append("19л недовозы;Дата первого МЛ;Дата последнего МЛ;Закреплённые районы;Планируемые районы;Фактические районы");
+			
+			sb.AppendLine();
+
 			foreach(var item in exportData)
 			{
 				var lines = new List<string>
 				{
 					item.RouteListId.ToString(), item.RouteListDateString, item.RouteListStatus.GetEnumTitle(), item.DriverId.ToString(),
-					item.DriverFullName, item.DriverStatus.GetEnumTitle(), item.DriverRouteListWagePlannedString,
-					item.DriverRouteListWageFactString, item.DriverPeriodWageString, item.CarRegNumber, item.CarIsRaskat ? "Да" : "Нет",
-					item.CarTypeOfUse.GetEnumTitle(), item.DriverDaysWorkedCount.ToString(), item.RouteListItemCountPlanned.ToString(),
-					item.RouteListItemCountFact, item.RouteListReturnedBottlesCount, item.Vol19LBottlesCount, item.Vol19LBottlesActualCount,
-					item.Vol6LBottlesCount, item.Vol6LBottlesActualCount, item.Vol1500MlBottlesCount, item.Vol1500MlBottlesActualCount,
-					item.Vol600MlBottlesCount, item.Vol600MlBottlesActualCount, item.EquipmentCount, item.EquipmentActualCount,
+					item.DriverFullName, item.DriverStatus.GetEnumTitle(), item.DriverRouteListWageForRouteListGroupingString,
+					item.DriverPeriodWageString, item.CarRegNumber, item.CarIsRaskat ? "Да" : "Нет",
+					item.CarTypeOfUse.GetEnumTitle(), item.DriverDaysWorkedCount.ToString()
+				};
+
+				if(isPlan)
+				{
+					lines.Add(item.RouteListItemCountPlanned.ToString());
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.RouteListItemCountFact);
+				}
+
+				lines.Add(item.RouteListReturnedBottlesCount);
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol19LBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol19LBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol6LBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol6LBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol1500MlBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol1500MlBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol600MlBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol600MlBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.EquipmentCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.EquipmentActualCount);
+				}
+
+				lines.AddRange(new List<string>
+				{
 					item.Vol19LUndelivered, item.DriverFirstRouteListDateString, item.DriverLastRouteListDateString,
 					item.DriverAssignedDistricts, item.DriverPlannedDistricts, item.DriverFactDistricts
-				};
+				});
+				
 				foreach(var line in lines)
 				{
 					sb.Append(line?.Replace(';', ',').Replace("\r\n", " ").Replace('\n', ' ') + ';');
@@ -879,28 +1035,166 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return sb.ToString();
 		}
 
-		private static string GetDriverCarGroupingCsvString(IList<DriverInfoNode> exportData)
+		private static string GetDriverCarGroupingCsvString(IList<DriverInfoNode> exportData, bool isPlan, bool isFact)
 		{
 			var sb = new StringBuilder();
-			sb.AppendLine("Дата МЛ;Код водителя;Водитель;Статус водителя;ЗП водителя за МЛ план;ЗП водителя за МЛ факт;" + 
-			              "ЗП водителя за период;Гос. номер авто;Раскат;Принадлежность авто;Кол-во отраб. дней за период;" +
-			              "Адреса план;Адреса факт;19л от клиента;19л план;19л факт;6л план;6л факт;1.5л план;1.5л факт;0.6л план;0.6л факт;" +
-			              "обор. план;обор. факт;19л недовозы;Дата первого МЛ;Дата последнего МЛ;" +
-			              "Закреплённые районы;Планируемые районы;Фактические районы");
+			sb.Append("Дата МЛ;Принадлежность авто;Раскат;Гос. номер авто;Водитель;");
+
+			if(isPlan)
+			{
+				sb.Append("Адреса план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("Адреса факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("19л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("19л факт;");
+			}
+
+			sb.Append("19л от клиента;");
+
+			if(isPlan)
+			{
+				sb.Append("6л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("6л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("1.5л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("1.5л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("0.6л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("0.6л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("обор. план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("обор. факт;");
+			}
+			sb.Append("19л недовозы;ЗП водителя за МЛ (факт+план);Закреплённые районы;Планируемые районы;Фактические районы;Код водителя;Статус водителя;" +
+					  "ЗП водителя за период;Кол-во отраб. дней за период;Дата первого МЛ;Дата последнего МЛ;");
+
+			sb.AppendLine();
+
 			foreach(var item in exportData)
 			{
 				var lines = new List<string>
 				{
-					item.RouteListDateString, item.DriverId.ToString(),
-					item.DriverFullName, item.DriverStatus.GetEnumTitle(), item.DriverRouteListWagePlannedString,
-					item.DriverRouteListWageFactString, item.DriverPeriodWageString, item.CarRegNumber, item.CarIsRaskat ? "Да" : "Нет",
-					item.CarTypeOfUse.GetEnumTitle(), item.DriverDaysWorkedCount.ToString(), item.RouteListItemCountPlanned.ToString(),
-					item.RouteListItemCountFact, item.RouteListReturnedBottlesCount, item.Vol19LBottlesCount, item.Vol19LBottlesActualCount,
-					item.Vol6LBottlesCount, item.Vol6LBottlesActualCount, item.Vol1500MlBottlesCount, item.Vol1500MlBottlesActualCount,
-					item.Vol600MlBottlesCount, item.Vol600MlBottlesActualCount, item.EquipmentCount, item.EquipmentActualCount,
-					item.Vol19LUndelivered, item.DriverFirstRouteListDateString, item.DriverLastRouteListDateString,
-					item.DriverAssignedDistricts, item.DriverPlannedDistricts, item.DriverFactDistricts
+					item.RouteListDateString,
+					item.CarTypeOfUse.GetEnumTitle(),
+					item.CarIsRaskat ? "Да" : "Нет",
+					item.CarRegNumber,
+					item.DriverFullName
 				};
+
+				if(isPlan)
+				{
+					lines.Add(item.RouteListItemCountPlanned.ToString());
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.RouteListItemCountFact);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol19LBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol19LBottlesActualCount);
+				}
+
+				lines.Add(item.RouteListReturnedBottlesCount);
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol6LBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol6LBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol1500MlBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol1500MlBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol600MlBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol600MlBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.EquipmentCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.EquipmentActualCount);
+				}
+
+				lines.AddRange(new List<string>
+					{
+						item.Vol19LUndelivered,
+						item.DriverRouteListWageForDriverCarGroupingString,
+						item.DriverAssignedDistricts,
+						item.DriverPlannedDistricts,
+						item.DriverFactDistricts,
+						item.DriverId.ToString(),
+						item.DriverStatus.GetEnumTitle(),
+						item.DriverPeriodWageString,
+						item.DriverDaysWorkedCount.ToString(),
+						item.DriverFirstRouteListDateString,
+						item.DriverLastRouteListDateString
+					}
+				);
+
 				foreach(var line in lines)
 				{
 					sb.Append(line?.Replace(';', ',').Replace("\r\n", " ").Replace('\n', ' ') + ';');
@@ -954,7 +1248,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string DriverRouteListWageFactString =>
 			DriverRouteListWageFact.HasValue ? DriverRouteListWageFact.Value.ToString(CultureInfo.CurrentCulture) : "";
 
-		public string DriverRouteListWagePlannedString { get; set; }
+		public decimal DriverRouteListWagePlanned { get; set; }
+		public string DriverRouteListWagePlannedString =>
+			DriverRouteListWagePlanned > 0 ? DriverRouteListWagePlanned.ToString(CultureInfo.CurrentCulture) : "";
+
+		public string DriverRouteListWageForRouteListGroupingString => 
+			RouteListStatus == RouteListStatus.Closed ? DriverRouteListWageFactString : DriverRouteListWagePlannedString;
+
+		public string DriverRouteListWageForDriverCarGroupingString => (
+			(DriverRouteListWageFact.HasValue ? DriverRouteListWageFact.Value : 0)
+			+ DriverRouteListWagePlanned)
+			.ToString(CultureInfo.CurrentCulture);
 
 		public decimal? DriverPeriodWage { get; set; }
 		public string DriverPeriodWageString =>
@@ -1017,5 +1321,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		RouteListGrouping,
 		[Display(Name = "Группировка по водителю и авто")]
 		DriverCarGrouping
+	}
+
+	public enum DriversInfoExportPlanFactType
+	{
+		[Display(Name = "Факт и План")]
+		PlanFact,
+		[Display(Name = "Факт")]
+		Fact,
+		[Display(Name = "План")]
+		Plan
 	}
 }
