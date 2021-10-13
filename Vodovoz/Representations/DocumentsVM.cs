@@ -54,6 +54,8 @@ namespace Vodovoz.ViewModel
 			CarUnloadDocument unloadCarAlias = null;
 			RouteList routeListAlias = null;
 			CarVersion carVersionAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
@@ -438,8 +440,9 @@ namespace Vodovoz.ViewModel
 				var carLoadQuery = UoW.Session.QueryOver<CarLoadDocument>(() => loadCarAlias)
 					.JoinQueryOver(() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => routeListAlias.CarVersion, () => carVersionAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
@@ -465,8 +468,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => loadCarAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => loadCarAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 						.Select(() => DocumentType.CarLoadDocument).WithAlias(() => resultAlias.DocTypeEnum)
-						.Select(() => carVersionAlias.Model).WithAlias(() => resultAlias.CarModel)
-						.Select(() => carVersionAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+						.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModel)
+						.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 						.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 						.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 						.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
@@ -490,8 +493,9 @@ namespace Vodovoz.ViewModel
 				var carUnloadQuery = UoW.Session.QueryOver<CarUnloadDocument>(() => unloadCarAlias)
 					.JoinQueryOver(() => unloadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => unloadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => routeListAlias.CarVersion, () => carVersionAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
@@ -520,8 +524,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => unloadCarAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => unloadCarAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 						.Select(() => DocumentType.CarUnloadDocument).WithAlias(() => resultAlias.DocTypeEnum)
-						.Select(() => carVersionAlias.Model).WithAlias(() => resultAlias.CarModel)
-						.Select(() => carVersionAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+						.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModel)
+						.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 						.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 						.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 						.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)

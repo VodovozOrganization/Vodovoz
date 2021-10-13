@@ -3,7 +3,7 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.HibernateMapping.Logistic.Cars
 {
-	public class CarOwnershipMap : ClassMap<OwnershipModelCar>
+	public class CarOwnershipMap : ClassMap<CarOwnership>
 	{
 		public CarOwnershipMap()
 		{
@@ -13,9 +13,9 @@ namespace Vodovoz.HibernateMapping.Logistic.Cars
 
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
-			Map(x => x.OwnershipCar).Column("ownership").CustomType<OwnershipCarStringType>();
+			Map(x => x.CarOwnershipType).Column("ownership").CustomType<OwnershipCarStringType>();
 
-			References(x => x.ModelCar).Column("car_model_id");
+			References(x => x.CarModel).Column("car_model_id");
 		}
 	}
 }

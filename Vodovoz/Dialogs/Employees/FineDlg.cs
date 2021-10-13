@@ -213,7 +213,7 @@ namespace Vodovoz
 				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
 			}
 			if(yentryreferenceRouteList.Subject != null) {
-				decimal fuelCost = (yentryreferenceRouteList.Subject as RouteList).CarVersion.Car.FuelType.Cost;
+				decimal fuelCost = (yentryreferenceRouteList.Subject as RouteList).Car.FuelType.Cost;
 				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
 				var item = Entity.ObservableItems.FirstOrDefault();
 				if(item != null) {

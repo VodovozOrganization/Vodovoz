@@ -3,13 +3,13 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
-	public class OwnershipModelCar : IDomainObject
+	public class CarOwnership : IDomainObject
 	{
 		public virtual int Id { get; }
 		
-		public virtual ModelCar ModelCar { get; set; }
+		public virtual CarModel CarModel { get; set; }
 		
-		public virtual OwnershipCar OwnershipCar { get; set; }
+		public virtual CarOwnershipType CarOwnershipType { get; set; }
 		
 		public virtual DateTime StartDate { get; set; }
 		

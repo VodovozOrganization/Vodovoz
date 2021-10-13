@@ -70,9 +70,10 @@ namespace Vodovoz.Models
 
 		private bool NeedPremiumRaskatGAZelleInRouteListDate(IUnitOfWork uow)
 		{
+			
 			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle &&
-			   routeList.CarVersion.OwnershipCar == OwnershipCar.RaskatCar &&
-			   routeList.CarVersion.Car.Model.CarTypeOfUse == CarTypeOfUse.GAZelle)
+			   routeList.ActiveCarVersion.CarOwnershipType == CarOwnershipType.RaskatCar &&
+			   routeList.ActiveCarVersion.Car.CarModel.TypeOfUse == CarTypeOfUse.GAZelle)
 			{
 				RouteListItem routeListAdressesAlias = null;
 				Order orderAlias = null;

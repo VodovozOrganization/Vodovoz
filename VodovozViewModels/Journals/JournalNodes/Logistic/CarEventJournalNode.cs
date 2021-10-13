@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string Comment { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 		public bool IsRaskat { get; set; }
-		public RaskatType CarRaskatType { get; set; }
+		public CarOwnershipType CarOwnershipType { get; set; }
 
 
 		public string CarTypeOfUseString
@@ -34,6 +34,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 
 					case CarTypeOfUse.Largus:
 						return "ЛК";
+					
+					case CarTypeOfUse.Truck:
+						return "ФК";
 				}
 
 				return CarTypeOfUse.GetEnumTitle();

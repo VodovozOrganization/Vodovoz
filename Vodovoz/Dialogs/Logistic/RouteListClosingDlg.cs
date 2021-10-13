@@ -174,7 +174,7 @@ namespace Vodovoz
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.CarVersion, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			var filterDriver = new EmployeeRepresentationFilterViewModel();
@@ -363,8 +363,8 @@ namespace Vodovoz
 			routeListAddressesView.IsEditing = _editing;
 			ycheckHideCells.Sensitive = _editing;
 			routelistdiscrepancyview.Sensitive = _editing;
-			buttonAddFuelDocument.Sensitive = Entity.CarVersion?.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
-			buttonDeleteFuelDocument.Sensitive = Entity.CarVersion?.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
+			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
+			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
 			enummenuRLActions.Sensitive = _editing;
 			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = _editing;
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _editing;
@@ -412,7 +412,7 @@ namespace Vodovoz
 			if(e.PropertyName == nameof(Entity.NormalWage))
 				Entity.RecalculateAllWages(wageParameterService);
 
-			if(e.PropertyName == nameof(Entity.CarVersion)) {
+			if(e.PropertyName == nameof(Entity.Car)) {
 				Entity.RecalculateAllWages(wageParameterService);
 			}
 		}
@@ -428,7 +428,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
 				  .AddColumn("№ ТК")
 					.AddTextRenderer(n => n.FuelCardNumber)
-					.Editable(Entity.CarVersion.Car.CanEditFuelCardNumber)
+					.Editable(Entity.Car.CanEditFuelCardNumber)
 				  .AddColumn("")
 					.AddTextRenderer()
 				  .RowCells();
@@ -751,7 +751,7 @@ namespace Vodovoz
 			}
 
 			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.CarVersion.IsCompanyCar && Entity.CarVersion.Car?.Model?.CarTypeOfUse != CarTypeOfUse.Truck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTask(Entity.ActiveCarVersion.IsCompanyCar && Entity.Car?.CarModel?.TypeOfUse != CarTypeOfUse.Truck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
 			
 			UoW.Save();
@@ -830,7 +830,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(Entity.CarVersion.OwnershipCar == OwnershipCar.RaskatCar)
+			if(Entity.ActiveCarVersion.CarOwnershipType == CarOwnershipType.RaskatCar)
 			{
 				Entity.RecountMileage();
 			}
@@ -850,7 +850,7 @@ namespace Vodovoz
 				&& !Entity.DifferencesConfirmed) {
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
 				} else {
-					if(Entity.CarVersion.IsCompanyCar && Entity.CarVersion.Car.Model.CarTypeOfUse != CarTypeOfUse.Truck) {
+					if(Entity.ActiveCarVersion.IsCompanyCar && Entity.Car.CarModel.TypeOfUse != CarTypeOfUse.Truck) {
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 					} else {
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);
@@ -982,24 +982,24 @@ namespace Vodovoz
 			if(exclude.Count == 0)
 				exclude = null;
 
-			if(Entity.CarVersion.Car.FuelType != null) {
-				CarVersion carVersion = Entity.CarVersion;
+			if(Entity.Car.FuelType != null) {
 				Employee driver = Entity.Driver;
+				var car = Entity.Car;
 
-				if(carVersion.IsCompanyCar)
+				if(Entity.ActiveCarVersion.IsCompanyCar)
 					driver = null;
 				else
-					carVersion = null;
+					car = null;
 
 				balanceBeforeOp = _fuelRepository.GetFuelBalance(
-					UoW, driver, carVersion, Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
+					UoW, driver, car, Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
 			}
 		}
 
 		private void UpdateFuelInfo()
 		{
 			var text = new List<string>();
-			decimal spentFuel = (decimal)Entity.CarVersion.Car.FuelConsumption / 100 * Entity.ConfirmedDistance;
+			decimal spentFuel = (decimal)Entity.Car.FuelConsumption / 100 * Entity.ConfirmedDistance;
 
 			bool hasTrack = track?.Distance.HasValue ?? false;
 
@@ -1011,8 +1011,8 @@ namespace Vodovoz
 			}
 			text.Add(string.Format("Расстояние подтвержденное логистами: {0:F1} км.", Entity.ConfirmedDistance));
 
-			if(Entity.CarVersion.Car.FuelType != null) {
-				text.Add(string.Format("Вид топлива: {0}", Entity.CarVersion.Car.FuelType.Name));
+			if(Entity.Car.FuelType != null) {
+				text.Add(string.Format("Вид топлива: {0}", Entity.Car.FuelType.Name));
 			} else {
 				text.Add("Не указан вид топлива");
 			}
@@ -1021,14 +1021,14 @@ namespace Vodovoz
 				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 			}
 
-			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.CarVersion.Car.FuelConsumption));
+			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.Car.FuelConsumption));
 
 			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
 				text.Add(string.Format("Выдано {0:F2} литров",
 					 Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum()));
 			}
 
-			if(Entity.CarVersion.Car.FuelType != null) {
+			if(Entity.Car.FuelType != null) {
 				text.Add(
 					string.Format(
 						"Текущий остаток топлива {0:F2} л.",
@@ -1037,7 +1037,7 @@ namespace Vodovoz
 				);
 			}
 
-			text.Add($"Номер топливной карты: {Entity.CarVersion.Car.FuelCardNumber}");
+			text.Add($"Номер топливной карты: {Entity.Car.FuelCardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}

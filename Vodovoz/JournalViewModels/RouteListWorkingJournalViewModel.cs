@@ -92,15 +92,19 @@ namespace Vodovoz.JournalViewModels
 			RouteList routeListAlias = null;
 			DeliveryShift shiftAlias = null;
 			Car carAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Subdivision subdivisionAlias = null;
 			GeographicGroup geographicalGroupAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.CarVersion, () => carAlias)
+				.Left.JoinAlias(o => o.Car, () => carVersionAlias)
 				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
-				.Left.JoinAlias(o => o.Driver, () => driverAlias);
+				.Left.JoinAlias(o => o.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carVersionAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 
 			if(FilterViewModel.SelectedStatuses != null)
 			{
@@ -181,17 +185,17 @@ namespace Vodovoz.JournalViewModels
 			switch(FilterViewModel.TransportType)
 			{
 				case RLFilterTransport.Mercenaries:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
+					query.Where(() => carVersionAlias.CarOwnershipType == CarOwnershipType.HiredCar); break;
 				case RLFilterTransport.Raskat:
-					query.Where(() => carAlias.IsRaskat); break;
+					query.Where(() => carVersionAlias.IsRaskat); break;
 				case RLFilterTransport.Largus:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
+					query.Where(() => carModelAlias.TypeOfUse == CarTypeOfUse.Largus); break;
 				case RLFilterTransport.GAZelle:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
+					query.Where(() => carModelAlias.TypeOfUse == CarTypeOfUse.GAZelle); break;
 				case RLFilterTransport.Waggon:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
+					query.Where(() => carModelAlias.TypeOfUse == CarTypeOfUse.Truck); break;
 				case RLFilterTransport.Others:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
+					query.Where(() => carVersionAlias.CarOwnershipType == CarOwnershipType.RaskatCar || carVersionAlias.CarOwnershipType == CarOwnershipType.HiredCar); break;
 				default: break;
 			}
 
@@ -209,7 +213,7 @@ namespace Vodovoz.JournalViewModels
 				() => driverAlias.LastName,
 				() => driverAlias.Patronymic,
 				() => driverProjection,
-				() => carAlias.Model,
+				() => carAlias.CarModel,
 				() => carAlias.RegistrationNumber
 			));
 
@@ -219,7 +223,7 @@ namespace Vodovoz.JournalViewModels
 					   .Select(() => routeListAlias.Date).WithAlias(() => routeListJournalNodeAlias.Date)
 					   .Select(() => routeListAlias.Status).WithAlias(() => routeListJournalNodeAlias.StatusEnum)
 					   .Select(() => shiftAlias.Name).WithAlias(() => routeListJournalNodeAlias.ShiftName)
-					   .Select(() => carAlias.Model).WithAlias(() => routeListJournalNodeAlias.CarModel)
+					   .Select(() => carAlias.CarModel).WithAlias(() => routeListJournalNodeAlias.CarModel)
 					   .Select(() => carAlias.RegistrationNumber).WithAlias(() => routeListJournalNodeAlias.CarNumber)
 					   .Select(() => driverAlias.LastName).WithAlias(() => routeListJournalNodeAlias.DriverSurname)
 					   .Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
@@ -228,7 +232,8 @@ namespace Vodovoz.JournalViewModels
 					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					   .Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
 					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
-					   .Select(() => carAlias.TypeOfUse).WithAlias(() => routeListJournalNodeAlias.OwnershipCar)
+					   .Select(() => carModelAlias.TypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
+					   .Select(() => carVersionAlias.CarOwnershipType).WithAlias(() => routeListJournalNodeAlias.CarOwnershipType)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 

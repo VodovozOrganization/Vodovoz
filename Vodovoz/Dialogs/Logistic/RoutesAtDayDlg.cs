@@ -220,16 +220,16 @@ namespace Vodovoz
 																		  .AddColumn("Водитель")
 																		 	.AddTextRenderer(x => x.Employee.ShortName)
 																		  .AddColumn("Автомобиль")
-																			.AddPixbufRenderer(x => x.CarVersion != null && x.CarVersion.IsCompanyCar ? vodovozCarIcon : null)
-																			.AddTextRenderer(x => x.CarVersion != null ? x.CarVersion.Car.RegistrationNumber : "нет")
+																			.AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersion(x.Date).IsCompanyCar ? vodovozCarIcon : null)
+																			.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 																		  .AddColumn("База")
 																			.AddComboRenderer(x => x.GeographicGroup)
 																			.SetDisplayFunc(x => x.Name)
 																			.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
 																			.AddSetter(
 																				(c, n) => {
-																					c.Editable = n.CarVersion != null;
-																					c.BackgroundGdk = n.GeographicGroup == null && n.CarVersion != null
+																					c.Editable = n.Car != null;
+																					c.BackgroundGdk = n.GeographicGroup == null && n.Car != null
 																						? colorLightRed
 																						: colorWhite;
 																				}
@@ -464,7 +464,7 @@ namespace Vodovoz
 				return string.Format("МЛ №{0} - {1}({2})",
 					rl.Id,
 					rl.Driver.ShortName,
-					rl.CarVersion.Car.RegistrationNumber
+					rl.Car.RegistrationNumber
 				);
 			}
 			if(row is RouteListItem rli)
@@ -523,7 +523,7 @@ namespace Vodovoz
 		{
 			if(row is RouteList rl) {
 				var bottles = rl.Addresses.Sum(x => x.Order.Total19LBottlesToDeliver);
-				return FormatOccupancy(bottles, rl.CarVersion.Car.MinBottles, rl.CarVersion.Car.MaxBottles);
+				return FormatOccupancy(bottles, rl.Car.MinBottles, rl.Car.MaxBottles);
 			}
 
 			if(row is RouteListItem rli)
@@ -555,7 +555,7 @@ namespace Vodovoz
 		{
 			if(row is RouteList rl) {
 				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
-				return FormatOccupancy(weight, null, rl.CarVersion.Car.Model.MaxWeight);
+				return FormatOccupancy(weight, null, rl.Car.CarModel.MaxWeight);
 			}
 
 			if(row is RouteListItem rli)
@@ -981,7 +981,7 @@ namespace Vodovoz
 					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
 				carrierInfo = string.Concat(
 					carrierInfo,
-					string.Format("; {0} кг; {1} куб.м.", route.CarVersion?.Car?.Model?.MaxWeight, route.CarVersion?.Car?.Model?.MaxVolume)
+					string.Format("; {0} кг; {1} куб.м.", route.Car?.CarModel?.MaxWeight, route.Car?.CarModel?.MaxVolume)
 				);
 				var item = new MenuItemId<RouteList>(carrierInfo) {
 					ID = route
@@ -1035,7 +1035,7 @@ namespace Vodovoz
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 
-			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", route.CarVersion.Car.Title, route.Id));
+			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", route.Car.Title, route.Id));
 			if(route.HasOverweight())
 				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", route.Overweight()));
 			if(route.HasVolumeExecess())
@@ -1152,7 +1152,7 @@ namespace Vodovoz
 					route.RecalculatePlanedDistance(distanceCalculator);
 					var noPlan = route.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)
-						warnings.Add($"Для маршрута №{route.Id} - {route.Driver?.ShortName}({route.CarVersion?.Car.RegistrationNumber}) незапланировано {noPlan} адресов.");
+						warnings.Add($"Для маршрута №{route.Id} - {route.Driver?.ShortName}({route.Car?.RegistrationNumber}) незапланировано {noPlan} адресов.");
 				} else {
 					warnings.Add($"Маршрут {route.Id} не был перестроен.");
 				}
@@ -1239,14 +1239,14 @@ namespace Vodovoz
 			var addDrivers = e.GetEntities<Employee>().ToList();
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = _carRepository.GetCarVersionsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
 				driversAtDay.Add(
 					new AtWorkDriver(
 						driver,
 						CurDate,
-						allCars.FirstOrDefault(x => x.Car.Driver.Id == driver.Id)
+						allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
 					)
 				);
 			}
@@ -1309,7 +1309,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(DriversAtDay.Any(d => d.CarVersion != null && d.GeographicGroup == null)) {
+			if(DriversAtDay.Any(d => d.Car != null && d.GeographicGroup == null)) {
 				MessageDialogHelper.RunWarningDialog("Не всем автомобилям назначена \"База\" для погрузки-разгрузки. Пожалуйста укажите.");
 				return;
 			}
@@ -1342,7 +1342,7 @@ namespace Vodovoz
 				foreach(var propose in optimizer.ProposedRoutes) {
 					var rl = propose.Trip.OldRoute ?? new RouteList();
 					rl.UoW = UoW;
-					rl.CarVersion = propose.Trip.CarVersion;
+					rl.Car = propose.Trip.Car;
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;
 					rl.Date = CurDate;
@@ -1378,7 +1378,7 @@ namespace Vodovoz
 		{
 			var SelectDriverCar = new OrmReference(
 				UoW,
-				_carRepository.ActiveCompanyCarVersionsQuery()
+				_carRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;
@@ -1390,20 +1390,20 @@ namespace Vodovoz
 		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var driver = e.Tag as AtWorkDriver;
-			var car = e.Subject as CarVersion;
-			var driverNames = string.Join("\", \"", driversAtDay.Where(x => x.CarVersion != null && x.CarVersion.Id == car.Id).Select(x => x.Employee.ShortName));
+			var car = e.Subject as Car;
+			var driverNames = string.Join("\", \"", driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).Select(x => x.Employee.ShortName));
 			if(
 				string.IsNullOrEmpty(driverNames) || MessageDialogHelper.RunQuestionDialog(
 					string.Format(
 						"Автомобиль \"{0}\" уже назначен \"{1}\". Переназначить его водителю \"{2}\"?",
-						car.Car.RegistrationNumber,
+						car.RegistrationNumber,
 						driverNames,
 						driver.Employee.ShortName
 					)
 				)
 			) {
-				driversAtDay.Where(x => x.CarVersion != null && x.CarVersion.Id == car.Id).ToList().ForEach(x => { x.CarVersion = null; x.GeographicGroup = null; });
-				driver.CarVersion = car;
+				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
+				driver.Car = car;
 			}
 		}
 

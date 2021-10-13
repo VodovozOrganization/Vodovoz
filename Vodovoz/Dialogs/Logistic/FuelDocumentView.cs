@@ -41,7 +41,7 @@ namespace Vodovoz
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.FuelDocument, x => x.CarVersion, x => x.Subject).InitializeFromSource();
+			entityviewmodelentryCar.Binding.AddBinding(ViewModel.FuelDocument, x => x.Car, x => x.Subject).InitializeFromSource();
 
 			yentryfuel.SubjectType = typeof(FuelType);
 			yentryfuel.Binding.AddBinding(ViewModel.FuelDocument, e => e.Fuel, w => w.Subject).InitializeFromSource();

@@ -27,16 +27,16 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual int Id { get; set; }
 
-		private ModelCar _model;
+		private CarModel _carModel;
 		[Display(Name = "Модель")]
-		public virtual ModelCar Model {
-			get => _model;
-			set => SetField(ref _model, value);
+		public virtual CarModel CarModel {
+			get => _carModel;
+			set => SetField(ref _carModel, value);
 		}
 
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
 
-		public IList<CarVersion> CarVersions
+		public virtual IList<CarVersion> CarVersions
 		{
 			get => _carVersions;
 			set => SetField(ref _carVersions, value);
@@ -264,7 +264,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		#endregion
 
-		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
+		public virtual string Title => $"{CarModel.Name} ({RegistrationNumber})";
 		public virtual bool CanEditFuelCardNumber => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
 
 		public virtual CarVersion GetActiveCarVersion(DateTime? activationTime = null)
@@ -275,10 +275,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			return ObservableCarVersions.SingleOrDefault(x =>
 				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
-		//TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);
-
-		public static CarTypeOfUse[] GetCompanyHavingsTypes() => new CarTypeOfUse[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus, CarTypeOfUse.Truck };
-
+		
 		public Car()
 		{
 			RegistrationNumber = String.Empty;
@@ -288,9 +285,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			// if(string.IsNullOrWhiteSpace(Model))
-			// 	yield return new ValidationResult("Модель автомобиля должна быть заполнена", new[] { "Model" });
-
 			if(string.IsNullOrWhiteSpace(RegistrationNumber))
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { "RegistrationNumber" });
 
@@ -299,10 +293,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 			if(FuelConsumption <= 0)
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { "FuelConsumption" });
-
-			// if(!TypeOfUse.HasValue)
-			// 	yield return new ValidationResult("Вид автомобиля должен быть заполнен", new[] { nameof(TypeOfUse) });
-
+			
 			var cars = UoW.Session.QueryOver<Car>()
 				.Where(c => c.RegistrationNumber == this.RegistrationNumber)
 				.WhereNot(c => c.Id == this.Id)
@@ -318,38 +309,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
-
-   //          if (IsRaskat && TypeOfUse != CarTypeOfUse.DriverCar)
-   //              yield return new ValidationResult("Раскатным может быть только автомобиль водителя", new[] { nameof(IsRaskat), nameof(TypeOfUse) });
-   //
-			// if (IsRaskat && RaskatType == null)
-			// 	yield return new ValidationResult("Для раскатного авто необходимо указать тип раската", new[] { nameof(IsRaskat), nameof(RaskatType) });
 		}
-
 		#endregion
-	}
-
-	public enum CarTypeOfUse
-	{
-		[Display(Name = "Ларгус")]
-		Largus,
-		[Display(Name = "Фура")]
-		Truck,
-		[Display(Name = "ГАЗель")]
-		GAZelle
-	}
-
-	public enum RaskatType
-	{
-		[Display(Name = "Газель")]
-		RaskatGazelle,
-		[Display(Name = "Ларгус")]
-		RaskatLargus
-	}
-
-	public class RaskatTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public RaskatTypeStringType() : base(typeof(RaskatType)) { }
 	}
 
 	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType

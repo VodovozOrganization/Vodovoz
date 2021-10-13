@@ -539,10 +539,10 @@ namespace Vodovoz
 			#region Logistics
 
 			DeleteConfig.AddHibernateDeleteInfo<Car>()
-				.AddDeleteDependence<RouteList>(x => x.CarVersion)
-				.AddDeleteDependence<FuelDocument>(x => x.CarVersion)
-				.AddDeleteDependence<FuelOperation>(x => x.CarVersion)
-				.AddDeleteDependence<AtWorkDriver>(x => x.CarVersion)
+				.AddDeleteDependence<RouteList>(x => x.Car)
+				.AddDeleteDependence<FuelDocument>(x => x.Car)
+				.AddDeleteDependence<FuelOperation>(x => x.Car)
+				.AddDeleteDependence<AtWorkDriver>(x => x.Car)
 				.AddDeleteDependence<CashTransferDocumentBase>(x => x.Car)
 				.AddDeleteDependence<CarProxyDocument>(x => x.Car)
 				;

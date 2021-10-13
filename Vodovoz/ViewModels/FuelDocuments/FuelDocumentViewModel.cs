@@ -287,8 +287,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool CarHasFuelType()
 		{
-			if(RouteList.CarVersion.Car.FuelType == null) {
-				ShowWarningMessage($"У машины {RouteList.CarVersion.Car.Model.Name} {RouteList.CarVersion.Car.Title} отсутствует тип топлива");
+			if(RouteList.Car.FuelType == null) {
+				ShowWarningMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
 				return false;
 			}
 
@@ -391,7 +391,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return string.Empty;
 
 			var text = new List<string>();
-			decimal fc = (decimal)RouteList.CarVersion.Car.FuelConsumption;
+			decimal fc = (decimal)RouteList.Car.FuelConsumption;
 
 			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
 			bool hasTrack = curTrack != null && curTrack.Distance.HasValue;
@@ -403,12 +403,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			text.Add($"Подтвержденное расстояние {RouteList.ConfirmedDistance}");
 
-			if(RouteList.CarVersion.Car.FuelType != null) 
+			if(RouteList.Car.FuelType != null) 
 			{
 				var fuelOtlayedOp = RouteList.FuelOutlayedOperation;
 				var entityOp = FuelDocument.FuelOperation;
 
-				text.Add($"Вид топлива: {RouteList.CarVersion.Car.FuelType.Name}");
+				text.Add($"Вид топлива: {RouteList.Car.FuelType.Name}");
 
 				var exclude = new List<int>();
 				if(entityOp != null && entityOp.Id != 0)
@@ -420,15 +420,17 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				if(exclude.Count == 0) 
 					exclude = null;
 
-				CarVersion carVersion = RouteList.CarVersion;
+				var car = RouteList.Car;
+
+				var carVersion = car.GetActiveCarVersion(RouteList.Date);
 				Employee driver = RouteList.Driver;
 
 				if(carVersion.IsCompanyCar) 
 					driver = null;
 				else 
-					carVersion = null;
+					car = null;
 
-				fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, carVersion, null, exclude?.ToArray());
+				fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
 
 				text.Add($"Остаток без документа {fuelBalance:F2} л.");
 			} else {

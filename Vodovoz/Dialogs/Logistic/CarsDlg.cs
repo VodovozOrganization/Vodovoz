@@ -103,7 +103,7 @@ namespace Vodovoz
 			maxBottlesFromAddressSpin.Binding.AddBinding(Entity, e => e.MaxBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
 
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
-			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
+			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.CarModel, Entity.RegistrationNumber);
 
 			attachmentsView.ViewModel = _attachmentsViewModel;
 			
@@ -260,12 +260,12 @@ namespace Vodovoz
 				Entity.DriverCarKind = null;
 			}
 			if(CarTypeIsEditable())
-				activeCarVersion.OwnershipCar = OwnershipCar.CompanyCar;
+				activeCarVersion.CarOwnershipType = CarOwnershipType.CompanyCar;
 		}
 
 		private void UpdateSensitivity()
 		{
-			comboDriverCarKind.Sensitive = Entity.Model.CarTypeOfUse.HasValue && !Entity.GetActiveCarVersion().IsCompanyCar;
+			comboDriverCarKind.Sensitive = Entity.CarModel.TypeOfUse.HasValue && !Entity.GetActiveCarVersion().IsCompanyCar;
 		}
 		
 		public override void Destroy()

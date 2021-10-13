@@ -44,7 +44,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
 			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 
-			References(x => x.CarVersion).Column ("car_id");
+			References(x => x.Car).Column ("car_id");
 			References(x => x.Shift).Column ("delivery_shift_id");
 			References(x => x.Driver).Column ("driver_id");
 			References(x => x.Forwarder).Column ("forwarder_id");

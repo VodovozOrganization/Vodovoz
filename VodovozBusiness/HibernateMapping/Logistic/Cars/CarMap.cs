@@ -36,7 +36,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Driver)          .Column("driver_id");
 			References(x => x.FuelType)        .Column("fuel_type_id");
 			References(x => x.DriverCarKind)   .Column("driver_car_kind_id");
-			References(x => x.Model)                  .Column ("car_model_id");
+			References(x => x.CarModel)                  .Column ("car_model_id");
 			
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("car_id");
 			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id").LazyLoad();

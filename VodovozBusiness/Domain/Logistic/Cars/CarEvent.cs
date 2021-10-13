@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _createDate;
 		private Employee _author;
 		private CarEventType _carEventType;
-		private CarVersion _carVersion;
+		private Car _car;
 		private Employee _driver;
 		private DateTime _startDate;
 		private DateTime _endDate;
@@ -52,10 +52,10 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Автомобиль")]
-		public virtual CarVersion CarVersion
+		public virtual Car Car
 		{
-			get => _carVersion;
-			set => SetField(ref _carVersion, value);
+			get => _car;
+			set => SetField(ref _car, value);
 		}
 
 		[Display(Name = "Водитель")]
@@ -103,10 +103,10 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(CarEventType) });
 			}
 
-			if(CarVersion == null)
+			if(Car == null)
 			{
 				yield return new ValidationResult("Автомобиль должен быть указан.",
-					new[] { nameof(CarVersion) });
+					new[] { nameof(Car) });
 			}
 
 			if(StartDate == default(DateTime))

@@ -240,6 +240,8 @@ namespace Vodovoz.ViewModels.Reports
             RouteListItem routeListItemAlias2 = null;
             RouteList routeListAlias = null;
             Car carAlias = null;
+            CarVersion carVersionAlias = null;
+            CarModel carModelAlias = null;
             Employee driverAlias = null;
             Employee forwarderAlias = null;
             OrderItem orderItemAlias = null;
@@ -255,16 +257,17 @@ namespace Vodovoz.ViewModels.Reports
                 .Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
                 .JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
                 .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-                .Left.JoinAlias(() => routeListAlias.CarVersion, () => carAlias)
+                .Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
                 .Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-                .Left.JoinAlias(() => routeListAlias.Forwarder, () => forwarderAlias);
+                .Left.JoinAlias(() => routeListAlias.Forwarder, () => forwarderAlias)
+                .Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 
             query.Where(x => !x.SelfDelivery)
 	             .Where(x => !x.IsContractCloser)
                  .Where(x => x.OrderAddressType != OrderAddressType.Service)
                  .WhereRestrictionOn(x => x.OrderStatus)
                     .Not.IsIn(new[]{OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.WaitForPayment})
-	             .Where(() => carAlias.TypeOfUse == null || carAlias.TypeOfUse != CarTypeOfUse.CompanyTruck)
+	             .Where(() => carModelAlias.TypeOfUse == null || carModelAlias.TypeOfUse != CarTypeOfUse.Truck)
                  .Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
 	             .WithSubquery.WhereNotExists(
 		             QueryOver.Of(() => orderAlias2)
@@ -306,6 +309,16 @@ namespace Vodovoz.ViewModels.Reports
 	            .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 	            .Select(Projections.Sum(() => (orderItemAlias.Count * orderItemAlias.Price) - orderItemAlias.DiscountMoney)); 
             
+            if (StartDeliveryDate.HasValue) {
+	            query.Where(x => x.DeliveryDate >= StartDeliveryDate);
+            }
+
+            var isRaskatTypeQuery = StartDeliveryDate.HasValue
+	            ? QueryOver.Of(() => carVersionAlias).Where(x =>
+		            x.StartDate <= StartDeliveryDate.Value &&
+		            (x.EndDate == null || x.EndDate <= StartDeliveryDate.Value.Date.AddDays(1))).OrderBy(x => x.Id).Desc.Select(x => x.IsRaskat).Take(1)
+	            : QueryOver.Of(() => carVersionAlias).Where(x => x.EndDate == null).OrderBy(x => x.Id).Desc.Select(x => x.IsRaskat).Take(1);
+
             var result = query
                 .SelectList(list => list
                     .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
@@ -315,10 +328,10 @@ namespace Vodovoz.ViewModels.Reports
                     .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
                     .Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.RouteListItemStatus)
                     .Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
-                    .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+                    .Select(() => carAlias.CarModel).WithAlias(() => resultAlias.CarModel)
                     .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegNumber)
-                    .Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-                    .Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
+                    .Select(() => carModelAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+                    .Select(() => isRaskatTypeQuery).WithAlias(() => resultAlias.IsRaskat)
                     .Select(() => driverAlias.IsDriverForOneDay).WithAlias(() => resultAlias.IsDriverForOneDay)
                     .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.Bottles19LCount)
                     .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)

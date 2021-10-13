@@ -58,6 +58,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Car carAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 			CarEventJournalNode resultAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -84,7 +86,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			itemsQuery.Left.JoinAlias(x => x.CarEventType, () => carEventTypeAlias);
 			itemsQuery.Left.JoinAlias(x => x.Author, () => authorAlias);
 			itemsQuery.Left.JoinAlias(x => x.Driver, () => driverAlias);
-			itemsQuery.Left.JoinAlias(x => x.Car, () => carAlias);
+			itemsQuery.Left.JoinAlias(x => x.Car, () => carVersionAlias);
+			itemsQuery.Left.JoinAlias(() => carVersionAlias.Car, () => carAlias);
+			itemsQuery.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 			itemsQuery.Left.JoinAlias(() => carAlias.GeographicGroups, () => geographicGroupAlias);
 
 			if(FilterViewModel.CarEventType != null)
@@ -117,7 +121,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.Car != null)
 			{
-				itemsQuery.Where(x => x.Car == FilterViewModel.Car);
+				itemsQuery.Where(() => carAlias == FilterViewModel.Car);
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -130,7 +134,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => carEventAlias.Comment,
 				() => carEventTypeAlias.Name,
 				() => carEventTypeAlias.ShortName,
-				() => carAlias.Model,
+				() => carAlias.CarModel,
 				() => carAlias.RegistrationNumber,
 				() => driverProjection)
 			);
@@ -145,9 +149,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)
 					.Select(() => carAlias.OrderNumber).WithAlias(() => resultAlias.CarOrderNumber)
-					.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-					.Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
-					.Select(() => carAlias.RaskatType).WithAlias(() => resultAlias.CarRaskatType)
+					.Select(() => carModelAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+					.Select(() => carVersionAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
+					.Select(() => carVersionAlias.CarOwnershipType).WithAlias(() => resultAlias.CarOwnershipType)
 					.Select(authorProjection).WithAlias(() => resultAlias.AuthorFullName)
 					.Select(driverProjection).WithAlias(() => resultAlias.DriverFullName)
 					.Select(geographicGroupsProjection).WithAlias(() => resultAlias.GeographicGroups)

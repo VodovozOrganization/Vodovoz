@@ -118,7 +118,7 @@ namespace Vodovoz
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.CarVersion, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = logisticanEditing;
 

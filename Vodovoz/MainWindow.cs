@@ -532,9 +532,9 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionCarsActivated(object sender, EventArgs e)
     {
-	    CarVersionFilterViewModel filter = new CarVersionFilterViewModel();
-        var carJournal = new CarVersionJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-        tdiMain.AddTab(carJournal);
+	    CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
+	    var carJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+	    tdiMain.AddTab(carJournal);
     }
 
     protected void OnActionUnitsActivated(object sender, EventArgs e)

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
-	public class CarVersion : PropertyChangedBase, IDomainObject
+	public class CarVersion : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; }
 		
@@ -12,7 +13,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		
 		public virtual DateTime? EndDate { get; set; }
 		
-		public virtual OwnershipCar OwnershipCar { get; set; }
+		public virtual CarOwnershipType CarOwnershipType { get; set; }
 
 		private Car _car;
 		public virtual Car Car 
@@ -21,12 +22,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _car, value); 
 		}
 
-		[Display(Name = "Имущество компании")] public virtual bool IsCompanyCar => OwnershipCar == OwnershipCar.CompanyCar;
+		[Display(Name = "Имущество компании")] public virtual bool IsCompanyCar => CarOwnershipType == CarOwnershipType.CompanyCar;
 		
-		public virtual bool IsRaskat => OwnershipCar == OwnershipCar.RaskatCar;
+		public virtual bool IsRaskat => CarOwnershipType == CarOwnershipType.RaskatCar;
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (IsRaskat && Car.CarModel.TypeOfUse == null)
+				yield return new ValidationResult("Для раскатного авто необходимо указать тип раската", new[] { nameof(IsRaskat), nameof(CarOwnershipType) });
+		}
 	}
 
-	public enum OwnershipCar
+	public enum CarOwnershipType
 	{
 		[Display(Name = "ТС компании")]
 		CompanyCar,
@@ -38,6 +44,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 	
 	public class OwnershipCarStringType : NHibernate.Type.EnumStringType
 	{
-		public OwnershipCarStringType() : base(typeof(OwnershipCar)) { }
+		public OwnershipCarStringType() : base(typeof(CarOwnershipType)) { }
 	}
 }

@@ -116,8 +116,8 @@
     <Compile Include="Domain\Logistic\Cars\CarEventType.cs" />
     <Compile Include="Domain\Logistic\Cars\CarVersion.cs" />
     <Compile Include="Domain\Logistic\Cars\ManufacturerCars.cs" />
-    <Compile Include="Domain\Logistic\Cars\ModelCar.cs" />
-    <Compile Include="Domain\Logistic\Cars\OwnershipModelCar.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarModel.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarOwnership.cs" />
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
@@ -288,7 +288,8 @@
     <Compile Include="HibernateMapping\Logistic\Cars\CarMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarOwnershipMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarVersionMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\Cars\ModelCarMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\ManufacturerCarsMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarModelMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverCarKindMap.cs" />

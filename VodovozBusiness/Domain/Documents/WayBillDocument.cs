@@ -65,9 +65,9 @@ namespace Vodovoz.Domain.Documents
             set => SetField(ref organizationName, value);
         }
         
-        ModelCar _carModel;
+        CarModel _carModel;
         [Display (Name = "Модель автомобиля")]
-        public virtual ModelCar CarModel {
+        public virtual CarModel CarModel {
             get => _carModel;
             set => SetField(ref _carModel, value);
         }

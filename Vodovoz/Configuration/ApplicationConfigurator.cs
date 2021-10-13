@@ -186,7 +186,7 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString())
                     .Column("Статус", x => x.Status.GetEnumTitle())
-                    .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.CarVersion.Car.Title)).End(),
+                    .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
                 OrmObjectMapping<RouteColumn>.Create().DefaultTableView().Column("Код", x => x.Id.ToString())
                     .SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<DeliveryShift>.Create().Dialog<DeliveryShiftDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
@@ -323,7 +323,7 @@ namespace Vodovoz.Configuration
                 .End();
             OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
                 .SearchColumn("Код", x => x.Id.ToString())
-                .SearchColumn("Модель а/м", x => x.Model.Name)
+                .SearchColumn("Модель а/м", x => x.CarModel.Name)
                 .SearchColumn("Гос. номер", x => x.RegistrationNumber)
                 .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
                 .End();

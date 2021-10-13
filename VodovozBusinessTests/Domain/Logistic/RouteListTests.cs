@@ -73,30 +73,30 @@ namespace VodovozBusinessTests.Domain.Logistic
 		static IEnumerable NeedMileageCheckParams()
 		{
 			var carMock1 = Substitute.For<CarVersion>(); 
-			carMock1.OwnershipCar = OwnershipCar.CompanyCar; carMock1.Car.Model.CarTypeOfUse = CarTypeOfUse.GAZelle;
+			carMock1.CarOwnershipType = CarOwnershipType.CompanyCar; carMock1.Car.CarModel.TypeOfUse = CarTypeOfUse.GAZelle;
 			carMock1.IsCompanyCar.Returns(true);
 			var carMock2 = Substitute.For<CarVersion>(); 
-			carMock1.OwnershipCar = OwnershipCar.CompanyCar; carMock2.Car.Model.CarTypeOfUse = CarTypeOfUse.Largus;
+			carMock1.CarOwnershipType = CarOwnershipType.CompanyCar; carMock2.Car.CarModel.TypeOfUse = CarTypeOfUse.Largus;
 			carMock2.IsCompanyCar.Returns(true);
 			var carMock3 = Substitute.For<CarVersion>(); 
-			carMock1.OwnershipCar = OwnershipCar.CompanyCar; carMock3.Car.Model.CarTypeOfUse = CarTypeOfUse.Truck;
+			carMock1.CarOwnershipType = CarOwnershipType.CompanyCar; carMock3.Car.CarModel.TypeOfUse = CarTypeOfUse.Truck;
 			carMock3.IsCompanyCar.Returns(true);
 			var carMock4 = Substitute.For<CarVersion>(); 
-			carMock1.OwnershipCar = OwnershipCar.HiredCar; carMock4.Car.Model.CarTypeOfUse = CarTypeOfUse.Largus;
+			carMock1.CarOwnershipType = CarOwnershipType.HiredCar; carMock4.Car.CarModel.TypeOfUse = CarTypeOfUse.Largus;
 			carMock4.IsCompanyCar.Returns(false);
 			
-			yield return new TestCaseData(carMock1).Returns(true).SetName(carMock1.Car.Model.CarTypeOfUse.ToString());
-			yield return new TestCaseData(carMock2).Returns(true).SetName(carMock2.Car.Model.CarTypeOfUse.ToString());
-			yield return new TestCaseData(carMock3).Returns(false).SetName(carMock3.Car.Model.CarTypeOfUse.ToString());
-			yield return new TestCaseData(carMock4).Returns(false).SetName(carMock4.Car.Model.CarTypeOfUse.ToString());
+			yield return new TestCaseData(carMock1).Returns(true).SetName(carMock1.Car.CarModel.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock2).Returns(true).SetName(carMock2.Car.CarModel.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock3).Returns(false).SetName(carMock3.Car.CarModel.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock4).Returns(false).SetName(carMock4.Car.CarModel.TypeOfUse.ToString());
 		}
 
 		[TestCaseSource(nameof(NeedMileageCheckParams))]
 		[Test(Description = "Если машина - собственность компании, но не фура, то её нужно отправлять на проверку километража. Остальные машины - не нужно")]
-		public bool NeedMileageCheck_Test(CarVersion carVersion)
+		public bool NeedMileageCheck_Test(Car car)
 		{
 			RouteList routeList = new RouteList();
-			routeList.CarVersion = carVersion;
+			routeList.Car = car;
 			return routeList.NeedMileageCheck;
 		}
 	}

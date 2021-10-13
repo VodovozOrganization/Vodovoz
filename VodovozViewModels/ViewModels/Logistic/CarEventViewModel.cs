@@ -48,10 +48,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand ChangeDriverCommand => _changeDriverCommand ?? (_changeDriverCommand =
 			new DelegateCommand(() =>
 				{
-					if(Entity.CarVersion.Car != null)
+					if(Entity.Car != null)
 					{
-						Entity.Driver = (Entity.CarVersion.Car.Driver != null && Entity.CarVersion.Car.Driver.Status != EmployeeStatus.IsFired)
-							? Entity.CarVersion.Car.Driver
+						Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired)
+							? Entity.Car.Driver
 							: null;
 					}
 				},

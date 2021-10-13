@@ -106,8 +106,8 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddComboRenderer(x => x.WithForwarder)
 					.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => x.CarVersion != null && x.CarVersion.OwnershipCar == OwnershipCar.CompanyCar ? vodovozCarIcon : null)
-					.AddTextRenderer(x => x.CarVersion != null ? x.CarVersion.Car.RegistrationNumber : "нет")
+					.AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersion(x.Date).CarOwnershipType == CarOwnershipType.CompanyCar ? vodovozCarIcon : null)
+					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
@@ -121,7 +121,7 @@ namespace Vodovoz.Dialogs.Logistic
 						}
 					)
 				.AddColumn("Грузоп.")
-					.AddTextRenderer(x => x.CarVersion != null ? x.CarVersion.Car.Model.MaxWeight.ToString("D") : null)
+					.AddTextRenderer(x => x.Car != null ? x.Car.CarModel.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
 					.AddTextRenderer(x => string.Join(", ", x.DistrictsPriorities.Select(d => d.District.DistrictName)))
 				.AddColumn("")
@@ -226,7 +226,7 @@ namespace Vodovoz.Dialogs.Logistic
 						continue;
 					}
 
-					var car = _carRepository.GetCarVersionByDriver(UoW, driver);
+					var car = _carRepository.GetCarByDriver(UoW, driver);
 					var daySchedule = GetDriverWorkDaySchedule(driver);
 
 					var atwork = new AtWorkDriver(driver, DialogAtDate, car, daySchedule);
@@ -293,7 +293,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selectDriverCar = new OrmReference(
 				UoW,
-				_carRepository.ActiveCompanyCarVersionsQuery()
+				_carRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			selectDriverCar.Tag = driver;
@@ -320,7 +320,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {
-				var driversToAdd = DriversAtDay.Where(x => x.WithForwarder == null && x.CarVersion != null && x.CarVersion.OwnershipCar == OwnershipCar.CompanyCar && x.CarVersion.Car.Model.CarTypeOfUse != CarTypeOfUse.Largus).ToList();
+				var driversToAdd = DriversAtDay.Where(x => x.WithForwarder == null && x.Car != null && x.Car.GetActiveCarVersion(x.Date).CarOwnershipType == CarOwnershipType.CompanyCar && x.Car.CarModel.TypeOfUse != CarTypeOfUse.Largus).ToList();
 
 				if(driversToAdd.Count == 0) {
 					logger.Warn("Не осталось водителей для добавленя экспедиторов.");
@@ -329,9 +329,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 				int ManOnDistrict(int districtId) => driversAtDay
 					.Where(dr =>
-						dr.CarVersion != null
-						&& dr.CarVersion.OwnershipCar == OwnershipCar.CompanyCar
-						&& dr.CarVersion.Car.Model.CarTypeOfUse != CarTypeOfUse.Largus
+						dr.Car != null
+						&& dr.Car.GetActiveCarVersion(dr.Date).CarOwnershipType == CarOwnershipType.CompanyCar
+						&& dr.Car.CarModel.TypeOfUse != CarTypeOfUse.Largus
 						&& dr.DistrictsPriorities.Any(dd2 => dd2.District.Id == districtId)
 					)
 					.Sum(dr => dr.WithForwarder == null ? 1 : 2);
@@ -359,8 +359,8 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
 			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected[0].CarVersion.Id),
-				() => new CarsDlg(selected[0].CarVersion.Car)
+				DialogHelper.GenerateDialogHashName<Car>(selected[0].Car.Id),
+				() => new CarsDlg(selected[0].Car)
 			);
 		}
 		
@@ -446,7 +446,7 @@ namespace Vodovoz.Dialogs.Logistic
 				var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
 				districtpriorityview1.ListParent = selected[0];
 				districtpriorityview1.Districts = selected[0].ObservableDistrictsPriorities;
-				buttonOpenCar.Sensitive = selected[0].CarVersion != null;
+				buttonOpenCar.Sensitive = selected[0].Car != null;
 				ChangeButtonAddRemove(selected[0].Status == AtWorkDriver.DriverStatus.NotWorking);
 			}
 			districtpriorityview1.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1;
@@ -476,7 +476,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var addDrivers = e.SelectedNodes;
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = _carRepository.GetCarVersionsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
 				var drv = UoW.GetById<Employee>(driver.Id);
@@ -487,7 +487,7 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 
 				var daySchedule = GetDriverWorkDaySchedule(drv);
-				var atwork = new AtWorkDriver(drv, DialogAtDate, allCars.FirstOrDefault(x => x.Car.Driver.Id == driver.Id), daySchedule);
+				var atwork = new AtWorkDriver(drv, DialogAtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
 
 				GetDefaultForwarder(drv, atwork);
 
@@ -500,9 +500,9 @@ namespace Vodovoz.Dialogs.Logistic
 		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var driver = e.Tag as AtWorkDriver;
-			var car = e.Subject as CarVersion;
-			driversAtDay.Where(x => x.CarVersion != null && x.CarVersion.Id == car.Id).ToList().ForEach(x => x.CarVersion = null);
-			driver.CarVersion = car;
+			var car = e.Subject as Car;
+			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+			driver.Car = car;
 		}
 		
 		protected void OnHideForwadersToggled(object o, Gtk.ToggledArgs args)

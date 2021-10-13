@@ -46,6 +46,7 @@ using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.HibernateMapping.Logistic.Cars;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Parameters;
@@ -72,13 +73,18 @@ namespace Vodovoz.ViewModel
 			DeliveryShift shiftAlias = null;
 
 			Car carAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Subdivision subdivisionAlias = null;
 			GeographicGroup geographicGroupsAlias = null;
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 
-			query.Left.JoinAlias(o => o.Driver, () => driverAlias);
+			query.Left.JoinAlias(o => o.Driver, () => driverAlias)
+				.Left.JoinAlias(r => r.Car, () => carVersionAlias)
+				.Left.JoinAlias(() => carVersionAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 
 			if(Filter.SelectedStatuses != null) {
 				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.SelectedStatuses);
@@ -155,30 +161,30 @@ namespace Vodovoz.ViewModel
 			
 			switch(Filter.RestrictTransport) {
 				case RLFilterTransport.Mercenaries:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
+					query.Where(() => carVersionAlias.CarOwnershipType == CarOwnershipType.HiredCar); break;
 				case RLFilterTransport.Raskat:
-					query.Where(() => carAlias.IsRaskat); break;
+					query.Where(() => carVersionAlias.IsRaskat); break;
 				case RLFilterTransport.Largus:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
+					query.Where(() => carModelAlias.TypeOfUse == CarTypeOfUse.Largus); break;
 				case RLFilterTransport.GAZelle:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
+					query.Where(() => carModelAlias.TypeOfUse == CarTypeOfUse.GAZelle); break;
 				case RLFilterTransport.Waggon:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
+					query.Where(() => carModelAlias.TypeOfUse == CarTypeOfUse.Truck); break;
 				case RLFilterTransport.Others:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
+					query.Where(() => carVersionAlias.CarOwnershipType == CarOwnershipType.RaskatCar || carVersionAlias.CarOwnershipType == CarOwnershipType.HiredCar); break;
 				default: break;
 			}
 			
 			var result = query
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.CarVersion, () => carAlias)
+				.Left.JoinAlias(o => o.Car, () => carAlias)
 				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
 				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
-				   .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+				   .Select(() => carAlias.CarModel).WithAlias(() => resultAlias.CarModel)
 				   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 				   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 				   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
@@ -187,7 +193,8 @@ namespace Vodovoz.ViewModel
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
-				   .Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				   .Select(() => carModelAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				   .Select(() => carVersionAlias.CarOwnershipType).WithAlias(() => resultAlias.CarOwnershipType)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
@@ -591,7 +598,7 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						if(selectedNode != null && MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum) && selectedNode.CarTypeOfUse != CarTypeOfUse.CompanyTruck)
+						if(selectedNode != null && MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum) && selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 							MainClass.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListMileageCheckDlg(selectedNode.Id)
@@ -599,7 +606,7 @@ namespace Vodovoz.ViewModel
 					},
 					(selectedItems) => selectedItems.Any(
 						x => MileageCheckDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum)
-						&& (x as RouteListsVMNode).UsesCompanyCar && ((RouteListsVMNode) x).CarTypeOfUse != CarTypeOfUse.CompanyTruck
+						&& (x as RouteListsVMNode).UsesCompanyCar && ((RouteListsVMNode) x).CarTypeOfUse != CarTypeOfUse.Truck
 					)
 				));
 
@@ -733,6 +740,9 @@ namespace Vodovoz.ViewModel
 		public string ClosingSubdivision { get; set; }
 		public bool NotFullyLoaded { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
-		public bool UsesCompanyCar => !CarTypeOfUse.Equals(CarTypeOfUse.DriverCar);
+		
+		public CarOwnershipType CarOwnershipType { get; set; }
+		
+		public bool UsesCompanyCar => CarOwnershipType.Equals(CarOwnershipType.CompanyCar);
 	}
 }

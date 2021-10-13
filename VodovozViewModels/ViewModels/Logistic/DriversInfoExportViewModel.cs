@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RouteList routeListAlias2 = null;
 			WagesMovementOperations driverWageOperationAlias2 = null;
 			CarVersion carVersionAlias = null;
-			ModelCar modelCarAlias = null;
+			CarModel carModelAlias = null;
 			
 			#endregion
 
@@ -225,7 +225,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Inner.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Inner.JoinAlias(() => routeListAlias.CarVersion, () => carVersionAlias)
+				.Inner.JoinAlias(() => routeListAlias.Car, () => carVersionAlias)
 				.JoinEntityAlias(
 					() => driverWageOperationAlias,
 					() => routeListAlias.Status == RouteListStatus.Closed
@@ -238,7 +238,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => carVersionAlias.Car, () => carAlias)
-				.Left.JoinAlias(() => carAlias.Model, () => modelCarAlias);
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 
 			if(startDate != null)
 			{
@@ -254,14 +254,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			if(carTypeOfUse != null)
 			{
-				query.Where(() => modelCarAlias.CarTypeOfUse == carTypeOfUse);
+				query.Where(() => carModelAlias.TypeOfUse == carTypeOfUse);
 			}
 			if(isRaskat != null)
 			{
-				query.Where(() => carVersionAlias.OwnershipCar == OwnershipCar.RaskatCar);
+				query.Where(() => carVersionAlias.CarOwnershipType == CarOwnershipType.RaskatCar);
 			}
 
-			query.Where(() => modelCarAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck);
+			query.Where(() => carModelAlias.TypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck);
 			query.Where(() => !driverAlias.VisitingMaster);
 
 			#endregion
@@ -302,9 +302,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 				.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
 				.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-				.Select(() => carVersionAlias.OwnershipCar == OwnershipCar.RaskatCar).WithAlias(() => resultAlias.CarIsRaskat)
+				.Select(() => carVersionAlias.CarOwnershipType == CarOwnershipType.RaskatCar).WithAlias(() => resultAlias.CarIsRaskat)
 				.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegNumber)
-				.Select(() => modelCarAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				.Select(() => carModelAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.OrderItemsCount)
 				.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultAlias.OrderItemsActualCount)
 				.Select(() => nomenclatureAlias.TareVolume).WithAlias(() => resultAlias.NomecnaltureTareVolume)
@@ -832,7 +832,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Where(x => 
 						x.Driver.Id == driverInfoNode.DriverId
 						&& x.Date == driverInfoNode.RouteListDate
-						&& x.CarVersion.Car.RegistrationNumber == driverInfoNode.CarRegNumber)
+						&& x.Car.RegistrationNumber == driverInfoNode.CarRegNumber)
 					.Sum(x => x.GetDriversTotalWage());
 			}
 

@@ -175,9 +175,9 @@ namespace Vodovoz.Additions.Accounting
                 .List();
 
             var carsVersions = uow.Session.QueryOver<CarVersion>()
-	            .And(Restrictions.On<CarVersion>(x => x.OwnershipCar)
-		            .IsIn(new[] { OwnershipCar.CompanyCar }))
-	            .And(x => x.Car.Model.CarTypeOfUse == CarTypeOfUse.Largus || x.Car.Model.CarTypeOfUse == CarTypeOfUse.GAZelle)
+	            .And(Restrictions.On<CarVersion>(x => x.CarOwnershipType)
+		            .IsIn(new[] { CarOwnershipType.CompanyCar }))
+	            .And(x => x.Car.CarModel.TypeOfUse == CarTypeOfUse.Largus || x.Car.CarModel.TypeOfUse == CarTypeOfUse.GAZelle)
 	            .List<CarVersion>();
             
             //Распределяем автомобили на сотрудников
@@ -293,7 +293,7 @@ namespace Vodovoz.Additions.Accounting
             }
 
             wayBillDocument.Date = generationDate.Date;
-            wayBillDocument.CarModel = carVersion.Car.Model;
+            wayBillDocument.CarModel = carVersion.Car.CarModel;
             wayBillDocument.CarRegistrationNumber = carVersion.Car.RegistrationNumber;
             wayBillDocument.DriverFIO = employee.FullName;
             wayBillDocument.DriverLastName = employee.LastName;

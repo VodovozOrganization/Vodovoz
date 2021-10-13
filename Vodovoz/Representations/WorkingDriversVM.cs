@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModel
 			Employee driverAlias = null;
 			RouteList routeListAlias = null;
 			Car carAlias = null;
+			CarModel carModelAlias = null;
 
 			Domain.Orders.Order orderAlias = null;
 			OrderItem ordItemsAlias = null;
@@ -49,7 +50,9 @@ namespace Vodovoz.ViewModel
 			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
-			var isCompanyHavingProjection = Projections.Conditional(Restrictions.In(Projections.Property(() => carAlias.TypeOfUse), Car.GetCompanyHavingsTypes()), Projections.Constant(true), Projections.Constant(false));
+			var isCompanyHavingProjection =
+				Projections.Conditional(Restrictions.In(Projections.Property(() => carModelAlias.TypeOfUse), CarModel.GetCompanyHavingsTypes()),
+					Projections.Constant(true), Projections.Constant(false));
 
 			var trackSubquery = QueryOver.Of<Track>()
 				.Where(x => x.RouteList.Id == routeListAlias.Id)
@@ -59,11 +62,12 @@ namespace Vodovoz.ViewModel
 
 			var result = query
 				.JoinAlias(rl => rl.Driver, () => driverAlias)
-				.JoinAlias(rl => rl.CarVersion, () => carAlias)
+				.JoinAlias(rl => rl.Car, () => carAlias)
+				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 
 				.Where(rl => rl.Status == RouteListStatus.EnRoute)
 				.Where(rl => rl.Driver != null)
-				.Where(rl => rl.CarVersion != null)
+				.Where(rl => rl.Car != null)
 
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)

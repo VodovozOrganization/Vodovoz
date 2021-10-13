@@ -30,12 +30,12 @@ namespace Vodovoz
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
-		private CarVersion _carVersion;
+		private Car _car;
 
 		[Display(Name = "Транспортное средство")]
-		public virtual CarVersion CarVersion {
-			get { return _carVersion; }
-			set { SetField(ref _carVersion, value, () => CarVersion); }
+		public virtual Car Car {
+			get { return _car; }
+			set { SetField(ref _car, value, () => Car); }
 		}
 
 		private decimal litersGived;

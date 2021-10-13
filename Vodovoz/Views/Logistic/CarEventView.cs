@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel.Entity, e => e.CarEventType, e => e.Subject).InitializeFromSource();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.CarVersion, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.ChangedByUser += (sender, e) => ViewModel.ChangeDriverCommand.Execute();
 
 			var filterDriver = new EmployeeRepresentationFilterViewModel();

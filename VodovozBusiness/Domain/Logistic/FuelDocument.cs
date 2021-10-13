@@ -41,12 +41,12 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
-		private CarVersion _carVersion;
+		private Car _car;
 
 		[Display(Name = "Транспортное средство")]
-		public virtual CarVersion CarVersion {
-			get { return _carVersion; }
-			set { SetField(ref _carVersion, value, () => CarVersion); }
+		public virtual Car Car {
+			get { return _car; }
+			set { SetField(ref _car, value, () => Car); }
 		}
 
 		private RouteList routeList;
@@ -237,9 +237,11 @@ namespace Vodovoz.Domain.Logistic
 
 			var litersPaid = PayedForFuel.HasValue ? PayedLiters : 0;
 
+			var activeCarVersion = Car.GetActiveCarVersion(RouteList.Date);
+			
 			FuelOperation = new FuelOperation() {
-				Driver = CarVersion.IsCompanyCar ? null : Driver,
-				CarVersion = CarVersion.IsCompanyCar ? CarVersion : null,
+				Driver = activeCarVersion.IsCompanyCar ? null : Driver,
+				Car = activeCarVersion.IsCompanyCar ? Car : null,
 				Fuel = Fuel,
 				LitersGived = FuelCoupons + litersPaid,
 				LitersOutlayed = 0,
@@ -298,12 +300,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void FillEntity(RouteList rl)
 		{
 			Date = DateTime.Now;
-			CarVersion = rl.CarVersion;
+			Car = rl.Car;
 			Driver = rl.Driver;
-			Fuel = rl.CarVersion.Car.FuelType;
-			LiterCost = rl.CarVersion.Car.FuelType.Cost;
+			Fuel = rl.Car.FuelType;
+			LiterCost = rl.Car.FuelType.Cost;
 			RouteList = rl;
-			FuelCardNumber = rl.CarVersion.Car.FuelCardNumber;
+			FuelCardNumber = rl.Car.FuelCardNumber;
 		}
 
 		#region IValidatableObject implementation

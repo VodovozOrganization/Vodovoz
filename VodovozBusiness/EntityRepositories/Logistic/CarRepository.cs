@@ -10,43 +10,39 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class CarRepository : ICarRepository
 	{
-		public CarVersion GetCarVersionByDriver(IUnitOfWork uow, Employee driver)
+		public Car GetCarByDriver(IUnitOfWork uow, Employee driver)
 		{
-			Car carAlias = null;
-			return uow.Session.QueryOver<CarVersion>()
-				.Left.JoinAlias(x => x.Car.Id, () => carAlias.Id)
-					  .Where(x => carAlias.Driver == driver)
+			return uow.Session.QueryOver<Car>()
+					  .Where(x => x.Driver == driver)
 					  .Take(1)
 					  .SingleOrDefault();
 		}
 
-		public IList<CarVersion> GetCarVersionsByDrivers(IUnitOfWork uow, int[] driversIds)
+		public IList<Car> GetCarsByDrivers(IUnitOfWork uow, int[] driversIds)
 		{
-			Car carAlias = null;
-			return uow.Session.QueryOver<CarVersion>()
-				.Left.JoinAlias(x => x.Car.Id, () => carAlias.Id)
-					  .Where(x => carAlias.Driver.Id.IsIn(driversIds))
+			return uow.Session.QueryOver<Car>()
+					  .Where(x => x.Driver.Id.IsIn(driversIds))
 					  .List();
 		}
 
-		public QueryOver<CarVersion> ActiveCompanyCarVersionsQuery()
+		public QueryOver<Car> ActiveCompanyCarsQuery()
 		{
-			var isCompanyHavingRestriction = Restrictions.In(Projections.Property<ModelCar>(x => x.CarTypeOfUse), Car.GetCompanyHavingsTypes());
-			return QueryOver.Of<CarVersion>()
+			var isCompanyHavingRestriction = Restrictions.In(Projections.Property<CarModel>(x => x.TypeOfUse), CarModel.GetCompanyHavingsTypes());
+			return QueryOver.Of<Car>()
 				.Where(isCompanyHavingRestriction)
-				.Where(x => !x.Car.Model.IsArchive);
+				.Where(x => !x.CarModel.IsArchive);
 		}
 
 		public QueryOver<Car> ActiveCarsQuery()
 		{
 			return QueryOver.Of<Car>()
-							.Where(x => !x.Model.IsArchive);
+							.Where(x => !x.CarModel.IsArchive);
 		}
 
-		public bool IsInAnyRouteList(IUnitOfWork uow, CarVersion carVersion)
+		public bool IsInAnyRouteList(IUnitOfWork uow, Car car)
         {
 			var rll = uow.Session.QueryOver<RouteList>()
-				.Where(rl => rl.CarVersion == carVersion).Take(1).List();
+				.Where(rl => rl.Car == car).Take(1).List();
 
 			return rll.Any();
         }

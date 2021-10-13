@@ -155,8 +155,8 @@ namespace Vodovoz.Domain.Employees
 				var item = ObservableItems.FirstOrDefault();
 				if(item.FuelOutlayedOperation == null) {
 					item.FuelOutlayedOperation = new FuelOperation() {
-						CarVersion = item.Fine.RouteList.CarVersion,
-						Fuel = item.Fine.RouteList.CarVersion.Car.FuelType,
+						Car = item.Fine.RouteList.Car,
+						Fuel = item.Fine.RouteList.Car.FuelType,
 						Driver = item.Employee,
 						LitersGived = 0,
 						LitersOutlayed = item.LitersOverspending,
@@ -164,8 +164,8 @@ namespace Vodovoz.Domain.Employees
 						IsFine = true
 					};
 				} else {
-					item.FuelOutlayedOperation.CarVersion = item.Fine.RouteList.CarVersion;
-					item.FuelOutlayedOperation.Fuel = item.Fine.RouteList.CarVersion.Car.FuelType;
+					item.FuelOutlayedOperation.Car = item.Fine.RouteList.Car;
+					item.FuelOutlayedOperation.Fuel = item.Fine.RouteList.Car.FuelType;
 					item.FuelOutlayedOperation.Driver = item.Employee;
 					item.FuelOutlayedOperation.LitersGived = 0;
 					item.FuelOutlayedOperation.LitersOutlayed = item.LitersOverspending;
