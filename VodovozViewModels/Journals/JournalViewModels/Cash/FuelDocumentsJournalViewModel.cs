@@ -15,27 +15,25 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
-using VodovozInfrastructure.Interfaces;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
     public class FuelDocumentsJournalViewModel : MultipleEntityJournalViewModelBase<FuelDocumentJournalNode>
     {
-	    private readonly ICommonServices commonServices;
-	    private readonly IEmployeeService employeeService;
-	    private readonly ISubdivisionRepository subdivisionRepository;
-	    private readonly IFuelRepository fuelRepository;
-	    private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
-	    private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
-	    private readonly IEmployeeJournalFactory employeeJournalFactory;
+	    private readonly ICommonServices _commonServices;
+	    private readonly IEmployeeService _employeeService;
+	    private readonly ISubdivisionRepository _subdivisionRepository;
+	    private readonly IFuelRepository _fuelRepository;
+	    private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+	    private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+	    private readonly IEmployeeJournalFactory _employeeJournalFactory;
 	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-	    private readonly ICarJournalFactory carJournalFactory;
-	    private readonly IReportViewOpener reportViewOpener;
-	    private readonly IFileChooserProvider fileChooserProvider;
-	    private readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
+	    private readonly ICarJournalFactory _carJournalFactory;
+	    private readonly IReportViewOpener _reportViewOpener;
+	    private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 
 	    public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -49,24 +47,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
-            IFileChooserProvider fileChooserProvider,
-            ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel
+            IExpenseCategorySelectorFactory expenseCategorySelectorFactory
             ) :
             base(unitOfWorkFactory, commonServices)
         {
-	        this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-	        this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-	        this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-	        this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-	        this.counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-	        this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-	        this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        this._commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+	        this._employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+	        this._subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+	        this._fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+	        this._counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+	        this._nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+	        this._employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-	        this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-	        this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-	        this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-	        this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
-	        
+	        this._carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
+	        this._reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+	        _expenseCategorySelectorFactory =
+		        expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 
 	        TabName = "Журнал учета топлива";
 
@@ -91,7 +87,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 	    public override string FooterInfo {
 		    get {
-			    var balance = fuelRepository.GetAllFuelsBalance(UoW);
+			    var balance = _fuelRepository.GetAllFuelsBalance(UoW);
 			    string result = "";
 			    foreach (var item in balance) {
 				    result += $"{item.Key.Name}: {item.Value.ToString("0")} л., ";
@@ -148,23 +144,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				    () => new FuelIncomeInvoiceViewModel(
 					    EntityUoWBuilder.ForCreate(),
 					    UnitOfWorkFactory,
-					    employeeService,
-					    nomenclatureSelectorFactory,
-					    subdivisionRepository,
-					    fuelRepository,
-					    counterpartyJournalFactory,
-					    commonServices
+					    _employeeService,
+					    _nomenclatureSelectorFactory,
+					    _subdivisionRepository,
+					    _fuelRepository,
+					    _counterpartyJournalFactory,
+					    _commonServices
 				    ),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelIncomeInvoiceViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
 					    UnitOfWorkFactory,
-					    employeeService,
-					    nomenclatureSelectorFactory,
-					    subdivisionRepository,
-					    fuelRepository,
-					    counterpartyJournalFactory,
-					    commonServices
+					    _employeeService,
+					    _nomenclatureSelectorFactory,
+					    _subdivisionRepository,
+					    _fuelRepository,
+					    _counterpartyJournalFactory,
+					    _commonServices
 				    ),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
@@ -229,25 +225,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				    () => new FuelTransferDocumentViewModel(
 					    EntityUoWBuilder.ForCreate(),
 					    UnitOfWorkFactory,
-					    employeeService,
-					    subdivisionRepository,
-					    fuelRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    carJournalFactory,
-					    reportViewOpener
+					    _employeeService,
+					    _subdivisionRepository,
+					    _fuelRepository,
+					    _commonServices,
+					    _employeeJournalFactory,
+					    _carJournalFactory,
+					    _reportViewOpener
 				    ),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelTransferDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
 					    UnitOfWorkFactory,
-					    employeeService,
-					    subdivisionRepository,
-					    fuelRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    carJournalFactory,
-					    reportViewOpener
+					    _employeeService,
+					    _subdivisionRepository,
+					    _fuelRepository,
+					    _commonServices,
+					    _employeeJournalFactory,
+					    _carJournalFactory,
+					    _reportViewOpener
 				    ),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
@@ -321,29 +317,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				    () => new FuelWriteoffDocumentViewModel(
 					    EntityUoWBuilder.ForCreate(),
 					    UnitOfWorkFactory,
-					    employeeService,
-					    fuelRepository,
-					    subdivisionRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    reportViewOpener,
-					    fileChooserProvider,
-					    expenseCategoryJournalFilterViewModel,
-					    _subdivisionJournalFactory
+					    _employeeService,
+					    _fuelRepository,
+					    _subdivisionRepository,
+					    _commonServices,
+					    _employeeJournalFactory,
+					    _reportViewOpener,
+					    _subdivisionJournalFactory,
+					    _expenseCategorySelectorFactory
 				    ),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
 					    UnitOfWorkFactory,
-					    employeeService,
-					    fuelRepository,
-					    subdivisionRepository,
-					    commonServices,
-					    employeeJournalFactory,
-					    reportViewOpener,
-					    fileChooserProvider,
-					    expenseCategoryJournalFilterViewModel,
-					    _subdivisionJournalFactory
+					    _employeeService,
+					    _fuelRepository,
+					    _subdivisionRepository,
+					    _commonServices,
+					    _employeeJournalFactory,
+					    _reportViewOpener,
+					    _subdivisionJournalFactory,
+					    _expenseCategorySelectorFactory
 				    ),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {

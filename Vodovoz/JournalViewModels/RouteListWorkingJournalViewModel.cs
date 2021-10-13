@@ -331,7 +331,7 @@ namespace Vodovoz.JournalViewModels
 					{
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListClosingDlg(selectedNode.Id)
+							() => new RouteListClosingDlg(selectedNode.Id, true)
 						);
 					}
 				}

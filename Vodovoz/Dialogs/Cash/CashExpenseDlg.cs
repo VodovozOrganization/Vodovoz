@@ -164,49 +164,9 @@ namespace Vodovoz
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 			ydateDocument.Sensitive = _canEditDate;
 
-			IFileChooserProvider fileChooserProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
-			var filterViewModel = new ExpenseCategoryJournalFilterViewModel
-			{
-				ExcludedIds = _categoryRepository.ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
-				HidenByDefault = true
-			};
-
-			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-				() =>
-				{
-					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-						x => x.Name,
-						() => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							fileChooserProvider,
-							filterViewModel,
-							_employeeJournalFactory,
-							_subdivisionJournalFactory
-						),
-						node => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForOpen(node.Id),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							fileChooserProvider,
-							filterViewModel,
-							_employeeJournalFactory,
-							_subdivisionJournalFactory
-						),
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices
-					)
-					{
-						SelectionMode = JournalSelectionMode.Single
-					};
-					expenseCategoryJournalViewModel.SetFilter(filterViewModel,
-						filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
-
-					return expenseCategoryJournalViewModel;
-				}
-			);
-			entityVMEntryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
+			var expenseFactory = new ExpenseCategorySelectorFactory();
+			entityVMEntryExpenseCategory
+				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
 			entityVMEntryExpenseCategory.Binding.AddBinding(Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 
 			specialListCmbOrganisation.ShowSpecialStateNot = true;
