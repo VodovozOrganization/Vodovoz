@@ -904,10 +904,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			OnPropertyChanged(nameof(SelectedSector));
 			OnPropertyChanged(nameof(ObservableSectorNodeViewModels));
-			// OnPropertyChanged(nameof(ObservableSectorVersions));
-			// OnPropertyChanged(nameof(ObservableSectorDeliveryRuleVersions));
-			// OnPropertyChanged(nameof(ObservableSectorWeekDayScheduleVersions));
-			// OnPropertyChanged(nameof(ObservableSectorWeekDayDeliveryRuleVersions));
 		}));
 
 		private SectorsSetStatus? _status;
