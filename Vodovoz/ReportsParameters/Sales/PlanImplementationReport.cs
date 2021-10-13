@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -13,12 +14,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class PlanImplementationReport : Gtk.Bin, IParametersWidget
+	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly EmployeeFilterViewModel _filter = new EmployeeFilterViewModel() {Status = EmployeeStatus.IsWorking};
 		public PlanImplementationReport(bool orderById = false)
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 

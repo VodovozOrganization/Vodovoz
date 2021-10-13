@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -8,11 +10,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class OrderCreationDateReport : Gtk.Bin, IParametersWidget
+	public partial class OrderCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public OrderCreationDateReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var officeFilter = new EmployeeFilterViewModel();
 			officeFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,

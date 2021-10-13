@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -9,11 +11,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ForwarderWageReport : Gtk.Bin, IParametersWidget
+	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public ForwarderWageReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,

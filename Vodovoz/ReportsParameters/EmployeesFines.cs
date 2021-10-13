@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -8,13 +10,14 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
-	public partial class EmployeesFines : Gtk.Bin, IParametersWidget
+	public partial class EmployeesFines : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly EmployeeFilterViewModel _employeeFilter = new EmployeeFilterViewModel {Status = EmployeeStatus.IsWorking};
 
 		public EmployeesFines()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var employeeFactory = new EmployeeJournalFactory(_employeeFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			buttonRun.Clicked += (sender, e) => OnUpdate(true);

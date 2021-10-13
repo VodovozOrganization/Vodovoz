@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
@@ -14,11 +16,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
-	public partial class FuelReport : Gtk.Bin, IParametersWidget
+	public partial class FuelReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public FuelReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,

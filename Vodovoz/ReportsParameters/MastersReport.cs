@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -9,11 +11,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersReport : Gtk.Bin, IParametersWidget
+	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public MastersReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,

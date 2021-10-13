@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -8,12 +10,12 @@ using Vodovoz.TempAdapters;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EmployeesPremiums : Gtk.Bin, IParametersWidget
+	public partial class EmployeesPremiums : SingleUoWWidgetBase, IParametersWidget
 	{
 		public EmployeesPremiums()
 		{
 			this.Build();
-
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var employeeFactory = new EmployeeJournalFactory();
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, args) => ValidateParameters();

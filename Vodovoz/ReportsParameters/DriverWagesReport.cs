@@ -4,17 +4,19 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DriverWagesReport : Gtk.Bin, IParametersWidget
+	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public DriverWagesReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,

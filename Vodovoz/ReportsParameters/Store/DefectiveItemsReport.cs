@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Documents;
@@ -10,11 +12,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 namespace Vodovoz.ReportsParameters.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DefectiveItemsReport : Gtk.Bin, IParametersWidget
+	public partial class DefectiveItemsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public DefectiveItemsReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
 			yEnumCmbSource.AddEnumToHideList(new Enum[] { DefectSource.None });
