@@ -120,7 +120,7 @@ namespace Vodovoz.Additions.Store
 			var disjunction = new Disjunction();
 
 			foreach(var p in permissions) {
-				disjunction.Add<Warehouse>(w => w.Id.IsIn(WarehousePermissions.WarehousePermissions.Where(x=>x.WarehousePermissionType == p).Select(x => x.Id).ToArray()));
+				disjunction.Add<Warehouse>(w => w.Id.IsIn(WarehousePermissions.WarehousePermissions.Where(x=>x.WarehousePermissionType == p && x.PermissionValue == true).Select(x => x.Warehouse.Id).ToArray()));
 			}
 
 			return query.Where(disjunction);
@@ -143,7 +143,7 @@ namespace Vodovoz.Additions.Store
 		public QueryOver<Warehouse> GetRestrictedWarehouseQuery()
 		{
 			return QueryOver.Of<Warehouse>()
-							.Where(w => w.Id.IsIn(WarehousePermissions.WarehousePermissions.Where(x=>x.PermissionValue == true).Select(x => x.Id).ToArray()))
+							.Where(w => w.Id.IsIn(WarehousePermissions.WarehousePermissions.Where(x=>x.PermissionValue == true).Select(x => x.Warehouse.Id).ToArray()))
 							.AndNot(w => w.IsArchive);
 		}
 	}

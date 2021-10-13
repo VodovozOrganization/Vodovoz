@@ -202,7 +202,7 @@ public partial class MainWindow : Gtk.Window
             ActionRouteListMileageCheck.Sensitive =
             ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
         CurrentWarehousePermissions currentWarehousePermissions = new CurrentWarehousePermissions();
-        ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any();
+        ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x=>x.PermissionValue == true);
 
         bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
         bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");

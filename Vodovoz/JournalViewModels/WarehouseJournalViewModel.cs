@@ -55,7 +55,7 @@ namespace Vodovoz.JournalViewModels
             var permission = new CurrentWarehousePermissions();
             foreach (var p in warehousePermissions)
             {
-                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.WarehousePermissions.Where(x=>x.WarehousePermissionType == p).Select(x => x.Id).ToArray()));
+                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.WarehousePermissions.Where(x=>x.WarehousePermissionType == p && x.PermissionValue == true).Select(x => x.Warehouse.Id).ToArray()));
             }
             query.Where(disjunction);
 
