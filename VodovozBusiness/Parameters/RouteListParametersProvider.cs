@@ -18,7 +18,7 @@ namespace Vodovoz.Parameters
 		public int WarehouseParnasId => parametersProvider.GetIntValue("warehouse_parnas_id");
 		
 		//Склад Бугры
-		public int WarehouseHillocksId => parametersProvider.GetIntValue("warehouse_hillocks_id");
+		public int WarehouseBugriId => parametersProvider.GetIntValue("warehouse_bugri_id");
 		public int SouthGeographicGroupId => parametersProvider.GetIntValue("south_geographic_group_id");
 	}
 }

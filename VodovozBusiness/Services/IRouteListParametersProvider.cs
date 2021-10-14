@@ -8,7 +8,7 @@ namespace Vodovoz.Services
 		int WarehouseParnasId { get; }
 		
 		//Склад Бугры
-		int WarehouseHillocksId { get; }
+		int WarehouseBugriId { get; }
 		int SouthGeographicGroupId { get; }
 	}
 }
