@@ -1,15 +1,8 @@
 ﻿using Gamma.ColumnConfig;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
-using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -30,37 +23,8 @@ namespace Vodovoz.Dialogs.Fuel
 			ydatepickerDate.Binding.AddBinding(ViewModel, e => e.CanEditDate, w => w.Sensitive).InitializeFromSource();
 			ylabelCashierValue.Binding.AddBinding(ViewModel.Entity, e => e.Cashier, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
-			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-				() => {
-					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-						x => x.Name,
-						() => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							ViewModel.fileChooserProvider,
-							ViewModel.expenseCategoryJournalFilterViewModel,
-							ViewModel.EmployeeJournalFactory,
-							ViewModel.SubdivisionJournalFactory
-						),
-						(node) => new ExpenseCategoryViewModel(
-							EntityUoWBuilder.ForOpen(node.Id),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							ViewModel.fileChooserProvider,
-							ViewModel.expenseCategoryJournalFilterViewModel,
-							ViewModel.EmployeeJournalFactory,
-							ViewModel.SubdivisionJournalFactory
-						),
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices
-					) {
-						SelectionMode = JournalSelectionMode.Single
-					};
-					return expenseCategoryJournalViewModel;
-				}
-			);
-			entryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
+			entryExpenseCategory
+				.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseSelectorFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
 			entryExpenseCategory.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			entryExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			

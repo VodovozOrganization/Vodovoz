@@ -58,6 +58,10 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
+    <Compile Include="Domain\Cash\CashRequest\CashRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequest\PayoutRequestBase.cs" />
     <Compile Include="Domain\Cash\MissingOrdersWithCashlessPaymentTypeException.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
@@ -77,7 +81,6 @@
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
     <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
     <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
-    <Compile Include="Domain\Cash\CashRequest.cs" />
     <Compile Include="Domain\Cash\CashRequestSumItem.cs" />
     <Compile Include="Domain\Cash\AdvanceCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\ExpenseCashOrganisationDistributor.cs" />
@@ -247,6 +250,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="HibernateMapping\Cash\CashlessRequestFileMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
@@ -256,7 +260,7 @@
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
-    <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
+    <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
     <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
