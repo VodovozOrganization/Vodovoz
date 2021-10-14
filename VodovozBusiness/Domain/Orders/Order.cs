@@ -915,6 +915,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			//FIXME Убрать эту проверку после 2021-10-14
+			if(DeliveryDate == Convert.ToDateTime("2021-10-13") && PaymentType == PaymentType.Terminal)
+			{
+				yield return new ValidationResult(
+					"Нельзя принимать заказы на 13.10.21 с формой оплаты \"Терминал\". " +
+					"Выберите другую дату или другую форму оплаты",
+					new[] { nameof(DeliveryDate), nameof(PaymentType) });
+			}
+
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1549,33 +1558,50 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository counterpartyContractRepository, CounterpartyContractFactory contractFactory)
+		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository contractRepository, CounterpartyContractFactory contractFactory)
 		{
-			if(!NHibernate.NHibernateUtil.IsInitialized(Client)) {
-				NHibernate.NHibernateUtil.Initialize(Client);
+			if(!NHibernateUtil.IsInitialized(Client))
+			{
+				NHibernateUtil.Initialize(Client);
 			}
-			
-			if(!NHibernate.NHibernateUtil.IsInitialized(Contract)) {
-				NHibernate.NHibernateUtil.Initialize(Contract);
+			if(!NHibernateUtil.IsInitialized(Contract))
+			{
+				NHibernateUtil.Initialize(Contract);
 			}
-			
-			if(uow == null) throw new ArgumentNullException(nameof(uow));
-			if(counterpartyContractRepository == null)
-				throw new ArgumentNullException(nameof(counterpartyContractRepository));
-			if(contractFactory == null) throw new ArgumentNullException(nameof(contractFactory));
-			if(Client == null) {
+
+			if(uow == null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+			if(contractRepository == null)
+			{
+				throw new ArgumentNullException(nameof(contractRepository));
+			}
+			if(contractFactory == null)
+			{
+				throw new ArgumentNullException(nameof(contractFactory));
+			}
+
+			if(Client == null)
+			{
+				return;
+			}
+			if(DeliveryDate == null)
+			{
 				return;
 			}
 
-			var counterpartyContract = counterpartyContractRepository.GetCounterpartyContract(uow, this,
+			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this,
 				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
-			if(counterpartyContract == null) {
+			if(counterpartyContract == null)
+			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
-			
+
 			Contract = counterpartyContract;
-			for (int i = 0; i < OrderItems.Count; i++) {
-				OrderItems[i].CalculateVATType();
+			foreach(var orderItem in OrderItems)
+			{
+				orderItem.CalculateVATType();
 			}
 			UpdateContractDocument();
 			UpdateDocuments();
@@ -3663,6 +3689,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
 		{
 			SetFirstOrder();
+			if(Contract == null)
+			{
+				UpdateContract();
+			}
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();

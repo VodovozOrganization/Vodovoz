@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using MoreLinq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Client;
@@ -15,6 +19,9 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class UserSettings: PropertyChangedBase, IDomainObject
 	{
+		private IList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings;
+		private GenericObservableList<CashSubdivisionSortingSettings> _observableCashSubdivisionSortingSettings;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -193,6 +200,17 @@ namespace Vodovoz.Domain.Employees
             }
         }
 
+        [Display(Name = "Настройки сортировки касс")]
+        public virtual IList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
+        {
+	        get => _cashSubdivisionSortingSettings;
+	        set => SetField(ref _cashSubdivisionSortingSettings, value);
+        }
+
+        public virtual GenericObservableList<CashSubdivisionSortingSettings> ObservableCashSubdivisionSortingSettings =>
+	        _observableCashSubdivisionSortingSettings
+	        ?? (_observableCashSubdivisionSortingSettings =
+		        new GenericObservableList<CashSubdivisionSortingSettings>(CashSubdivisionSortingSettings));
 
         #endregion
 
@@ -203,6 +221,50 @@ namespace Vodovoz.Domain.Employees
 		public UserSettings (User user)
 		{
 			User = user;
+		}
+
+		public virtual void UpdateCashSortingIndices()
+		{
+			var index = 1;
+			CashSubdivisionSortingSettings.ForEach(x => x.SortingIndex = index++);
+		}
+
+		/// <summary>
+		/// Актуализация настроек сортировки
+		/// </summary>
+		/// <param name="availableSubdivisions"></param>
+		/// <returns></returns>
+		public virtual bool UpdateCashSortingSettings(IList<Subdivision> availableSubdivisions)
+		{
+			if(!CashSubdivisionSortingSettings.Any())
+			{
+				var index = 1;
+				availableSubdivisions.ForEach(subdivision =>
+					CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(index++, this, subdivision)));
+				return availableSubdivisions.Any();
+			}
+
+			var availableSubdivisionsIds = availableSubdivisions.Select(y => y.Id).ToList();
+			var notAvailableAnymore = CashSubdivisionSortingSettings
+				.Where(x => availableSubdivisionsIds.IndexOf(x.CashSubdivision.Id) == -1).ToList();
+			foreach(var item in notAvailableAnymore)
+			{//убираем кассы, к которым больше нет доступа
+				CashSubdivisionSortingSettings.Remove(item);
+			}
+			if(notAvailableAnymore.Any())
+			{
+				UpdateCashSortingIndices();
+			}
+
+			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivision.Id).ToList();
+			var notListedAsAvailable = availableSubdivisions.Where(x => listedIds.IndexOf(x.Id) == -1).ToList();
+			var lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
+			foreach(var item in notListedAsAvailable)
+			{//добавляем кассы, к которым появился доступ
+				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, this, item));
+			}
+
+			return notListedAsAvailable.Any() || notAvailableAnymore.Any();
 		}
 	}
 
@@ -237,4 +299,3 @@ namespace Vodovoz.Domain.Employees
 	}
 
 }
-
