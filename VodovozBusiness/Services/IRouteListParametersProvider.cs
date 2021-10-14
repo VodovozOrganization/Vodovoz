@@ -6,6 +6,9 @@ namespace Vodovoz.Services
         int CashSubdivisionParnasId { get; }
         int WarehouseSofiiskayaId { get; }
         int WarehouseParnasId { get; }
-        int SouthGeographicGroupId { get; }
+		
+		//Склад Бугры
+		int WarehouseHillocksId { get; }
+		int SouthGeographicGroupId { get; }
     }
 }

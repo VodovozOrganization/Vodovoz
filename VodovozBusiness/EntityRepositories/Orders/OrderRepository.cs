@@ -761,7 +761,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
 				? routeListParametersProvider.WarehouseSofiiskayaId 
-				: routeListParametersProvider.WarehouseParnasId;
+				: routeListParametersProvider.WarehouseHillocksId;
 
 			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == flyerId)
