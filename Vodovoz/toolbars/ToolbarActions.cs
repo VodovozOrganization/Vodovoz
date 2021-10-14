@@ -775,7 +775,8 @@ public partial class MainWindow : Window
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		ICarJournalFactory carJournalFactory = new CarJournalFactory();
 
-		var expenseCategoryFactory = new ExpenseCategorySelectorFactory();
+		IFileChooserProvider fileChooserProvider = new Vodovoz.FileChooser("Категория Расхода.csv");
+		var  expenseCategoryJournalFilterViewModel = new ExpenseCategoryJournalFilterViewModel();
 
 		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -789,7 +790,8 @@ public partial class MainWindow : Window
 			subdivisionJournalFactory,
 			carJournalFactory,
 			new GtkReportViewOpener(),
-			expenseCategoryFactory
+			fileChooserProvider,
+			expenseCategoryJournalFilterViewModel
 		);
 		tdiMain.AddTab(fuelDocumentsJournalViewModel);
 	}

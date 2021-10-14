@@ -17,8 +17,9 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -30,7 +31,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 		private readonly IReportViewOpener reportViewOpener;
-		public IExpenseCategorySelectorFactory ExpenseSelectorFactory { get; }
+		public readonly IFileChooserProvider fileChooserProvider;
+		public readonly ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel;
 
 		public FuelWriteoffDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder, 
@@ -41,8 +43,9 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IReportViewOpener reportViewOpener,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
+			IFileChooserProvider fileChooserProvider,
+			ExpenseCategoryJournalFilterViewModel expenseCategoryJournalFilterViewModel,
+			ISubdivisionJournalFactory subdivisionJournalFactory
 		) 
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -53,9 +56,9 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			this.expenseCategoryJournalFilterViewModel = expenseCategoryJournalFilterViewModel ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFilterViewModel));
+			this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			ExpenseSelectorFactory =
-				expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 
 			CreateCommands();
 			UpdateCashSubdivisions();

@@ -6,8 +6,10 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -17,33 +19,55 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IFileChooserProvider fileChooserProvider,
+			ExpenseCategoryJournalFilterViewModel journalFilterViewModel,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
-		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionJournalFactory subdivisionJournalFactory
+			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			ExpenseCategoryAutocompleteSelectorFactory =
-				(expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory)))
-				.CreateDefaultExpenseCategoryAutocompleteSelectorFactory();
-
-			var employeeSelectorFactory =
-				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateEmployeeAutocompleteSelectorFactory();
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+			
+			if(subdivisionJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			}
+			
+			ExpenseCategoryAutocompleteSelectorFactory = 
+				new ExpenseCategoryAutoCompleteSelectorFactory(
+					commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
 
 			SubdivisionAutocompleteSelectorFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
-
-			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";
+				subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
+					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+			
+			if(uowBuilder.IsNewEntity)
+				TabName = "Создание новой категории расхода";
+			else
+				TabName = $"{Entity.Title}";
+			
 		}
-
+		
 		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
 
 		public bool IsArchive
 		{
-			get => Entity.IsArchive;
-			set => Entity.SetIsArchiveRecursively(value);
+			get { return Entity.IsArchive; }
+			set
+			{
+				Entity.SetIsArchiveRecursively(value);
+			}
 		}
+
+		public readonly IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory;
+
+		#region Permissions
+
+		public bool CanCreate => PermissionResult.CanCreate;
+		public bool CanUpdate => PermissionResult.CanUpdate;
+
+		#endregion
 	}
 }

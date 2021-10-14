@@ -6,69 +6,56 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyFilesView : WidgetViewBase<CounterpartyFilesViewModel>
-	{
-		private readonly Menu _menu = new Menu();
+    [System.ComponentModel.ToolboxItem(true)]
+    public partial class CounterpartyFilesView : WidgetViewBase<CounterpartyFilesViewModel>
+    {
+        public CounterpartyFilesView()
+        {
+            this.Build();
+        }
 
-		public CounterpartyFilesView()
-		{
-			this.Build();
-		}
+        protected override void ConfigureWidget()
+        {
+            if (ViewModel == null)
+                return;
 
-		protected override void ConfigureWidget()
-		{
-			if(ViewModel == null)
-			{
-				return;
-			}
+            ybuttonAttachFile.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
+            ybuttonAttachFile.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 
-			ybuttonAttachFile.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
-			ybuttonAttachFile.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+            ytreeviewFiles.ColumnsConfig = FluentColumnsConfig<CounterpartyFile>.Create()
+                .AddColumn("Файлы").AddTextRenderer(x => x.FileStorageId)
+                .Finish();
+            ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
+            ytreeviewFiles.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+            ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
+            ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<CounterpartyFile>());
+        }
 
-			ytreeviewFiles.ColumnsConfig = FluentColumnsConfig<CounterpartyFile>.Create()
-				.AddColumn("Файлы").AddTextRenderer(x => x.FileStorageId)
-				.Finish();
-			ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
-			ytreeviewFiles.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
-			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
-			ytreeviewFiles.RowActivated +=
-				(o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<CounterpartyFile>());
+        protected void ConfigureMenu()
+        {
+            if (ytreeviewFiles.GetSelectedObject() == null)
+                return;
 
-			ConfigureMenu();
-		}
+            var menu = new Menu();
 
-		private void ConfigureMenu()
-		{
-			var deleteFile = new MenuItem("Удалить файл");
-			deleteFile.Activated += (s, args) =>
-			{
-				ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
-				_menu.Popdown();
-			};
-			deleteFile.Visible = true;
-			_menu.Add(deleteFile);
+            var deleteFile = new MenuItem("Удалить файл");
+            deleteFile.Activated += (s, args) => ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
+            deleteFile.Visible = true;
+            menu.Add(deleteFile);
 
-			var saveFile = new MenuItem("Загрузить файл");
-			saveFile.Activated += (s, args) =>
-			{
-				ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
-				_menu.Popdown();
-			};
-			saveFile.Visible = true;
-			_menu.Add(saveFile);
+            var saveFile = new MenuItem("Загрузить файл");
+            saveFile.Activated += (s, args) => ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as CounterpartyFile);
+            saveFile.Visible = true;
+            menu.Add(saveFile);
 
-			_menu.ShowAll();
-		}
+            menu.ShowAll();
+            menu.Popup();
+        }
 
-		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
-		{
-			if(args.Event.Button == 3
-			   && !ViewModel.ReadOnly
-			   && ytreeviewFiles.GetSelectedObject() != null)
-			{
-				_menu.Popup();
-			}
-		}
-	}
+        protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
+        {
+            if (args.Event.Button == 3)
+                ConfigureMenu();
+        }
+    }
 }
