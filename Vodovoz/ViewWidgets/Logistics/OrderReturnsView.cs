@@ -21,9 +21,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Services;
 using QS.Dialog;
+using QS.Project.Journal;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -32,6 +34,10 @@ using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
@@ -180,32 +186,41 @@ namespace Vodovoz
 
 		private void OpenSelectNomenclatureDlg()
 		{
-			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
+			var nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
-				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
+				x => x.SelectCategory = NomenclatureCategory.deposit,
+				x => x.SelectSaleCategory = SaleCategory.forSale,
+				x => x.RestrictArchive = false
 			);
-			PermissionControlledRepresentationJournal SelectDialog =
-				new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter))
-				{
-					Mode = JournalSelectMode.Single,
-					ShowFilter = true
-				};
-			SelectDialog.CustomTabName("Номенклатура на продажу");
-			SelectDialog.ObjectSelected += NomenclatureSelected;
-			TabParent.AddSlaveTab(this, SelectDialog);
+
+			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeService(),
+				new NomenclatureSelectorFactory().GetDefaultNomenclatureSelectorFactory(),
+				new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(),
+				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())),
+				new UserRepository()
+			) {
+				SelectionMode = JournalSelectionMode.Single
+			};
+			journalViewModel.TabName = "Номенклатура на продажу";
+			journalViewModel.CalculateQtyOnStock = true;
+			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
+			TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
-		private void NomenclatureSelected(object sender, JournalObjectSelectedEventArgs e)
+		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedIds = e.GetSelectedIds();
-			if(!selectedIds.Any())
+			var selectedNodes = e.SelectedNodes;
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds.First());
+			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedNodes.First().Id);
 			CounterpartyContract contract = _routeListItem.Order.Contract;
 			if(_routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null)
 			{

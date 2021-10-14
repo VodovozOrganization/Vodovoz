@@ -1632,6 +1632,7 @@ namespace Vodovoz
 			};
 			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
 			journalViewModel.TabName = "Выезд мастера";
+			journalViewModel.CalculateQtyOnStock = true;
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
@@ -1672,6 +1673,7 @@ namespace Vodovoz
 			};
 			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
 			journalViewModel.TabName = "Номенклатура на продажу";
+			journalViewModel.CalculateQtyOnStock = true;
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
