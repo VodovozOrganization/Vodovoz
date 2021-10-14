@@ -254,7 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddSector => _addSector ?? (_addSector = new DelegateCommand(
 			() =>
 			{
-				var sector = new Sector {DateCreated = DateTime.Today};
+				var sector = new Sector {Id = ObservableSectors.LastOrDefault().Id + 1, DateCreated = DateTime.Today};
 				var sectorNodeViewModel = new SectorNodeViewModel(sector);
 				ObservableSectorNodeViewModels.Add(sectorNodeViewModel);
 				ObservableSectorsInSession.Add(sector);
