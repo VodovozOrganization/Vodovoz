@@ -7,6 +7,6 @@ namespace Vodovoz.ViewModels.Logistic
     {
         public Sector Sector { get; set; }
         public int Priority { get; set; }
-        public SectorVersion SectorVersion => Sector.GetActiveSectorVersion();
+        public SectorVersion SectorVersion => Sector.GetActiveSectorVersionOnDate();
     }
 }

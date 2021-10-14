@@ -73,7 +73,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public override string ToString()
 		{
-			return Sector?.GetActiveSectorVersion().SectorName == null ? base.ToString() : $"({Priority}) {Sector.GetActiveSectorVersion().SectorName}";
+			return Sector?.GetActiveSectorVersionOnDate().SectorName == null ? base.ToString() : $"({Priority}) {Sector.GetActiveSectorVersionOnDate().SectorName}";
 		}
 	}
 }

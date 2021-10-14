@@ -51,12 +51,12 @@ namespace VodovozDeliveryRulesService
 						logger.Info("Пробую подобрать район из бэкапа...");
 						sector = backupDistrictService
 							.Sectors
-							.FirstOrDefault(x => x.GetActiveSectorVersion().Polygon.Contains(new Point((double)latitude, (double)longitude)));
+							.FirstOrDefault(x => x.GetActiveSectorVersionOnDate().Polygon.Contains(new Point((double)latitude, (double)longitude)));
 					}
 					
 					if(sector != null) 
 					{
-						logger.Info($"Район получен {sector.GetActiveSectorVersion().SectorName}");
+						logger.Info($"Район получен {sector.GetActiveSectorVersionOnDate().SectorName}");
 
 						var response = new DeliveryRulesDTO 
 						{
@@ -69,13 +69,13 @@ namespace VodovozDeliveryRulesService
 						{
 							//Берём все правила дня недели
 							var rulesToAdd = 
-								sector.GetActiveWeekDayDeliveryRuleVersion()?.WeekDayDistrictRules.Single(x=>x.WeekDay == weekDay).Title; 
+								sector.GetActiveWeekDayDeliveryRuleVersionOnDate()?.WeekDayDistrictRules.Single(x=>x.WeekDay == weekDay).Title; 
 							
 							IList<string> commonRules = null;
 							//Если правил дня недели нет берем общие правила района
 							if(string.IsNullOrWhiteSpace(rulesToAdd))
 							{
-								commonRules = sector.GetActiveDeliveryRuleVersion().ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
+								commonRules = sector.GetActiveDeliveryRuleVersionOnDate().ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
 							}
 
 							List<DeliverySchedule> scheduleRestrictions;
@@ -85,7 +85,7 @@ namespace VodovozDeliveryRulesService
 							}
 							else
 							{
-								scheduleRestrictions = sector.GetActiveWeekDayScheduleVersion().SectorSchedules
+								scheduleRestrictions = sector.GetActiveWeekDayScheduleVersionOnDate().SectorSchedules
 									.Where(x=>x.WeekDay == weekDay)
 									.Select(x => x.DeliverySchedule)
 									.ToList();
@@ -144,12 +144,12 @@ namespace VodovozDeliveryRulesService
 						logger.Info("Пробую подобрать сектор из бэкапа...");
 						sector = backupDistrictService
 							.Sectors
-							.FirstOrDefault(x => x.GetActiveSectorVersion().Polygon.Contains(new Point((double)latitude, (double)longitude)));
+							.FirstOrDefault(x => x.GetActiveSectorVersionOnDate().Polygon.Contains(new Point((double)latitude, (double)longitude)));
 					}
 					
 					if(sector != null) 
 					{
-						logger.Info($"Сектор получен {sector.GetActiveSectorVersion().SectorName}");
+						logger.Info($"Сектор получен {sector.GetActiveSectorVersionOnDate().SectorName}");
 
 						return FillDeliveryInfoDTO(sector);
 					}
@@ -195,7 +195,7 @@ namespace VodovozDeliveryRulesService
 			
 			foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) 
 			{
-				var rules = sector.GetActiveWeekDayDeliveryRuleVersion().WeekDayDistrictRules.Where(x=>x.WeekDay == weekDay).ToList();
+				var rules = sector.GetActiveWeekDayDeliveryRuleVersionOnDate().WeekDayDistrictRules.Where(x=>x.WeekDay == weekDay).ToList();
 
 				List<DeliverySchedule> scheduleRestrictions;
 				if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
@@ -204,7 +204,7 @@ namespace VodovozDeliveryRulesService
 				}
 				else
 				{
-					scheduleRestrictions = sector.GetActiveWeekDayScheduleVersion().SectorSchedules
+					scheduleRestrictions = sector.GetActiveWeekDayScheduleVersionOnDate().SectorSchedules
 						.Where(x=>x.WeekDay == weekDay)
 						.Select(x => x.DeliverySchedule)
 						.ToList();
@@ -214,7 +214,7 @@ namespace VodovozDeliveryRulesService
 				{
 					DeliveryRules = rules.Any()
 						? FillDeliveryRuleDTO(rules) //Берём все правила дня недели
-						: FillDeliveryRuleDTO(sector.GetActiveDeliveryRuleVersion().ObservableCommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
+						: FillDeliveryRuleDTO(sector.GetActiveDeliveryRuleVersionOnDate().ObservableCommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
 					WeekDayEnum = weekDay,
 					ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 				};
@@ -222,7 +222,7 @@ namespace VodovozDeliveryRulesService
 				info.WeekDayDeliveryInfos.Add(item);
 			}
 
-			info.GeoGroup = sector.GetActiveSectorVersion().GeographicGroup.Name;
+			info.GeoGroup = sector.GetActiveSectorVersionOnDate().GeographicGroup.Name;
 			info.StatusEnum = DeliveryRulesResponseStatus.Ok;
 			info.Message = "";
 			return info;

@@ -527,7 +527,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			var result = "";
 			if(Sector != null)
 			{
-				result += $"район - {Sector.GetActiveSectorVersion().SectorName}, ";
+				result += $"район - {Sector.GetActiveSectorVersionOnDate().SectorName}, ";
 			}
 			result += "часть -";
 			if(GeographicGroupNodes.Any(x => x.Selected) && GeographicGroupNodes.Count(x => x.Selected) < GeographicGroupNodes.Count)

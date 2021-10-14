@@ -665,7 +665,7 @@ namespace Vodovoz.Dialogs.Logistic
 				{
 					var outDatedPriorities = DriversAtDay
 						.SelectMany(atWorkDriver => atWorkDriver.SectorsPriorities.Where(atWorkDriverDistrictPriority =>
-							atWorkDriverDistrictPriority.Sector.GetActiveSectorVersion().Id != sectorVersion.Id));
+							atWorkDriverDistrictPriority.Sector.GetActiveSectorVersionOnDate().Id != sectorVersion.Id));
 					if(!outDatedPriorities.Any())
 					{
 						return;

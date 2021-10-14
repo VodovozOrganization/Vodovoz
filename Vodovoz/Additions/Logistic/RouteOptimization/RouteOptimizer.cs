@@ -189,7 +189,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 			if(unusedSectors.Any()) {
-				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedSectors.Select(x => x.GetActiveSectorVersion().SectorName)));
+				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedSectors.Select(x => x.GetActiveSectorVersionOnDate().SectorName)));
 			}
 
 			// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша

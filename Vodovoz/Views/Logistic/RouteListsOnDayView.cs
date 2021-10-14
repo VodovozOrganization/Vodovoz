@@ -750,7 +750,7 @@ namespace Vodovoz.Views.Logistic
 
 				var driverDistricts = driver.DriverDistrictPrioritySets
 					.SingleOrDefault(x => x.IsActive)
-					?.DriverDistrictPriorities.Select(x => x.Sector).Select(x=>x.GetActiveSectorVersion())
+					?.DriverDistrictPriorities.Select(x => x.Sector).Select(x=>x.GetActiveSectorVersionOnDate())
 					.ToList();
 
 				if(driverDistricts == null || !driverDistricts.Any()) {

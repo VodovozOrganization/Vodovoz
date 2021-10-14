@@ -308,7 +308,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public DelegateCommand AddSectorVersion => _addSectorVersion ?? (_addSectorVersion = new DelegateCommand(() =>
 		{
-			var sectorVersion = SelectedSector.GetActiveSectorVersion();
+			var sectorVersion = SelectedSector.GetActiveSectorVersionOnDate();
 			SectorVersion newVersion;
 			if(sectorVersion != null)
 				newVersion = sectorVersion.Clone() as SectorVersion;
@@ -931,7 +931,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var onActiveSectorVersion = sector.SectorVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveSectorVersion != null)
 				{
-					var activeSectorVersion = sector.GetActiveSectorVersion();
+					var activeSectorVersion = sector.GetActiveSectorVersionOnDate();
 
 					if(onActiveSectorVersion.TariffZone?.Name != activeSectorVersion?.TariffZone?.Name)
 						summaryText.Append(
@@ -965,7 +965,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					sector.SectorDeliveryRuleVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveDeliveryRule != null)
 				{
-					var activeDeliveryRule = sector.GetActiveDeliveryRuleVersion();
+					var activeDeliveryRule = sector.GetActiveDeliveryRuleVersionOnDate();
 					var onActiveCommonDistrict = onActiveDeliveryRule.ObservableCommonDistrictRuleItems;
 					var activeCommonDistrict = activeDeliveryRule?.ObservableCommonDistrictRuleItems;
 
@@ -984,7 +984,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					sector.SectorWeekDaySchedulesVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveWeekDayScheduleVersion != null)
 				{
-					var activeWeekDaySchedule = sector.GetActiveWeekDayScheduleVersion();
+					var activeWeekDaySchedule = sector.GetActiveWeekDayScheduleVersionOnDate();
 					var onActiveSectorSchedules = onActiveWeekDayScheduleVersion.ObservableDeliveryScheduleRestriction;
 					var activeSectorSchedules = activeWeekDaySchedule?.ObservableDeliveryScheduleRestriction;
 
@@ -1003,7 +1003,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					sector.SectorWeekDayDeliveryRuleVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveWeekDayDeliveryRuleVersion != null)
 				{
-					var activeWeekDayDeliveryRuleVersion = sector.GetActiveWeekDayDeliveryRuleVersion();
+					var activeWeekDayDeliveryRuleVersion = sector.GetActiveWeekDayDeliveryRuleVersionOnDate();
 					var onActiveWeekDayDistrictRules = onActiveWeekDayDeliveryRuleVersion.ObservableWeekDayDistrictRules;
 					var activeWeekDayDistrictRules = activeWeekDayDeliveryRuleVersion?.ObservableWeekDayDistrictRules;
 
@@ -1050,7 +1050,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var onActiveSectorVersion = sector.SectorVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveSectorVersion != null)
 				{
-					var activeSector = sector.GetActiveSectorVersion();
+					var activeSector = sector.GetActiveSectorVersionOnDate();
 					ValidationContext validationContext = new ValidationContext(Entity);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(_commonServices.ValidationService.Validate(Entity, validationContext))
@@ -1100,7 +1100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					sector.SectorDeliveryRuleVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveDeliveryRule != null)
 				{
-					var activeDeliveryRule = sector.GetActiveDeliveryRuleVersion();
+					var activeDeliveryRule = sector.GetActiveDeliveryRuleVersionOnDate();
 					ValidationContext validationContext = new ValidationContext(onActiveDeliveryRule);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(_commonServices.ValidationService.Validate(onActiveDeliveryRule, validationContext))
@@ -1119,7 +1119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					sector.SectorWeekDaySchedulesVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveWeekDayScheduleVersion != null)
 				{
-					var activeWeekDaySchedule = sector.GetActiveWeekDayScheduleVersion();
+					var activeWeekDaySchedule = sector.GetActiveWeekDayScheduleVersionOnDate();
 					ValidationContext validationContext = new ValidationContext(onActiveWeekDayScheduleVersion);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(_commonServices.ValidationService.Validate(onActiveWeekDayScheduleVersion, validationContext))
@@ -1139,7 +1139,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					sector.SectorWeekDayDeliveryRuleVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.OnActivation);
 				if(onActiveWeekDayDeliveryRuleVersion != null)
 				{
-					var activeWeekDayDeliveryRule = sector.GetActiveWeekDayDeliveryRuleVersion();
+					var activeWeekDayDeliveryRule = sector.GetActiveWeekDayDeliveryRuleVersionOnDate();
 					ValidationContext validationContext = new ValidationContext(onActiveWeekDayDeliveryRuleVersion);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(_commonServices.ValidationService.Validate(onActiveWeekDayDeliveryRuleVersion, validationContext))
@@ -1164,8 +1164,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			foreach(Sector sector in ObservableSectors)
 			{
-				foreach(var deliveryRuleVersion in sector.ObservableSectorDeliveryRuleVersions)
+				foreach(SectorDeliveryRuleVersion deliveryRuleVersion in sector.ObservableSectorDeliveryRuleVersions)
 				{
+					if(deliveryRuleVersion.Status == SectorsSetStatus.Draft)
+						continue;
 					ValidationContext validationContext = new ValidationContext(deliveryRuleVersion);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(!_commonServices.ValidationService.Validate(deliveryRuleVersion, validationContext))
@@ -1173,8 +1175,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						return false;
 					}
 				}
-				foreach(var sectorVersion in sector.ObservableSectorVersions)
+				foreach(SectorVersion sectorVersion in sector.ObservableSectorVersions)
 				{
+					if(sectorVersion.Status == SectorsSetStatus.Draft)
+						continue;
 					ValidationContext validationContext = new ValidationContext(sectorVersion);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(!_commonServices.ValidationService.Validate(sectorVersion, validationContext))
@@ -1182,8 +1186,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						return false;
 					}
 				}
-				foreach(var weekDaySchedule in sector.ObservableSectorWeekDayScheduleVersions)
+				foreach(SectorWeekDayScheduleVersion weekDaySchedule in sector.ObservableSectorWeekDayScheduleVersions)
 				{
+					if(weekDaySchedule.Status == SectorsSetStatus.Draft)
+						continue;
 					ValidationContext validationContext = new ValidationContext(weekDaySchedule);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(!_commonServices.ValidationService.Validate(weekDaySchedule, validationContext))
@@ -1191,8 +1197,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						return false;
 					}
 				}
-				foreach(var weekDayDeliveryRule in sector.ObservableSectorWeekDayDeliveryRuleVersions)
+				foreach(SectorWeekDayDeliveryRuleVersion weekDayDeliveryRule in sector.ObservableSectorWeekDayDeliveryRuleVersions)
 				{
+					if(weekDayDeliveryRule.Status == SectorsSetStatus.Draft)
+						continue;
 					ValidationContext validationContext = new ValidationContext(weekDayDeliveryRule);
 					validationContext.ServiceContainer.AddService(typeof(ISectorsRepository), _sectorRepository);
 					if(!_commonServices.ValidationService.Validate(weekDayDeliveryRule, validationContext))

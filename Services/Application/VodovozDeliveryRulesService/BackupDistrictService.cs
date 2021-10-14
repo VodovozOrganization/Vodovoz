@@ -43,15 +43,15 @@ namespace VodovozDeliveryRulesService
 	                var sectors = uow.Session.QueryOver<Sector>().List();
 
                     foreach (var sector in sectors) {
-                        NHibernateUtil.Initialize(sector.GetActiveSectorVersion().GeographicGroup);
+                        NHibernateUtil.Initialize(sector.GetActiveSectorVersionOnDate().GeographicGroup);
 
-                        foreach (var scheduleRestriction in sector.GetActiveWeekDayScheduleVersion().SectorSchedules) {
+                        foreach (var scheduleRestriction in sector.GetActiveWeekDayScheduleVersionOnDate().SectorSchedules) {
                             NHibernateUtil.Initialize(scheduleRestriction.DeliverySchedule);
                         }
-                        foreach (var weekDayRuleItem in sector.GetActiveWeekDayDeliveryRuleVersion().WeekDayDistrictRules) {
+                        foreach (var weekDayRuleItem in sector.GetActiveWeekDayDeliveryRuleVersionOnDate().WeekDayDistrictRules) {
                             NHibernateUtil.Initialize(weekDayRuleItem.DeliveryPriceRule);
                         }
-                        foreach (var commonRuleItem in sector.GetActiveDeliveryRuleVersion().CommonDistrictRuleItems) {
+                        foreach (var commonRuleItem in sector.GetActiveDeliveryRuleVersionOnDate().CommonDistrictRuleItems) {
                             NHibernateUtil.Initialize(commonRuleItem.DeliveryPriceRule);
                         }
                         

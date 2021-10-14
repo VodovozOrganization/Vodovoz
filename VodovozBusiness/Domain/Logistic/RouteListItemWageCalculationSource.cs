@@ -79,7 +79,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public WageSector WageSectorOfAddress => item.Order.DeliveryPoint.GetActiveVersion(item.Order.DeliveryDate)?.Sector?.GetActiveSectorVersion()?.WageSector ?? throw new InvalidOperationException("Точке доставки не присвоен логистический или зарплатный район!");
+		public WageSector WageSectorOfAddress => item.Order.DeliveryPoint.GetActiveVersion(item.Order.DeliveryDate)?.Sector?.GetActiveSectorVersionOnDate()?.WageSector ?? throw new InvalidOperationException("Точке доставки не присвоен логистический или зарплатный район!");
 
 		public bool WasVisitedByForwarder => item.WithForwarder;
 

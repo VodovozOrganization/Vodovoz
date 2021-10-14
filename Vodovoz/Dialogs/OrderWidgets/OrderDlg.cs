@@ -731,7 +731,7 @@ namespace Vodovoz
 			}
 
 			var sector = geodata.Sector;
-			var geographicGroupId = sector.GetActiveSectorVersion(Entity.DeliveryDate).GeographicGroup.Id;
+			var geographicGroupId = sector.GetActiveSectorVersionOnDate(Entity.DeliveryDate).GeographicGroup.Id;
 			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW);
 
 			if(activeFlyers.Any())

@@ -52,7 +52,7 @@ namespace Vodovoz.Tools.Logistic
 
 				//Районы
 				sectorVersions = _scheduleRestrictionRepository.GetSectorVersion(uow, activationTime);
-				result.WageDistrict = deliveryPoint?.GetActiveVersion(activationTime)?.Sector?.GetActiveSectorVersion()?.WageSector?.Name ?? "Неизвестно";
+				result.WageDistrict = deliveryPoint?.GetActiveVersion(activationTime)?.Sector?.GetActiveSectorVersionOnDate()?.WageSector?.Name ?? "Неизвестно";
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {

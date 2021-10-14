@@ -175,7 +175,7 @@ namespace Vodovoz.Domain.Sectors
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow, sectorsRepository))
 				return true;
-			var gg = Sector.GetActiveSectorVersion().GeographicGroup;
+			var gg = Sector.GetActiveSectorVersionOnDate().GeographicGroup;
 			var route = new List<PointOnEarth>(2)
 			{
 				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),

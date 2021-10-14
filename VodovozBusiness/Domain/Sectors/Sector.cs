@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Sectors
 	public class Sector : BusinessObjectBase<Sector>, IDomainObject
 	{
 		#region Свойства
-		public virtual string Title => GetActiveSectorVersion().SectorName;
+		public virtual string Title => GetActiveSectorVersionOnDate().SectorName;
 
 		public virtual int Id { get; set; }
 
@@ -101,48 +101,66 @@ namespace Vodovoz.Domain.Sectors
 			_observableDeliveryPointSectorVersions ??
 			(_observableDeliveryPointSectorVersions = new GenericObservableList<DeliveryPointSectorVersion>(DeliveryPointSectorVersions));
 
-		public virtual SectorVersion GetActiveSectorVersion(DateTime? activationTime = null)
+		public virtual SectorVersion GetActiveSectorVersionOnDate(DateTime? date = null)
 		{
-			if(activationTime.HasValue)
-				return ObservableSectorVersions.SingleOrDefault(x => x.StartDate <= activationTime &&
-				                                                     (x.EndDate == null ||
-				                                                      x.EndDate <= activationTime.Value.Date.AddDays(1)));
-			return ObservableSectorVersions.SingleOrDefault(x => x.StartDate <= DateTime.Today.Date &&
-			                                                     (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+			if(date.HasValue)
+			{
+				return ObservableSectorVersions.SingleOrDefault(x =>
+					(x.Status == SectorsSetStatus.Active || x.Status == SectorsSetStatus.Closed) 
+					&& x.StartDate <= date && (x.EndDate == null || x.EndDate <= date));
+			}
+
+			return ObservableSectorVersions.SingleOrDefault(x => x.Status == SectorsSetStatus.Active);
 		}
 
-		public virtual SectorDeliveryRuleVersion GetActiveDeliveryRuleVersion(DateTime? activationTime = null)
+		public virtual SectorDeliveryRuleVersion GetActiveDeliveryRuleVersionOnDate(DateTime? date = null)
 		{
-			if(activationTime.HasValue)
+			if(date.HasValue)
+			{
 				return ObservableSectorDeliveryRuleVersions.SingleOrDefault(x =>
-					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					(x.Status == SectorsSetStatus.Active || x.Status == SectorsSetStatus.Closed)
+					&& x.StartDate <= date && (x.EndDate == null || x.EndDate <= date));
+			}
+
 			return ObservableSectorDeliveryRuleVersions.SingleOrDefault(x =>
 				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 
-		public virtual SectorWeekDayScheduleVersion GetActiveWeekDayScheduleVersion(DateTime? activationTime = null)
+		public virtual SectorWeekDayScheduleVersion GetActiveWeekDayScheduleVersionOnDate(DateTime? date = null)
 		{
-			if(activationTime.HasValue)
+			if(date.HasValue)
+			{
 				return ObservableSectorWeekDayScheduleVersions.SingleOrDefault(x =>
-					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					(x.Status == SectorsSetStatus.Active || x.Status == SectorsSetStatus.Closed)
+					&& x.StartDate <= date && (x.EndDate == null || x.EndDate <= date));
+			}
+
 			return ObservableSectorWeekDayScheduleVersions.SingleOrDefault(x =>
 				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 
-		public virtual SectorWeekDayDeliveryRuleVersion GetActiveWeekDayDeliveryRuleVersion(DateTime? activationTime = null)
+		public virtual SectorWeekDayDeliveryRuleVersion GetActiveWeekDayDeliveryRuleVersionOnDate(DateTime? date = null)
 		{
-			if(activationTime.HasValue)
+			if(date.HasValue)
+			{
 				return ObservableSectorWeekDayDeliveryRuleVersions.SingleOrDefault(x =>
-					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					(x.Status == SectorsSetStatus.Active || x.Status == SectorsSetStatus.Closed)
+					&& x.StartDate <= date && (x.EndDate == null || x.EndDate <= date));
+			}
+
 			return ObservableSectorWeekDayDeliveryRuleVersions.SingleOrDefault(x =>
 				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
 
-		public virtual DeliveryPointSectorVersion GetActiveDeliveryPointVersion(DateTime? activationTime = null)
+		public virtual DeliveryPointSectorVersion GetActiveDeliveryPointVersionOnDate(DateTime? date = null)
 		{
-			if(activationTime.HasValue)
+			if(date.HasValue)
+			{
 				return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
-					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					(x.Status == SectorsSetStatus.Active || x.Status == SectorsSetStatus.Closed)
+					&& x.StartDate <= date && (x.EndDate == null || x.EndDate <= date));
+			}
+
 			return ObservableDeliveryPointSectorVersions.SingleOrDefault(x =>
 				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
 		}
@@ -160,9 +178,9 @@ namespace Vodovoz.Domain.Sectors
 			if(orderStateKey.Order.DeliveryDate.HasValue)
 			{
 				if(orderStateKey.Order.DeliveryDate.Value.Date == DateTime.Today
-				   && (GetActiveWeekDayScheduleVersion(startDate).SectorSchedules.Any(x=>x.WeekDay == WeekDayName.Today)
-				       || GetActiveWeekDayDeliveryRuleVersion(startDate).WeekDayDistrictRules.Any(y=>y.WeekDay == WeekDayName.Today))) {
-					var todayDeliveryRules = GetActiveWeekDayDeliveryRuleVersion(startDate).WeekDayDistrictRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+				   && (GetActiveWeekDayScheduleVersionOnDate(startDate).SectorSchedules.Any(x=>x.WeekDay == WeekDayName.Today)
+				       || GetActiveWeekDayDeliveryRuleVersionOnDate(startDate).WeekDayDistrictRules.Any(y=>y.WeekDay == WeekDayName.Today))) {
+					var todayDeliveryRules = GetActiveWeekDayDeliveryRuleVersionOnDate(startDate).WeekDayDistrictRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
 					if (todayDeliveryRules.Any())
 					{
@@ -174,7 +192,7 @@ namespace Vodovoz.Domain.Sectors
 					}
 					return 0m;
 				}
-				var dayOfWeekRules = GetActiveWeekDayDeliveryRuleVersion(startDate).WeekDayDistrictRules.Where(x=> x.WeekDay == ConvertDayOfWeekToWeekDayName(orderStateKey.Order.DeliveryDate.Value.DayOfWeek));
+				var dayOfWeekRules = GetActiveWeekDayDeliveryRuleVersionOnDate(startDate).WeekDayDistrictRules.Where(x=> x.WeekDay == ConvertDayOfWeekToWeekDayName(orderStateKey.Order.DeliveryDate.Value.DayOfWeek));
 				if(dayOfWeekRules.Any()) {
 					var dayOfWeekDeliveryRules = dayOfWeekRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
@@ -191,7 +209,7 @@ namespace Vodovoz.Domain.Sectors
 				}
 			}
 			var commonDeliveryRules =
-				GetActiveDeliveryRuleVersion(startDate).ObservableCommonDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+				GetActiveDeliveryRuleVersionOnDate(startDate).ObservableCommonDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
 			if (commonDeliveryRules.Any())
 			{
@@ -218,19 +236,19 @@ namespace Vodovoz.Domain.Sectors
 			}
 		}
 
-		public virtual bool HaveRestrictions(DateTime? activationTime = null) => GetActiveWeekDayScheduleVersion(activationTime).ObservableDeliveryScheduleRestriction.Any();
+		public virtual bool HaveRestrictions(DateTime? activationTime = null) => GetActiveWeekDayScheduleVersionOnDate(activationTime).ObservableDeliveryScheduleRestriction.Any();
 
 		public virtual string GetSchedulesString(bool withMarkup = false, DateTime? activationTime = null)
 		{
 			var result = new StringBuilder();
 			var observableDeliveryScheduleRestriction =
-				GetActiveWeekDayScheduleVersion(activationTime).ObservableDeliveryScheduleRestriction;
-			var observableWeedDayDelivery = GetActiveWeekDayDeliveryRuleVersion(activationTime)?.ObservableWeekDayDistrictRules;
+				GetActiveWeekDayScheduleVersionOnDate(activationTime).ObservableDeliveryScheduleRestriction;
+			var observableWeedDayDelivery = GetActiveWeekDayDeliveryRuleVersionOnDate(activationTime)?.ObservableWeekDayDistrictRules;
 			foreach (var deliveryScheduleRestriction in observableDeliveryScheduleRestriction.GroupBy(x => x.WeekDay).OrderBy(x => (int)x.Key)) {
 				var weekName = deliveryScheduleRestriction.Key.GetEnumTitle();
 				result.Append(withMarkup ? $"<u><b>{weekName}</b></u>" : weekName);
 				var weekRules = observableWeedDayDelivery?.Where(x => x.WeekDay == deliveryScheduleRestriction.Key);
-				var commonDistricts = GetActiveDeliveryRuleVersion(activationTime).ObservableCommonDistrictRuleItems;
+				var commonDistricts = GetActiveDeliveryRuleVersionOnDate(activationTime).ObservableCommonDistrictRuleItems;
 				if(weekRules != null && weekRules.Any())
 				{
 					result.AppendLine("\nцена: " + weekRules.Select(x => x.Price).Min());

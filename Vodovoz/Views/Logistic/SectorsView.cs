@@ -86,9 +86,9 @@ namespace Vodovoz.Views.Logistic
 							c.UpdateComboList(default);
 						}
 					
-						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
+						else if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
-						else if(n.Status == SectorsSetStatus.Draft)
+						else
 						{
 							c.Editable = true;
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft, SectorsSetStatus.OnActivation};
@@ -107,8 +107,8 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Мин. бутылей")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x =>
-						x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now) != null ? x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Any()
-							? x.Sector.GetActiveDeliveryRuleVersion(DateTime.Now).ObservableCommonDistrictRuleItems.Min(c => c.DeliveryPriceRule.Water19LCount).ToString()
+						x.Sector.GetActiveDeliveryRuleVersionOnDate(DateTime.Now) != null ? x.Sector.GetActiveDeliveryRuleVersionOnDate(DateTime.Now).ObservableCommonDistrictRuleItems.Any()
+							? x.Sector.GetActiveDeliveryRuleVersionOnDate(DateTime.Now).ObservableCommonDistrictRuleItems.Min(c => c.DeliveryPriceRule.Water19LCount).ToString()
 							: "-" : "-"
 					)
 					.XAlign(0.5f)
@@ -159,9 +159,10 @@ namespace Vodovoz.Views.Logistic
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
 							c.UpdateComboList(default);
 						}
-						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
+					
+						else if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
-						else if(n.Status == SectorsSetStatus.Draft)
+						else
 						{
 							c.Editable = true;
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft, SectorsSetStatus.OnActivation};
@@ -218,9 +219,10 @@ namespace Vodovoz.Views.Logistic
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
 							c.UpdateComboList(default);
 						}
-						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
+					
+						else if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
-						else if(n.Status == SectorsSetStatus.Draft)
+						else
 						{
 							c.Editable = true;
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft, SectorsSetStatus.OnActivation};
@@ -264,9 +266,10 @@ namespace Vodovoz.Views.Logistic
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft};
 							c.UpdateComboList(default);
 						}
-						if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
+					
+						else if(n.Status == SectorsSetStatus.Active || n.Status == SectorsSetStatus.Closed)
 							c.Editable = false;
-						else if(n.Status == SectorsSetStatus.Draft)
+						else
 						{
 							c.Editable = true;
 							c.Items = new List<SectorsSetStatus> {SectorsSetStatus.Draft, SectorsSetStatus.OnActivation};
@@ -310,12 +313,16 @@ namespace Vodovoz.Views.Logistic
 			dateForFilter.Binding.AddBinding(ViewModel, vm => vm.EndDateSector, t => t.EndDateOrNull).InitializeFromSource();
 			sectorVersionStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorVersion, t => t.DateOrNull)
 				.InitializeFromSource();
+			sectorVersionStartDate.IsEditable = true;
 			deliveryRuleStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDeliveryRuleVersion, t => t.DateOrNull)
 				.InitializeFromSource();
+			deliveryRuleStartDate.IsEditable = true;
 			weekDayScheduleStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorDaySchedule, t => t.DateOrNull)
 				.InitializeFromSource();
+			weekDayScheduleStartDate.IsEditable = true;
 			weekDayDeliveryStartDate.Binding.AddBinding(ViewModel, vm => vm.StartDateSectorWeekDayDeliveryRuleVersion, t => t.DateOrNull)
 				.InitializeFromSource();
+			weekDayDeliveryStartDate.IsEditable = true;
 			#endregion
 
 			#region Binding of the button for sector and sectorVersion
