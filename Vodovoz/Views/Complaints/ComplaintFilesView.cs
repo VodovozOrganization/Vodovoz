@@ -10,8 +10,6 @@ namespace Vodovoz.Views.Complaints
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ComplaintFilesView : WidgetViewBase<ComplaintFilesViewModel>
 	{
-		private readonly Menu _menu = new Menu();
-
 		public ComplaintFilesView()
 		{
 			this.Build();
@@ -31,39 +29,33 @@ namespace Vodovoz.Views.Complaints
 			ytreeviewFiles.ItemsDataSource = ViewModel.Entity.ObservableFiles;
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
 			ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
-
-			ConfigureMenu();
 		}
 
-		private void ConfigureMenu()
+		protected void ConfigureMenu()
 		{
+			if(ytreeviewFiles.GetSelectedObject() == null || ViewModel.ReadOnly)
+				return;
+
+			var menu = new Menu();
+
 			var deleteFile = new MenuItem("Удалить файл");
-			deleteFile.Activated += (s, args) =>
-			{
-				ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
-				_menu.Popdown();
-			};
+			deleteFile.Activated += (s, args) => ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
 			deleteFile.Visible = true;
-			_menu.Add(deleteFile);
+			menu.Add(deleteFile);
 
 			var saveFile = new MenuItem("Загрузить файл");
-			saveFile.Activated += (s, args) =>
-			{
-				ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
-				_menu.Popdown();
-			};
+			saveFile.Activated += (s, args) => ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
 			saveFile.Visible = true;
-			_menu.Add(saveFile);
+			menu.Add(saveFile);
 
-			_menu.ShowAll();
+			menu.ShowAll();
+			menu.Popup();
 		}
 
-		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
+		protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
 		{
-			if(args.Event.Button == 3 && !ViewModel.ReadOnly && ytreeviewFiles.GetSelectedObject() != null)
-			{
-				_menu.Popup();
-			}
+			if(args.Event.Button == 3)
+				ConfigureMenu();
 		}
 	}
 }

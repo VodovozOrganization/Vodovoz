@@ -6,44 +6,70 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Cash;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalSelectors;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-	public class IncomeCategoryViewModel : EntityTabViewModelBase<IncomeCategory>
-	{
-		public IncomeCategoryViewModel(
-			IEntityUoWBuilder uowBuilder,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IIncomeCategorySelectorFactory incomeCategorySelectorFactory
-		) : base(uowBuilder, unitOfWorkFactory, commonServices)
-		{
-			IncomeCategoryAutocompleteSelectorFactory =
-				(incomeCategorySelectorFactory ?? throw new ArgumentNullException(nameof(incomeCategorySelectorFactory)))
-				.CreateDefaultIncomeCategoryAutocompleteSelectorFactory();
+    public class IncomeCategoryViewModel: EntityTabViewModelBase<IncomeCategory>
+    {
+        public IncomeCategoryViewModel(
+            IEntityUoWBuilder uowBuilder,
+            IUnitOfWorkFactory unitOfWorkFactory,
+            ICommonServices commonServices,
+            IFileChooserProvider fileChooserProvider,
+            IncomeCategoryJournalFilterViewModel journalFilterViewModel,
+            IEmployeeJournalFactory employeeJournalFactory,
+            ISubdivisionJournalFactory subdivisionJournalFactory
+        ) : base(uowBuilder, unitOfWorkFactory, commonServices)
+        {
+	        if(employeeJournalFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        }
+			
+	        if(subdivisionJournalFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+	        }
+	        
+            IncomeCategoryAutocompleteSelectorFactory = 
+                new IncomeCategoryAutoCompleteSelectorFactory(
+	                commonServices, journalFilterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory);
+            
+            SubdivisionAutocompleteSelectorFactory =
+	            subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
+		            employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+            
+            if(uowBuilder.IsNewEntity)
+                TabName = "Создание новой категории дохода";
+            else
+                TabName = $"{Entity.Title}";
+        }
+        
+        public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
+        
+        public bool IsArchive
+        {
+            get { return Entity.IsArchive; }
+            set
+            {
+                Entity.SetIsArchiveRecursively(value);
+            }
+        }
+        
+        public IEntityAutocompleteSelectorFactory IncomeCategoryAutocompleteSelectorFactory;
+        
+        #region Permissions
+        public bool CanCreate => PermissionResult.CanCreate;
+        public bool CanRead => PermissionResult.CanRead;
+        public bool CanUpdate => PermissionResult.CanUpdate;
+        public bool CanDelete => PermissionResult.CanDelete;
 
-			var employeeAutocompleteSelector =
-				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateEmployeeAutocompleteSelectorFactory();
+        public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
 
-			SubdivisionAutocompleteSelectorFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeAutocompleteSelector);
-
-			TabName = uowBuilder.IsNewEntity ? "Создание новой категории дохода" : $"{Entity.Title}";
-		}
-
-		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory IncomeCategoryAutocompleteSelectorFactory { get; }
-
-		public bool IsArchive
-		{
-			get => Entity.IsArchive;
-			set => Entity.SetIsArchiveRecursively(value);
-		}
-	}
+        #endregion
+    }
 }

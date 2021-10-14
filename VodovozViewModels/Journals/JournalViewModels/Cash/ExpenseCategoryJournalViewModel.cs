@@ -15,7 +15,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -33,7 +32,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly IFileChooserProvider _fileChooserProvider;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 
 		public ExpenseCategoryJournalViewModel(
 			ExpenseCategoryJournalFilterViewModel filterViewModel,
@@ -41,16 +39,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ICommonServices commonServices,
 			IFileChooserProvider fileChooserProvider,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
+			ISubdivisionJournalFactory subdivisionJournalFactory
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_expenseCategorySelectorFactory =
-				expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 
 			TabName = "Категории расхода";
 
@@ -134,9 +129,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				EntityUoWBuilder.ForCreate(),
 				_unitOfWorkFactory,
 				commonServices,
+				_fileChooserProvider,
+				FilterViewModel,
 				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_expenseCategorySelectorFactory
+				_subdivisionJournalFactory
 			);
 
 		protected override Func<ExpenseCategoryJournalNode, ExpenseCategoryViewModel> OpenDialogFunction => node =>
@@ -144,9 +140,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				EntityUoWBuilder.ForOpen(node.Id),
 				_unitOfWorkFactory,
 				commonServices,
+				_fileChooserProvider,
+				FilterViewModel,
 				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_expenseCategorySelectorFactory
+				_subdivisionJournalFactory
 			);
 
 		protected override void CreatePopupActions()
@@ -165,7 +162,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					CSVbuilder.Append(expenseCategoryJournalNode.Subdivision + "\n");
 				}
 
-				var fileChooserPath = _fileChooserProvider.GetExportFilePath($"Категории расхода {DateTime.Now.ToShortDateString()}");
+				var fileChooserPath = _fileChooserProvider.GetExportFilePath();
 				var res = CSVbuilder.ToString();
 
 				if(fileChooserPath == "") return;

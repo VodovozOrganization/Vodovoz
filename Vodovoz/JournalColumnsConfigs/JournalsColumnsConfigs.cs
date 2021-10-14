@@ -822,9 +822,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
-			//PayoutRequestsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<PayoutRequestsJournalViewModel>(
-				() => FluentColumnsConfig<PayoutRequestJournalNode>.Create()
+			//CashRequestJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CashRequestJournalViewModel>(
+				() => FluentColumnsConfig<CashRequestJournalNode>.Create()
 					.AddColumn("№")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
@@ -835,21 +835,19 @@ namespace Vodovoz.JournalColumnsConfigs
 						.XAlign(0.5f)
 					.AddColumn("Тип документа")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.PayoutRequestDocumentType.GetEnumTitle())
-						.WrapWidth(155)
-						.WrapMode(WrapMode.WordChar)
+						.AddEnumRenderer(n => n.DocumentType)
 						.XAlign(0.5f)
 					.AddColumn("Статус")
 						.HeaderAlignment(0.5f)
-						.AddEnumRenderer(n => n.PayoutRequestState)
+						.AddEnumRenderer(n => n.State)
 						.XAlign(0.5f)
 					.AddColumn("Автор")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n =>  n.Author )
 						.XAlign(0.5f)
-					.AddColumn("Подотчетное лицо /\r\n\tПоставщик")
+					.AddColumn("Подотчетное лицо")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => !string.IsNullOrWhiteSpace(n.AccountablePerson) ? n.AccountablePerson : n.CounterpartyName)
+						.AddTextRenderer(n => n.AccountablePerson)
 						.XAlign(0.5f)
 					.AddColumn("Сумма")
 						.HeaderAlignment(0.5f)
