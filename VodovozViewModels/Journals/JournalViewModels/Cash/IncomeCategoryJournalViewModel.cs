@@ -15,6 +15,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -28,10 +29,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             IncomeCategoryJournalFilterViewModel
         >
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly IFileChooserProvider fileChooserProvider;
+        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly IFileChooserProvider _fileChooserProvider;
         private readonly IEmployeeJournalFactory _employeeJournalFactory;
         private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+        private readonly IIncomeCategorySelectorFactory _incomeCategorySelectorFactory;
 
         public IncomeCategoryJournalViewModel(
             IncomeCategoryJournalFilterViewModel journalFilterViewModel,
@@ -39,13 +41,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICommonServices commonServices,
             IFileChooserProvider fileChooserProvider,
             IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory
+            ISubdivisionJournalFactory subdivisionJournalFactory,
+            IIncomeCategorySelectorFactory incomeCategorySelectorFactory
         ) : base(journalFilterViewModel, unitOfWorkFactory, commonServices)
         {
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
+            _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+            _fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
             _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
             _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+            _incomeCategorySelectorFactory =
+	            incomeCategorySelectorFactory ?? throw new ArgumentNullException(nameof(incomeCategorySelectorFactory));
 
             TabName = "Категории прихода";
             
@@ -131,22 +136,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         
         protected override Func<IncomeCategoryViewModel> CreateDialogFunction => () => new IncomeCategoryViewModel(
             EntityUoWBuilder.ForCreate(),
-            unitOfWorkFactory,
+            _unitOfWorkFactory,
             commonServices,
-            fileChooserProvider,
-            FilterViewModel,
             _employeeJournalFactory,
-            _subdivisionJournalFactory
+            _subdivisionJournalFactory,
+            _incomeCategorySelectorFactory
         );
         protected override Func<IncomeCategoryJournalNode, IncomeCategoryViewModel> OpenDialogFunction =>
             node => new IncomeCategoryViewModel(
                 EntityUoWBuilder.ForOpen(node.Id), 
-                unitOfWorkFactory, 
+                _unitOfWorkFactory, 
                 commonServices, 
-                fileChooserProvider, 
-                FilterViewModel,
                 _employeeJournalFactory,
-                _subdivisionJournalFactory
+                _subdivisionJournalFactory,
+                _incomeCategorySelectorFactory
         );
 
         protected override void CreatePopupActions()
@@ -169,7 +172,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                         CSVbuilder.Append(incomeCategoryJournalNode.Subdivision + "\n");
                     }
 
-                    var fileChooserPath = fileChooserProvider.GetExportFilePath();
+                    var fileChooserPath = _fileChooserProvider.GetExportFilePath($"Категории прихода {DateTime.Now.ToShortDateString()}");
                     var res = CSVbuilder.ToString();
                     if (fileChooserPath == "") return;
                     Stream fileStream = new FileStream(fileChooserPath, FileMode.Create);
@@ -178,7 +181,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
                         writer.Write("\"sep=,\"\n");
                         writer.Write(res.ToString());
                     }               
-                    fileChooserProvider.CloseWindow(); 
+                    _fileChooserProvider.CloseWindow();
                 })
             );
 

@@ -8,7 +8,6 @@ using QS.Banks.Domain;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using QS.Project.Services;
 using QSOrmProject;
 using QS.Validation;
@@ -33,6 +32,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using QS.Attachments.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -58,17 +58,20 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		
+		private AttachmentsViewModel _attachmentsViewModel;
 
 		public TraineeDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Trainee>();
 			ConfigureDlg();
 		}
 
 		public TraineeDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Trainee>(id);
 			ConfigureDlg();
 		}
@@ -77,16 +80,17 @@ namespace Vodovoz.Dialogs.Employees
 		{
 		}
 
-		public void ConfigureDlg()
+		private void ConfigureDlg()
 		{
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 
+			CreateAttachmentsViewModel();
 			ConfigureBindings();
 		}
 
-		public void ConfigureBindings()
+		private void ConfigureBindings()
 		{
 			logger.Info("Настройка биндинга компонентов диалога стажера");
 			//Основные
@@ -122,17 +126,17 @@ namespace Vodovoz.Dialogs.Employees
 			accountsView.SetTitle("Банковские счета стажера");
 
 			//Файлы
-			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Trainee));
-			if(Entity.Id != 0) {
-				attachmentFiles.ItemId = Entity.Id;
-				attachmentFiles.UpdateFileList();
-			}
+			attachmentsView.ViewModel = _attachmentsViewModel;
+			
 			logger.Info("Ok");
 		}
-
-		public override bool HasChanges {
-			get { return UoWGeneric.HasChanges || attachmentFiles.HasChanges; }
+		
+		private void CreateAttachmentsViewModel()
+		{
+			_attachmentsViewModel = _attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 		}
+
+		public override bool HasChanges => UoWGeneric.HasChanges;
 
 		public override bool Save()
 		{
@@ -142,13 +146,12 @@ namespace Vodovoz.Dialogs.Employees
 			}
 			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем стажера...");
-			try {
+			try
+			{
 				UoWGeneric.Save();
-				if(Entity.Id != 0) {
-					attachmentFiles.ItemId = Entity.Id;
-				}
-				attachmentFiles.SaveChanges();
-			} catch(Exception ex) {
+			}
+			catch(Exception ex)
+			{
 				logger.Error(ex, "Не удалось записать стажера.");
 				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
 				return false;
@@ -225,6 +228,7 @@ namespace Vodovoz.Dialogs.Employees
 				CurrentUserSettings.Settings,
 				_userRepository,
 				_baseParametersProvider,
+				_attachmentsViewModelFactory,
 				true);
 			
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
@@ -274,5 +278,11 @@ namespace Vodovoz.Dialogs.Employees
 			buttonDocumentEdit.Click();
 		}
 		#endregion
+		
+		public override void Destroy()
+		{
+			attachmentsView.Destroy();
+			base.Destroy();
+		}
 	}
 }
