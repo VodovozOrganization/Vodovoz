@@ -81,11 +81,17 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public bool CurrentRouteListHasOrderDuplicate(IUnitOfWork uow, RouteListItem routeListItem, int [] actualRouteListItemIds)
 		{
+			if(routeListItem.Status == RouteListItemStatus.Transfered)
+			{
+				return false;
+			}
+
 			var currentRouteListOrderDuplicate = uow.Session.QueryOver<RouteListItem>()
 				.Where(x => x.Order.Id == routeListItem.Order.Id)
 				.And(x => x.Id != routeListItem.Id)
 				.And(x => x.RouteList.Id == routeListItem.RouteList.Id)
 				.And(Restrictions.In(Projections.Property<RouteListItem>(x => x.Id), actualRouteListItemIds))
+				.And(x => x.Status != RouteListItemStatus.Transfered)
 				.Take(1).List().FirstOrDefault();
 
 			return currentRouteListOrderDuplicate != null;
