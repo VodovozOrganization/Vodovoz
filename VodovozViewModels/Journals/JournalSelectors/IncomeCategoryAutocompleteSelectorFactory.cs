@@ -6,45 +6,38 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
-	public class IncomeCategoryAutoCompleteSelectorFactory :
-		IncomeCategorySelectorFactory, IEntityAutocompleteSelectorFactory
-	{
-		public IncomeCategoryAutoCompleteSelectorFactory(
-			ICommonServices commonServices,
-			IncomeCategoryJournalFilterViewModel filterViewModel,
-			IFileChooserProvider fileChooserProvider,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IIncomeCategorySelectorFactory incomeCategorySelectorFactory)
-			: base(commonServices,
-				filterViewModel,
-				fileChooserProvider,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				incomeCategorySelectorFactory)
-		{
-		}
+    public class IncomeCategoryAutoCompleteSelectorFactory:
+        IncomeCategorySelectorFactory, IEntityAutocompleteSelectorFactory
+    {
+	    public IncomeCategoryAutoCompleteSelectorFactory(
+		    ICommonServices commonServices,
+		    IncomeCategoryJournalFilterViewModel filterViewModel,
+		    IFileChooserProvider fileChooserProvider,
+		    IEmployeeJournalFactory employeeJournalFactory,
+		    ISubdivisionJournalFactory subdivisionJournalFactory)
+		    : base(commonServices, filterViewModel, fileChooserProvider, employeeJournalFactory, subdivisionJournalFactory)
+	    {
+		    
+	    }
 
-		public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
-		{
-			IncomeCategoryJournalViewModel selectorViewModel = new IncomeCategoryJournalViewModel(
-				_filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				_commonServices,
-				_fileChooserProvider,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_incomeCategorySelectorFactory)
-			{
-				SelectionMode = JournalSelectionMode.Single
-			};
-
-			return selectorViewModel;
-		}
-	}
+        public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
+        {
+            IncomeCategoryJournalViewModel selectorViewModel = new IncomeCategoryJournalViewModel(
+                filter,
+                UnitOfWorkFactory.GetDefaultFactory,
+                commonServices,
+                fileChooserProvider,
+                _employeeJournalFactory,
+                _subdivisionJournalFactory)
+            {
+                SelectionMode = JournalSelectionMode.Single
+            };
+			
+            return selectorViewModel;
+        }
+    }
 }

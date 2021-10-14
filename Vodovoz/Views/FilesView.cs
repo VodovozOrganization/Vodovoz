@@ -1,4 +1,7 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Gamma.ColumnConfig;
 using Gtk;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels;
@@ -8,14 +11,12 @@ namespace Vodovoz.Views
 	[System.ComponentModel.ToolboxItem(true)] 
 	public partial class FilesView : Gtk.Bin
 	{
-		private readonly Menu _menu = new Menu();
 
-		private FilesViewModel _viewModel;
+		private FilesViewModel viewModel;
 		public FilesViewModel ViewModel {
-			get => _viewModel;
-			set
-			{
-				_viewModel = value;
+			get { return viewModel; }
+			set {
+				viewModel = value;
 				ConfigureDlg();
 			}
 		}
@@ -28,55 +29,49 @@ namespace Vodovoz.Views
 		public void ConfigureDlg()
 		{
 			if(ViewModel == null)
-			{
 				return;
-			}
 
-			ybuttonAttachFile.Clicked += (sender, e) => _viewModel.AddItemCommand.Execute();
+			ybuttonAttachFile.Clicked += (sender, e) => viewModel.AddItemCommand.Execute();
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
 
 			ytreeviewFiles.ColumnsConfig = FluentColumnsConfig<ComplaintFile>.Create()
 				.AddColumn("Файлы").AddTextRenderer(x => x.FileStorageId)
 				.Finish();
 
-			ytreeviewFiles.Binding.AddFuncBinding(_viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
-			ybuttonAttachFile.Binding.AddFuncBinding(_viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			ytreeviewFiles.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			ybuttonAttachFile.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			ytreeviewFiles.ItemsDataSource = ViewModel.FilesList;
 
-			ytreeviewFiles.RowActivated += (o, args) => _viewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
-
-			ConfigureMenu();
+			ytreeviewFiles.RowActivated += (o, args) => viewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
 		}
 
-		private void ConfigureMenu()
+		protected void ConfigureMenu()
 		{
+			if(ytreeviewFiles.GetSelectedObject() == null)
+				return;
+
+			var menu = new Menu();
+
 			var deleteFile = new MenuItem("Удалить файл");
-			deleteFile.Activated += (s, args) =>
-			{
-				ViewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
-				_menu.Popdown();
-			};
+			deleteFile.Activated += (s, args) => viewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
 			deleteFile.Visible = true;
-			_menu.Add(deleteFile);
+			menu.Add(deleteFile);
 
 			var saveFile = new MenuItem("Загрузить файл");
-			saveFile.Activated += (s, args) =>
-			{
-				ViewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
-				_menu.Popdown();
-			};
+			saveFile.Activated += (s, args) => viewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
 			saveFile.Visible = true;
-			_menu.Add(saveFile);
+			menu.Add(saveFile);
 
-			_menu.ShowAll();
+			menu.ShowAll();
+			menu.Popup();
 		}
 
-		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
+		protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
 		{
-			if(args.Event.Button == 3 && !ViewModel.ReadOnly && ytreeviewFiles.GetSelectedObject() != null)
-			{
-				_menu.Popup();
-			}
+			if(args.Event.Button == 3)
+				ConfigureMenu();
 		}
+
 	}
+
 }

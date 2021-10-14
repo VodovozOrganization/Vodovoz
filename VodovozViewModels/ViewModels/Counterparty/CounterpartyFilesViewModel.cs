@@ -11,130 +11,129 @@ using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
-	public class CounterpartyFilesViewModel : EntityWidgetViewModelBase<Domain.Client.Counterparty>
-	{
-		private readonly IFilePickerService _filePicker;
-		private readonly IUserRepository _userRepository;
-		private bool _readOnly;
+    public class CounterpartyFilesViewModel : EntityWidgetViewModelBase<Domain.Client.Counterparty>
+    {
+        private readonly IFilePickerService filePicker;
+        private readonly IUserRepository _userRepository;
+        private bool readOnly;
 
-		public virtual bool ReadOnly
-		{
-			get => _readOnly;
-			set => SetField(ref _readOnly, value, () => ReadOnly);
-		}
+        public virtual bool ReadOnly
+        {
+            get => readOnly;
+            set => SetField(ref readOnly, value, () => ReadOnly);
+        }
 
-		public CounterpartyFilesViewModel(
-			Domain.Client.Counterparty entity,
-			IUnitOfWork uow,
-			IFilePickerService filePicker,
-			ICommonServices commonServices,
-			IUserRepository userRepository)
-			: base(entity, commonServices)
-		{
-			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			UoW = uow;
-			CreateCommands();
-		}
+        public CounterpartyFilesViewModel(
+	        Domain.Client.Counterparty entity,
+	        IUnitOfWork uow,
+	        IFilePickerService filePicker,
+	        ICommonServices commonServices,
+	        IUserRepository userRepository) 
+            : base(entity, commonServices)
+        {
+            this.filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            UoW = uow;
+            CreateCommands();
+        }
 
-		#region Commands
+        #region Commands
 
-		private void CreateCommands()
-		{
-			CreateAddItemCommand();
-			CreateDeleteItemCommand();
-			CreateOpenItemCommand();
-			CreateLoadItemCommand();
-		}
+        private void CreateCommands()
+        {
+            CreateAddItemCommand();
+            CreateDeleteItemCommand();
+            CreateOpenItemCommand();
+            CreateLoadItemCommand();
+        }
 
-		#region AddItemCommand
+        #region AddItemCommand
 
-		public DelegateCommand AddItemCommand { get; private set; }
+        public DelegateCommand AddItemCommand { get; private set; }
 
-		private void CreateAddItemCommand()
-		{
-			AddItemCommand = new DelegateCommand(
-				() =>
-				{
-					if(_filePicker.OpenSelectFilePicker(out string filePath))
-					{
-						var counterpartyFile = new CounterpartyFile
-						{
-							FileStorageId = Path.GetFileName(filePath),
-							ByteFile = File.ReadAllBytes(filePath)
-						};
-						Entity.AddFile(counterpartyFile);
-					}
-				},
-				() => !ReadOnly);
-		}
+        private void CreateAddItemCommand()
+        {
+            AddItemCommand = new DelegateCommand(
+                () => {
 
-		#endregion AddItemCommand
+                    if (filePicker.OpenSelectFilePicker(out string filePath))
+                    {
+                        var counterpartyFile = new CounterpartyFile
+                        {
+                            FileStorageId = Path.GetFileName(filePath),
+                            ByteFile = File.ReadAllBytes(filePath)
+                        };
+                        Entity.AddFile(counterpartyFile);
+                    }
+                },
+                () => { return !ReadOnly; }
+            );
+        }
 
-		#region DeleteItemCommand
+        #endregion AddItemCommand
 
-		public DelegateCommand<CounterpartyFile> DeleteItemCommand { get; private set; }
+        #region DeleteItemCommand
 
-		private void CreateDeleteItemCommand()
-		{
-			DeleteItemCommand = new DelegateCommand<CounterpartyFile>(
-				(file) => Entity.RemoveFile(file),
-				(file) => !ReadOnly
-			);
-		}
+        public DelegateCommand<CounterpartyFile> DeleteItemCommand { get; private set; }
 
-		#endregion DeleteItemCommand
+        private void CreateDeleteItemCommand()
+        {
+            DeleteItemCommand = new DelegateCommand<CounterpartyFile>(
+                (file) => Entity.RemoveFile(file),
+                (file) => !ReadOnly
+            );
+        }
 
-		#region OpenItemCommand
+        #endregion DeleteItemCommand
 
-		public DelegateCommand<CounterpartyFile> OpenItemCommand { get; private set; }
+        #region OpenItemCommand
 
-		private void CreateOpenItemCommand()
-		{
-			OpenItemCommand = new DelegateCommand<CounterpartyFile>(
-				(file) =>
-				{
-					var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
+        public DelegateCommand<CounterpartyFile> OpenItemCommand { get; private set; }
 
-					if(string.IsNullOrWhiteSpace(vodUserTempDir))
-					{
-						return;
-					}
+        private void CreateOpenItemCommand()
+        {
+            OpenItemCommand = new DelegateCommand<CounterpartyFile>(
+                (file) => {
 
-					var tempFilePath = Path.Combine(Path.GetTempPath(), vodUserTempDir, file.FileStorageId);
+                    var vodUserTempDir = _userRepository.GetTempDirForCurrentUser(UoW);
 
-					if(!File.Exists(tempFilePath))
-					{
-						File.WriteAllBytes(tempFilePath, file.ByteFile);
-					}
+                    if (string.IsNullOrWhiteSpace(vodUserTempDir))
+                    {
+	                    return;
+                    }
 
-					var process = new Process();
-					process.StartInfo.FileName = Path.Combine(vodUserTempDir, file.FileStorageId);
-					process.Start();
-				});
-		}
+                    var tempFilePath = Path.Combine(Path.GetTempPath(), vodUserTempDir, file.FileStorageId);
 
-		#endregion OpenItemCommand
+                    if (!File.Exists(tempFilePath))
+                    {
+	                    File.WriteAllBytes(tempFilePath, file.ByteFile);
+                    }
 
-		#region LoadItemCommand
+                    var process = new Process();
+                    process.StartInfo.FileName = Path.Combine(vodUserTempDir, file.FileStorageId);
+                    process.Start();
+                });
+        }
 
-		public DelegateCommand<CounterpartyFile> LoadItemCommand { get; private set; }
+        #endregion OpenItemCommand
 
-		private void CreateLoadItemCommand()
-		{
-			LoadItemCommand = new DelegateCommand<CounterpartyFile>(
-				(file) =>
-				{
-					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out var filePath))
-					{
-						File.WriteAllBytes(filePath, file.ByteFile);
-					}
-				},
-				(file) => !ReadOnly);
-		}
+        #region LoadItemCommand
 
-		#endregion LoadItemCommand
+        public DelegateCommand<CounterpartyFile> LoadItemCommand { get; private set; }
 
-		#endregion Commands
-	}
+        private void CreateLoadItemCommand()
+        {
+            LoadItemCommand = new DelegateCommand<CounterpartyFile>(
+                (file) => {
+                    if (filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+                        File.WriteAllBytes(filePath, file.ByteFile);
+                },
+                (file) => { return !ReadOnly; }
+            );
+        }
+
+        #endregion LoadItemCommand
+
+        #endregion Commands
+    }
 }
