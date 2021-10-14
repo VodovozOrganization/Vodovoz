@@ -19,8 +19,6 @@ namespace Vodovoz.JournalViewModels
 
 		public IEnumerable<Expression<Func<Nomenclature, bool>>> ExternalRestrictions { get; private set; }
 
-		public bool CalculateQtyOnStock { get; set; } = true;
-
 		void CreateRestrictions()
 		{
 			var canAddSpares = commonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", userId);

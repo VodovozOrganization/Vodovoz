@@ -138,6 +138,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				};
 				journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
 				journalViewModel.TabName = "Номенклатура на продажу";
+				journalViewModel.CalculateQtyOnStock = true;
 				journalViewModel.OnEntitySelectedResult += (s, ea) => {
 					var selectedNode = ea.SelectedNodes.FirstOrDefault();
 					if(selectedNode == null)
