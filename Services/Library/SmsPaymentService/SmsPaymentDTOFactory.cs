@@ -39,8 +39,16 @@ namespace SmsPaymentService
 				Amount = smsPayment.Amount,
 				RecepientType = smsPayment.Recepient.PersonType,
 				Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems),
-				OrganizationId = _organizationProvider
-					.GetOrganization(uow, PaymentType.ByCard, order.SelfDelivery, order.DeliveryDate.Value, order.OrderItems, paymentFrom).Id
+				OrganizationId =
+					_organizationProvider.GetOrganization(
+						uow,
+						PaymentType.ByCard,
+						order.SelfDelivery,
+						order.DeliveryDate.Value,
+						order.OrderItems,
+						paymentFrom,
+						order.DeliveryPoint?.District?.GeographicGroup
+					).Id
 			};
 
 			return newSmsPaymentDTO;
@@ -61,7 +69,7 @@ namespace SmsPaymentService
 				if(isDivided)
 				{
 					smsPaymentDTOList.Add(
-						new SmsPaymentItemDTO()
+						new SmsPaymentItemDTO
 						{
 							Name = item.Nomenclature.OfficialName,
 							Quantity = item.CurrentCount,
@@ -71,7 +79,7 @@ namespace SmsPaymentService
 				else
 				{
 					smsPaymentDTOList.Add(
-						new SmsPaymentItemDTO()
+						new SmsPaymentItemDTO
 						{
 							Name = item.Nomenclature.OfficialName,
 							Quantity = item.CurrentCount - (compensatingItem == null ? 1 : 0),

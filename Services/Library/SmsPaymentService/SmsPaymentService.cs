@@ -8,6 +8,7 @@ using NHibernate.SqlCommand;
 using NLog;
 using QS.DomainModel.UoW;
 using SmsPaymentService.DTO;
+using SmsPaymentService.PaymentControllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -25,14 +26,16 @@ namespace SmsPaymentService
 	    private readonly IOrderParametersProvider _orderParametersProvider;
 	    private readonly SmsPaymentFileCache _smsPaymentFileCache;
 	    private readonly ISmsPaymentDTOFactory _smsPaymentDTOFactory;
-	    
-        public SmsPaymentService(
+	    private readonly ISmsPaymentValidator _smsPaymentValidator;
+
+	    public SmsPaymentService(
             IPaymentController paymentController, 
             IDriverPaymentService androidDriverService,
             ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
             IOrderParametersProvider orderParametersProvider,
             SmsPaymentFileCache smsPaymentFileCache,
-            ISmsPaymentDTOFactory smsPaymentDTOFactory
+            ISmsPaymentDTOFactory smsPaymentDTOFactory,
+            ISmsPaymentValidator smsPaymentValidator
         )
         {
             _paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
@@ -41,6 +44,7 @@ namespace SmsPaymentService
             _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             _smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
             _smsPaymentDTOFactory = smsPaymentDTOFactory ?? throw new ArgumentNullException(nameof(smsPaymentDTOFactory));
+            _smsPaymentValidator = smsPaymentValidator ?? throw new ArgumentNullException(nameof(smsPaymentValidator));
         }
         
         public PaymentResult SendPayment(int orderId, string phoneNumber)
@@ -97,11 +101,17 @@ namespace SmsPaymentService
                         _logger.Error("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
                         return new PaymentResult("Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля");
                     }
-                    
+
                     newPayment.SetReadyToSend();
                     var paymentDto = _smsPaymentDTOFactory.CreateSmsPaymentDTO(uow, newPayment, order,
 	                    uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId));
-                    
+
+                    if(!_smsPaymentValidator.Validate(paymentDto, out var errorMessages))
+                    {
+	                    _logger.Error($"Оплата для заказа №{paymentDto.OrderId} не прошла валидацию:\n\t{string.Join("\n\t", errorMessages)}");
+	                    return new PaymentResult(string.Join("\n", errorMessages));
+                    }
+
                     uow.Save(newPayment);
                     uow.Commit();
 
