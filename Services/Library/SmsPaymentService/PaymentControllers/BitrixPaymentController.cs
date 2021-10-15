@@ -12,7 +12,7 @@ using NLog;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 
-namespace SmsPaymentService
+namespace SmsPaymentService.PaymentControllers
 {
     public class BitrixPaymentController : IPaymentController
     {

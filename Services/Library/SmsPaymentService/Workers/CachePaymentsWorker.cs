@@ -6,7 +6,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 
-namespace SmsPaymentService
+namespace SmsPaymentService.Workers
 {
     public class CachePaymentsWorker
     {
