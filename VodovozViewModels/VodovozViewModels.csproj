@@ -57,7 +57,7 @@
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Infrastructure\Print\RouteListPrintableDocuments.cs" />
     <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
-    <Compile Include="Journals\FilterViewModels\Cash\CashRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\PayoutRequestJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\ExpenseCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\IncomeCategoryJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\OrganizationCashTransferDocumentFilterViewModel.cs" />
@@ -103,7 +103,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\CashRequestJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />
@@ -140,7 +140,7 @@
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
-    <Compile Include="Journals\JournalViewModels\Cash\CashRequestJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\PayoutRequestsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
@@ -175,7 +175,11 @@
     <Compile Include="TempAdapters\IDeliveryScheduleSelectorFactory.cs" />
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
+    <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />
+    <Compile Include="TempAdapters\IIncomeCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
+    <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
+    <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
