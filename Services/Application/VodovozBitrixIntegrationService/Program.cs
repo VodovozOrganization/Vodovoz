@@ -141,7 +141,8 @@ namespace VodovozBitrixIntegrationService
 						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase))
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
 
 				var serviceUserId = 0;
@@ -206,7 +207,6 @@ namespace VodovozBitrixIntegrationService
 				var callTaskRepository = new CallTaskRepository();
 				var employeeRepository = new EmployeeRepository();
 				IPersonProvider personProvider = new BaseParametersProvider(new ParametersProvider());
-				var userService = new UserService();
 				SingletonErrorReporter.Initialize(
 					ReportWorker.GetReportService(),
 					new ApplicationVersionInfo(),
