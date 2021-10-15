@@ -14,7 +14,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
     public class CashRequestItemViewModel: TabViewModelBase, ISingleUoWDialog
     {
-        public CashRequestUserRole UserRole;
+        public PayoutRequestUserRole UserRole;
 
         public IUnitOfWork UoW { get; set; }
 
@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             IUnitOfWork uow,
             IInteractiveService interactiveService, 
             INavigationManager navigation,
-            CashRequestUserRole userRole,
+            PayoutRequestUserRole userRole,
             IEmployeeJournalFactory employeeJournalFactory) 
             : base(interactiveService, navigation)
         {
@@ -84,12 +84,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                     return true;
                 } else {
                     return (
-                        Entity.CashRequest.State == CashRequest.States.New 
+                        Entity.CashRequest.PayoutRequestState == PayoutRequestState.New
                         && !Entity.ObservableExpenses.Any()
-                        && (UserRole == CashRequestUserRole.RequestCreator
-                            || UserRole == CashRequestUserRole.Coordinator)
-                        || (Entity.CashRequest.State == CashRequest.States.Agreed
-                            && UserRole == CashRequestUserRole.Coordinator)
+                        && (UserRole == PayoutRequestUserRole.RequestCreator
+                            || UserRole == PayoutRequestUserRole.Coordinator)
+                        || (Entity.CashRequest.PayoutRequestState == PayoutRequestState.Agreed
+                            && UserRole == PayoutRequestUserRole.Coordinator)
                         );
                 }
             }

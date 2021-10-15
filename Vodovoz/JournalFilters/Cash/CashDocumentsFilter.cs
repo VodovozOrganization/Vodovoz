@@ -17,6 +17,7 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz
@@ -38,92 +39,12 @@ namespace Vodovoz
 
 		private void ConfigureEntityViewModelEntry()
 		{
-			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-			var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel {
-				ExcludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(UoW).Select(x => x.Id),
-				HidenByDefault = true
-			};
-			
-			var commonServices = ServicesConfig.CommonServices;
-			IFileChooserProvider chooserIncomeProvider = new FileChooser("Приход " + DateTime.Now + ".csv");
-			IFileChooserProvider chooserExpenseProvider = new FileChooser("Расход " + DateTime.Now + ".csv");
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			
-			var incomeCategoryAutocompleteSelectorFactory =
-				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
-					() =>
-					{
-						var incomeCategoryJournalViewModel =
-							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
-								x => x.Name,
-								() => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									chooserIncomeProvider,
-									incomeCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								node => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									chooserIncomeProvider,
-									incomeCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								UnitOfWorkFactory.GetDefaultFactory,
-								commonServices
-							)
-							{
-								SelectionMode = JournalSelectionMode.Single
-							};
-						return incomeCategoryJournalViewModel;
-					});
-			
-
-			var expenseCategoryAutocompleteSelectorFactory =
-				new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
-					() =>
-					{
-						var expenseCategoryJournalViewModel =
-							new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
-								x => x.Name,
-								() => new ExpenseCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									chooserExpenseProvider,
-									expenseCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								node => new ExpenseCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									chooserExpenseProvider,
-									expenseCategoryFilter,
-									employeeJournalFactory,
-									subdivisionJournalFactory
-								),
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices
-							)
-							{
-								SelectionMode = JournalSelectionMode.Single
-							};
-						expenseCategoryJournalViewModel.SetFilter(expenseCategoryFilter,
-							filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
-
-						return expenseCategoryJournalViewModel;
-					});
-			
-			entityVMEntryCashIncomeCategory.SetEntityAutocompleteSelectorFactory(incomeCategoryAutocompleteSelectorFactory);
-			entityVMEntryCashExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategoryAutocompleteSelectorFactory);
+			IIncomeCategorySelectorFactory incomeFactory = new IncomeCategorySelectorFactory();
+			IExpenseCategorySelectorFactory expenseFactory = new ExpenseCategorySelectorFactory();
+			entityVMEntryCashIncomeCategory
+				.SetEntityAutocompleteSelectorFactory(incomeFactory.CreateSimpleIncomeCategoryAutocompleteSelectorFactory());
+			entityVMEntryCashExpenseCategory
+				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
 		}
 
 		public CashDocumentsFilter(IUnitOfWork uow) : this()
