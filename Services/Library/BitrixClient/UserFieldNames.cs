@@ -28,13 +28,13 @@
 		public const string DealPaymentMethod = "UF_CRM_5DA85CF9B48E1";
 		public const string DealCity = "UF_CRM_1596187445";
 		public const string DealRoomType = "UF_CRM_5DA85CFA35DAD";
-		public const string DealEntrance = "UF_CRM_5DA85CFA297D5";
-		public const string DealFloor = "UF_CRM_1575544790252";
+		public const string DealEntrance = "UF_CRM_1631791980053";
+		public const string DealFloor = "UF_CRM_1631791992821";
 		public const string DealEntranceType = "UF_CRM_5DA85CFA0C838";
 		public const string DealDeliverySchedule = "UF_CRM_5DA9BBA03A12A";
 		public const string DealBottlesToReturn = "UF_CRM_1613635090586";
 		public const string DealTrifle = "UF_CRM_5DADB4A27E1EC";
-		public const string DealOrderNumber = "UF_CRM_1596873234121";
+		public const string DealOrderNumber = "UF_CRM_1573027062819";
 
 		#endregion
 
