@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -9,7 +9,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
-using Vodovoz.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -54,7 +53,7 @@ namespace Vodovoz.JournalViewModels
 			SetOrder(x => x.Name);
 			UpdateOnChanges(
 				typeof(Nomenclature),
-				typeof(MeasurementUnit),
+				typeof(MeasurementUnits),
 				typeof(WarehouseMovementOperation),
 				typeof(VodovozOrder),
 				typeof(OrderItem)
@@ -64,20 +63,16 @@ namespace Vodovoz.JournalViewModels
 		[Obsolete("Лучше передавать через фильтр")]
 		public int[] ExcludingNomenclatureIds { get; set; }
 
+		public bool CalculateQtyOnStock { get; set; } = false;
+
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
 		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
-			var canAddSpares = commonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", currentUserId);
-			var canAddBottles = commonServices.PermissionService.ValidateUserPresetPermission("can_add_bottles_to_order", currentUserId);
-			var canAddMaterials = commonServices.PermissionService.ValidateUserPresetPermission("can_add_materials_to_order", currentUserId);
-			var canAddEquipmentNotForSale = commonServices.PermissionService.ValidateUserPresetPermission("can_add_equipment_not_for_sale_to_order", currentUserId);
-
 			Nomenclature nomenclatureAlias = null;
-			MeasurementUnit unitAlias = null;
+			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
-			Nomenclature loadedWarehouseAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 
@@ -135,7 +130,7 @@ namespace Vodovoz.JournalViewModels
 				foreach(var expr in AdditionalJournalRestriction.ExternalRestrictions)
 					itemsQuery.Where(expr);
 
-			if(AdditionalJournalRestriction is NomenclaturesForOrderJournalRestriction restr && restr.CalculateQtyOnStock) {
+			if(CalculateQtyOnStock) {
 				itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 					.Where(() => !nomenclatureAlias.IsSerial)
 					.SelectList(list => list

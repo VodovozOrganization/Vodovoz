@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RdlGtkViewer", "..\My-FyiRe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMap.NET.GtkSharp", "..\GMap.NET\GMap.NET.GtkSharp\GMap.NET.GtkSharp.csproj", "{E06DEF77-F933-42FB-AFD8-DB2D0D8D6A98}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GMap.NET.Core", "..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj", "{D0C39D9D-BED0-418B-9A5E-713176CAF40C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMap.NET.Core", "..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj", "{D0C39D9D-BED0-418B-9A5E-713176CAF40C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSOrmProject", "..\QSProjects\QSOrmProject\QSOrmProject.csproj", "{00D32969-612C-417E-9565-BEC6A7719F80}"
 EndProject
@@ -172,13 +172,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{7CDD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Binding", "..\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj", "{190CEA0D-EA23-4C91-8030-203A5AFED7B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamma.Utilities", "..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj", "{1BF2A638-420D-456C-96A7-36873A0FB894}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Utilities", "..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj", "{1BF2A638-420D-456C-96A7-36873A0FB894}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Utilities.Gtk", "..\QSProjects\Binding\Gamma.Utilities.Gtk\Gamma.Utilities.Gtk.csproj", "{5735D438-792E-40CE-BAFD-25814C8879BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Report.Gtk", "..\QSProjects\QS.Report.Gtk\QS.Report.Gtk.csproj", "{42708CEE-08D8-43D5-AFE0-9992EB46E9F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Attachments", "..\QSProjects\QS.Attachments\QS.Attachments.csproj", "{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitrixClient", "Services\Library\BitrixClient\BitrixClient.csproj", "{7E826237-17D5-44DB-801C-F8AD887C570E}"
 EndProject
@@ -1058,6 +1060,18 @@ Global
 		{6F5EBEB7-FE77-46FE-9735-8C19814C0955}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F5EBEB7-FE77-46FE-9735-8C19814C0955}.Release|x86.ActiveCfg = Release|Any CPU
 		{6F5EBEB7-FE77-46FE-9735-8C19814C0955}.Release|x86.Build.0 = Release|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Debug|x86.Build.0 = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Release|x86.ActiveCfg = Release|Any CPU
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1147,6 +1161,7 @@ Global
 		{7E826237-17D5-44DB-801C-F8AD887C570E} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{7F55D466-CE81-4A81-AAC1-D7D58544F7AF} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{6F5EBEB7-FE77-46FE-9735-8C19814C0955} = {4A6A594C-FD34-4348-AF00-2E83CC5B0A1F}
+		{0BF087B7-B2C5-46BE-9941-BB0AD8AAE7D3} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

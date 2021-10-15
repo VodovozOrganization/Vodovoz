@@ -58,8 +58,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{
 					{ "first_date", dateperiodpicker.StartDate },
 					{ "second_date", dateperiodpicker.EndDate },
-					{"title_date",titleDate},
-					{"geoparts",geoparts}
+					{ "title_date", titleDate },
+					{ "geoparts", geoparts }
 				}
 			};
 		}

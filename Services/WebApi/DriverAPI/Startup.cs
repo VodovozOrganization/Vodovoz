@@ -22,6 +22,7 @@ using QS.Project.DB;
 using System;
 using System.Linq;
 using System.Text;
+using QS.Attachments.Domain;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
@@ -199,6 +200,7 @@ namespace DriverAPI
 					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
+					System.Reflection.Assembly.GetAssembly(typeof(Attachment))
 				}
 			);
 
