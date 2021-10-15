@@ -3,8 +3,10 @@ using Bitrix.DTO;
 using NLog;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.BasicHandbooks;
@@ -33,6 +35,7 @@ namespace BitrixIntegration.Processors
 		private readonly IProductProcessor _productProcessor;
 		private readonly ICounterpartyProcessor _counterpartyProcessor;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly Employee _bitrixAccount;
 
 		public DealProcessor(
 			IUnitOfWorkFactory uowFactory,
@@ -61,6 +64,9 @@ namespace BitrixIntegration.Processors
 			_dealRegistrator = dealRegistrator ?? throw new ArgumentNullException(nameof(dealRegistrator));
 			_counterpartyProcessor = counterpartyProcessor ?? throw new ArgumentNullException(nameof(counterpartyProcessor));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+
+			using var uow = _uowFactory.CreateWithoutRoot("Получение сотрудника для создания заказов из сделок");
+			_bitrixAccount = uow.GetById<Employee>(_bitrixServiceSettings.EmployeeForOrderCreate);
 		}
 
 		public void ProcessDeals(DateTime date)
@@ -94,28 +100,51 @@ namespace BitrixIntegration.Processors
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var order = FindExistingOrder(uow, deal.Id);
+				var order = _orderRepository.GetOrderByBitrixId(uow, deal.Id);
 				if(order != null)
 				{
 					_logger.Info($"Обработка сделки пропущена. Для сделки №{deal.Id} уже есть существующий заказ №{order.Id}.");
 					return order;
 				}
 
+				order = _orderRepository.GetOrderByOnlineOrderId(uow, deal.OrderNumber ?? -1);
+				if(order != null)
+				{
+					_logger.Info(
+						$"Обработка сделки пропущена. Для заказа с сайта №{deal.OrderNumber} уже есть существующий заказ №{order.Id}.");
+					return order;
+				}
+
 				_logger.Info("Обработка контрагента");
-				Counterparty counterparty = _counterpartyProcessor.ProcessCounterparty(uow, deal);
-				//для возможности создать контракт в заказе
+				var counterparty = _counterpartyProcessor.ProcessCounterparty(uow, deal);
+				//для возможности создать контракт в заказе если создан новый клиент
 				uow.Save(counterparty);
 
+				DeliveryPoint deliveryPoint = null;
+				if(!deal.IsSelfDelivery)
+				{
+					_logger.Info("Обработка точки доставки");
+					deliveryPoint = _deliveryPointProcessor.ProcessDeliveryPoint(uow, deal, counterparty);
+					uow.Save(deliveryPoint);
+				}
+
 				_logger.Info("Сборка заказа");
-				order = CreateOrder(uow, deal, counterparty);
+
+				order = CreateOrder(uow, deal, counterparty, deliveryPoint);
 
 				_logger.Info("Обработка номенклатур");
 				_productProcessor.ProcessProducts(uow, deal, order);
+
+				FindExistingOrder(uow, order);
 
 				foreach(var orderItem in order.OrderItems)
 				{
 					uow.Save(orderItem.Nomenclature);
 				}
+
+				order.UpdateOrCreateContract(uow, _counterpartyContractRepository, _counterpartyContractFactory);
+				order.CalculateDeliveryPrice();
+				order.AcceptOrder(_bitrixAccount, _callTaskWorker);
 
 				uow.Save(order);
 				uow.Commit();
@@ -123,26 +152,35 @@ namespace BitrixIntegration.Processors
 			}
 		}
 
-		private Order FindExistingOrder(IUnitOfWork uow, uint dealId)
+		private void FindExistingOrder(IUnitOfWork uow, Order order)
 		{
-			var order = _orderRepository.GetOrderByBitrixId(uow, dealId);
-			if(order == null)
+			if(order.SelfDelivery)
 			{
-				//Тут необходимо реализовать поиск заказа по контрагенту и точке доставке на день доставки
+				return;
 			}
 
-			return order;
+			var duplicate = _orderRepository
+					.GetSameOrderForDateAndDeliveryPoint(_uowFactory, order.DeliveryDate.Value.Date, order.DeliveryPoint)
+					.Where(o => o.Id != order.Id
+					            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+					            && o.OrderAddressType != OrderAddressType.Service)
+					.FirstOrDefault();
+
+			var hasMaster = order.OrderItems.Any(oi => oi.Nomenclature.Category == NomenclatureCategory.master);
+
+			if(!hasMaster && duplicate != null)
+			{
+				throw new InvalidOperationException(
+					$"Обработка сделки пропущена. Для данной точки и даты доставки уже создан заказ {duplicate.Id}");
+			}
 		}
 
-		private Order CreateOrder(IUnitOfWork uow, Deal deal, Counterparty counterparty)
+		private Order CreateOrder(IUnitOfWork uow, Deal deal, Counterparty counterparty, DeliveryPoint deliveryPoint)
 		{
-			DeliveryPoint deliveryPoint = null;
 			DeliverySchedule deliverySchedule = null;
 
 			if(!deal.IsSelfDelivery)
 			{
-				_logger.Info("Обработка точек доставки");
-				deliveryPoint = _deliveryPointProcessor.ProcessDeliveryPoint(uow, deal, counterparty);
 				deliverySchedule = _deliveryScheduleRepository.GetByBitrixId(uow, deal.DeliverySchedule);
 				if(deliverySchedule == null)
 				{
@@ -150,7 +188,6 @@ namespace BitrixIntegration.Processors
 				}
 			}
 
-			var bitrixAccount = uow.GetById<Employee>(_bitrixServiceSettings.EmployeeForOrderCreate);
 			var order = new Order()
 			{
 				UoW = uow,
@@ -161,8 +198,8 @@ namespace BitrixIntegration.Processors
 				Client = counterparty,
 				DeliveryPoint = deliveryPoint,
 				OrderStatus = OrderStatus.NewOrder,
-				Author = bitrixAccount,
-				LastEditor = bitrixAccount,
+				Author = _bitrixAccount,
+				LastEditor = _bitrixAccount,
 				LastEditedTime = DateTime.Now,
 				PaymentBySms = deal.IsSmsPayment,
 				OrderPaymentStatus = deal.GetOrderPaymentStatus(),
@@ -178,10 +215,6 @@ namespace BitrixIntegration.Processors
 			{
 				order.PaymentByCardFrom = uow.GetById<PaymentFrom>(7);
 			}
-
-			order.UpdateOrCreateContract(uow, _counterpartyContractRepository, _counterpartyContractFactory);
-			order.CalculateDeliveryPrice();
-			order.AcceptOrder(bitrixAccount, _callTaskWorker);
 
 			return order;
 		}

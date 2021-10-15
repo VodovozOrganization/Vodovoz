@@ -19,7 +19,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
-using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -757,7 +756,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(() => bdrAlias.Id == bitrixId)
 				.SingleOrDefault();
 		}
-		
+
+		public VodovozOrder GetOrderByOnlineOrderId(IUnitOfWork uow, int onlineOrderId)
+		{
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.OnlineOrder == onlineOrderId)
+				.SingleOrDefault();
+		}
+
 		public bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
