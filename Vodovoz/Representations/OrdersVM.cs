@@ -126,7 +126,7 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictOnlyService != null) 
 			{
-				if(Filter.RestrictHideService.Value)
+				if(Filter.RestrictOnlyService.Value)
 				{
 					query.Where(o => o.OrderAddressType == OrderAddressType.Service);
 				}

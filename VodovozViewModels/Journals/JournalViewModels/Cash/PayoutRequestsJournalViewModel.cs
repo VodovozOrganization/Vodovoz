@@ -204,7 +204,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					//функция идентификации документа
 					node => node.EntityType == typeof(CashRequest),
 					"Заявка на выдачу наличных Д/С",
-					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false }
 				);
 
 			//завершение конфигурации
