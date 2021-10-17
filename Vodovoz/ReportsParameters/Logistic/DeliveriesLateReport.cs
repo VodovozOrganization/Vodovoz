@@ -22,19 +22,13 @@ namespace Vodovoz.Reports.Logistic
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по опозданиям";
-			}
-		}
+		public string Title => "Отчет по опозданиям";
 
 		#endregion
 
-		void OnUpdate (bool hide = false)
+		private void OnUpdate (bool hide = false)
 		{
-			if (LoadReport != null) {
-				LoadReport (this, new LoadReportEventArgs (GetReportInfo (), hide));
-			}
+			LoadReport?.Invoke (this, new LoadReportEventArgs (GetReportInfo (), hide));
 		}
 
 		private ReportInfo GetReportInfo ()
@@ -47,7 +41,8 @@ namespace Vodovoz.Reports.Logistic
 					{ "end_date", dateperiodpicker.EndDate.AddHours(3) },
 					{ "is_driver_sort", ychkDriverSort.Active },
 					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Id ?? 0 },
-					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Name ?? "Все" }
+					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Name ?? "Все" },
+					{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active }
 				}
 			};
 		}

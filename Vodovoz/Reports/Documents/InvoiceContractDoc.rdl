@@ -1053,8 +1053,7 @@ WHERE stored_resource.id = @id21</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2367,6 +2366,74 @@ WHERE stored_resource.id = @id21</CommandText>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style>
+          <BorderStyle>
+            <Default>Dashed</Default>
+            <Left>Dashed</Left>
+            <Right>Dashed</Right>
+            <Top>Dashed</Top>
+            <Bottom>Dashed</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+            <Left>3pt</Left>
+            <Right>3pt</Right>
+            <Top>3pt</Top>
+            <Bottom>3pt</Bottom>
+          </BorderWidth>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>147.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>35.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>=Iif(First({order_payment_type},"Order")="ContractDoc"
+,
+"ОПЛАЧЕНО"
+,
+" "
+)</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Double</Default>
+                          <Top>Double</Top>
+                          <Left>Double</Left>
+                          <Right>Double</Right>
+                          <Bottom>Double</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>3pt</Default>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight >Bold</FontWeight>
+                        <FontSize >14pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>274.6pt</Left>
+        <Top>67.7pt</Top>
+      </fyi:Grid>
     </ReportItems>
   </Body>
   <PageFooter>

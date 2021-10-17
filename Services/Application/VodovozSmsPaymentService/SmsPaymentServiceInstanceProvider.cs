@@ -3,6 +3,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using SmsPaymentService;
+using SmsPaymentService.PaymentControllers;
 using Vodovoz.Services;
 
 namespace VodovozSmsPaymentService
@@ -15,6 +16,7 @@ namespace VodovozSmsPaymentService
 		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly SmsPaymentFileCache _smsPaymentFileProdiver;
 		private readonly ISmsPaymentDTOFactory _smsPaymentDTOFactory;
+		private readonly ISmsPaymentValidator _smsPaymentValidator;
 
 		public SmsPaymentServiceInstanceProvider(
 			IPaymentController paymentController,
@@ -22,7 +24,8 @@ namespace VodovozSmsPaymentService
 			ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
 			IOrderParametersProvider orderParametersProvider,
 			SmsPaymentFileCache smsPaymentFileProdiver,
-			ISmsPaymentDTOFactory smsPaymentDTOFactory
+			ISmsPaymentDTOFactory smsPaymentDTOFactory,
+			ISmsPaymentValidator smsPaymentValidator
 		)
 		{
 			_paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
@@ -32,6 +35,7 @@ namespace VodovozSmsPaymentService
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_smsPaymentFileProdiver = smsPaymentFileProdiver ?? throw new ArgumentNullException(nameof(smsPaymentFileProdiver));
 			_smsPaymentDTOFactory = smsPaymentDTOFactory ?? throw new ArgumentNullException(nameof(smsPaymentDTOFactory));
+			_smsPaymentValidator = smsPaymentValidator ?? throw new ArgumentNullException(nameof(smsPaymentValidator));
 		}
 
 		#region IInstanceProvider implementation
@@ -39,7 +43,7 @@ namespace VodovozSmsPaymentService
 		public object GetInstance(InstanceContext instanceContext)
 		{
 			return new SmsPaymentService.SmsPaymentService(_paymentController, _driverPaymentService, _smsPaymentStatusNotificationReciever,
-				_orderParametersProvider, _smsPaymentFileProdiver, _smsPaymentDTOFactory);
+				_orderParametersProvider, _smsPaymentFileProdiver, _smsPaymentDTOFactory, _smsPaymentValidator);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)
