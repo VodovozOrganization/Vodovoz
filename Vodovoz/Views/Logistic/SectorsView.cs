@@ -53,7 +53,7 @@ namespace Vodovoz.Views.Logistic
 
 			treeViewMainDistricts.ColumnsConfig = FluentColumnsConfig<SectorNodeViewModel>
 				.Create()
-				.AddColumn("Код").AddTextRenderer(x=>x.Id.ToString())
+				.AddColumn("Код").AddTextRenderer(x=>x.Sector.Id.ToString())
 				.AddColumn("Название").AddTextRenderer(x=>x.Name).Editable()
 				.AddColumn("Дата создания").AddTextRenderer(x=>x.CreateDate.ToShortDateString())
 				.Finish();

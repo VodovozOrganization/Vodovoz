@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Sectors
 	public class Sector : BusinessObjectBase<Sector>, IDomainObject
 	{
 		#region Свойства
-		public virtual string Title => GetActiveSectorVersionOnDate().SectorName;
+		public virtual string Title => GetActiveSectorVersionOnDate()?.SectorName;
 
 		public virtual int Id { get; set; }
 

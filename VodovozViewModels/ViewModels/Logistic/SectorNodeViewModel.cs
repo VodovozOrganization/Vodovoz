@@ -7,26 +7,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class SectorNodeViewModel : PropertyChangedBase
 	{
 
-		public SectorNodeViewModel(int id, DateTime createDate, string name = null)
+		public SectorNodeViewModel(Sector sector, DateTime createDate, string name = null)
 		{
-			Id = id;
+			Sector = sector;
 			Name = name ?? "";
 			CreateDate = createDate;
 		}
 
 		public SectorNodeViewModel(Sector sector, string name = null)
 		{
-			Id = sector.Id;
+			Sector = sector;
 			Name = name ?? "";
 			CreateDate = sector.DateCreated;
 		}
 		
-		private int _id;
+		private Sector _sector;
 
-		public int Id
+		public Sector Sector
 		{
-			get => _id;
-			set => SetField(ref _id, value);
+			get => _sector;
+			set => SetField(ref _sector, value);
 		}
 
 		private string _name;
