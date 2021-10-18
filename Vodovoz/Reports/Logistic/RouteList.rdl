@@ -2051,7 +2051,7 @@ LIMIT 1
     IF(orders.payment_type in ('cash', 'BeveragesWorld'), orders.sum_to_receive, 0) AS Total,
     IF(orders.payment_type = 'Terminal',
         (
-            SELECT SUM(IFNULL(actual_count, count) * price - discount_money)
+            SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
             FROM order_items
             WHERE order_id = orders.id), 
         0) as terminals_sum,
