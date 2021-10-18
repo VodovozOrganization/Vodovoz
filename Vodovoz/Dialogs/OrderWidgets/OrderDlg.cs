@@ -718,39 +718,6 @@ namespace Vodovoz
 			}
 		}
 
-		private void TryAddFlyers()
-		{
-			if(Entity.SelfDelivery
-			   || Entity.OrderStatus != OrderStatus.NewOrder
-			   || Entity.DeliveryPoint.District == null)
-			{
-				return;
-			}
-
-			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
-			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW);
-
-			if(activeFlyers.Any())
-			{
-				_addedFlyersNomenclaturesIds = new List<int>();
-				
-				foreach(var flyer in activeFlyers)
-				{
-					if(!_orderRepository.CanAddFlyerToOrder(
-						UoW,
-						new RouteListParametersProvider(_parametersProvider),
-						flyer.FlyerNomenclature.Id,
-						geographicGroupId))
-					{
-						continue;
-					}
-
-					Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
-					_addedFlyersNomenclaturesIds.Add(flyer.FlyerNomenclature.Id);
-				}
-			}
-		}
-
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
 		{
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<DeliveryPoint>();
@@ -2049,11 +2016,12 @@ namespace Vodovoz
 
 			if(Entity.DeliveryPoint != null)
 			{
-				TryAddFlyers();
+				var routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
+				_addedFlyersNomenclaturesIds = Entity.TryAddFlyers(UoW, routeListParametersProvider);
 			}
 			else
 			{
-				if(_addedFlyersNomenclaturesIds != null &&_addedFlyersNomenclaturesIds.Any())
+				if(_addedFlyersNomenclaturesIds != null && _addedFlyersNomenclaturesIds.Any())
 				{
 					foreach(var flyerNomenclatureId in _addedFlyersNomenclaturesIds)
 					{

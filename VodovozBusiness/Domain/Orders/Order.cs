@@ -1754,7 +1754,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(oi);
 		}
 
-		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
+		private void AddFlyerNomenclature(Nomenclature flyerNomenclature)
 		{
 			if (ObservableOrderEquipments.Any(x => x.Nomenclature.Id == flyerNomenclature.Id)) {
 				return;
@@ -1773,7 +1773,38 @@ namespace Vodovoz.Domain.Orders
 				}
 			);
 			UpdateDocuments();
-		} 
+		}
+
+		public virtual IList<int> TryAddFlyers(IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider)
+		{
+			if(SelfDelivery
+			   || OrderStatus != OrderStatus.NewOrder
+			   || DeliveryPoint.District == null)
+			{
+				return null;
+			}
+
+			var geographicGroupId = DeliveryPoint.District.GeographicGroup.Id;
+			var activeFlyers = _flyerRepository.GetAllActiveFlyers(uow);
+
+			if(activeFlyers.Any())
+			{
+				var addedFlyersNomenclaturesIds = new List<int>();
+
+				foreach(var flyer in activeFlyers)
+				{
+					if(_orderRepository.CanAddFlyerToOrder(uow, routeListParametersProvider, flyer.FlyerNomenclature.Id, geographicGroupId))
+					{
+						AddFlyerNomenclature(flyer.FlyerNomenclature);
+						addedFlyersNomenclaturesIds.Add(flyer.FlyerNomenclature.Id);
+					}
+				}
+
+				return addedFlyersNomenclaturesIds;
+			}
+
+			return null;
+		}
 
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{

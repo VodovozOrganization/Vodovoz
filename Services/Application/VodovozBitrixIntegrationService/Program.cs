@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Common;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
@@ -226,6 +227,9 @@ namespace VodovozBitrixIntegrationService
 					taskCreationInteractive: null
 				);
 
+				var flyerRepository = new FlyerRepository();
+				var routeListParametersProvider = new RouteListParametersProvider(parametersProvider);
+
 				var dealProcessor = new DealProcessor(
 					uowFactory,
 					bitrixClient,
@@ -238,7 +242,9 @@ namespace VodovozBitrixIntegrationService
 					deliveryPointProcessor,
 					productProcessor,
 					counterpartyProcessor,
-					callTaskWorker
+					callTaskWorker,
+					flyerRepository,
+					routeListParametersProvider
 				);
 
 				var dealSynchronizer = new DealSynchronizer(bitrixRepository, uowFactory, bitrixClient);

@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Services;
@@ -35,6 +36,9 @@ namespace BitrixIntegration.Processors
 		private readonly IProductProcessor _productProcessor;
 		private readonly ICounterpartyProcessor _counterpartyProcessor;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IFlyerRepository _flyerRepository;
+		private readonly IRouteListParametersProvider _routeListParametersProvider;
+
 		private readonly Employee _bitrixAccount;
 
 		public DealProcessor(
@@ -49,8 +53,10 @@ namespace BitrixIntegration.Processors
 			IDeliveryPointProcessor deliveryPointProcessor,
 			IProductProcessor productProcessor,
 			ICounterpartyProcessor counterpartyProcessor,
-			ICallTaskWorker callTaskWorker
-			)
+			ICallTaskWorker callTaskWorker,
+			IFlyerRepository flyerRepository,
+			IRouteListParametersProvider routeListParametersProvider
+		)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_bitrixClient = bitrixClient ?? throw new ArgumentNullException(nameof(bitrixClient));
@@ -59,11 +65,16 @@ namespace BitrixIntegration.Processors
 			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
 			_deliveryPointProcessor = deliveryPointProcessor ?? throw new ArgumentNullException(nameof(deliveryPointProcessor));
 			_productProcessor = productProcessor ?? throw new ArgumentNullException(nameof(productProcessor));
-			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
-			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
+			_counterpartyContractRepository =
+				counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			_counterpartyContractFactory =
+				counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_dealRegistrator = dealRegistrator ?? throw new ArgumentNullException(nameof(dealRegistrator));
 			_counterpartyProcessor = counterpartyProcessor ?? throw new ArgumentNullException(nameof(counterpartyProcessor));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
+			_routeListParametersProvider =
+				routeListParametersProvider ?? throw new ArgumentNullException(nameof(routeListParametersProvider));
 
 			using var uow = _uowFactory.CreateWithoutRoot("Получение сотрудника для создания заказов из сделок");
 			_bitrixAccount = uow.GetById<Employee>(_bitrixServiceSettings.EmployeeForOrderCreate);
@@ -215,6 +226,8 @@ namespace BitrixIntegration.Processors
 			{
 				order.PaymentByCardFrom = uow.GetById<PaymentFrom>(7);
 			}
+
+			order.TryAddFlyers(uow, _routeListParametersProvider);
 
 			return order;
 		}
