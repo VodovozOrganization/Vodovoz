@@ -390,7 +390,9 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(OnClientChanged);
+
 			ConfigureTrees();
+			ConfigureAcceptButtons();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
 
@@ -971,6 +973,12 @@ namespace Vodovoz
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
 		}
 
+		private void ConfigureAcceptButtons()
+		{
+			buttonAcceptOrderWithClose.Clicked += OnButtonAcceptOrderWithCloseClicked;
+			buttonAcceptAndReturnToOrder.Clicked += OnButtonAcceptAndReturnToOrderClicked;
+		}
+
 		MenuItem menuItemCloseOrder = null;
 		MenuItem menuItemSelfDeliveryToLoading = null;
 		MenuItem menuItemSelfDeliveryPaid = null;
@@ -1144,10 +1152,10 @@ namespace Vodovoz
 			Entity.SaveOrderComment();
 		}
 
-		protected void OnButtonAcceptClicked(object sender, EventArgs e)
+		/*private void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			AcceptOrder();
-		}
+		}*/
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
@@ -1202,7 +1210,19 @@ namespace Vodovoz
 			Save();
 			ProcessSmsNotification();
 			UpdateUIState();
+			//SaveAndClose();
+		}
+
+		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
+		{
+			AcceptOrder();
 			SaveAndClose();
+		}
+
+		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e)
+		{
+			AcceptOrder();
+			ReturnToEditTab();
 		}
 
 		private void ProcessSmsNotification()
@@ -3009,6 +3029,11 @@ namespace Vodovoz
 		}
 
 		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)
+		{
+			ReturnToEditTab();
+		}
+
+		private void ReturnToEditTab()
 		{
 			ntbOrder.CurrentPage = 0;
 		}
