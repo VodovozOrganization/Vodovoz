@@ -2937,7 +2937,6 @@ namespace Vodovoz
 			w241.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonAcceptAndReturnToOrder = new global::Gtk.Button();
-			this.buttonAcceptAndReturnToOrder.WidthRequest = 150;
 			this.buttonAcceptAndReturnToOrder.HeightRequest = 50;
 			this.buttonAcceptAndReturnToOrder.CanFocus = true;
 			this.buttonAcceptAndReturnToOrder.Name = "buttonAcceptAndReturnToOrder";
