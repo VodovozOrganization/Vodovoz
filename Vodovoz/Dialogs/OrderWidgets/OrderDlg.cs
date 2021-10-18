@@ -1152,11 +1152,6 @@ namespace Vodovoz
 			Entity.SaveOrderComment();
 		}
 
-		/*private void OnButtonAcceptClicked(object sender, EventArgs e)
-		{
-			AcceptOrder();
-		}*/
-
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			isEditOrderClicked = true;
@@ -1210,7 +1205,6 @@ namespace Vodovoz
 			Save();
 			ProcessSmsNotification();
 			UpdateUIState();
-			//SaveAndClose();
 		}
 
 		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
