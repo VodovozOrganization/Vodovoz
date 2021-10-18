@@ -58,13 +58,13 @@
             <Width>239.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.1pt</Width>
+            <Width>39.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.8pt</Width>
+            <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>71.9pt</Width>
@@ -91,7 +91,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -109,7 +109,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -161,6 +161,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -309,9 +310,9 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -352,7 +353,7 @@
                         <TextAlign>Right</TextAlign>
                         <FontSize>8pt</FontSize>
                         <Format>#,##0.00</Format>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -522,10 +523,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
-                        <PaddingRight >2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <Value>=Sum(Iif(
     {actual_sum} &gt; 0,
