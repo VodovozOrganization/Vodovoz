@@ -1426,7 +1426,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-            () => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport())
+            () => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(UnitOfWorkFactory.GetDefaultFactory))
         );
     }
 

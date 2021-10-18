@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>277mm</Width>
@@ -34,7 +32,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>45.2pt</Height>
+    <Height>71.0pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>orders</DataSetName>
@@ -43,28 +41,30 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>35.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.6pt</Width>
+            <Width>35.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>152.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>221.4pt</Width>
+            <Width>239.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.1pt</Width>
+            <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.2pt</Width>
+            <Width>44.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>71.9pt</Width>
@@ -91,6 +91,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -108,6 +109,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -307,6 +309,9 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -344,9 +349,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontSize>8pt</FontSize>
                         <Format>#,##0.00</Format>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -390,8 +396,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -409,6 +414,185 @@
         </Details>
         <Left>0.0pt</Left>
         <Top>1.3pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <PaddingRight>2pt</PaddingRight>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign >Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
+                        <PaddingRight >2pt</PaddingRight>
+                      </Style>
+                      <Value>=Sum(Iif(
+    {actual_sum} &gt; 0,
+    {actual_sum},
+    {sum}
+))</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -436,38 +620,41 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	orders.id AS order_id,
-	orders.delivery_date,
-	counterparty.full_name AS client,
-	IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS address,
-	orders.online_order,
-	IF(SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2))&gt;0, SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2)), 0) AS actual_sum,
-	IF(SUM(ROUND(count * price - discount_money, 2))&gt;0, SUM(ROUND(count * price - discount_money, 2)), 0) AS sum,
-	CASE
-		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
-		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
-		WHEN orders.order_status = 'Accepted' THEN 'Принят'
-		WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
-		WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'	
-		WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
-		WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
-		WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
-		WHEN orders.order_status = 'Closed' THEN 'Закрыт'
-		WHEN orders.order_status = 'Canceled' THEN 'Отменён'
-		WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
-		WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'		
-		ELSE ''
-	END AS status,
-	CONCAT(employees.last_name, ' ', LEFT(employees.name,1), '.', LEFT(employees.patronymic,1), '.') AS author
+    orders.id AS order_id,
+    orders.delivery_date,
+    counterparty.full_name AS client,
+    IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS address,
+    orders.online_order,
+    IF(SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2))&gt;0, SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2)), 0) AS actual_sum,
+    IF(SUM(ROUND(count * price - discount_money, 2))&gt;0, SUM(ROUND(count * price - discount_money, 2)), 0) AS sum,
+    CASE
+        WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+        WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+        WHEN orders.order_status = 'Accepted' THEN 'Принят'
+        WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+        WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
+        WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+        WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+        WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+        WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+        WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+        WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+        WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+        ELSE ''
+        END AS status,
+    CONCAT(employees.last_name, ' ', LEFT(employees.name,1), '.', LEFT(employees.patronymic,1), '.') AS author
 FROM orders
-LEFT JOIN counterparty ON counterparty.id = orders.client_id
-LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN employees ON employees.id = orders.author_employee_id
-LEFT JOIN order_items ON order_items.order_id = orders.id
+    LEFT JOIN counterparty ON counterparty.id = orders.client_id
+    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+    LEFT JOIN districts ON delivery_points.district_id = districts.id
+    LEFT JOIN employees ON employees.id = orders.author_employee_id
+    LEFT JOIN order_items ON order_items.order_id = orders.id
 WHERE
-	orders.payment_type = 'ByCard'
-	AND orders.delivery_date &gt;= @start_date
-	AND orders.delivery_date &lt;= @end_date
+    orders.payment_type = 'ByCard'
+    AND orders.delivery_date &gt;= @start_date
+    AND orders.delivery_date &lt;= @end_date
+    AND (@payment_from_id = '' OR orders.payment_from_id = @payment_from_id)
+    AND (@geo_group_id = '' OR districts.geographic_group_id = @geo_group_id)
 GROUP BY orders.id
 ;</CommandText>
         <QueryParameters>
@@ -476,6 +663,12 @@ GROUP BY orders.id
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_from_id">
+            <Value>={?payment_from_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="geo_group_id">
+            <Value>={?geo_group_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -525,8 +718,7 @@ GROUP BY orders.id
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -542,8 +734,7 @@ GROUP BY orders.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -555,8 +746,21 @@ GROUP BY orders.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_from_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="geo_group_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
