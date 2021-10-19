@@ -57,8 +57,7 @@
 				'',
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
 	orders.trifle AS trifle,
-    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
-    IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
+    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time
 FROM
 	orders
 		LEFT JOIN
@@ -179,10 +178,6 @@ WHERE
         </Field>
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="is_before_interval_delivery">
-          <DataField>is_before_interval_delivery</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2320,35 +2315,6 @@ WHERE stored_resource.id = @id21</CommandText>
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
-          <TextAlign>Left</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>148.11pt</Width>
-        <Value>Доставка раньше интервала:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>400.3pt</Left>
-        <Top>180.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>27.18pt</Width>
-        <Value>=Max({is_before_interval_delivery}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>548.9pt</Left>
-        <Top>180.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
           <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
