@@ -60,8 +60,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.LunchTimeFrom)           .Column("lunch_time_from").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.LunchTimeTo)             .Column("lunch_time_to").CustomType<TimeAsTimeSpanType>();
 
-			Map(x => x.IsBeforeIntervalDelivery)        .Column("is_before_interval_delivery");
-
 			References(x => x.Counterparty)				.Column("counterparty_id");
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");
 			References(x => x.СoordsLastChangeUser)		.Column("coords_lastchange_user_id");
