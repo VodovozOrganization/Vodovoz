@@ -783,8 +783,9 @@ FROM
 	               and h.field_name = 'PaymentBySms'
 	               and h.type in ('Added', 'Changed')
                    where sub_hce.entity_id = o.id
-                   and sub_hce.datetime < o.time_delivered
+                   and sub_hce.datetime &lt; o.time_delivered
                    order by h.id DESC
+                   limit 1
                ) as sms_new
         FROM
             history_changed_entities hce
@@ -897,8 +898,9 @@ FROM
                        and h.field_name = 'PaymentBySms'
                        and h.type in ('Added', 'Changed')
                    where sub_hce.entity_id = o.id
-                   and sub_hce.datetime < o.time_delivered
+                   and sub_hce.datetime &lt; o.time_delivered
                    order by h.id DESC
+                   limit 1
                ) as sms_new
         FROM
             history_changed_entities hce
