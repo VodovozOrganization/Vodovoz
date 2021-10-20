@@ -256,18 +256,6 @@ namespace Vodovoz
 			}
 		}
 
-        private bool GetAuthor(out Employee cashier)
-        {
-            cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-            if (cashier == null)
-            {
-                MessageDialogHelper.RunErrorDialog(
-                    "Ваш пользователь не привязан к действующему сотруднику.");
-                return false;
-            }
-            return true;
-        }
-
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{
 			var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
