@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
@@ -10,7 +11,7 @@ using Vodovoz.TempAdapters;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>
+	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>, ISingleUoWDialog
 	{
 		protected override void ConfigureWithUow()
 		{
@@ -33,7 +34,7 @@ namespace Vodovoz
 		}
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory; }
+			get => yentryExpense.Subject as ExpenseCategory;
 			set {
 				yentryExpense.Subject = value;
 				yentryExpense.Sensitive = false;
@@ -41,7 +42,7 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictAccountable {
-			get { return evmeAccountable.Subject as Employee; }
+			get => evmeAccountable.Subject as Employee;
 			set {
 				evmeAccountable.Subject = value;
 				evmeAccountable.Sensitive = false;
@@ -49,7 +50,7 @@ namespace Vodovoz
 		}
 
 		public DateTime? RestrictStartDate {
-			get { return yAdvancePeriod.StartDateOrNull; }
+			get => yAdvancePeriod.StartDateOrNull;
 			set {
 				yAdvancePeriod.StartDateOrNull = value;
 				yAdvancePeriod.Sensitive = false;
@@ -57,7 +58,7 @@ namespace Vodovoz
 		}
 
 		public DateTime? RestrictEndDate {
-			get { return yAdvancePeriod.EndDateOrNull; }
+			get => yAdvancePeriod.EndDateOrNull;
 			set {
 				yAdvancePeriod.EndDateOrNull = value;
 				yAdvancePeriod.Sensitive = false;
