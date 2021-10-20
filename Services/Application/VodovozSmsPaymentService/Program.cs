@@ -14,6 +14,8 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using SmsPaymentService;
+using SmsPaymentService.PaymentControllers;
+using SmsPaymentService.Workers;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 
@@ -93,13 +95,15 @@ namespace VodovozSmsPaymentService
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 										 .ConnectionString(QSMain.ConnectionString);
-				
+
 				OrmConfig.ConfigureOrm(dbConfig,
-					new[] {
-						System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
-						System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
+					new[]
+					{
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
 
 				QS.HistoryLog.HistoryMain.Enable();
@@ -111,16 +115,17 @@ namespace VodovozSmsPaymentService
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
 				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
-				
+
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
 
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
-					paymentSender, 
+					paymentSender,
 					driverPaymentService,
 					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(new ParametersProvider()),
 					smsPaymentFileCache,
-					new SmsPaymentDTOFactory(new OrderOrganizationProviderFactory().CreateOrderOrganizationProvider())
+					new SmsPaymentDTOFactory(new OrderOrganizationProviderFactory().CreateOrderOrganizationProvider()),
+					new SmsPaymentValidator(new OrganizationParametersProvider(new ParametersProvider()))
 				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);

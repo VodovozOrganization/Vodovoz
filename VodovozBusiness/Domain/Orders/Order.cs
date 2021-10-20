@@ -3689,6 +3689,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
 		{
 			SetFirstOrder();
+			if(Contract == null)
+			{
+				UpdateContract();
+			}
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();

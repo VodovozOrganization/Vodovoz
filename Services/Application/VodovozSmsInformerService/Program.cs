@@ -99,12 +99,14 @@ namespace VodovozSmsInformerService
 										 .ConnectionString(QSMain.ConnectionString);
 
 				OrmConfig.ConfigureOrm(db_config,
-					new System.Reflection.Assembly[] {
-					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
-					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
-				});
+					new System.Reflection.Assembly[]
+					{
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+					});
 
 				QS.HistoryLog.HistoryMain.Enable();
 

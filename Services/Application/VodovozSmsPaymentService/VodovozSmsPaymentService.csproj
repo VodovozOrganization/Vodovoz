@@ -67,6 +67,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
+      <Name>QS.Attachments</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Library\Android\Android.csproj">
       <Project>{AAEC7B35-D03F-4DF6-B5E3-07EAF28AC773}</Project>
       <Name>Android</Name>
