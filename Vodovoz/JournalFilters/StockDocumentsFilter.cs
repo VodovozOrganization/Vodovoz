@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject;
@@ -12,7 +13,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
-	public partial class StockDocumentsFilter : RepresentationFilterBase<StockDocumentsFilter>
+	public partial class StockDocumentsFilter : RepresentationFilterBase<StockDocumentsFilter>, ISingleUoWDialog
 	{
 		protected override void ConfigureWithUow()
 		{
@@ -58,48 +59,54 @@ namespace Vodovoz
 		}
 
 		public DocumentType? RestrictDocumentType {
-			get { return enumcomboDocumentType.SelectedItem as DocumentType?; }
-			set {
+			get => enumcomboDocumentType.SelectedItem as DocumentType?;
+			set
+			{
 				enumcomboDocumentType.SelectedItem = value;
 				enumcomboDocumentType.Sensitive = false;
 			}
 		}
 
 		public MovementDocumentStatus? RestrictMovementStatus {
-			get { return comboMovementStatus.SelectedItem as MovementDocumentStatus?; }
-			set {
+			get => comboMovementStatus.SelectedItem as MovementDocumentStatus?;
+			set
+			{
 				comboMovementStatus.SelectedItem = value;
 				comboMovementStatus.Sensitive = false;
 			}
 		}
 
 		public Warehouse RestrictWarehouse {
-			get { return evmeWarehouse.Subject as Warehouse; }
-			set {
+			get => evmeWarehouse.Subject as Warehouse;
+			set
+			{
 				evmeWarehouse.Subject = value;
 				evmeWarehouse.Sensitive = false;
 			}
 		}
 
 		public Employee RestrictDriver {
-			get { return evmeDriver.Subject as Employee; }
-			set {
+			get => evmeDriver.Subject as Employee;
+			set
+			{
 				evmeDriver.Subject = value;
 				evmeDriver.Sensitive = false;
 			}
 		}
 
 		public DateTime? RestrictStartDate {
-			get { return dateperiodDocs.StartDateOrNull; }
-			set {
+			get => dateperiodDocs.StartDateOrNull;
+			set
+			{
 				dateperiodDocs.StartDateOrNull = value;
 				dateperiodDocs.Sensitive = false;
 			}
 		}
 
 		public DateTime? RestrictEndDate {
-			get { return dateperiodDocs.EndDateOrNull; }
-			set {
+			get => dateperiodDocs.EndDateOrNull;
+			set
+			{
 				dateperiodDocs.EndDateOrNull = value;
 				dateperiodDocs.Sensitive = false;
 			}
