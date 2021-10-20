@@ -273,14 +273,14 @@ namespace Vodovoz
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
-			if (CurrentObjectChanged != null)
-				CurrentObjectChanged(this, new CurrentObjectChangedArgs(Counterparty));
-			evmeDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
-			FixNomenclatureAndEquipmentSensitivity ();
-			if (UoWGeneric.Root.DeliveryPoint != null &&
-			    UoWGeneric.Root.DeliveryPoint.Counterparty.Id != UoWGeneric.Root.Counterparty.Id) {
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
+			FixNomenclatureAndEquipmentSensitivity();
 
-				UoWGeneric.Root.DeliveryPoint = null;
+			evmeDeliveryPoint.Sensitive = Entity.Counterparty != null;
+			evmeDeliveryPoint.Subject = null;
+			if(Entity.Counterparty == null)
+			{
+				return;
 			}
 
 			_deliveryPointJournalFilterViewModel.Counterparty = Entity.Counterparty;
