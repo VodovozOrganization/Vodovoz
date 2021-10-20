@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Services;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -22,6 +23,9 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
+			new DeliveryPointJournalFilterViewModel();
 
 		public WriteoffDocumentDlg ()
 		{
@@ -77,9 +81,10 @@ namespace Vodovoz
 				writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
 			};
 
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.CanEditReference = false;
-			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
+			var dpFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
+			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+			evmeDeliveryPoint.CanEditReference = false;
+			evmeDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
@@ -94,10 +99,10 @@ namespace Vodovoz
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.ItemsEnum = typeof(WriteoffType);
-			referenceDeliveryPoint.Sensitive = evmeCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
+			evmeDeliveryPoint.Sensitive = evmeCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
 			comboType.EnumItemSelected += (object sender, Gamma.Widgets.ItemSelectedEventArgs e) => {
 				ySpecCmbWarehouses.Sensitive = WriteoffType.warehouse.Equals(comboType.SelectedItem);
-				referenceDeliveryPoint.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem) && UoWGeneric.Root.Client != null;
+				evmeDeliveryPoint.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem) && UoWGeneric.Root.Client != null;
 				evmeCounterparty.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem);
 			};
 			//FIXME Списание с контрагента не реализовано. Поэтому блокирует выбор типа списания.
@@ -122,7 +127,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				evmeCounterparty.Sensitive = false;
-				referenceDeliveryPoint.Sensitive = false;
+				evmeDeliveryPoint.Sensitive = false;
 				comboType.Sensitive = false;
 				evmeEmployee.Sensitive = false;
 				textComment.Sensitive = false;
@@ -159,11 +164,10 @@ namespace Vodovoz
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
-			referenceDeliveryPoint.Sensitive = evmeCounterparty.Subject != null;
-			if (evmeCounterparty.Subject != null) {
-				var points = ((Counterparty)evmeCounterparty.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
-				referenceDeliveryPoint.ItemsCriteria = UoW.Session.CreateCriteria<DeliveryPoint> ()
-					.Add (Restrictions.In ("Id", points));
+			evmeDeliveryPoint.Sensitive = evmeCounterparty.Subject != null;
+			if(evmeCounterparty.Subject != null)
+			{
+				_deliveryPointJournalFilterViewModel.Counterparty = evmeCounterparty.Subject as Counterparty;
 			}
 		}
 
