@@ -33,6 +33,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Fine> ();
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику. Невозможно создать штраф"
+				                                   + ", т.к. некого указать в качестве автора");
+				FailInitialize = true;
+				return;
+			}
 			ConfigureDlg ();
 		}
 
@@ -85,7 +93,7 @@ namespace Vodovoz
 		{
 		}
 
-		void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			enumFineType.ItemsEnum = typeof(FineTypes);
 			enumFineType.Binding.AddBinding(Entity, s => s.FineType, w => w.SelectedItem).InitializeFromSource();
@@ -119,13 +127,6 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-            Employee author;
-            if (!GetAuthor(out author)) return false;
-
-            if (Entity.Author == null)
-            {
-                Entity.Author = author;
-            }
 			var valid = new QS.Validation.QSValidator<Fine> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
