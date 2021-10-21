@@ -93,8 +93,7 @@ namespace Vodovoz.Configuration
                     System.Reflection.Assembly.GetAssembly(typeof(Bank)),
                     System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
                     System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Report.Domain.UserSelectedPrinter))
+                    System.Reflection.Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings))
 				},
                 cnf => {
                     cnf.DataBaseIntegration(
