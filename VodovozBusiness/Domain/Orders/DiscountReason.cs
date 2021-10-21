@@ -14,6 +14,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Id { get; set; }
 		private string _name;
 		private bool _isArchive;
+		private DiscountValueType _valueType;
+		private decimal _value;
 
 		[Display(Name = "Название")]
 		public virtual string Name 
@@ -26,6 +28,20 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsArchive {
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name = "Тип значения скидки")]
+		public virtual DiscountValueType ValueType
+		{
+			get => _valueType;
+			set => SetField(ref _valueType, value);
+		}
+
+		[Display(Name = "Тип значения скидки")]
+		public virtual decimal Value
+		{
+			get => _value;
+			set => SetField(ref _value, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -45,5 +61,11 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult($"Превышена длина названия ({Name.Length}/45)", new[] { nameof(Name) });
 			}
 		}
+	}
+
+	public enum DiscountValueType
+	{
+		Roubles,
+		Percents
 	}
 }
