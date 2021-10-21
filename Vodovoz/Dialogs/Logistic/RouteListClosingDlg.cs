@@ -70,6 +70,7 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
+		private readonly bool _isOpenFromCash;
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -137,8 +138,9 @@ namespace Vodovoz
 
 		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id) { }
 
-		public RouteListClosingDlg(int routeListId)
+		public RouteListClosingDlg(int routeListId, bool isOpenFromCash = false)
 		{
+			_isOpenFromCash = isOpenFromCash;
 			this.Build();
 
 			PerformanceHelper.StartMeasurement();
@@ -821,9 +823,11 @@ namespace Vodovoz
 
 			INewDriverAdvanceParametersProvider newDriverAdvanceParametersProvider = new NewDriverAdvanceParametersProvider(_parametersProvider);
 			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(newDriverAdvanceParametersProvider, _routeListRepository, Entity);
-			if(newDriverAdvanceModel.NeedNewDriverAdvance(UoW))
+			bool needNewDriverAdvance = _isOpenFromCash && newDriverAdvanceModel.NeedNewDriverAdvance(UoW);
+			bool hasDriverUnclosedRouteLists = newDriverAdvanceModel.UnclosedRouteLists(UoW).Any();
+			if(needNewDriverAdvance)
 			{
-				if(newDriverAdvanceModel.UnclosedRouteLists(UoW).Any()
+				if(hasDriverUnclosedRouteLists
 				   && !MessageDialogHelper.RunQuestionDialog(
 					   "У водителя есть незакрытые МЛ:\n"
 					   + newDriverAdvanceModel.UnclosedRouteListStrings(UoW) 
@@ -831,7 +835,8 @@ namespace Vodovoz
 				{
 					return;
 				}
-				else
+
+				if (!hasDriverUnclosedRouteLists)
 				{
 					var newDriverAdvanceSumParameter = newDriverAdvanceParametersProvider.NewDriverAdvanceSum;
 					var driverWage = Entity.GetDriversTotalWage();
@@ -884,7 +889,10 @@ namespace Vodovoz
 			
 			Entity.WasAcceptedByCashier = true;
 
-			ShowCashSummaryMessage();
+			if(needNewDriverAdvance && !hasDriverUnclosedRouteLists)
+			{
+				ShowCashSummaryMessage();
+			}
 
 			SaveAndClose();
 			
@@ -903,7 +911,7 @@ namespace Vodovoz
 			StringBuilder resultMessageBuilder = new StringBuilder();
 			resultMessageBuilder.AppendLine($"<span size=\"x-large\">Приходные ордера на сумму { income.ToString("N2") } руб.</span>");
 			resultMessageBuilder.AppendLine($"<span color=\"red\" size=\"x-large\">Расходные ордера на сумму { expenseWithoutEmployeeAdvance.ToString("N2") } руб.</span>");
-			resultMessageBuilder.AppendLine($"<span foreground=\"red\" size=\"x-large\">Авансы на сумму {expenseWithEmployeeAdvance.ToString("N2")} руб.</span>");
+			resultMessageBuilder.AppendLine($"<span foreground=\"red\" size=\"x-large\">Аванс на сумму {expenseWithEmployeeAdvance.ToString("N2")} руб.</span>");
 
 			MessageDialogHelper.RunInfoDialog(resultMessageBuilder.ToString());
 		}

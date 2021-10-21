@@ -58,6 +58,10 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
+    <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
+    <Compile Include="Domain\Cash\CashRequest\CashRequest.cs" />
+    <Compile Include="Domain\Cash\CashRequest\PayoutRequestBase.cs" />
     <Compile Include="Domain\Cash\MissingOrdersWithCashlessPaymentTypeException.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
@@ -77,7 +81,6 @@
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
     <Compile Include="Controllers\RouteListClosingDocumentsController.cs" />
     <Compile Include="Controllers\IRouteListClosingDocumentsController.cs" />
-    <Compile Include="Domain\Cash\CashRequest.cs" />
     <Compile Include="Domain\Cash\CashRequestSumItem.cs" />
     <Compile Include="Domain\Cash\AdvanceCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\ExpenseCashOrganisationDistributor.cs" />
@@ -100,6 +103,7 @@
     <Compile Include="Domain\Documents\IncomeCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\RouteListItemCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryCashDistributionDocument.cs" />
+    <Compile Include="Domain\Employees\CashSubdivisionSortingSettings.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
@@ -173,6 +177,7 @@
     <Compile Include="EntityRepositories\BasicHandbooks\ICullingCategoryRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\IDeliveryScheduleRepository.cs" />
     <Compile Include="EntityRepositories\Cash\AccountableDebtsRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\BalanceNode.cs" />
     <Compile Include="EntityRepositories\Cash\CategoryRepository.cs" />
     <Compile Include="EntityRepositories\Cash\IAccountableDebtsRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICategoryRepository.cs" />
@@ -253,6 +258,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="HibernateMapping\Cash\CashlessRequestFileMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
     <Compile Include="EntityRepositories\Cash\Requests\CashRequestRepository.cs" />
@@ -262,7 +268,7 @@
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
-    <Compile Include="HibernateMapping\Cash\CashRequestMap.cs" />
+    <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
     <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
@@ -279,6 +285,7 @@
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentBaseMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminal\DriverAttachedTerminalDocumentsMap.cs" />
+    <Compile Include="HibernateMapping\Employees\CashSubdivisionSortingSettingsMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
@@ -333,7 +340,9 @@
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
+    <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
+    <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
@@ -1183,6 +1192,7 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
+    <PackageReference Include="morelinq" Version="2.9.0" />
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />

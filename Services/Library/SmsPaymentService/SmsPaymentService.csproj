@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitrixPaymentController.cs" />
     <Compile Include="DriverAPIHelper.cs" />
     <Compile Include="DTO\PaymentResult.cs" />
     <Compile Include="DTO\RequestBody.cs" />
@@ -59,17 +58,20 @@
     <Compile Include="DTO\StatusCode.cs" />
     <Compile Include="ISmsPaymentDTOFactory.cs" />
     <Compile Include="ISmsPaymentStatusNotificationReciever.cs" />
+    <Compile Include="ISmsPaymentValidator.cs" />
+    <Compile Include="PaymentControllers\BitrixPaymentController.cs" />
+    <Compile Include="PaymentControllers\IPaymentController.cs" />
+    <Compile Include="PaymentControllers\TestPaymentController.cs" />
     <Compile Include="SmsPaymentDTOFactory.cs" />
     <Compile Include="SmsPaymentFileCache.cs" />
-    <Compile Include="IPaymentController.cs" />
     <Compile Include="ISmsPaymentService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmsPaymentService.cs" />
     <Compile Include="IDriverPaymentService.cs" />
     <Compile Include="SmsPaymentServiceSetting.cs" />
-    <Compile Include="OverduePaymentsWorker.cs" />
-    <Compile Include="CachePaymentsWorker.cs" />
-    <Compile Include="TestPaymentController.cs" />
+    <Compile Include="SmsPaymentValidator.cs" />
+    <Compile Include="Workers\CachePaymentsWorker.cs" />
+    <Compile Include="Workers\OverduePaymentsWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">

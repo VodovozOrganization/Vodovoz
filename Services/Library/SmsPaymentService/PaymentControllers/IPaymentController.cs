@@ -1,6 +1,6 @@
 using Vodovoz.Domain;
 
-namespace SmsPaymentService
+namespace SmsPaymentService.PaymentControllers
 {
     public interface IPaymentController
     {

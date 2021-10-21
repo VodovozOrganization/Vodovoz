@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -51,8 +51,7 @@
                 '',
                 CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
     orders.trifle AS trifle,
-    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
-    IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
+    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time
 FROM
     orders
         LEFT JOIN
@@ -78,7 +77,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -161,10 +160,6 @@ WHERE
         </Field>
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="is_before_interval_delivery">
-          <DataField>is_before_interval_delivery</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -792,8 +787,8 @@ payment_type='ToClient'</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>29pt</Left>
-        <Top>180pt</Top>
+        <Left>33.0pt</Left>
+        <Top>207.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -966,8 +961,8 @@ payment_type='ToClient'</CommandText>
             <Width>308.52pt</Width>
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.2pt</Left>
-            <Top>2.4pt</Top>
+            <Left>89.2pt</Left>
+            <Top>29.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -980,8 +975,8 @@ payment_type='ToClient'</CommandText>
             <Width>28.02pt</Width>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>2.4pt</Top>
+            <Left>4.8pt</Left>
+            <Top>29.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -994,8 +989,8 @@ payment_type='ToClient'</CommandText>
             <Width>518.44pt</Width>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>24.9pt</Top>
+            <Left>4.8pt</Left>
+            <Top>52.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1008,8 +1003,8 @@ payment_type='ToClient'</CommandText>
             <Width>101.52pt</Width>
             <Value>Покупатель сдал</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>56.2pt</Top>
+            <Left>4.8pt</Left>
+            <Top>83.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1022,8 +1017,8 @@ payment_type='ToClient'</CommandText>
             <Width>385.02pt</Width>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
             <ZIndex>1</ZIndex>
-            <Left>107.0pt</Left>
-            <Top>56.9pt</Top>
+            <Left>111.0pt</Left>
+            <Top>84.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1036,8 +1031,8 @@ payment_type='ToClient'</CommandText>
             <Width>157.77pt</Width>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
-            <Left>107.0pt</Left>
-            <Top>70.2pt</Top>
+            <Left>111.0pt</Left>
+            <Top>97.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1056,8 +1051,8 @@ payment_type='ToClient'</CommandText>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
-            <Left>338.7pt</Left>
-            <Top>38.1pt</Top>
+            <Left>342.7pt</Left>
+            <Top>65.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1075,8 +1070,8 @@ payment_type='ToClient'</CommandText>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
-            <Left>338.4pt</Left>
-            <Top>70.3pt</Top>
+            <Left>342.4pt</Left>
+            <Top>97.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1094,8 +1089,8 @@ payment_type='ToClient'</CommandText>
             <Width>243.42pt</Width>
             <Value>Предполагаемое количетво возвратной тары:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>89.2pt</Top>
+            <Left>4.8pt</Left>
+            <Top>116.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1115,16 +1110,16 @@ payment_type='ToClient'</CommandText>
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>0.0pt</Left>
-            <Top>131.5pt</Top>
+            <Left>4.8pt</Left>
+            <Top>159.0pt</Top>
           </Line>
           <Textbox Name="Textbox43">
             <Height>13.50pt</Height>
             <Width>146.52pt</Width>
             <Value>Залог за пустую тару</Value>
             <ZIndex>1</ZIndex>
-            <Left>16.2pt</Left>
-            <Top>116.3pt</Top>
+            <Left>20.2pt</Left>
+            <Top>143.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1138,8 +1133,8 @@ payment_type='ToClient'</CommandText>
             <Width>415.02pt</Width>
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
             <ZIndex>1</ZIndex>
-            <Left>119.3pt</Left>
-            <Top>152.5pt</Top>
+            <Left>123.3pt</Left>
+            <Top>180.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1152,8 +1147,8 @@ payment_type='ToClient'</CommandText>
             <Width>145.77pt</Width>
             <Value>Покупатель внес залог за</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>152.3pt</Top>
+            <Left>4.8pt</Left>
+            <Top>179.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1166,8 +1161,8 @@ payment_type='ToClient'</CommandText>
             <Width>142.02pt</Width>
             <Value>(кол. бутылей)</Value>
             <ZIndex>1</ZIndex>
-            <Left>130.0pt</Left>
-            <Top>167.1pt</Top>
+            <Left>134.0pt</Left>
+            <Top>194.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1186,8 +1181,8 @@ payment_type='ToClient'</CommandText>
             <Width>100.77pt</Width>
             <Value>(сумма)</Value>
             <ZIndex>1</ZIndex>
-            <Left>370.8pt</Left>
-            <Top>166.5pt</Top>
+            <Left>374.8pt</Left>
+            <Top>194.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1206,8 +1201,8 @@ payment_type='ToClient'</CommandText>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
             <ZIndex>1</ZIndex>
-            <Left>370.6pt</Left>
-            <Top>196.2pt</Top>
+            <Left>374.6pt</Left>
+            <Top>223.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1225,8 +1220,8 @@ payment_type='ToClient'</CommandText>
             <Width>126.27pt</Width>
             <Value>/                                       /</Value>
             <ZIndex>1</ZIndex>
-            <Left>371.5pt</Left>
-            <Top>183.0pt</Top>
+            <Left>375.5pt</Left>
+            <Top>210.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1239,8 +1234,8 @@ payment_type='ToClient'</CommandText>
             <Width>406.02pt</Width>
             <Value>Экспедитор принял:                                        /                                        /</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>236.5pt</Top>
+            <Left>4.8pt</Left>
+            <Top>264.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1253,8 +1248,8 @@ payment_type='ToClient'</CommandText>
             <Width>239.52pt</Width>
             <Value>(подпись)                   (расшифровка)</Value>
             <ZIndex>1</ZIndex>
-            <Left>101.9pt</Left>
-            <Top>247.8pt</Top>
+            <Left>105.9pt</Left>
+            <Top>275.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -1271,8 +1266,8 @@ payment_type='ToClient'</CommandText>
             <Width>197.52pt</Width>
             <Value>* Поля обязательные к заполнению</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>268.0pt</Top>
+            <Left>4.8pt</Left>
+            <Top>295.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1283,8 +1278,8 @@ payment_type='ToClient'</CommandText>
           <Image Name="Image2">
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
-            <Left>348.3pt</Left>
-            <Top>26.2pt</Top>
+            <Left>352.3pt</Left>
+            <Top>53.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1297,8 +1292,8 @@ payment_type='ToClient'</CommandText>
           <Image Name="Image3">
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
-            <Left>348.5pt</Left>
-            <Top>57.8pt</Top>
+            <Left>352.5pt</Left>
+            <Top>85.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1313,8 +1308,8 @@ payment_type='ToClient'</CommandText>
             <Width>45.97pt</Width>
             <Value>={bottles_return}</Value>
             <ZIndex>1</ZIndex>
-            <Left>246.9pt</Left>
-            <Top>88.6pt</Top>
+            <Left>250.9pt</Left>
+            <Top>116.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1330,8 +1325,8 @@ payment_type='ToClient'</CommandText>
             <Width>72.27pt</Width>
             <Value>бутылей.</Value>
             <ZIndex>1</ZIndex>
-            <Left>312.5pt</Left>
-            <Top>88.5pt</Top>
+            <Left>316.5pt</Left>
+            <Top>116.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1351,8 +1346,8 @@ payment_type='ToClient'</CommandText>
       <Subreport Name="Subreport1">
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
-        <Left>0.0pt</Left>
-        <Top>237.8pt</Top>
+        <Left>4.8pt</Left>
+        <Top>265.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1408,8 +1403,8 @@ payment_type='ToClient'</CommandText>
         <Width>80.00pt</Width>
         <Value>Поставщик:</Value>
         <ZIndex>1</ZIndex>
-        <Left>34.9pt</Left>
-        <Top>85.8pt</Top>
+        <Left>38.9pt</Left>
+        <Top>113.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1422,8 +1417,8 @@ payment_type='ToClient'</CommandText>
         <Width>80.00pt</Width>
         <Value>Адрес:</Value>
         <ZIndex>1</ZIndex>
-        <Left>34.9pt</Left>
-        <Top>131.7pt</Top>
+        <Left>38.9pt</Left>
+        <Top>159.2pt</Top>
         <Style>
           <BorderStyle>
             <Left>None</Left>
@@ -1440,8 +1435,8 @@ payment_type='ToClient'</CommandText>
         <Width>80pt</Width>
         <Value>Покупатель:</Value>
         <ZIndex>1</ZIndex>
-        <Left>34.9pt</Left>
-        <Top>101.7pt</Top>
+        <Left>38.9pt</Left>
+        <Top>129.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1454,8 +1449,8 @@ payment_type='ToClient'</CommandText>
         <Width>80.00pt</Width>
         <Value>Телефон:</Value>
         <ZIndex>1</ZIndex>
-        <Left>34.9pt</Left>
-        <Top>146.7pt</Top>
+        <Left>38.9pt</Left>
+        <Top>174.2pt</Top>
         <Style>
           <BorderStyle>
             <Left>None</Left>
@@ -1472,8 +1467,8 @@ payment_type='ToClient'</CommandText>
         <Width>343.62pt</Width>
         <Value>=Max({org_name}, "Order") + ' ' + Max({org_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>115.2pt</Left>
-        <Top>86.4pt</Top>
+        <Left>119.2pt</Left>
+        <Top>113.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1488,8 +1483,8 @@ payment_type='ToClient'</CommandText>
         <Width>343.62pt</Width>
         <Value>=Max({client_name}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>115.2pt</Left>
-        <Top>101.4pt</Top>
+        <Left>119.2pt</Left>
+        <Top>128.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1504,8 +1499,8 @@ payment_type='ToClient'</CommandText>
         <Width>433.62pt</Width>
         <Value>=Max({del_point_address}, "Order") + '\n' + Max({delivery_point_comment}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>115.2pt</Left>
-        <Top>131.4pt</Top>
+        <Left>119.2pt</Left>
+        <Top>158.9pt</Top>
         <Style>
           <BorderStyle>
             <Right>Solid</Right>
@@ -1529,8 +1524,8 @@ payment_type='ToClient'</CommandText>
         <Width>433.62pt</Width>
         <Value>=Iif(Max({delivery_point_contact}, "Order") = null, Max({client_contact}, "Order"), Max({delivery_point_contact}, "Order"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>115.2pt</Left>
-        <Top>146.4pt</Top>
+        <Left>119.2pt</Left>
+        <Top>173.9pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
           <BorderStyle>
@@ -1553,8 +1548,8 @@ payment_type='ToClient'</CommandText>
         <Width>57.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>89pt</Left>
-        <Top>163pt</Top>
+        <Left>93.0pt</Left>
+        <Top>190.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1562,7 +1557,7 @@ payment_type='ToClient'</CommandText>
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
           <TextAlign>Left</TextAlign>
-          <VerticalAlign >Bottom</VerticalAlign>
+          <VerticalAlign>Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox77" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1570,15 +1565,15 @@ payment_type='ToClient'</CommandText>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
         <ZIndex>1</ZIndex>
-        <Left>24pt</Left>
-        <Top>163pt</Top>
+        <Left>28.0pt</Left>
+        <Top>190.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Bottom</VerticalAlign>
+          <VerticalAlign>Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox78" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1586,15 +1581,15 @@ payment_type='ToClient'</CommandText>
         <Width>49pt</Width>
         <Value>Договор:</Value>
         <ZIndex>1</ZIndex>
-        <Left>140.0pt</Left>
-        <Top>163pt</Top>
+        <Left>144.0pt</Left>
+        <Top>190.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Bottom</VerticalAlign>
+          <VerticalAlign>Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox79" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1761,8 +1756,8 @@ payment_type='ToClient'</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>34.9pt</Left>
-        <Top>585.6pt</Top>
+        <Left>38.9pt</Left>
+        <Top>613.1pt</Top>
       </Table>
       <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Order</DataSetName>
@@ -1820,23 +1815,23 @@ payment_type='ToClient'</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>34.5pt</Left>
-        <Top>551.4pt</Top>
+        <Left>38.5pt</Left>
+        <Top>578.9pt</Top>
       </Table>
       <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12pt</Height>
         <Width>36.39pt</Width>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
         <ZIndex>1</ZIndex>
-        <Left>286.8pt</Left>
-        <Top>163pt</Top>
+        <Left>290.8pt</Left>
+        <Top>190.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Bottom</VerticalAlign>
+          <VerticalAlign>Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1844,8 +1839,8 @@ payment_type='ToClient'</CommandText>
         <Width>81.28pt</Width>
         <Value>=Max({lunch_time}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>325.20pt</Left>
-        <Top>163pt</Top>
+        <Left>329.2pt</Left>
+        <Top>190.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1853,38 +1848,7 @@ payment_type='ToClient'</CommandText>
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
           <TextAlign>Left</TextAlign>
-          <VerticalAlign >Bottom</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox8">
-        <Height>12.00pt</Height>
-        <Width>147pt</Width>
-        <Value>Доставка раньше интервала:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>395pt</Left>
-        <Top>163pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox9">
-        <Height>12.00pt</Height>
-        <Width>27.18pt</Width>
-        <Value>=Max({is_before_interval_delivery}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>543.90pt</Left>
-        <Top>163pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <TextAlign>Left</TextAlign>
-          <VerticalAlign >Bottom</VerticalAlign>
+          <VerticalAlign>Bottom</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox10">
@@ -1892,15 +1856,44 @@ payment_type='ToClient'</CommandText>
         <Width>108pt</Width>
         <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>187pt</Left>
-        <Top>163pt</Top>
+        <Left>191.0pt</Left>
+        <Top>190.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Left</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox11">
+        <Height>28.51pt</Height>
+        <Width>124.98pt</Width>
+        <Value>Оплачено</Value>
+        <ZIndex>1</ZIndex>
+        <Left>295.0pt</Left>
+        <Top>77.7pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Double</Default>
+            <Left>Double</Left>
+            <Right>Double</Right>
+            <Top>Double</Top>
+            <Bottom>Double</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+            <Left>3pt</Left>
+            <Right>3pt</Right>
+            <Top>3pt</Top>
+            <Bottom>3pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
     </ReportItems>

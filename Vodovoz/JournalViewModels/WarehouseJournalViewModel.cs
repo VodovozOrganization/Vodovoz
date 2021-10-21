@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -16,34 +14,36 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class WarehouseJournalViewModel
-        : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
-    {
-        public WarehouseJournalViewModel(
-            IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices,
-            ISubdivisionRepository subdivisionRepository)
-                : base(unitOfWorkFactory, commonServices)
-        {
-            TabName = "Журнал складов";
-            this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-            warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
-
-            UpdateOnChanges(
-                typeof(Warehouse)
-            );
-        }
-
-        private readonly ISubdivisionRepository subdivisionRepository;
+	public class WarehouseJournalViewModel : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
+	{
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly WarehouseJournalFilterViewModel _filterViewModel;
         private WarehousePermissionsType[] warehousePermissions;
+		
+		public WarehouseJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionRepository,
+			WarehouseJournalFilterViewModel filterViewModel = null)
+				: base(unitOfWorkFactory, commonServices)
+		{
+			TabName = "Журнал складов";
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_filterViewModel = filterViewModel;
+			warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
-        protected override void CreateNodeActions()
-        {
-            NodeActionsList.Clear();
-            CreateDefaultSelectAction();
-            CreateDefaultEditAction();
-            CreateDefaultAddActions();
-        }
+			UpdateOnChanges(
+				typeof(Warehouse)
+			);
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultEditAction();
+			CreateDefaultAddActions();
+		}
 
         protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
             Warehouse warehouseAlias = null;
@@ -51,6 +51,11 @@ namespace Vodovoz.JournalViewModels
 
             var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
             var disjunction = new Disjunction();
+
+			if(_filterViewModel?.ExcludeWarehousesIds != null)
+			{
+				query.WhereRestrictionOn(x => x.Id).Not.IsIn(_filterViewModel.ExcludeWarehousesIds);
+			}
 
             var permission = new CurrentWarehousePermissions();
             foreach (var p in warehousePermissions)
@@ -85,4 +90,10 @@ namespace Vodovoz.JournalViewModels
             subdivisionRepository
         );
     }
+
+
+	public class WarehouseJournalFilterViewModel
+	{
+		public int[] ExcludeWarehousesIds { get; set; }
+	}
 }

@@ -90,8 +90,7 @@
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
 	orders.trifle AS trifle,
 	orders.self_delivery,
-	IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
-	IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
+	IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time
 FROM
 	orders
 		LEFT JOIN
@@ -246,10 +245,6 @@ WHERE
         </Field>
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="is_before_interval_delivery">
-          <DataField>is_before_interval_delivery</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1372,8 +1367,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3342,35 +3336,6 @@ WHERE stored_resource.id = @id1</CommandText>
           <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>148.11pt</Width>
-        <Value>Доставка раньше интервала:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>385.9pt</Left>
-        <Top>222.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>27.18pt</Width>
-        <Value>=Max({is_before_interval_delivery}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>534.5pt</Left>
-        <Top>222.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <TextAlign>Left</TextAlign>
-        </Style>
-      </Textbox>
       <Textbox Name="Textbox57" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12pt</Height>
         <Width>104.58pt</Width>
@@ -3385,6 +3350,100 @@ WHERE stored_resource.id = @id1</CommandText>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>135.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>65.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=
+Iif(First({order_payment_type}, "Order")='ByCard',
+    "ОПЛАЧЕНО",
+    Iif({?payment_by_sms} = false,
+        Iif(First({pay_type}, "Order") = "НАЛ",
+            "К оплате: НАЛИЧНЫМИ " +
+            Convert.ToString
+            (
+                Iif(First({order_payment_type}, "Order")!='ByCard',
+                    (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р.",
+                    0
+                )
+            ) +"\n" +
+            Iif(First({trifle},'Order')&gt;0,
+                "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+                " "
+            ),
+            Iif(First({pay_type}, "Order") = "ТЕРМИНАЛ",
+                "К оплате: \nПО ТЕРМИНАЛУ "+
+                Convert.ToString
+                (
+                    Iif(First({order_payment_type}, "Order")!='ByCard',
+                        (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р.",
+                        0
+                    )
+                ),  
+                "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS \n" +
+                Iif(First({trifle},'Order')&gt;0,
+                    "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+                    " "
+                )
+            )
+        ),
+        "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS \n" +
+        Iif(First({trifle},'Order')&gt;0,
+            "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+            " "
+        )
+    )
+)
+</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Double</Left>
+                          <Right>Double</Right>
+                          <Top>Double</Top>
+                          <Bottom>Double</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bolder</FontWeight>
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <Color>Black</Color>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>236.9pt</Left>
+        <Top>57.8pt</Top>
+      </fyi:Grid>
     </ReportItems>
   </Body>
   <PageFooter>

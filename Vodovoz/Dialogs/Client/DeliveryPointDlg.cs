@@ -223,9 +223,6 @@ namespace Vodovoz
 			entryLunchTimeFrom.Binding.AddBinding(Entity, e => e.LunchTimeFrom, w => w.Time).InitializeFromSource();
 			entryLunchTimeTo.Binding.AddBinding(Entity, e => e.LunchTimeTo, w => w.Time).InitializeFromSource();
 
-			chkBeforeIntervalDelivery.RenderMode = QS.Widgets.RenderMode.Icon;
-			chkBeforeIntervalDelivery.Binding.AddBinding(Entity, e => e.IsBeforeIntervalDelivery, w => w.Active).InitializeFromSource();
-
 			cityBeforeChange = entryCity.City;
 			streetBeforeChange = entryStreet.Street;
 			buildingBeforeChange = entryBuilding.House;
