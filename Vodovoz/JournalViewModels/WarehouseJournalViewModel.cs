@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -80,14 +82,14 @@ namespace Vodovoz.JournalViewModels
             EntityUoWBuilder.ForCreate(),
             QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
             commonServices,
-            subdivisionRepository
+            _subdivisionRepository
         );
 
         protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
             QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
             commonServices,
-            subdivisionRepository
+            _subdivisionRepository
         );
     }
 
