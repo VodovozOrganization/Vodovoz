@@ -17,6 +17,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 		}
 		
-		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
+		//public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 	}
 }

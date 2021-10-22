@@ -1701,6 +1701,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
     <Compile Include="Views\Logistic\ModelCarView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ModelCarView.cs" />
+    <Compile Include="Views\Logistic\ManufacturerCarsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ManufacturerCarsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1821,7 +1823,7 @@
       <Name>QSExtraGammaWidgets</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
+      <Project>{54871F7B-7DF2-43BD-9ACD-72F650BA35A1}</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

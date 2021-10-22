@@ -18,9 +18,9 @@ namespace Vodovoz.Views.Logistic
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			
-			entitymanufacturedCars.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeePostsJournalFactory.CreateEmployeePostsAutocompleteSelectorFactory());
-			entitymanufacturedCars.Binding.AddBinding(ViewModel.Entity, e => e.ManufacturerCars, w => w.Subject).InitializeFromSource();
+			//entitymanufacturedCars.SetEntityAutocompleteSelectorFactory(
+				//ViewModel.EmployeePostsJournalFactory.CreateEmployeePostsAutocompleteSelectorFactory());
+			//entitymanufacturedCars.Binding.AddBinding(ViewModel.Entity, e => e.ManufacturerCars, w => w.Subject).InitializeFromSource();
 		}
 	}
 }
