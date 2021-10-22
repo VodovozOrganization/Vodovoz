@@ -104,6 +104,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\ManufacturerCarsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
     <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\ManufacturerCarsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\PayoutRequestsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
@@ -154,6 +156,7 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\ManufacturerCarsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumTemplateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
@@ -181,6 +184,7 @@
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IIncomeCategorySelectorFactory.cs" />
+    <Compile Include="TempAdapters\IManufacturerCarsJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
@@ -198,6 +202,7 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarVersionViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\ManufacturerCarsViewModel.cs" />
     <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />

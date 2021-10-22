@@ -8,7 +8,7 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class ModelCarViewModel : EntityTabViewModelBase<Car>
+	public class ModelCarViewModel : EntityTabViewModelBase<CarModel>
 	{
 		public ModelCarViewModel(IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -16,5 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 		}
+		
+		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 	}
 }

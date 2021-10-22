@@ -2,10 +2,16 @@
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
-	public class ManufacturerCars : IDomainObject
+	public class ManufacturerCars : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; }
-		
-		public virtual string Name { get; set; }
+
+		private string _name;
+
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
+		}
 	}
 }
