@@ -78,16 +78,24 @@ namespace Vodovoz.Reports
 
 		protected void OnRadioCatAllToggled(object sender, EventArgs e)
 		{
-			if(radioCatDriver.Active) {
-				_employeeFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			if(radioCatDriver.Active)
+			{
+				_employeeFilter.RestrictCategory = EmployeeCategory.driver;
 			}
 
-			if(radioCatForwarder.Active) {
-				_employeeFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			if(radioCatForwarder.Active)
+			{
+				_employeeFilter.RestrictCategory = EmployeeCategory.forwarder;
 			}
 
-			if(radioCatOffice.Active) {
-				_employeeFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			if(radioCatOffice.Active)
+			{
+				_employeeFilter.RestrictCategory = EmployeeCategory.office;
+			}
+
+			if(radioCatAll.Active)
+			{
+				_employeeFilter.RestrictCategory = null;
 			}
 		}
 
