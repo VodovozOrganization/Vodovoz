@@ -172,8 +172,8 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref defaultForwarder, value, () => DefaultForwarder); }
 		}
 
-		private DriverType? driverType;
-		public virtual DriverType? DriverType {
+		private CarOwnershipType? driverType;
+		public virtual CarOwnershipType? DriverType {
 			get => driverType;
 			set => SetField(ref driverType, value);
 		}
@@ -191,7 +191,7 @@ namespace Vodovoz.Domain.Employees
 			get { return driverOf; }
 			set { SetField(ref driverOf, value, () => DriverOf); }
 		}
-		
+
 		private Gender? gender;
 		[Display(Name = "Пол сотрудника")]
 		public virtual Gender? Gender {

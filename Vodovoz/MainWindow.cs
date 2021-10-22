@@ -209,34 +209,34 @@ public partial class MainWindow : Gtk.Window
             ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
         ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
-        using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-        {
-	        var test = ReadNodesFromFile();
-	        var carManufactured = test.GroupBy(x => x.Manufactured).Select(x => new ManufacturerCars {Name = x.Key}).OrderBy(x => x.Name).ToList();
-	        carManufactured.ForEach(x => uow.Session.SaveOrUpdate(x));
+        //using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        //{
+	       // var test = ReadNodesFromFile();
+	       // var carManufactured = test.GroupBy(x => x.Manufactured).Select(x => new ManufacturerCars {Name = x.Key}).OrderBy(x => x.Name).ToList();
+	       // carManufactured.ForEach(x => uow.Session.SaveOrUpdate(x));
 	        
-	        var carModels = test.GroupBy(x => x.CarModel);
-	        var newCarModels = new List<CarModel>();
-	        foreach(var carModel in carModels)
-	        {
-		        foreach(var item in carModel.Select(x => x))
-		        {
-			        newCarModels.Add(new CarModel
-			        {
-				        Name = item.CarModel,
-				        ManufacturerCars = carManufactured.SingleOrDefault(x => x.Name == item.Manufactured),
-				        IsArchive = false,
-				        MaxVolume = double.Parse(item.MaxVolume),
-				        MaxWeight = int.Parse(item.MaxWeight),
-				        TypeOfUse = item.TypeOfUse switch
-				        {
+	       // var carModels = test.GroupBy(x => x.CarModel);
+	       // var newCarModels = new List<CarModel>();
+	       // foreach(var carModel in carModels)
+	       // {
+		      //  foreach(var item in carModel.Select(x => x))
+		      //  {
+			     //   newCarModels.Add(new CarModel
+			     //   {
+				    //    Name = item.CarModel,
+				    //    ManufacturerCars = carManufactured.SingleOrDefault(x => x.Name == item.Manufactured),
+				    //    IsArchive = false,
+				    //    MaxVolume = double.Parse(item.MaxVolume),
+				    //    MaxWeight = int.Parse(item.MaxWeight),
+				    //    TypeOfUse = item.TypeOfUse switch
+				    //    {
 					        
-				        } 
-			        });
-		        }
-	        }
-	        var cars = test.Select(x => x.CarModel);
-        }
+				    //    } 
+			     //   });
+		      //  }
+	       // }
+	       // var cars = test.Select(x => x.CarModel);
+        //}
 
         bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
         bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");

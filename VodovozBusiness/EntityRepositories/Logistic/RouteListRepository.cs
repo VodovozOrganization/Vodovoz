@@ -910,7 +910,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.And(x => x.TypeOperation == ExpenseType.EmployeeAdvance)
 				.RowCount() > 0;
 
-		public DateTime? GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarTypeOfUse? carTypeOfUse = null)
+		public DateTime? GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarOwnershipType? carOwnershipTypeOfUse = null)
 		{
 			Employee employeeAlias = null;
 
@@ -918,9 +918,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(x => x.Driver, () => employeeAlias)
 				.Where(x => x.Driver.Id == driverId);
 
-			if(carTypeOfUse != null)
+			if(carOwnershipTypeOfUse != null)
 			{
-				query.Where(() => employeeAlias.DriverOf == carTypeOfUse);
+				query.Where(() => employeeAlias.DriverType == carOwnershipTypeOfUse);
 			}
 
 			return query
@@ -932,7 +932,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.SingleOrDefault<DateTime?>();
 		}
 
-		public DateTime? GetLastRouteListDateByDriver(IUnitOfWork uow, int driverId, CarTypeOfUse? carTypeOfUse = null)
+		public DateTime? GetLastRouteListDateByDriver(IUnitOfWork uow, int driverId, CarOwnershipType? carOwnershipTypeOfUse = null)
 		{
 			Employee employeeAlias = null;
 
@@ -940,9 +940,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(x => x.Driver, () => employeeAlias)
 				.Where(x => x.Driver.Id == driverId);
 
-			if(carTypeOfUse != null)
+			if(carOwnershipTypeOfUse != null)
 			{
-				query.Where(() => employeeAlias.DriverOf == carTypeOfUse);
+				query.Where(() => employeeAlias.DriverType == carOwnershipTypeOfUse);
 			}
 
 			return query
