@@ -8,9 +8,7 @@ namespace Vodovoz.EntityRepositories.Employees
 {
 	public interface IEmployeeRepository
 	{
-		QueryOver<Employee> ActiveDriversOrderedQuery();
 		QueryOver<Employee> ActiveEmployeeOrderedQuery();
-		QueryOver<Employee> ActiveForwarderOrderedQuery();
 		Employee GetDriverByAndroidLogin(IUnitOfWork uow, string login);
 		Employee GetDriverByAuthKey(IUnitOfWork uow, string authKey);
 		Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account);
