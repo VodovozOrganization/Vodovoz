@@ -1341,9 +1341,10 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
     {
+	    var employeeFactory = new EmployeeJournalFactory();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-            () => new QSReport.ReportViewDlg(new MastersVisitReport(new EmployeeRepository()))
+            () => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory))
         );
     }
 
