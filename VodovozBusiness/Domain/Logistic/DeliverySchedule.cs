@@ -42,9 +42,9 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField (ref to, value, () => To);
 		}
 		
-		private uint bitrixId;
+		private uint? bitrixId;
 		[Display (Name = "id в битриксе")]
-		public virtual uint BitrixId {
+		public virtual uint? BitrixId {
 			get => bitrixId;
 			set => SetField (ref bitrixId, value);
 		}
@@ -90,4 +90,3 @@ namespace Vodovoz.Domain.Logistic
 		
 	}
 }
-
