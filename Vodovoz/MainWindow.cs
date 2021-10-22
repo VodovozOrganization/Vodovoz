@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using Autofac;
 using Gtk;
@@ -102,6 +104,11 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels;
 using System.Runtime.InteropServices;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
+using MoreLinq;
 using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -201,6 +208,35 @@ public partial class MainWindow : Gtk.Window
             ActionRouteListMileageCheck.Sensitive =
             ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
         ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
+
+        using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
+	        var test = ReadNodesFromFile();
+	        var carManufactured = test.GroupBy(x => x.Manufactured).Select(x => new ManufacturerCars {Name = x.Key}).OrderBy(x => x.Name).ToList();
+	        carManufactured.ForEach(x => uow.Session.SaveOrUpdate(x));
+	        
+	        var carModels = test.GroupBy(x => x.CarModel);
+	        var newCarModels = new List<CarModel>();
+	        foreach(var carModel in carModels)
+	        {
+		        foreach(var item in carModel.Select(x => x))
+		        {
+			        newCarModels.Add(new CarModel
+			        {
+				        Name = item.CarModel,
+				        ManufacturerCars = carManufactured.SingleOrDefault(x => x.Name == item.Manufactured),
+				        IsArchive = false,
+				        MaxVolume = double.Parse(item.MaxVolume),
+				        MaxWeight = int.Parse(item.MaxWeight),
+				        TypeOfUse = item.TypeOfUse switch
+				        {
+					        
+				        } 
+			        });
+		        }
+	        }
+	        var cars = test.Select(x => x.CarModel);
+        }
 
         bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
         bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
@@ -2484,5 +2520,93 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
 			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
 		);
+	}
+	
+	private IEnumerable<CarsNode> ReadNodesFromFile()
+		{
+			CsvConfiguration configuration = new CsvConfiguration(CultureInfo.InvariantCulture);
+			configuration.Delimiter = ";";
+			configuration.TrimOptions = TrimOptions.Trim;
+			configuration.RegisterClassMap<CarsNodeMap>();
+
+			using(var reader = new StreamReader($"C://Users//Danya//Desktop/Справочник авто 3.csv", Encoding.GetEncoding(1251)))
+			using(var csv = new CsvReader(reader, configuration)) {
+
+				IEnumerable<CarsNode> records = null;
+				try {
+					records = csv.GetRecords<CarsNode>().ToList();
+				} catch(TypeConverterException conversionEx) {
+					return null;
+				}
+				catch(HeaderValidationException headerEx) {
+					if(!headerEx.HeaderNames.Any() 
+						|| headerEx.ReadingContext.NamedIndexes == null
+						|| !headerEx.ReadingContext.NamedIndexes.Any()
+						|| headerEx.ReadingContext.NamedIndexCache == null 
+						|| !headerEx.ReadingContext.NamedIndexCache.Any()) {
+						return null;
+					}
+					string header;
+					if((headerEx.ReadingContext.NamedIndexes.Count - headerEx.ReadingContext.NamedIndexCache.Count) == 0 || String.IsNullOrWhiteSpace(headerEx.ReadingContext.NamedIndexes.Keys.Last()))
+						header = "(Заголовок отсутствует)";
+					else
+						header = headerEx.ReadingContext.HeaderRecord.Last();
+					return null;
+				}
+				IList<CarsNode> resultRecords = new List<CarsNode>();
+				foreach(var record in records) {
+					if(String.IsNullOrWhiteSpace(record.CarModel))
+						continue;
+					if(record.Result == "удалить")
+					{
+						record.RegNumber = "А000АА178";
+						record.Manufactured = "ГАЗ";
+						record.Ownership = "ТС водителя";
+						record.CarModel = "ГАЗЕЛЬ бизнес";
+						record.TypeOfUse = "Грузовой (Газель)";
+					}
+					record.RegNumber = record.RegNumber.Replace("*", "");
+					record.RegNumber = record.RegNumber.Replace(" ", "");
+					record.RegNumber = record.RegNumber.ToUpper();
+					resultRecords.Add(record);
+				}
+				return resultRecords;
+			}
+		}
+
+	public class CarsNode
+	{
+		public CarsNode()
+		{
+			
+		}
+		
+		public int? Id { get; set; }
+		public string Result { get; set; }
+		public string RegNumber { get; set; }
+		public string Manufactured { get; set; }
+		public string CarModel { get; set; }
+		public string Ownership { get; set; }
+		public string TypeOfUse { get; set; }
+		
+		public string MaxVolume { get; set; }
+		
+		public string MaxWeight { get; set; }
+	}
+	
+	public class CarsNodeMap : ClassMap<CarsNode>
+	{
+		public CarsNodeMap()
+		{
+			Map(x => x.Id).Index(0).Name("Код");
+			Map(x => x.Result).Index(1).Name("Выполнение");
+			Map(x => x.RegNumber).Index(2).Name("Гос.номер");
+			Map(x => x.Manufactured).Index(3).Name("Производитель а/м");
+			Map(x => x.CarModel).Index(4).Name("Модель а/м");
+			Map(x => x.Ownership).Index(5).Name("Принадлежность");
+			Map(x => x.TypeOfUse).Index(6).Name("Тип автомобиля");
+			Map(x => x.MaxVolume).Index(7).Name("Объём");
+			Map(x => x.MaxWeight).Index(8).Name("Грузоподъёмность");
+		}
 	}
 }

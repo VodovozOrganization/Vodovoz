@@ -156,7 +156,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label9;
 
-		private global::Vodovoz.JournalViewers.NodeViewModelEntry nodeEntryModelCar;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry nodeEntryModelCar;
 
 		private global::Gtk.Label orderNumberLabel;
 
@@ -1009,7 +1009,7 @@ namespace Vodovoz
 			w75.XOptions = ((global::Gtk.AttachOptions)(4));
 			w75.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.nodeEntryModelCar = new global::Vodovoz.JournalViewers.NodeViewModelEntry();
+			this.nodeEntryModelCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.nodeEntryModelCar.Events = ((global::Gdk.EventMask)(256));
 			this.nodeEntryModelCar.Name = "nodeEntryModelCar";
 			this.nodeEntryModelCar.CanEditReference = true;

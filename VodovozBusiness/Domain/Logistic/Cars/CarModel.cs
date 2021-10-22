@@ -1,9 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "модели автомобиля",
+		Nominative = "модель автомобиль")]
+	[EntityPermission]
+	[HistoryTrace]
 	public class CarModel : BusinessObjectBase<CarModel>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; }

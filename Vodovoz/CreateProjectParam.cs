@@ -130,6 +130,7 @@ using Vodovoz.Views.Reports;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Orders;
@@ -255,6 +256,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
 				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
+				.RegisterWidgetForTabViewModel<ModelCarViewModel, ModelCarView>()
 				;
 
             //Регистрация виджетов

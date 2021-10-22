@@ -271,9 +271,9 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			if(activationTime.HasValue)
 				return ObservableCarVersions.SingleOrDefault(x =>
-					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date.AddDays(1)));
+					x.StartDate <= activationTime && (x.EndDate == null || x.EndDate <= activationTime?.Date));
 			return ObservableCarVersions.SingleOrDefault(x =>
-				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date.AddDays(1)));
+				x.StartDate <= DateTime.Now.Date && (x.EndDate == null || x.EndDate <= DateTime.Now.Date));
 		}
 		
 		public Car()

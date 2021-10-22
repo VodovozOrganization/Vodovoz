@@ -9,7 +9,8 @@ namespace Vodovoz.HibernateMapping.Logistic.Cars
 		{
 			Table("car_model");
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
-			
+
+			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive)              .Column ("is_archive");
 			Map(x => x.TypeOfUse)           .Column ("type_of_cars").CustomType<CarTypeOfUseStringType>();
 			Map(x => x.MaxVolume)              .Column ("max_volume");

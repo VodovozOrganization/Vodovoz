@@ -15,6 +15,7 @@ using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -24,6 +25,7 @@ namespace Vodovoz
 
 		private ICarRepository _carRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
+		private readonly ICarModelJournalFactory _carModelJournalFactory = new CarModelJournalFactory();
 		private AttachmentsViewModel _attachmentsViewModel;
 
 		public override bool HasChanges => UoWGeneric.HasChanges;
@@ -56,7 +58,15 @@ namespace Vodovoz
 			notebook1.ShowTabs = false;
 
 			CreateAttachmentsViewModel();
-
+			
+			entryDriver.SetEntityAutocompleteSelectorFactory(
+				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+			entryDriver.Changed += OnEntryDriverChanged;
+			entryDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			
+			nodeEntryModelCar.SetEntitySelectorFactory(_carModelJournalFactory.CreateCarModelAutocompleteSelectorFactory());
+			nodeEntryModelCar.Binding.AddBinding(Entity, e => e.CarModel, w => w.Subject).InitializeFromSource();
+			
 			//dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
 			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
 
@@ -265,7 +275,7 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
-			comboDriverCarKind.Sensitive = Entity.CarModel.TypeOfUse.HasValue && !Entity.GetActiveCarVersion().IsCompanyCar;
+			comboDriverCarKind.Sensitive = (Entity?.CarModel?.TypeOfUse.HasValue ?? false) && (!Entity?.GetActiveCarVersion()?.IsCompanyCar ?? false);
 		}
 		
 		public override void Destroy()

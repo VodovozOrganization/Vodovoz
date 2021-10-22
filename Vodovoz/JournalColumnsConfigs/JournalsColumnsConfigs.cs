@@ -279,6 +279,15 @@ namespace Vodovoz.JournalColumnsConfigs
 						.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 						.Finish()
 			);
+			
+			TreeViewColumnsConfigFactory.Register<CarModelJournalViewModel>(
+				() => FluentColumnsConfig<CarModelJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.AddColumn("Тип").AddTextRenderer(n => n.Type)
+					.AddColumn("Производитель").AddTextRenderer(n => n.ManufacturedCars)
+					.Finish()
+			);
 
 			//ComplaintsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ComplaintsJournalViewModel>(
