@@ -118,14 +118,6 @@ namespace BitrixIntegration.Processors
 					return order;
 				}
 
-				order = _orderRepository.GetOrderByOnlineOrderId(uow, deal.OrderNumber ?? -1);
-				if(order != null)
-				{
-					_logger.Info(
-						$"Обработка сделки пропущена. Для заказа с сайта №{deal.OrderNumber} уже есть существующий заказ №{order.Id}.");
-					return order;
-				}
-
 				_logger.Info("Обработка контрагента");
 				var counterparty = _counterpartyProcessor.ProcessCounterparty(uow, deal);
 				//для возможности создать контракт в заказе если создан новый клиент
@@ -165,24 +157,22 @@ namespace BitrixIntegration.Processors
 
 		private void FindExistingOrder(IUnitOfWork uow, Order order)
 		{
-			if(order.SelfDelivery)
+			if(!order.SelfDelivery)
 			{
-				return;
-			}
-
-			var duplicate = _orderRepository
+				var duplicate = _orderRepository
 					.GetSameOrderForDateAndDeliveryPoint(_uowFactory, order.DeliveryDate.Value.Date, order.DeliveryPoint)
 					.Where(o => o.Id != order.Id
 					            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
 					            && o.OrderAddressType != OrderAddressType.Service)
 					.FirstOrDefault();
 
-			var hasMaster = order.OrderItems.Any(oi => oi.Nomenclature.Category == NomenclatureCategory.master);
+				var hasMaster = order.OrderItems.Any(oi => oi.Nomenclature.Category == NomenclatureCategory.master);
 
-			if(!hasMaster && duplicate != null)
-			{
-				throw new InvalidOperationException(
-					$"Обработка сделки пропущена. Для данной точки и даты доставки уже создан заказ {duplicate.Id}");
+				if(!hasMaster && duplicate != null)
+				{
+					throw new InvalidOperationException(
+						$"Обработка сделки пропущена. Для данной точки и даты доставки уже создан заказ {duplicate.Id}");
+				}
 			}
 		}
 
@@ -219,7 +209,6 @@ namespace BitrixIntegration.Processors
 				Trifle = deal.Trifle ?? 0,
 				BottlesReturn = deal.BottlesToReturn ?? 0,
 				EShopOrder = (int)deal.Id,
-				OnlineOrder = deal.OrderNumber ?? null
 			};
 
 			if(order.PaymentType == PaymentType.ByCard)

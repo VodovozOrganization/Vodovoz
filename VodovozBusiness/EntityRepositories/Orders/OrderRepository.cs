@@ -757,13 +757,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault();
 		}
 
-		public VodovozOrder GetOrderByOnlineOrderId(IUnitOfWork uow, int onlineOrderId)
-		{
-			return uow.Session.QueryOver<VodovozOrder>()
-				.Where(o => o.OnlineOrder == onlineOrderId)
-				.SingleOrDefault();
-		}
-
 		public bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
