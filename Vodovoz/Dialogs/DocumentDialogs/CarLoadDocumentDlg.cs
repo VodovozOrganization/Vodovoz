@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using QS.Project.Services;
+using QS.Report;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -236,7 +237,8 @@ namespace Vodovoz
 				Parameters = new System.Collections.Generic.Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }
-					}
+					},
+				PrintType = ReportInfo.PrintingType.MultiplePrinters
 			};
 
 			TabParent.OpenTab(
