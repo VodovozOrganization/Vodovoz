@@ -20,6 +20,8 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOrder;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOrganization;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeSupplier;
 
 		private global::Gtk.Label lblDatesRange;
@@ -39,8 +41,6 @@ namespace Vodovoz.Dialogs.Employees
 		private global::QS.Widgets.GtkUI.DateRangePicker yDPDatesRange;
 
 		private global::QS.Widgets.GtkUI.DatePicker yDTicketDate;
-
-		private global::Gamma.Widgets.yEntryReference yentryOrganization;
 
 		private global::Gamma.GtkWidgets.yEntry yETicketNr;
 
@@ -107,6 +107,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(3)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -136,18 +137,31 @@ namespace Vodovoz.Dialogs.Employees
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.evmeOrganization = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeOrganization.Events = ((global::Gdk.EventMask)(256));
+			this.evmeOrganization.Name = "evmeOrganization";
+			this.evmeOrganization.CanEditReference = true;
+			this.table1.Add(this.evmeOrganization);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeOrganization]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.evmeSupplier = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeSupplier.Events = ((global::Gdk.EventMask)(256));
 			this.evmeSupplier.Name = "evmeSupplier";
 			this.evmeSupplier.CanEditReference = true;
 			this.table1.Add(this.evmeSupplier);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeSupplier]));
-			w8.TopAttach = ((uint)(5));
-			w8.BottomAttach = ((uint)(6));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(3));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeSupplier]));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblDatesRange = new global::Gtk.Label();
 			this.lblDatesRange.Name = "lblDatesRange";
@@ -155,11 +169,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblDatesRange.LabelProp = global::Mono.Unix.Catalog.GetString("Срок действия с");
 			this.lblDatesRange.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblDatesRange);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDatesRange]));
-			w9.TopAttach = ((uint)(3));
-			w9.BottomAttach = ((uint)(4));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDatesRange]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblEmployee = new global::Gtk.Label();
 			this.lblEmployee.Name = "lblEmployee";
@@ -167,11 +181,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblEmployee.LabelProp = global::Mono.Unix.Catalog.GetString("Выдана сотруднику");
 			this.lblEmployee.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblEmployee);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.lblEmployee]));
-			w10.TopAttach = ((uint)(4));
-			w10.BottomAttach = ((uint)(5));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.lblEmployee]));
+			w11.TopAttach = ((uint)(4));
+			w11.BottomAttach = ((uint)(5));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblForOrder = new global::Gtk.Label();
 			this.lblForOrder.Name = "lblForOrder";
@@ -179,11 +193,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblForOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Заполнить для заказа");
 			this.lblForOrder.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblForOrder);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.lblForOrder]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.lblForOrder]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblOrganisation = new global::Gtk.Label();
 			this.lblOrganisation.Name = "lblOrganisation";
@@ -191,11 +205,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblOrganisation.LabelProp = global::Mono.Unix.Catalog.GetString("Организация");
 			this.lblOrganisation.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblOrganisation);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.lblOrganisation]));
-			w12.TopAttach = ((uint)(2));
-			w12.BottomAttach = ((uint)(3));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.lblOrganisation]));
+			w13.TopAttach = ((uint)(2));
+			w13.BottomAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblSupplier = new global::Gtk.Label();
 			this.lblSupplier.Name = "lblSupplier";
@@ -203,11 +217,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblSupplier.LabelProp = global::Mono.Unix.Catalog.GetString("Поставщик");
 			this.lblSupplier.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblSupplier);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.lblSupplier]));
-			w13.TopAttach = ((uint)(5));
-			w13.BottomAttach = ((uint)(6));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.lblSupplier]));
+			w14.TopAttach = ((uint)(5));
+			w14.BottomAttach = ((uint)(6));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblTicketDate = new global::Gtk.Label();
 			this.lblTicketDate.Name = "lblTicketDate";
@@ -215,11 +229,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblTicketDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата наряда");
 			this.lblTicketDate.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblTicketDate);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.lblTicketDate]));
-			w14.TopAttach = ((uint)(7));
-			w14.BottomAttach = ((uint)(8));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.lblTicketDate]));
+			w15.TopAttach = ((uint)(7));
+			w15.BottomAttach = ((uint)(8));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblTicketNr = new global::Gtk.Label();
 			this.lblTicketNr.Name = "lblTicketNr";
@@ -227,11 +241,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.lblTicketNr.LabelProp = global::Mono.Unix.Catalog.GetString("Номер наряда");
 			this.lblTicketNr.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.lblTicketNr);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.lblTicketNr]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.lblTicketNr]));
+			w16.TopAttach = ((uint)(6));
+			w16.BottomAttach = ((uint)(7));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yDPDatesRange = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.yDPDatesRange.Events = ((global::Gdk.EventMask)(256));
@@ -239,12 +253,12 @@ namespace Vodovoz.Dialogs.Employees
 			this.yDPDatesRange.StartDate = new global::System.DateTime(0);
 			this.yDPDatesRange.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.yDPDatesRange);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yDPDatesRange]));
-			w16.TopAttach = ((uint)(3));
-			w16.BottomAttach = ((uint)(4));
-			w16.LeftAttach = ((uint)(1));
-			w16.RightAttach = ((uint)(3));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.yDPDatesRange]));
+			w17.TopAttach = ((uint)(3));
+			w17.BottomAttach = ((uint)(4));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(3));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yDTicketDate = new global::QS.Widgets.GtkUI.DatePicker();
 			this.yDTicketDate.Events = ((global::Gdk.EventMask)(256));
@@ -255,21 +269,9 @@ namespace Vodovoz.Dialogs.Employees
 			this.yDTicketDate.IsEditable = true;
 			this.yDTicketDate.AutoSeparation = true;
 			this.table1.Add(this.yDTicketDate);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.yDTicketDate]));
-			w17.TopAttach = ((uint)(7));
-			w17.BottomAttach = ((uint)(8));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(3));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentryOrganization = new global::Gamma.Widgets.yEntryReference();
-			this.yentryOrganization.Events = ((global::Gdk.EventMask)(256));
-			this.yentryOrganization.Name = "yentryOrganization";
-			this.table1.Add(this.yentryOrganization);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryOrganization]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.yDTicketDate]));
+			w18.TopAttach = ((uint)(7));
+			w18.BottomAttach = ((uint)(8));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(3));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));

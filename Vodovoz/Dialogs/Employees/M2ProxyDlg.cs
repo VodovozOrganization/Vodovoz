@@ -76,11 +76,10 @@ namespace Vodovoz.Dialogs.Employees
 			};
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var orgFactory = new OrganizationJournalFactory();
+			evmeOrganization.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
+			evmeOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
+			evmeOrganization.Changed += (sender, e) => UpdateStates();
 
 			FillForOrder();
 
@@ -166,7 +165,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			bool isNewDoc = !(Entity.Id > 0);
 			evmeOrder.Sensitive = yDPDatesRange.Sensitive = evmeEmployee.Sensitive = evmeSupplier.Sensitive = yETicketNr.Sensitive
-				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = yentryOrganization.Sensitive = isNewDoc;
+				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = evmeOrganization.Sensitive = isNewDoc;
 
 			if(Entity.Organization == null || !isNewDoc) {
 				return;
