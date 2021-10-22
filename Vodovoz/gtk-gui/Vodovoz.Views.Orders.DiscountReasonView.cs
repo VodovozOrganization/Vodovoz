@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.ySpinButton spinDiscount;
 
-		private global::QSOrmProject.EnumListComboBox enumDiscountValueType;
+		private global::Gamma.Widgets.yEnumComboBox enumDiscountValueType;
 
 		private global::Gtk.Label label1;
 
@@ -123,7 +123,7 @@ namespace Vodovoz.Views.Orders
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.spinDiscount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.spinDiscount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.spinDiscount.CanFocus = true;
 			this.spinDiscount.Name = "spinDiscount";
 			this.spinDiscount.Adjustment.PageIncrement = 1D;
@@ -137,9 +137,12 @@ namespace Vodovoz.Views.Orders
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.enumDiscountValueType = new global::QSOrmProject.EnumListComboBox();
-			this.enumDiscountValueType.CanDefault = true;
+			this.enumDiscountValueType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumDiscountValueType.Name = "enumDiscountValueType";
+			this.enumDiscountValueType.ShowSpecialStateAll = false;
+			this.enumDiscountValueType.ShowSpecialStateNot = false;
+			this.enumDiscountValueType.UseShortTitle = false;
+			this.enumDiscountValueType.DefaultFirst = false;
 			this.hbox2.Add(this.enumDiscountValueType);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.enumDiscountValueType]));
 			w10.Position = 1;
