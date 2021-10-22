@@ -43,7 +43,7 @@ namespace Bitrix.DTO
 		public uint CompanyId { get; set; }
 
 		[JsonProperty("CONTACT_ID")]
-		public uint ContactId { get; set; }
+		public uint? ContactId { get; set; }
 
 		[JsonProperty("COMMENTS")]
 		public string Comment { get; set; }
@@ -311,6 +311,5 @@ namespace Bitrix.DTO
 				}
 			}
 		}
-
 	}
 }

@@ -28,7 +28,7 @@ namespace BitrixIntegration.Processors
 		
 		public Counterparty ProcessCounterparty(IUnitOfWork uow, Deal deal)
 		{
-			if(deal.ContactId != 0)
+			if(deal.ContactId.HasValue && deal.ContactId.Value != 0)
 			{
 				return GetContact(uow, deal);
 			}
@@ -45,7 +45,7 @@ namespace BitrixIntegration.Processors
 		{
 			_logger.Info("Обработка контрагента как контакта");
 
-			var contact = _bitrixClient.GetContact(deal.ContactId).GetAwaiter().GetResult()
+			var contact = _bitrixClient.GetContact(deal.ContactId ?? 0).GetAwaiter().GetResult()
 			              ?? throw new InvalidOperationException($"Не удалось загрузить контакт №{deal.ContactId}");
 
 			Counterparty counterparty = GetCounterpartyOrNull(uow, contact);
