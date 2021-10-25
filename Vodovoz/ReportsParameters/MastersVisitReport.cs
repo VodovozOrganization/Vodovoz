@@ -28,7 +28,6 @@ namespace Vodovoz.ReportsParameters
 				x => x.Status = null);
 			employeeJournalFactory.SetEmployeeFilterViewModel(driversFilter);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeEmployee.Changed += (s, e) => ButtonSensivity();
 		}
 
 		#region IParametersWidget implementation
@@ -60,12 +59,13 @@ namespace Vodovoz.ReportsParameters
 				MessageDialogHelper.RunErrorDialog("Необходимо выбрать дату");
 				return;
 			}
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
-		}
 
-		private void ButtonSensivity()
-		{
-			buttonCreateReport.Sensitive = evmeEmployee.Subject != null;
+			if(evmeEmployee.Subject == null)
+			{
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать сотрудника");
+				return;
+			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
 	}
 }
