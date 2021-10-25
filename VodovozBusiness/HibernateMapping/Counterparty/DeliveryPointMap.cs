@@ -47,7 +47,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.AddCertificatesAlways)	.Column("add_certificates_always");
 			Map(x => x.KPP)						.Column("KPP");
 			Map(x => x.Organization)			.Column("organization");
-			// Map(x => x.BitrixId)			    .Column("bitrix_id");
 
 			Map(x => x.FixPrice1)				.Column("fix_price1");
 			Map(x => x.FixPrice2)				.Column("fix_price2");
