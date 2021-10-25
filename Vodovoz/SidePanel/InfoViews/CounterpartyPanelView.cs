@@ -17,7 +17,7 @@ using Vodovoz.ViewWidgets.Mango;
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyPanelView : Gtk.Bin, IPanelView
+	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private Counterparty _counterparty;
@@ -34,12 +34,18 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
-					.AddNumericRenderer(node => node.Id)
+				.AddNumericRenderer(node => node.Id)
 				.AddColumn("Дата")
 				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Статус")
-					.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
+				.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
 				.Finish();
+		}
+		
+		private void Refresh(object changedObj)
+		{
+			_counterparty = changedObj as Counterparty;
+			RefreshData();
 		}
 
 		#region IPanelView implementation
@@ -49,6 +55,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			_counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
+			RefreshData();
+		}
+
+		private void RefreshData()
+		{
 			if(_counterparty == null)
 			{
 				buttonSaveComment.Sensitive = false;
@@ -182,10 +193,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
 				() =>
 				{
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(_counterparty.Id, InfoProvider.UoW),
-						UnitOfWorkFactory.GetDefaultFactory);
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
-					dlg.TabClosed += (senderObject, eventArgs) => { this.Refresh(); };
+					dlg.EntitySaved += (o, args) => Refresh(args.Entity);
 					return dlg;
 				}
 			);
