@@ -33,7 +33,7 @@ namespace BitrixIntegration.Processors
 				return GetContact(uow, deal);
 			}
 
-			if(deal.CompanyId != 0)
+			if(deal.CompanyId.HasValue && deal.CompanyId.Value != 0)
 			{
 				return GetCompany(uow, deal);
 			}
@@ -73,7 +73,7 @@ namespace BitrixIntegration.Processors
 		{
 			_logger.Info("Обработка контрагента как компании");
 
-			var company = _bitrixClient.GetCompany(deal.CompanyId).GetAwaiter().GetResult()
+			var company = _bitrixClient.GetCompany(deal.CompanyId ?? 0).GetAwaiter().GetResult()
 			              ?? throw new InvalidOperationException($"Не удалось загрузить компанию №{deal.CompanyId}");
 
 			Counterparty counterparty = GetCounterpartyOrNull(uow, company);

@@ -40,7 +40,7 @@ namespace Bitrix.DTO
 		public string LeadId { get; set; }
 
 		[JsonProperty("COMPANY_ID")]
-		public uint CompanyId { get; set; }
+		public uint? CompanyId { get; set; }
 
 		[JsonProperty("CONTACT_ID")]
 		public uint? ContactId { get; set; }
