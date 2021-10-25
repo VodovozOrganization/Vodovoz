@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
-using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
-using Vodovoz.JournalFilters;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters
@@ -21,12 +17,15 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeRepresentationFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver);
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Changed += (sender, e) => CanRun();
+			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();
+			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
 		}
 
 		#region IParametersWidget implementation
@@ -34,10 +33,6 @@ namespace Vodovoz.ReportsParameters
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		public string Title => "Отчет по выездным мастерам";
-
-		protected void OnButtonCreateReportEntered(object sender, EventArgs e)
-		{
-		}
 
 		#endregion
 
@@ -47,18 +42,13 @@ namespace Vodovoz.ReportsParameters
 
 			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
 			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
-			parameters.Add("driver_id", (yentryreferenceDriver.Subject as Employee).Id);
+			parameters.Add("driver_id", evmeDriver.SubjectId);
 
 			return new ReportInfo {
 				Identifier = "ServiceCenter.MastersReport",
 				UseUserVariables = true,
 				Parameters = parameters
 			};
-		}
-
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
 		}
 
 		void OnUpdate(bool hide = false)
@@ -70,17 +60,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			buttonCreateReport.Sensitive = (dateperiodpicker.EndDateOrNull != null 
 			                                && dateperiodpicker.StartDateOrNull != null 
-			                                && yentryreferenceDriver.Subject != null);
-		}
-
-		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
-		{
-			CanRun();
-		}
-
-		protected void OnYentryreferenceDriverChanged(object sender, EventArgs e)
-		{
-			CanRun();
+			                                && evmeDriver.Subject != null);
 		}
 	}
 }

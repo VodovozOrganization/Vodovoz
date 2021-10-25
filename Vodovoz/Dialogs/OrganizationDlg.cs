@@ -8,6 +8,7 @@ using QS.Validation;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -66,10 +67,12 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);
 
-			referenceBuhgalter.RepresentationModel = new EmployeesVM();
-			referenceBuhgalter.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
-			referenceLeader.RepresentationModel = new EmployeesVM();
-			referenceLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeAccountant.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeAccountant.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
+
+			evmeLeader.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
 
 			phonesview1.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
@@ -108,4 +111,3 @@ namespace Vodovoz
 		}
 	}
 }
-

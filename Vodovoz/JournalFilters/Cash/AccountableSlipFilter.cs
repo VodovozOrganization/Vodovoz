@@ -4,11 +4,8 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -19,9 +16,10 @@ namespace Vodovoz
 		{
 			yentryExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
 
-			var filter = new EmployeeRepresentationFilterViewModel();
-			filter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-			repEntryAccountable.RepresentationModel = new EmployeesVM(filter);
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Changed += (sender, args) => OnRefiltered();
+			dateperiod.PeriodChanged += (sender, args) => OnRefiltered();
 		}
 
 		public AccountableSlipFilter(IUnitOfWork uow) : this()
@@ -43,10 +41,10 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictAccountable {
-			get { return repEntryAccountable.Subject as Employee; }
+			get { return evmeEmployee.Subject as Employee; }
 			set {
-				repEntryAccountable.Subject = value;
-				repEntryAccountable.Sensitive = false;
+				evmeEmployee.Subject = value;
+				evmeEmployee.Sensitive = false;
 			}
 		}
 
@@ -68,20 +66,9 @@ namespace Vodovoz
 
 		public decimal? RestrictDebt => null;
 
-		protected void OnYentryAccountableChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnYentryExpenseChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnDateperiodPeriodChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}
 	}
 }
-

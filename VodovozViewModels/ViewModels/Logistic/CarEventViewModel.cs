@@ -22,7 +22,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			IEmployeeService employeeService)
+			IEmployeeService employeeService,
+			IEmployeeJournalFactory employeeJournalFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(employeeService == null)
@@ -32,6 +33,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			
 			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
 			TabName = "Событие ТС";
 
@@ -44,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarEventTypeSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		public DelegateCommand ChangeDriverCommand => _changeDriverCommand ?? (_changeDriverCommand =
 			new DelegateCommand(() =>

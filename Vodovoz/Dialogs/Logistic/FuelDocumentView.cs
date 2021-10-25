@@ -15,9 +15,6 @@ namespace Vodovoz
 {
 	public partial class FuelDocumentView : TabViewBase<FuelDocumentViewModel>
 	{
-		public IUnitOfWork UoW { get; set; }
-		private FuelRepository fuelRepository;
-
 		public FuelDocumentView(FuelDocumentViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -26,20 +23,17 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			fuelRepository = new FuelRepository();
-
-			yspeccomboboxSubdivision.Sensitive = ViewModel.FuelDocument.FuelExpenseOperation == null && ViewModel.IsNewEditable; 
+			yspeccomboboxSubdivision.Sensitive = ViewModel.FuelDocument.FuelExpenseOperation == null && ViewModel.IsNewEditable;
 			yspeccomboboxSubdivision.Binding.AddBinding(ViewModel, w => w.AvailableSubdivisionsForUser, e => e.ItemsList).InitializeFromSource();
 			yspeccomboboxSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
 			yspeccomboboxSubdivision.Binding.AddBinding(ViewModel.FuelDocument, w => w.Subdivision, e => e.SelectedItem).InitializeFromSource();
 
 			ydatepicker.Binding.AddBinding(ViewModel.FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
-			yentrydriver.RepresentationModel = ViewModel.EmployeeJournal;
-			yentrydriver.Binding.AddBinding(ViewModel.FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
+			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelector);
+			evmeDriver.Binding.AddBinding(ViewModel.FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarAutocompleteSelector);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.FuelDocument, x => x.Car, x => x.Subject).InitializeFromSource();
 
 			yentryfuel.SubjectType = typeof(FuelType);

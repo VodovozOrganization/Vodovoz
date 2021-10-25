@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
 		private readonly IEmployeeService _employeeService;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
@@ -33,7 +34,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			IEmployeeService employeeService)
+			IEmployeeService employeeService,
+			IEmployeeJournalFactory employeeJournalFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
@@ -41,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			UpdateOnChanges(
 				typeof(CarEvent),
@@ -163,7 +166,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				commonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
-				_employeeService);
+				_employeeService,
+				_employeeJournalFactory);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -172,6 +176,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				commonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
-				_employeeService);
+				_employeeService,
+				_employeeJournalFactory);
 	}
 }

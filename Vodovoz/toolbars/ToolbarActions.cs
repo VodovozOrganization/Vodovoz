@@ -496,10 +496,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			"CRM",
-			() => new TasksView(new EmployeeRepository(),
-								new BottlesRepository(),
-								new CallTaskRepository(),
-								new PhoneRepository(),
+			() => new TasksView(
 								new EmployeeJournalFactory(),
 								new DeliveryPointRepository()), null
 		);
@@ -555,7 +552,8 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.RevisionBottlesAndDeposits>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()))
 		);
 	}
 
@@ -1145,9 +1143,13 @@ public partial class MainWindow : Window
 	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
 	{
 		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 
-		var carEventFilter = new CarEventFilterViewModel(carJournalFactory, carEventTypeJournalFactory) { HidenByDefault = true };
+		var carEventFilter = new CarEventFilterViewModel(
+			carJournalFactory,
+			carEventTypeJournalFactory,
+			new EmployeeJournalFactory()) { HidenByDefault = true };
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
 			carEventFilter,
@@ -1155,7 +1157,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			carJournalFactory,
 			carEventTypeJournalFactory,
-			VodovozGtkServicesConfig.EmployeeService)
+			VodovozGtkServicesConfig.EmployeeService,
+			employeeFactory)
 		);
 	}
 }
