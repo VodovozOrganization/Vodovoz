@@ -74,7 +74,14 @@ namespace BitrixIntegration
 				dealRegistration.ProcessedDate = DateTime.Now;
 				dealRegistration.Success = false;
 				dealRegistration.NeedSync = false;
-				dealRegistration.ErrorDescription = errorDescription;
+				var toInsert = $"{DateTime.Now.ToShortDateString()} {errorDescription}\n";
+				dealRegistration.ErrorDescription = dealRegistration.ErrorDescription.Insert(0, toInsert);
+				var currentLength = dealRegistration.ErrorDescription.Length;
+				if(currentLength > 1000)
+				{
+					_logger.Warn($"Превышена длина лога ошибок регистрации сделки {dealRegistration.Id}: {currentLength} > 1000");
+					dealRegistration.ErrorDescription = dealRegistration.ErrorDescription.Remove(1000, currentLength - 1000);
+				}
 
 				uow.Save(dealRegistration);
 				uow.Commit();
