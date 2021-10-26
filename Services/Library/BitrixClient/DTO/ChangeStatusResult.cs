@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 
-namespace Bitrix.DTO 
+namespace Bitrix.DTO
 {
-    public class ChangeStatusResult 
-    {
+	public class ChangeStatusResult
+	{
 		[JsonProperty("result")]
 		public bool Result { get; set; }
-        
+
 		[JsonProperty("time")]
 		public ResponseTime ResponseTime { get; set; }
-    }
+	}
 }

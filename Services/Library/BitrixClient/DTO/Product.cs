@@ -52,5 +52,7 @@ namespace Bitrix.DTO
 
 		[JsonProperty(UserFieldNames.ProductPromosetInfo)]
 		public PromosetInfo PromosetInfo { get; set; }
+
+		public bool IsOurProduct => NomenclatureInfo?.NomenclatureId > 0;
 	}
 }

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Bitrix.DTO 
+namespace Bitrix.DTO
 {
-    public class DealProductItemResponse 
+	public class DealProductItemResponse
 	{
-        [JsonProperty("result")] 
+		[JsonProperty("result")]
 		public IList<DealProductItem> Result { get; set; }
 
-        [JsonProperty("time")] 
+		[JsonProperty("time")]
 		public ResponseTime ResponseTime { get; set; }
-    }
+	}
 }

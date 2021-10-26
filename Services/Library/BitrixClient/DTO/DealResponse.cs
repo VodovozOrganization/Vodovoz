@@ -3,11 +3,11 @@
 namespace Bitrix.DTO
 {
 	public class DealResponse
-    {
-        [JsonProperty("result")] 
+	{
+		[JsonProperty("result")]
 		public Deal Result { get; set; }
 
-        [JsonProperty("time")] 
+		[JsonProperty("time")]
 		public ResponseTime ResponseTime { get; set; }
-    }
+	}
 }

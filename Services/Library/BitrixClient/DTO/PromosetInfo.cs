@@ -4,10 +4,10 @@ namespace Bitrix.DTO
 {
 	public class PromosetInfo
 	{
-		[JsonProperty("valueId")] 
+		[JsonProperty("valueId")]
 		public string ValueId { get; set; }
 
-		[JsonProperty("value")] 
+		[JsonProperty("value")]
 		public int PromosetId { get; set; }
 	}
 }

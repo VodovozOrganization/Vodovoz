@@ -4,10 +4,10 @@ namespace Bitrix.DTO
 {
 	public class ProductCategory
 	{
-		[JsonProperty("valueId")] 
+		[JsonProperty("valueId")]
 		public string ValueId { get; set; }
 
-		[JsonProperty("value")] 
+		[JsonProperty("value")]
 		public string IsOurProduct { get; set; }
 	}
 }

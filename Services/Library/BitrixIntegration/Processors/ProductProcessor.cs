@@ -34,10 +34,10 @@ namespace BitrixIntegration.Processors
 			var dealProductItems = _bitrixClient.GetProductsForDeal(deal.Id).GetAwaiter().GetResult();
 			foreach(var dealProductItem in dealProductItems)
 			{
-				Product product = _bitrixClient.GetProduct(dealProductItem.ProductId).GetAwaiter().GetResult();
-				bool isOurProduct = IsOurProduct(product);
+				var product = _bitrixClient.GetProduct(dealProductItem.ProductId).GetAwaiter().GetResult()
+				              ?? throw new InvalidOperationException($"Не удалось загрузить товар битрикса ({dealProductItem.ProductId})");
 
-				if(isOurProduct)
+				if(product.IsOurProduct)
 				{
 					ProcessOurProduct(uow, deal, order, dealProductItem, product);
 				}
@@ -65,17 +65,20 @@ namespace BitrixIntegration.Processors
 			if(product.NomenclatureInfo == null)
 			{
 				throw new InvalidOperationException($"Попытка загрузить номенклатуру для не соответствующего продукта " +
-													$"(Для продукта {product.Id} ({product.Name}) не заполнено поле {nameof(product.NomenclatureInfo)})");
+													$"(Для продукта {product.Id} ({product.Name}) не заполнено поле " +
+													$"{nameof(product.NomenclatureInfo)})");
 			}
 
 			Nomenclature nomenclature = uow.GetById<Nomenclature>(product.NomenclatureInfo.NomenclatureId);
 			if(nomenclature == null)
 			{
-				_logger.Info($"Для нашего продукта {product.Id} ({product.Name}) не удалось найти номенклатуру по {nameof(product.NomenclatureInfo.NomenclatureId)}");
+				_logger.Info($"Для нашего продукта {product.Id} ({product.Name}) не удалось найти номенклатуру по " +
+				             $"{nameof(product.NomenclatureInfo.NomenclatureId)}");
 			}
 			else
 			{
-				_logger.Info($"Для нашего продукта {product.Id} ({product.Name}) найдена номенклатура по {nameof(product.NomenclatureInfo.NomenclatureId)} {nomenclature.Id} ({nomenclature.Name})");
+				_logger.Info($"Для нашего продукта {product.Id} ({product.Name}) найдена номенклатура по " +
+				             $"{nameof(product.NomenclatureInfo.NomenclatureId)} {nomenclature.Id} ({nomenclature.Name})");
 			}
 			return nomenclature;
 		}
@@ -113,11 +116,13 @@ namespace BitrixIntegration.Processors
 			Nomenclature nomenclature;
 			if(MatchNomenclatureByBitrixId(uow, product.ProductId, out nomenclature))
 			{
-				_logger.Info($"Для продукта ИМ {product.ProductId} ({product.ProductName}) найдена номенклатура по bitrix_id {nomenclature.BitrixId} ({nomenclature.Name})");
+				_logger.Info($"Для продукта ИМ {product.ProductId} ({product.ProductName}) найдена номенклатура по " +
+				             $"bitrix_id {nomenclature.BitrixId} ({nomenclature.Name})");
 			}
 			else if(MatchNomenclatureByName(uow, product.ProductName, out nomenclature))
 			{
-				_logger.Info($"Для продукта ИМ {product.ProductId} ({product.ProductName}) найдена номенклатура по имени {nomenclature.BitrixId} ({nomenclature.Name})");
+				_logger.Info($"Для продукта ИМ {product.ProductId} ({product.ProductName}) найдена номенклатура по " +
+				             $"имени {nomenclature.BitrixId} ({nomenclature.Name})");
 			}
 
 			if(nomenclature == null)
@@ -129,7 +134,7 @@ namespace BitrixIntegration.Processors
 
 		private bool MatchNomenclatureByBitrixId(IUnitOfWork uow, uint productId, out Nomenclature outNomenclature)
 		{
-			Nomenclature nomenclature = _nomenclatureRepository.GetNommenclatureByBitrixId(uow, productId);
+			Nomenclature nomenclature = _nomenclatureRepository.GetNomenclatureByBitrixId(uow, productId);
 
 			if(nomenclature == null)
 			{
@@ -140,7 +145,7 @@ namespace BitrixIntegration.Processors
 			}
 
 			outNomenclature = nomenclature;
-			_logger.Info($"Сопоставление Counterparty: {outNomenclature.Id} по BitrixId: {productId} прошло успешно");
+			_logger.Info($"Сопоставление ТМЦ: {outNomenclature.Id} по BitrixId: {productId} прошло успешно");
 			return true;
 		}
 
@@ -179,11 +184,6 @@ namespace BitrixIntegration.Processors
 				ProductGroup = group
 			};
 			return nomenclature;
-		}
-
-		private bool IsOurProduct(Product product)
-		{
-			return product?.NomenclatureInfo?.NomenclatureId > 0;
 		}
 	}
 }

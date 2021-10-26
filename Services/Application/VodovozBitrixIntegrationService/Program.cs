@@ -39,7 +39,7 @@ namespace VodovozBitrixIntegrationService
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string _configFile = "/etc/vodovoz-bitrix-integration-service.conf"; 
+		private static readonly string _configFile = "/etc/vodovoz-bitrix-integration-service.conf";
 
 		private static MysqlSettings _mysqlSettings;
 
@@ -53,7 +53,7 @@ namespace VodovozBitrixIntegrationService
 			ReadServiceConfiguration();
 
 			_logger.Info("Настройка подключения к БД...");
-			ConfigureDBConnection();
+			ConfigureDbConnection();
 
 			try
 			{
@@ -65,10 +65,11 @@ namespace VodovozBitrixIntegrationService
 
 				if(Environment.OSVersion.Platform == PlatformID.Unix)
 				{
-					UnixSignal[] signals = {
-						new UnixSignal (Signum.SIGINT),
-						new UnixSignal (Signum.SIGHUP),
-						new UnixSignal (Signum.SIGTERM)
+					UnixSignal[] signals =
+					{
+						new UnixSignal(Signum.SIGINT),
+						new UnixSignal(Signum.SIGHUP),
+						new UnixSignal(Signum.SIGTERM)
 					};
 					UnixSignal.WaitAny(signals);
 				}
@@ -108,7 +109,6 @@ namespace VodovozBitrixIntegrationService
 
 				_bitrixSettings = new BitrixSettings();
 				configuration.GetSection(nameof(BitrixSettings)).Bind(_bitrixSettings);
-
 			}
 			catch(Exception ex)
 			{
@@ -117,7 +117,7 @@ namespace VodovozBitrixIntegrationService
 			}
 		}
 
-		private static void ConfigureDBConnection()
+		private static void ConfigureDbConnection()
 		{
 			try
 			{
@@ -181,7 +181,8 @@ namespace VodovozBitrixIntegrationService
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
+				var counterpartyContractFactory =
+					new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 
 				var bitrixRepository = new BitrixRepository();
 				var dealRegistrator = new DealRegistrator(uowFactory, bitrixRepository, bitrixClient);
@@ -252,7 +253,7 @@ namespace VodovozBitrixIntegrationService
 				var dealWorker = new DealWorker(dealProcessor, dealSynchronizer);
 				dealWorker.Start();
 			}
-			catch (Exception e)
+			catch(Exception e)
 			{
 				_logger.Fatal($"!Ошибка дошла до самого верхнего уровня! Ошибка: {e.Message}\n\n{e.InnerException?.Message}");
 			}

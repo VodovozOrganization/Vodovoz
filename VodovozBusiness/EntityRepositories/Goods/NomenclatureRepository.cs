@@ -336,7 +336,7 @@ namespace Vodovoz.EntityRepositories.Goods
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
 		
-		public Nomenclature GetNommenclatureByBitrixId(IUnitOfWork uow, uint bitrixId) =>
+		public Nomenclature GetNomenclatureByBitrixId(IUnitOfWork uow, uint bitrixId) =>
 			uow.Session.QueryOver<Nomenclature>()
 				.Where(x => x.BitrixId == bitrixId)
 				.SingleOrDefault();

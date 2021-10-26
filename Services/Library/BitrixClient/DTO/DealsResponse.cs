@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Bitrix.DTO 
+namespace Bitrix.DTO
 {
-    public class DealsResponse 
+	public class DealsResponse
 	{
-        [JsonProperty("result")] 
+		[JsonProperty("result")]
 		public IList<Deal> Result { get; set; }
 
-        [JsonProperty("next")]  
+		[JsonProperty("next")]
 		public int? Next { get; set; }
 
-        [JsonProperty("total")]  
+		[JsonProperty("total")]
 		public int Total { get; set; }
 
-        [JsonProperty("time")] 
+		[JsonProperty("time")]
 		public ResponseTime ResponseTime { get; set; }
-    }
+	}
 }
