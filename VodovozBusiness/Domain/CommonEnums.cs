@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Client
 		ContractDoc,
 		[Display(Name = "Безналичная", ShortName = "б/н.")]
 		cashless,
-		[Display(Name = "", ShortName = "")]
+		[Display(Name = "Мир напитков", ShortName = "нал.")]
 		BeveragesWorld
 	}
 
