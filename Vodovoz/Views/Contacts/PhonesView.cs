@@ -73,14 +73,14 @@ namespace Vodovoz.Views.Contacts
 				phonesList = value;
 
 				buttonAdd.Sensitive = phonesList != null;
-				if(value != null) {
+				if(value != null)
+				{
 					PhonesList.ElementAdded += OnPhoneListElementAdded;
 					PhonesList.ElementRemoved += OnPhoneListElementRemoved;
-					if(PhonesList.Count == 0)
-						PhonesList.Add(new Phone().Init(ContactParametersProvider.Instance));
-					else {
-						foreach(Phone phone in PhonesList)
-							AddPhoneRow(phone);
+
+					foreach(Phone phone in PhonesList)
+					{
+						AddPhoneRow(phone);
 					}
 				}
 				SetEditable();
