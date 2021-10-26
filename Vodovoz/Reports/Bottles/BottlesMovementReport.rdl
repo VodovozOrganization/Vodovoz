@@ -81,7 +81,7 @@ true,
           <TableColumn>
             <Width>39.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>39.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -241,7 +241,7 @@ true,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Fields!amount_unloaded_empty.Value</Value>
@@ -286,7 +286,7 @@ true,
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -491,7 +491,7 @@ true,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Style>
@@ -535,7 +535,7 @@ true,
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -731,7 +731,7 @@ true,
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
@@ -772,7 +772,7 @@ true,
                             <BorderColor />
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1009,7 +1009,8 @@ true,
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox18">
-                          <Value>Недо- возы</Value>
+                          <Value>Недо- возы и 
+пере- носы</Value>
                           <Style>
                             <TextAlign>Center</TextAlign>
                             <BorderStyle>
@@ -1019,6 +1020,7 @@ true,
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
+                            <FontSize >8.5pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1077,7 +1079,7 @@ true,
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Value>Фактич. кол-во пуст. бут. склад</Value>
@@ -1493,27 +1495,27 @@ Sum(Fields!amount_unloaded_empty.Value, "Route_lists") - Sum(Fields!actual_count
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Route_lists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     employees.last_name,
     route_lists.id,
     IFNULL(rla.count, 0) AS count,
     IFNULL(rla.actual_count, 0) AS actual_count,
     TRUNCATE(IFNULL(returned_full.amount, 0),
-        0) AS amount_unloaded_full,
+             0) AS amount_unloaded_full,
     TRUNCATE(IFNULL(returned_deffective.amount, 0),
-        0) AS amount_unloaded_deffective,
+             0) AS amount_unloaded_deffective,
     IFNULL(rla.bottles_to_return, 0) AS bottles_to_return,
     IFNULL(rla.bottles_returned, 0) + IFNULL(rla.bottles_by_stock_actual_count, 0) AS bottles_returned,
     TRUNCATE(IFNULL(returned_empty.amount, 0),
-        0) AS amount_unloaded_empty,
+             0) AS amount_unloaded_empty,
     SUM(IFNULL(fines.total_money, 0)) AS total_fines,
     route_lists.closing_comment,
     CASE
         WHEN route_lists.status = 'Closed' THEN 'Закрытые маршрутные листы'
         ELSE 'Незакрытые маршрутные листы'
-    END AS status_for_grouping,
+        END AS status_for_grouping,
     route_lists.status IN ('Closed') AS is_closed,
     closed_by.last_name AS closed_by
 FROM
@@ -1523,100 +1525,97 @@ FROM
         LEFT JOIN
     fines ON fines.route_list_id = route_lists.id
         LEFT JOIN
-    (SELECT 
-        route_list_addresses.route_list_id AS route_list_id,
-            SUM(IFNULL(orders.returned_tare, 0)) AS bottles_to_return,
-            SUM(IF(route_list_addresses.status NOT IN ('Canceled' , 'Overdue','Transfered'), route_list_addresses.bottles_returned, 0)) AS bottles_returned,
-            SUM(o_items.count) AS count,
-            SUM(o_items.actual_count) AS actual_count,
-            SUM(IFNULL(orders.bottles_by_stock_actual_count, 0)) AS bottles_by_stock_actual_count
-    FROM
-        route_list_addresses
-		LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-		LEFT JOIN (
-			SELECT 
-				order_items.order_id,
-				SUM(order_items.count) AS count,
-				SUM(IFNULL(order_items.actual_count, 0)) AS actual_count,
-                route_lists.id AS rl_id
-			FROM
-				order_items
-				LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-				LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-				LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
-			WHERE
-				nomenclature.category = 'water'
-				AND NOT nomenclature.is_disposable_tare
-				AND route_lists.date &gt;= @start_date
-				AND (@end_date = ''
-				OR route_lists.date &lt;= @end_date)
-				AND route_list_addresses.status != 'Transfered'
-			GROUP BY order_items.order_id
-		) AS o_items ON o_items.order_id = orders.id AND o_items.rl_id = route_list_addresses.route_list_id
-    LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
-    WHERE
-        route_lists.date &gt;= @start_date
-            AND (@end_date = ''
-            OR route_lists.date &lt;= @end_date)
-    GROUP BY route_list_addresses.route_list_id) AS rla ON rla.route_list_id = route_lists.id
+    (SELECT
+         route_list_addresses.route_list_id AS route_list_id,
+         SUM(IFNULL(orders.returned_tare, 0)) AS bottles_to_return,
+         SUM(IF(route_list_addresses.status NOT IN ('Canceled' , 'Overdue','Transfered'), route_list_addresses.bottles_returned, 0)) AS bottles_returned,
+         SUM(o_items.count) AS count,
+         SUM(o_items.actual_count) AS actual_count,
+         SUM(IFNULL(orders.bottles_by_stock_actual_count, 0)) AS bottles_by_stock_actual_count
+     FROM
+         route_list_addresses
+             LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+             LEFT JOIN (
+             SELECT
+                 order_items.order_id,
+                 SUM(order_items.count) AS count,
+                 SUM(IF(route_list_addresses.status = 'Transfered', 0, IFNULL(order_items.actual_count, 0))) AS actual_count,
+                 route_lists.id AS rl_id
+             FROM
+                 order_items
+                     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+                     LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
+                     LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
+             WHERE
+                     nomenclature.category = 'water'
+               AND NOT nomenclature.is_disposable_tare
+               AND route_lists.date &gt;= @start_date
+               AND (@end_date = '' OR route_lists.date &lt;= @end_date)
+             GROUP BY order_items.order_id
+         ) AS o_items ON o_items.order_id = orders.id AND o_items.rl_id = route_list_addresses.route_list_id
+             LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
+     WHERE
+             route_lists.date &gt;= @start_date
+       AND (@end_date = ''
+         OR route_lists.date &lt;= @end_date)
+     GROUP BY route_list_addresses.route_list_id) AS rla ON rla.route_list_id = route_lists.id
         LEFT JOIN
-    (SELECT 
-        store_car_unload_documents.route_list_id AS route_list_id,
-            SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
-    FROM
-        store_car_unload_documents
-    LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-    LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-    LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-    LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
-    WHERE
-        nomenclature.category = 'water'
-            AND NOT nomenclature.is_disposable_tare
-            AND route_lists.date &gt;= @start_date
-            AND (@end_date = ''
-            OR route_lists.date &lt;= @end_date)
-    GROUP BY store_car_unload_documents.route_list_id) AS returned_full ON returned_full.route_list_id = route_lists.id
+    (SELECT
+         store_car_unload_documents.route_list_id AS route_list_id,
+         SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
+     FROM
+         store_car_unload_documents
+             LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+             LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+             LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
+     WHERE
+             nomenclature.category = 'water'
+       AND NOT nomenclature.is_disposable_tare
+       AND route_lists.date &gt;= @start_date
+       AND (@end_date = ''
+         OR route_lists.date &lt;= @end_date)
+     GROUP BY store_car_unload_documents.route_list_id) AS returned_full ON returned_full.route_list_id = route_lists.id
         LEFT JOIN
-    (SELECT 
-        store_car_unload_documents.route_list_id AS route_list_id,
-            SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
-    FROM
-        store_car_unload_documents
-    LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-    LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-    LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-    LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
-    WHERE
-        nomenclature.category = 'bottle'
-            AND route_lists.date &gt;= @start_date
-            AND (@end_date = ''
-            OR route_lists.date &lt;= @end_date)
-    GROUP BY store_car_unload_documents.route_list_id) AS returned_empty ON returned_empty.route_list_id = route_lists.id
+    (SELECT
+         store_car_unload_documents.route_list_id AS route_list_id,
+         SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
+     FROM
+         store_car_unload_documents
+             LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+             LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+             LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
+     WHERE
+             nomenclature.category = 'bottle'
+       AND route_lists.date &gt;= @start_date
+       AND (@end_date = ''
+         OR route_lists.date &lt;= @end_date)
+     GROUP BY store_car_unload_documents.route_list_id) AS returned_empty ON returned_empty.route_list_id = route_lists.id
         LEFT JOIN
-    (SELECT 
-        store_car_unload_documents.route_list_id AS route_list_id,
-            SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
-    FROM
-        store_car_unload_documents
-    LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-    LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-    LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-    LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
-    WHERE
-        nomenclature.is_defective_bottle
-            AND store_car_unload_document_items.receive_type = 'Defective'
-            AND route_lists.date &gt;= @start_date
-            AND (@end_date = ''
-            OR route_lists.date &lt;= @end_date)
-    GROUP BY store_car_unload_documents.route_list_id) AS returned_deffective ON returned_deffective.route_list_id = route_lists.id
+    (SELECT
+         store_car_unload_documents.route_list_id AS route_list_id,
+         SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
+     FROM
+         store_car_unload_documents
+             LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+             LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+             LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
+     WHERE
+         nomenclature.is_defective_bottle
+       AND store_car_unload_document_items.receive_type = 'Defective'
+       AND route_lists.date &gt;= @start_date
+       AND (@end_date = ''
+         OR route_lists.date &lt;= @end_date)
+     GROUP BY store_car_unload_documents.route_list_id) AS returned_deffective ON returned_deffective.route_list_id = route_lists.id
         LEFT JOIN
     employees closed_by ON closed_by.id = route_lists.closed_by_employee_id
 WHERE
-    route_lists.date &gt;= @start_date
-        AND (@end_date = ''
-        OR route_lists.date &lt;= @end_date)
-GROUP BY route_lists.id
-;</CommandText>
+        route_lists.date &gt;= @start_date
+  AND (@end_date = ''
+    OR route_lists.date &lt;= @end_date)
+GROUP BY route_lists.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -1626,7 +1625,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="last_name">
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
