@@ -1545,12 +1545,14 @@ FROM
                  order_items
                      LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
                      LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
+                     LEFT JOIN route_list_addresses transfered_to ON transfered_to.id = route_list_addresses.transfered_to_id
                      LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
              WHERE
                      nomenclature.category = 'water'
                AND NOT nomenclature.is_disposable_tare
                AND route_lists.date &gt;= @start_date
                AND (@end_date = '' OR route_lists.date &lt;= @end_date)
+               AND (transfered_to.id is null OR transfered_to.need_to_reload)
              GROUP BY order_items.order_id
          ) AS o_items ON o_items.order_id = orders.id AND o_items.rl_id = route_list_addresses.route_list_id
              LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
