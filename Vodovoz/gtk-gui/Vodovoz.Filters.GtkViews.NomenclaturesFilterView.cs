@@ -4,19 +4,19 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class NomenclaturesFilterView
 	{
-		private global::Gtk.Table table1;
-
-		private global::Gamma.GtkWidgets.yCheckButton chkOnlyDisposableTare;
-
-		private global::Gamma.GtkWidgets.yCheckButton chkShowArchive;
-
-		private global::Gamma.GtkWidgets.yCheckButton chkShowDilers;
+		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Label labelType;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox lstCategory;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox lstSaleCategory;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkShowDilers;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkOnlyDisposableTare;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkShowArchive;
 
 		protected virtual void Build()
 		{
@@ -25,82 +25,79 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.NomenclaturesFilterView";
 			// Container child Vodovoz.Filters.GtkViews.NomenclaturesFilterView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
-			this.table1.Name = "table1";
-			this.table1.RowSpacing = ((uint)(6));
-			this.table1.ColumnSpacing = ((uint)(6));
-			// Container child table1.Gtk.Table+TableChild
-			this.chkOnlyDisposableTare = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkOnlyDisposableTare.CanFocus = true;
-			this.chkOnlyDisposableTare.Name = "chkOnlyDisposableTare";
-			this.chkOnlyDisposableTare.Label = global::Mono.Unix.Catalog.GetString("Одноразовая тара");
-			this.chkOnlyDisposableTare.DrawIndicator = true;
-			this.chkOnlyDisposableTare.UseUnderline = true;
-			this.table1.Add(this.chkOnlyDisposableTare);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.chkOnlyDisposableTare]));
-			w1.LeftAttach = ((uint)(4));
-			w1.RightAttach = ((uint)(5));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.chkShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkShowArchive.CanFocus = true;
-			this.chkShowArchive.Name = "chkShowArchive";
-			this.chkShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать архивные");
-			this.chkShowArchive.DrawIndicator = true;
-			this.chkShowArchive.UseUnderline = true;
-			this.table1.Add(this.chkShowArchive);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowArchive]));
-			w2.LeftAttach = ((uint)(5));
-			w2.RightAttach = ((uint)(6));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.chkShowDilers = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkShowDilers.CanFocus = true;
-			this.chkShowDilers.Name = "chkShowDilers";
-			this.chkShowDilers.Label = global::Mono.Unix.Catalog.GetString("Показывать дилеры");
-			this.chkShowDilers.DrawIndicator = true;
-			this.chkShowDilers.UseUnderline = true;
-			this.table1.Add(this.chkShowDilers);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowDilers]));
-			w3.LeftAttach = ((uint)(3));
-			w3.RightAttach = ((uint)(4));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.labelType = new global::Gtk.Label();
 			this.labelType.Name = "labelType";
 			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
-			this.table1.Add(this.labelType);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.hbox1.Add(this.labelType);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelType]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.lstCategory = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.lstCategory.Name = "lstCategory";
 			this.lstCategory.AddIfNotExist = false;
 			this.lstCategory.DefaultFirst = false;
 			this.lstCategory.ShowSpecialStateAll = true;
 			this.lstCategory.ShowSpecialStateNot = false;
-			this.table1.Add(this.lstCategory);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.lstCategory]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.hbox1.Add(this.lstCategory);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lstCategory]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.lstSaleCategory = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.lstSaleCategory.Name = "lstSaleCategory";
 			this.lstSaleCategory.AddIfNotExist = false;
 			this.lstSaleCategory.DefaultFirst = false;
 			this.lstSaleCategory.ShowSpecialStateAll = true;
 			this.lstSaleCategory.ShowSpecialStateNot = false;
-			this.table1.Add(this.lstSaleCategory);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.lstSaleCategory]));
-			w6.LeftAttach = ((uint)(2));
-			w6.RightAttach = ((uint)(3));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add(this.table1);
+			this.hbox1.Add(this.lstSaleCategory);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lstSaleCategory]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.chkShowDilers = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkShowDilers.CanFocus = true;
+			this.chkShowDilers.Name = "chkShowDilers";
+			this.chkShowDilers.Label = global::Mono.Unix.Catalog.GetString("Показывать дилеры");
+			this.chkShowDilers.DrawIndicator = true;
+			this.chkShowDilers.UseUnderline = true;
+			this.hbox1.Add(this.chkShowDilers);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.chkShowDilers]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.chkOnlyDisposableTare = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkOnlyDisposableTare.CanFocus = true;
+			this.chkOnlyDisposableTare.Name = "chkOnlyDisposableTare";
+			this.chkOnlyDisposableTare.Label = global::Mono.Unix.Catalog.GetString("Одноразовая тара");
+			this.chkOnlyDisposableTare.DrawIndicator = true;
+			this.chkOnlyDisposableTare.UseUnderline = true;
+			this.hbox1.Add(this.chkOnlyDisposableTare);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.chkOnlyDisposableTare]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.chkShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkShowArchive.CanFocus = true;
+			this.chkShowArchive.Name = "chkShowArchive";
+			this.chkShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать архивные");
+			this.chkShowArchive.DrawIndicator = true;
+			this.chkShowArchive.UseUnderline = true;
+			this.hbox1.Add(this.chkShowArchive);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.chkShowArchive]));
+			w6.Position = 5;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

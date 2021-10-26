@@ -14,6 +14,8 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using SmsPaymentService;
+using SmsPaymentService.PaymentControllers;
+using SmsPaymentService.Workers;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 
@@ -113,16 +115,17 @@ namespace VodovozSmsPaymentService
 				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
 				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
-				
+
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
 
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
-					paymentSender, 
+					paymentSender,
 					driverPaymentService,
 					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(new ParametersProvider()),
 					smsPaymentFileCache,
-					new SmsPaymentDTOFactory(new OrderOrganizationProviderFactory().CreateOrderOrganizationProvider())
+					new SmsPaymentDTOFactory(new OrderOrganizationProviderFactory().CreateOrderOrganizationProvider()),
+					new SmsPaymentValidator(new OrganizationParametersProvider(new ParametersProvider()))
 				);
 
 				ServiceHost smsPaymentServiceHost = new SmsPaymentServiceHost(smsPaymentServiceInstanceProvider);
