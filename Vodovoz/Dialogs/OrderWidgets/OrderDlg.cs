@@ -555,12 +555,15 @@ namespace Vodovoz
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
-				Enum[] hideEnums = { PaymentType.Terminal };
+				Enum[] hideEnums = { PaymentType.Terminal, PaymentType.BeveragesWorld };
 				
 				if(Entity.SelfDelivery)
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
+				{
 					enumPaymentType.ClearEnumHideList();
+					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
+				}
 				
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;
@@ -1960,7 +1963,7 @@ namespace Vodovoz
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
 
-				Enum[] hideEnums = { PaymentType.cashless };
+				Enum[] hideEnums = { PaymentType.cashless, PaymentType.BeveragesWorld };
 
 				if(Entity.Client.PersonType == PersonType.natural) {
 					chkContractCloser.Active = false;
@@ -1969,6 +1972,7 @@ namespace Vodovoz
 				} else {
 					chkContractCloser.Visible = true;
 					enumPaymentType.ClearEnumHideList();
+					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
