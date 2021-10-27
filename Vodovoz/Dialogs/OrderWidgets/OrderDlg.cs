@@ -552,7 +552,6 @@ namespace Vodovoz
 			{
 				enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
 			}
-			enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
