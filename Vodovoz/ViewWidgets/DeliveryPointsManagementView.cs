@@ -1,66 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
-using QS.Project.Domain;
+using Gamma.ColumnConfig;
+using Gtk;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private IUnitOfWorkGeneric<Counterparty> _deliveryPointUoW;
+		private Counterparty _counterparty;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		private readonly bool _canDeletePermission;
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
-		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW
+		public Counterparty Counterparty
 		{
-			get => _deliveryPointUoW;
 			set
 			{
-				if(_deliveryPointUoW == value)
+				if(_counterparty == value)
 				{
 					return;
 				}
-
-				_deliveryPointUoW = value;
-				if(DeliveryPointUoW.Root.DeliveryPoints == null)
+				_counterparty = value;
+				if(_counterparty.DeliveryPoints == null)
 				{
-					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint>();
+					_counterparty.DeliveryPoints = new List<DeliveryPoint>();
 				}
-
-				treeDeliveryPoints.RepresentationModel = new ClientDeliveryPointsVM(value);
-				treeDeliveryPoints.RepresentationModel.UpdateNodes();
+				UpdateNodes();
 			}
 		}
 
 		private bool CanDelete()
 		{
-			return ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				"can_delete_counterparty_and_deliverypoint")
-			       && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
+			return _canDeletePermission && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
 		}
-
 
 		public DeliveryPointsManagementView()
 		{
 			this.Build();
 
 			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
+			treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
+			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
+				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
+				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
+				.AddColumn("")
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
+				.Finish();
+			_canDeletePermission =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
 		}
 
 		private void OnSelectionChanged(object sender, EventArgs e)
@@ -87,30 +80,32 @@ namespace Vodovoz
 				}
 			}
 
-			var client = DeliveryPointUoW.Root;
-			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(client);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(_counterparty);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
-			treeDeliveryPoints.RepresentationModel.UpdateNodes();
+			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			var dpId = treeDeliveryPoints.GetSelectedObjects<ClientDeliveryPointVMNode>()[0].Id;
+			var dpId = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
-		}
-
-		protected void OnTreeDeliveryPointsRowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			buttonEdit.Click();
+			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			if(OrmMain.DeleteObject(typeof(DeliveryPoint), treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id))
+			var deliveryPoint = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>();
+			if(OrmMain.DeleteObject(typeof(DeliveryPoint), deliveryPoint.Id))
 			{
-				treeDeliveryPoints.RepresentationModel.UpdateNodes();
+				UpdateNodes();
 			}
+		}
+
+		private void UpdateNodes()
+		{
+			var result = _deliveryPointRepository.GetDeliveryPointsByCounterpartyId(UoW, _counterparty.Id);
+			treeDeliveryPoints.SetItemsSource(result);
 		}
 	}
 }

@@ -64,7 +64,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>322.4pt</Height>
+    <Height>295.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
@@ -82,16 +82,10 @@
             <Width>17pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.5pt</Width>
+            <Width>40.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>142.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>35.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>34.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.6pt</Width>
@@ -137,7 +131,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -289,7 +283,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -464,41 +458,6 @@
                     <Textbox Name="Textbox36">
                       <Value>Адрес</Value>
                       <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>Доставка</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox50">
-                      <Value>Обед</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -720,40 +679,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>раньше</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox45">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -955,40 +880,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>={is_before_interval_delivery}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox70">
-                      <Value>={lunch_time}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox41">
                       <Value>={DeliveryTime}</Value>
                       <CanGrow>true</CanGrow>
@@ -1165,7 +1056,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
@@ -1278,7 +1169,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1367,7 +1258,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1439,8 +1330,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>3.2pt</Left>
-        <Top>104.8pt</Top>
+        <Left>0.0pt</Left>
+        <Top>77.9pt</Top>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
@@ -1481,10 +1372,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>200.2pt</Width>
+            <Width>204.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.3pt</Width>
+            <Width>112.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>310.9pt</Width>
@@ -1598,12 +1489,12 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>11.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>При возникновении проблем звонить дежурному логисту</Value>
+                      <Value>Водительский телефон: 8 (931) 009 - 46 - 79 / Группа WhatsApp: 8 (981) 876 - 89 - 52</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1616,31 +1507,12 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
+                        <PaddingRight>5pt</PaddingRight>
+                        <FontSize >10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>Юг: 8 (967) 530 - 43 - 36 / Север: 8 (964) 378 - 32 - 89</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <TextDecoration>Underline</TextDecoration>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1650,7 +1522,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>или в офис   </Value>
+                      <Value>Логисты Юг: 8 (967) 530 - 43 - 36 / Логисты Север: 8 (964) 378 - 38 - 89 / Механики: 8 (965) 049 - 32 - 76</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1662,79 +1534,8 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <PaddingRight>5pt</PaddingRight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>8 (931) 009 - 46 - 79 / Механик: 8 (965) 049 - 32 - 76</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <TextDecoration>Underline</TextDecoration>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12.0pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>По окончании доставки отзвон в офис 8(931)009-46-79 ОБЯЗАТЕЛЬНО!</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>3</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox93">
-                      <Value>По вопросам тары звонить в офис по тел. 8(981)876-89-52</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1744,8 +1545,8 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.7pt</Left>
-        <Top>10.4pt</Top>
+        <Left>2.5pt</Left>
+        <Top>9.6pt</Top>
       </Table>
       <Table Name="Table3">
         <DataSetName>RouteList</DataSetName>
@@ -2083,38 +1884,20 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.3pt</Left>
-        <Top>212.9pt</Top>
+        <Left>0.0pt</Left>
+        <Top>182.8pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>76.87pt</Height>
-        <Width>118.91pt</Width>
-        <Left>609.9pt</Left>
+        <Height>64.87pt</Height>
+        <Width>99.41pt</Width>
+        <Left>627.2pt</Left>
         <Top>8.8pt</Top>
         <ReportItems>
-          <Textbox Name="Textbox73">
-            <Height>24.02pt</Height>
-            <Width>61.70pt</Width>
-            <Value>Оплата по терминалу</Value>
-            <ZIndex>1</ZIndex>
-            <Left>56.9pt</Left>
-            <Top>37.3pt</Top>
-            <Visibility>
-              <Hidden>= !{?need_terminal}</Hidden>
-            </Visibility>
-            <Style>
-              <TextAlign>Center</TextAlign>
-              <FontWeight>Bold</FontWeight>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-          </Textbox>
           <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>63.49pt</Height>
             <Width>89.92pt</Width>
-            <Left>8.90pt</Left>
-            <Top>3.30pt</Top>
+            <Left>5.10pt</Left>
+            <Top>1.70pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2268,7 +2051,7 @@ LIMIT 1
     IF(orders.payment_type in ('cash', 'BeveragesWorld'), orders.sum_to_receive, 0) AS Total,
     IF(orders.payment_type = 'Terminal',
         (
-            SELECT SUM(IFNULL(actual_count, count) * price - discount_money)
+            SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
             FROM order_items
             WHERE order_id = orders.id), 
         0) as terminals_sum,
@@ -2335,10 +2118,8 @@ LIMIT 1
 подписи'
         WHEN orders.payment_type = 'Terminal' THEN 'Терминал'
         ELSE ''
-        END as client_signature_autofill,
-        IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), "- ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
-        IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
-
+        END as client_signature_autofill
+        
 <!--sql_select-->
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -2538,14 +2319,6 @@ ORDER BY order_in_route
         <Field Name="terminals_sum">
           <DataField>terminals_sum</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="lunch_time">
-          <DataField>lunch_time</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="is_before_interval_delivery">
-          <DataField>is_before_interval_delivery</DataField>
-          <TypeName>System.String</TypeName>
         </Field>
         <!--fields-->
       </Fields>

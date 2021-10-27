@@ -583,13 +583,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _lunchTimeTo, value);
 		}
 
-		[Display(Name = "Доставка раньше интервала")]
-		public virtual bool? IsBeforeIntervalDelivery
-		{
-			get => _isBeforeIntervalDelivery;
-			set => SetField(ref _isBeforeIntervalDelivery, value);
-		}
-
 		#endregion
 
 

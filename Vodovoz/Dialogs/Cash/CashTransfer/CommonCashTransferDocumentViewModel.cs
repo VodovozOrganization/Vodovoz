@@ -10,9 +10,11 @@ using Vodovoz.ViewModelBased;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -30,11 +32,15 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			IUnitOfWorkFactory factory,
 			ICategoryRepository categoryRepository,
 			IEmployeeRepository employeeRepository,
-			ISubdivisionRepository subdivisionRepository) : base(entityUoWBuilder, factory)
+			ISubdivisionRepository subdivisionRepository,
+			IEmployeeJournalFactory employeeJournalFactory) : base(entityUoWBuilder, factory)
 		{
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			EmployeeSelectorFactory =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 
 			if(entityUoWBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
@@ -53,6 +59,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			ConfigEntityUpdateSubscribes();
 		}
 
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+
 		private Employee cashier;
 		public Employee Cashier {
 			get {
@@ -61,18 +69,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				}
 				return cashier;
 			}
-		}
-
-		private bool incomesSelected;
-		public virtual bool IncomesSelected {
-			get => incomesSelected;
-			set => SetField(ref incomesSelected, value, () => IncomesSelected);
-		}
-
-		private bool expensesSelected;
-		public virtual bool ExpensesSelected {
-			get => expensesSelected;
-			set => SetField(ref expensesSelected, value, () => ExpensesSelected);
 		}
 
 		public bool CanEdit => Entity.Status == CashTransferDocumentStatuses.New;

@@ -484,6 +484,12 @@ namespace Vodovoz.Domain.Orders
 					"Не выбран отдел в одном или нескольких виновных.",
 					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
 				);
+
+			if(EmployeeRegistrator == null)
+			{
+				yield return new ValidationResult("Не указан сотрудник, зарегистрировавший недовоз.",
+					new[] { nameof(EmployeeRegistrator) });
+			}
 		}
 
 		#endregion

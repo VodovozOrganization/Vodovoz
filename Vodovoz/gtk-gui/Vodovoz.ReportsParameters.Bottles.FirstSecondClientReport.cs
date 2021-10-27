@@ -22,7 +22,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Label label3;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryEmployer;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -121,15 +121,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryEmployer = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryEmployer.Events = ((global::Gdk.EventMask)(256));
-			this.yentryEmployer.Name = "yentryEmployer";
-			this.hbox3.Add(this.yentryEmployer);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryEmployer]));
+			this.evmeAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
+			this.evmeAuthor.Name = "evmeAuthor";
+			this.evmeAuthor.CanEditReference = true;
+			this.hbox3.Add(this.evmeAuthor);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.evmeAuthor]));
 			w8.Position = 1;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w9.Position = 2;
+			w9.Position = 1;
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
@@ -140,7 +141,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w10.Position = 3;
+			w10.Position = 2;
 			w10.Expand = false;
 			w10.Fill = false;
 			this.Add(this.vbox1);
@@ -149,7 +150,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

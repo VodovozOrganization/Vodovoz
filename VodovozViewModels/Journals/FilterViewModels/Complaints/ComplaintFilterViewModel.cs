@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.FilterViewModels
@@ -27,6 +28,7 @@ namespace Vodovoz.FilterViewModels
 		public IEmployeeService EmployeeService { get; set; }
 		
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		public ComplaintFilterViewModel()
 		{
@@ -47,17 +49,21 @@ namespace Vodovoz.FilterViewModels
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory
+			IEmployeeJournalFactory employeeSelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory
 		) {
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CounterpartySelectorFactory =
-				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory();
+			EmployeeSelectorFactory =
+				(employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory)))
+				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory,
+				employeeSelectorFactory.CreateEmployeeAutocompleteSelectorFactory(),
 				UoW
 			);
 

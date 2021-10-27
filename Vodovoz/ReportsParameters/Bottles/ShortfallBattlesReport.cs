@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
 using QS.Dialog.GtkUI;
-using Vodovoz.JournalFilters;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -24,13 +21,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 			ydatepicker.Date = DateTime.Now.Date;
 			comboboxDriver.ItemsEnum = typeof(Drivers);
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeRepresentationFilterViewModel();
+			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			yentryDriver.RepresentationModel = new EmployeesVM(filter);
+			var driverFactory = new EmployeeJournalFactory(filter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
+			buttonCreateRepot.Clicked += (s, a) => OnUpdate(true);
+			checkOneDriver.Toggled += OnCheckOneDriverToggled;
 		}
 
 		#region IParametersWidget implementation
@@ -45,7 +45,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 		{
 			var parameters = new Dictionary<string, object> {
 				{ "reason_id", (ySpecCmbNonReturnReason.SelectedItem as NonReturnReason)?.Id ?? -1 },
-				{ "driver_id", (yentryDriver.Subject as Employee)?.Id ?? -1 },
+				{ "driver_id", (evmeDriver.Subject as Employee)?.Id ?? -1 },
 				{ "driver_call", (int)comboboxDriver.SelectedItem },
 				{ "date", ydatepicker.Date }
 			};
@@ -62,15 +62,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
-		protected void OnButtonCreateRepotClicked (object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
-
 		protected void OnCheckOneDriverToggled(object sender, EventArgs e)
 		{
 			var sensitive = checkOneDriver.Active;
-			yentryDriver.Sensitive = sensitive;
+			evmeDriver.Sensitive = sensitive;
 		}
 
 		enum Drivers

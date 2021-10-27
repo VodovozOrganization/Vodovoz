@@ -4,27 +4,15 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
-using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Tdi;
 using QSProjectsLib;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets.Mango;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -63,28 +51,44 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddNumericRenderer(node => node.Total19LBottlesToDeliver).Editing(false)
 				.Finish();
 		}
+		
+		private void Refresh(object changedObj)
+		{
+			DeliveryPoint = changedObj as DeliveryPoint;
+			RefreshData();
+		}
 
 		#region IPanelView implementation
+		
 		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
 		{
 			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
-			if(DeliveryPoint == null) {
+			RefreshData();
+		}
+
+		private void RefreshData()
+		{
+			if(DeliveryPoint == null)
+			{
 				buttonSaveComment.Sensitive = false;
 				return;
 			}
+
 			buttonSaveComment.Sensitive = true;
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 
-			foreach(var child in PhonesTable.Children) {
+			foreach(var child in PhonesTable.Children)
+			{
 				PhonesTable.Remove(child);
 				child.Destroy();
 			}
 
 			uint rowsCount = Convert.ToUInt32(DeliveryPoint.Phones.Count) + 1;
 			PhonesTable.Resize(rowsCount, 2);
-			for(uint row = 0; row < rowsCount - 1; row++) {
+			for(uint row = 0; row < rowsCount - 1; row++)
+			{
 				Label label = new Label();
 				label.Selectable = true;
 				label.Markup = $"{DeliveryPoint.Phones[Convert.ToInt32(row)].LongText}";
@@ -187,6 +191,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
+			dpViewModel.EntitySaved += (o, args) => Refresh(args.Entity);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
 	}

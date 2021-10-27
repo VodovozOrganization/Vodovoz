@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -11,12 +12,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class DeliveryPointRepository : IDeliveryPointRepository
 	{
-		public QueryOver<DeliveryPoint> DeliveryPointsForCounterpartyQuery(Domain.Client.Counterparty counterparty)
-		{
-			return QueryOver.Of<DeliveryPoint>()
-				.Where(dp => dp.Counterparty.Id == counterparty.Id);
-		}
-
 		/// <summary>
 		/// Запрос ищет точку доставки в контрагенте по коду 1с или целиком по адресной строке.
 		/// </summary>
@@ -93,6 +88,15 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
+		}
+
+		public IList<DeliveryPoint> GetDeliveryPointsByCounterpartyId(IUnitOfWork uow, int counterpartyId)
+		{
+			var result = uow.Session.QueryOver<DeliveryPoint>()
+				.Where(dp => dp.Counterparty.Id == counterpartyId)
+				.List<DeliveryPoint>();
+
+			return result;
 		}
 	}
 }

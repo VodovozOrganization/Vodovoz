@@ -7,8 +7,11 @@ using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
 using QS.Validation;
 using Vodovoz.Domain.Client;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -80,23 +83,28 @@ namespace Vodovoz
 			logger.Info ("Ok");
 			return true;
 		}
-			
-		void Dlg_ObjectSelected (object sender, JournalObjectSelectedEventArgs e)
+
+		private void OnDeliveryPointJournalObjectSelected (object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedIds = e.GetSelectedIds();
+			var selectedIds = e.SelectedNodes;
 			if(!selectedIds.Any()) {
 				return;
 			}
-			var points = UoW.GetById<DeliveryPoint>(e.GetSelectedIds()).ToList();
+			var points = UoW.GetById<DeliveryPoint>(e.SelectedNodes.Select(n => n.Id)).ToList();
 			points.ForEach(Entity.AddDeliveryPoint);
 		}
 			
 		protected void OnButtonAddDeliveryPointsClicked (object sender, EventArgs e)
 		{
-			var dlg = new PermissionControlledRepresentationJournal(new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty));
-			dlg.Mode = JournalSelectMode.Multiple;
-			dlg.ObjectSelected += Dlg_ObjectSelected;
-			TabParent.AddSlaveTab (this, dlg);
+			var filter = new DeliveryPointJournalFilterViewModel
+			{
+				Counterparty = Entity.Counterparty
+			};
+			var dpFactory = new DeliveryPointJournalFactory(filter);
+			var dpJournal = dpFactory.CreateDeliveryPointByClientJournal();
+			dpJournal.SelectionMode = JournalSelectionMode.Multiple;
+			dpJournal.OnEntitySelectedResult += OnDeliveryPointJournalObjectSelected;
+			TabParent.AddSlaveTab(this, dpJournal);
 		}
 
 		protected void OnButtonDeleteDekiveryPointClicked (object sender, EventArgs e)
@@ -109,4 +117,3 @@ namespace Vodovoz
 		}
 	}
 }
-

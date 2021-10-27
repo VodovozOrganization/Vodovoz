@@ -21,6 +21,8 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
+
 		protected override void ConfigureWithUow()
 		{
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
@@ -31,14 +33,17 @@ namespace Vodovoz
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
 			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
-			
+			var dpFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilter);
+			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+			evmeDeliveryPoint.Changed += (sender, args) => OnRefiltered();
+
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)
 			{
-				entryreferencePoint.CanEditReference = false;
+				evmeDeliveryPoint.CanEditReference = false;
 			}
 		}
 
@@ -69,10 +74,10 @@ namespace Vodovoz
 		}
 
 		public DeliveryPoint RestrictDeliveryPoint {
-			get { return entryreferencePoint.Subject as DeliveryPoint; }
+			get { return evmeDeliveryPoint.Subject as DeliveryPoint; }
 			set {
-				entryreferencePoint.Subject = value;
-				entryreferencePoint.Sensitive = false;
+				evmeDeliveryPoint.Subject = value;
+				evmeDeliveryPoint.Sensitive = false;
 			}
 		}
 
@@ -96,18 +101,16 @@ namespace Vodovoz
 
 		protected void OnEntryClientChanged(object sender, EventArgs e)
 		{
-			entryreferencePoint.Sensitive = RestrictCounterparty != null;
+			evmeDeliveryPoint.Sensitive = RestrictCounterparty != null;
 			if(RestrictCounterparty == null)
-				entryreferencePoint.Subject = null;
-			else {
-				entryreferencePoint.Subject = null;
-				entryreferencePoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, RestrictCounterparty);
+			{
+				evmeDeliveryPoint.Subject = null;
 			}
-			OnRefiltered();
-		}
-
-		protected void OnEntryreferencePointChanged(object sender, EventArgs e)
-		{
+			else
+			{
+				evmeDeliveryPoint.Subject = null;
+				_deliveryPointJournalFilter.Counterparty = entryClient.Subject as Counterparty;
+			}
 			OnRefiltered();
 		}
 
@@ -117,4 +120,3 @@ namespace Vodovoz
 		}
 	}
 }
-

@@ -165,9 +165,6 @@ namespace Vodovoz.Views.Client
 			entryLunchTimeFrom.Binding.AddBinding(ViewModel.Entity, e => e.LunchTimeFrom, w => w.Time).InitializeFromSource();
 			entryLunchTimeTo.Binding.AddBinding(ViewModel.Entity, e => e.LunchTimeTo, w => w.Time).InitializeFromSource();
 
-			chkBeforeIntervalDelivery.RenderMode = QS.Widgets.RenderMode.Icon;
-			chkBeforeIntervalDelivery.Binding.AddBinding(ViewModel.Entity, e => e.IsBeforeIntervalDelivery, w => w.Active).InitializeFromSource();
-
 			//make actions menu
 			var menu = new Menu();
 			var openClientItem = new MenuItem("Открыть контрагента");
