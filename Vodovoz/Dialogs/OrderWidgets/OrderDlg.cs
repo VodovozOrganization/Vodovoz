@@ -683,7 +683,7 @@ namespace Vodovoz
 								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
 							}
 						}
-						if(Entity.Client != null && Entity.Client.IsChainStore)
+						if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 						{
 							Entity.OrderAddressType = OrderAddressType.ChainStore;
 						}
@@ -3221,7 +3221,7 @@ namespace Vodovoz
 		private void OrderAddressTypeChanged()
 		{
 			ylabelOrderAddressType.Visible = true;
-			if(Entity.Client != null && Entity.Client.IsChainStore)
+			if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 			{
 				Entity.OrderAddressType = OrderAddressType.ChainStore;
 			}
