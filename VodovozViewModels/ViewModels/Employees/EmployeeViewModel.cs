@@ -337,8 +337,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				if(SetField(ref _selectedEmployeeContracts, value))
 				{
-					OnPropertyChanged(nameof(CanEditEmployeeDocument));
-					OnPropertyChanged(nameof(CanRemoveEmployeeDocument));
+					OnPropertyChanged(nameof(CanEditEmployeeContract));
+					OnPropertyChanged(nameof(CanRemoveEmployeeContract));
 				}
 			}
 		}
