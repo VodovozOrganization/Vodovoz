@@ -2267,13 +2267,6 @@ namespace Vodovoz
 					PaymentType.cashless
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
-			} else 
-			if (Entity?.Client != null && !Entity.Client.IsDeliveriesClosed)
-			{
-				enumPaymentType.RemoveEnumFromHideList(new Enum[] { 
-					PaymentType.barter,
-					PaymentType.ContractDoc,
-					PaymentType.cashless });
 			}
 		}
 
