@@ -2225,7 +2225,10 @@ namespace Vodovoz
 			} else 
 			if (Entity?.Client != null && !Entity.Client.IsDeliveriesClosed)
 			{
-				enumPaymentType.RemoveEnumFromHideList(hideEnums);
+				enumPaymentType.RemoveEnumFromHideList(new Enum[] { 
+					PaymentType.barter,
+					PaymentType.ContractDoc,
+					PaymentType.cashless });
 			}
 		}
 
