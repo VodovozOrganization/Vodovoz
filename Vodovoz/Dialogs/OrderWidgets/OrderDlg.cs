@@ -547,6 +547,10 @@ namespace Vodovoz
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			SetSensitivityOfPaymentType();
+
 			enumAddRentButton.ItemsEnum = typeof(RentType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
@@ -561,8 +565,7 @@ namespace Vodovoz
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
 				{
-					enumPaymentType.ClearEnumHideList();
-					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
+					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.Terminal });
 				}
 				
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
@@ -585,10 +588,6 @@ namespace Vodovoz
 
 			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
-
-			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
-			SetSensitivityOfPaymentType();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
@@ -1971,7 +1970,7 @@ namespace Vodovoz
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				} else {
 					chkContractCloser.Visible = true;
-					enumPaymentType.ClearEnumHideList();
+					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.cashless });
 					enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
 				}
 
