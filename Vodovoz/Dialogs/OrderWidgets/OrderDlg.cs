@@ -543,6 +543,14 @@ namespace Vodovoz
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			if(Entity.PaymentType != PaymentType.BeveragesWorld)
+			{
+				enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
+			}
+			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			SetSensitivityOfPaymentType();
+
 			enumAddRentButton.ItemsEnum = typeof(RentType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
@@ -552,12 +560,16 @@ namespace Vodovoz
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
 				Enum[] hideEnums = { PaymentType.Terminal };
-				
+
 				if(Entity.SelfDelivery)
+				{
 					enumPaymentType.AddEnumToHideList(hideEnums);
+				}	
 				else
-					enumPaymentType.ClearEnumHideList();
-				
+				{
+					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.Terminal });
+				}
+
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;
 
@@ -578,10 +590,6 @@ namespace Vodovoz
 
 			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
-
-			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
-			SetSensitivityOfPaymentType();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
 			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
@@ -2013,7 +2021,7 @@ namespace Vodovoz
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				} else {
 					chkContractCloser.Visible = true;
-					enumPaymentType.ClearEnumHideList();
+					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.cashless });
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
@@ -2255,11 +2263,17 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog(message);
 				Enum[] hideEnums = {
 					PaymentType.barter,
-					PaymentType.BeveragesWorld,
 					PaymentType.ContractDoc,
 					PaymentType.cashless
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
+			} else 
+			if (Entity?.Client != null && !Entity.Client.IsDeliveriesClosed)
+			{
+				enumPaymentType.RemoveEnumFromHideList(new Enum[] { 
+					PaymentType.barter,
+					PaymentType.ContractDoc,
+					PaymentType.cashless });
 			}
 		}
 
