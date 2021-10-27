@@ -1075,11 +1075,6 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if(Client.IsChainStore && OrderItems.Any(x => x.IsMasterNomenclature))
-			{
-				yield return new ValidationResult($"Невозможно создать заказ для сетевого магазина, содержащий сервисную номенклатуру!");
-			}
-
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
             if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
                 if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
