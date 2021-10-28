@@ -456,8 +456,8 @@ namespace Vodovoz
 				UoWGeneric.Root.Phones = new List<Phone>();
 			}
 
-			phonesView.Phones = UoWGeneric.Root.Phones;
 			phonesView.Counterparty = Entity;
+			phonesView.Phones = UoWGeneric.Root.Phones;
 
 			emailsView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Emails == null)

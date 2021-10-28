@@ -81,6 +81,11 @@ namespace Vodovoz.Views.Contacts
 					foreach(Phone phone in PhonesList)
 					{
 						AddPhoneRow(phone);
+						
+						if(phone.Counterparty == null)
+						{
+							phone.Counterparty = Counterparty;
+						}
 					}
 				}
 				SetEditable();
