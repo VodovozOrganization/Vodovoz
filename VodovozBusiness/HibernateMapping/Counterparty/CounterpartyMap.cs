@@ -76,8 +76,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");
-			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad()
-				.KeyColumn("counterparty_id");
+			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.DeliveryPoints).Inverse().Cascade.AllDeleteOrphan().LazyLoad()
@@ -92,7 +91,7 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SpecialNomenclatures).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
-			HasMany(x => x.NomenclatureFixedPrices).Cascade.AllDeleteOrphan().LazyLoad()
+			HasMany(x => x.NomenclatureFixedPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
 			HasManyToMany(x => x.Tags).Table("counterparty_tags")
 									  .ParentKeyColumn("counterparty_id")

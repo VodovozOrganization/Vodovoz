@@ -17,9 +17,11 @@ using Vodovoz.Domain.Logistic;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -34,11 +36,19 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICategoryRepository categoryRepository,
 			IEmployeeRepository employeeRepository,
-			ISubdivisionRepository subdivisionRepository) : base(uowBuilder, unitOfWorkFactory)
+			ISubdivisionRepository subdivisionRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory) : base(uowBuilder, unitOfWorkFactory)
 		{
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			EmployeeAutocompleteSelectorFactory =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelectorFactory =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory();
 
 			if(uowBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
@@ -53,6 +63,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			ConfigEntityUpdateSubscribes();
 			ConfigureEntityPropertyChanges();
 		}
+
+		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory CarAutocompleteSelectorFactory { get; }
 
 		private Employee cashier;
 		public Employee Cashier {

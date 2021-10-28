@@ -10,7 +10,7 @@ namespace Vodovoz.ServiceDialogs
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryDriver;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
 		private global::Gtk.HBox hbox4;
 
@@ -45,21 +45,22 @@ namespace Vodovoz.ServiceDialogs
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель");
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель:");
 			this.hbox1.Add(this.ylabel1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabel1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryDriver = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.entryDriver.Name = "entryDriver";
-			this.hbox1.Add(this.entryDriver);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryDriver]));
+			this.evmeDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeDriver.WidthRequest = 330;
+			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
+			this.evmeDriver.Name = "evmeDriver";
+			this.evmeDriver.CanEditReference = true;
+			this.hbox1.Add(this.evmeDriver);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.evmeDriver]));
 			w2.Position = 1;
 			w2.Expand = false;
-			w2.Fill = false;
 			this.vbox1.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w3.Position = 0;
@@ -94,7 +95,7 @@ namespace Vodovoz.ServiceDialogs
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ylabel3 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel3.Name = "ylabel3";
-			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("Дата МЛ с:");
+			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("Дата МЛ по:");
 			this.hbox4.Add(this.ylabel3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ylabel3]));
 			w6.Position = 2;

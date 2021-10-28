@@ -9,13 +9,8 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Representations;
-using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -28,38 +23,27 @@ namespace Vodovoz.JournalViewers
 		private CallTasksVM _callTasksVm;
 		private CallTaskFilterView _callTaskFilterView;
 
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IBottlesRepository _bottleRepository;
-		private readonly ICallTaskRepository _callTaskRepository;
-		private readonly IPhoneRepository _phoneRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 
 		public TasksView(
-			IEmployeeRepository employeeRepository,
-			IBottlesRepository bottleRepository,
-			ICallTaskRepository callTaskRepository,
-			IPhoneRepository phoneRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IDeliveryPointRepository deliveryPointRepository)
 		{
 			this.Build();
 
-			_employeeRepository = employeeRepository;
-			_bottleRepository = bottleRepository;
-			_callTaskRepository = callTaskRepository;
-			_phoneRepository = phoneRepository;
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			this.TabName = "Журнал задач для обзвона";
+			TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
-			representationentryEmployee.RepresentationModel = new EmployeesVM(UoW);
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.ChangedByUser += OnEvmeEmployeeChangedByUser;
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
 			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
@@ -194,11 +178,11 @@ namespace Vodovoz.JournalViewers
 		#region ChangeEntityStateButton
 
 		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) =>
-			representationentryEmployee.OpenSelectDialog("Ответственный :");
+			evmeEmployee.OpenSelectDialog("Ответственный :");
 
-		protected void OnRepresentationentryEmployeeChangedByUser(object sender, EventArgs e)
+		void OnEvmeEmployeeChangedByUser(object sender, EventArgs e)
 		{
-			Action<CallTask> action = ((task) => task.AssignedEmployee = representationentryEmployee.Subject as Employee);
+			Action<CallTask> action = ((task) => task.AssignedEmployee = evmeEmployee.Subject as Employee);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
 			_callTasksVm.ChangeEnitity(action, tasks);
 		}

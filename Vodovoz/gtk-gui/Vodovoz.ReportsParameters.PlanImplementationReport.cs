@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Label lblEmployee;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yEntRefEmployee;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeEmployee;
 
 		private global::Gamma.GtkWidgets.yLabel lblEmployeePlan;
 
@@ -147,11 +147,12 @@ namespace Vodovoz.ReportsParameters
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hboxDriver.Gtk.Box+BoxChild
-			this.yEntRefEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yEntRefEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.yEntRefEmployee.Name = "yEntRefEmployee";
-			this.hboxDriver.Add(this.yEntRefEmployee);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.yEntRefEmployee]));
+			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.evmeEmployee.Name = "evmeEmployee";
+			this.evmeEmployee.CanEditReference = true;
+			this.hboxDriver.Add(this.evmeEmployee);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.evmeEmployee]));
 			w11.Position = 1;
 			this.vbox1.Add(this.hboxDriver);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriver]));
@@ -172,7 +173,6 @@ namespace Vodovoz.ReportsParameters
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w14.PackType = ((global::Gtk.PackType)(1));
 			w14.Position = 5;
 			w14.Expand = false;
 			w14.Fill = false;
@@ -182,7 +182,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

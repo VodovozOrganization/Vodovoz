@@ -1,7 +1,7 @@
 using System.Net;
 using Vodovoz.Domain;
 
-namespace SmsPaymentService
+namespace SmsPaymentService.PaymentControllers
 {
     public class TestPaymentController : IPaymentController
     {

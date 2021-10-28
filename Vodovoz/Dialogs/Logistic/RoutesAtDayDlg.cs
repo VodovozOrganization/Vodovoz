@@ -16,6 +16,7 @@ using NHibernate.Criterion;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Utilities;
 using QSOrmProject;
 using QSWidgetLib;
@@ -41,6 +42,8 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -73,6 +76,10 @@ namespace Vodovoz
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
+
+		private readonly EmployeeFilterViewModel _forwardersFilter;
+		private readonly EmployeeFilterViewModel _driversFilter;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
 
 		int addressesWithoutCoordinats, addressesWithoutRoutes, totalBottlesCountAtDay, bottlesWithoutRL;
 		Pixbuf[] pixbufMarkers;
@@ -262,6 +269,18 @@ namespace Vodovoz
 			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
 			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
 			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
+
+			_forwardersFilter = new EmployeeFilterViewModel();
+			_forwardersFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.CanChangeStatus = true,
+				x => x.Status = EmployeeStatus.IsWorking);
+
+			_driversFilter = new EmployeeFilterViewModel();
+			_driversFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.CanChangeStatus = true,
+				x => x.Status = EmployeeStatus.IsWorking);
 		}
 
 		private Subdivision ClosingSubdivision => yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
@@ -1223,31 +1242,23 @@ namespace Vodovoz
 
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
-			var SelectDrivers = new OrmReference(
-				UoW,
-				_employeeRepository.ActiveDriversOrderedQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			SelectDrivers.ObjectSelected += SelectDrivers_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectDrivers);
+			var driversJournal = _employeeJournalFactory.CreateEmployeesJournal(_driversFilter);
+			driversJournal.SelectionMode = JournalSelectionMode.Multiple;
+			driversJournal.OnEntitySelectedResult += OnDriversSelected;
+			TabParent.AddSlaveTab(this, driversJournal);
 		}
 
-		void SelectDrivers_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void OnDriversSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var addDrivers = e.GetEntities<Employee>().ToList();
+			var loaded = UoW.GetById<Employee>(e.SelectedNodes.Select(x => x.Id));
 			logger.Info("Получаем авто для водителей...");
-			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
+			var onlyNew = loaded.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
 			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
-			foreach(var driver in addDrivers) {
-				driversAtDay.Add(
-					new AtWorkDriver(
-						driver,
-						CurDate,
-						allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
-					)
-				);
+			foreach(var driver in loaded)
+			{
+				var driverToAdd = new AtWorkDriver(driver, CurDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id));
+				driversAtDay.Add(driverToAdd);
 			}
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 			logger.Info("Ок");
@@ -1255,21 +1266,19 @@ namespace Vodovoz
 
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
 		{
-			var SelectForwarder = new OrmReference(
-				UoW,
-				_employeeRepository.ActiveForwarderOrderedQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectForwarder);
+			var forwardersJournal = _employeeJournalFactory.CreateEmployeesJournal(_forwardersFilter);
+			forwardersJournal.SelectionMode = JournalSelectionMode.Multiple;
+			forwardersJournal.OnEntitySelectedResult += OnForwardersSelected;
+			TabParent.AddSlaveTab(this, forwardersJournal);
 		}
 
-		void SelectForwarder_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void OnForwardersSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var addForwarder = e.GetEntities<Employee>();
-			foreach(var forwarder in addForwarder) {
-				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id)) {
+			var loaded = UoW.GetById<Employee>(e.SelectedNodes.Select(x => x.Id));
+			foreach(var forwarder in loaded)
+			{
+				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id))
+				{
 					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}

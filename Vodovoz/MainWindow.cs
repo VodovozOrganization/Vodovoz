@@ -144,6 +144,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
@@ -958,9 +959,7 @@ public partial class MainWindow : Gtk.Window
 	    var employeeJournalFactory = new EmployeeJournalFactory();
 	    var userRepository = new UserRepository();
         
-        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+        ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
 
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -977,7 +976,7 @@ public partial class MainWindow : Gtk.Window
 	        new ComplaintFilterViewModel(
 		        ServicesConfig.CommonServices,
 		        subdivisionRepository,
-		        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+		        employeeJournalFactory,
 		        counterpartySelectorFactory
 	        )
 	        {
@@ -1344,9 +1343,10 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
     {
+	    var employeeFactory = new EmployeeJournalFactory();
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-            () => new QSReport.ReportViewDlg(new MastersVisitReport(new EmployeeRepository()))
+            () => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory))
         );
     }
 
@@ -1366,8 +1366,7 @@ public partial class MainWindow : Gtk.Window
 
     protected void OnAction47Activated(object sender, EventArgs e)
     {
-        OrmReference refWin = new OrmReference(typeof(PremiumTemplate));
-        tdiMain.AddTab(refWin);
+	    NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
     }
 
     protected void OnAction48Activated(object sender, EventArgs e)
@@ -1428,7 +1427,7 @@ public partial class MainWindow : Gtk.Window
     {
         tdiMain.OpenTab(
             QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-            () => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport())
+            () => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(UnitOfWorkFactory.GetDefaultFactory))
         );
     }
 
@@ -2094,9 +2093,7 @@ public partial class MainWindow : Gtk.Window
         var employeeJournalFactory = new EmployeeJournalFactory();
         var userRepository = new UserRepository();
 
-        IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-            new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-                CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+        ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
 
         ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
         IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -2116,7 +2113,7 @@ public partial class MainWindow : Gtk.Window
                     new ComplaintFilterViewModel(
                         ServicesConfig.CommonServices,
                         subdivisionRepository,
-                        employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+                        employeeJournalFactory,
                         counterpartySelectorFactory
                     )
                     { IsForRetail = true },

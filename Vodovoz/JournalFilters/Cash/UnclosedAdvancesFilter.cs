@@ -1,19 +1,25 @@
 ﻿using System;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>
+	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>, ISingleUoWDialog
 	{
 		protected override void ConfigureWithUow()
 		{
-			repEntryAccountable.RepresentationModel = new ViewModel.EmployeesVM();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeAccountable.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeAccountable.Changed += (sender, e) => OnRefiltered();
+			yAdvancePeriod.PeriodChanged += (sender, e) => OnRefiltered();
+			yentryExpense.Changed += (sender, e) => OnRefiltered();
 			yentryExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
 		}
 
@@ -28,7 +34,7 @@ namespace Vodovoz
 		}
 
 		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory; }
+			get => yentryExpense.Subject as ExpenseCategory;
 			set {
 				yentryExpense.Subject = value;
 				yentryExpense.Sensitive = false;
@@ -36,15 +42,15 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictAccountable {
-			get { return repEntryAccountable.Subject as Employee; }
+			get => evmeAccountable.Subject as Employee;
 			set {
-				repEntryAccountable.Subject = value;
-				repEntryAccountable.Sensitive = false;
+				evmeAccountable.Subject = value;
+				evmeAccountable.Sensitive = false;
 			}
 		}
 
 		public DateTime? RestrictStartDate {
-			get { return yAdvancePeriod.StartDateOrNull; }
+			get => yAdvancePeriod.StartDateOrNull;
 			set {
 				yAdvancePeriod.StartDateOrNull = value;
 				yAdvancePeriod.Sensitive = false;
@@ -52,27 +58,11 @@ namespace Vodovoz
 		}
 
 		public DateTime? RestrictEndDate {
-			get { return yAdvancePeriod.EndDateOrNull; }
+			get => yAdvancePeriod.EndDateOrNull;
 			set {
 				yAdvancePeriod.EndDateOrNull = value;
 				yAdvancePeriod.Sensitive = false;
 			}
 		}
-
-		protected void OnYentryAccountableChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYentryExpenseChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYAdvancePeriodPeriodChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
 	}
 }
-

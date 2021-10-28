@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
 using System.Linq;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
@@ -11,7 +10,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Domain.Sale;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
 {
