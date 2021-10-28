@@ -26,14 +26,16 @@ namespace MailjetDebugAPI.Endpoints
 			_apiHelper = apiHelper ?? throw new ArgumentNullException(nameof(apiHelper));
 		}
 
-		public async Task SendEvent<T>(T mailEvent) where T : MailEvent
+		public async Task<string> SendEvent<T>(T mailEvent) where T : MailEvent
 		{
 			using(HttpResponseMessage response = await _apiHelper.Client.PostAsJsonAsync(_eventCallbackEndpointPath, mailEvent))
 			{
 				if(!response.IsSuccessStatusCode)
 				{
-					throw new Exception(response.ReasonPhrase);
+					return response.ReasonPhrase;
 				}
+
+				return "Event succesfully sended";
 			}
 		}
 	}

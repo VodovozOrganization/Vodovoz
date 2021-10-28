@@ -20,7 +20,7 @@ namespace MailjetDebugAPI.Data
 			MailjetMessageId = "19421777835146490",
 			SmtpReply = "sent (250 2.0.0 OK 1433333948 fa5si855896wjc.199 - gsmtp)",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString()
+			Payload = PayloadTemplate
 		};
 
 		public static MailOpenEvent OpenTemplate =>
@@ -35,7 +35,7 @@ namespace MailjetDebugAPI.Data
 			MailjetContactId = 320,
 			CustomCampaign = "",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString(),
+			Payload = PayloadTemplate,
 			IpAddress = "127.0.0.1",
 			Geo = "US",
 			Agent = "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0"
@@ -53,7 +53,7 @@ namespace MailjetDebugAPI.Data
 			MailjetContactId = 4,
 			CustomCampaign = "",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString(),
+			Payload = PayloadTemplate,
 			Url = "https://mailjet.com",
 			IpAddress = "127.0.0.1",
 			Geo = "FR",
@@ -72,7 +72,7 @@ namespace MailjetDebugAPI.Data
 			MailjetContactId = 0,
 			CustomCampaign = "",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString(),
+			Payload = PayloadTemplate,
 			Blocked = false,
 			HardBounce = true,
 			ErrorRelatedTo = "recipient",
@@ -92,7 +92,7 @@ namespace MailjetDebugAPI.Data
 			MailjetContactId = 0,
 			CustomCampaign = "",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString(),
+			Payload = PayloadTemplate,
 			ErrorRelatedTo = "recipient",
 			Error = "user unknown"
 		};
@@ -109,7 +109,7 @@ namespace MailjetDebugAPI.Data
 			MailjetContactId = 0,
 			CustomCampaign = "",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString(),
+			Payload = PayloadTemplate,
 			Source = "JMRPP"
 		};
 
@@ -125,7 +125,7 @@ namespace MailjetDebugAPI.Data
 			MailjetContactId = 126,
 			CustomCampaign = "",
 			CustomId = "helloworld",
-			Payload = new { Id = 0, Trackable = false, InstanceId = 0 }.ToString(),
+			Payload = PayloadTemplate,
 			MailjetListId = 1,
 			IpAddress =  "127.0.0.1",
 			Geo = "FR",
@@ -156,5 +156,12 @@ namespace MailjetDebugAPI.Data
 			{ "mailjet", "preblocked" },
 			{ "duplicate in campaign", "You used X-Mailjet-DeduplicateCampaign and sent more than one email to a single recipient. Only the first email was sent; the others were blocked." },
 		};
+
+		public static string PayloadTemplate =>
+			"{\n" +
+			"\t\"Id\": 0,\n" +
+			"\t\"Trackable\": false,\n" +
+			"\t\"InstanceId\": 0\n" +
+			"}";
 	}
 }

@@ -1,6 +1,6 @@
-﻿using MailjetEventMessagesDistributorAPI.DTO;
+﻿using MailjetEventsDistributorAPI.DTO;
 
-namespace MailjetEventMessagesDistributorAPI.DataAccess
+namespace MailjetEventsDistributorAPI.DataAccess
 {
 	public interface IInstanceData
 	{

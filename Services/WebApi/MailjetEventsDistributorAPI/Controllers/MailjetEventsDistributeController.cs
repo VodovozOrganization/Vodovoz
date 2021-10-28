@@ -1,5 +1,5 @@
 ﻿using Mailjet.Api.Abstractions.Events;
-using MailjetEventMessagesDistributorAPI.DataAccess;
+using MailjetEventsDistributorAPI.DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MailjetEventMessagesDistributorAPI.Controllers
+namespace MailjetEventsDistributorAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
@@ -19,13 +19,15 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 	{
 		private const string _queuesConfigurationSection = "Queues";
 		private const string _messageBrockerConfigurationSection = "MessageBroker";
-		private const string _emailStatusUpdateQueueParameter = "EmailStatusUpdateQueue";
+		private const string _emailStatusUpdateExchangeParameter = "EmailStatusUpdateExchange";
+		private const string _emailStatusUpdateKeyParameter = "EmailStatusUpdateKey";
 
 		private readonly ILogger<MailjetEventsDistributeController> _logger;
 		private readonly IInstanceData _instanceData;
 		private readonly RabbitMQConnectionFactory _queueConnectionFactory;
 		private readonly IConfiguration _configuration;
-		private readonly string _mailEventQueueId;
+		private readonly string _mailEventKey;
+		private readonly string _mailEventExchange;
 
 		public MailjetEventsDistributeController(ILogger<MailjetEventsDistributeController> logger, IInstanceData instanceData,
 										  RabbitMQConnectionFactory queueConnectionFactory, IConfiguration configuration)
@@ -34,13 +36,14 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_instanceData = instanceData ?? throw new ArgumentNullException(nameof(instanceData));
 			_queueConnectionFactory = queueConnectionFactory ?? throw new ArgumentNullException(nameof(queueConnectionFactory));
-			_mailEventQueueId = configuration.GetSection(_queuesConfigurationSection).GetValue<string>(_emailStatusUpdateQueueParameter);
+			_mailEventExchange = configuration.GetSection(_queuesConfigurationSection).GetValue<string>(_emailStatusUpdateExchangeParameter);
+			_mailEventKey = configuration.GetSection(_queuesConfigurationSection).GetValue<string>(_emailStatusUpdateKeyParameter);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/EventCallback")]
-		public async Task<IActionResult> EventCallback([FromBody]MailEvent mailSentEvent)
+		public async Task<IActionResult> EventCallback([FromBody] MailEvent mailSentEvent)
 		{
 			_logger.LogInformation($"Recieved Event { mailSentEvent.EventType }");
 
@@ -85,7 +88,7 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/SentEventCallback")]
-		public async Task SentEventCallback([FromBody]MailSentEvent mailSentEvent)
+		public async Task SentEventCallback([FromBody] MailSentEvent mailSentEvent)
 		{
 			_logger.LogInformation($"Recieved Sent Event for: { mailSentEvent.MessageGuid }");
 			await SendMessageToBrocker(mailSentEvent);
@@ -94,7 +97,7 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/OpenEventCallback")]
-		public async Task OpenEventCallback([FromBody]MailOpenEvent mailOpenEvent)
+		public async Task OpenEventCallback([FromBody] MailOpenEvent mailOpenEvent)
 		{
 			_logger.LogInformation($"Recieved Open Event for: { mailOpenEvent.MessageGuid }");
 			await SendMessageToBrocker(mailOpenEvent);
@@ -103,7 +106,7 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/ClickEventCallback")]
-		public async Task ClickEventCallback([FromBody]MailClickEvent mailClickEvent)
+		public async Task ClickEventCallback([FromBody] MailClickEvent mailClickEvent)
 		{
 			_logger.LogInformation($"Recieved Click Event for: { mailClickEvent.MessageGuid }");
 			await SendMessageToBrocker(mailClickEvent);
@@ -159,10 +162,10 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 				var username = messageBrockerSection.GetValue<string>("Username");
 				var password = messageBrockerSection.GetValue<string>("Password");
 
-				var connection = _queueConnectionFactory.CreateConnection(instance.MessageBrockerUri, username, password, instance.MessageBrockerVirtualHost);
+				var connection = _queueConnectionFactory.CreateConnection(instance.MessageBrockerHost, username, password, instance.MessageBrockerVirtualHost);
 				var channel = connection.CreateModel();
 
-				channel.QueueDeclare(_mailEventQueueId, true, false, false, null);
+				channel.QueueDeclare(_mailEventKey, true, false, false, null);
 
 				var dateTimeRecieved = DateTimeOffset.FromUnixTimeSeconds(mailjetEvent.Time).DateTime.ToLocalTime();
 
@@ -187,7 +190,10 @@ namespace MailjetEventMessagesDistributorAPI.Controllers
 				var serializedMessage = JsonSerializer.Serialize(eventMessage);
 				var body = Encoding.UTF8.GetBytes(serializedMessage);
 
-				channel.BasicPublish("", _mailEventQueueId, false, null, body);
+				var properties = channel.CreateBasicProperties();
+				properties.Persistent = true;
+
+				channel.BasicPublish(_mailEventExchange, _mailEventKey, false, properties, body);
 			}
 		}
 	}

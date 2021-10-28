@@ -1,11 +1,11 @@
 ﻿using Dapper;
-using MailjetEventMessagesDistributorAPI.DTO;
+using MailjetEventsDistributorAPI.DTO;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Linq;
 
-namespace MailjetEventMessagesDistributorAPI.DataAccess
+namespace MailjetEventsDistributorAPI.DataAccess
 {
 	public class InstanceData : IInstanceData
 	{
@@ -25,8 +25,8 @@ namespace MailjetEventMessagesDistributorAPI.DataAccess
 				"SELECT\n" +
 				"	i.id AS Id,\n" +
 				"	i.database_id AS DatabaseId,\n" +
-				"	i.message_brocker_uri AS MessageBrockerUri,\n" +
-				"	i.message_brocker_virtual_host AS MessageBrockerVirtualHost\n" +
+				"	i.message_broker_host AS MessageBrockerHost,\n" +
+				"	i.message_broker_virtual_host AS MessageBrockerVirtualHost\n" +
 				"FROM instances i\n" +
 				$"WHERE i.database_id = { Id };"
 				).ToList().FirstOrDefault();

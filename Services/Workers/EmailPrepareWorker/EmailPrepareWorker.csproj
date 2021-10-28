@@ -3,7 +3,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DocumentForEmailPreparingWorker-4C283AF3-DD08-43DA-B451-0DD6165221E8</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..</DockerfileContext>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />

@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QS.ViewModels;
+using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
@@ -23,6 +24,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
+using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Dialogs.Email
 {
@@ -56,7 +58,6 @@ namespace Vodovoz.Dialogs.Email
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly Employee _employee;
 		private readonly IInteractiveService _interactiveService;
-		private readonly string _mailPrepareQueueId = "MailPrepareQueue"; // Заменить на другое решение
 
 		private IEmailableDocument Document { get; set; }
 
@@ -295,7 +296,10 @@ namespace Vodovoz.Dialogs.Email
 				result = false;
 			}
 
-			_interactiveService.ShowMessage(ImportanceLevel.Warning, stringBuilder.ToString());
+			if(!result)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, stringBuilder.ToString());
+			}
 
 			return result;
 		}
@@ -333,18 +337,18 @@ namespace Vodovoz.Dialogs.Email
 
 				var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
 
-				var rabbitHostname = "";
-				var rabbitLogin = "";
-				var rabbitPassword = "";
-				var rabbitVirtualHost = "";
+				var configuration = unitOfWork.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				var connectionFactory = new RabbitMQConnectionFactory(Logger);
-				var connection = connectionFactory.CreateConnection(rabbitHostname, rabbitLogin, rabbitPassword, rabbitVirtualHost);
+				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
 				var channel = connection.CreateModel();
 
 				try
 				{
-					channel.BasicPublish("", _mailPrepareQueueId, false, null, preparingBody);
+					var properties = channel.CreateBasicProperties();
+					properties.Persistent = true;
+
+					channel.BasicPublish(configuration.EmailPrepareExchange, configuration.EmailPrepareKey, false, properties, preparingBody);
 
 					switch(Document.Type)
 					{

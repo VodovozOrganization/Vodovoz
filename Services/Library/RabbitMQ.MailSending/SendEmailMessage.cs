@@ -1,4 +1,4 @@
-using Mailjet.Api.Abstractions;
+﻿using Mailjet.Api.Abstractions;
 using System.Text.Json;
 
 namespace RabbitMQ.MailSending
@@ -8,7 +8,7 @@ namespace RabbitMQ.MailSending
 		public EmailPayload Payload
 		{
 			get => JsonSerializer.Deserialize<EmailPayload>(EventPayload);
-			set => JsonSerializer.Serialize(value);
+			set { EventPayload = JsonSerializer.Serialize(value); }
 		}
 	}
 }

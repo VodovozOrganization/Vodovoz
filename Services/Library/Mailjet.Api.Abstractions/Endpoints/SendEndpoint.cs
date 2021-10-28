@@ -8,7 +8,7 @@ namespace Mailjet.Api.Abstractions.Endpoints
 	public class SendEndpoint
 	{
 		private IApiClientProvider _apiHelper;
-		private readonly string _sendEndpointPath = "/send";
+		private readonly string _sendEndpointPath = "send";
 
 		public SendEndpoint(IApiClientProvider apiHelper)
 		{

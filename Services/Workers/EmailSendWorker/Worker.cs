@@ -87,15 +87,18 @@ namespace EmailSendWorker
 					SandboxMode = _sandboxMode
 				};
 
-				for(var i = 0; i > _retriesCount; i++)
+				for(var i = 0; i < _retriesCount; i++)
 				{
+					_logger.LogInformation($"Sending email {message.Payload.Id} {i}/{_retriesCount}");
 					try
 					{
-						await _sendEndpoint.Send(payload);
+						var response = await _sendEndpoint.Send(payload);
+						_logger.LogInformation("Response:\n" + JsonSerializer.Serialize(response));
 						break;
 					}
-					catch
+					catch(Exception exc)
 					{
+						_logger.LogError(exc, exc.Message);
 						await Task.Delay(_retryDelay);
 
 						if(i >= _retriesCount)
@@ -109,11 +112,12 @@ namespace EmailSendWorker
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message);
+				_logger.LogError(ex, ex.Message);
 				throw;
 			}
 			finally
 			{
+				_logger.LogInformation("Free message from queue");
 				_channel.BasicAck(e.DeliveryTag, false);
 			}
 		}

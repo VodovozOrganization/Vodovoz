@@ -15,6 +15,8 @@
 	private Type _selectedType;
 
 	private MailEvent _event;
+
+	private string _eventResult = "";
 }
 
 <h1>Email Event Sending</h1>
@@ -134,8 +136,9 @@
 	<label class="control-label">Custom Id</label>
 	<input class="form-control" type="text" @bind="_event.CustomId"/><br />
 	<label class="control-label">Payload</label>
-	<textarea class="form-control" @bind="_event.Payload"></textarea><br />
-	<button @onclick="async () => { await _eventsRecieverEndpoint.SendEvent(_event); }">Send</button>
+	<textarea rows="5" class="form-control" @bind="_event.Payload"></textarea><br />
+	<button @onclick="async () => { _eventResult = await _eventsRecieverEndpoint.SendEvent(_event); }">Send</button>
+	<label class="control-label">@_eventResult</label>
 }
 <br />
 <br />
