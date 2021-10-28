@@ -6,11 +6,13 @@ namespace MailjetDebugAPI.Data
 {
 	public static class MailEventsTemplatesData
 	{
+		private static long _currentTimestamp => DateTimeOffset.Now.ToLocalTime().ToUnixTimeSeconds();
+
 		public static MailSentEvent SentTemplate =>
 		new MailSentEvent
 		{
 			EventType = MailEventType.sent,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 19421777835146490,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "api@mailjet.com",
@@ -27,7 +29,7 @@ namespace MailjetDebugAPI.Data
 		new MailOpenEvent
 		{
 			EventType = MailEventType.open,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 19421777396190490,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "api@mailjet.com",
@@ -45,7 +47,7 @@ namespace MailjetDebugAPI.Data
 		new MailClickEvent
 		{
 			EventType = MailEventType.click,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 19421777396190490,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "api@mailjet.com",
@@ -64,7 +66,7 @@ namespace MailjetDebugAPI.Data
 		new MailBounceEvent
 		{
 			EventType = MailEventType.bounce,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 13792286917004336,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "bounce@mailjet.com",
@@ -84,7 +86,7 @@ namespace MailjetDebugAPI.Data
 		new MailBlockedEvent
 		{
 			EventType = MailEventType.blocked,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 13792286917004336,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "bounce@mailjet.com",
@@ -101,7 +103,7 @@ namespace MailjetDebugAPI.Data
 		new MailSpamEvent
 		{
 			EventType = MailEventType.spam,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 13792286917004336,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "bounce@mailjet.com",
@@ -117,7 +119,7 @@ namespace MailjetDebugAPI.Data
 		new MailUnsubscribeEvent
 		{
 			EventType = MailEventType.unsub,
-			Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+			Time = _currentTimestamp,
 			MessageId = 20547674933128000,
 			MessageGuid = Guid.NewGuid().ToString(),
 			EmailAddress = "api@mailjet.com",
