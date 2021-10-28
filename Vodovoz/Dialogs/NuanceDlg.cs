@@ -12,6 +12,7 @@ using Vodovoz.Representations;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
+	[Obsolete("Функционал комментариев нигде не используется, как и этот диалог")]
 	public partial class NuanceDlg : QS.Dialog.Gtk.EntityDialogBase<Comments>
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();

@@ -41,6 +41,8 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using QS.Project.Journal;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -55,6 +57,7 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 
@@ -73,7 +76,6 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
 		private IFilePickerService _filePickerService;
@@ -89,10 +91,6 @@ namespace Vodovoz
 
 		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
 			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
-
-		public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory =>
-			_employeeSelectorFactory ??
-			(_employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());
 
 		public virtual ISubdivisionRepository SubdivisionRepository =>
 			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
@@ -514,11 +512,10 @@ namespace Vodovoz
 
 		private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			var filter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.office,
-				Status = EmployeeStatus.IsWorking
-			};
+			var filter = new EmployeeFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.Status = EmployeeStatus.IsWorking);
 			employeeJournalFactory.SetEmployeeFilterViewModel(filter);
 			return employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}
@@ -619,7 +616,7 @@ namespace Vodovoz
 
 		private void ConfigureTabDeliveryPoints()
 		{
-			deliveryPointsManagementView.DeliveryPointUoW = UoWGeneric;
+			deliveryPointsManagementView.Counterparty = Entity;
 		}
 
 		private void ConfigureTabDocuments()
@@ -679,17 +676,20 @@ namespace Vodovoz
 
 		private void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
 		{
-			var deliveryPointSelectDlg = new PermissionControlledRepresentationJournal(new ClientDeliveryPointsVM(UoW, Entity))
+			var filter = new DeliveryPointJournalFilterViewModel
 			{
-				Mode = JournalSelectMode.Single
+				Counterparty = Entity
 			};
-			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
-			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
+			var dpFactory = new DeliveryPointJournalFactory(filter);
+			var dpJournal = dpFactory.CreateDeliveryPointByClientJournal();
+			dpJournal.SelectionMode = JournalSelectionMode.Single;
+			dpJournal.OnEntitySelectedResult += OnDeliveryPointJournalEntitySelected;
+			TabParent.AddSlaveTab(this, dpJournal);
 		}
 
-		private void DeliveryPointRep_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		private void OnDeliveryPointJournalEntitySelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			if(e.GetNodes<ClientDeliveryPointVMNode>().FirstOrDefault() is ClientDeliveryPointVMNode node)
+			if(e.SelectedNodes.FirstOrDefault() is DeliveryPointByClientJournalNode node)
 			{
 				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 			}
@@ -745,8 +745,7 @@ namespace Vodovoz
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory,
-				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory);
 			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
 
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
@@ -754,7 +753,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				UndeliveredOrdersJournalOpener,
 				_employeeService,
-				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				CounterpartySelectorFactory,
 				RouteListItemRepository,
 				SubdivisionParametersProvider.Instance,
 				filter,

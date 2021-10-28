@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModel;
-using QS.Dialog.GtkUI;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -19,16 +16,14 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryDriver.RepresentationModel = new EmployeesVM();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Changed += (sender, args) => ValidateParameters();
 		}
 
 		#region IParametersWidget implementation
 
-		public string Title {
-			get {
-				return "Премии сотрудников";
-			}
-		}
+		public string Title => "Премии сотрудников";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -48,8 +43,8 @@ namespace Vodovoz.ReportsParameters
 		{
 			var parameters = new Dictionary<string, object>();
 
-			if(yentryDriver.Subject != null)
-				parameters.Add("drivers", (yentryDriver.Subject as Employee).Id);
+			if(evmeDriver.Subject != null)
+				parameters.Add("drivers", evmeDriver.SubjectId);
 			else {
 				parameters.Add("drivers", -1);
 			}
@@ -75,33 +70,11 @@ namespace Vodovoz.ReportsParameters
 			ValidateParameters();
 		}
 
-		protected void OnYentryDriverChanged(object sender, EventArgs e)
-		{
-			ValidateParameters();
-		}
-
 		private void ValidateParameters()
 		{
 			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
-			var driverSelected = yentryDriver.Subject != null;
+			var driverSelected = evmeDriver.Subject != null;
 			buttonRun.Sensitive = datePeriodSelected || driverSelected;
-		}
-
-		protected void OnRadioCatAllToggled(object sender, EventArgs e)
-		{
-			var filter = new EmployeeFilterViewModel();
-			if(radioCatDriver.Active) {
-				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
-			}
-
-			if(radioCatForwarder.Active) {
-				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
-			}
-
-			if(radioCatOffice.Active) {
-				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
-			}
-			yentryDriver.RepresentationModel = new EmployeesVM();
 		}
 
 		protected string GetCategory()

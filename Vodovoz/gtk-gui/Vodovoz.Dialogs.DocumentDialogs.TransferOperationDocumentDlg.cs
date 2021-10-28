@@ -16,6 +16,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerDate;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeEmployee;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView textComment;
@@ -25,8 +27,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		private global::Gtk.Label label12;
 
 		private global::Gtk.Label label13;
-
-		private global::QS.Widgets.GtkUI.RepresentationEntry repEntryEmployee;
 
 		private global::Gtk.HBox hbox3;
 
@@ -168,6 +168,17 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
+			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeEmployee.Sensitive = false;
+			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.evmeEmployee.Name = "evmeEmployee";
+			this.evmeEmployee.CanEditReference = true;
+			this.tableCommon.Add(this.evmeEmployee);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.evmeEmployee]));
+			w7.LeftAttach = ((uint)(3));
+			w7.RightAttach = ((uint)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCommon.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -177,32 +188,32 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.textComment.Name = "textComment";
 			this.GtkScrolledWindow1.Add(this.textComment);
 			this.tableCommon.Add(this.GtkScrolledWindow1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.GtkScrolledWindow1]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(4));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.GtkScrolledWindow1]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.tableCommon.Add(this.label1);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.label1]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.label1]));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
 			this.label12 = new global::Gtk.Label();
 			this.label12.Name = "label12";
 			this.label12.LabelProp = global::Mono.Unix.Catalog.GetString("Ответственное лицо:");
 			this.tableCommon.Add(this.label12);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.label12]));
-			w10.LeftAttach = ((uint)(2));
-			w10.RightAttach = ((uint)(3));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.label12]));
+			w11.LeftAttach = ((uint)(2));
+			w11.RightAttach = ((uint)(3));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
 			this.label13 = new global::Gtk.Label();
 			this.label13.Name = "label13";
@@ -210,20 +221,10 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.label13.Yalign = 0F;
 			this.label13.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий:");
 			this.tableCommon.Add(this.label13);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.label13]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableCommon.Gtk.Table+TableChild
-			this.repEntryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.repEntryEmployee.Sensitive = false;
-			this.repEntryEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.repEntryEmployee.Name = "repEntryEmployee";
-			this.tableCommon.Add(this.repEntryEmployee);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.repEntryEmployee]));
-			w12.LeftAttach = ((uint)(3));
-			w12.RightAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.label13]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox3.Add(this.tableCommon);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.tableCommon]));
@@ -615,8 +616,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			{
 				this.Child.ShowAll();
 			}
+			this.evmeEmployee.Hide();
 			this.label12.Hide();
-			this.repEntryEmployee.Hide();
 			this.Hide();
 			this.referenceCounterpartyFrom.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyFromChanged);
 			this.spinBottles.Changed += new global::System.EventHandler(this.OnSpinBottlesChanged);

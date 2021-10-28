@@ -17,6 +17,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Employees
@@ -67,31 +68,31 @@ namespace Vodovoz.Dialogs.Employees
 				GetDocument();
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
-			var filterOrders = new OrdersFilter(UoW);
-			yEForOrder.RepresentationModel = new OrdersVM(filterOrders);
-			yEForOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
-			yEForOrder.Changed += (sender, e) => {
+			var orderFactory = new OrderSelectorFactory();
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
+			evmeOrder.Changed += (sender, e) => {
 				FillForOrder();
 			};
-			yEForOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var orgFactory = new OrganizationJournalFactory();
+			evmeOrganization.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
+			evmeOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
+			evmeOrganization.Changed += (sender, e) => UpdateStates();
 
 			FillForOrder();
 
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.Date, x => x.StartDate).InitializeFromSource();
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.ExpirationDate, x => x.EndDate).InitializeFromSource();
 
-			yEEmployee.RepresentationModel = new EmployeesVM();
-			yEEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
-			var filterSupplier = new CounterpartyFilter(UoW);
-			yESupplier.RepresentationModel = new CounterpartyVM(filterSupplier);
-			yESupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
+			var supplierFactory = new CounterpartyJournalFactory();
+			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 
 			yETicketNr.Binding.AddBinding(Entity, x => x.TicketNumber, w => w.Text).InitializeFromSource();
 
@@ -163,8 +164,8 @@ namespace Vodovoz.Dialogs.Employees
 		void UpdateStates()
 		{
 			bool isNewDoc = !(Entity.Id > 0);
-			yEForOrder.Sensitive = yDPDatesRange.Sensitive = yEEmployee.Sensitive = yESupplier.Sensitive = yETicketNr.Sensitive
-				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = yentryOrganization.Sensitive = isNewDoc;
+			evmeOrder.Sensitive = yDPDatesRange.Sensitive = evmeEmployee.Sensitive = evmeSupplier.Sensitive = yETicketNr.Sensitive
+				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = evmeOrganization.Sensitive = isNewDoc;
 
 			if(Entity.Organization == null || !isNewDoc) {
 				return;

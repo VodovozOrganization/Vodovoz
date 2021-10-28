@@ -10,7 +10,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
@@ -19,6 +18,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {
@@ -33,6 +33,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Fine> ();
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику. Невозможно создать штраф"
+				                                   + ", т.к. некого указать в качестве автора");
+				FailInitialize = true;
+				return;
+			}
 			ConfigureDlg ();
 		}
 
@@ -85,12 +93,15 @@ namespace Vodovoz
 		{
 		}
 
-		void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			enumFineType.ItemsEnum = typeof(FineTypes);
 			enumFineType.Binding.AddBinding(Entity, s => s.FineType, w => w.SelectedItem).InitializeFromSource();
 
 			yspinLiters.Binding.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
+
+			ylabelAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.LabelProp,
+				new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
@@ -104,8 +115,6 @@ namespace Vodovoz
 			yentryreferenceRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
-			yentryAuthor.RepresentationModel = new EmployeesVM();
-            yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 			
             UpdateControlsState();
 			ShowLiters();
@@ -118,13 +127,6 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-            Employee author;
-            if (!GetAuthor(out author)) return false;
-
-            if (Entity.Author == null)
-            {
-                Entity.Author = author;
-            }
 			var valid = new QS.Validation.QSValidator<Fine> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -253,18 +255,6 @@ namespace Vodovoz
 				CalculateMoneyFromLiters();
 			}
 		}
-
-        private bool GetAuthor(out Employee cashier)
-        {
-            cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-            if (cashier == null)
-            {
-                MessageDialogHelper.RunErrorDialog(
-                    "Ваш пользователь не привязан к действующему сотруднику.");
-                return false;
-            }
-            return true;
-        }
 
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{

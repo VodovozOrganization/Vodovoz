@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::QSOrmProject.RepresentationTreeView treeDeliveryPoints;
+		private global::Gamma.GtkWidgets.yTreeView treeDeliveryPoints;
 
 		private global::Gtk.HBox hbox1;
 
@@ -23,10 +23,10 @@ namespace Vodovoz
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.DeliveryPointView
+			// Widget Vodovoz.DeliveryPointsManagementView
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.DeliveryPointsManagementView";
-			// Container child Vodovoz.DeliveryPointView.Gtk.Container+ContainerChild
+			// Container child Vodovoz.DeliveryPointsManagementView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
@@ -45,7 +45,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeDeliveryPoints = new global::QSOrmProject.RepresentationTreeView();
+			this.treeDeliveryPoints = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeDeliveryPoints.CanFocus = true;
 			this.treeDeliveryPoints.Name = "treeDeliveryPoints";
 			this.GtkScrolledWindow.Add(this.treeDeliveryPoints);
@@ -109,7 +109,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.treeDeliveryPoints.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTreeDeliveryPointsRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);

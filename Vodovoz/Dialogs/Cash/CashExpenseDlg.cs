@@ -153,20 +153,13 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding(Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource();
 
-			var filterCasher = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
-			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeCashier.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
+			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 
-			var filterEmployee = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
-			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
-			yentryEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
+			evmeEmployee.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 			ydateDocument.Sensitive = _canEditDate;
@@ -199,8 +192,8 @@ namespace Vodovoz
 
 		public void ConfigureForSalaryGiveout(int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
 		{
-			yentryEmployee.Subject = UoW.GetById<Employee>(employeeId);
-			yentryEmployee.Sensitive = canChangeEmployee;
+			evmeEmployee.Subject = UoW.GetById<Employee>(employeeId);
+			evmeEmployee.Sensitive = canChangeEmployee;
 			Entity.TypeOperation = expenseType;
 			yspinMoney.ValueAsDecimal = balance;
 			UpdateEmployeeBalanceVisibility();
@@ -208,8 +201,8 @@ namespace Vodovoz
 
 		public void ConfigureForRouteListChangeGiveout(int employeeId, decimal balance, string description)
 		{
-			yentryEmployee.Subject = UoW.GetById<Employee>(employeeId);
-			yentryEmployee.Sensitive = false;
+			evmeEmployee.Subject = UoW.GetById<Employee>(employeeId);
+			evmeEmployee.Sensitive = false;
 			ydateDocument.Sensitive = false;
 			Entity.TypeOperation = ExpenseType.Advance;
 			Entity.Description = description;
@@ -337,7 +330,7 @@ namespace Vodovoz
 			_currentEmployeeWage = 0;
 			var labelTemplate = "Текущий баланс сотрудника: {0}";
 
-			if(yentryEmployee.Subject is Employee employee)
+			if(evmeEmployee.Subject is Employee employee)
 			{
 				_currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
 			}

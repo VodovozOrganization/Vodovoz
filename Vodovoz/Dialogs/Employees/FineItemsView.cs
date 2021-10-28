@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
-using Vodovoz.ViewModel;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Dialogs;
+using QS.Project.Journal;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FineItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private readonly IEmployeeJournalFactory _employeeFactory = new EmployeeJournalFactory();
+		
 		public FineItemsView()
 		{
 			this.Build();
 
 			UpdateControlsState();
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+			ytreeviewItems.Selection.Changed += OnTreeViewItemsSelectionChanged;
 		}
 		bool isFuelOverspending;
 
@@ -54,7 +56,7 @@ namespace Vodovoz
 				.Finish();
 		}
 
-		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		private void OnTreeViewItemsSelectionChanged (object sender, EventArgs e)
 		{
 			UpdateControlsState();
 		}
@@ -71,32 +73,32 @@ namespace Vodovoz
 					FineUoW.Root.Items = new List<FineItem> ();
 
 				ytreeviewItems.ItemsDataSource = FineUoW.Root.ObservableItems;
-				FineUoW.Root.ObservableItems.ListContentChanged += FineUoW_Root_ObservableItems_ListContentChanged;
+				FineUoW.Root.ObservableItems.ListContentChanged += OnFineItemsListContentChanged;
 			}
 		}
 
-		void FineUoW_Root_ObservableItems_ListContentChanged (object sender, EventArgs e)
+		private void OnFineItemsListContentChanged (object sender, EventArgs e)
 		{
 			CalculateTotal();
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addEmployeeDlg = new PermissionControlledRepresentationJournal(new EmployeesVM());
-			addEmployeeDlg.Mode = JournalSelectMode.Single;
-			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected; 
-			MyTab.TabParent.AddSlaveTab(MyTab, addEmployeeDlg);
+			var employeeJournal = _employeeFactory.CreateEmployeesJournal();
+			employeeJournal.SelectionMode = JournalSelectionMode.Single;
+			employeeJournal.OnEntitySelectedResult += OnEmployeeSelectedFromJournal;
+			MyTab.TabParent.AddSlaveTab(MyTab, employeeJournal);
 		}
 		
-		void AddEmployeeDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		private void OnEmployeeSelectedFromJournal(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			var selectedId = e.SelectedNodes.FirstOrDefault()?.Id ?? 0;
 			if(selectedId == 0) {
 				return;
 			}
 			var employee = FineUoW.GetById<Employee>(selectedId);
 			if(FineUoW.Root.Items.Any(x => x.Employee.Id == employee.Id)) {
-				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
+				MessageDialogHelper.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
 				return;
 			}
 			FineUoW.Root.AddItem(employee);
@@ -130,4 +132,3 @@ namespace Vodovoz
 		}
 	}
 }
-

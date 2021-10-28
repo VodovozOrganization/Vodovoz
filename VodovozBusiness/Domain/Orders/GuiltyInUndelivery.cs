@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Orders
 
 	/// <summary>
 	/// ВНИМАНИЕ! При добавлении эл-ов необходимо так же добавить их в SQL запрос в
-	/// журнале недовозов (UndeliveredOrdersVM.cs).
+	/// журнале недовозов
 	/// </summary>
 	public enum GuiltyTypes
 	{

@@ -30,12 +30,12 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -64,6 +64,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
         private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
         private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+        private readonly EmployeeFilterViewModel _forwarderFilter;
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -148,6 +149,12 @@ namespace Vodovoz.Dialogs.Logistic
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 			SetButtonClearDriverScreenSensitive();
+
+			_forwarderFilter = new EmployeeFilterViewModel();
+			_forwarderFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.CanChangeStatus = true,
+				x => x.Status = EmployeeStatus.IsWorking);
 		}
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -407,14 +414,10 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
 		{
-			var SelectForwarder = new OrmReference(
-				UoW,
-				_employeeRepository.ActiveForwarderOrderedQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected;
-			OpenSlaveTab(SelectForwarder);
+			var forwardersJournal = _employeeJournalFactory.CreateEmployeesJournal(_forwarderFilter);
+			forwardersJournal.SelectionMode = JournalSelectionMode.Multiple;
+			forwardersJournal.OnEntitySelectedResult += OnForwardersSelected;
+			TabParent.AddSlaveTab(this, forwardersJournal);
 		}
 		
 		protected void OnButtonRemoveForwarderClicked(object sender, EventArgs e)
@@ -508,11 +511,13 @@ namespace Vodovoz.Dialogs.Logistic
 			vboxForwarders.Visible = hideForwaders.ArrowDirection == Gtk.ArrowType.Down;
 		}
 
-		void SelectForwarder_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void OnForwardersSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var addForwarder = e.GetEntities<Employee>();
-			foreach(var forwarder in addForwarder) {
-				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id)) {
+			var loaded = UoW.GetById<Employee>(e.SelectedNodes.Select(x => x.Id));
+			foreach(var forwarder in loaded)
+			{
+				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id))
+				{
 					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}

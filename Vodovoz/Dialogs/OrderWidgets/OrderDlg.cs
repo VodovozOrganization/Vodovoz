@@ -140,7 +140,7 @@ namespace Vodovoz
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
-		
+
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
@@ -388,9 +388,10 @@ namespace Vodovoz
 			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint>(OnDeliveryPointChanged);
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(OnClientChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty, Phone>(OnCounterpartyChanged);
 			ConfigureTrees();
+			ConfigureAcceptButtons();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
 
@@ -513,13 +514,8 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
-			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
-			referenceAuthor.Sensitive = false;
+			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
+			evmeAuthor.Sensitive = false;
 
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
@@ -761,36 +757,73 @@ namespace Vodovoz
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
 		{
-			var changedEntities = changeevents.Select(x => x.Entity).OfType<DeliveryPoint>();
-			if (changedEntities.Any(x => DeliveryPoint != null && x.Id == DeliveryPoint.Id)) {
-				UoW.Session.Refresh(DeliveryPoint);
+			if(DeliveryPoint == null)
+			{
 				return;
+			}
+			
+			var changedDeliveryPoints = changeevents.Select(x => x.Entity).OfType<DeliveryPoint>();
+			var changedPhones = changeevents.Select(x => x.Entity).OfType<Phone>();
+			
+			if(changedDeliveryPoints.Any(x => x.Id == DeliveryPoint.Id)
+				|| changedPhones.Any(x => x.DeliveryPoint?.Id == DeliveryPoint.Id))
+			{
+				RefreshDeliveryPointWithPhones();
 			}
 		}
-		private void OnClientChanged(EntityChangeEvent[] changeevents)
+		private void OnCounterpartyChanged(EntityChangeEvent[] changeevents)
 		{
-			var changedEntities = changeevents.Select(x => x.Entity).OfType<Counterparty>();
-			if (changedEntities.Any(x => Entity.Client != null && x.Id == Entity.Client.Id)) 
+			if(Counterparty == null)
 			{
-				UoW.Session.Refresh(Entity.Client);
-				OrderAddressTypeChanged();
 				return;
 			}
+
+			var changedCounterparties = changeevents.Select(x => x.Entity).OfType<Counterparty>();
+			var changedPhones = changeevents.Select(x => x.Entity).OfType<Phone>();
+			
+			if(changedCounterparties.Any(x => x.Id == Counterparty.Id))
+			{
+				RefreshCounterpartyWithPhones();
+				OrderAddressTypeChanged();
+			}
+			else if(changedPhones.Any(x => x.Counterparty?.Id == Counterparty.Id))
+			{
+				RefreshCounterpartyWithPhones();
+			}
+		}
+
+		private void RefreshEntity<T>(T entity)
+		{
+			UoW.Session.Refresh(entity);
+		}
+
+		private void RefreshCounterpartyWithPhones()
+		{
+			Counterparty.ReloadChildCollection(x => x.ObservablePhones, x => x.Counterparty, UoW.Session);
+			RefreshEntity(Counterparty);
+		}
+
+		private void RefreshDeliveryPointWithPhones()
+		{
+			DeliveryPoint.ReloadChildCollection(x => x.ObservablePhones, x => x.DeliveryPoint, UoW.Session);
+			RefreshEntity(DeliveryPoint);
 		}
 
 		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
 		{
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
-			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id)) {
-				UoW.Session.Refresh(DeliveryPoint);
+			if (changedEntities.Any(x => x.DeliveryPoint?.Id == DeliveryPoint?.Id))
+			{
 				DeliveryPoint.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
+				RefreshEntity(DeliveryPoint);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
 			}
 			
-			if(changedEntities.Any(x => x.Counterparty != null && Counterparty != null && x.Counterparty.Id == Counterparty.Id)) {
-				UoW.Session.Refresh(Counterparty);
+			if(changedEntities.Any(x => x.Counterparty?.Id == Counterparty?.Id))
+			{
 				Counterparty.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
+				RefreshEntity(Counterparty);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
 			}
@@ -979,6 +1012,12 @@ namespace Vodovoz
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
 		}
 
+		private void ConfigureAcceptButtons()
+		{
+			buttonAcceptOrderWithClose.Clicked += OnButtonAcceptOrderWithCloseClicked;
+			buttonAcceptAndReturnToOrder.Clicked += OnButtonAcceptAndReturnToOrderClicked;
+		}
+
 		MenuItem menuItemCloseOrder = null;
 		MenuItem menuItemSelfDeliveryToLoading = null;
 		MenuItem menuItemSelfDeliveryPaid = null;
@@ -1152,11 +1191,6 @@ namespace Vodovoz
 			Entity.SaveOrderComment();
 		}
 
-		protected void OnButtonAcceptClicked(object sender, EventArgs e)
-		{
-			AcceptOrder();
-		}
-
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			isEditOrderClicked = true;
@@ -1210,7 +1244,18 @@ namespace Vodovoz
 			Save();
 			ProcessSmsNotification();
 			UpdateUIState();
+		}
+
+		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
+		{
+			AcceptOrder();
 			SaveAndClose();
+		}
+
+		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e)
+		{
+			AcceptOrder();
+			ReturnToEditTab();
 		}
 
 		private void ProcessSmsNotification()
@@ -3016,6 +3061,11 @@ namespace Vodovoz
 		}
 
 		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)
+		{
+			ReturnToEditTab();
+		}
+
+		private void ReturnToEditTab()
 		{
 			ntbOrder.CurrentPage = 0;
 		}
