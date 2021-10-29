@@ -12,7 +12,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencevmEmployee;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
 
 		private global::Gtk.HBox hbox3;
 
@@ -93,7 +93,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
-			this.entryCounterparty.CanEditReference = false;
+			this.entryCounterparty.CanEditReference = true;
 			this.table4.Add(this.entryCounterparty);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table4[this.entryCounterparty]));
 			w1.TopAttach = ((uint)(2));
@@ -103,11 +103,12 @@ namespace Vodovoz.Filters.GtkViews
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
-			this.entryreferencevmEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryreferencevmEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferencevmEmployee.Name = "entryreferencevmEmployee";
-			this.table4.Add(this.entryreferencevmEmployee);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table4[this.entryreferencevmEmployee]));
+			this.evmeAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
+			this.evmeAuthor.Name = "evmeAuthor";
+			this.evmeAuthor.CanEditReference = true;
+			this.table4.Add(this.evmeAuthor);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table4[this.evmeAuthor]));
 			w2.TopAttach = ((uint)(1));
 			w2.BottomAttach = ((uint)(2));
 			w2.LeftAttach = ((uint)(1));
@@ -184,7 +185,8 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table4.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор рекламации");
+			this.label3.Xalign = 1F;
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор рекламации:");
 			this.table4.Add(this.label3);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table4[this.label3]));
 			w9.TopAttach = ((uint)(1));
@@ -194,7 +196,8 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table4.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("В работе у");
+			this.label4.Xalign = 1F;
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("В работе у:");
 			this.table4.Add(this.label4);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table4[this.label4]));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -202,7 +205,8 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table4.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Клиент");
+			this.label6.Xalign = 1F;
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Клиент:");
 			this.table4.Add(this.label6);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table4[this.label6]));
 			w11.TopAttach = ((uint)(2));

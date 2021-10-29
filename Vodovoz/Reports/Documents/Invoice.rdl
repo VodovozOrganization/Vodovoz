@@ -90,8 +90,7 @@
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
 	orders.trifle AS trifle,
 	orders.self_delivery,
-	IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
-	IF(delivery_points.is_before_interval_delivery, 'Да', 'Нет') AS is_before_interval_delivery
+	IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time
 FROM
 	orders
 		LEFT JOIN
@@ -246,10 +245,6 @@ WHERE
         </Field>
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="is_before_interval_delivery">
-          <DataField>is_before_interval_delivery</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -486,10 +481,11 @@ WHERE NOT EXISTS (
       </Fields>
     </DataSet>
     <DataSet Name="DepositRefund">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-deposit_sum,count as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
+deposit_sum,
+IFNULL(actual_count, count) as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
 FROM
 order_deposit_items
 WHERE
@@ -502,7 +498,7 @@ payment_type='ToClient'</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="deposit_price">
           <DataField>deposit_sum</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -639,25 +635,25 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="deposits">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
-	IF(nomenclature.official_name is NULL,'Бутыли',nomenclature.official_name) as name,
-	order_deposit_items.deposit_sum as deposit,
-	SUM(order_deposit_items.count) as count,
-	SUM(order_deposit_items.deposit_sum * order_deposit_items.count) as sum,
+    IF(nomenclature.official_name is NULL,'Бутыли',nomenclature.official_name) as name,
+    order_deposit_items.deposit_sum as deposit,
+    SUM(IFNULL(order_deposit_items.actual_count, order_deposit_items.count)) as count,
+    SUM(order_deposit_items.deposit_sum * IFNULL(order_deposit_items.actual_count, order_deposit_items.count)) as sum,
     measurement_units.name as mesUnit
-FROM 
-	orders
-	LEFT JOIN
-	order_deposit_items ON order_deposit_items.order_id = orders.id
-	LEFT JOIN
-	nomenclature ON order_deposit_items.equip_nomenclature_id = nomenclature.id
-	LEFT JOIN measurement_units ON measurement_units.id = nomenclature.unit_id
+FROM
+    orders
+        LEFT JOIN
+    order_deposit_items ON order_deposit_items.order_id = orders.id
+        LEFT JOIN
+    nomenclature ON order_deposit_items.equip_nomenclature_id = nomenclature.id
+        LEFT JOIN measurement_units ON measurement_units.id = nomenclature.unit_id
 WHERE
-	orders.id = @order_id
-	AND order_deposit_items.payment_type = 'ToClient'
+    orders.id = @order_id
+    AND order_deposit_items.payment_type = 'ToClient'
 GROUP BY name</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -665,7 +661,7 @@ GROUP BY name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -2397,6 +2393,8 @@ WHERE stored_resource.id = @id1</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2410,6 +2408,8 @@ WHERE stored_resource.id = @id1</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3338,35 +3338,6 @@ WHERE stored_resource.id = @id1</CommandText>
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>10pt</FontSize>
-          <TextAlign>Left</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>148.11pt</Width>
-        <Value>Доставка раньше интервала:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>385.9pt</Left>
-        <Top>222.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox56" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>27.18pt</Width>
-        <Value>=Max({is_before_interval_delivery}, "Order")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>534.5pt</Left>
-        <Top>222.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
           <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>

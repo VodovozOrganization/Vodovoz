@@ -32,7 +32,7 @@ namespace Dialogs.Employees
 
 		private global::Gtk.Label label3;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryEmployee;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeEmployee;
 
 		private global::Gtk.Label labelTotalHours;
 
@@ -165,14 +165,13 @@ namespace Dialogs.Employees
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yentryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.yentryEmployee.Name = "yentryEmployee";
-			this.hbox6.Add(this.yentryEmployee);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yentryEmployee]));
+			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.evmeEmployee.Name = "evmeEmployee";
+			this.evmeEmployee.CanEditReference = true;
+			this.hbox6.Add(this.evmeEmployee);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.evmeEmployee]));
 			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
 			this.vbox2.Add(this.hbox6);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox6]));
 			w14.Position = 3;
