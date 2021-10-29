@@ -799,13 +799,13 @@ namespace Vodovoz
 
 		private void RefreshCounterpartyWithPhones()
 		{
-			Counterparty.ReloadChildCollection(x => x.ObservablePhones, x => x.Counterparty, UoW.Session);
+			Counterparty.ReloadChildCollection(x => x.Phones, x => x.Counterparty, UoW.Session);
 			RefreshEntity(Counterparty);
 		}
 
 		private void RefreshDeliveryPointWithPhones()
 		{
-			DeliveryPoint.ReloadChildCollection(x => x.ObservablePhones, x => x.DeliveryPoint, UoW.Session);
+			DeliveryPoint.ReloadChildCollection(x => x.Phones, x => x.DeliveryPoint, UoW.Session);
 			RefreshEntity(DeliveryPoint);
 		}
 
