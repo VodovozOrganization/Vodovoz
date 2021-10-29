@@ -54,6 +54,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		
 		private void Refresh(object changedObj)
 		{
+			if(InfoProvider == null)
+			{
+				return;
+			}
+			
 			DeliveryPoint = changedObj as DeliveryPoint;
 			RefreshData();
 		}
