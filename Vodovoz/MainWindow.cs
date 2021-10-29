@@ -2470,8 +2470,11 @@ public partial class MainWindow : Gtk.Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
-			() => new QSReport.ReportViewDlg(new SalaryRatesReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices
-				)));
+			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
+				UnitOfWorkFactory.GetDefaultFactory,
+				new BaseParametersProvider(new ParametersProvider()),
+				ServicesConfig.CommonServices
+			)));
 	}
 	
 	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
