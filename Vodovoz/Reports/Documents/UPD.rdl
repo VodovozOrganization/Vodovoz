@@ -100,7 +100,6 @@ WHERE
         <CommandText>SELECT
     orders.id AS order_id,
     orders.delivery_date AS order_date,
-    author.last_name AS author,
     CONCAT(counterparty.vod_internal_id, '-', counterparty_contract.subnumber) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
                 '%d.%m.%y') AS contract_date,
@@ -167,8 +166,6 @@ delivery_points ON orders.delivery_point_id = delivery_points.id
 employees leader ON leader.id = organizations.leader_id
     LEFT JOIN
 employees buhgalter ON buhgalter.id = organizations.buhgalter_id
-    LEFT JOIN
-employees author ON author.id = orders.author_employee_id
 WHERE
     orders.id = @order_id;
 </CommandText>
@@ -189,10 +186,6 @@ WHERE
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="author">
-          <DataField>author</DataField>
-          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="contract_number">
           <DataField>contract_number</DataField>
@@ -385,9 +378,9 @@ FROM stored_resource
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT sr.binary_file as image
-FROM orders o 
+FROM orders o
 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-LEFT JOIN organizations org ON cc.organization_id = org.id 
+LEFT JOIN organizations org ON cc.organization_id = org.id
 LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
 WHERE o.id = @order_id
 </CommandText>
@@ -1022,20 +1015,6 @@ WHERE o.id = @order_id
             <ZIndex>1</ZIndex>
             <Left>673.9pt</Left>
             <Top>160.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>8pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox177">
-            <Height>11.25pt</Height>
-            <Width>150.51pt</Width>
-            <Value>="Исполнитель: " + {author}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>322.2pt</Left>
-            <Top>14.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
