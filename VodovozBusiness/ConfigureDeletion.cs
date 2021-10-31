@@ -725,7 +725,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<DiscountReason>()
 				.AddDeleteDependence<OrderItem>(x => x.DiscountReason)
-				.AddDeleteDependence<PromotionalSet>(x => x.PromoSetDiscountReason)
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<NonReturnReason>();

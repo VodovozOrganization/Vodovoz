@@ -57,7 +57,7 @@ namespace Vodovoz.JournalViewModels
 			PromotionalSetJournalNode resultAlias = null;
 			DiscountReason reasonAlias = null;
 
-			var query = uow.Session.QueryOver<PromotionalSet>().Left.JoinAlias(x => x.PromoSetDiscountReason, () => reasonAlias);
+			var query = uow.Session.QueryOver<PromotionalSet>();
 			query.Where(
 				GetSearchCriterion<PromotionalSet>(
 					x => x.Id
@@ -68,7 +68,7 @@ namespace Vodovoz.JournalViewModels
 									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
 									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-									.Select(() => reasonAlias.Name).WithAlias(() => resultAlias.PromoSetDiscountReasonName))
+									)
 									.TransformUsing(Transformers.AliasToBean<PromotionalSetJournalNode>())
 									.OrderBy(x => x.Name).Asc;
 			return result;

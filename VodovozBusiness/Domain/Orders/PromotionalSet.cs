@@ -32,14 +32,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref name, value, () => Name);
 		}
 
-
-		DiscountReason promoSetDiscountReason;
-		[Display(Name = "Основание скидки набора")]
-		public virtual DiscountReason PromoSetDiscountReason {
-			get => promoSetDiscountReason;
-			set => SetField(ref promoSetDiscountReason, value, () => PromoSetDiscountReason);
-		}
-
 		DateTime createDate;
 		[Display(Name = "Дата создания")]
 		[IgnoreHistoryTrace]
@@ -53,6 +45,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsArchive {
 			get => isArchive;
 			set => SetField(ref isArchive, value, () => IsArchive);
+		}
+
+		private string _discountReasonInfo;
+		[Display(Name = "Согласованная акция")]
+		public virtual string DiscountReasonInfo
+		{
+			get => _discountReasonInfo;
+			set => SetField(ref _discountReasonInfo, value);
 		}
 
 		bool canEditNomenclatureCount;
@@ -132,11 +132,11 @@ namespace Vodovoz.Domain.Orders
 					"Скидка не может быть меньше 0 или больше 100%",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
 				);
-			if(PromotionalSetItems.Any(i => i.Discount != 0) && PromoSetDiscountReason == null)
+			/*if(PromotionalSetItems.Any(i => i.Discount != 0) && PromoSetDiscountReason == null)
 				yield return new ValidationResult(
 					"При ненулевой скидке хотя бы на одну номенклатуру необходимо выбрать основание скидки",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
-				);
+				);*/
 			if(PromotionalSetItems.Any(i => i.Discount != 0 &&
 				PromotionalSetActions.OfType<PromotionalSetActionFixPrice>().Select(a => a.Nomenclature.Id).Contains(i.Nomenclature.Id)))
 				yield return new ValidationResult(
