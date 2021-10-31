@@ -1728,8 +1728,10 @@ namespace Vodovoz.Domain.Orders
 					reason = null;
 			}
 
-			if(discount > 0 && reason == null)
+			if(discount > 0 && reason == null && proSet == null)
+			{
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
+			}	
 
 			decimal price = GetWaterPrice(nomenclature, proSet, count);
 			
@@ -4001,17 +4003,98 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="reason">Причина для скидки.</param>
 		/// <param name="discount">Значение скидки.</param>
 		/// <param name="unit">рубли или %.</param>
-		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit)
+		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, bool permission = false)
 		{
-			if(unit == DiscountUnits.money) {
-				var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-				if(sum == 0)
-					return;
-				discount = 100 * discount / sum;
+			//Если есть право на непосредственный ввод значения скидки
+			if(permission && discount > 0)
+			{
+				if(unit == DiscountUnits.money)
+				{
+					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+					if(sum == 0)
+						return;
+					discount = 100 * discount / sum;
+				}
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+					item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
+					item.DiscountReason = reason;
+				}
 			}
-			foreach(OrderItem item in ObservableOrderItems) {
-				item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
-				item.DiscountReason = reason;
+			//Если нет права
+			else
+			{
+				discount = 0;
+				//Если скидка в основании - рублями
+				if(reason.ValueType == DiscountValueType.Roubles)
+				{
+					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+					if(sum == 0)
+						return;
+					discount += 100 * Convert.ToDecimal(reason.Value) / sum;
+				}
+				//Если скидка в основании - процентами
+				else
+				{
+					discount = reason.Value;
+				}
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+
+					if(item.PromoSet == null && !DeliveryPoint.NomenclatureFixedPrices.Where(x => x.Nomenclature == item.Nomenclature).Any())
+					{
+						if(reason.ProductGroups.Any())
+						{
+							if(reason.ProductGroups.Where(x => x.ProductGroup == item.Nomenclature.ProductGroup).Any())
+							{
+								item.DiscountSetter = discount;
+								item.DiscountReason = reason;
+							}
+						}
+						else
+						{
+							item.DiscountSetter = discount;
+							item.DiscountReason = reason;
+						}
+					}
+		
+				}
+			}
+			
+		}
+
+		public virtual void SetDiscountReasonForOrderItem(OrderItem orderItem, DiscountReason reason, decimal discount)
+		{
+			foreach(OrderItem item in ObservableOrderItems)
+			{
+				if(item == orderItem && item.PromoSet == null && discount == 0)
+				{
+					if(reason.ValueType == DiscountValueType.Roubles)
+					{
+						var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+						if(sum == 0)
+							return;
+						discount += 100 * Convert.ToDecimal(reason.Value) / sum;
+					}
+					//Если скидка в основании - процентами
+					else
+					{
+						discount = reason.Value;
+					}
+					if(reason.ProductGroups.Any())
+					{
+						if(reason.ProductGroups.Where(x => x.ProductGroup == item.Nomenclature.ProductGroup).Any())
+						{
+							item.DiscountSetter = discount;
+							item.DiscountReason = reason;
+						}
+					}
+					else
+					{
+						item.DiscountSetter = discount;
+						item.DiscountReason = reason;
+					}
+				}
 			}
 		}
 

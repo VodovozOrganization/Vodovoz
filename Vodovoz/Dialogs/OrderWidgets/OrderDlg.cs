@@ -380,6 +380,8 @@ namespace Vodovoz
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
+			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
+
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
@@ -396,7 +398,6 @@ namespace Vodovoz
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
 
-			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 			spinDiscount.Adjustment.Upper = 100;
 
 			if(Entity.PreviousOrder != null) {
@@ -902,7 +903,7 @@ namespace Vodovoz
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(_discountReasons)
-					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
+					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
 						? colorLightRed
@@ -911,8 +912,15 @@ namespace Vodovoz
 					.AddSetter((c, n) => {
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
+						if(n.PromoSet == null && spinDiscount.Value == 0 && !Entity.DeliveryPoint.NomenclatureFixedPrices.Where(x => x.Nomenclature == n.Nomenclature).Any())
+						{
+							if(c.Text != "")
+							Entity.SetDiscountReasonForOrderItem(n, n.DiscountReason, Convert.ToDecimal(spinDiscount.Value));
+						}
+
 						}
 					)
+					
 				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
@@ -1769,7 +1777,7 @@ namespace Vodovoz
 						proSetItem.Count,
 						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 						proSetItem.IsDiscountInMoney,
-						proSetItem.PromoSet.PromoSetDiscountReason,
+						UoW.GetAll<DiscountReason>().Where(x => x.Id == 53).FirstOrDefault(),
 						proSetItem.PromoSet
 					);
 				}
@@ -1913,6 +1921,10 @@ namespace Vodovoz
 		protected void OnYcomboboxReasonItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			SetDiscountUnitEditable();
+			if(ycomboboxReason.ActiveText != "Нет")
+			{
+				SetDiscount();
+			}
 		}
 
 		#endregion
@@ -2799,7 +2811,10 @@ namespace Vodovoz
 
 		void SetDiscountUnitEditable(bool? canEdit = null)
 		{
-			enumDiscountUnit.Sensitive = canEdit ?? ycomboboxReason.SelectedItem != null;
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value"))
+			{
+				enumDiscountUnit.Sensitive = canEdit ?? true;
+			}
 		}
 
 		/// <summary>
@@ -2816,15 +2831,24 @@ namespace Vodovoz
 
 		private void SetDiscount()
 		{
+			
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
-			DiscountUnits unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
+			bool hasPermission = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			if(decimal.TryParse(spinDiscount.Text, out decimal discount)) {
 				if(reason == null && discount > 0) {
 					MessageDialogHelper.RunErrorDialog("Необходимо выбрать основание для скидки");
 					return;
 				}
-				Entity.SetDiscountUnitsForAll(unit);
-				Entity.SetDiscount(reason, discount, unit);
+				if(discount > 0)
+				{
+					DiscountUnits unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
+					Entity.SetDiscountUnitsForAll(unit);
+					Entity.SetDiscount(reason, discount, unit, hasPermission);
+				}
+				else
+				{
+					Entity.SetDiscount(reason, discount, DiscountUnits.money, hasPermission);
+				}
 			}
 		}
 
