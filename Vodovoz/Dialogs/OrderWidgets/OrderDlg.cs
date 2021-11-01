@@ -142,7 +142,6 @@ namespace Vodovoz
 		private Employee _currentEmployee;
 		private bool hasPermissionToChangeDiscountValue;
 
-
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
