@@ -10,8 +10,10 @@ using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
@@ -35,6 +37,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.Dialogs.Logistic
@@ -362,10 +365,16 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonOpenCarClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
+			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
+
 			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected[0].Car.Id),
-				() => new CarsDlg(selected[0].Car)
+				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
+				() => new CarViewModel(EntityUoWBuilder.ForOpen(selected.Car.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeJournalFactory(),
+				new AttachmentsViewModelFactory(),
+				new CarRepository())
 			);
 		}
 		

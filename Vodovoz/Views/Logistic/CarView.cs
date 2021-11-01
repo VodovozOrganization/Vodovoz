@@ -1,17 +1,12 @@
-﻿using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using FluentNHibernate.Data;
-using FluentNHibernate.Utils;
-using Gamma.ColumnConfig;
-using QS.Attachments.ViewModels.Widgets;
-using QS.Dialog.GtkUI;
-using QS.Project.Services;
+﻿using Gamma.ColumnConfig;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using QSOrmProject;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -61,7 +56,7 @@ namespace Vodovoz.Views.Logistic
 			entryDriver.SetEntityAutocompleteSelectorFactory(
 				ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			//textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
+			textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
 			entryDriver.Changed += ViewModel.OnEntryDriverChanged;
 
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -115,12 +110,15 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
-			radiobuttonMain.Toggled += new EventHandler(OnRadiobuttonMainToggled);
-			radioBtnGeographicGroups.Toggled += new EventHandler(OnRadioBtnGeographicGroupsToggled);
-			radiobuttonFiles.Toggled += new EventHandler(OnRadiobuttonFilesToggled);
+			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
+			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
+			radiobuttonFiles.Toggled += OnRadiobuttonFilesToggled;
 			comboTypeOfUse.ChangedByUser += ViewModel.OnTypeOfUseChangedByUser;
-			btnAddGeographicGroup.Clicked += new EventHandler(OnBtnAddGeographicGroupClicked);
-			btnRemoveGeographicGroup.Clicked += new EventHandler(OnBtnRemoveGeographicGroupClicked);
+			btnAddGeographicGroup.Clicked += OnBtnAddGeographicGroupClicked;
+			btnRemoveGeographicGroup.Clicked += OnBtnRemoveGeographicGroupClicked;
+
+			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
