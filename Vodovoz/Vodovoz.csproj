@@ -439,7 +439,6 @@
     <Compile Include="CreateProjectParam.cs" />
     <Compile Include="Dialogs\OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
@@ -749,7 +748,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
-    <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
