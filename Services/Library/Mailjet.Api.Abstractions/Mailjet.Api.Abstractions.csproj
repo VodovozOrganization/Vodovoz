@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ApiHelper\ApiHelper.csproj" />
+    <ProjectReference Include="..\ApiClientProvider\ApiClientProvider.csproj" />
   </ItemGroup>
 
 </Project>

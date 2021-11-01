@@ -1,4 +1,4 @@
-﻿using ApiHelper;
+﻿using ApiClientProvider;
 using Mailjet.Api.Abstractions.Endpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

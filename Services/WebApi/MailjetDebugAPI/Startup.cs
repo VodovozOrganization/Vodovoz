@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ApiHelper;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 
@@ -41,7 +40,7 @@ namespace MailjetDebugAPI
 			{
 				var configuration = sp.GetRequiredService<IConfiguration>();
 				var recieverSection = configuration.GetSection(_eventCallbackSettingsSection);
-				var apiHelper = new ApiClientProvider(recieverSection);
+				var apiHelper = new ApiClientProvider.ApiClientProvider(recieverSection);
 				return new EventsRecieverEndpoint(recieverSection, apiHelper);
 			});
 
