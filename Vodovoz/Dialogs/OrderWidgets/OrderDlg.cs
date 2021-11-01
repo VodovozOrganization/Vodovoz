@@ -140,7 +140,9 @@ namespace Vodovoz
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
-		
+		private bool hasPermissionToChangeDiscountValue;
+
+
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
@@ -379,6 +381,8 @@ namespace Vodovoz
 			{
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
+
+			hasPermissionToChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -912,7 +916,7 @@ namespace Vodovoz
 					.AddSetter((c, n) => {
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
-						if(n.PromoSet == null && spinDiscount.Value == 0 && !Entity.DeliveryPoint.NomenclatureFixedPrices.Where(x => x.Nomenclature == n.Nomenclature).Any())
+						if(n.PromoSet == null && spinDiscount.Value == 0 && !Entity.DeliveryPoint.NomenclatureFixedPrices.Any(x => x.Nomenclature == n.Nomenclature))
 						{
 							if(c.Text != "")
 							Entity.SetDiscountReasonForOrderItem(n, n.DiscountReason, Convert.ToDecimal(spinDiscount.Value));
@@ -1756,6 +1760,8 @@ namespace Vodovoz
 			if(Entity.IsLoadedFrom1C)
 				return;
 
+			int reasonID = Convert.ToInt32(_parametersProvider.GetParameterValue("promo_discount_reason_id"));
+
 			if (proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
 				foreach (var proSetItem in proSet.PromotionalSetItems) {
 					var nomenclature = proSetItem.Nomenclature;
@@ -1777,7 +1783,7 @@ namespace Vodovoz
 						proSetItem.Count,
 						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 						proSetItem.IsDiscountInMoney,
-						UoW.GetAll<DiscountReason>().Where(x => x.Id == 53).FirstOrDefault(),
+						UoW.GetAll<DiscountReason>().Where(x => x.Id == reasonID).FirstOrDefault(),
 						proSetItem.PromoSet
 					);
 				}
@@ -2833,7 +2839,6 @@ namespace Vodovoz
 		{
 			
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
-			bool hasPermission = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			if(decimal.TryParse(spinDiscount.Text, out decimal discount)) {
 				if(reason == null && discount > 0) {
 					MessageDialogHelper.RunErrorDialog("Необходимо выбрать основание для скидки");
@@ -2843,11 +2848,11 @@ namespace Vodovoz
 				{
 					DiscountUnits unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
 					Entity.SetDiscountUnitsForAll(unit);
-					Entity.SetDiscount(reason, discount, unit, hasPermission);
+					Entity.SetDiscount(reason, discount, unit, hasPermissionToChangeDiscountValue);
 				}
 				else
 				{
-					Entity.SetDiscount(reason, discount, DiscountUnits.money, hasPermission);
+					Entity.SetDiscount(reason, discount, DiscountUnits.money, hasPermissionToChangeDiscountValue);
 				}
 			}
 		}

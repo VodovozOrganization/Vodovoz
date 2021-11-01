@@ -132,11 +132,6 @@ namespace Vodovoz.Domain.Orders
 					"Скидка не может быть меньше 0 или больше 100%",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
 				);
-			/*if(PromotionalSetItems.Any(i => i.Discount != 0) && PromoSetDiscountReason == null)
-				yield return new ValidationResult(
-					"При ненулевой скидке хотя бы на одну номенклатуру необходимо выбрать основание скидки",
-					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
-				);*/
 			if(PromotionalSetItems.Any(i => i.Discount != 0 &&
 				PromotionalSetActions.OfType<PromotionalSetActionFixPrice>().Select(a => a.Nomenclature.Id).Contains(i.Nomenclature.Id)))
 				yield return new ValidationResult(

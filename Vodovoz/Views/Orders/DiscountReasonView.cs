@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Orders
 			enumDiscountValueType.ItemsEnum = typeof(DiscountValueType);
 			enumDiscountValueType.Binding.AddBinding(ViewModel.Entity, dr => dr.ValueType, w => w.SelectedItem).InitializeFromSource();
 
-			ybuttonAddGroup.Clicked += YbuttonAddGroup_Clicked;
+			ybuttonAddGroup.Clicked += YbuttonAddGroupClicked;
 
 			ytreeviewProductGroups.ColumnsConfig = ColumnsConfigFactory.Create<DiscountNomenclatureGroup>()
 				.AddColumn("№")
@@ -57,7 +57,7 @@ namespace Vodovoz.Views.Orders
 			RemoveGroup((DiscountNomenclatureGroup)ytreeviewProductGroups.SelectedRow);
 		}
 
-		private void YbuttonAddGroup_Clicked(object sender, System.EventArgs e)
+		private void YbuttonAddGroupClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.OpenGroupSelector();
 		}
