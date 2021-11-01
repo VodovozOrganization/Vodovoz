@@ -32,7 +32,9 @@ namespace Vodovoz.Views.Logistic
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(ViewModel.Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			comboDriverCarKind.ItemsList = ViewModel.DriverCarKinds;
 			comboDriverCarKind.Binding.AddBinding(ViewModel.Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
+			comboDriverCarKind.Binding.AddBinding(ViewModel, vm => vm.CanChangeDriverCarKind, w => w.Sensitive).InitializeFromSource();
 
 			orderNumberSpin.Binding.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
 
