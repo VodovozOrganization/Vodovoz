@@ -512,7 +512,7 @@ namespace Vodovoz.ViewModels
 
 						var totalSum = otherPaymentsSum + item.Sum;
 
-						item.Order.OrderPaymentStatus = item.Order.ActualTotalSum > totalSum
+						item.Order.OrderPaymentStatus = item.Order.OrderSum > totalSum
 							? OrderPaymentStatus.PartiallyPaid
 							: OrderPaymentStatus.Paid;
 

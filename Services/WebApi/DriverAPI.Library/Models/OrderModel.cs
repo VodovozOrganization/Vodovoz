@@ -164,7 +164,7 @@ namespace DriverAPI.Library.Models
 		private bool CanSendSmsForPayment(Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
 			return !_smsNotPayable.Contains(order.PaymentType)
-				&& order.OrderTotalSum > 0;
+				&& order.OrderSum > 0;
 		}
 
 		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
