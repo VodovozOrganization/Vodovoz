@@ -4,6 +4,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
@@ -29,6 +30,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private string _driverInfoText;
 		private int _currentUserId;
 
+		private IEnumerable<DriverCarKind> _driverCarKinds;
+
 		public CarViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
 					  IEmployeeJournalFactory employeeJournalFactory, IAttachmentsViewModelFactory attachmentsViewModelFactory,
 					  ICarRepository carRepository)
@@ -38,6 +41,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory;
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			_carRepository = carRepository;
+
+			DriverCarKinds = UoW.GetAll<DriverCarKind>();
 
 			_currentUserId = commonServices.UserService.CurrentUserId;
 			_haveChangeCarsVolumeWeightConsumptionPermissionGranted =
@@ -63,6 +68,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get => _attachmentsViewModel;
 			set => SetField(ref _attachmentsViewModel, value);
+		}
+
+		public IEnumerable<DriverCarKind> DriverCarKinds
+		{
+			get => _driverCarKinds;
+			set => SetField(ref _driverCarKinds, value);
 		}
 
 		public IEmployeeJournalFactory EmployeeJournalFactory => _employeeJournalFactory;
@@ -113,7 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		protected void OnTypeOfUseChangedByUser(object sender, EventArgs e)
+		public void OnTypeOfUseChangedByUser(object sender, EventArgs e)
 		{
 			OnPropertyChanged(() => CanChangeDriverCarKind);
 
