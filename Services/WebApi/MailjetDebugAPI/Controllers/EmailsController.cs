@@ -21,7 +21,7 @@ namespace MailjetDebugAPI.Controllers
 
 		public EmailsController(ILogger<EmailsController> logger, EventsRecieverEndpoint eventsRecieverEndpoint)
 		{
-			_logger = logger;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_eventsRecieverEndpoint = eventsRecieverEndpoint ?? throw new ArgumentNullException(nameof(eventsRecieverEndpoint));
 		}
 
