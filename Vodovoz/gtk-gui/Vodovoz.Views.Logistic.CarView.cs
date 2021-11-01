@@ -176,7 +176,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label rangesLabel;
 
-		private global::Gtk.Label textDriverInfo;
+		private global::Gamma.GtkWidgets.yLabel textDriverInfo;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDriverCarKind;
 
@@ -1162,9 +1162,8 @@ namespace Vodovoz.Views.Logistic
 			w85.XOptions = ((global::Gtk.AttachOptions)(4));
 			w85.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.textDriverInfo = new global::Gtk.Label();
+			this.textDriverInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.textDriverInfo.Name = "textDriverInfo";
-			this.textDriverInfo.Xalign = 0F;
 			this.tableCarData.Add(this.textDriverInfo);
 			global::Gtk.Table.TableChild w86 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.textDriverInfo]));
 			w86.TopAttach = ((uint)(14));
