@@ -34,7 +34,7 @@ namespace Vodovoz.Views.Orders
 
 			ybuttonAddGroup.Clicked += YbuttonAddGroup_Clicked;
 
-			ytreeview1.ColumnsConfig = ColumnsConfigFactory.Create<DiscountNomenclatureGroup>()
+			ytreeviewProductGroups.ColumnsConfig = ColumnsConfigFactory.Create<DiscountNomenclatureGroup>()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => ViewModel.Entity.ProductGroups.IndexOf(node) + 1)
@@ -45,16 +45,16 @@ namespace Vodovoz.Views.Orders
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
-			ytreeview1.ItemsDataSource = ViewModel.Entity.ObservableDiscountNomenclatureGroups;
-			ytreeview1.RowActivated += Ytreeview1_RowActivated;
+			ytreeviewProductGroups.ItemsDataSource = ViewModel.Entity.ObservableDiscountNomenclatureGroups;
+			ytreeviewProductGroups.RowActivated += YtreeviewProductGroupsRowActivated;
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 		}
 
-		private void Ytreeview1_RowActivated(object o, Gtk.RowActivatedArgs args)
+		private void YtreeviewProductGroupsRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			RemoveGroup((DiscountNomenclatureGroup)ytreeview1.SelectedRow);
+			RemoveGroup((DiscountNomenclatureGroup)ytreeviewProductGroups.SelectedRow);
 		}
 
 		private void YbuttonAddGroup_Clicked(object sender, System.EventArgs e)

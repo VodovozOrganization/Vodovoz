@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewProductGroups;
 
 		private global::Gtk.HBox hbox2;
 
@@ -129,10 +129,10 @@ namespace Vodovoz.Views.Orders
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview1.CanFocus = true;
-			this.ytreeview1.Name = "ytreeview1";
-			this.GtkScrolledWindow.Add(this.ytreeview1);
+			this.ytreeviewProductGroups = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewProductGroups.CanFocus = true;
+			this.ytreeviewProductGroups.Name = "ytreeviewProductGroups";
+			this.GtkScrolledWindow.Add(this.ytreeviewProductGroups);
 			this.table3.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table3[this.GtkScrolledWindow]));
 			w10.TopAttach = ((uint)(3));
