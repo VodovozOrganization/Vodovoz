@@ -22,6 +22,13 @@ namespace Vodovoz.Additions
 {
 	public class AuthorizationService : IAuthorizationService
 	{
+		private readonly IPasswordGenerator _passwordGenerator;
+		private readonly MySQLUserRepository _mySQLUserRepository;
+		private readonly IEmailParametersProvider _emailParametersProvider;
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+		private const int _passwordLength = 8;
+
 		public AuthorizationService(IPasswordGenerator passwordGenerator,
 			MySQLUserRepository mySQLUserRepository,
 			IEmailParametersProvider emailParametersProvider)
@@ -31,13 +38,6 @@ namespace Vodovoz.Additions
 				mySQLUserRepository ?? throw new ArgumentNullException(nameof(mySQLUserRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 		}
-
-		private readonly IPasswordGenerator _passwordGenerator;
-		private readonly MySQLUserRepository _mySQLUserRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
-		private const int _passwordLength = 8;
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
 		{

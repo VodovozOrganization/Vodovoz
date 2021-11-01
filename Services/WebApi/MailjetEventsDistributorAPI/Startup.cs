@@ -58,8 +58,6 @@ namespace MailjetEventsDistributorAPI
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MailjetEventMessagesDistributorAPI v1"));
 			}
 
-			//app.UseHttpsRedirection();
-
 			app.UseRouting();
 
 			app.UseAuthorization();

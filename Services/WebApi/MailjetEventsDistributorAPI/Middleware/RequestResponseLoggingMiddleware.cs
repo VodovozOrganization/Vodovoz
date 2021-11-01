@@ -13,12 +13,17 @@ namespace MailjetEventsDistributorAPI.Middleware
 		private readonly ILogger _logger;
 		private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
 
-		public RequestResponseLoggingMiddleware(RequestDelegate next,
-												ILoggerFactory loggerFactory)
+		public RequestResponseLoggingMiddleware(
+			RequestDelegate next,
+			ILoggerFactory loggerFactory)
 		{
+			if(loggerFactory is null)
+			{
+				throw new ArgumentNullException(nameof(loggerFactory));
+			}
+
 			_next = next;
-			_logger = loggerFactory
-					  .CreateLogger<RequestResponseLoggingMiddleware>();
+			_logger = loggerFactory.CreateLogger<RequestResponseLoggingMiddleware>();
 			_recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
 		}
 
@@ -57,9 +62,7 @@ namespace MailjetEventsDistributorAPI.Middleware
 
 			do
 			{
-				readChunkLength = reader.ReadBlock(readChunk,
-												   0,
-												   readChunkBufferLength);
+				readChunkLength = reader.ReadBlock(readChunk, 0, readChunkBufferLength);
 				textWriter.Write(readChunk, 0, readChunkLength);
 			}
 			while(readChunkLength > 0);

@@ -33,7 +33,7 @@ namespace MailjetDebugAPI.Controllers
 
 			SendResponse result = new SendResponse { Messages = new List<MessageSendDetails>() };
 
-			string baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host;
+			string baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
 
 			var hubUrl = baseUrl.TrimEnd('/') + EmailsHub.HubUrl;
 
