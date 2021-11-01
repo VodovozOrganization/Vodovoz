@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _valueType, value);
 		}
 
-		[Display(Name = "Тип значения скидки")]
+		[Display(Name = "Значение скидки")]
 		public virtual decimal Value
 		{
 			get => _value;
