@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id as expense_id,
@@ -97,7 +97,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -137,6 +137,69 @@ ORDER BY Category;</CommandText>
         <Field Name="return_description">
           <DataField>return_description</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Summary">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT SUM(t.Sum) - SUM(t.return_money) AS itog FROM (
+SELECT
+    cash_expense.money AS Sum,
+    cash_income.money AS return_money
+FROM
+    cash_expense
+        LEFT JOIN
+    cash_expense_category AS cat1 ON cat1.id = cash_expense.cash_expense_category_id
+        LEFT JOIN
+    employees ON employees.id = cash_expense.employee_id
+        LEFT JOIN
+    cash_advance_closing ON cash_advance_closing.expense_id = cash_expense.id
+        LEFT JOIN
+    cash_income ON cash_income.id = cash_advance_closing.income_id
+WHERE
+    cash_expense.type_operation = 'Advance'
+        AND cash_expense.advance_closed = 0
+        AND cash_expense.date &lt; @endDate
+        AND IF(@expenseCategoryUsed,
+        cash_expense.cash_expense_category_id IN (@expenseCategory),
+        1)
+        AND (@Casher = - 1
+        OR cash_expense.casher_employee_id = @Casher)
+        AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
+        AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
+GROUP BY cash_expense.id
+ORDER BY Category
+) t
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="expenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
+          </QueryParameter>
+          <QueryParameter Name="expenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Employee">
+            <Value>={?Employee}</Value>
+          </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="itog">
+          <DataField>itog</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -530,7 +593,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=sum(Fields!Sum.Value)</Value>
+                      <Value>=First({itog}, 'Summary')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -831,7 +894,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
