@@ -135,8 +135,6 @@ namespace Vodovoz.Configuration
                     .SearchColumn("Шаблон комментария", x => x.Comment).End(),
                 OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView()
                     .SearchColumn("Шаблон комментария", x => x.Reason).End(),
-                OrmObjectMapping<PremiumTemplate>.Create().Dialog<PremiumTemplateDlg>().DefaultTableView()
-                    .SearchColumn("Шаблон комментария", x => x.Reason).End(),
                 OrmObjectMapping<MeasurementUnits>.Create().Dialog<MeasurementUnitsDlg>().DefaultTableView()
                     .SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits.ToString())
                     .End(),
@@ -161,8 +159,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString())
                     .SearchColumn("По", x => x.ExpirationDate.ToShortDateString()).End(),
-                OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>().DefaultTableView()
-                    .SearchColumn("ID", x => x.Id.ToString()).Column("Адрес", x => x.Title).End(),
                 OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
                     .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name)
                     .SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString(x.PriceDaily))
@@ -207,7 +203,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg>(),
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
-                OrmObjectMapping<Premium>.Create().Dialog<PremiumDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
                 //Банкинг
@@ -300,12 +295,6 @@ namespace Vodovoz.Configuration
                 .Column("Активно", x => !x.IsActive ? "нет" : String.Empty)
                 .SearchColumn("Имя класса", x => x.Type)
                 .OrderAsc(x => x.CustomName)
-                .End();
-            OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
-                .Column("Код", x => x.Id.ToString())
-                .SearchColumn("Ф.И.О.", x => x.FullName)
-                .Column("Категория", x => x.Category.GetEnumTitle())
-                .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
                 .End();
             OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
                 .Column("Код", x => x.Id.ToString())

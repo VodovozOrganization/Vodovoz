@@ -30,6 +30,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -118,7 +119,7 @@ namespace Vodovoz
 			buttonCancel.Sensitive = true;
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
-			yentryrefOrder.IsEditable = lstWarehouse.Sensitive = ytextviewCommnet.Editable = editing && canEditDocument;
+			evmeOrder.IsEditable = lstWarehouse.Sensitive = ytextviewCommnet.Editable = editing && canEditDocument;
 			selfdeliverydocumentitemsview1.Sensitive = hbxTareToReturn.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
@@ -126,15 +127,19 @@ namespace Vodovoz
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var filter = new OrdersFilter(UoW);
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictSelfDelivery = true,
-				x => x.RestrictStatus = OrderStatus.OnLoading
-			);
-			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
-			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-			yentryrefOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
-			yentryrefOrder.ChangedByUser += (sender, e) => { FillTrees(); };
+			var orderFactory = new OrderSelectorFactory();
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
+			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
+			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			evmeOrder.ChangedByUser += (sender, e) => 
+			{
+				UpdateOrderInfo();
+				Entity.FillByOrder();
+				Entity.UpdateStockAmount(UoW, _stockRepository);
+				Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
+				UpdateAmounts();
+				FillTrees(); 
+			};
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW, _stockRepository);
@@ -198,10 +203,10 @@ namespace Vodovoz
 					typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
-				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				yentryrefOrder.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				ytextviewOrderInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yTreeOtherGoods.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				evmeOrder.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewCommnet.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewOrderInfo.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				lstWarehouse.Sensitive = false;
 				selfdeliverydocumentitemsview1.Sensitive = false;
 				spnTareToReturn.Sensitive = false;
@@ -218,20 +223,12 @@ namespace Vodovoz
 			GoodsReceptionList.ListContentChanged += (sender, e) => HasChanges = true;
 		}
 
-		void FillTrees()
+		private void FillTrees()
 		{
-			GoodsReceptionVMNode resultAlias = null;
-			Nomenclature nomenclatureAlias = null;
-
-			var orderBottles = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-								  .Where(n => n.Category == NomenclatureCategory.bottle)
-								  .SelectList(list => list
-											  .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-											  .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-											 ).TransformUsing(Transformers.AliasToBean<GoodsReceptionVMNode>())
-								  .List<GoodsReceptionVMNode>();
 			if(Entity.ReturnedItems.Any())
+			{
 				LoadReturned();
+			}
 		}
 
 		void LoadReturned()
@@ -307,15 +304,6 @@ namespace Vodovoz
 							  Entity.Order.Author?.ShortName
 						  );
 			ytextviewOrderInfo.Buffer.Text = text;
-		}
-
-		protected void OnYentryrefOrderChangedByUser(object sender, EventArgs e)
-		{
-			UpdateOrderInfo();
-			Entity.FillByOrder();
-			Entity.UpdateStockAmount(UoW, _stockRepository);
-			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
-			UpdateAmounts();
 		}
 
 		protected void OnWarehouseSelected(object sender, EventArgs e)

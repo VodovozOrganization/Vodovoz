@@ -8,6 +8,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
@@ -19,7 +20,9 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
@@ -49,14 +52,15 @@ namespace Vodovoz.ViewWidgets
 		{
 			//если новый недовоз без выбранного недовезённого заказа
 			if(UoW.IsNew && _undelivery.OldOrder == null)
-				//открыть окно выбора недовезённого заказа
-				yEForUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+			{//открыть окно выбора недовезённого заказа
+				evmeOldUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+			}
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery)
 		{
 			Sensitive = false;
-			yEForUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
+			evmeOldUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
 
 			_canChangeProblemSource = _commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", _commonServices.UserService.CurrentUserId);
 			_undelivery = undelivery;
@@ -77,15 +81,15 @@ namespace Vodovoz.ViewWidgets
 					);
 				}
 			}
-			var filterOrders = new OrdersFilter(UoW);
 			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
 			var grantedStatusesArray = _orderRepository.GetStatusesForOrderCancelation();
 			foreach(OrderStatus status in Enum.GetValues(typeof(OrderStatus))) {
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
 			}
+			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
-			yEForUndeliveredOrder.Changed += (sender, e) => {
+			evmeOldUndeliveredOrder.Changed += (sender, e) => {
 				_oldOrder = undelivery.OldOrder;
 				lblInfo.Markup = undelivery.GetOldOrderInfo(_orderRepository);
 				if(undelivery.Id <= 0)
@@ -100,9 +104,11 @@ namespace Vodovoz.ViewWidgets
 				GetFines();
 				RemoveItemsFromEnums();
 			};
-			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
-			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
-			yEForUndeliveredOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			var orderFactory = new OrderSelectorFactory(filterOrders);
+			evmeOldUndeliveredOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOldUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
+			evmeOldUndeliveredOrder.CanEditReference =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -148,8 +154,9 @@ namespace Vodovoz.ViewWidgets
 				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(UoW);
 			}
 
-			refRegisteredBy.RepresentationModel = new EmployeesVM(UoW);
-			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeRegisteredBy.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
 			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;
 
@@ -214,7 +221,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			lblTransferDate.Text = _undelivery.NewOrder == null ?
 				"Заказ не\nсоздан" :
-				_undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(_undelivery.NewOrder.TotalSum));
+				_undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(_undelivery.NewOrder.OrderSum));
 			btnNewOrder.Label = _undelivery.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
 
 			SetVisibilities();
@@ -246,7 +253,7 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBDriverCallPlace.Sensitive =
 				yDateDriverCallTime.Sensitive =
 					yDateDispatcherCallTime.Sensitive =
-						refRegisteredBy.Sensitive =
+						evmeRegisteredBy.Sensitive =
 							vbxReasonAndFines.Sensitive = (
 								_undelivery.OldOrder != null
 								&& hasPermissionOrNew
@@ -349,21 +356,22 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = _oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
-			Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
-			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
-				Mode = JournalSelectMode.Single
-			};
+			var orderFactory = new OrderSelectorFactory(filter);
+			var orderJournal = orderFactory.CreateOrderJournalViewModel();
+			orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-			MyTab.TabParent.AddTab(dlg, MyTab, false);
+			MyTab.TabParent.AddTab(orderJournal, MyTab, false);
 
-			dlg.ObjectSelected += (s, ea) => {
-				var selectedId = ea.GetSelectedIds().FirstOrDefault();
-				if(selectedId == 0) {
+			orderJournal.OnEntitySelectedResult += (s, ea) =>
+			{
+				var selectedId = ea.SelectedNodes.FirstOrDefault()?.Id ?? 0;
+				if(selectedId == 0)
+				{
 					return;
 				}
 				if(_oldOrder.Id == selectedId) {
@@ -376,7 +384,7 @@ namespace Vodovoz.ViewWidgets
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
 				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) && 
-					(_oldOrder.OrderTotalSum == _newOrder.OrderTotalSum) &&
+					(_oldOrder.OrderSum == _newOrder.OrderSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					_newOrder.PaymentType = _oldOrder.PaymentType;
 					_newOrder.OnlineOrder = _oldOrder.OnlineOrder;

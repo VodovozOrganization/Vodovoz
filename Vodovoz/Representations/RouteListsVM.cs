@@ -656,7 +656,9 @@ namespace Vodovoz.ViewModel
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager,
 														new TrackRepository(),
-														new CategoryRepository(_parametersProvider)
+														new CategoryRepository(_parametersProvider),
+														new EmployeeJournalFactory(),
+														new CarJournalFactory()
 									)
 								);
 						}

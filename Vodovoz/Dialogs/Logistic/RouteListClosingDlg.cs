@@ -47,6 +47,8 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
 
 namespace Vodovoz
@@ -179,28 +181,27 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
-			var filterDriver = new EmployeeRepresentationFilterViewModel();
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
-			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver);
+			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			previousForwarder = Entity.Forwarder;
-			var filterForwarder = new EmployeeRepresentationFilterViewModel();
-			filterForwarder.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
-			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			referenceForwarder.Changed += ReferenceForwarder_Changed;
+			var forwarderFilter = new EmployeeFilterViewModel();
+			forwarderFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
+			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
+			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
-			var filterLogistican = new EmployeeRepresentationFilterViewModel();
-			filterLogistican.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
-			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
@@ -334,9 +335,9 @@ namespace Vodovoz
 				ycheckHideCells.Sensitive = false;
 				vbxFuelTickets.Sensitive = false;
 				speccomboShift.Sensitive = false;
-				referenceLogistican.Sensitive = false;
-				referenceDriver.Sensitive = false;
-				referenceForwarder.Sensitive = false;
+				evmeLogistician.Sensitive = false;
+				evmeDriver.Sensitive = false;
+				evmeForwarder.Sensitive = false;
 				entityviewmodelentryCar.Sensitive = false;
 				datePickerDate.Sensitive = false;
 				hbox11.Sensitive = false;
@@ -354,9 +355,9 @@ namespace Vodovoz
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
 			entityviewmodelentryCar.Sensitive = _editing;
-			referenceDriver.Sensitive = _editing;
-			referenceForwarder.Sensitive = _editing;
-			referenceLogistican.Sensitive = _editing;
+			evmeDriver.Sensitive = _editing;
+			evmeForwarder.Sensitive = _editing;
+			evmeLogistician.Sensitive = _editing;
 			datePickerDate.Sensitive = _editing;
 			ycheckConfirmDifferences.Sensitive = _editing &&
 				(Entity.Status == RouteListStatus.OnClosing || 
@@ -440,10 +441,11 @@ namespace Vodovoz
 
 		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 
-		private decimal GetTerminalOrdersSum() {
-			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal &&
-																		x.Status != RouteListItemStatus.Transfered)
-												 .Sum(x => x.Order.ActualTotalSum);
+		private decimal GetTerminalOrdersSum()
+		{
+			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal
+					&& x.Status != RouteListItemStatus.Transfered)
+				.Sum(x => x.Order.OrderSum);
 
 			return result;
 		}
@@ -1282,7 +1284,9 @@ namespace Vodovoz
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
 					  _trackRepository,
-					  _categoryRepository
+					  _categoryRepository,
+					  new EmployeeJournalFactory(),
+					  new CarJournalFactory()
   			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1298,7 +1302,9 @@ namespace Vodovoz
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,
 				  _trackRepository,
-				  _categoryRepository
+				  _categoryRepository,
+				  new EmployeeJournalFactory(),
+				  new CarJournalFactory()
 		  	);
 			TabParent.AddSlaveTab(this, tab);
 		}

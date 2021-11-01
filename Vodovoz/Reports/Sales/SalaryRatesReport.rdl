@@ -47,94 +47,94 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>65.7pt</Width>
+            <Width>59.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>27.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>28.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>25.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>29.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>24.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>27.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>25.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>25.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>21.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>24.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>22.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>27.2pt</Width>
+            <Width>56.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23.1pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.3pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>24.2pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>22.8pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>24.4pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.5pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.4pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>22.1pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>22.6pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23.7pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23.4pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>24.6pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>24.8pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26.1pt</Width>
+            <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>24.6pt</Width>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -254,7 +254,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Водитель / экспедитор</Value>
+                      <Value>Водитель/
+экспе-
+дитор</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -285,7 +287,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <Direction>LTR</Direction>
                         <FontStyle>Normal</FontStyle>
                         <TextDecoration>None</TextDecoration>
@@ -310,7 +312,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -333,7 +335,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -356,7 +358,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -379,7 +381,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -403,7 +405,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Color>Black</Color>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -427,7 +429,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Color>Black</Color>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -450,7 +452,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -473,7 +475,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -496,7 +498,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -519,7 +521,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -542,7 +544,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                         <TextDecoration>None</TextDecoration>
                       </Style>
@@ -565,7 +567,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                       <CanGrow>false</CanGrow>
@@ -589,7 +591,7 @@
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                       <CanGrow>false</CanGrow>
@@ -611,7 +613,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                       <CanGrow>false</CanGrow>
@@ -633,7 +635,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -653,7 +655,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -673,7 +675,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -693,7 +695,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -713,7 +715,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -733,7 +735,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -753,7 +755,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -773,7 +775,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -793,7 +795,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -813,7 +815,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -833,7 +835,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -853,7 +855,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -873,7 +875,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <WritingMode>tb-rl</WritingMode>
+                        <WritingMode>tb-lr</WritingMode>
                         <FontStyle>Italic</FontStyle>
                       </Style>
                     </Textbox>
@@ -899,11 +901,11 @@
                         <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
@@ -921,13 +923,13 @@
                         <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -946,10 +948,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -968,10 +970,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -990,10 +992,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1012,10 +1014,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1034,10 +1036,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1056,10 +1058,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1078,10 +1080,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1100,10 +1102,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1122,10 +1124,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1144,10 +1146,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1166,10 +1168,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1188,10 +1190,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1210,10 +1212,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1232,10 +1234,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1254,10 +1256,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1276,10 +1278,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1298,10 +1300,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1320,10 +1322,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1342,10 +1344,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1364,10 +1366,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1386,10 +1388,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1408,10 +1410,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1430,10 +1432,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1452,10 +1454,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1474,10 +1476,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1496,10 +1498,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1518,10 +1520,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1540,10 +1542,10 @@
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1553,7 +1555,7 @@
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>20.6pt</Top>
+        <Top>19.8pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -1583,7 +1585,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select wdlrs.name as name, 
        'С экспедитором' as with_out_forwarder,
@@ -1707,7 +1709,7 @@ group by name, with_out_forwarder;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1840,7 +1842,7 @@ group by name, with_out_forwarder;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="wageIds">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>

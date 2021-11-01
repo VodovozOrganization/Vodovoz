@@ -52,9 +52,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label label7;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryAuthor;
-
 		private global::QS.Widgets.GtkUI.RepresentationEntry yentryreferenceRouteList;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelAuthor;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 
@@ -327,25 +327,25 @@ namespace Vodovoz
 			w24.RightAttach = ((uint)(5));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryAuthor = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryAuthor.Sensitive = false;
-			this.yentryAuthor.Events = ((global::Gdk.EventMask)(256));
-			this.yentryAuthor.Name = "yentryAuthor";
-			this.tableWriteoff.Add(this.yentryAuthor);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryAuthor]));
-			w25.LeftAttach = ((uint)(5));
-			w25.RightAttach = ((uint)(6));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.yentryreferenceRouteList = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yentryreferenceRouteList.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceRouteList.Name = "yentryreferenceRouteList";
 			this.tableWriteoff.Add(this.yentryreferenceRouteList);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryreferenceRouteList]));
-			w26.TopAttach = ((uint)(1));
-			w26.BottomAttach = ((uint)(2));
-			w26.LeftAttach = ((uint)(1));
-			w26.RightAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryreferenceRouteList]));
+			w25.TopAttach = ((uint)(1));
+			w25.BottomAttach = ((uint)(2));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(4));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.ylabelAuthor = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelAuthor.Name = "ylabelAuthor";
+			this.ylabelAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("author");
+			this.tableWriteoff.Add(this.ylabelAuthor);
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.ylabelAuthor]));
+			w26.LeftAttach = ((uint)(5));
+			w26.RightAttach = ((uint)(6));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild

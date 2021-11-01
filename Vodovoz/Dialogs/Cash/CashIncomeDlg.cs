@@ -22,6 +22,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -154,19 +155,13 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeRepresentationFilterViewModel
-			{
-				Status = Domain.Employees.EmployeeStatus.IsWorking
-			};
-			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
-			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeCashier.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeRepresentationFilterViewModel
-			{
-				Status = Domain.Employees.EmployeeStatus.IsWorking
-			};
-			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
-			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
+			evmeEmployee.Changed += (sender, e) => FillDebts();
 
 			var filterRL = new RouteListsFilter(UoW) {
 				OnlyStatuses = new[] {RouteListStatus.EnRoute, RouteListStatus.OnClosing}
@@ -376,11 +371,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYentryEmployeeChanged (object sender, EventArgs e)
-		{			
-			FillDebts ();
-		}
-
 		protected void OnComboExpenseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			FillDebts ();
@@ -476,4 +466,3 @@ namespace Vodovoz
 		}
 	}
 }
-

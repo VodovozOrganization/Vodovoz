@@ -364,7 +364,7 @@ namespace Vodovoz.Domain.Orders
 					info.AppendLine(string.Format("<b>Интервал:</b> {0}", "Самовывоз"));
 				else
 					info.AppendLine(string.Format("<b>Интервал:</b> {0}", oldOrder.DeliverySchedule.Name));
-				info.AppendLine(string.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.TotalSum)));
+				info.AppendLine(string.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.OrderSum)));
 				int watter19LQty = orderRepository.Get19LWatterQtyForOrder(UoW, oldOrder);
 				var eqToClient = orderRepository.GetEquipmentToClientForOrder(UoW, oldOrder);
 				var eqFromClient = orderRepository.GetEquipmentFromClientForOrder(UoW, oldOrder);
@@ -484,6 +484,12 @@ namespace Vodovoz.Domain.Orders
 					"Не выбран отдел в одном или нескольких виновных.",
 					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
 				);
+
+			if(EmployeeRegistrator == null)
+			{
+				yield return new ValidationResult("Не указан сотрудник, зарегистрировавший недовоз.",
+					new[] { nameof(EmployeeRegistrator) });
+			}
 		}
 
 		#endregion

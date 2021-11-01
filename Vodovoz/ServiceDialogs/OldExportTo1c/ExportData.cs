@@ -77,7 +77,7 @@ namespace Vodovoz.OldExportTo1c
 
 		public void AddOrder(Order order)
 		{
-			OrdersTotalSum += order.TotalSum;
+			OrdersTotalSum += order.OrderSum;
 			var exportSalesDocument = CreateSalesDocument(order);
 			var exportInvoiceDocument = new InvoiceDocumentNode {
 				Id = ++objectCounter

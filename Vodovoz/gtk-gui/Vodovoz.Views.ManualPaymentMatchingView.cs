@@ -351,7 +351,7 @@ namespace Vodovoz.Views
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.labelTotalSum = new global::Gtk.Label();
 			this.labelTotalSum.Name = "labelTotalSum";
-			this.labelTotalSum.LabelProp = global::Mono.Unix.Catalog.GetString("TotalSum");
+			this.labelTotalSum.LabelProp = global::Mono.Unix.Catalog.GetString("OrderSum");
 			this.hbox4.Add(this.labelTotalSum);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.labelTotalSum]));
 			w23.Position = 1;

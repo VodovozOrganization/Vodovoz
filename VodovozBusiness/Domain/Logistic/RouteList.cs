@@ -594,7 +594,7 @@ namespace Vodovoz.Domain.Logistic
 				.Select(a => a.Order)
 				.Where(o => o.PaymentType == Client.PaymentType.cash))
 			{
-				var change = (order?.Trifle ?? 0) - order.TotalSum;
+				var change = (order?.Trifle ?? 0) - order.OrderSum;
 
 				if(change > 0)
 				{

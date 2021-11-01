@@ -7,8 +7,7 @@ using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -29,18 +28,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
 
-			var filter = new EmployeeRepresentationFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking, Category = EmployeeCategory.office
-			};
-			yentryEmployer.RepresentationModel = new EmployeesVM(filter);
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeAuthor.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title { get { return "Отчёт по первичным/вторичным заказам"; } }
+		public string Title => "Отчёт по первичным/вторичным заказам";
 
 		#endregion
 
@@ -59,14 +56,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 					{ "end_date", daterangepicker.EndDateOrNull },
 					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0},
 					{ "show_only_client_with_one_order" , ycheckbutton1.Active},
-					{ "author_employer_id" , (yentryEmployer.Subject as Employee)?.Id ?? 0}
+					{ "author_employer_id" , (evmeAuthor.Subject as Employee)?.Id ?? 0}
 				}
 			};
-		}
-
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
 		}
 	}
 }

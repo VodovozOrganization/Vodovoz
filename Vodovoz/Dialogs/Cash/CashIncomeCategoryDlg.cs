@@ -6,6 +6,7 @@ using Vodovoz.Domain.Cash;
 namespace Vodovoz.Dialogs.Cash
 {
 	[System.ComponentModel.ToolboxItem(true)]
+	[Obsolete("Не используется, можно удалять")]
 	public partial class CashIncomeCategoryDlg : EntityDialogBase<IncomeCategory>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
