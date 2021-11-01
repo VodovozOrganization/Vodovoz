@@ -247,7 +247,7 @@ namespace Vodovoz.Domain.Cash
 				var existsIncome = cashRepository.GetIncomePaidSumForOrder(uow, Order.Id);
 				decimal orderCash = 0m;
 				if(Order.PaymentType == PaymentType.cash || Order.PaymentType == PaymentType.BeveragesWorld) {
-					orderCash = Order.OrderSum + (Order.ExtraMoney < 0 ? 0 : Order.ExtraMoney);
+					orderCash = Order.OrderSum;
 				}
 				var result = orderCash - existsIncome;
 				Money = result < 0 ? 0 : result;
@@ -285,7 +285,7 @@ namespace Vodovoz.Domain.Cash
 					if(!Order.SelfDelivery) {
 						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
 					}
-					if(Order.OrderSum < Money) {
+					if(Order.OrderPositiveSum < Money) {
 						yield return new ValidationResult("Сумма к оплате не может быть больше чем сумма в заказе");
 					}
 				}
