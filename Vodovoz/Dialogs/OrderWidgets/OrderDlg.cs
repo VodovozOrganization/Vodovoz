@@ -924,7 +924,8 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
+					.AddSetter((c, n) => c.Editable = n.PromoSet == null 
+					&& hasPermissionToChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)(n.Price * n.CurrentCount), 1, 100, 1)
@@ -1798,7 +1799,7 @@ namespace Vodovoz
 			if(Entity.IsLoadedFrom1C)
 				return;
 
-			int reasonID = Convert.ToInt32(_parametersProvider.GetParameterValue("promo_discount_reason_id"));
+			int reasonID = _parametersProvider.GetIntValue("promo_discount_reason_id");
 
 			if (proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
 				foreach (var proSetItem in proSet.PromotionalSetItems) {
@@ -2849,7 +2850,7 @@ namespace Vodovoz
 
 		void SetDiscountEditable(bool? canEdit = null)
 		{
-			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null;
+			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null && hasPermissionToChangeDiscountValue;
 		}
 
 		void SetDiscountUnitEditable(bool? canEdit = null)

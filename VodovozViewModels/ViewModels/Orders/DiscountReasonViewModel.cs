@@ -87,14 +87,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
 					return;
-				TryAddGroup(UoW.Session.Get<ProductGroup>(selectedNode.Id));
+				Entity.AddProductGroup(UoW.Session.Get<ProductGroup>(selectedNode.Id));
 			};
 			this.TabParent.AddSlaveTab(this, journalViewModel);
-		}
-
-		private void TryAddGroup(ProductGroup productGroup)
-		{
-			Entity.AddProductGroup(productGroup);
 		}
 	}
 }

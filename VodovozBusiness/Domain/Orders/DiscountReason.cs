@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -61,7 +60,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			get
 			{
-				if(_observableDiscountNomenclatureGroups == null && ProductGroups != null)
+				if(_observableDiscountNomenclatureGroups == null)
 				{
 					_observableDiscountNomenclatureGroups = new GenericObservableList<DiscountNomenclatureGroup>(ProductGroups);
 				}
@@ -100,7 +99,10 @@ namespace Vodovoz.Domain.Orders
 				DiscountReason = this
 			};
 
-			ObservableDiscountNomenclatureGroups.Add(discountNomenclatureGroup);
+			if(!ObservableDiscountNomenclatureGroups.Contains(discountNomenclatureGroup))
+			{
+				ObservableDiscountNomenclatureGroups.Add(discountNomenclatureGroup);
+			}
 			
 		}
 
@@ -113,28 +115,6 @@ namespace Vodovoz.Domain.Orders
 		}
 	}
 
-	public class DiscountNomenclatureGroup : PropertyChangedBase, IDomainObject
-	{
-		public virtual int Id { get; set; }
-
-		ProductGroup _productGroup;
-
-		[Display(Name = "Группа товара")]
-		public virtual ProductGroup ProductGroup
-		{
-			get => _productGroup;
-			set => SetField(ref _productGroup, value);
-		}
-
-		DiscountReason _discountReason;
-
-		[Display(Name = "Основание скидки")]
-		public virtual DiscountReason DiscountReason
-		{
-			get => _discountReason;
-			set => SetField(ref _discountReason, value);
-		}
-	}
 	public enum DiscountValueType
 	{
 		[Display(Name = "₽")]

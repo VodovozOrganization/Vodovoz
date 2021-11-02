@@ -3963,7 +3963,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Устанавливает скидку в рублях или процентах.
+		/// Устанавливает основание скидки с фиксированной скидкой на разные группы товаров,
+		/// либо, если есть право и введено значение скидки в заказе - устанавливает скидку
+		/// по введенному значению в рублях или процентах.
 		/// Если скидка в %, то просто применяется к каждой строке заказа,
 		/// а если в рублях - расчитывается % в зависимости от суммы заказа и рублёвой скидки
 		/// и применяется этот % аналогично случаю с процентной скидкой.
@@ -3971,10 +3973,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="reason">Причина для скидки.</param>
 		/// <param name="discount">Значение скидки.</param>
 		/// <param name="unit">рубли или %.</param>
-		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, bool permission = false)
+		/// <param name="permission">Право на выставления значения скидки в заказе</param>
+		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, bool permissionToSetDiscountValue = false)
 		{
 			//Если есть право на непосредственный ввод значения скидки
-			if(permission && discount > 0)
+			if(permissionToSetDiscountValue && discount > 0)
 			{
 				if(unit == DiscountUnits.money)
 				{
@@ -4006,14 +4009,14 @@ namespace Vodovoz.Domain.Orders
 				{
 					discount = reason.Value;
 				}
+
 				foreach(OrderItem item in ObservableOrderItems)
 				{
-
 					if(item.PromoSet == null && !DeliveryPoint.NomenclatureFixedPrices.Where(x => x.Nomenclature == item.Nomenclature).Any())
 					{
 						if(reason.ProductGroups.Any())
 						{
-							if(reason.ProductGroups.Where(x => x.ProductGroup == item.Nomenclature.ProductGroup).Any())
+							if(ContainsProductGroup(item.Nomenclature.ProductGroup, reason.ProductGroups))
 							{
 								item.DiscountSetter = discount;
 								item.DiscountReason = reason;
@@ -4035,34 +4038,32 @@ namespace Vodovoz.Domain.Orders
 		{
 			foreach(OrderItem item in ObservableOrderItems)
 			{
-				if(item == orderItem && item.PromoSet == null && discount == 0)
+				if(item != orderItem || item.PromoSet != null || discount != 0)
+					continue;
+
+				if(reason.ValueType == DiscountValueType.Roubles)
 				{
-					if(reason.ValueType == DiscountValueType.Roubles)
+					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+					if(sum == 0)
+						return;
+					discount += 100 * Convert.ToDecimal(reason.Value) / sum;
+				}
+				//Если скидка в основании - процентами
+				else
+				{
+					discount = reason.Value;
+				}
+				//Если в основании указаны группы товаров
+				if(reason.ProductGroups.Any())
+				{
+					if(!ContainsProductGroup(item.Nomenclature.ProductGroup, reason.ProductGroups))
 					{
-						var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-						if(sum == 0)
-							return;
-						discount += 100 * Convert.ToDecimal(reason.Value) / sum;
-					}
-					//Если скидка в основании - процентами
-					else
-					{
-						discount = reason.Value;
-					}
-					if(reason.ProductGroups.Any())
-					{
-						if(reason.ProductGroups.Where(x => x.ProductGroup == item.Nomenclature.ProductGroup).Any())
-						{
-							item.DiscountSetter = discount;
-							item.DiscountReason = reason;
-						}
-					}
-					else
-					{
-						item.DiscountSetter = discount;
-						item.DiscountReason = reason;
+						continue;
 					}
 				}
+
+				item.DiscountSetter = discount;
+				item.DiscountReason = reason;
 			}
 		}
 
@@ -4108,6 +4109,40 @@ namespace Vodovoz.Domain.Orders
 		{
 			OnPropertyChanged(nameof(OrderSum));
 			UpdateDocuments();
+		}
+
+		private bool ContainsProductGroup(ProductGroup itemProductGroup, IList<DiscountNomenclatureGroup> discountProductGroups)
+		{
+			bool result = false;
+			foreach(var elem in discountProductGroups)
+			{
+				if(CheckProductGroup(itemProductGroup, elem.ProductGroup))
+				{
+					result = true;
+					break;
+				}
+			}
+			return result;
+		}
+
+		private bool CheckProductGroup(ProductGroup itemProductGroup, ProductGroup discountProductGroup)
+		{
+			if(itemProductGroup == discountProductGroup || itemProductGroup.Parent == discountProductGroup)
+			{
+				return true;
+			}
+			else
+			{
+				if(discountProductGroup.Parent != null)
+				{
+					return CheckProductGroup(itemProductGroup, discountProductGroup.Parent);
+				}
+				else if(itemProductGroup.Parent != null)
+				{
+					return CheckProductGroup(itemProductGroup.Parent, discountProductGroup);
+				}
+				return false;
+			}
 		}
 
 		#endregion
