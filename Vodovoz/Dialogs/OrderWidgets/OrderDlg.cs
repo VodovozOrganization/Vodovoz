@@ -952,18 +952,15 @@ namespace Vodovoz
 						? colorLightRed
 						: colorWhite
 					)
-					.AddSetter((c, n) => {
+					.AddSetter((c, n) => 
+					{
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
-						if(n.PromoSet == null && spinDiscount.Value == 0 && !Entity.DeliveryPoint.NomenclatureFixedPrices.Any(x => x.Nomenclature == n.Nomenclature))
+						if(n.PromoSet == null && spinDiscount.Value == 0 && !Entity.DeliveryPoint.NomenclatureFixedPrices.Any(x => x.Nomenclature == n.Nomenclature) && c.Text.Any())
 						{
-							if(c.Text != "")
 							Entity.SetDiscountReasonForOrderItem(n, n.DiscountReason, Convert.ToDecimal(spinDiscount.Value));
 						}
-
-						}
-					)
-					
+					})
 				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
