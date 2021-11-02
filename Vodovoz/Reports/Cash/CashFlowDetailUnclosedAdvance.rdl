@@ -143,7 +143,7 @@ ORDER BY Category;</CommandText>
     <DataSet Name="Summary">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT SUM(t.Sum) - SUM(t.return_money) AS itog FROM (
+        <CommandText>SELECT SUM(t.Sum) - SUM(t.return_money) AS summary FROM (
 SELECT
     cash_expense.money AS Sum,
     cash_income.money AS return_money
@@ -197,8 +197,8 @@ ORDER BY Category
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="itog">
-          <DataField>itog</DataField>
+        <Field Name="summary">
+          <DataField>summary</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
@@ -593,7 +593,7 @@ ORDER BY Category
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=First({itog}, 'Summary')</Value>
+                      <Value>=First({summary}, 'Summary')</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
