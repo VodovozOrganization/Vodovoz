@@ -814,7 +814,7 @@ namespace Vodovoz
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
 			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
 			{
-				DeliveryPoint.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
+				DeliveryPoint.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
 				RefreshEntity(DeliveryPoint);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -822,7 +822,7 @@ namespace Vodovoz
 			
 			if(changedEntities.Any(x => x.Counterparty != null && Counterparty != null && x.Counterparty.Id == Counterparty.Id))
 			{
-				Counterparty.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
+				Counterparty.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
 				RefreshEntity(Counterparty);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
