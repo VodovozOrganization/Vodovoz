@@ -310,12 +310,6 @@ namespace Vodovoz.Configuration
                 .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();
-            OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
-                .SearchColumn("Код", x => x.Id.ToString())
-                .SearchColumn("Модель а/м", x => x.Model)
-                .SearchColumn("Гос. номер", x => x.RegistrationNumber)
-                .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
-                .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)
                 .Column("Тип", x => x.TypeOfCertificate.GetEnumTitle())
