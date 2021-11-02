@@ -3,7 +3,6 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -11,7 +10,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarView : TabViewBase<CarViewModel>
 	{
 		public CarView(CarViewModel viewModel) : base(viewModel)
@@ -159,26 +157,22 @@ namespace Vodovoz.Views.Logistic
 			Tab.TabParent.AddSlaveTab(Tab, selectGeographicGroups);
 		}
 
-		void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			if(yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList)
+			foreach(var item in e.Subjects)
 			{
-				foreach(var item in e.Subjects)
+				if(item is GeographicGroup group && ViewModel.Entity.ObservableGeographicGroups.All(x => x.Id != group.Id))
 				{
-					if(item is GeographicGroup group && !ggList.Any(x => x.Id == group.Id))
-					{
-						ggList.Add(group);
-					}
+					ViewModel.Entity.ObservableGeographicGroups.Add(group);
 				}
 			}
 		}
 
 		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)
 		{
-			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj
-				&& yTreeGeographicGroups.ItemsDataSource is GenericObservableList<GeographicGroup> ggList)
+			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj)
 			{
-				ggList.Remove(selectedObj);
+				ViewModel.Entity.ObservableGeographicGroups.Remove(selectedObj);
 			}
 		}
 	}
