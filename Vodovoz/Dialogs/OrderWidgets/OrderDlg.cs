@@ -1963,7 +1963,7 @@ namespace Vodovoz
 		protected void OnYcomboboxReasonItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			SetDiscountUnitEditable();
-			if(ycomboboxReason.ActiveText != "Нет")
+			if(ycomboboxReason.SelectedItem != null)
 			{
 				SetDiscount();
 			}
