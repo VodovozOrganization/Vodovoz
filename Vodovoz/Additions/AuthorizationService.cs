@@ -178,7 +178,10 @@ namespace Vodovoz.Additions
 				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
 				var channel = connection.CreateModel();
 
-				channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, null, sendingBody);
+				var properties = channel.CreateBasicProperties();
+				properties.Persistent = true;
+
+				channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, properties, sendingBody);
 
 				return true;
 			}
