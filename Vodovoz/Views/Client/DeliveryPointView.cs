@@ -414,6 +414,7 @@ namespace Vodovoz.Views.Client
 				if(fixedpricesview.ViewModel == null)
 				{
 					fixedpricesview.ViewModel = ViewModel.FixedPricesViewModel;
+					fixedpricesview.Sensitive = ViewModel.CanEditNomenclatureFixedPrice;
 				}
 
 				notebook1.CurrentPage = 1;
