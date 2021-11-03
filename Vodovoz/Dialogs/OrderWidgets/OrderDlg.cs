@@ -75,7 +75,6 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Representations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -879,6 +878,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
+					.EditedEvent(OnCountEdited)
 				.AddTextRenderer(node => node.ActualCount.HasValue ? string.Format("[{0}]", node.ActualCount) : string.Empty)
 				.AddTextRenderer(node => node.CanShowReturnedCount ? string.Format("({0})", node.ReturnedCount) : string.Empty)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
@@ -1010,6 +1010,13 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
+		}
+
+		private void OnCountEdited(object o, EditedArgs args)
+		{
+			var path = new TreePath(args.Path);
+			treeItems.YTreeModel.GetIter(out var iter, path);
+			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
 		}
 
 		private void ConfigureAcceptButtons()
