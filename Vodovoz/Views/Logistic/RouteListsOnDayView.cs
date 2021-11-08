@@ -11,18 +11,21 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -877,20 +880,19 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var SelectDriverCar = new OrmReference(
-				ViewModel.UoW,
-				ViewModel.CarRepository.ActiveCompanyCarsQuery()
-			);
-			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			SelectDriverCar.Tag = driver;
-			SelectDriverCar.Mode = OrmReferenceMode.Select;
-			SelectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			ViewModel.TabParent.AddSlaveTab(ViewModel, SelectDriverCar);
-		}
-
-		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			ViewModel.SelectCarForDriver(e.Tag as AtWorkDriver, e.Subject as Car);
+			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>()[default(int)];
+			var filter = new CarJournalFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
+				x => x.IncludeArchive = false);
+			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ViewModel.CommonServices);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += (o, args) =>
+			{
+				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				ViewModel.SelectCarForDriver(driver, car);
+			};
+			ViewModel.TabParent.AddSlaveTab(ViewModel, journal);
 		}
 
 		void OnLoadTimeEdited(object o, EditedArgs args)
