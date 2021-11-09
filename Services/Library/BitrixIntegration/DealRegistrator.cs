@@ -75,6 +75,7 @@ namespace BitrixIntegration
 				dealRegistration.Success = false;
 				dealRegistration.NeedSync = false;
 				var toInsert = $"{DateTime.Now.ToShortDateString()} {errorDescription}\n";
+				dealRegistration.ErrorDescription ??= String.Empty;
 				dealRegistration.ErrorDescription = dealRegistration.ErrorDescription.Insert(0, toInsert);
 				var currentLength = dealRegistration.ErrorDescription.Length;
 				if(currentLength > 1000)
