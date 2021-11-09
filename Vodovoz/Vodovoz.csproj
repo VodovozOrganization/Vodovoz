@@ -1671,6 +1671,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
     <Compile Include="Views\Logistic\CarView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarView.cs" />
+    <Compile Include="Views\Settings\GeneralSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.GeneralSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1985,6 +1987,7 @@
     <Folder Include="Views\Print\" />
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
+    <Folder Include="Views\Settings\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
