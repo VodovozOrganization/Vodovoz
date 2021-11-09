@@ -147,6 +147,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Rent;
+using Vodovoz.ViewModels.ViewModels.Settings;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 public partial class MainWindow : Gtk.Window
@@ -2490,6 +2491,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnGeneralSettingsActionActivated(object sender, EventArgs e)
 	{
-
+		NavigationManager.OpenViewModel<GeneralSettingsViewModel>(null);
 	}
 }
