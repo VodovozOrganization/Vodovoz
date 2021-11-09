@@ -1,17 +1,8 @@
 ﻿using Gamma.GtkWidgets;
-using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Views.GtkUI;
-using System;
-using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Representations;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
@@ -20,7 +11,7 @@ namespace Vodovoz.Views.Orders
 	{
 		public DiscountReasonView(DiscountReasonViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
