@@ -10,6 +10,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 	public class GeneralSettingsViewModel : TabViewModelBase
 	{
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
 		private DelegateCommand _saveCommand;
@@ -44,14 +45,40 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public DelegateCommand SaveCommand => _saveCommand ?? (_saveCommand = new DelegateCommand(
 			() =>
 			{
-				Save();
-				Close(false, CloseSource.Save);
+				if(Save())
+				{
+					Close(false, CloseSource.Save);
+				}
 			})
 		);
 
-		private void Save()
+		private bool Save()
 		{
+			if(!Validate())
+			{
+				return false;
+			}
+
 			_generalSettingsParametersProvider.UpdateRouteListPrintedFormPhones(RouteListPrintedFormPhones);
+			return true;
+		}
+
+		private bool Validate()
+		{
+			if(string.IsNullOrWhiteSpace(RouteListPrintedFormPhones))
+			{
+				ShowWarningMessage("Строка с телефонами для печатной формы МЛ не может быть пуста!");
+				return false;
+			}
+			
+			if(RouteListPrintedFormPhones != null && RouteListPrintedFormPhones.Length > _routeListPrintedFormPhonesLimitSymbols)
+			{
+				ShowWarningMessage(
+					$"Строка с телефонами для печатной формы МЛ не может превышать {_routeListPrintedFormPhonesLimitSymbols} символов!");
+				return false;
+			}
+
+			return true;
 		}
 	}
 }
