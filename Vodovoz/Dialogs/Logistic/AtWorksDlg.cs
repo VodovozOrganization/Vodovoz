@@ -28,6 +28,8 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -296,19 +298,30 @@ namespace Vodovoz.Dialogs.Logistic
 				SetButtonClearDriverScreenSensitive();
 			}
 		}
-
-
+		
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var selectDriverCar = new OrmReference(
-				UoW,
-				_carRepository.ActiveCompanyCarsQuery()
-			);
-			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			selectDriverCar.Tag = driver;
-			selectDriverCar.Mode = OrmReferenceMode.Select;
-			selectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			TabParent.AddSlaveTab(this, selectDriverCar);
+			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+
+			if(driver == null)
+			{
+				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
+				return;
+			}
+			
+			var filter = new CarJournalFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
+				x => x.IncludeArchive = false);
+			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += (o, args) =>
+			{
+				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+				driver.Car = car;
+			};
+			TabParent.AddSlaveTab(this, journal);
 		}
 		
 		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
@@ -507,14 +520,6 @@ namespace Vodovoz.Dialogs.Logistic
 			logger.Info("Ок");
 		}
 
-		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var driver = e.Tag as AtWorkDriver;
-			var car = e.Subject as Car;
-			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
-			driver.Car = car;
-		}
-		
 		protected void OnHideForwadersToggled(object o, Gtk.ToggledArgs args)
 		{
 			vboxForwarders.Visible = hideForwaders.ArrowDirection == Gtk.ArrowType.Down;
