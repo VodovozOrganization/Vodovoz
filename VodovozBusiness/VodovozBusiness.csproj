@@ -330,9 +330,11 @@
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
+    <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
+    <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
