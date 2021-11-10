@@ -20,9 +20,9 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -884,7 +884,7 @@ namespace Vodovoz.Views.Logistic
 			
 			if(driver == null)
 			{
-				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
+				ViewModel.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран водитель!");
 				return;
 			}
 			
