@@ -148,7 +148,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
-			SetButtonClearDriverScreenSensitive();
 
 			_forwarderFilter = new EmployeeFilterViewModel();
 			_forwarderFilter.SetAndRefilterAtOnce(
@@ -252,7 +251,6 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
-			SetButtonClearDriverScreenSensitive();
 		}
 
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
@@ -380,7 +378,7 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			foreach(var one in selected) 
 			{
-				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Id);
+				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Employee.Id);
 
 				var employeeViewModel = new EmployeeViewModel(
 					_authorizationService,
@@ -496,6 +494,7 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 			logger.Info("Ок");
+			SetButtonClearDriverScreenSensitive();
 		}
 
 		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
