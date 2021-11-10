@@ -1331,7 +1331,7 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>77.9pt</Top>
+        <Top>68.4pt</Top>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
@@ -1489,12 +1489,12 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>11.2pt</Height>
+              <Height>14.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>Водительский телефон: 8 (931) 009 - 46 - 79 / Группа WhatsApp: 8 (981) 876 - 89 - 52</Value>
+                      <Value>={?phones}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1508,35 +1508,9 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Left</TextAlign>
                         <PaddingRight>5pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>3</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>Логисты Юг: 8 (967) 530 - 43 - 36 / Логисты Север: 8 (964) 378 - 38 - 89 / Механики: 8 (965) 049 - 32 - 76</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Left</TextAlign>
-                        <PaddingRight>5pt</PaddingRight>
-                      </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>3</ColSpan>
@@ -1885,7 +1859,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>182.8pt</Top>
+        <Top>173.3pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>64.87pt</Height>
@@ -1961,6 +1935,9 @@ LIMIT 1
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
             <Value>={?RouteListId}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@phones">
+            <Value>={?phones}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2390,6 +2367,13 @@ WHERE stored_resource.id = @id1</CommandText>
     </ReportParameter>
     <ReportParameter Name="need_terminal">
       <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt/>
+    </ReportParameter>
+    <ReportParameter Name="phones">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

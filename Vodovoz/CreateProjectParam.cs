@@ -138,10 +138,12 @@ using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.ViewModels.ViewModels.Rent;
+using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.Views.Flyers;
 using Vodovoz.Views.Print;
 using Vodovoz.Views.Rent;
+using Vodovoz.Views.Settings;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 
 namespace Vodovoz
@@ -256,6 +258,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
 				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
+				.RegisterWidgetForTabViewModel<GeneralSettingsViewModel, GeneralSettingsView>()
 				;
 
             //Регистрация виджетов
@@ -433,6 +436,7 @@ namespace Vodovoz
 			builder.RegisterType<OrderParametersProvider>().As<IOrderParametersProvider>();
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
+			builder.RegisterType<GeneralSettingsParametersProvider>().As<IGeneralSettingsParametersProvider>();
 
 			#endregion
 			
