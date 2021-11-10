@@ -46,7 +46,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IAtWorkRepository atWorkRepository;
 		private readonly IGtkTabsOpener gtkTabsOpener;
 		private readonly IUserRepository userRepository;
-		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 		private readonly int closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -74,7 +73,7 @@ namespace Vodovoz.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			}
 
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -130,6 +129,7 @@ namespace Vodovoz.ViewModels.Logistic
 			LoadAddressesTypesDefaults();
 		}
 		
+		public ICommonServices CommonServices { get; }
 		public ICarRepository CarRepository { get; }
 		public IGeographicGroupRepository GeographicGroupRepository { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
@@ -595,7 +595,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void LoadAddressesTypesDefaults()
 		{
-			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
+			var currentUserSettings = userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId);
 			foreach(var addressTypeNode in OrderAddressTypes) {
 				switch(addressTypeNode.OrderAddressType) {
 					case OrderAddressType.Delivery:
@@ -1352,8 +1352,12 @@ namespace Vodovoz.ViewModels.Logistic
 						driver.Employee.ShortName
 					)
 				)
-			) {
-				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
+			)
+			{
+				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x =>
+				{
+					x.Car = null; x.GeographicGroup = null;
+				});
 				driver.Car = car;
 			}
 		}
