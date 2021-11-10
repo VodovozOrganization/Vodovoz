@@ -880,7 +880,14 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>()[default(int)];
+			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+			
+			if(driver == null)
+			{
+				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
+				return;
+			}
+			
 			var filter = new CarJournalFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
