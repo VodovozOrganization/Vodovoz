@@ -41,6 +41,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -1384,21 +1386,30 @@ namespace Vodovoz
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var SelectDriverCar = new OrmReference(
-				UoW,
-				_carRepository.ActiveCompanyCarsQuery()
-			);
-			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			SelectDriverCar.Tag = driver;
-			SelectDriverCar.Mode = OrmReferenceMode.Select;
-			SelectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectDriverCar);
+			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+			
+			if(driver == null)
+			{
+				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
+				return;
+			}
+			
+			var filter = new CarJournalFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
+				x => x.IncludeArchive = false);
+			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += (o, args) =>
+			{
+				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				SelectCarForDriver(driver, car);
+			};
+			TabParent.AddSlaveTab(this, journal);
 		}
 
-		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void SelectCarForDriver(AtWorkDriver driver, Car car)
 		{
-			var driver = e.Tag as AtWorkDriver;
-			var car = e.Subject as Car;
 			var driverNames = string.Join("\", \"", driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).Select(x => x.Employee.ShortName));
 			if(
 				string.IsNullOrEmpty(driverNames) || MessageDialogHelper.RunQuestionDialog(
@@ -1409,8 +1420,12 @@ namespace Vodovoz
 						driver.Employee.ShortName
 					)
 				)
-			) {
-				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
+			)
+			{
+				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x =>
+				{
+					x.Car = null; x.GeographicGroup = null;
+				});
 				driver.Car = car;
 			}
 		}

@@ -41,7 +41,7 @@ namespace DriverAPI.Library.Converters
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,
-				OrderSum = vodovozOrder.ActualTotalSum,
+				OrderSum = vodovozOrder.OrderSum,
 				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems

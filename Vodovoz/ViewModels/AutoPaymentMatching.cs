@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels
 					orders.Add(order);
 				}
 
-				var result = orders.Sum(x => x.ActualTotalSum);
+				var result = orders.Sum(x => x.OrderSum);
 
 				if(payment.Total != result)
 				{

@@ -216,7 +216,7 @@ namespace Vodovoz.Domain.Payments
 			{
 				Order = order,
 				Payment = this,
-				Sum = order.ActualTotalSum
+				Sum = order.OrderSum
 			};
 
 			ObservableItems.Add(paymentItem);

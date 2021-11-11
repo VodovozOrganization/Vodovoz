@@ -588,7 +588,7 @@ namespace Vodovoz
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
-			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
+			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
@@ -3041,7 +3041,7 @@ namespace Vodovoz
 
 			ylblPaymentType.Text = Entity.PaymentType.GetEnumTitle();
 
-			ylblPlannedSum.Text = $"{ Entity.OrderSum } руб.";
+			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
 			ylblTrifleFrom.Visible = isPaymentTypeCash;
