@@ -32,13 +32,17 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yCheckButton chkBtnPremiumDiscount;
 
+		private global::Gamma.GtkWidgets.yHBox hboxProductGroupBtns;
+
+		private global::Gamma.GtkWidgets.yButton btnAddProductGroup;
+
+		private global::Gamma.GtkWidgets.yButton btnRemoveProductGroup;
+
 		private global::Gtk.Label label1;
 
 		private global::Gtk.Label label2;
 
 		private global::Gtk.Label labelDiscont;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonAddGroup;
 
 		protected virtual void Build()
 		{
@@ -193,15 +197,49 @@ namespace Vodovoz.Views.Orders
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
+			this.hboxProductGroupBtns = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxProductGroupBtns.Name = "hboxProductGroupBtns";
+			this.hboxProductGroupBtns.Spacing = 6;
+			// Container child hboxProductGroupBtns.Gtk.Box+BoxChild
+			this.btnAddProductGroup = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddProductGroup.CanFocus = true;
+			this.btnAddProductGroup.Name = "btnAddProductGroup";
+			this.btnAddProductGroup.UseUnderline = true;
+			this.btnAddProductGroup.Label = global::Mono.Unix.Catalog.GetString("Добавить группу товаров");
+			this.hboxProductGroupBtns.Add(this.btnAddProductGroup);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxProductGroupBtns[this.btnAddProductGroup]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child hboxProductGroupBtns.Gtk.Box+BoxChild
+			this.btnRemoveProductGroup = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveProductGroup.CanFocus = true;
+			this.btnRemoveProductGroup.Name = "btnRemoveProductGroup";
+			this.btnRemoveProductGroup.UseUnderline = true;
+			this.btnRemoveProductGroup.Label = global::Mono.Unix.Catalog.GetString("Удалить группу товаров");
+			this.hboxProductGroupBtns.Add(this.btnRemoveProductGroup);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxProductGroupBtns[this.btnRemoveProductGroup]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
+			this.table3.Add(this.hboxProductGroupBtns);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table3[this.hboxProductGroupBtns]));
+			w17.TopAttach = ((uint)(4));
+			w17.BottomAttach = ((uint)(5));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.label1.Justify = ((global::Gtk.Justification)(1));
 			this.table3.Add(this.label1);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table3[this.label1]));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table3[this.label1]));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
@@ -209,38 +247,24 @@ namespace Vodovoz.Views.Orders
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("В архиве:");
 			this.label2.Justify = ((global::Gtk.Justification)(1));
 			this.table3.Add(this.label2);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table3[this.label2]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table3[this.label2]));
+			w19.TopAttach = ((uint)(1));
+			w19.BottomAttach = ((uint)(2));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.labelDiscont = new global::Gtk.Label();
 			this.labelDiscont.Name = "labelDiscont";
 			this.labelDiscont.LabelProp = global::Mono.Unix.Catalog.GetString("Скидка на все:");
 			this.table3.Add(this.labelDiscont);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table3[this.labelDiscont]));
-			w17.TopAttach = ((uint)(2));
-			w17.BottomAttach = ((uint)(3));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.ybuttonAddGroup = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonAddGroup.CanFocus = true;
-			this.ybuttonAddGroup.Name = "ybuttonAddGroup";
-			this.ybuttonAddGroup.UseUnderline = true;
-			this.ybuttonAddGroup.Label = global::Mono.Unix.Catalog.GetString("Добавить группу");
-			this.table3.Add(this.ybuttonAddGroup);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table3[this.ybuttonAddGroup]));
-			w18.TopAttach = ((uint)(4));
-			w18.BottomAttach = ((uint)(5));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table3[this.labelDiscont]));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table3);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table3]));
-			w19.Position = 2;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table3]));
+			w21.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

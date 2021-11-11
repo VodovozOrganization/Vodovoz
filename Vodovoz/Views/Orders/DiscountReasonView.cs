@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Orders
 			enumDiscountValueType.ItemsEnum = typeof(DiscountValueType);
 			enumDiscountValueType.Binding.AddBinding(ViewModel.Entity, dr => dr.ValueType, w => w.SelectedItem).InitializeFromSource();
 
-			ybuttonAddGroup.Clicked += YbuttonAddGroupClicked;
+			btnAddProductGroup.Clicked += YbuttonAddGroupClicked;
 
 			ytreeviewProductGroups.ColumnsConfig = ColumnsConfigFactory.Create<DiscountNomenclatureGroup>()
 				.AddColumn("№")
