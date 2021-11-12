@@ -45,11 +45,11 @@ namespace DriverAPI.Library.Converters
 					CashMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
-						.Sum(rla => rla.Order.ActualTotalSum),
+						.Sum(rla => rla.Order.OrderSum),
 					TerminalMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
-						.Sum(rla => rla.Order.ActualTotalSum),
+						.Sum(rla => rla.Order.OrderSum),
 					TerminalOrdersCount = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)

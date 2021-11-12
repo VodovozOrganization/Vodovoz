@@ -78,7 +78,7 @@ namespace SmsPaymentService
                         return new PaymentResult($"Заказ с номером {orderId} не существующет в базе");
                     }
                     var newPayment = new SmsPayment {
-                        Amount = order.TotalSum,
+                        Amount = order.OrderSum,
                         Order = order,
                         Recepient = order.Client,
                         CreationDate = DateTime.Now,

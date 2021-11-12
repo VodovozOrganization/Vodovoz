@@ -588,7 +588,7 @@ namespace Vodovoz
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
-			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
+			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
@@ -799,13 +799,13 @@ namespace Vodovoz
 
 		private void RefreshCounterpartyWithPhones()
 		{
-			Counterparty.ReloadChildCollection(x => x.ObservablePhones, x => x.Counterparty, UoW.Session);
+			Counterparty.ReloadChildCollection(x => x.Phones, x => x.Counterparty, UoW.Session);
 			RefreshEntity(Counterparty);
 		}
 
 		private void RefreshDeliveryPointWithPhones()
 		{
-			DeliveryPoint.ReloadChildCollection(x => x.ObservablePhones, x => x.DeliveryPoint, UoW.Session);
+			DeliveryPoint.ReloadChildCollection(x => x.Phones, x => x.DeliveryPoint, UoW.Session);
 			RefreshEntity(DeliveryPoint);
 		}
 
@@ -814,7 +814,7 @@ namespace Vodovoz
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
 			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
 			{
-				DeliveryPoint.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
+				DeliveryPoint.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
 				RefreshEntity(DeliveryPoint);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -822,7 +822,7 @@ namespace Vodovoz
 			
 			if(changedEntities.Any(x => x.Counterparty != null && Counterparty != null && x.Counterparty.Id == Counterparty.Id))
 			{
-				Counterparty.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
+				Counterparty.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
 				RefreshEntity(Counterparty);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -3041,7 +3041,7 @@ namespace Vodovoz
 
 			ylblPaymentType.Text = Entity.PaymentType.GetEnumTitle();
 
-			ylblPlannedSum.Text = $"{ Entity.OrderSum } руб.";
+			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
 			ylblTrifleFrom.Visible = isPaymentTypeCash;

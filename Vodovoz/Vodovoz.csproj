@@ -439,7 +439,6 @@
     <Compile Include="CreateProjectParam.cs" />
     <Compile Include="Dialogs\OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
@@ -749,7 +748,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
-    <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
@@ -1671,6 +1669,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AnalyticsForUndeliveryReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRatesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
+    <Compile Include="Views\Logistic\CarView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarView.cs" />
+    <Compile Include="Views\Settings\GeneralSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.GeneralSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1985,6 +1987,7 @@
     <Folder Include="Views\Print\" />
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
+    <Folder Include="Views\Settings\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

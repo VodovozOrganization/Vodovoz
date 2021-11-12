@@ -957,7 +957,7 @@ namespace Vodovoz.Domain.Orders
 					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
-					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.OrderSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
@@ -1125,7 +1125,7 @@ namespace Vodovoz.Domain.Orders
 			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
-			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
+			if(ObservableOrderDepositItems.Any(x => x.ActualSum < 0)) {
 				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
@@ -1176,19 +1176,19 @@ namespace Vodovoz.Domain.Orders
 
 			if (DeliveryPoint != null)
             {
-				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderTotalSum < DeliveryPoint.MinimalOrderSumLimit)
+				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderSum < DeliveryPoint.MinimalOrderSumLimit)
 				{
 					yield return new ValidationResult(
 						"Сумма заказа меньше минимальной погоровой установленной для точки доставки",
-						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+						new[] { this.GetPropertyName(o => o.OrderSum) }
 					);
 				}
 
-				if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderTotalSum > DeliveryPoint.MaximalOrderSumLimit)
+				if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderSum > DeliveryPoint.MaximalOrderSumLimit)
 				{
 					yield return new ValidationResult(
 						"Сумма заказа больше максимальной погоровой установленной для точки доставки",
-						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+						new[] { this.GetPropertyName(o => o.OrderSum) }
 					);
 				}
 			}
@@ -1226,17 +1226,20 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum {
-			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSumTotal - OrderSumReturnTotal : 0;
+			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSum : 0;
 			protected set {; }
 		}
 
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
 		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal OrderTotalSum => OrderSumTotal - OrderSumReturnTotal;
+		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
 
-		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal TotalSum => OrderSum - OrderSumReturn;
-
-		public virtual decimal OrderSum {
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveSum {
 			get {
 				decimal sum = 0;
 				foreach(OrderItem item in ObservableOrderItems) {
@@ -1246,51 +1249,21 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal OrderSumTotal {
-			get {
-				decimal result = OrderSum;
-				if(ExtraMoney > 0) {
-					result += ExtraMoney;
-				}
-				return result;
-			}
-		}
-
-		public virtual decimal OrderSumReturn {
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public virtual decimal OrderNegativeSum {
 			get {
 				decimal sum = 0;
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					sum += dep.Total;
+					sum += dep.ActualSum;
 				}
 				return sum;
 			}
 		}
 
-		public virtual decimal OrderSumReturnTotal {
-			get {
-				decimal result = OrderSumReturn;
-				if(ExtraMoney < 0) {
-					result += Math.Abs(ExtraMoney);
-				}
-				return result;
-			}
-		}
-
-		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
-		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
-
-		public virtual decimal ActualTotalSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems)
-					sum += item.ActualSum;
-
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
-					sum -= Math.Round(dep.Deposit * dep.Count, 2);
-
-				return sum;
-			}
-		}
+		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
+		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 
 		[Obsolete("Должно быть не актуально после ввода новой системы расчёта ЗП (I-2150)")]
 		public virtual decimal MoneyForMaster =>
@@ -2780,7 +2753,7 @@ namespace Vodovoz.Domain.Orders
 				UoW.Delete(refundToDelete);
 				var totalPayed = paymentItems.Sum(pi => pi.Sum);
 
-				OrderPaymentStatus = ActualTotalSum > totalPayed
+				OrderPaymentStatus = OrderSum > totalPayed
 					? OrderPaymentStatus.PartiallyPaid
 					: OrderPaymentStatus.Paid;
 			}
@@ -2804,7 +2777,7 @@ namespace Vodovoz.Domain.Orders
 
 			OrderPaymentStatus = totalPayed == 0
 				? OrderPaymentStatus.UnPaid
-				: ActualTotalSum > totalPayed
+				: OrderSum > totalPayed
 					? OrderPaymentStatus.PartiallyPaid
 					: OrderPaymentStatus.Paid;
 		}
@@ -2963,7 +2936,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal totalPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 
-			return OrderSumTotal == totalPaid;
+			return OrderPositiveSum == totalPaid;
 		}
 
 		/// <summary>
@@ -2973,7 +2946,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal totalReturned = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 
-			return OrderSumReturnTotal == totalReturned;
+			return OrderNegativeSum == totalReturned;
 		}
 
 		private decimal GetSelfDeliveryTotalPayedCash(ICashRepository cashRepository)
@@ -2995,7 +2968,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
 				return;
 
-			if(PayAfterShipment || OrderTotalSum == 0)
+			if(PayAfterShipment || OrderSum == 0)
 				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
 			else
 				ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, callTaskWorker);
@@ -3734,7 +3707,7 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateRentsCount();
 			
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 		
@@ -3815,7 +3788,7 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateRentsCount();
 			
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 		
@@ -3890,7 +3863,7 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateRentsCount();
 			
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 		
@@ -4045,12 +4018,12 @@ namespace Vodovoz.Domain.Orders
 
 		void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 		}
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			UpdateDocuments();
 		}
 
@@ -4129,8 +4102,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow)
 		{
-			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
-			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
+			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
+			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
 			return operations;
 		}

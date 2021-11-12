@@ -10,8 +10,10 @@ using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
@@ -26,6 +28,8 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -35,6 +39,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.Dialogs.Logistic
@@ -148,7 +153,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 			this.defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
-			SetButtonClearDriverScreenSensitive();
 
 			_forwarderFilter = new EmployeeFilterViewModel();
 			_forwarderFilter.SetAndRefilterAtOnce(
@@ -252,7 +256,6 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
-			SetButtonClearDriverScreenSensitive();
 		}
 
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
@@ -293,19 +296,30 @@ namespace Vodovoz.Dialogs.Logistic
 				SetButtonClearDriverScreenSensitive();
 			}
 		}
-
-
+		
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var selectDriverCar = new OrmReference(
-				UoW,
-				_carRepository.ActiveCompanyCarsQuery()
-			);
-			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			selectDriverCar.Tag = driver;
-			selectDriverCar.Mode = OrmReferenceMode.Select;
-			selectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			TabParent.AddSlaveTab(this, selectDriverCar);
+			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+
+			if(driver == null)
+			{
+				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
+				return;
+			}
+			
+			var filter = new CarJournalFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
+				x => x.IncludeArchive = false);
+			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += (o, args) =>
+			{
+				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+				driver.Car = car;
+			};
+			TabParent.AddSlaveTab(this, journal);
 		}
 		
 		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
@@ -362,10 +376,16 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonOpenCarClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
+			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
+
 			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected[0].Car.Id),
-				() => new CarsDlg(selected[0].Car)
+				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
+				() => new CarViewModel(EntityUoWBuilder.ForOpen(selected.Car.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeJournalFactory(),
+				new AttachmentsViewModelFactory(),
+				new CarRepository())
 			);
 		}
 		
@@ -380,7 +400,7 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			foreach(var one in selected) 
 			{
-				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Id);
+				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Employee.Id);
 
 				var employeeViewModel = new EmployeeViewModel(
 					_authorizationService,
@@ -496,16 +516,9 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 			logger.Info("Ок");
+			SetButtonClearDriverScreenSensitive();
 		}
 
-		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var driver = e.Tag as AtWorkDriver;
-			var car = e.Subject as Car;
-			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
-			driver.Car = car;
-		}
-		
 		protected void OnHideForwadersToggled(object o, Gtk.ToggledArgs args)
 		{
 			vboxForwarders.Visible = hideForwaders.ArrowDirection == Gtk.ArrowType.Down;

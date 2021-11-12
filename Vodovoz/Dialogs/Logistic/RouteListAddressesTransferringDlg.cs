@@ -615,18 +615,18 @@ namespace Vodovoz
 						return;
 					}
 
-					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+					var routeListFrom = yentryreferenceRLTo.Subject as RouteList;
 
-					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListTo?.Driver);
+					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
 					if(giveoutDocTo is DriverAttachedTerminalGiveoutDocument)
 					{
-						MessageDialogHelper.RunErrorDialog($"Нельзя вернуть терминал от водителя {routeListTo?.Driver.GetPersonNameWithInitials()}" +
+						MessageDialogHelper.RunErrorDialog($"Нельзя вернуть терминал от водителя {routeListFrom?.Driver.GetPersonNameWithInitials()}" +
 						                                   ", к которому привязан терминал.", "Ошибка");
 						return;
 					}
 
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+					
 
 					var operationFrom = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListFrom.Driver,
@@ -634,6 +634,8 @@ namespace Vodovoz
 						Amount = -1,
 						OperationTime = DateTime.Now
 					};
+
+					var routeListTo = yentryreferenceRLFrom.Subject as RouteList;
 					
 					var operationTo = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListTo.Driver,

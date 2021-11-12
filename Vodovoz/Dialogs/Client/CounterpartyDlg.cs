@@ -648,6 +648,8 @@ namespace Vodovoz
 			var nomSelectorFactory = new NomenclatureSelectorFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
+			fixedpricesview.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_counterparty_fixed_prices");
 		}
 
 		private void ConfigureValidationContext()

@@ -221,7 +221,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			lblTransferDate.Text = _undelivery.NewOrder == null ?
 				"Заказ не\nсоздан" :
-				_undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(_undelivery.NewOrder.TotalSum));
+				_undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(_undelivery.NewOrder.OrderSum));
 			btnNewOrder.Label = _undelivery.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
 
 			SetVisibilities();
@@ -384,7 +384,7 @@ namespace Vodovoz.ViewWidgets
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
 				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) && 
-					(_oldOrder.OrderTotalSum == _newOrder.OrderTotalSum) &&
+					(_oldOrder.OrderSum == _newOrder.OrderSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					_newOrder.PaymentType = _oldOrder.PaymentType;
 					_newOrder.OnlineOrder = _oldOrder.OnlineOrder;

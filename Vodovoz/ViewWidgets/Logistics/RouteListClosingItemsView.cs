@@ -198,7 +198,7 @@ namespace Vodovoz
 				.AddColumn("Итого\n(терм.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => 
 						(node.Status != RouteListItemStatus.Transfered && 
-						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.ActualTotalSum : 0)
+						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.OrderSum : 0)
 				.AddColumn ("Комментарий\nкассира")
 					.AddTextRenderer (node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон
