@@ -205,7 +205,7 @@ namespace Vodovoz.Views.Orders
 			this.lblName = new global::Gtk.Label();
 			this.lblName.Name = "lblName";
 			this.lblName.Xalign = 1F;
-			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Основание скидки:");
+			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Согласованная акция:");
 			this.table2.Add(this.lblName);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.lblName]));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
