@@ -630,7 +630,8 @@ public partial class MainWindow : Window
 					baseParametersProvider,
 					new EmployeeJournalFactory(),
 					new GeographicGroupRepository(),
-					new ScheduleRestrictionRepository()
+					new ScheduleRestrictionRepository(),
+					new GeographicGroupParametersProvider(parametersProvider)
 				)
 			);
 	}

@@ -128,7 +128,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
-						.FillItems(ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
+						.FillItems(ViewModel.GeographicGroups)
 						.AddSetter(
 							(c, n) => {
 								c.Editable = n.Car != null;
@@ -480,7 +480,8 @@ namespace Vodovoz.Views.Logistic
 			addressesOverlay.Clear();
 
 			//добавляем маркеры складов
-			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupsExceptEast)
+			{
 				addressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -800,7 +801,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			driverAddressesOverlay.Clear();
 
-			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupsExceptEast)
+			{
 				driverAddressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
