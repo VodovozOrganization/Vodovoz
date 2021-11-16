@@ -260,9 +260,9 @@ namespace Vodovoz.Domain.Payments
 			ObservableItems.Remove(item);
 		}
 
-		public virtual void CreateIncomeOperation()
+		public virtual bool CreateIncomeOperation()
 		{
-			if (CashlessMovementOperation == null)
+			if(CashlessMovementOperation == null)
 			{
 				CashlessMovementOperation = new CashlessMovementOperation
 				{
@@ -270,18 +270,11 @@ namespace Vodovoz.Domain.Payments
 					Counterparty = Counterparty,
 					OperationTime = DateTime.Now
 				};
+				
+				return true;
 			}
-		}
-		
-		public virtual void UpdateIncomeOperation(bool sumFromPayment, decimal sum = 0M) {
-			if (CashlessMovementOperation == null) {
-				CreateIncomeOperation();
-			}
-			else {
-				CashlessMovementOperation.Income = sumFromPayment ? Total : sum;
-				CashlessMovementOperation.Counterparty = Counterparty;
-				CashlessMovementOperation.OperationTime = DateTime.Now;
-			}
+
+			return false;
 		}
 		
 		public virtual Payment CreatePaymentForReturnMoneyToClientBalance(decimal paymentSum, int orderId)
