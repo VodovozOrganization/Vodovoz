@@ -8,7 +8,7 @@ using Vodovoz.Domain.Orders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -17,20 +17,20 @@ namespace Vodovoz.ReportsParameters.Orders
 	{
 		public FirstClientsReport(
 			IEntityAutocompleteSelectorFactory districtAutocompleteSelectorFactory,
-			IOrderRepository orderRepository)
+			IDiscountReasonRepository discountReasonRepository)
 		{
 			var districtSelector = districtAutocompleteSelectorFactory ??
 			                       throw new ArgumentNullException(nameof(districtAutocompleteSelectorFactory));
 			
-			if(orderRepository == null)
+			if(discountReasonRepository == null)
 			{
-				throw new ArgumentNullException(nameof(orderRepository));
+				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
 			
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			var reasons = orderRepository.GetDiscountReasons(UoW);
+			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;

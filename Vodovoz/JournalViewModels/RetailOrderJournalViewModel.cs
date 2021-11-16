@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
@@ -675,7 +676,7 @@ namespace Vodovoz.JournalViewModels
 						_counterpartySelectorFactory,
 						_nomenclatureRepository,
 						_userRepository,
-						new OrderRepository(),
+						new DiscountReasonRepository(),
 						new ParametersProvider()
 					),
 					//функция диалога открытия документа
@@ -688,7 +689,7 @@ namespace Vodovoz.JournalViewModels
 						_counterpartySelectorFactory,
 						_nomenclatureRepository,
 						_userRepository,
-						new OrderRepository(),
+						new DiscountReasonRepository(),
 						new ParametersProvider()
 					),
 					//функция идентификации документа 

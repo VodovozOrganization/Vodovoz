@@ -57,6 +57,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\IOrderDiscountsController.cs" />
+    <Compile Include="Controllers\OrderDiscountsController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
@@ -128,7 +130,6 @@
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
-    <Compile Include="Domain\Orders\DiscountNomenclatureGroup.cs" />
     <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
@@ -193,6 +194,8 @@
     <Compile Include="EntityRepositories\Counterparties\IWaterPricesRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPriceNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPricesRepository.cs" />
+    <Compile Include="EntityRepositories\DiscountReasons\DiscountReasonRepository.cs" />
+    <Compile Include="EntityRepositories\DiscountReasons\IDiscountReasonRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentKindRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentLocation.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentRepository.cs" />
@@ -1025,7 +1028,6 @@
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>

@@ -1080,7 +1080,7 @@ namespace Vodovoz.Domain.Orders
                 if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
                     yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
-            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(!SelfDelivery && DeliveryPoint == null)
@@ -3954,121 +3954,6 @@ namespace Vodovoz.Domain.Orders
 		
 		#endregion Аренда
 		
-		#region работа со скидками
-		public virtual void SetDiscountUnitsForAll(DiscountUnits unit)
-		{
-			foreach(OrderItem i in ObservableOrderItems) {
-				i.IsDiscountInMoney = unit == DiscountUnits.money;
-			}
-		}
-
-		/// <summary>
-		/// Устанавливает основание скидки с фиксированной скидкой на разные группы товаров,
-		/// либо, если есть право и введено значение скидки в заказе - устанавливает скидку
-		/// по введенному значению в рублях или процентах.
-		/// Если скидка в %, то просто применяется к каждой строке заказа,
-		/// а если в рублях - расчитывается % в зависимости от суммы заказа и рублёвой скидки
-		/// и применяется этот % аналогично случаю с процентной скидкой.
-		/// </summary>
-		/// <param name="reason">Причина для скидки.</param>
-		/// <param name="discount">Значение скидки.</param>
-		/// <param name="unit">рубли или %.</param>
-		/// <param name="permission">Право на выставления значения скидки в заказе</param>
-		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, bool permissionToSetDiscountValue = false)
-		{
-			//Если есть право на непосредственный ввод значения скидки
-			if(permissionToSetDiscountValue && discount > 0)
-			{
-				if(unit == DiscountUnits.money)
-				{
-					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-					if(sum == 0)
-						return;
-					discount = 100 * discount / sum;
-				}
-				foreach(OrderItem item in ObservableOrderItems)
-				{
-					item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
-					item.DiscountReason = reason;
-				}
-			}
-			//Если нет права
-			else
-			{
-				discount = 0;
-				//Если скидка в основании - рублями
-				if(reason.ValueType == DiscountValueType.Roubles)
-				{
-					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-					if(sum == 0)
-						return;
-					discount += 100 * Convert.ToDecimal(reason.Value) / sum;
-				}
-				//Если скидка в основании - процентами
-				else
-				{
-					discount = reason.Value;
-				}
-
-				foreach(OrderItem item in ObservableOrderItems)
-				{
-					if(item.PromoSet == null && !DeliveryPoint.NomenclatureFixedPrices.Where(x => x.Nomenclature == item.Nomenclature).Any())
-					{
-						if(reason.ProductGroups.Any())
-						{
-							if(ContainsProductGroup(item.Nomenclature.ProductGroup, reason.ProductGroups))
-							{
-								item.DiscountSetter = discount;
-								item.DiscountReason = reason;
-							}
-						}
-						else
-						{
-							item.DiscountSetter = discount;
-							item.DiscountReason = reason;
-						}
-					}
-		
-				}
-			}
-			
-		}
-
-		public virtual void SetDiscountReasonForOrderItem(OrderItem orderItem, DiscountReason reason, decimal discount)
-		{
-			foreach(OrderItem item in ObservableOrderItems)
-			{
-				if(item != orderItem || item.PromoSet != null || discount != 0)
-					continue;
-
-				if(reason.ValueType == DiscountValueType.Roubles)
-				{
-					var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-					if(sum == 0)
-						return;
-					discount += 100 * Convert.ToDecimal(reason.Value) / sum;
-				}
-				//Если скидка в основании - процентами
-				else
-				{
-					discount = reason.Value;
-				}
-				//Если в основании указаны группы товаров
-				if(reason.ProductGroups.Any())
-				{
-					if(!ContainsProductGroup(item.Nomenclature.ProductGroup, reason.ProductGroups))
-					{
-						continue;
-					}
-				}
-
-				item.DiscountSetter = discount;
-				item.DiscountReason = reason;
-			}
-		}
-
-		#endregion
-
 		#region Акции
 
 		/// <summary>
@@ -4109,40 +3994,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			OnPropertyChanged(nameof(OrderSum));
 			UpdateDocuments();
-		}
-
-		private bool ContainsProductGroup(ProductGroup itemProductGroup, IList<DiscountNomenclatureGroup> discountProductGroups)
-		{
-			bool result = false;
-			foreach(var elem in discountProductGroups)
-			{
-				if(CheckProductGroup(itemProductGroup, elem.ProductGroup))
-				{
-					result = true;
-					break;
-				}
-			}
-			return result;
-		}
-
-		private bool CheckProductGroup(ProductGroup itemProductGroup, ProductGroup discountProductGroup)
-		{
-			if(itemProductGroup == discountProductGroup || itemProductGroup.Parent == discountProductGroup)
-			{
-				return true;
-			}
-			else
-			{
-				if(discountProductGroup.Parent != null)
-				{
-					return CheckProductGroup(itemProductGroup, discountProductGroup.Parent);
-				}
-				else if(itemProductGroup.Parent != null)
-				{
-					return CheckProductGroup(itemProductGroup.Parent, discountProductGroup);
-				}
-				return false;
-			}
 		}
 
 		#endregion

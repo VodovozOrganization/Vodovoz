@@ -13,26 +13,15 @@ namespace Vodovoz.HibernateMapping.Order
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.Value).Column("value");
+			Map(x => x.IsPremiumDiscount).Column("is_premium_discount");
+			
+			Map(x => x.ValueType).Column("value_type").CustomType<DiscountUnitTypeStringType>();
 
-			Map(x => x.ValueType).Column("value_type")
-				.CustomType<DiscountValueTypeStringType>();
-
-			HasMany(x => x.ProductGroups).KeyColumn("discount_reason_id")
-				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
-		}
-	}
-
-	public class DiscountNomenclatureGroupMap : ClassMap<DiscountNomenclatureGroup>
-	{
-		public DiscountNomenclatureGroupMap()
-		{
-			Table("discount_nomenclature_group");
-
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
-
-			References(x => x.ProductGroup).Column("group_id");
-			References(x => x.DiscountReason).Column("discount_reason_id");
-
+			HasManyToMany(x => x.ProductGroups)
+				.Table("discount_reasons_nomenclature_groups")
+				.ParentKeyColumn("discount_reason_id")
+				.ChildKeyColumn("group_id")
+				.LazyLoad();
 		}
 	}
 }

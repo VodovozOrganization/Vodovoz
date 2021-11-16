@@ -3,22 +3,30 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
-	[Appellative(Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "основания скидок",
 		Nominative = "основание скидки")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual int Id { get; set; }
+		private const int _zero = 0;
+		private const int _percentsLimit = 100;
+		private const int _nameLimit = 45;
 		private string _name;
 		private bool _isArchive;
-		private DiscountValueType _valueType;
+		private bool _isPremiumDiscount;
+		private DiscountUnits _valueType;
 		private decimal _value;
-		private IList<DiscountNomenclatureGroup> _productGroups = new List<DiscountNomenclatureGroup>();
+		private IList<ProductGroup> _productGroups = new List<ProductGroup>();
+		private GenericObservableList<ProductGroup> _observableProductGroups;
+
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
 		public virtual string Name
@@ -35,7 +43,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Тип значения скидки")]
-		public virtual DiscountValueType ValueType
+		public virtual DiscountUnits ValueType
 		{
 			get => _valueType;
 			set => SetField(ref _valueType, value);
@@ -47,84 +55,73 @@ namespace Vodovoz.Domain.Orders
 			get => _value;
 			set => SetField(ref _value, value);
 		}
+		
+		[Display(Name = "Премиальная скидка?")]
+		public virtual bool IsPremiumDiscount
+		{
+			get => _isPremiumDiscount;
+			set => SetField(ref _isPremiumDiscount, value);
+		}
 
-		public virtual IList<DiscountNomenclatureGroup> ProductGroups
+		public virtual IList<ProductGroup> ProductGroups
 		{
 			get => _productGroups;
 			set => SetField(ref _productGroups, value);
 		}
 
-		GenericObservableList<DiscountNomenclatureGroup> _observableDiscountNomenclatureGroups;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<DiscountNomenclatureGroup> ObservableDiscountNomenclatureGroups
-		{
-			get
-			{
-				if(_observableDiscountNomenclatureGroups == null)
-				{
-					_observableDiscountNomenclatureGroups = new GenericObservableList<DiscountNomenclatureGroup>(ProductGroups);
-				}
-
-				return _observableDiscountNomenclatureGroups;
-			}
-		}
+		public virtual GenericObservableList<ProductGroup> ObservableProductGroups =>
+			_observableProductGroups ??
+			(_observableProductGroups = new GenericObservableList<ProductGroup>(ProductGroups));
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Id == 0 && IsArchive)
+			if(Id == _zero && IsArchive)
 			{
 				yield return new ValidationResult("Нельзя создать новое архивное основание", new[] { nameof(IsArchive) });
 			}
-
 			if(string.IsNullOrEmpty(Name))
 			{
 				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
 			}
-
-			if(Name?.Length > 45)
+			if(Name?.Length > _nameLimit)
 			{
-				yield return new ValidationResult($"Превышена длина названия ({Name.Length}/45)", new[] { nameof(Name) });
+				yield return new ValidationResult($"Превышена длина названия ({Name.Length}/{_nameLimit})", new[] { nameof(Name) });
 			}
-			if(ValueType == DiscountValueType.Percents && Value > 100)
+			if(Value == _zero)
 			{
-				yield return new ValidationResult($"Размер скидки в процентах больше 100", new[] { nameof(Value) });
+				yield return new ValidationResult($"Размер скидки не может быть равен {_zero}", new[] { nameof(Value) });
+			}
+			if(ValueType == DiscountUnits.percent && Value > _percentsLimit)
+			{
+				yield return new ValidationResult($"Размер скидки в процентах больше {_percentsLimit}", new[] { nameof(Value) });
+			}
+			if(ProductGroups.Count == _zero)
+			{
+				yield return new ValidationResult($"Необходимо добавить хотя бы одну товарную группу",
+					new[] { nameof(ProductGroups.Count) });
 			}
 		}
 
 		public virtual void AddProductGroup(ProductGroup productGroup)
 		{
-			DiscountNomenclatureGroup discountNomenclatureGroup = new DiscountNomenclatureGroup()
+			if(!ObservableProductGroups.Contains(productGroup))
 			{
-				ProductGroup = productGroup,
-				DiscountReason = this
-			};
-
-			if(!ObservableDiscountNomenclatureGroups.Contains(discountNomenclatureGroup))
-			{
-				ObservableDiscountNomenclatureGroups.Add(discountNomenclatureGroup);
+				ObservableProductGroups.Add(productGroup);
 			}
-			
 		}
 
-		public virtual void RemoveGroup(DiscountNomenclatureGroup group)
+		public virtual void RemoveProductGroup(ProductGroup productGroup)
 		{
-			if(ObservableDiscountNomenclatureGroups.Contains(group))
+			if(ObservableProductGroups.Contains(productGroup))
 			{
-				ObservableDiscountNomenclatureGroups.Remove(group);
+				ObservableProductGroups.Remove(productGroup);
 			}
 		}
 	}
 
-	public enum DiscountValueType
+	public class DiscountUnitTypeStringType : NHibernate.Type.EnumStringType
 	{
-		[Display(Name = "₽")]
-		Roubles,
-		[Display(Name = "%")]
-		Percents
-	}
-
-	public class DiscountValueTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DiscountValueTypeStringType() : base(typeof(DiscountValueType)) { }
+		public DiscountUnitTypeStringType() : base(typeof(DiscountUnits)) { }
 	}
 }

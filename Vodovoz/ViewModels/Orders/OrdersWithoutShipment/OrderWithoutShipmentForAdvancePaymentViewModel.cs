@@ -20,6 +20,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.FilterViewModels.Goods;
@@ -60,14 +61,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			IOrderRepository orderRepository,
+			IDiscountReasonRepository discountReasonRepository,
 			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			DiscountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
@@ -101,7 +102,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
 		}
 		
-		public IOrderRepository OrderRepository { get; }
+		public IDiscountReasonRepository DiscountReasonRepository { get; }
 
 		#region Commands
 

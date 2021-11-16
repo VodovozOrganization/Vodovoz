@@ -60,6 +60,9 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
+			//TODO уточнить про права для счетов без доставки
+			var discountReasons = ViewModel.DiscountReasonRepository.GetDiscountReasons(ViewModel.UoW);
+
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderWithoutShipmentForAdvancePaymentItem>()
 				.AddColumn("Номенклатура")
 					.HeaderAlignment(0.5f)
@@ -102,7 +105,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.OrderRepository.GetDiscountReasons(ViewModel.UoW))
+					.FillItems(discountReasons)
 					.AddSetter((c, n) => c.Editable = n.Discount > 0)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null

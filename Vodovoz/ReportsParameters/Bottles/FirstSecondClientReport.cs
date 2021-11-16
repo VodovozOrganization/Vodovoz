@@ -6,7 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -14,16 +14,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstSecondClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FirstSecondClientReport(IOrderRepository orderRepository)
+		public FirstSecondClientReport(IDiscountReasonRepository discountReasonRepository)
 		{
-			if(orderRepository == null)
+			if(discountReasonRepository == null)
 			{
-				throw new ArgumentNullException(nameof(orderRepository));
+				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
 			
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var reasons = orderRepository.GetDiscountReasons(UoW);
+			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);

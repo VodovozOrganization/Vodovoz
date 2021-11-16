@@ -6,7 +6,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
@@ -15,13 +16,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	public class DiscountReasonJournalViewModel
 		: SingleEntityJournalViewModelBase<DiscountReason, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
+		private readonly IDiscountReasonRepository _discountReasonRepository;
+		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
+
 		public DiscountReasonJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IDiscountReasonRepository discountReasonRepository,
+			IProductGroupJournalFactory productGroupJournalFactory,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
 		{
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
+			
 			TabName = "Журнал оснований для скидки";
 
 			UpdateOnChanges(typeof(DiscountReason));
@@ -31,8 +40,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultEditAction();
 			CreateDefaultAddActions();
+			CreateDefaultEditAction();
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<DiscountReason>> ItemsSourceQueryFunction => (uow) =>
@@ -44,8 +53,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			query.Where(GetSearchCriterion(
 				() => drAlias.Id,
-				() => drAlias.Name
-			));
+				() => drAlias.Name));
+			
 			var result = query.SelectList(list => list
 					.Select(dr => dr.Id).WithAlias(() => drNodeAlias.Id)
 					.Select(dr => dr.Name).WithAlias(() => drNodeAlias.Name)
@@ -60,12 +69,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			() => new DiscountReasonViewModel(
 				EntityUoWBuilder.ForCreate(),
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices);
+				commonServices,
+				_discountReasonRepository,
+				_productGroupJournalFactory);
 
 		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
 			(node) => new DiscountReasonViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices);
+				commonServices,
+				_discountReasonRepository,
+				_productGroupJournalFactory);
 	}
 }

@@ -25,9 +25,13 @@ using QS.Project.Journal;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Services;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
@@ -107,15 +111,19 @@ namespace Vodovoz
 		
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 		private readonly RouteListItem _routeListItem;
-		
+		private readonly IOrderDiscountsController _discountsController;
+
 		private IUnitOfWork _uow;
 		private bool _canEditPrices;
 		private OrderNode _orderNode;
 		private CallTaskWorker _callTaskWorker;
 		private List<OrderItemReturnsNode> _itemsToClient;
+		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
+		private INomenclatureRepository _nomenclatureRepository;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public IUnitOfWork UoW
@@ -158,6 +166,7 @@ namespace Vodovoz
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 			Configure();
 			UpdateItemsList();
+			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			UpdateButtonsState();
 		}
 
@@ -201,7 +210,7 @@ namespace Vodovoz
 				new EmployeeService(),
 				new NomenclatureSelectorFactory().GetDefaultNomenclatureSelectorFactory(),
 				new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(),
-				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())),
+				_nomenclatureRepository,
 				new UserRepository()
 			) {
 				SelectionMode = JournalSelectionMode.Single
@@ -264,6 +273,10 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
+			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			_nomenclatureFixedPriceProvider =
+				new NomenclatureFixedPriceController(
+					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository));
 			_canEditPrices =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);
@@ -274,6 +287,8 @@ namespace Vodovoz
 			referenceClient.CanEditReference = false;
 			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
 			ConfigureDeliveryPointRefference(_orderNode.Client);
+			
+			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
@@ -299,28 +314,46 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-					.AddSetter((cell, node) => cell.Editable = _canEditPrices)
-					.AddSetter(
-						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
-									: new Adjustment(0, 0, 100, 1, 100, 1)
-					)
-					.Digits(2)
-					.WidthChars(10)
+						.AddSetter((cell, node) =>
+							cell.Editable = node.OrderItem != null
+								&&!_discountsController.OrderItemContainsPromoSetOrFixedPrice(node.OrderItem) && _canEditPrices)
+						.AddSetter(
+							(c, n) => c.Adjustment = n.IsDiscountInMoney
+								? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
+								: new Adjustment(0, 0, 100, 1, 100, 1)
+						)
+						.Digits(2)
+						.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
 				.AddColumn("Скидка \nв рублях?").AddToggleRenderer(x => x.IsDiscountInMoney)
 					.Editing()
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
-					.SetDisplayFunc(x => x.Name)
-					.FillItems(_orderRepository.GetActiveDiscountReasons(UoW))
-				.AddSetter((c, n) => c.Editable = n.Discount > 0)
-				.AddSetter(
-					(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
-						? new Gdk.Color(0xff, 0x66, 0x66)
-						: new Gdk.Color(0xff, 0xff, 0xff)
-				)
+						.SetDisplayFunc(x => x.Name)
+						.DynamicFillListFunc(item =>
+						{
+							var list = discountReasons.Where(dr =>
+								_discountsController.ContainsProductGroup(item.Nomenclature.ProductGroup, dr.ProductGroups)).ToList();
+							return list;
+						})
+						.EditedEvent(OnDiscountReasonComboEdited)
+						.AddSetter((c, n) =>
+							c.Editable = n.OrderItem != null
+								&& !_discountsController.OrderItemContainsPromoSetOrFixedPrice(n.OrderItem) && _canEditPrices)
+						.AddSetter(
+							(c, n) =>
+								c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.OrderItem?.PromoSet == null
+									? new Gdk.Color(0xff, 0x66, 0x66)
+									: new Gdk.Color(0xff, 0xff, 0xff)
+						)
+						.AddSetter((c, n) =>
+							{
+								if(n.OrderItem?.PromoSet != null)
+								{
+									c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
+								}
+							})
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum).Digits(2)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
@@ -353,6 +386,23 @@ namespace Vodovoz
 			yspinbuttonBottlesByStockActualCount.ValueChanged += OnYspinbuttonBottlesByStockActualCountChanged;
 			hboxBottlesByStock.Visible = _routeListItem.Order.IsBottleStock;
 			OnlineOrderVisible();
+		}
+
+		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
+		{
+			Application.Invoke((sender, eventArgs) =>
+			{
+				var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+				
+				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
+				//комбо-бокс не откроется, но событие сработает и прилетит null
+				if(node is OrderItemReturnsNode orderItemNode
+					&& orderItemNode.OrderItem != null
+					&& orderItemNode.DiscountReason != null)
+				{
+					_discountsController.SetDiscountFromDiscountReasonForOrderItem(orderItemNode.DiscountReason, orderItemNode.OrderItem);
+				}
+			});
 		}
 
 		public void FixActualCounts()

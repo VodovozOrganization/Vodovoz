@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using QS.Tdi;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
@@ -780,7 +781,7 @@ namespace Vodovoz.JournalViewModels
 						_counterpartySelectorFactory,
 						_nomenclatureRepository,
 						_userRepository,
-						new OrderRepository(),
+						new DiscountReasonRepository(),
 						new ParametersProvider()
 					),
 					//функция диалога открытия документа
@@ -793,7 +794,7 @@ namespace Vodovoz.JournalViewModels
 						_counterpartySelectorFactory,
 						_nomenclatureRepository,
 						_userRepository,
-						new OrderRepository(),
+						new DiscountReasonRepository(),
 						new ParametersProvider()
 					),
 					//функция идентификации документа 

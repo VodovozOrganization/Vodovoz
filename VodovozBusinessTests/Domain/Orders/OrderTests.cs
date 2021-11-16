@@ -8,6 +8,8 @@ using NUnit.Framework;
 using QS.Dialog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -15,6 +17,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
@@ -631,15 +634,18 @@ namespace VodovozBusinessTests.Domain.Orders
 			Order testOrder = new Order();
 			testOrder.OrderItems = OrderItems;
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
-			testOrder.OrderItems.ToList().ForEach(x => x.IsDiscountInMoney = true);
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
+			var discountController = Substitute.For<IOrderDiscountsController>();
 
 			// act
-			testOrder.SetDiscount(discountReason, discountInMoney, DiscountUnits.money);
+			discountController.SetCustomDiscountForOrder(
+				discountReason, discountInMoney, DiscountUnits.money, testOrder.ObservableOrderItems);
 
 			// assert
 			for(int i = 0; i < OrderItems.Count; i++)
+			{
 				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
+			}
 		}
 
 
@@ -658,13 +664,17 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.OrderItems = OrderItems;
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
+			var discountController = Substitute.For<IOrderDiscountsController>();
 
 			// act
-			testOrder.SetDiscount(discountReason, discountInPercent, DiscountUnits.percent);
+			discountController.SetCustomDiscountForOrder(
+				discountReason, discountInPercent, DiscountUnits.percent, testOrder.ObservableOrderItems);
 
 			// assert
 			for(int i = 0; i < OrderItems.Count; i++)
+			{
 				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
+			}
 		}
 
 		#endregion
