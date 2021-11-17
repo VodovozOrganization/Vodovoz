@@ -358,16 +358,16 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int id)
 		{
-			templateOrder = UoW.GetById<Order>(id);
-			Entity.Client = templateOrder.Client;
-			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
-			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.OrderAddressType = templateOrder.OrderAddressType;
-			Entity.CopyPromotionalSetsFrom(templateOrder);
-			Entity.CopyItemsFrom(templateOrder);
-			Entity.CopyDocumentsFrom(templateOrder);
-			Entity.CopyEquipmentFrom(templateOrder);
-			Entity.CopyDepositItemsFrom(templateOrder);
+			var order = UoW.GetById<Order>(id);
+			Entity.Client = order.Client;
+			Entity.DeliveryPoint = order.DeliveryPoint;
+			Entity.ClientPhone = order.ClientPhone;
+			Entity.OrderAddressType = order.OrderAddressType;
+			Entity.CopyPromotionalSetsFrom(order);
+			Entity.CopyItemsFrom(order);
+			Entity.CopyDocumentsFrom(order);
+			Entity.CopyEquipmentFrom(order);
+			Entity.CopyDepositItemsFrom(order);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			OrderAddressTypeChanged();
