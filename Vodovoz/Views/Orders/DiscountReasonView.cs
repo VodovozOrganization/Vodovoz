@@ -37,7 +37,7 @@ namespace Vodovoz.Views.Orders
 
 		private void ConfigureTreeView()
 		{
-			ytreeviewProductGroups.ColumnsConfig = ColumnsConfigFactory.Create<ProductGroup>()
+			treeViewProductGroups.ColumnsConfig = ColumnsConfigFactory.Create<ProductGroup>()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => ViewModel.Entity.ProductGroups.IndexOf(node) + 1)
@@ -47,9 +47,9 @@ namespace Vodovoz.Views.Orders
 				.RowCells()
 				.XAlign(0.5f)
 				.Finish();
-			
-			ytreeviewProductGroups.ItemsDataSource = ViewModel.Entity.ObservableProductGroups;
-			ytreeviewProductGroups.Binding.AddBinding(ViewModel, vm => vm.SelectedProductGroup, w => w.SelectedRow).InitializeFromSource();
+
+			treeViewProductGroups.ItemsDataSource = ViewModel.Entity.ObservableProductGroups;
+			treeViewProductGroups.Binding.AddBinding(ViewModel, vm => vm.SelectedProductGroup, w => w.SelectedRow).InitializeFromSource();
 		}
 	}
 }
