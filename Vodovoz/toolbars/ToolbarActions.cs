@@ -590,16 +590,16 @@ public partial class MainWindow : Window
 		cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
 
 		var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
-
 		var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
+		var parametersProvider = new ParametersProvider();
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
 			() => new AtWorksDlg(
-				new BaseParametersProvider(new ParametersProvider()),
+				new BaseParametersProvider(parametersProvider),
 				employeeJournalFactory,
-				driverApiRegisterEndpoint
-				)
+				driverApiRegisterEndpoint,
+				new GeographicGroupParametersProvider(parametersProvider))
 		);
 	}
 

@@ -10,12 +10,14 @@ using QS.Project.Dialogs;
 using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GeographicGroupsToStringWidget : Gtk.Bin
 	{
+		private readonly int eastGeographicGroupId = new GeographicGroupParametersProvider(new ParametersProvider()).EastGeographicGroupId;
 		public event EventHandler<EventArgs> ListContentChanged;
 		public BindingControler<GeographicGroupsToStringWidget> Binding { get; private set; }
 
@@ -65,7 +67,9 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChangeListClicked(object sender, EventArgs e)
 		{
-			var selectedGeographicGroups = new OrmReference(typeof(GeographicGroup), UoW) {
+			var selectedGeographicGroups = new OrmReference(
+				QueryOver.Of<GeographicGroup>().Where(gg => gg.Id != eastGeographicGroupId))
+			{
 				Mode = OrmReferenceMode.MultiSelect,
 				ButtonMode = ReferenceButtonMode.None
 			};

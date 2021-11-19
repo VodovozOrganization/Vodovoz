@@ -128,7 +128,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
-						.FillItems(ViewModel.GeographicGroups)
+						.FillItems(ViewModel.GeographicGroupsExceptEast)
 						.AddSetter(
 							(c, n) => {
 								c.Editable = n.Car != null;
