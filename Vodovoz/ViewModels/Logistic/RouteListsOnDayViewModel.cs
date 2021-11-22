@@ -120,8 +120,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 			GeographicGroupsExceptEast =
 				geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, geographicGroupParametersProvider);
-			GeographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
-			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(GeographicGroups.Select(x => new GeographicGroupNode(x)).ToList());
+			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(geographicGroups.Select(x => new GeographicGroupNode(x)).ToList());
 			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
 			if(employeeGeographicGroup != null) {
 				var foundGeoGroup = GeographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
@@ -142,7 +142,6 @@ namespace Vodovoz.ViewModels.Logistic
 		public ICommonServices CommonServices { get; }
 		public ICarRepository CarRepository { get; }
 		public IList<GeographicGroup> GeographicGroupsExceptEast { get; }
-		public IList<GeographicGroup> GeographicGroups { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
 		public IOrderRepository OrderRepository { get; }
 
