@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -84,9 +84,6 @@ namespace Vodovoz.Models
 				case PaymentType.ByCard:
 					organizationId = GetOrganizationIdForByCard(paymentFrom, geographicGroup);
 					break;
-				case PaymentType.BeveragesWorld:
-					organizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
-					break;
 				default:
 					throw new NotSupportedException(
 						$"Невозможно подобрать организацию, так как тип оплаты {paymentType} не поддерживается.");
@@ -127,9 +124,6 @@ namespace Vodovoz.Models
 					break;
 				case PaymentType.ByCard:
 					organizationId = GetOrganizationIdForByCard(paymentFrom, geographicGroup);
-					break;
-				case PaymentType.BeveragesWorld:
-					organizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
 					break;
 				default:
 					throw new NotSupportedException($"Тип оплаты {paymentType} не поддерживается, невозможно подобрать организацию.");

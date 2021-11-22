@@ -181,7 +181,6 @@
     <Compile Include="EntityRepositories\Chats\ILastReadedRepository.cs" />
     <Compile Include="EntityRepositories\Chats\LastReadedRepository.cs" />
     <Compile Include="EntityRepositories\Chats\UnreadedChatDTO.cs" />
-    <Compile Include="EntityRepositories\Counterparties\CounterpartyContractFactory.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />

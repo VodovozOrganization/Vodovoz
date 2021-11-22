@@ -190,7 +190,7 @@ namespace Vodovoz.Tools.Orders
 			var cashless = (key.PaymentType == PaymentType.cashless && key.IsPriceOfAllOrderItemsZero)
 				&& (!key.NeedToRefundDepositToClient || key.NeedToReturnBottles);
 			var byCard = (key.PaymentType == PaymentType.ByCard || key.PaymentType == PaymentType.Terminal) && key.HasOrderItems;
-			var cash = (key.PaymentType == PaymentType.cash || key.PaymentType == PaymentType.BeveragesWorld);
+			var cash = (key.PaymentType == PaymentType.cash);
 
 			if(key.IsSelfDelivery) {
 				return (cashless || byCard || cash) && waitForPayment;
@@ -256,7 +256,7 @@ namespace Vodovoz.Tools.Orders
 		static bool ConditionForUPD(OrderStateKey key) => (
 			(GetConditionForBill(key) ||
 				(key.Order.Client.UPDCount.HasValue &&
-					key.Order.PaymentType == PaymentType.BeveragesWorld &&
+					key.Order.OurOrganization != null &&
 					IsOrderWithOrderItemsAndWithoutDeposits(key)))
 			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
 		);

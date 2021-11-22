@@ -74,6 +74,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");
+			References(x => x.OurOrganization).Column("our_organization_id");
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");

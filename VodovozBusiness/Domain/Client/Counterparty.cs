@@ -19,6 +19,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
@@ -741,6 +742,14 @@ namespace Vodovoz.Domain.Client
 					observableFiles = new GenericObservableList<CounterpartyFile>(Files);
 				return observableFiles;
 			}
+		}
+
+		private Organization _ourOrganization;
+		[Display(Name = "Наша организация")]
+		public virtual Organization OurOrganization
+		{
+			get => _ourOrganization;
+			set => SetField(ref _ourOrganization, value);
 		}
 
 		#region Calculated Properties

@@ -60,6 +60,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz
 {
@@ -84,6 +85,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
+		private bool _permissionOurOrganization = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization");;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -366,6 +368,10 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+
+			speciallistCmbOrganisations.ItemsList = UoW.GetAll<Organization>();
+			speciallistCmbOrganisations.Binding.AddBinding(Entity, e => e.OurOrganization, w => w.SelectedItem).InitializeFromSource();
+			speciallistCmbOrganisations.Sensitive = _permissionOurOrganization;
 
 			enumTax.ItemsEnum = typeof(TaxType);
 

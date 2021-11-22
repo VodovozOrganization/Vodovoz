@@ -46,6 +46,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
@@ -139,6 +140,7 @@ namespace Vodovoz
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
+		private bool _permissionOurOrganization = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization");
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -451,6 +453,10 @@ namespace Vodovoz
 			chkContractCloser.Binding.AddBinding(Entity, c => c.IsContractCloser, w => w.Active).InitializeFromSource();
 
 			chkCommentForDriver.Binding.AddBinding(Entity, c => c.HasCommentForDriver, w => w.Active).InitializeFromSource();
+
+			speciallistCmbOrganisations.ItemsList = UoW.GetAll<Organization>();
+			speciallistCmbOrganisations.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
+			speciallistCmbOrganisations.Sensitive = _permissionOurOrganization;
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
@@ -2215,7 +2221,7 @@ namespace Vodovoz
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
-				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
+				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash);
 			spinSumDifference.Visible = spinSumDifference.Visible && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			Entity.SetProxyForOrder();

@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override int CopiesToPrint {
 			get
 			{
-				if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
+				if (Order.OurOrganization != null && Order.Client.UPDCount.HasValue)
 					return Order.Client.UPDCount.Value;
 
 				return copiesToPrint;
