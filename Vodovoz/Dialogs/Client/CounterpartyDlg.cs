@@ -369,9 +369,9 @@ namespace Vodovoz
 
 			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
 
-			speciallistCmbOrganisations.ItemsList = UoW.GetAll<Organization>();
-			speciallistCmbOrganisations.Binding.AddBinding(Entity, e => e.OurOrganization, w => w.SelectedItem).InitializeFromSource();
-			speciallistCmbOrganisations.Sensitive = _permissionOurOrganization;
+			specialListCmbWorksThroughOrganization.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbWorksThroughOrganization.Binding.AddBinding(Entity, e => e.OurOrganization, w => w.SelectedItem).InitializeFromSource();
+			specialListCmbWorksThroughOrganization.Sensitive = _permissionOurOrganization;
 
 			enumTax.ItemsEnum = typeof(TaxType);
 
