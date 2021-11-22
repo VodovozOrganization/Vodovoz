@@ -50,6 +50,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly DriverApiUserRegisterEndpoint _driverApiRegistrationEndpoint;
+		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
@@ -70,11 +71,12 @@ namespace Vodovoz.Dialogs.Logistic
         private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
         private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
         private readonly EmployeeFilterViewModel _forwarderFilter;
-
+		
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint)
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
+			IGeographicGroupParametersProvider geographicGroupParametersProvider)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -83,8 +85,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_geographicGroupParametersProvider = geographicGroupParametersProvider ?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
 			this.Build();
 
+			var gegraphicGroups =
+				_geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, _geographicGroupParametersProvider);
 			var colorWhite = new Color(0xff, 0xff, 0xff);
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
 			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
@@ -116,7 +121,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+					.FillItems(gegraphicGroups)
 					.AddSetter(
 						(c, n) => {
 							c.Editable = true;
@@ -380,12 +385,15 @@ namespace Vodovoz.Dialogs.Logistic
 
 			TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
-				() => new CarViewModel(EntityUoWBuilder.ForOpen(selected.Car.Id),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeJournalFactory(),
-				new AttachmentsViewModelFactory(),
-				new CarRepository())
+				() => new CarViewModel(
+					EntityUoWBuilder.ForOpen(selected.Car.Id),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					_employeeJournalFactory,
+					_attachmentsViewModelFactory,
+					_carRepository,
+					_geographicGroupParametersProvider
+				)
 			);
 		}
 		

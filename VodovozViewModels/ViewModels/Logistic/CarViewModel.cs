@@ -9,6 +9,7 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -32,9 +33,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private IEnumerable<DriverCarKind> _driverCarKinds;
 
-		public CarViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-					  IEmployeeJournalFactory employeeJournalFactory, IAttachmentsViewModelFactory attachmentsViewModelFactory,
-					  ICarRepository carRepository)
+		public CarViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			ICarRepository carRepository,
+			IGeographicGroupParametersProvider geographicGroupParametersProvider)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Автомобиль";
@@ -50,6 +56,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(_canChangeBottlesFromAddressPermissionName, _currentUserId);
 			_haveChangeCarIsRaskatPermissionGranted = commonServices.CurrentPermissionService.ValidatePresetPermission(_canChangeCarIsRaskatPermissionName);
+			EastGeographicGroupId =
+				(geographicGroupParametersProvider ?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider)))
+				.EastGeographicGroupId;
 		}
 
 		public string DriverInfoText
@@ -75,6 +84,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _driverCarKinds;
 			set => SetField(ref _driverCarKinds, value);
 		}
+		
+		public int EastGeographicGroupId { get; }
 
 		public IEmployeeJournalFactory EmployeeJournalFactory => _employeeJournalFactory;
 

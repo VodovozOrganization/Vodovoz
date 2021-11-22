@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -22,7 +23,10 @@ namespace Vodovoz.JournalViewModels
 {
 	public class CarJournalViewModel : FilterableSingleEntityJournalViewModelBase<Car, CarViewModel, CarJournalNode, CarJournalFilterViewModel>
 	{
-		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CarJournalViewModel(
+			CarJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал автомобилей";
 			UpdateOnChanges(
@@ -107,19 +111,21 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<CarViewModel> CreateDialogFunction => () => new CarViewModel(
-			   EntityUoWBuilder.ForCreate(),
-			   UnitOfWorkFactory,
-			   commonServices,
-			   new EmployeeJournalFactory(),
-			   new AttachmentsViewModelFactory(),
-			   new CarRepository()
-		   );
+			EntityUoWBuilder.ForCreate(),
+			UnitOfWorkFactory,
+			commonServices,
+			new EmployeeJournalFactory(),
+			new AttachmentsViewModelFactory(),
+			new CarRepository(),
+			new GeographicGroupParametersProvider(new ParametersProvider()));
 
-		protected override Func<CarJournalNode, CarViewModel> OpenDialogFunction => (node) => new CarViewModel(EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory,
-				commonServices,
-				new EmployeeJournalFactory(),
-				new AttachmentsViewModelFactory(),
-				new CarRepository());
+		protected override Func<CarJournalNode, CarViewModel> OpenDialogFunction => (node) => new CarViewModel(
+			EntityUoWBuilder.ForOpen(node.Id),
+			UnitOfWorkFactory,
+			commonServices,
+			new EmployeeJournalFactory(),
+			new AttachmentsViewModelFactory(),
+			new CarRepository(),
+			new GeographicGroupParametersProvider(new ParametersProvider()));
 	}
 }
