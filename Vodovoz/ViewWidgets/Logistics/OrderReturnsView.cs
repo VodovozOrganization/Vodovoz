@@ -325,16 +325,19 @@ namespace Vodovoz
 						.Digits(2)
 						.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
-				.AddColumn("Скидка \nв рублях?").AddToggleRenderer(x => x.IsDiscountInMoney)
-					.Editing()
+				.AddColumn("Скидка \nв рублях?")
+					.AddToggleRenderer(x => x.IsDiscountInMoney)
+						.AddSetter((c, n) =>
+							c.Activatable = n.OrderItem != null
+								&&!_discountsController.OrderItemContainsPromoSetOrFixedPrice(n.OrderItem) && _canEditPrices)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 						.SetDisplayFunc(x => x.Name)
 						.DynamicFillListFunc(item =>
 						{
-							var list = discountReasons.Where(dr =>
-								_discountsController.ContainsProductGroup(item.Nomenclature.ProductGroup, dr.ProductGroups)).ToList();
+							var list = discountReasons.Where(
+								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
 							return list;
 						})
 						.EditedEvent(OnDiscountReasonComboEdited)

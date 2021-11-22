@@ -23,7 +23,11 @@ namespace Vodovoz.Domain.Orders
 		private bool _isPremiumDiscount;
 		private DiscountUnits _valueType;
 		private decimal _value;
+		private IList<DiscountReasonNomenclatureCategory> _nomenclatureCategories = new List<DiscountReasonNomenclatureCategory>();
+		private IList<Nomenclature> _nomenclatures = new List<Nomenclature>();
 		private IList<ProductGroup> _productGroups = new List<ProductGroup>();
+		private GenericObservableList<DiscountReasonNomenclatureCategory> _observableNomenclatureCategories;
+		private GenericObservableList<Nomenclature> _observableNomenclatures;
 		private GenericObservableList<ProductGroup> _observableProductGroups;
 
 		public virtual int Id { get; set; }
@@ -62,6 +66,28 @@ namespace Vodovoz.Domain.Orders
 			get => _isPremiumDiscount;
 			set => SetField(ref _isPremiumDiscount, value);
 		}
+		
+		public virtual IList<DiscountReasonNomenclatureCategory> NomenclatureCategories
+		{
+			get => _nomenclatureCategories;
+			set => SetField(ref _nomenclatureCategories, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DiscountReasonNomenclatureCategory> ObservableNomenclatureCategories =>
+			_observableNomenclatureCategories ??
+			(_observableNomenclatureCategories = new GenericObservableList<DiscountReasonNomenclatureCategory>(NomenclatureCategories));
+		
+		public virtual IList<Nomenclature> Nomenclatures
+		{
+			get => _nomenclatures;
+			set => SetField(ref _nomenclatures, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Nomenclature> ObservableNomenclatures =>
+			_observableNomenclatures ??
+			(_observableNomenclatures = new GenericObservableList<Nomenclature>(Nomenclatures));
 
 		public virtual IList<ProductGroup> ProductGroups
 		{
@@ -116,6 +142,22 @@ namespace Vodovoz.Domain.Orders
 			if(ObservableProductGroups.Contains(productGroup))
 			{
 				ObservableProductGroups.Remove(productGroup);
+			}
+		}
+		
+		public virtual void AddNomenclature(Nomenclature nomenclature)
+		{
+			if(!ObservableNomenclatures.Contains(nomenclature))
+			{
+				ObservableNomenclatures.Add(nomenclature);
+			}
+		}
+
+		public virtual void RemoveNomenclature(Nomenclature nomenclature)
+		{
+			if(ObservableNomenclatures.Contains(nomenclature))
+			{
+				ObservableNomenclatures.Remove(nomenclature);
 			}
 		}
 	}

@@ -27,6 +27,9 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using QS.Tdi;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
@@ -782,7 +785,9 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider()
+						new ParametersProvider(),
+						new OrderDiscountsController(new NomenclatureFixedPriceController(
+							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository)))
 					),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -795,7 +800,9 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider()
+						new ParametersProvider(),
+						new OrderDiscountsController(new NomenclatureFixedPriceController(
+							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository)))
 					),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),

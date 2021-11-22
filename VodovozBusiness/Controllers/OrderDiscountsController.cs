@@ -4,6 +4,7 @@ using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Controllers
 {
@@ -24,9 +25,75 @@ namespace Vodovoz.Controllers
 		/// <returns>true/false</returns>
 		private bool CanSetDiscount(DiscountReason reason, OrderItem orderItem) =>
 			!OrderItemContainsPromoSetOrFixedPrice(orderItem)
-			&& ContainsProductGroup(
-				orderItem.Nomenclature.ProductGroup, (reason ?? throw new ArgumentNullException(nameof(reason))).ProductGroups)
+			&& IsApplicableDiscount(reason, orderItem.Nomenclature)
 			&& orderItem.Price * orderItem.CurrentCount != default(decimal);
+		
+		/// <summary>
+		/// Возможность установки скидки на строку счета без отгрузки на предоплату
+		/// </summary>
+		/// <param name="reason">Основание скидки</param>
+		/// <param name="orderItem">Строка счета без отгрузки на предоплату</param>
+		/// <returns>true/false</returns>
+		private bool CanSetDiscountForOrderWithoutShipment(DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem) =>
+			IsApplicableDiscount(reason, orderItem.Nomenclature)
+			&& orderItem.Price * orderItem.Count != default(decimal);
+
+		/// <summary>
+		/// Содержит ли основание скидки соответствующую категорию номенклатуры 
+		/// </summary>
+		/// <param name="nomenclatureCategory">Категория номенклатуры</param>
+		/// <param name="discountNomenclatureCategories">Список категорий номенклатур у основания скидки</param>
+		/// <returns>true/false</returns>
+		private bool ContainsNomenclatureCategory(
+			NomenclatureCategory nomenclatureCategory, IList<DiscountReasonNomenclatureCategory> discountNomenclatureCategories)
+		{
+			return discountNomenclatureCategories.Any(x => x.NomenclatureCategory == nomenclatureCategory);
+		}
+		
+		/// <summary>
+		/// Содержит ли основание скидки ссылку на указанную номенкалтуру
+		/// </summary>
+		/// <param name="nomenclatureId">Id номенклатуры</param>
+		/// <param name="discountNomenclatures">Список номенклатур основания скидки</param>
+		/// <returns>ture/false</returns>
+		private bool ContainsNomenclature(int nomenclatureId, IList<Nomenclature> discountNomenclatures) =>
+			discountNomenclatures.Any(n => n.Id == nomenclatureId);
+
+		/// <summary>
+		/// Содержит ли основание скидки в списке товарную группу строки заказа 
+		/// </summary>
+		/// <param name="itemProductGroup">Товарная группа строки заказа</param>
+		/// <param name="discountProductGroups">Товарные группы основания скидки</param>
+		/// <returns>true/false</returns>
+		private bool ContainsProductGroup(ProductGroup itemProductGroup, IList<ProductGroup> discountProductGroups) =>
+			itemProductGroup != null
+			&& discountProductGroups.Any(discountProductGroup => ContainsProductGroup(itemProductGroup, discountProductGroup));
+		
+		/// <summary>
+		/// Проверяет соответствие товарных групп у основания скидки и строки заказа,
+		/// с обходом всех ее родительских групп
+		/// </summary>
+		/// <param name="itemProductGroup">Товарная группа строки заказа</param>
+		/// <param name="discountProductGroup">Товарная группа основания скидки</param>
+		/// <returns>true/false</returns>
+		private bool ContainsProductGroup(ProductGroup itemProductGroup, ProductGroup discountProductGroup)
+		{
+			while(true)
+			{
+				if(itemProductGroup == discountProductGroup)
+				{
+					return true;
+				}
+
+				if(itemProductGroup.Parent != null)
+				{
+					itemProductGroup = itemProductGroup.Parent;
+					continue;
+				}
+
+				return false;
+			}
+		}
 
 		/// <summary>
 		/// Установка определенной скидки на строку заказа с прикреплением указанного основания скидки,
@@ -65,7 +132,7 @@ namespace Vodovoz.Controllers
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="orderItem">Строка заказа</param>
-		private void SetDiscount(DiscountReason reason, OrderItem orderItem)
+		private void SetDiscount(DiscountReason reason, IDiscount orderItem)
 		{
 			orderItem.IsDiscountInMoney = reason.ValueType == DiscountUnits.money;
 			orderItem.DiscountSetter = reason.Value;
@@ -142,6 +209,22 @@ namespace Vodovoz.Controllers
 
 			SetDiscount(reason, orderItem);
 		}
+		
+		/// <summary>
+		/// Установка скидки исходя из выбранного основания скидки для строки счета без отгрузки на предоплату
+		/// </summary>
+		/// <param name="reason">Основание скидки</param>
+		/// <param name="orderItem">Строка счета без отгрузки на предоплату</param>
+		public void SetDiscountFromDiscountReasonForOrderItemWithoutShipment(
+			DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem)
+		{
+			if(!CanSetDiscountForOrderWithoutShipment(reason, orderItem))
+			{
+				return;
+			}
+
+			SetDiscount(reason, orderItem);
+		}
 
 		/// <summary>
 		/// Содержит ли строка заказа промонабор или есть фикса
@@ -174,41 +257,24 @@ namespace Vodovoz.Controllers
 		}
 
 		/// <summary>
-		/// Содержит ли основание скидки в списке товарную группу строки заказа 
+		/// Проверка применимости скидки к номенклатуре, т.е. если выбранное основание скидки содержит номенклатуру,
+		/// которая указана в основании скидки, либо основание содержит категорию номенклатуры, либо основание содержит товарную группу
+		/// с такой номенклатурой, то возвращаем true
 		/// </summary>
-		/// <param name="itemProductGroup">Товарная группа строки заказа</param>
-		/// <param name="discountProductGroups">Товарные группы основания скидки</param>
+		/// <param name="reason">Основание скидки</param>
+		/// <param name="nomenclature">Номенклатура</param>
 		/// <returns>true/false</returns>
-		public bool ContainsProductGroup(ProductGroup itemProductGroup, IList<ProductGroup> discountProductGroups)
+		/// <exception cref="ArgumentNullException">Кидаем ошибку, если основание скидки null</exception>
+		public bool IsApplicableDiscount(DiscountReason reason, Nomenclature nomenclature)
 		{
-			return itemProductGroup != null
-				&& discountProductGroups.Any(discountProductGroup => CheckProductGroup(itemProductGroup, discountProductGroup));
-		}
-
-		/// <summary>
-		/// Проверяет соответствие товарных групп у основания скидки и строки заказа,
-		/// с обходом всех ее родительских групп
-		/// </summary>
-		/// <param name="itemProductGroup">Товарная группа строки заказа</param>
-		/// <param name="discountProductGroup">Товарная группа основания скидки</param>
-		/// <returns>true/false</returns>
-		private bool CheckProductGroup(ProductGroup itemProductGroup, ProductGroup discountProductGroup)
-		{
-			while(true)
+			if(reason == null)
 			{
-				if(itemProductGroup == discountProductGroup)
-				{
-					return true;
-				}
-
-				if(itemProductGroup.Parent != null)
-				{
-					itemProductGroup = itemProductGroup.Parent;
-					continue;
-				}
-
-				return false;
+				throw new ArgumentNullException(nameof(reason));
 			}
+
+			return ContainsNomenclature(nomenclature.Id, reason.Nomenclatures)
+				|| ContainsNomenclatureCategory(nomenclature.Category, reason.NomenclatureCategories)
+				|| ContainsProductGroup(nomenclature.ProductGroup, reason.ProductGroups);
 		}
 	}
 }

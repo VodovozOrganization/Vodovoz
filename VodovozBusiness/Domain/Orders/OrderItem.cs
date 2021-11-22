@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource
+	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource, IDiscount
 	{
 		private int? paidDeliveryNomenclatureId;
 		private int PaidDeliveryNomenclatureId => 

@@ -551,8 +551,8 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new DiscountReasonRepository(),
-				new ProductGroupJournalFactory()
-			));
+				new ProductGroupJournalFactory(),
+				new NomenclatureSelectorFactory()));
     }
 
     protected void OnActionColorsActivated(object sender, EventArgs e)

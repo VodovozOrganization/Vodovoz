@@ -17,6 +17,18 @@ namespace Vodovoz.HibernateMapping.Order
 			
 			Map(x => x.ValueType).Column("value_type").CustomType<DiscountUnitTypeStringType>();
 
+			HasManyToMany(x => x.NomenclatureCategories)
+				.Table("discount_reasons_nomenclature_categories")
+				.ParentKeyColumn("discount_reason_id")
+				.ChildKeyColumn("discount_nomenclature_category_id")
+				.LazyLoad();
+			
+			HasManyToMany(x => x.Nomenclatures)
+				.Table("discount_reasons_nomenclatures")
+				.ParentKeyColumn("discount_reason_id")
+				.ChildKeyColumn("nomenclature_id")
+				.LazyLoad();
+			
 			HasManyToMany(x => x.ProductGroups)
 				.Table("discount_reasons_nomenclature_groups")
 				.ParentKeyColumn("discount_reason_id")

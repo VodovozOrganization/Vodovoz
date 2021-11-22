@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -18,19 +19,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
 
 		public DiscountReasonJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IDiscountReasonRepository discountReasonRepository,
 			IProductGroupJournalFactory productGroupJournalFactory,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
 		{
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
-			
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+
 			TabName = "Журнал оснований для скидки";
 
 			UpdateOnChanges(typeof(DiscountReason));
@@ -71,7 +75,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				commonServices,
 				_discountReasonRepository,
-				_productGroupJournalFactory);
+				_productGroupJournalFactory,
+				_nomenclatureSelectorFactory);
 
 		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
 			(node) => new DiscountReasonViewModel(
@@ -79,6 +84,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				commonServices,
 				_discountReasonRepository,
-				_productGroupJournalFactory);
+				_productGroupJournalFactory,
+				_nomenclatureSelectorFactory);
 	}
 }

@@ -23,6 +23,9 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
@@ -54,6 +57,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly IOrderDiscountsController _discountsController;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -70,7 +74,8 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IOrderDiscountsController discountsController) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -91,6 +96,7 @@ namespace Vodovoz.JournalViewModels
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 
 			TabName = "Журнал заказов";
 
@@ -677,7 +683,8 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider()
+						new ParametersProvider(),
+						_discountsController
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -690,7 +697,8 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider()
+						new ParametersProvider(),
+						_discountsController
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),

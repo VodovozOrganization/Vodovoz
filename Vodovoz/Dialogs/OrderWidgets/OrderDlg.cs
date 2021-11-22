@@ -970,8 +970,8 @@ namespace Vodovoz
 					.SetDisplayFunc(x => x.Name)
 					.DynamicFillListFunc(item =>
 						{
-							var list = _discountReasons.Where(dr =>
-								_discountsController.ContainsProductGroup(item.Nomenclature.ProductGroup, dr.ProductGroups)).ToList();
+							var list = _discountReasons.Where(
+								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
 							return list;
 						})
 					.EditedEvent(OnDiscountReasonComboEdited)
@@ -2467,8 +2467,7 @@ namespace Vodovoz
 			{
 				spinDiscount.Value = 100;
 			}
-			if((SpecialComboState)enumDiscountUnit.SelectedItem == SpecialComboState.None
-				|| spinDiscount.ValueAsDecimal == default(decimal))
+			if(spinDiscount.ValueAsDecimal == default(decimal))
 			{
 				return;
 			}
