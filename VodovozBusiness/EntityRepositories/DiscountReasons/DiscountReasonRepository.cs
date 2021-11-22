@@ -12,7 +12,7 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		/// </summary>
 		/// <returns>Список скидок</returns>
 		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию имени скидки</param>
 		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
 		{
 			var query = UoW.Session.QueryOver<DiscountReason>()
