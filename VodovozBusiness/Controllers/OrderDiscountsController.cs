@@ -128,15 +128,15 @@ namespace Vodovoz.Controllers
 		}
 		
 		/// <summary>
-		/// Установка скидки из основания скидки на строку заказа
+		/// Установка скидки из основания скидки на конкретную позицию
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
-		/// <param name="orderItem">Строка заказа</param>
-		private void SetDiscount(DiscountReason reason, IDiscount orderItem)
+		/// <param name="item">Элемент, к которому применяется скидка</param>
+		private void SetDiscount(DiscountReason reason, IDiscount item)
 		{
-			orderItem.IsDiscountInMoney = reason.ValueType == DiscountUnits.money;
-			orderItem.DiscountSetter = reason.Value;
-			orderItem.DiscountReason = reason;
+			item.IsDiscountInMoney = reason.ValueType == DiscountUnits.money;
+			item.DiscountSetter = reason.Value;
+			item.DiscountReason = reason;
 		}
 
 		/// <summary>
