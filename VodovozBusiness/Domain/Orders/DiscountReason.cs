@@ -15,7 +15,6 @@ namespace Vodovoz.Domain.Orders
 	[HistoryTrace]
 	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		private const int _zero = 0;
 		private const int _percentsLimit = 100;
 		private const int _nameLimit = 45;
 		private string _name;
@@ -102,7 +101,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Id == _zero && IsArchive)
+			if(Id == 0 && IsArchive)
 			{
 				yield return new ValidationResult("Нельзя создать новое архивное основание", new[] { nameof(IsArchive) });
 			}
@@ -114,18 +113,13 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult($"Превышена длина названия ({Name.Length}/{_nameLimit})", new[] { nameof(Name) });
 			}
-			if(Value == _zero)
+			if(Value == 0)
 			{
-				yield return new ValidationResult($"Размер скидки не может быть равен {_zero}", new[] { nameof(Value) });
+				yield return new ValidationResult("Размер скидки не может быть равен 0", new[] { nameof(Value) });
 			}
 			if(ValueType == DiscountUnits.percent && Value > _percentsLimit)
 			{
 				yield return new ValidationResult($"Размер скидки в процентах больше {_percentsLimit}", new[] { nameof(Value) });
-			}
-			if(ProductGroups.Count == _zero)
-			{
-				yield return new ValidationResult($"Необходимо добавить хотя бы одну товарную группу",
-					new[] { nameof(ProductGroups.Count) });
 			}
 		}
 
