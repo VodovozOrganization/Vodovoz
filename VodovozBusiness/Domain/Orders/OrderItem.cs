@@ -369,7 +369,8 @@ namespace Vodovoz.Domain.Orders
 			discountPercent = discountPercent > 100 ? 100 : discountPercent < 0 ? 0 : discountPercent;
 
 			var existingPercent = GetPercentDiscount();
-			if(existingPercent == 100 && DiscountByStock == 0) {
+			if(existingPercent == 100 && DiscountByStock == 0)
+			{
 				return;
 			}
 
@@ -381,9 +382,12 @@ namespace Vodovoz.Domain.Orders
 			DiscountMoney = Price * CurrentCount * Discount / 100;
 			DiscountByStock = discountPercent;
 
-			if(Discount == 0) {
+			if(Discount == 0)
+			{
 				DiscountReason = null;
-			} else if(DiscountReason == null) {
+			}
+			else if((DiscountReason == null && PromoSet == null) || (DiscountReason == null && PromoSet != null && existingPercent == 0))
+			{
 				DiscountReason = discountReasonForStockBottle;
 			}
 		}

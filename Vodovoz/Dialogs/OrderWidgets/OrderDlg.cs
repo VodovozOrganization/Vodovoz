@@ -669,8 +669,11 @@ namespace Vodovoz
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) => {
-				Entity.RecalculateStockBottles(_baseParametersProvider);
+				Entity.RecalculateStockBottles(_orderParametersProvider);
 				ControlsActionBottleAccessibility();
+				ycomboboxReason.Sensitive = !yChkActionBottle.Active;
+				SetDiscountUnitEditable();
+				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
@@ -975,14 +978,15 @@ namespace Vodovoz
 							return list;
 						})
 					.EditedEvent(OnDiscountReasonComboEdited)
-					.AddSetter((cell, node) => cell.Editable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(node))
+					.AddSetter((cell, node) =>
+						cell.Editable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(node) && node.DiscountByStock == 0)
 					.AddSetter(
 						(c, n) =>
 							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorWhite
 					)
 					.AddSetter((c, n) => 
 						{
-							if(n.PromoSet != null)
+							if(n.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
 							{
 								c.Text = n.PromoSet.DiscountReasonInfo;
 							}
@@ -2406,7 +2410,7 @@ namespace Vodovoz
 
 		protected void OnYEntTareActBtlFromClientChanged(object sender, EventArgs e)
 		{
-			Entity.CalculateBottlesStockDiscounts(_baseParametersProvider);
+			Entity.CalculateBottlesStockDiscounts(_orderParametersProvider);
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
@@ -2907,10 +2911,10 @@ namespace Vodovoz
 
 		void SetDiscountEditable(bool? canEdit = null)
 		{
-			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null && _canChangeDiscountValue;
+			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null && _canChangeDiscountValue && !Entity.IsBottleStock;
 		}
 
-		void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = _canChangeDiscountValue;
+		void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = _canChangeDiscountValue && !Entity.IsBottleStock;
 
 		/// <summary>
 		/// Переключает видимость элементов управления депозитами

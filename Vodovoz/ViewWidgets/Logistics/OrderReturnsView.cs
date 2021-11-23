@@ -617,8 +617,8 @@ namespace Vodovoz
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
-			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider(_parametersProvider);
-			_routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
+			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
+			_routeListItem.Order.CalculateBottlesStockDiscounts(orderParametersProvider, true);
 		}
 
 		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)

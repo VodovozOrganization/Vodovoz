@@ -1417,30 +1417,43 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		private DiscountReason GetDiscountReasonStockBottle(
+			IOrderParametersProvider orderParametersProvider, decimal discount)
+		{
+			var reasonId = discount == 10m
+				? orderParametersProvider.GetDiscountReasonStockBottle10PercentsId
+				: orderParametersProvider.GetDiscountReasonStockBottle20PercentsId;
+			
+			var discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId)
+				?? throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
+			
+			return discountReasonStockBottle;
+		}
+		
 		/// <summary>
 		/// Рассчитывает скидки в товарах по акции "Бутыль"
 		/// </summary>
-		public virtual void CalculateBottlesStockDiscounts(IStandartDiscountsService standartDiscountsService, bool byActualCount = false)
+		public virtual void CalculateBottlesStockDiscounts(IOrderParametersProvider orderParametersProvider, bool byActualCount = false)
 		{
-			if(standartDiscountsService == null) {
-				throw new ArgumentNullException(nameof(standartDiscountsService));
+			if(orderParametersProvider == null) {
+				throw new ArgumentNullException(nameof(orderParametersProvider));
 			}
-			var reasonId = standartDiscountsService.GetDiscountForStockBottle();
-			DiscountReason discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId);
-			if(discountReasonStockBottle == null) {
-				throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
-			}
-
+			
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal discountForStock = 0m;
-
-			if(bottlesByStock == Total19LBottlesToDeliver) {
+			DiscountReason discountReasonStockBottle = null;
+			
+			if(bottlesByStock == Total19LBottlesToDeliver)
+			{
 				discountForStock = 10m;
+				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
 			}
-			if(bottlesByStock > Total19LBottlesToDeliver) {
+			if(bottlesByStock > Total19LBottlesToDeliver)
+			{
 				discountForStock = 20m;
+				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
 			}
-
+			
 			foreach(OrderItem item in ObservableOrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
@@ -1481,13 +1494,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void RecalculateStockBottles(IStandartDiscountsService standartDiscountsService)
+		public virtual void RecalculateStockBottles(IOrderParametersProvider orderParametersProvider)
 		{
 			if(!IsBottleStock) {
 				BottlesByStockCount = 0;
 				BottlesByStockActualCount = 0;
 			}
-			CalculateBottlesStockDiscounts(standartDiscountsService);
+			CalculateBottlesStockDiscounts(orderParametersProvider);
 		}
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
