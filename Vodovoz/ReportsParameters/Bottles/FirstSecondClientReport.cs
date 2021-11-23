@@ -54,9 +54,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 				{
 					{ "start_date", daterangepicker.StartDateOrNull },
 					{ "end_date", daterangepicker.EndDateOrNull },
-					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0},
-					{ "show_only_client_with_one_order" , ycheckbutton1.Active},
-					{ "author_employer_id" , (evmeAuthor.Subject as Employee)?.Id ?? 0}
+					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
+					{ "show_only_client_with_one_order", ycheckbutton1.Active },
+					{ "author_employer_id", (evmeAuthor.Subject as Employee)?.Id ?? 0 },
+					{ "has_promo_set", chkHasPromoSet.Active }
 				}
 			};
 		}
