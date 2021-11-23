@@ -46,16 +46,16 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>53.0pt</Width>
+            <Width>51.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.0pt</Width>
+            <Width>49.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.4pt</Width>
+            <Width>99.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.9pt</Width>
+            <Width>42.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.3pt</Width>
@@ -410,7 +410,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                             <PaddingRight>5pt</PaddingRight>
@@ -464,7 +464,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontSize>8pt</FontSize>
                             <PaddingLeft>5pt</PaddingLeft>
@@ -491,7 +491,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontSize>8pt</FontSize>
                             <PaddingLeft>5pt</PaddingLeft>
@@ -516,7 +516,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontSize>8pt</FontSize>
                             <PaddingLeft>5pt</PaddingLeft>
@@ -541,7 +541,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontSize>8pt</FontSize>
                             <PaddingLeft>5pt</PaddingLeft>
@@ -566,7 +566,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontSize>8pt</FontSize>
                             <PaddingLeft>5pt</PaddingLeft>
@@ -593,7 +593,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <FontSize>8pt</FontSize>
                             <PaddingLeft>5pt</PaddingLeft>
@@ -620,7 +620,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                             <PaddingRight>5pt</PaddingRight>
@@ -647,7 +647,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                             <PaddingRight>5pt</PaddingRight>
@@ -673,7 +673,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                             <PaddingRight>5pt</PaddingRight>
@@ -1084,14 +1084,20 @@ WHERE
          )
         )
   AND (
-        ((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+        ((IFNULL(order_items.discount_reason_id, 0) IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
             OR
-         (order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-        OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+         (IFNULL(order_items.discount_reason_id, 0) NOT IN (@discount_reason_exclude) AND 0 IN (@discount_reason_include)))
+        OR (0 IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
     )
-AND order_status not in ('Canceled', 'DeliveryCanceled', 'NotDelivered')
+  AND (
+        ((IFNULL(order_items.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
+            OR
+         (IFNULL(order_items.promotional_set_id, 0) NOT IN (@promotional_set_exclude) AND 0 IN (@promotional_set_include)))
+        OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
+    )
+  AND order_status not in ('Canceled', 'DeliveryCanceled', 'NotDelivered')
 GROUP BY
-    order_items.id</CommandText>
+    order_items.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>={?StartDate}</Value>
@@ -1099,14 +1105,20 @@ GROUP BY
           <QueryParameter Name="EndDate">
             <Value>={?EndDate}</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_include">
-            <Value>=Parameters!discountreason_include</Value>
+          <QueryParameter Name="discount_reason_include">
+            <Value>={?discount_reason_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_exclude">
-            <Value>=Parameters!discountreason_exclude</Value>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>={?discount_reason_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="DateType">
             <Value>={?DateType}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1178,7 +1190,7 @@ GROUP BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1195,7 +1207,7 @@ GROUP BY
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="discountreason_include">
+    <ReportParameter Name="discount_reason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1203,7 +1215,7 @@ GROUP BY
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="discountreason_exclude">
+    <ReportParameter Name="discount_reason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1218,6 +1230,20 @@ GROUP BY
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="promotional_set_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="promotional_set_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
