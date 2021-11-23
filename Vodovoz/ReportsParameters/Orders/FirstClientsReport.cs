@@ -63,10 +63,11 @@ namespace Vodovoz.ReportsParameters.Orders
 				Identifier = "Orders.FirstClients",
 				Parameters = new Dictionary<string, object>
 				{
-					{"start_date", datePeriodPicker.StartDateOrNull.Value},
-					{"end_date", datePeriodPicker.EndDateOrNull.Value},
-					{"discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0},
-					{"district_id", entryDistrict.Subject?.GetIdOrNull()}
+					{ "start_date", datePeriodPicker.StartDateOrNull.Value },
+					{ "end_date", datePeriodPicker.EndDateOrNull.Value },
+					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
+					{ "district_id", entryDistrict.Subject?.GetIdOrNull() },
+					{ "has_promotional_sets", chkBtnWithPromotionalSets.Active }
 				}
 			};
 			return reportInfo;
