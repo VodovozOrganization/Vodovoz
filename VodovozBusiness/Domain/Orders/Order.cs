@@ -893,10 +893,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Organization OurOrganization
 		{
 			get => _ourOrganization;
-			set 
-			{
-				SetField(ref _ourOrganization, value);
-			} 
+			set => SetField(ref _ourOrganization, value);
 		}
 
 		public Order()
@@ -3242,10 +3239,10 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
-			switch(PaymentType) {
+			switch(PaymentType)
+			{
 				case PaymentType.cash:
-					if(OurOrganization != null)
-						ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
+					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
@@ -3287,10 +3284,10 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
-			switch(PaymentType) {
+			switch(PaymentType)
+			{
 				case PaymentType.cash:
-					if(OurOrganization != null)
-						ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
+					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
