@@ -980,6 +980,8 @@ WHERE
         OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
     )
   AND order_status not in ('Canceled', 'DeliveryCanceled', 'NotDelivered')
+  AND (discount_reasons.id is not null OR ps.id is not null )
+  AND order_items.discount &gt; 0
 GROUP BY
     order_items.id;</CommandText>
         <QueryParameters>
