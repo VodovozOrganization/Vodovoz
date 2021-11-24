@@ -43,6 +43,7 @@ namespace Vodovoz.Domain.Client
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		public virtual IUnitOfWork UoW { get; set; }
+		private const int _cargoReceiverLimitSymbols = 500;
 
 		#region Свойства
 
@@ -974,6 +975,11 @@ namespace Vodovoz.Domain.Client
 			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
+			}
+			
+			if(CargoReceiver != null && CargoReceiver.Length > _cargoReceiverLimitSymbols) {
+				yield return new ValidationResult(
+					$"Длина строки \"Грузополучатель\" не должна превышать {_cargoReceiverLimitSymbols} символов");
 			}
 
 			if(CheckForINNDuplicate(counterpartyRepository))
