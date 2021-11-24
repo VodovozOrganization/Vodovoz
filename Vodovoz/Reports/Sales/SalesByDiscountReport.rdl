@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>126.3pt</Height>
+    <Height>108.5pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.05pt</Height>
@@ -329,369 +329,6 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="TableGroupGroup1">
-              <GroupExpressions>
-                <GroupExpression>=Fields!order_id.Value</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <TableRows>
-                <TableRow>
-                  <Height>28.3pt</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox30">
-                          <Value>=Fields!create_date.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <Format>dd/MM/yyyy</Format>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox19">
-                          <Value>={delivery_date}</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <Format>dd/MM/yyyy</Format>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox31">
-                          <Value>=Fields!name.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox32">
-                          <Value>=Fields!order_id.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox33">
-                          <Value>=Fields!SumWithoutDiscount.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>8pt</FontSize>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                          </Style>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>1</ColSpan>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox50">
-                          <Value>=Fields!discount.Value</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>8pt</FontSize>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox49">
-                          <Value>={discount_money}</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>8pt</FontSize>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox48">
-                          <Value>={discount_name}</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>8pt</FontSize>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox47">
-                          <Value>=Fields!nomenclature_name.Value</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>8pt</FontSize>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                          </Style>
-                          <CanGrow>true</CanGrow>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox46">
-                          <Value>=Fields!count.Value</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize>8pt</FontSize>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <Format>= 'N' + {digits}</Format>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox38">
-                          <Value>=Fields!author.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox39">
-                          <Value>=Fields!accepted.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox45">
-                          <Value>=Fields!comment.Value</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                              <Left>Solid</Left>
-                              <Right>Solid</Right>
-                              <Top>Solid</Top>
-                              <Bottom>Solid</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>5pt</PaddingLeft>
-                            <PaddingRight>5pt</PaddingRight>
-                            <PaddingTop>5pt</PaddingTop>
-                            <PaddingBottom>5pt</PaddingBottom>
-                            <FontSize>8pt</FontSize>
-                          </Style>
-                          <CanGrow>true</CanGrow>
-                          <CanShrink>true</CanShrink>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-          </TableGroup>
-        </TableGroups>
         <Left>3.6pt</Left>
         <Top>32.5pt</Top>
         <Footer>
@@ -1011,6 +648,252 @@
             </TableRow>
           </TableRows>
         </Footer>
+        <Details >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>dd/MM/yyyy</Format>
+                      </Style>
+                      <Value>=Fields!create_date.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>dd/MM/yyyy</Format>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <Value>={delivery_date}</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!order_id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!SumWithoutDiscount.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!discount.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>={discount_money}</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>={discount_name}</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!nomenclature_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>= 'N' + {digits}</Format>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!author.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!accepted.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Fields!comment.Value</Value>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -1041,7 +924,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -1051,7 +934,7 @@
     ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count)), 2) AS SumWithoutDiscount,
     order_items.discount,
     order_items.discount_money,
-    discount_reasons.name AS discount_name,
+    IFNULL(discount_reasons.name, ps.discount_reason_info) AS discount_name,
     nomenclature.name AS nomenclature_name,
     mu.digits AS digits,
     IFNULL(order_items.actual_count, order_items.count) AS count,
@@ -1061,7 +944,8 @@
 FROM
     order_items
         JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-        JOIN discount_reasons ON discount_reasons.id = order_items.discount_reason_id
+        LEFT JOIN discount_reasons ON discount_reasons.id = order_items.discount_reason_id
+        LEFT JOIN promotional_sets ps ON order_items.promotional_set_id = ps.id
         JOIN orders ON orders.id = order_items.order_id
         JOIN counterparty ON counterparty.id = orders.client_id
         LEFT JOIN employees AS author_employee ON author_employee.id = orders.author_employee_id
@@ -1122,7 +1006,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="create_date">
           <DataField>create_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1190,7 +1074,7 @@ GROUP BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
