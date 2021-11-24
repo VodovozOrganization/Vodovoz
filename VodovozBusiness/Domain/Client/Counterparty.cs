@@ -744,12 +744,12 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		private Organization _ourOrganization;
-		[Display(Name = "Наша организация")]
-		public virtual Organization OurOrganization
+		private Organization _worksThroughOrganization;
+		[Display(Name = "Работает через организацию")]
+		public virtual Organization WorksThroughOrganization
 		{
-			get => _ourOrganization;
-			set => SetField(ref _ourOrganization, value);
+			get => _worksThroughOrganization;
+			set => SetField(ref _worksThroughOrganization, value);
 		}
 
 		#region Calculated Properties

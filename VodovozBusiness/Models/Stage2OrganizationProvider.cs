@@ -30,23 +30,7 @@ namespace Vodovoz.Models
 				?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
 		}
 
-		public Organization GetOrganization(IUnitOfWork uow, Order order)
-		{
-			if(order == null)
-			{
-				throw new ArgumentNullException(nameof(order));
-			}
-			if(!order.DeliveryDate.HasValue)
-			{
-				throw new InvalidOperationException("Order delivery date cannot be null");
-			}
-
-			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
-			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
-				order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup);
-		}
-
-		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime deliveryDate,
+		private Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime deliveryDate,
 			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
 		{
 			if(uow == null)
@@ -132,24 +116,6 @@ namespace Vodovoz.Models
 			return uow.GetById<Organization>(organizationId);
 		}
 
-		public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
-		{
-			if(uow == null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-			if(order == null)
-			{
-				throw new ArgumentNullException(nameof(order));
-			}
-
-			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
-				? _organizationParametersProvider.VodovozSouthOrganizationId
-				: _organizationParametersProvider.VodovozOrganizationId;
-
-			return uow.GetById<Organization>(organizationId);
-		}
-
 		private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
 		{
 			return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x =>
@@ -189,6 +155,56 @@ namespace Vodovoz.Models
 			return _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 				? _organizationParametersProvider.VodovozNorthOrganizationId
 				: _organizationParametersProvider.VodovozSouthOrganizationId;
+		}
+		
+		public Organization GetOrganization(IUnitOfWork uow, Order order, PaymentFrom paymentFrom = null, PaymentType? paymentType = null)
+		{
+			if(order == null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
+			if(!order.DeliveryDate.HasValue)
+			{
+				throw new InvalidOperationException("Order delivery date cannot be null");
+			}
+
+			if(order.OurOrganization != null)
+			{
+				return order.OurOrganization;
+			}
+			if(order.Client.WorksThroughOrganization != null)
+			{
+				return order.Client.WorksThroughOrganization;
+			}
+
+			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
+
+			if(paymentFrom != null && paymentType != null)
+			{
+				return GetOrganization(uow, paymentType.Value, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
+					paymentFrom, order.DeliveryPoint?.District?.GeographicGroup);
+			}
+			
+			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
+				order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup);
+		}
+		
+		public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
+		{
+			if(uow == null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+			if(order == null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
+
+			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
+				? _organizationParametersProvider.VodovozSouthOrganizationId
+				: _organizationParametersProvider.VodovozOrganizationId;
+
+			return uow.GetById<Organization>(organizationId);
 		}
 	}
 }

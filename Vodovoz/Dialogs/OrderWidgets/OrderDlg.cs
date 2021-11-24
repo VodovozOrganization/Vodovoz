@@ -135,12 +135,13 @@ namespace Vodovoz
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
+		private readonly bool _canSetOurOrganization =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
-		private bool _permissionOurOrganization = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization");
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -454,9 +455,10 @@ namespace Vodovoz
 
 			chkCommentForDriver.Binding.AddBinding(Entity, c => c.HasCommentForDriver, w => w.Active).InitializeFromSource();
 
-			speciallistCmbOrganisations.ItemsList = UoW.GetAll<Organization>();
-			speciallistCmbOrganisations.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
-			speciallistCmbOrganisations.Sensitive = _permissionOurOrganization;
+			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
+			specialListCmbOurOrganization.Sensitive = _canSetOurOrganization;
+			specialListCmbOurOrganization.ItemSelected += OnOurOrganisationsItemSelected;
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
@@ -547,12 +549,7 @@ namespace Vodovoz
 			ntbOrder.Page = 0;
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
-
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			if(Entity.PaymentType != PaymentType.BeveragesWorld)
-			{
-				enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
-			}
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
@@ -713,15 +710,23 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+		}
+
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
 
 		private void OnContractChanged()
 		{
-			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType)) {
+			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType))
+			{
 				hboxDocumentType.Remove(enumDocumentType);
 				hboxDocumentType.Add(torg12OnlyLabel);
 				torg12OnlyLabel.Show();
-			} else if(hboxDocumentType.Children.Contains(torg12OnlyLabel)) {
+			}
+			else if(hboxDocumentType.Children.Contains(torg12OnlyLabel))
+			{
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
 			}
@@ -2211,9 +2216,7 @@ namespace Vodovoz
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
-				(Entity.Client != null &&
-				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
-				);
+				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
 			
 			hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
 			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.ByCard;
