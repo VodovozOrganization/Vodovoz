@@ -192,7 +192,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CreateComplaintViewModel, CreateComplaintView>()
 				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
 				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
-				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultView>()
+				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultOfCounterpartyView>()
 				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
 				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
 				.RegisterWidgetForTabViewModel<RequestToSupplierViewModel, RequestToSupplierView>()
