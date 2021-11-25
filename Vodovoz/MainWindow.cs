@@ -2497,11 +2497,11 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<GeneralSettingsViewModel>(null);
 	}
 
-	protected void OnComplaintResultsofEmployeesActionActivated(object sender, EventArgs e)
+	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
 	{
 	}
 
-	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
+	protected void OnComplaintResultsOfEmployeesActionActivated(object sender, EventArgs e)
 	{
 	}
 }
