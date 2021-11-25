@@ -18,6 +18,8 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkIsArhive;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -93,6 +95,18 @@ namespace Vodovoz.Views.Complaints
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.table1]));
 			w8.Position = 1;
 			w8.Expand = false;
+			// Container child vboxDialog.Gtk.Box+BoxChild
+			this.chkIsArhive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkIsArhive.CanFocus = true;
+			this.chkIsArhive.Name = "chkIsArhive";
+			this.chkIsArhive.Label = global::Mono.Unix.Catalog.GetString("Архивный");
+			this.chkIsArhive.DrawIndicator = true;
+			this.chkIsArhive.UseUnderline = true;
+			this.vboxDialog.Add(this.chkIsArhive);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.chkIsArhive]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{
