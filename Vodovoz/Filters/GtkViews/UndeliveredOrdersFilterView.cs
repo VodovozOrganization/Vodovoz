@@ -36,7 +36,6 @@ namespace Vodovoz.Filters.GtkViews
 			ylabelGuiltyDep.Binding.AddBinding(ViewModel, vm => vm.RestrictGuiltyDepartmentVisible, w => w.Visible).InitializeFromSource();
 
 			yEnumCMBGuilty.ItemsEnum = typeof(GuiltyTypes);
-			yEnumCMBGuilty.AddEnumToHideList(new[] { GuiltyTypes.Client });
 			yEnumCMBGuilty.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.RestrictGuiltySide, w => w.SelectedItemOrNull)
 				.AddBinding(vm => vm.RestrictNotIsProblematicCases, w => w.Sensitive)
