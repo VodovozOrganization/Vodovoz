@@ -45,7 +45,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = GetColor(n))
 				.Finish();
 
-			yTVComplainsResults.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
+			yTVComplaintsResultsOfCounterparty.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Итог")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "(результат не выставлен)")
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
@@ -143,7 +143,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			);
 
 			yTreeView.YTreeModel = new LevelTreeModel<ComplaintGuiltyNode>(guilties, levels);
-			yTVComplainsResults.SetItemsSource(complaintResults);
+			yTVComplaintsResultsOfCounterparty.SetItemsSource(complaintResults);
 		}
 
 		#region Queries
