@@ -227,7 +227,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
-		
+
 		//Скрываем справочник стажеров
 		ActionTrainee.Visible = false;
 
@@ -2495,5 +2495,13 @@ public partial class MainWindow : Gtk.Window
 	protected void OnGeneralSettingsActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<GeneralSettingsViewModel>(null);
+	}
+
+	protected void OnComplaintResultsofEmployeesActionActivated(object sender, EventArgs e)
+	{
+	}
+
+	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
+	{
 	}
 }
