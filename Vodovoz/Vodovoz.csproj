@@ -1183,8 +1183,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintSourceView.cs" />
     <Compile Include="SidePanel\InfoViews\ComplaintPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.ComplaintPanelView.cs" />
-    <Compile Include="Views\Complaints\ComplaintResultView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultView.cs" />
+    <Compile Include="Views\Complaints\ComplaintResultOfCounterpartyView.cs" />
     <Compile Include="Views\Organization\SubdivisionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.SubdivisionView.cs" />
     <Compile Include="Filters\GtkViews\SubdivisionFilterView.cs" />
@@ -1673,6 +1672,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarView.cs" />
     <Compile Include="Views\Settings\GeneralSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.GeneralSettingsView.cs" />
+    <Compile Include="Views\Complaints\ComplaintResultOfEmployeesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfEmployeesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfCounterpartyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

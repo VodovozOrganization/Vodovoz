@@ -142,12 +142,14 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Rent;
 using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.Views.Complaints;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 public partial class MainWindow : Gtk.Window
@@ -227,7 +229,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
-		
+
 		//Скрываем справочник стажеров
 		ActionTrainee.Visible = false;
 
@@ -1761,18 +1763,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(complaintSourcesViewModel);
 	}
 
-	protected void OnActionComplaintResultActivated(object sender, EventArgs e)
-	{
-		var complaintResultsViewModel = new SimpleEntityJournalViewModel<ComplaintResult, ComplaintResultViewModel>(
-			x => x.Name,
-			() => new ComplaintResultViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			(node) => new ComplaintResultViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices
-		);
-		tdiMain.AddTab(complaintResultsViewModel);
-	}
-
 	protected void OnActionSuppliersActivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
@@ -2495,5 +2485,19 @@ public partial class MainWindow : Gtk.Window
 	protected void OnGeneralSettingsActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<GeneralSettingsViewModel>(null);
+	}
+
+	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
+	{
+		var complaintResultsOfCounterpartyViewModel =
+			new ComplaintResultsOfCounterpartyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(complaintResultsOfCounterpartyViewModel);
+	}
+
+	protected void OnComplaintResultsOfEmployeesActionActivated(object sender, EventArgs e)
+	{
+		var complaintResultsOfEmployeesViewModel =
+			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
 	}
 }

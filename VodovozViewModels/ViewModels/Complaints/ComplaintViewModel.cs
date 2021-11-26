@@ -16,6 +16,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private DelegateCommand _changeDeliveryPointCommand;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly IComplaintResultsRepository _complaintResultsRepository;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
@@ -67,7 +69,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(uowBuilder, uowFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IComplaintResultsRepository complaintResultsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -77,6 +80,7 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -111,6 +115,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
+			ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
 		}
 
 		protected void ConfigureEntityChangingRelations()
@@ -277,15 +282,11 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		private List<ComplaintResult> complaintResults;
-		public IEnumerable<ComplaintResult> ComplaintResults {
-			get {
-				if(complaintResults == null) {
-					complaintResults = UoW.GetAll<ComplaintResult>().ToList();
-				}
-				return complaintResults;
-			}
-		}
+		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
+		public IEnumerable<ComplaintResultOfCounterparty> ComplaintResultsOfCounterparty =>
+			_complaintResults ?? (_complaintResults = _complaintResultsRepository.GetActiveResultsOfCounterparty(UoW));
+
+		public IEnumerable<ComplaintResultOfEmployees> ComplaintResultsOfEmployees { get; }
 
 		IList<ComplaintKind> complaintKindSource;
 
