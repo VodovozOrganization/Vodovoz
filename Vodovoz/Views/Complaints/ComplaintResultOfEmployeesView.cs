@@ -4,9 +4,9 @@ using Vodovoz.ViewModels.Complaints;
 namespace Vodovoz.Views.Complaints
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ComplaintResultOfEmployeesView : TabViewBase<ComplaintResultViewModel>
+	public partial class ComplaintResultOfEmployeesView : TabViewBase<ComplaintResultOfEmployeesViewModel>
 	{
-		public ComplaintResultOfEmployeesView(ComplaintResultViewModel viewModel) : base(viewModel)
+		public ComplaintResultOfEmployeesView(ComplaintResultOfEmployeesViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
@@ -18,6 +18,8 @@ namespace Vodovoz.Views.Complaints
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+			
+			chkIsArhive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 		}
 	}
 }

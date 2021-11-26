@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Binding;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -12,6 +13,7 @@ using NHibernate.Transform;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
+using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.FilterViewModels;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -20,12 +22,14 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ComplaintPanelView : Bin, IPanelView
 	{
-		readonly IComplaintsRepository complaintsRepository;
+		private readonly IComplaintsRepository complaintsRepository;
+		private readonly IComplaintResultsRepository _complaintResultsRepository;
 
-		public ComplaintPanelView(IComplaintsRepository complaintsRepository)
+		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository)
 		{
 			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			this.Build();
+			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
+			Build();
 			ConfigureWidget();
 		}
 
@@ -45,12 +49,18 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = GetColor(n))
 				.Finish();
 
-			yTVComplaintsResultsOfCounterparty.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
+			yTVComplaintsResultsOfCounterparty.ColumnsConfig = CreateClosedComplaintResultColumnConfig();
+			yTVComplaintsResultsOfEmployees.ColumnsConfig = CreateClosedComplaintResultColumnConfig();
+		}
+
+		private IColumnsConfig CreateClosedComplaintResultColumnConfig()
+		{
+			return ColumnsConfigFactory.Create<ClosedComplaintResultNode>()
 				.AddColumn("Итог")
-					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "(результат не выставлен)")
+					.AddTextRenderer(n => string.IsNullOrEmpty(n.Name) ? "(результат не выставлен)" : n.Name)
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Кол-во")
-					.AddTextRenderer(n => n[1].ToString())
+					.AddTextRenderer(n => n.Count.ToString())
 					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
 				.Finish();
 		}
@@ -118,32 +128,42 @@ namespace Vodovoz.SidePanel.InfoViews
 			EndDate = complaintFilterViewModel.EndDate;
 
 			var totalCount = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW);
-			var overduedCount = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW, true);
+			var overdueCount = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW, true);
 
 			guilties = new List<ComplaintGuiltyNode>(GetGuilties(complaintFilterViewModel));
 			var levels = LevelConfigFactory
 						.FirstLevel<ComplaintGuiltyNode, ComplaintResultNode>(x => x.ComplaintResultNodes)
 						.LastLevel(c => c.ComplaintGuiltyNode).EndConfig();
 
-			var complaintResults = complaintsRepository.GetComplaintsResults(InfoProvider.UoW, StartDate, EndDate);
+			var resultsOfCounterparty =
+				_complaintResultsRepository.GetComplaintsResultsOfCounterparty(InfoProvider.UoW, StartDate, EndDate);
+			var resultsOfEmployees =
+				_complaintResultsRepository.GetComplaintsResultsOfEmployees(InfoProvider.UoW, StartDate, EndDate);
 
-			Application.Invoke((s, args) => DrawRefreshed(complaintFilterViewModel, totalCount, overduedCount, levels, complaintResults));
+			Application.Invoke((s, args) =>
+				DrawRefreshed(totalCount, overdueCount, levels, resultsOfCounterparty, resultsOfEmployees));
 		}
 
 		#endregion
 
-		private void DrawRefreshed(ComplaintFilterViewModel filter, int totalCount, int overduedCount, ILevelConfig[] levels, IList<object[]> complaintResults)
+		private void DrawRefreshed(
+			int totalCount,
+			int overdueCount,
+			ILevelConfig[] levels,
+			IList<ClosedComplaintResultNode> resultsOfCounterparty,
+			IList<ClosedComplaintResultNode> resultsOfEmployees)
 		{
 			lblCaption.Markup = string.Format("<u><b>Сводка по рекламациям\nСписок виновных:</b></u>");
 			lblUnclosedCount.Markup = string.Format(
 				"<b>Не закрыто <span foreground='{2}'>{0}</span> рекламаций,\nиз них просрочено <span foreground='{2}'>{1}</span> шт.</b>",
 				totalCount,
-				overduedCount,
+				overdueCount,
 				totalCount >= 0 ? "red" : "black"
 			);
 
 			yTreeView.YTreeModel = new LevelTreeModel<ComplaintGuiltyNode>(guilties, levels);
-			yTVComplaintsResultsOfCounterparty.SetItemsSource(complaintResults);
+			yTVComplaintsResultsOfCounterparty.SetItemsSource(resultsOfCounterparty);
+			yTVComplaintsResultsOfEmployees.SetItemsSource(resultsOfEmployees);
 		}
 
 		#region Queries
@@ -155,17 +175,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			Subdivision subdivisionForEmployeeAlias = null;
 			Employee employeeAlias = null;
 			ComplaintGuiltyItem guiltyItemAlias = null;
-			ComplaintResult complaintResultAlias = null;
+			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
 			QueryNode queryNodeAlias = null;
 			ComplaintDiscussion discussionAlias = null;
 
 			var query = InfoProvider.UoW.Session.QueryOver(() => guiltyItemAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
-						   .Left.JoinAlias(() => complaintAlias.ComplaintResult, () => complaintResultAlias)
+						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
-						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias)
-						   ;
+						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
 
 			filter.EndDate = filter.EndDate.Date.AddHours(23).AddMinutes(59);
 			if(filter.StartDate.HasValue)
@@ -242,7 +261,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var result = query.SelectList(list => list
 				.SelectGroup(c => c.Complaint.Id)
 				.Select(() => complaintAlias.Status).WithAlias(() => queryNodeAlias.Status)
-				.Select(() => complaintResultAlias.Name).WithAlias(() => queryNodeAlias.ResultText)
+				.Select(() => resultOfCounterpartyAlias.Name).WithAlias(() => queryNodeAlias.ResultText)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(
 						NHibernateUtil.String,

@@ -113,14 +113,14 @@ namespace Vodovoz.Views.Complaints
 			comboboxComplaintSource.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelSource.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			cmbComplaintResultOfCounterparty.SetRenderTextFunc<ComplaintResult>(x => x.Name);
-			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel, vm => vm.ComplaintResults, w => w.ItemsList).InitializeFromSource();
-			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResult, w => w.SelectedItem).InitializeFromSource();
+			cmbComplaintResultOfCounterparty.SetRenderTextFunc<ComplaintResultOfCounterparty>(x => x.Name);
+			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel, vm => vm.ComplaintResultsOfCounterparty, w => w.ItemsList).InitializeFromSource();
+			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfCounterparty, w => w.SelectedItem).InitializeFromSource();
 			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			cmbComplaintResultOfEmployees.SetRenderTextFunc<ComplaintResult>(x => x.Name);
-			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.ComplaintResults, w => w.ItemsList).InitializeFromSource();
-			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResult, w => w.SelectedItem).InitializeFromSource();
+			cmbComplaintResultOfEmployees.SetRenderTextFunc<ComplaintResultOfEmployees>(x => x.Name);
+			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.ComplaintResultsOfEmployees, w => w.ItemsList).InitializeFromSource();
+			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem).InitializeFromSource();
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ytextviewResultText.Binding.AddBinding(ViewModel.Entity, e => e.ResultText, w => w.Buffer.Text).InitializeFromSource();

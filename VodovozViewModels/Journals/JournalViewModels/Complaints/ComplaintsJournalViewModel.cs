@@ -17,6 +17,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -153,7 +154,7 @@ namespace Vodovoz.Journals.JournalViewModels
             UpdateOnChanges(
 				typeof(Complaint),
 				typeof(ComplaintGuiltyItem),
-				typeof(ComplaintResult),
+				typeof(ComplaintResultOfCounterparty),
 				typeof(Subdivision),
 				typeof(ComplaintDiscussion),
 				typeof(DeliveryPoint),
@@ -468,7 +469,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersJournalOpener,
 						_salesPlanJournalFactory,
 						_nomenclatureSelector,
-						_undeliveredOrdersRepository
+						_undeliveredOrdersRepository,
+						new ComplaintResultsRepository()
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -510,7 +512,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersJournalOpener,
 						_salesPlanJournalFactory,
 						_nomenclatureSelector,
-						_undeliveredOrdersRepository
+						_undeliveredOrdersRepository,
+						new ComplaintResultsRepository()
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -622,7 +625,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_salesPlanJournalFactory,
 								_nomenclatureSelector,
-								_undeliveredOrdersRepository
+								_undeliveredOrdersRepository,
+								new ComplaintResultsRepository()
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -659,7 +663,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_salesPlanJournalFactory,
 								_nomenclatureSelector,
-								_undeliveredOrdersRepository
+								_undeliveredOrdersRepository,
+								new ComplaintResultsRepository()
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

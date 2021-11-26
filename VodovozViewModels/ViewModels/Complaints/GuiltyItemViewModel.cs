@@ -16,7 +16,8 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			IUnitOfWork uow
+			IUnitOfWork uow,
+			bool fromComplaintsJournalFilter = false
 		) : base(entity, commonServices)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -26,6 +27,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 			ConfigureEntityPropertyChanges();
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
+			HideClientFromGuilty = !fromComplaintsJournalFilter;
 		}
 
 		public event EventHandler OnGuiltyItemReady;
@@ -39,6 +41,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanChooseEmployee => Entity.GuiltyType == ComplaintGuiltyTypes.Employee;
 
 		public bool CanChooseSubdivision => Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision;
+		public bool HideClientFromGuilty { get; }
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
