@@ -72,22 +72,26 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private string GetNodeText(object node)
 		{
-			if(node is ComplaintGuiltyNode) {
-				return (node as ComplaintGuiltyNode).GuiltyName;
+			if(node is ComplaintGuiltyNode guiltyNode)
+			{
+				return guiltyNode.GuiltyName;
 			}
-			if(node is ComplaintResultNode) {
-				return (node as ComplaintResultNode).Text ?? "Не указано";
+			if(node is ComplaintResultNode resultNode)
+			{
+				return resultNode.Text ?? "Не указано";
 			}
 			return "";
 		}
 
 		private string GetCount(object node)
 		{
-			if(node is ComplaintGuiltyNode) {
-				return (node as ComplaintGuiltyNode).Count.ToString();
+			if(node is ComplaintGuiltyNode guiltyNode)
+			{
+				return guiltyNode.Count.ToString();
 			}
-			if(node is ComplaintResultNode) {
-				return (node as ComplaintResultNode).Count.ToString();
+			if(node is ComplaintResultNode resultNode)
+			{
+				return resultNode.Count.ToString();
 			}
 			return "";
 		}
@@ -176,12 +180,14 @@ namespace Vodovoz.SidePanel.InfoViews
 			Employee employeeAlias = null;
 			ComplaintGuiltyItem guiltyItemAlias = null;
 			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
+			ComplaintResultOfEmployees resultOfEmployeesAlias = null;
 			QueryNode queryNodeAlias = null;
 			ComplaintDiscussion discussionAlias = null;
 
 			var query = InfoProvider.UoW.Session.QueryOver(() => guiltyItemAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
 						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
+						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
 						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
@@ -261,7 +267,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			var result = query.SelectList(list => list
 				.SelectGroup(c => c.Complaint.Id)
 				.Select(() => complaintAlias.Status).WithAlias(() => queryNodeAlias.Status)
-				.Select(() => resultOfCounterpartyAlias.Name).WithAlias(() => queryNodeAlias.ResultText)
+				.Select(() => resultOfCounterpartyAlias.Name).WithAlias(() => queryNodeAlias.ResultOfCounterpartyText)
+				.Select(() => resultOfEmployeesAlias.Name).WithAlias(() => queryNodeAlias.ResultOfEmployeesText)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(
 						NHibernateUtil.String,
@@ -305,7 +312,26 @@ namespace Vodovoz.SidePanel.InfoViews
 		public class QueryNode
 		{
 			public ComplaintStatuses Status { get; set; }
-			public string ResultText { get; set; }
+			public string ResultOfCounterpartyText { get; set; }
+			public string ResultOfEmployeesText { get; set; }
+			public string ResultText
+			{
+				get
+				{
+					switch(string.IsNullOrEmpty(ResultOfCounterpartyText))
+					{
+						case true:
+							return ResultOfEmployeesText;
+						case false:
+							return string.IsNullOrEmpty(ResultOfEmployeesText)
+								? ResultOfCounterpartyText
+								: $"{ResultOfCounterpartyText},\n{ResultOfEmployeesText}";
+						default:
+							return null;
+					}
+				}
+			}
+
 			public string GuiltyName { get; set; }
 		}
 
@@ -321,12 +347,19 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				ComplaintResultNodes = new List<ComplaintResultNode>();
 
-				var resultNodes = Guilties.GroupBy(p => new { p.Status, p.ResultText }, (statusAndResultText, guiltiesGroup) => new ComplaintResultNode {
-					Count = guiltiesGroup.Count(),
-					Status = statusAndResultText.Status,
-					Text = statusAndResultText.Status == ComplaintStatuses.Closed ? statusAndResultText.ResultText : ComplaintStatuses.InProcess.GetEnumTitle(),
-					ComplaintGuiltyNode = this,
-				}).ToList();
+				var resultNodes =
+					Guilties.GroupBy(p => new { p.Status, p.ResultText },
+						(statusAndResultText, guiltiesGroup) =>
+							new ComplaintResultNode
+							{
+								Count = guiltiesGroup.Count(),
+								Status = statusAndResultText.Status,
+								Text = statusAndResultText.Status == ComplaintStatuses.Closed
+									? statusAndResultText.ResultText
+									: ComplaintStatuses.InProcess.GetEnumTitle(),
+								ComplaintGuiltyNode = this
+							}
+					).ToList();
 
 				//Объединяю ноды со статусами "В работе" и "На проверке"
 				if(resultNodes.Count(n => n.Status == ComplaintStatuses.InProcess || n.Status == ComplaintStatuses.Checking) > 1) {
@@ -337,8 +370,10 @@ namespace Vodovoz.SidePanel.InfoViews
 					}
 				}
 
-				foreach(var node in resultNodes.OrderBy(c => c.Text)) 
+				foreach(var node in resultNodes.OrderBy(c => c.Text))
+				{
 					ComplaintResultNodes.Add(node);
+				}
 			}
 		}
 
