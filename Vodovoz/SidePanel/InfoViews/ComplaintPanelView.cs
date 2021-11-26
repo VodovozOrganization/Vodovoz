@@ -318,12 +318,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				get
 				{
-					switch(string.IsNullOrEmpty(ResultOfCounterpartyText))
+					switch(string.IsNullOrWhiteSpace(ResultOfCounterpartyText))
 					{
 						case true:
 							return ResultOfEmployeesText;
 						case false:
-							return string.IsNullOrEmpty(ResultOfEmployeesText)
+							return string.IsNullOrWhiteSpace(ResultOfEmployeesText)
 								? ResultOfCounterpartyText
 								: $"{ResultOfCounterpartyText},\n{ResultOfEmployeesText}";
 						default:

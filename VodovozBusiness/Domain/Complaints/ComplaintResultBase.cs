@@ -11,6 +11,7 @@ namespace Vodovoz.Domain.Complaints
 	{
 		private string _name;
 		private bool _isArchive;
+		private const int _nameLimit = 255;
 
 		public virtual int Id { get; set; }
 
@@ -34,6 +35,11 @@ namespace Vodovoz.Domain.Complaints
 			if(string.IsNullOrWhiteSpace(Name))
 			{
 				yield return new ValidationResult("Необходимо заполнить название", new[] { nameof(Name) });
+			}
+			
+			if(Name != null && Name.Length > _nameLimit)
+			{
+				yield return new ValidationResult($"Длина названия не должна превышать {_nameLimit} символов", new[] { nameof(Name) });
 			}
 		}
 	}

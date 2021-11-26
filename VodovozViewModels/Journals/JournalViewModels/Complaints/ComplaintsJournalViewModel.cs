@@ -155,6 +155,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				typeof(Complaint),
 				typeof(ComplaintGuiltyItem),
 				typeof(ComplaintResultOfCounterparty),
+				typeof(ComplaintResultOfEmployees),
 				typeof(Subdivision),
 				typeof(ComplaintDiscussion),
 				typeof(DeliveryPoint),
