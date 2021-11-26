@@ -17,6 +17,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CanPrintPrice).Column("can_print_price");
 			Map(x => x.Name).Column("name");
 			Map(x => x.OfficialName).Column("official_name");
+			Map(x => x.VeryShortName).Column("very_short_name");
 			Map(x => x.Model).Column("model");
 			Map(x => x.Weight).Column("weight");
 			Map(x => x.Volume).Column("volume");

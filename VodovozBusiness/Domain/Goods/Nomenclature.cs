@@ -67,6 +67,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref officialName, value, () => OfficialName);
 		}
 
+		private string veryShortName;
+		[Display(Name = "Очень короткое название")]
+		public virtual string VeryShortName {
+			get => veryShortName;
+			set => SetField(ref veryShortName, value);
+		}
+
 		private bool isArchive;
 
 		[Display(Name = "Архивная")]

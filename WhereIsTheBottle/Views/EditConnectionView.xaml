@@ -1,0 +1,247 @@
+﻿<Window x:Class="WhereIsTheBottle.Views.EditConnectionView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:infrastructure="clr-namespace:WhereIsTheBottle.Infrastructure"
+	xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+	xmlns:viewModels="clr-namespace:WhereIsTheBottle.ViewModels"
+	mc:Ignorable="d"
+	KeyDown="Window_KeyDownPressed"
+	Title="Настройка соединений"
+	d:DataContext="{d:DesignInstance viewModels:EditConnectionViewModel}"
+	Height="500"
+	Width="700"
+	MinHeight="350"
+	MinWidth="500" >
+
+	<Window.Resources>
+
+		<Style TargetType="Button"
+			x:Key="SimpleButtonStyle" >
+			<Setter Property="Width"
+				Value="75" />
+			<Setter Property="Height"
+				Value="30" />
+			<Setter Property="BorderBrush"
+				Value="LightGray" />
+			<Setter Property="Background"
+				Value="WhiteSmoke" />
+			<Setter Property="VerticalAlignment"
+				Value="Center" />
+			<Setter Property="VerticalContentAlignment"
+				Value="Center" />
+		</Style>
+
+		<Style TargetType="Label"
+			x:Key="SimpleLabelStyle" >
+			<Setter Property="FontSize"
+				Value="14" />
+			<Setter Property="HorizontalAlignment"
+				Value="Right" />
+			<Setter Property="VerticalContentAlignment"
+				Value="Center" />
+			<Setter Property="Margin"
+				Value="0 0 5 0" />
+			<Setter Property="Height"
+				Value="45" />
+		</Style>
+
+		<Style TargetType="TextBox"
+			x:Key="SimpleTextBoxStyle" >
+			<Setter Property="FontSize"
+				Value="14" />
+			<Setter Property="VerticalContentAlignment"
+				Value="Center" />
+		</Style>
+
+		<infrastructure:IsNotNullToBoolConverter x:Key="IsNotNullToBoolConverter" />
+		<infrastructure:IsNotNullToVisibilityConverter x:Key="IsNotNullToVisibilityConverter" />
+
+	</Window.Resources>
+	<Grid>
+
+		<Grid.RowDefinitions>
+			<RowDefinition />
+			<RowDefinition Height="40" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="200" />
+			<ColumnDefinition />
+		</Grid.ColumnDefinitions>
+
+		<DockPanel Grid.Row="0"
+			Grid.Column="0" >
+			<Border DockPanel.Dock="Top"
+				BorderThickness="1 1 1 0"
+				BorderBrush="LightGray"
+				Margin="5 0 0 0" >
+				<Label Content="Соединения"
+					FontSize="15"
+					Background="WhiteSmoke" />
+			</Border>
+			<ListBox Name="ConnectionsListBox"
+				Background="WhiteSmoke"
+				DockPanel.Dock="Top"
+				Margin="5 0 0 0"
+				BorderBrush="LightGray"
+				ItemsSource="{Binding ConnectionItems}"
+				SelectedItem="{Binding SelectedConnectionItem}" >
+				<behaviors:Interaction.Triggers>
+					<behaviors:EventTrigger EventName="SelectionChanged"
+						SourceObject="{Binding ElementName=ConnectionsListBox}" >
+						<behaviors:InvokeCommandAction Command="{Binding SelectionChangedCommand}"
+							CommandParameter="{Binding ElementName=ConnectionsListBox, Path=SelectedItem}" />
+					</behaviors:EventTrigger>
+				</behaviors:Interaction.Triggers>
+				<ListBox.ItemTemplate>
+					<DataTemplate DataType="{x:Type viewModels:ConnectionItem}" >
+						<StackPanel Orientation="Horizontal" >
+							<Image Source="/Resources/Images/Icons/16x/Error.png"
+								Width="14"
+								Height="14"
+								VerticalAlignment="Center"
+								Margin="0 0 8 0"
+								Visibility="{Binding ErrorDescription, Converter={StaticResource IsNotNullToVisibilityConverter}}" />
+							<TextBlock Text="{Binding Connection.ConnectionName}"
+								FontSize="13"
+								VerticalAlignment="Center"
+								Height="20" />
+						</StackPanel>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</DockPanel>
+
+		<DockPanel Grid.Row="1"
+			Grid.Column="0"
+			LastChildFill="False" >
+			<Button Width="90"
+				Height="30"
+				VerticalContentAlignment="Stretch"
+				DockPanel.Dock="Left"
+				Background="WhiteSmoke"
+				Margin="5 0 0 0"
+				BorderBrush="LightGray"
+				Command="{Binding AddConnectionCommand}" >
+				<Image Source="/Resources/Images/Icons/16x/Plus.png"
+					Width="14"
+					Height="14"
+					VerticalAlignment="Center" />
+			</Button>
+			<Button Width="90"
+				Height="30"
+				VerticalContentAlignment="Stretch"
+				Command="{Binding DeleteConnectionCommand}"
+				CommandParameter="{Binding ElementName=ConnectionsListBox, Path=SelectedIndex}"
+				Background="WhiteSmoke"
+				DockPanel.Dock="Right"
+				BorderBrush="LightGray" >
+				<Image Source="/Resources/Images/Icons/16x/Trash.png"
+					Width="14"
+					Height="14"
+					VerticalAlignment="Center" />
+			</Button>
+		</DockPanel>
+
+		<Grid Grid.Row="0"
+			Grid.Column="1" >
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="40" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition />
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Label Grid.Row="0"
+				Grid.Column="0"
+				Content="Название подключения:"
+				Style="{StaticResource SimpleLabelStyle}" />
+			<Label Grid.Row="1"
+				Grid.Column="0"
+				Content="Сервер:"
+				Style="{StaticResource SimpleLabelStyle}" />
+			<Label Grid.Row="2"
+				Grid.Column="0"
+				Content="Название базы:"
+				Style="{StaticResource SimpleLabelStyle}" />
+			<Label Grid.Row="3"
+				Grid.Column="0"
+				Grid.ColumnSpan="2"
+				Content="{Binding SelectedConnectionItem.ErrorDescription}"
+				FontSize="14"
+				Foreground="Red"
+				VerticalContentAlignment="Center"
+				HorizontalContentAlignment="Center" />
+			<TextBox Grid.Row="0"
+				Grid.Column="1"
+				Height="30"
+				Style="{StaticResource SimpleTextBoxStyle}"
+				Margin="0 0 20 0"
+				Text="{Binding SelectedConnectionItem.Connection.ConnectionName}"
+				IsEnabled="{Binding SelectedConnectionItem, Converter={StaticResource IsNotNullToBoolConverter}}" />
+			<TextBox Grid.Row="1"
+				Grid.Column="1"
+				Height="30"
+				Style="{StaticResource SimpleTextBoxStyle}"
+				Margin="0 0 20 0"
+				Text="{Binding SelectedConnectionItem.Connection.Server}"
+				IsEnabled="{Binding SelectedConnectionItem, Converter={StaticResource IsNotNullToBoolConverter}}" />
+			<TextBox Grid.Row="2"
+				Grid.Column="1"
+				Height="30"
+				Style="{StaticResource SimpleTextBoxStyle}"
+				Margin="0 0 20 0"
+				Text="{Binding SelectedConnectionItem.Connection.BaseName}"
+				IsEnabled="{Binding SelectedConnectionItem, Converter={StaticResource IsNotNullToBoolConverter}}" />
+
+		</Grid>
+
+		<DockPanel Grid.Row="1"
+			Grid.Column="1"
+			LastChildFill="False" >
+			<Button Width="100"
+				Style="{StaticResource SimpleButtonStyle}"
+				DockPanel.Dock="Right"
+				Margin="10 0 10 0"
+				x:Name="OkButton" >
+				<behaviors:Interaction.Triggers>
+					<behaviors:EventTrigger EventName="Click"
+						SourceObject="{Binding ElementName=OkButton}" >
+						<behaviors:InvokeCommandAction Command="{Binding SaveCommand}" />
+					</behaviors:EventTrigger>
+				</behaviors:Interaction.Triggers>
+				<StackPanel Orientation="Horizontal" >
+					<Image Source="/Resources/Images/Icons/16x/Check.png"
+						Width="12"
+						Height="12"
+						Margin="5 1 5 0" />
+					<TextBlock Text="ОК"
+						FontSize="13"
+						VerticalAlignment="Center" />
+				</StackPanel>
+			</Button>
+			<Button Width="100"
+				Style="{StaticResource SimpleButtonStyle}"
+				DockPanel.Dock="Right"
+				x:Name="CancelButton"
+				Click="CancelButton_OnClick" >
+				<StackPanel Orientation="Horizontal" >
+					<Image Source="/Resources/Images/Icons/16x/Close.png"
+						Width="12"
+						Height="12"
+						Margin="5 1 5 0" />
+					<TextBlock Text="Отменить"
+						FontSize="13" />
+				</StackPanel>
+			</Button>
+		</DockPanel>
+
+	</Grid>
+</Window>

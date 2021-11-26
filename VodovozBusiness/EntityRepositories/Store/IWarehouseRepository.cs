@@ -9,11 +9,21 @@ namespace Vodovoz.EntityRepositories.Store
 	{
 		IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow);
 
+		IList<WarehouseNode> GetActiveWarehouseNodes(IUnitOfWork uow);
+
 		IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow);
 
-		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);
+		IEnumerable<NomanclatureStockNode>
+			GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);
 
 		IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId);
+	}
+
+	public class WarehouseNode
+	{
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public WarehouseUsing WarehouseUsing { get; set; }
 	}
 
 	public class NomanclatureStockNode
@@ -22,9 +32,7 @@ namespace Vodovoz.EntityRepositories.Store
 		public decimal Stock { get; set; }
 
 		public NomanclatureStockNode()
-		{
-
-		}
+		{ }
 
 		public NomanclatureStockNode(int nomenclatureId, decimal stock)
 		{

@@ -4,6 +4,7 @@
 *.DotSettings.user
 *.csproj.user
 *.pubxml.user
+*wpftmp.csproj
 *~
 
 #Rider

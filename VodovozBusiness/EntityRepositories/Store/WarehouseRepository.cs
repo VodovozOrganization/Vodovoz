@@ -20,6 +20,19 @@ namespace Vodovoz.EntityRepositories.Store
 			return uow.Session.QueryOver<Warehouse>().WhereNot(x => x.IsArchive).List<Warehouse>();
 		}
 
+		public IList<WarehouseNode> GetActiveWarehouseNodes(IUnitOfWork uow)
+		{
+			return uow.Session.Query<Warehouse>()
+				.Where(x => !x.IsArchive)
+				.Select(x => new WarehouseNode
+					{
+						Id = x.Id,
+						Name = x.Name,
+						WarehouseUsing = x.TypeOfUse
+					}
+				).ToList();
+		}
+
 		public IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<Warehouse>()

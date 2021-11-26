@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -80,14 +81,13 @@ namespace VodovozInstantSmsService
 				InstantSmsServiceHost.AddServiceEndpoint(
 				typeof(IInstantSmsService),
 				new BasicHttpBinding(),
-				String.Format("http://{0}:{1}/InstantSmsService", serviceHostName, servicePort)
+				String.Format("http://{0}:{1}/InstantSmsService/VodovozTest/", serviceHostName, servicePort)
 				);
 #if DEBUG
 				InstantSmsServiceHost.Description.Behaviors.Add(new PreFilter());
 #endif
 				InstantSmsServiceHost.Open();
 				logger.Info("Запущена служба отправки моментальных sms сообщений");
-
 				UnixSignal[] signals = {
 					new UnixSignal (Signum.SIGINT),
 					new UnixSignal (Signum.SIGHUP),

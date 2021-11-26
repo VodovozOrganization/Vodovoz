@@ -1,0 +1,187 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net5.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <Authors />
+        <AssemblyTitle>Где бутыль?</AssemblyTitle>
+        <ApplicationIcon>Resources\Images\Vodovoz\logo.ico</ApplicationIcon>
+		<Version>0.1</Version>
+		<LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PlatformTarget>AnyCPU</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\Images\Icons\16x\Error.png" />
+      <None Update="NLog.config">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Autofac" Version="6.2.0" />
+      <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9">
+        <NoWarn>NU1701</NoWarn>
+      </PackageReference>
+      <PackageReference Include="FluentNHibernate" Version="3.1.0" />
+      <PackageReference Include="HandyControl" Version="3.1.0" />
+      <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.31" />
+      <PackageReference Include="MySql.Data" Version="8.0.25" />
+      <PackageReference Include="NetTopologySuite" Version="2.2.0" />
+      <PackageReference Include="NHibernate" Version="5.3.8" />
+      <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
+      <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
+      <PackageReference Include="NLog" Version="4.7.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Views\MainContent\AssetDriversView.xaml.cs">
+        <DependentUpon>AssetDriversView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaDefectiveView.xaml.cs">
+        <DependentUpon>DeltaDefectiveView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaLossView.xaml.cs">
+        <DependentUpon>DeltaLossView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaShabbyView.xaml.cs">
+        <DependentUpon>DeltaShabbyView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralAssetView.xaml.cs">
+        <DependentUpon>GeneralAssetView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralDeltaView.xaml.cs">
+        <DependentUpon>GeneralDeltaView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralSummaryView.xaml.cs">
+        <DependentUpon>GeneralSummaryView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\EditConnectionView.xaml.cs">
+        <DependentUpon>EditConnectionView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\LoginView.xaml.cs">
+        <DependentUpon>LoginView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\BottleAnalyticsView.xaml.cs">
+        <DependentUpon>MainWindowView.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\EditConnectionView.xaml.cs">
+        <DependentUpon>EditConnectionView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\LoginView.xaml.cs">
+        <DependentUpon>LoginView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainWindowView.xaml.cs">
+        <DependentUpon>MainWindowView.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\MainContent\AssetDriversView.xaml.cs">
+        <DependentUpon>AssetDriversView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\AssetProductionView.xaml.cs">
+        <DependentUpon>AssetProductionView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\AssetWarehouseView.xaml.cs">
+        <DependentUpon>AssetWarehouseView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaDefectiveView.xaml.cs">
+        <DependentUpon>DeltaDefectiveView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaLossView.xaml.cs">
+        <DependentUpon>DeltaLossView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaShabbyView.xaml.cs">
+        <DependentUpon>DeltaShabbyView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralAssetView.xaml.cs">
+        <DependentUpon>GeneralAssetView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralDeltaView.xaml.cs">
+        <DependentUpon>GeneralDeltaView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralSummaryView.xaml.cs">
+        <DependentUpon>GeneralSummaryView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\AssetDriversView.xaml.cs">
+        <DependentUpon>AssetDriversView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\AssetProductionView.xaml.cs">
+        <DependentUpon>AssetProductionView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\AssetWarehouseView.xaml.cs">
+        <DependentUpon>AssetWarehouseView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaDefectiveView.xaml.cs">
+        <DependentUpon>DeltaDefectiveView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaLossView.xaml.cs">
+        <DependentUpon>DeltaLossView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\DeltaShabbyView.xaml.cs">
+        <DependentUpon>DeltaShabbyView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralAssetView.xaml.cs">
+        <DependentUpon>GeneralAssetView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralDeltaView.xaml.cs">
+        <DependentUpon>GeneralDeltaView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\MainContent\GeneralSummaryView.xaml.cs">
+        <DependentUpon>GeneralSummaryView.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Views\BottleAnalyticsView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="Resources\Images\Icons\16x\Check.png" />
+      <Resource Include="Resources\Images\Icons\16x\Close.png" />
+      <Resource Include="Resources\Images\Icons\16x\Edit.png" />
+      <Resource Include="Resources\Images\Icons\16x\Error.png" />
+      <Resource Include="Resources\Images\Icons\16x\Plus.png" />
+      <Resource Include="Resources\Images\Icons\16x\Trash.png" />
+      <Resource Include="Resources\Images\Vodovoz\Logo.png" />
+      <None Remove="Resources\Images\Icons\48px\Error.png" />
+      <Resource Include="Resources\Images\Icons\48px\Error.png" />
+      <None Remove="Resources\Images\Icons\48px\Info.png" />
+      <Resource Include="Resources\Images\Icons\48px\Info.png" />
+      <None Remove="Resources\Images\Icons\48px\Warning.png" />
+      <Resource Include="Resources\Images\Icons\48px\Warning.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+      <ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+      <ProjectReference Include="..\..\QSProjects\QS.MachineConfig\QS.MachineConfig.csproj" />
+      <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+      <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+      <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
+      <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Nini, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\QSProjects\lib\Nini.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ApplicationDefinition Remove="App.xaml" />
+      <ApplicationDefinition Include="Startup\App.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+      </ApplicationDefinition>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,214 @@
+﻿<UserControl x:Class="WhereIsTheBottle.Views.MainContent.GeneralSummaryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:infrastructure="clr-namespace:WhereIsTheBottle.Infrastructure"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:vm="clr-namespace:WhereIsTheBottle.ViewModels.MainContent"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:nodes1="clr-namespace:WhereIsTheBottle.Models.MainContent.Nodes"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:GeneralSummaryViewModel }">
+
+	<UserControl.Resources>
+
+		<infrastructure:DayOfWeekToStringConverter x:Key="DayOfWeekToStringConverter"/>
+		<infrastructure:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+		<infrastructure:InverseBoolConverter x:Key="InverseBoolConverter"/>
+		<infrastructure:GeneralSummaryNodeToColorConverter x:Key="GeneralSummaryAssetValueToColorConverter"/>
+		<infrastructure:ZeroToEmptyStringConverter x:Key="ZeroToEmptyStringConverter"/>
+
+		<Style x:Key="ColoredTextBoxStyle"
+		       BasedOn="{StaticResource CenteredTextBlockStyle}"
+		       TargetType="{x:Type TextBlock}">
+
+			<d:Style.DataContext>
+				<x:Type Type="nodes1:GeneralSummaryNode"/>
+			</d:Style.DataContext>
+
+			<Setter Property="Foreground">
+				<Setter.Value>
+					<Binding Converter="{StaticResource GeneralSummaryAssetValueToColorConverter}"/>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+	</UserControl.Resources>
+
+	<Grid Margin="5 0 0 0"
+	      IsEnabled="{Binding IsDataLoading, Converter={StaticResource InverseBoolConverter}}">
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+
+		<!-- Меню -->
+		<StackPanel Grid.Row="0">
+
+			<Label Height="30"
+			       Content="Где бутыль?"
+			       Style="{StaticResource HeaderLabelStyle}"/>
+
+			<Label Height="30"
+			       Content="{Binding HeaderString, Mode=OneWay}"
+			       Style="{StaticResource HeaderLabelStyle}"/>
+
+			<Label Height="30"
+			       Content="{Binding FormedString, Mode=OneWay}"
+			       HorizontalAlignment="Right"
+			       Margin="0 0 26 0"/>
+
+			<StackPanel Height="30"
+			            Orientation="Horizontal">
+
+				<Label Content="Период: C"
+				       VerticalContentAlignment="Center"
+				       HorizontalContentAlignment="Right"
+				       Margin="5 0 0 0"/>
+
+				<DatePicker SelectedDate="{Binding StartDate}"/>
+
+				<Label Content="по"
+				       VerticalContentAlignment="Center"
+				       HorizontalContentAlignment="Right"
+				       Margin="5 0 0 0"/>
+
+				<DatePicker SelectedDate="{Binding EndDate}"/>
+
+			</StackPanel>
+
+			<StackPanel Height="30"
+			            Orientation="Horizontal">
+
+				<Label Content="Необходимый актив:"
+				       VerticalContentAlignment="Center"
+				       HorizontalContentAlignment="Right"
+				       Margin="0 0 2 0"/>
+
+				<hc:TextBox TextType="Int"
+				            Text="{Binding NecessaryAssetValue}"
+				            Width="60"
+				            Height="24"
+				            Margin="2 0 5 0"
+				            Padding="5 0 0 0"/>
+
+				<TextBox Text="100"
+				         Width="50"
+				         Height="24"
+				         IsReadOnly="True"
+				         HorizontalContentAlignment="Center"/>
+
+				<Label Content="%"
+				       VerticalContentAlignment="Center"
+				       HorizontalContentAlignment="Right"
+				       Padding="2 0 0 0"/>
+
+			</StackPanel>
+
+			<DockPanel Height="30"
+			           LastChildFill="False">
+
+				<Label Content="Минимальный актив:"
+				       VerticalContentAlignment="Center"
+				       HorizontalContentAlignment="Right"/>
+
+				<hc:TextBox TextType="Int"
+				            Text="{Binding MinimalAssetValue}"
+				            Width="60"
+				            Height="24"
+				            Margin="0 0 5 0"
+				            Padding="5 0 0 0"/>
+
+				<hc:TextBox TextType="Double"
+				            Text="{Binding MinimalAssetPercent}"
+				            Height="24"
+				            Width="50"
+				            GotFocus="Texbox_OnGotFocus"
+				            HorizontalContentAlignment="Center"/>
+
+				<Label Content="%"
+				       VerticalContentAlignment="Center"
+				       HorizontalContentAlignment="Right"
+				       Padding="2 0 0 0"/>
+
+				<Button Content="Сформировать"
+				        DockPanel.Dock="Right"
+				        Command="{Binding LoadDataCommand}"
+				        Height="24"
+				        Padding="5 0"
+				        Margin="0 0 30 0"/>
+
+			</DockPanel>
+
+		</StackPanel>
+
+		<DataGrid Grid.Row="1"
+		          Style="{StaticResource DataGridMainContentStyle}"
+		          VerticalAlignment="Top"
+		          Margin="0 30 15 0"
+		          DataContext="{Binding Path=Items}"
+		          ItemsSource="{Binding}">
+
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="День недели"
+				                    MinWidth="55"
+				                    Width="55"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    Binding="{Binding Path=DayOfWeek, Converter={StaticResource DayOfWeekToStringConverter}}"/>
+				<DataGridTextColumn Header="Дата"
+				                    MinWidth="50"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    Binding="{Binding Path=DateString}"/>
+				<DataGridTextColumn Header="Актив на утро"
+				                    Width="75*"
+				                    MinWidth="75"
+				                    ElementStyle="{StaticResource ColoredTextBoxStyle}"
+				                    Binding="{Binding Path=AssetByMorning}"/>
+				<DataGridTextColumn Header="Склад"
+				                    Width="50*"
+				                    MinWidth="50"
+				                    ElementStyle="{StaticResource ColoredTextBoxStyle}"
+				                    Binding="{Binding Path=WarehousesAsset}"/>
+				<DataGridTextColumn Header="Водители"
+				                    Width="70*"
+				                    MinWidth="70"
+				                    ElementStyle="{StaticResource ColoredTextBoxStyle}"
+				                    Binding="{Binding Path=RouteListsAsset}"/>
+				<DataGridTextColumn Header="Перемещение"
+				                    Width="95*"
+				                    MinWidth="95"
+				                    ElementStyle="{StaticResource ColoredTextBoxStyle}"
+				                    Binding="{Binding Path=MovementDocumentsAsset}"/>
+				<DataGridTextColumn Header="% от необх. Актива"
+				                    Width="80*"
+				                    MinWidth="80"
+				                    ElementStyle="{StaticResource ColoredTextBoxStyle}"
+				                    Binding="{Binding Path=NecessaryAssetPercent, StringFormat=P}"/>
+				<DataGridTextColumn Header="Разница с необх. Активом"
+				                    Width="115*"
+				                    MinWidth="115"
+				                    Binding="{Binding Path=NecessaryAssetDifference}"
+				                    ElementStyle="{StaticResource ColoredTextBoxStyle}"/>
+				<DataGridTextColumn Header="Изменение, бут"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    Binding="{Binding Path=BottleDifference, Converter={StaticResource ZeroToEmptyStringConverter}}"/>
+				<DataGridTextColumn Header="Изменение, %"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    CellStyle="{StaticResource NoRightBorderCenteredCellStyle}"
+				                    Binding="{Binding Path=PercentDifference, StringFormat=P, Converter={StaticResource ZeroToEmptyStringConverter}}"/>
+			</DataGrid.Columns>
+
+		</DataGrid>
+
+		<fa:ImageAwesome Grid.Row="1"
+		                 Style="{StaticResource LargeOrangeSpinner}"
+		                 Visibility="{Binding IsDataLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+	</Grid>
+</UserControl>

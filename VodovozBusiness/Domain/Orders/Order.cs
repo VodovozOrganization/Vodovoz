@@ -932,6 +932,7 @@ namespace Vodovoz.Domain.Orders
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
 
+
 					var key = new OrderStateKey(this, newStatus);
 					var messages = new List<string>();
 					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
@@ -987,15 +988,15 @@ namespace Vodovoz.Domain.Orders
 						if(fixedPrice > 0m) {
 							if(item.Price < fixedPrice) {
 								incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-																	  item.NomenclatureString,
-																	  item.Price,
-																	  fixedPrice));
+									item.NomenclatureString,
+									item.Price,
+									fixedPrice));
 							}
 						} else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice) {
 							incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-																  item.NomenclatureString,
-																  item.Price,
-																  nomenclaturePrice));
+								item.NomenclatureString,
+								item.Price,
+								nomenclaturePrice));
 						}
 					}
 					if(incorrectPriceItems.Any()) {
@@ -1032,6 +1033,8 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
+					#region MyRegion
+
 					if(Client.IsDeliveriesClosed && PaymentType != PaymentType.cash && PaymentType != PaymentType.ByCard)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
@@ -1043,7 +1046,9 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
-					);
+						);
+
+					#endregion
 				}
 
 				if(newStatus == OrderStatus.Closed) {

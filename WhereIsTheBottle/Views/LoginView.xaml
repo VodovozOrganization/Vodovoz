@@ -1,0 +1,202 @@
+﻿<Window x:Class="WhereIsTheBottle.Views.LoginView"
+	x:Name="Window"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+	xmlns:infrastructure="clr-namespace:WhereIsTheBottle.Infrastructure"
+	xmlns:viewModels="clr-namespace:WhereIsTheBottle.ViewModels"
+	xmlns:fa="http://schemas.fontawesome.io/icons/"
+	mc:Ignorable="d"
+	KeyDown="Window_KeyDownPressed"
+	Title="Вход в программу"
+	d:DataContext="{d:DesignInstance viewModels:LoginViewModel}"
+	ResizeMode="NoResize"
+	Height="420"
+	Width="340" >
+
+	<Window.Resources>
+
+		<infrastructure:InverseBoolConverter x:Key="InverseBoolConverter" />
+		<infrastructure:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+	</Window.Resources>
+
+	<Grid IsEnabled="{Binding TaskInProgress, Converter={StaticResource InverseBoolConverter}}" >
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="0.2*" />
+			<RowDefinition Height="140" />
+			<RowDefinition Height="35" />
+		</Grid.RowDefinitions>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="0.05*" />
+			<ColumnDefinition />
+			<ColumnDefinition Width="0.05*" />
+		</Grid.ColumnDefinitions>
+
+		<StackPanel Grid.Column="1" >
+			<Image Source="/Resources/Images/Vodovoz/Logo.png"
+				Stretch="Uniform"
+				Height="120"
+				Margin="0 20 0 0" />
+			<TextBlock Text="{Binding ApplicationInfoStr}"
+				HorizontalAlignment="Right"
+				Foreground="DarkGray"
+				FontSize="12"
+				FontFamily="Philosopher"
+				FontWeight="Bold"
+				Padding="0 5 5 0" />
+			<TextBlock Text="{Binding BuildTimeStr}"
+				HorizontalAlignment="Right"
+				Foreground="DarkGray"
+				FontSize="12"
+				FontFamily="Philosopher"
+				Padding="0 5 5 0" />
+		</StackPanel>
+
+		<Grid Grid.Row="1"
+			Grid.Column="1" >
+
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.3*" />
+				<ColumnDefinition Width="0.4*" />
+				<ColumnDefinition Width="0.1*" />
+			</Grid.ColumnDefinitions>
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="0.2*" />
+				<RowDefinition Height="0.2*" />
+				<RowDefinition Height="0.2*" />
+				<RowDefinition Height="0.2*" />
+				<RowDefinition Height="20" />
+			</Grid.RowDefinitions>
+
+			<Label Content="Подключение:"
+				Grid.Row="0"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Center" />
+			<Label Content="Пользователь:"
+				Grid.Row="1"
+				Grid.Column="0"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Center" />
+			<Label Content="Пароль:"
+				Grid.Row="2"
+				Grid.Column="0"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Center" />
+
+			<ComboBox Grid.Row="0"
+				Grid.Column="1"
+				Height="22"
+				VerticalContentAlignment="Center"
+				ItemsSource="{Binding Connections}"
+				SelectedItem="{Binding SelectedConnection}"
+				DisplayMemberPath="ConnectionName"
+				Margin="5 0" />
+
+			<TextBox Grid.Row="1"
+				Grid.Column="1"
+				Height="22"
+				Margin="5 0"
+				Text="{Binding SelectedConnection.Login}" />
+
+			<PasswordBox Grid.Row="2"
+				Grid.Column="1"
+				Height="22"
+				Margin="5 0"
+				VerticalContentAlignment="Center"
+				PasswordChar="●"
+				PasswordChanged="PasswordBox_OnPasswordChanged" />
+
+			<Button Grid.Row="0"
+				Grid.Column="2"
+				Height="20"
+				Width="20"
+				HorizontalAlignment="Left"
+				Margin="5,0,0,0"
+				Background="White"
+				BorderThickness="0" >
+				<Image Source="/Resources/Images/Icons/16x/Edit.png"
+					Width="12"
+					Height="12" />
+				<b:Interaction.Triggers>
+					<b:EventTrigger EventName="Click" >
+						<b:InvokeCommandAction Command="{Binding OpenEditConnectionsWindowCommand}" />
+					</b:EventTrigger>
+				</b:Interaction.Triggers>
+			</Button>
+
+			<DockPanel Grid.Row="3"
+				Grid.Column="0"
+				Grid.ColumnSpan="3" >
+				<TextBlock DockPanel.Dock="Top"
+					Text="{Binding ErrorMessage}"
+					TextAlignment="Center"
+					Foreground="Red"
+					TextWrapping="NoWrap" />
+			</DockPanel>
+
+			<StackPanel Grid.Column="0"
+				Grid.Row="4"
+				Grid.ColumnSpan="3"
+				Orientation="Horizontal"
+				HorizontalAlignment="Center" >
+				<TextBlock Text="{Binding StatusMessage}" />
+				<fa:ImageAwesome Style="{StaticResource SmallOrangeSpinner}"
+				                 Margin="5 0 0 0"
+				                 Visibility="{Binding ShowSpinner, Converter={StaticResource BoolToVisibilityConverter}}" />
+			</StackPanel>
+
+		</Grid>
+
+		<StackPanel Grid.Column="0"
+			Grid.Row="2"
+			Grid.ColumnSpan="3"
+			Orientation="Horizontal"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Bottom" >
+
+			<Button Style="{StaticResource SimpleButtonStyle}"
+				Width="100"
+				Margin="0 0 10 10"
+				VerticalContentAlignment="Stretch"
+				Click="CancelButton_OnClick" >
+				<StackPanel Orientation="Horizontal" >
+					<Image Source="/Resources/Images/Icons/16x/Close.png"
+						Width="12"
+						Height="12"
+						Margin="5 0"
+						VerticalAlignment="Center" />
+					<TextBlock Text="Отменить"
+						VerticalAlignment="Center" />
+				</StackPanel>
+			</Button>
+
+			<Button Style="{StaticResource SimpleButtonStyle}"
+				Width="100"
+				Margin="0 0 10 10"
+				VerticalContentAlignment="Stretch" >
+				<StackPanel Orientation="Horizontal" >
+					<Image Source="/Resources/Images/Icons/16x/Check.png"
+						Width="12"
+						Height="12"
+						Margin="5 0"
+						VerticalAlignment="Center" />
+					<TextBlock Text="ОК"
+						VerticalAlignment="Center" />
+				</StackPanel>
+				<b:Interaction.Triggers>
+					<b:EventTrigger EventName="Click" >
+						<b:InvokeCommandAction Command="{Binding ConfirmLogInCommand}" />
+					</b:EventTrigger>
+				</b:Interaction.Triggers>
+			</Button>
+
+		</StackPanel>
+
+	</Grid>
+</Window>

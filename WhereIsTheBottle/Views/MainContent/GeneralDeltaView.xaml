@@ -1,0 +1,197 @@
+﻿<UserControl x:Class="WhereIsTheBottle.Views.MainContent.GeneralDeltaView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:infrastructure="clr-namespace:WhereIsTheBottle.Infrastructure"
+             xmlns:vm="clr-namespace:WhereIsTheBottle.ViewModels.MainContent"
+             xmlns:controls="clr-namespace:WhereIsTheBottle.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:GeneralDeltaViewModel}">
+
+	<UserControl.Resources>
+
+		<infrastructure:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+		<infrastructure:InverseBoolConverter x:Key="InverseBoolConverter"/>
+		<infrastructure:ZeroToEmptyStringConverter x:Key="ZeroToEmptyStringConverter"/>
+
+	</UserControl.Resources>
+
+	<Grid Margin="5 0 0 0"
+	      IsEnabled="{Binding IsDataLoading, Converter={StaticResource InverseBoolConverter}}">
+
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+
+		<!-- Меню -->
+		<ScrollViewer Grid.Row="0"
+		              HorizontalScrollBarVisibility="Auto"
+		              VerticalScrollBarVisibility="Hidden">
+			<StackPanel
+				IsEnabled="{Binding IsDataLoading, Converter={StaticResource InverseBoolConverter}}">
+
+				<Label Height="30"
+				       Content="Где бутыль?"
+				       Style="{StaticResource HeaderLabelStyle}"/>
+
+				<Label Height="30"
+				       Content="{Binding HeaderString, Mode=OneWay}"
+				       Style="{StaticResource HeaderLabelStyle}"/>
+
+				<Label Height="30"
+				       Content="{Binding FormedString, Mode=OneWay}"
+				       HorizontalAlignment="Right"
+				       Margin="0 0 26 0"/>
+
+				<DockPanel Height="30"
+				           LastChildFill="False">
+
+					<Label DockPanel.Dock="Left"
+					       VerticalContentAlignment="Center"
+					       HorizontalContentAlignment="Right"
+					       Content="Период: C"/>
+
+					<DatePicker DockPanel.Dock="Left"
+					            SelectedDate="{Binding StartDate}"/>
+
+					<Label DockPanel.Dock="Left"
+					       VerticalContentAlignment="Center"
+					       Content="по"/>
+
+					<DatePicker DockPanel.Dock="Left"
+					            SelectedDate="{Binding EndDate}"/>
+
+					<Button DockPanel.Dock="Right"
+					        Content="Сформировать"
+					        Command="{Binding LoadDataCommand}"
+					        Height="24"
+					        Margin="30 0 30 0"
+					        Padding="5 0"/>
+				</DockPanel>
+
+			</StackPanel>
+		</ScrollViewer>
+
+		<controls:CustomDataGrid Grid.Row="1"
+		                         x:Name="MainDataGrid"
+		                         Style="{StaticResource DataGridMainContentStyle}"
+		                         VerticalAlignment="Top"
+		                         Margin="0 30 15 0"
+		                         DataContext="{Binding Path=Items}"
+		                         ItemsSource="{Binding}"
+		                         Sorted="MainDataGrid_OnSorted">
+			<DataGrid.Columns>
+				<DataGridTextColumn Binding="{Binding DateString}"
+				                    Header="Дата"
+				                    Width="50*"
+				                    MinWidth="50"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding AssetByMorningString}"
+				                    Header="Актив на утро"
+				                    Width="70*"
+				                    MinWidth="70"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding CounterpartyReturnLoss, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Клиенты (-)"
+				                    Width="80*"
+				                    MinWidth="80"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding InventarizationLoss, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Инвентаризация (-)"
+				                    Width="130*"
+				                    MinWidth="130"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding CounterpartySelfDeliveryLoss, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Самовывоз (-)"
+				                    Width="100*"
+				                    MinWidth="100"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding DriversDiscrepancyLoss, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Водители (-)"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding RegradingOfGoodsLoss, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Пересорт (-)"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding WriteoffDocumentLoss, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Акт списания (-)"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}">
+					<DataGridTextColumn.HeaderStyle>
+						<Style TargetType="DataGridColumnHeader"
+						       BasedOn="{StaticResource HeaderStyle}">
+							<Setter Property="ToolTip"
+							        Value="TODOАкт списания (-)&#x0a;Инвентаризация (-)&#x0a;Потери водителями"/>
+						</Style>
+					</DataGridTextColumn.HeaderStyle>
+				</DataGridTextColumn>
+				<DataGridTextColumn Binding="{Binding TotalLoss}"
+				                    Header="Ушло из актива"
+				                    Width="60*"
+				                    MinWidth="60"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    Foreground="Red"/>
+				<DataGridTextColumn Binding="{Binding DriversDiscrepancyIncome, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Водители (+)"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding IncomingInvoiceIncome, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Закупка (+)"
+				                    Width="80*"
+				                    MinWidth="80"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding CounterpartyReturnIncome, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Забор (+)"
+				                    Width="65*"
+				                    MinWidth="65"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding CounterpartySelfDeliveryIncome, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Самовывоз (+)"
+				                    Width="95*"
+				                    MinWidth="95"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding InventarizationIncome, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Инвентаризация (+)"
+				                    Width="130*"
+				                    MinWidth="130"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding RegradingOfGoodsIncome, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Пересорт (+)"
+				                    Width="85*"
+				                    MinWidth="85"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding TotalIncome}"
+				                    Header="Пришло в актив"
+				                    Width="70*"
+				                    MinWidth="70"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    Foreground="ForestGreen"/>
+				<DataGridTextColumn Binding="{Binding Delta, Converter={StaticResource ZeroToEmptyStringConverter}}"
+				                    Header="Итого дельта"
+				                    Width="55*"
+				                    MinWidth="55"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+				<DataGridTextColumn Binding="{Binding AssetByEveningString}"
+				                    Header="Актив на вечер"
+				                    Width="65*"
+				                    MinWidth="65"
+				                    ElementStyle="{StaticResource CenteredTextBlockStyle}"
+				                    CellStyle="{StaticResource NoRightBorderCenteredCellStyle}"/>
+			</DataGrid.Columns>
+
+		</controls:CustomDataGrid>
+
+		<fa:ImageAwesome Grid.Row="1"
+		                 Style="{StaticResource LargeOrangeSpinner}"
+		                 Visibility="{Binding IsDataLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+	</Grid>
+</UserControl>

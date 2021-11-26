@@ -228,11 +228,10 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		string closingComment;
-
 		[Display(Name = "Комментарий")]
 		public virtual string ClosingComment {
 			get => closingComment;
-			set => SetField(ref closingComment, value, () => ClosingComment);
+			set => SetField(ref closingComment, value);
 		}
 		
 		string logisticiansComment;
