@@ -26,6 +26,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResu
 			UpdateOnChanges(typeof(ComplaintResultOfEmployees));
 		}
 		
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultEditAction();
+			CreateDefaultAddActions();
+		}
+		
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintResultOfEmployees>> ItemsSourceQueryFunction => uow =>
 		{
 			ComplaintResultOfEmployees resultOfEmployeesAlias = null;
