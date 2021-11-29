@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -115,7 +116,15 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
-			ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
+
+			if(Entity.ComplaintResultOfEmployees != null && Entity.ComplaintResultOfEmployees.IsArchive)
+			{
+				ComplaintResultsOfEmployees = _complaintResultsRepository.GetAllResultsOfEmployees(UoW);
+			}
+			else
+			{
+				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
+			}
 		}
 
 		protected void ConfigureEntityChangingRelations()
@@ -186,16 +195,10 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public virtual ComplaintStatuses Status {
+		public virtual ComplaintStatuses Status
+		{
 			get => Entity.Status;
-			set {
-				var msg = Entity.SetStatus(value);
-				if(!msg.Any())
-					Entity.ActualCompletionDate = value == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
-				else
-					ShowWarningMessage(string.Join<string>("\n", msg), "Не удалось закрыть");
-				OnPropertyChanged(() => Status);
-			}
+			set => Entity.SetStatus(value);
 		}
 
 		private ComplaintDiscussionsViewModel discussionsViewModel;
@@ -254,7 +257,8 @@ namespace Vodovoz.ViewModels.Complaints
 					.Where(x => x.Status == ComplaintStatuses.InProcess)
 					.Where(x => !string.IsNullOrWhiteSpace(x.Subdivision?.ShortName))
 					.Select(x => x.Subdivision.ShortName));
-				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess) && Status != ComplaintStatuses.Closed) ? "OKK" : null;
+				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess)
+							&& Status != ComplaintStatuses.Closed) ? "OKK" : null;
 				string result;
 				if(!string.IsNullOrWhiteSpace(inWork) && !string.IsNullOrWhiteSpace(okk)) {
 					result = string.Join(", ", inWork, okk);
@@ -283,8 +287,24 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
-		public IEnumerable<ComplaintResultOfCounterparty> ComplaintResultsOfCounterparty =>
-			_complaintResults ?? (_complaintResults = _complaintResultsRepository.GetActiveResultsOfCounterparty(UoW));
+		public IEnumerable<ComplaintResultOfCounterparty> ComplaintResultsOfCounterparty
+		{
+			get
+			{
+				if(_complaintResults == null)
+				{
+					if(Entity.ComplaintResultOfCounterparty != null && Entity.ComplaintResultOfCounterparty.IsArchive)
+					{
+						_complaintResults = _complaintResultsRepository.GetAllResultsOfCounterparty(UoW);
+					}
+					else
+					{
+						_complaintResults = _complaintResultsRepository.GetActiveResultsOfCounterparty(UoW);
+					}
+				}
+				return _complaintResults;
+			}
+		}
 
 		public IEnumerable<ComplaintResultOfEmployees> ComplaintResultsOfEmployees { get; }
 
@@ -433,6 +453,21 @@ namespace Vodovoz.ViewModels.Complaints
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
 		public INomenclatureSelectorFactory NomenclatureSelector { get; }
+
+		public void CloseComplaint(ComplaintStatuses status)
+		{
+			var msg = Entity.SetStatus(status);
+			if(!msg.Any())
+			{
+				Entity.ActualCompletionDate = status == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
+			}
+			else
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,string.Join<string>("\n", msg), "Не удалось закрыть");
+			}
+			OnPropertyChanged(nameof(Status));
+		}
 
 		public override void Close(bool askSave, CloseSource source)
 		{

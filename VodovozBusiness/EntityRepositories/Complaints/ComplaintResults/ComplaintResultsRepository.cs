@@ -13,9 +13,15 @@ namespace Vodovoz.EntityRepositories.Complaints.ComplaintResults
 	{
 		public IEnumerable<ComplaintResultOfCounterparty> GetActiveResultsOfCounterparty(IUnitOfWork uow) =>
 			uow.Session.QueryOver<ComplaintResultOfCounterparty>().Where(x => !x.IsArchive).List();
+		
+		public IEnumerable<ComplaintResultOfCounterparty> GetAllResultsOfCounterparty(IUnitOfWork uow) =>
+			uow.GetAll<ComplaintResultOfCounterparty>();
 
 		public IEnumerable<ComplaintResultOfEmployees> GetActiveResultsOfEmployees(IUnitOfWork uow) =>
 			uow.Session.QueryOver<ComplaintResultOfEmployees>().Where(x => !x.IsArchive).List();
+		
+		public IEnumerable<ComplaintResultOfEmployees> GetAllResultsOfEmployees(IUnitOfWork uow) =>
+			uow.GetAll<ComplaintResultOfEmployees>();
 		
 		public IList<ClosedComplaintResultNode> GetComplaintsResultsOfCounterparty(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{
