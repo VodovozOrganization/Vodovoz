@@ -119,7 +119,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 			if(Entity.ComplaintResultOfEmployees != null && Entity.ComplaintResultOfEmployees.IsArchive)
 			{
-				ComplaintResultsOfEmployees = _complaintResultsRepository.GetAllResultsOfEmployees(UoW);
+				ComplaintResultsOfEmployees =
+					_complaintResultsRepository.GetActiveResultsOfEmployeesWithSelectedResult(UoW, Entity.ComplaintResultOfEmployees.Id);
 			}
 			else
 			{
@@ -295,7 +296,9 @@ namespace Vodovoz.ViewModels.Complaints
 				{
 					if(Entity.ComplaintResultOfCounterparty != null && Entity.ComplaintResultOfCounterparty.IsArchive)
 					{
-						_complaintResults = _complaintResultsRepository.GetAllResultsOfCounterparty(UoW);
+						_complaintResults =
+							_complaintResultsRepository.GetActiveResultsOfCounterpartyWithSelectedResult(
+								UoW, Entity.ComplaintResultOfCounterparty.Id);
 					}
 					else
 					{
