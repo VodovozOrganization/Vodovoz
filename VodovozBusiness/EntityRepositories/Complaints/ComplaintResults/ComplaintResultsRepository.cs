@@ -4,7 +4,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
 
