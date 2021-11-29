@@ -311,8 +311,7 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)
 		{
-			var oldStatus = Status;
-			List<string> result = new List<string>();
+			IList<string> result = new List<string>();
 			if(newStatus == ComplaintStatuses.Closed)
 			{
 				if(ComplaintResultOfCounterparty == null)
