@@ -17,6 +17,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		public IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		int totalLinks = 0;
+		private ReplaceEntity _replaceEntity;
 
 		public ReplaceEntityLinksDlg()
 		{
@@ -34,6 +35,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		private void ConfigureDlg()
 		{
+			_replaceEntity = new ReplaceEntity(DeleteConfig.Main);
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance")) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
@@ -53,7 +55,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		{
 			if(entryreference1.Subject != null)
 			{
-				totalLinks = ReplaceEntity.CalculateTotalLinks(UoW, entryreference1.Subject as Nomenclature);
+				totalLinks = _replaceEntity.CalculateTotalLinks(UoW, entryreference1.Subject as Nomenclature);
 				labelTotalLinks.LabelProp = String.Format("Найдено {0} ссылок", totalLinks);
 			}
 			else
@@ -71,7 +73,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonReplaceClicked(object sender, EventArgs e)
 		{
-			var result = ReplaceEntity.ReplaceEverywhere(UoW, entryreference1.Subject as Nomenclature, entryreference2.Subject as Nomenclature);
+			var result = _replaceEntity.ReplaceEverywhere(UoW, entryreference1.Subject as Nomenclature, entryreference2.Subject as Nomenclature);
 			UoW.Commit();
 			logger.Info("Заменено {0} ссылок.", result);
 			entryreference1.Subject = null;
