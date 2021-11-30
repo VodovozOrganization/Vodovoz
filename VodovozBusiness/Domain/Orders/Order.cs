@@ -1577,7 +1577,6 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			Contract = counterpartyContract;
-			OurOrganization = Contract.Organization;
 			
 			foreach(var orderItem in OrderItems)
 			{
