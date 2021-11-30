@@ -1210,6 +1210,9 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintObject>();
 
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintResultOfCounterparty>();
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintResultOfEmployees>();
+
 			#endregion Рекламации
 
 			#region stuff

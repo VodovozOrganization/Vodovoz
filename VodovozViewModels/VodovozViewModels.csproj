@@ -103,6 +103,8 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
@@ -148,6 +150,8 @@
     <Compile Include="Journals\JournalViewModels\Cash\SalaryByEmployeeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointByClientJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
@@ -183,6 +187,7 @@
     <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
@@ -194,6 +199,7 @@
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
     <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
@@ -229,7 +235,7 @@
     <Compile Include="ViewModels\FilesViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDiscussionsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemViewModel.cs" />
-    <Compile Include="ViewModels\Complaints\ComplaintResultViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintResultOfCounterpartyViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintSourceViewModel.cs" />
     <Compile Include="Infrastructure\InfoProviders\IComplaintsInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
@@ -281,6 +287,7 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
+    <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryViewModel.cs" />

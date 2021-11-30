@@ -81,7 +81,6 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Representations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -369,16 +368,16 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int id)
 		{
-			templateOrder = UoW.GetById<Order>(id);
-			Entity.Client = templateOrder.Client;
-			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
-			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.OrderAddressType = templateOrder.OrderAddressType;
-			Entity.CopyPromotionalSetsFrom(templateOrder);
-			Entity.CopyItemsFrom(templateOrder);
-			Entity.CopyDocumentsFrom(templateOrder);
-			Entity.CopyEquipmentFrom(templateOrder);
-			Entity.CopyDepositItemsFrom(templateOrder);
+			var order = UoW.GetById<Order>(id);
+			Entity.Client = order.Client;
+			Entity.DeliveryPoint = order.DeliveryPoint;
+			Entity.ClientPhone = order.ClientPhone;
+			Entity.OrderAddressType = order.OrderAddressType;
+			Entity.CopyPromotionalSetsFrom(order);
+			Entity.CopyItemsFrom(order);
+			Entity.CopyDocumentsFrom(order);
+			Entity.CopyEquipmentFrom(order);
+			Entity.CopyDepositItemsFrom(order);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			OrderAddressTypeChanged();
@@ -821,13 +820,13 @@ namespace Vodovoz
 
 		private void RefreshCounterpartyWithPhones()
 		{
-			Counterparty.ReloadChildCollection(x => x.ObservablePhones, x => x.Counterparty, UoW.Session);
+			Counterparty.ReloadChildCollection(x => x.Phones, x => x.Counterparty, UoW.Session);
 			RefreshEntity(Counterparty);
 		}
 
 		private void RefreshDeliveryPointWithPhones()
 		{
-			DeliveryPoint.ReloadChildCollection(x => x.ObservablePhones, x => x.DeliveryPoint, UoW.Session);
+			DeliveryPoint.ReloadChildCollection(x => x.Phones, x => x.DeliveryPoint, UoW.Session);
 			RefreshEntity(DeliveryPoint);
 		}
 
@@ -836,7 +835,7 @@ namespace Vodovoz
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
 			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
 			{
-				DeliveryPoint.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
+				DeliveryPoint.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
 				RefreshEntity(DeliveryPoint);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -844,7 +843,7 @@ namespace Vodovoz
 			
 			if(changedEntities.Any(x => x.Counterparty != null && Counterparty != null && x.Counterparty.Id == Counterparty.Id))
 			{
-				Counterparty.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
+				Counterparty.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
 				RefreshEntity(Counterparty);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -905,6 +904,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
+					.EditedEvent(OnCountEdited)
 				.AddTextRenderer(node => node.ActualCount.HasValue ? string.Format("[{0}]", node.ActualCount) : string.Empty)
 				.AddTextRenderer(node => node.CanShowReturnedCount ? string.Format("({0})", node.ReturnedCount) : string.Empty)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
@@ -1054,6 +1054,13 @@ namespace Vodovoz
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
 		}
 
+		private void OnCountEdited(object o, EditedArgs args)
+		{
+			var path = new TreePath(args.Path);
+			treeItems.YTreeModel.GetIter(out var iter, path);
+			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+		
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
 			Application.Invoke((sender, eventArgs) =>

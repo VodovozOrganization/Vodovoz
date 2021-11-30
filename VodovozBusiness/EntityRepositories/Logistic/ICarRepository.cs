@@ -9,7 +9,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public interface ICarRepository
 	{
 		QueryOver<Car> ActiveCarsQuery();
-		QueryOver<Car> ActiveCompanyCarsQuery();
 		Car GetCarByDriver(IUnitOfWork uow, Employee driver);
 		IList<Car> GetCarsByDrivers(IUnitOfWork uow, int[] driversIds);
         bool IsInAnyRouteList(IUnitOfWork uow, Car car);

@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Parameters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -22,6 +23,8 @@ namespace Vodovoz.Additions.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";
@@ -242,7 +245,8 @@ namespace Vodovoz.Additions.Logistic
 					{ "RouteListId", routeList.Id },
 					{ "Print_date", printDatestr},
 					{ "RouteListDate", routeList.Date},
-					{ "need_terminal", needTerminal }
+					{ "need_terminal", needTerminal },
+					{ "phones", _generalSettingsParametersProvider.GetRouteListPrintedFormPhones}
 				}
 			};
 		}
