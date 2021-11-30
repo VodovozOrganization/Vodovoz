@@ -1,6 +1,7 @@
-﻿using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
+﻿using System;
+using Fias.Service;
+using Fias.Service.Loaders;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -11,6 +12,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
@@ -18,6 +20,13 @@ namespace Vodovoz.Factories
 {
 	public class DeliveryPointViewModelFactory : IDeliveryPointViewModelFactory
 	{
+		private readonly IFiasService _fiasService;
+
+		public DeliveryPointViewModelFactory(IFiasService fiasService)
+		{
+			_fiasService = fiasService ?? throw new ArgumentNullException(nameof(fiasService));
+		}
+
 		public DeliveryPointViewModel GetForOpenDeliveryPointViewModel(int id)
 		{
 			var controller = new NomenclatureFixedPriceController(
@@ -32,9 +41,9 @@ namespace Vodovoz.Factories
 				new GtkTabsOpener(),
 				new PhoneRepository(),
 				ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()),
-				new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
+				new CitiesDataLoader(_fiasService),
+				new StreetsDataLoader(_fiasService),
+				new HousesDataLoader(_fiasService),
 				new NomenclatureSelectorFactory(),
 				controller,
 				new DeliveryPointRepository(),
@@ -60,9 +69,9 @@ namespace Vodovoz.Factories
 				new GtkTabsOpener(),
 				new PhoneRepository(),
 				ContactParametersProvider.Instance,
-				new CitiesDataLoader(OsmWorker.GetOsmService()),
-				new StreetsDataLoader(OsmWorker.GetOsmService()),
-				new HousesDataLoader(OsmWorker.GetOsmService()),
+				new CitiesDataLoader(_fiasService),
+				new StreetsDataLoader(_fiasService),
+				new HousesDataLoader(_fiasService),
 				new NomenclatureSelectorFactory(),
 				controller,
 				new DeliveryPointRepository(),

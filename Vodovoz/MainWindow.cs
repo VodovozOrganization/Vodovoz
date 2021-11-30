@@ -102,6 +102,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels;
 using System.Runtime.InteropServices;
+using Fias.Service;
 using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -111,9 +112,6 @@ using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Dialog;
-using QS.Osm;
-using QS.Osm.Loaders;
-using QS.Osm.Osrm;
 using QS.Project.Repositories;
 using QS.Report.ViewModels;
 using QS.ViewModels;
@@ -1212,9 +1210,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
+		IParametersProvider parametersProvider = new ParametersProvider();
+		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+		IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg()
+			() => new MergeAddressesDlg(fiasService)
 		);
 	}
 
