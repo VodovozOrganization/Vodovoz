@@ -4,7 +4,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +14,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
-using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -811,5 +808,21 @@ namespace Vodovoz.EntityRepositories.Orders
         {
 			return unitOfWork.GetById<VodovozOrder>(orderId);
         }
+
+		public int? GetMaxOrderDailyNumberForDate(IUnitOfWork uow, DateTime deliveryDate)
+		{
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.DeliveryDate == deliveryDate)
+				.Select(Projections.Max<VodovozOrder>(o => o.DailyNumber))
+				.SingleOrDefault<int?>();
+		}
+		
+		public DateTime? GetOrderDeliveryDate(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.Id == orderId)
+				.Select(o => o.DeliveryDate)
+				.SingleOrDefault<DateTime?>();
+		}
     }
 }

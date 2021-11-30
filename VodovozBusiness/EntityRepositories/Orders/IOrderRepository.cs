@@ -147,7 +147,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
-    }
+		int? GetMaxOrderDailyNumberForDate(IUnitOfWork uow, DateTime deliveryDate);
+		DateTime? GetOrderDeliveryDate(IUnitOfWork uow, int orderId);
+	}
 
 	public class ClientEquipmentNode
 	{

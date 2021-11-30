@@ -548,8 +548,7 @@ namespace Vodovoz.Domain.Orders
 		private int? dailyNumber;
 
 		/// <summary>
-		/// Уникапльный номер в передлах одного дня.
-		/// ВАЖНО! Номер генерируется и изменяется на стороне БД
+		/// Уникальный номер в пределах одного дня
 		/// </summary>
 		[Display(Name = "Ежедневный номер")]
 		public virtual int? DailyNumber {
@@ -3654,7 +3653,7 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
+		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee, IOrderDailyNumberController orderDailyNumberController)
 		{
 			SetFirstOrder();
 			if(Contract == null)
@@ -3665,6 +3664,7 @@ namespace Vodovoz.Domain.Orders
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();
+			orderDailyNumberController.UpdateDailyNumber(this);
 			uow.Save();
 		}
 		
