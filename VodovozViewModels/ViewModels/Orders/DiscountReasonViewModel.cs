@@ -22,8 +22,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
 		private readonly IEntityAutocompleteSelectorFactory _nomenclatureAutocompleteSelectorFactory;
-		private object _selectedNomenclature;
-		private object _selectedProductGroup;
+		private Nomenclature _selectedNomenclature;
+		private ProductGroup _selectedProductGroup;
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addProductGroupCommand;
 		private DelegateCommand _removeNomenclatureCommand;
@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool IsProductGroupSelected => SelectedProductGroup != null;
 		public bool CanChangeDiscountReasonName => Entity.Id == 0;
 
-		public object SelectedNomenclature
+		public Nomenclature SelectedNomenclature
 		{
 			get => _selectedNomenclature;
 			set
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			} 
 		}
 		
-		public object SelectedProductGroup
+		public ProductGroup SelectedProductGroup
 		{
 			get => _selectedProductGroup;
 			set
@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand RemoveNomenclatureCommand => _removeNomenclatureCommand ?? (_removeNomenclatureCommand = new DelegateCommand(
 					() =>
 					{
-						Entity.RemoveNomenclature(_selectedNomenclature as Nomenclature);
+						Entity.RemoveNomenclature(_selectedNomenclature);
 					}
 				)
 			);
@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand RemoveProductGroupCommand => _removeProductGroupCommand ?? (_removeProductGroupCommand = new DelegateCommand(
 				() =>
 				{
-					Entity.RemoveProductGroup(_selectedProductGroup as ProductGroup);
+					Entity.RemoveProductGroup(_selectedProductGroup);
 				}
 			)
 		);
