@@ -1096,6 +1096,7 @@
     <DataSet Name="Orders">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     o.delivery_date AS order_date,
     o.id AS order_id,
@@ -1311,7 +1312,7 @@ ORDER BY order_satus_numbered DESC
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
@@ -1366,7 +1367,7 @@ ORDER BY pbco.date_and_time DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
