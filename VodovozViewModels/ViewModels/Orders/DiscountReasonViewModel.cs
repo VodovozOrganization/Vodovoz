@@ -140,10 +140,34 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						foreach(var node in SelectableNomenclatureCategoryNodes)
 						{
 							node.IsSelected = selected;
+							UpdateNomenclatureCategories(node);
 						}
 					}
 				)
 			);
+		
+		public override bool Save(bool close)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				if(_discountReasonRepository.ExistsActiveDiscountReasonWithName(
+					uow, Entity.Id, Entity.Name, out var activeDiscountReasonWithSameName))
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Уже существует основание для скидки с таким названием.\n" +
+						"Сохранение текущего основания невозможно.\n" +
+						"Существующее основание:\n" +
+						$"Код: {activeDiscountReasonWithSameName.Id}\n" +
+						$"Название: {activeDiscountReasonWithSameName.Name}");
+					return false;
+				}
+			}
+			
+			return base.Save(close);
+		}
+
+		public void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory) =>
+			Entity.UpdateNomenclatureCategories(selectedCategory);
 		
 		private void InitializeNomenclatureCategoriesList()
 		{
@@ -163,26 +187,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				DiscountReasonNomenclatureCategory = discountNomenclatureCategory,
 				IsSelected = Entity.NomenclatureCategories.Contains(discountNomenclatureCategory)
 			};
-		}
-
-		public override bool Save(bool close)
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				if(_discountReasonRepository.ExistsActiveDiscountReasonWithName(
-					uow, Entity.Id, Entity.Name, out var activeDiscountReasonWithSameName))
-				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Уже существует основание для скидки с таким названием.\n" +
-						"Сохранение текущего основания невозможно.\n" +
-						"Существующее основание:\n" +
-						$"Код: {activeDiscountReasonWithSameName.Id}\n" +
-						$"Название: {activeDiscountReasonWithSameName.Name}");
-					return false;
-				}
-			}
-			
-			return base.Save(close);
 		}
 	}
 }

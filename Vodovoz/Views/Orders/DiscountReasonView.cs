@@ -74,14 +74,7 @@ namespace Vodovoz.Views.Orders
 					return;
 				}
 				
-				if(selectedCategory.IsSelected)
-				{
-					ViewModel.Entity.NomenclatureCategories.Add(selectedCategory.DiscountReasonNomenclatureCategory);
-				}
-				else
-				{
-					ViewModel.Entity.NomenclatureCategories.Remove(selectedCategory.DiscountReasonNomenclatureCategory);
-				}
+				ViewModel.UpdateNomenclatureCategories(selectedCategory);
 			});
 		}
 

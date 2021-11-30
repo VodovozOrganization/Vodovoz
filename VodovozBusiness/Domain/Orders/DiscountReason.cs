@@ -154,6 +154,34 @@ namespace Vodovoz.Domain.Orders
 				ObservableNomenclatures.Remove(nomenclature);
 			}
 		}
+		
+		public virtual void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory)
+		{
+			if(selectedCategory.IsSelected)
+			{
+				AddNomenclatureCategory(selectedCategory);
+			}
+			else
+			{
+				RemoveNomenclatureCategory(selectedCategory);
+			}
+		}
+
+		private void AddNomenclatureCategory(SelectableNomenclatureCategoryNode selectedCategory)
+		{
+			if(!NomenclatureCategories.Contains(selectedCategory.DiscountReasonNomenclatureCategory))
+			{
+				NomenclatureCategories.Add(selectedCategory.DiscountReasonNomenclatureCategory);
+			}
+		}
+		
+		private void RemoveNomenclatureCategory(SelectableNomenclatureCategoryNode selectedCategory)
+		{
+			if(NomenclatureCategories.Contains(selectedCategory.DiscountReasonNomenclatureCategory))
+			{
+				NomenclatureCategories.Remove(selectedCategory.DiscountReasonNomenclatureCategory);
+			}
+		}
 	}
 
 	public class DiscountUnitTypeStringType : NHibernate.Type.EnumStringType
