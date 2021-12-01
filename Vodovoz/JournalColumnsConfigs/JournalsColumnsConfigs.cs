@@ -628,8 +628,8 @@ namespace Vodovoz.JournalColumnsConfigs
 			//DeliveryPointJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DeliveryPointJournalViewModel>(
 				() => FluentColumnsConfig<DeliveryPointJournalNode>.Create()
-					.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да" : "")
-					.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да" : "")
+					.AddColumn("ФИАС").AddTextRenderer(x => x.FoundInFias ? "Да" : "")
+					.AddColumn("Испр.").AddTextRenderer(x => x.FixedInFias ? "Да" : "")
 					.AddColumn("Адрес")
 						.AddTextRenderer(node => node.CompiledAddress)
 						.WrapMode(Pango.WrapMode.WordChar)
