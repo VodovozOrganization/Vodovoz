@@ -4,6 +4,7 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
 using System.Linq;
+using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -147,7 +148,8 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
 		{
-			var selectGeographicGroups = new OrmReference(typeof(GeographicGroup), ViewModel.UoW)
+			var selectGeographicGroups = new OrmReference(
+				QueryOver.Of<GeographicGroup>().Where(gg => gg.Id != ViewModel.EastGeographicGroupId))
 			{
 				Mode = OrmReferenceMode.MultiSelect
 			};

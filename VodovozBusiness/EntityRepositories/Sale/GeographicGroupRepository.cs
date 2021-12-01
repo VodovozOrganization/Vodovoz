@@ -4,6 +4,7 @@ using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Sale
 {
@@ -33,6 +34,15 @@ namespace Vodovoz.EntityRepositories.Sale
 			return GeographicGroupsWithCoordinatesQuery()
 							.GetExecutableQueryOver(uow.Session)
 							.List();
+		}
+		
+		public IList<GeographicGroup> GeographicGroupsWithCoordinatesExceptEast(
+			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
+		{
+			return uow.Session.QueryOver<GeographicGroup>()
+				.Where(gg => gg.BaseLatitude != null && gg.BaseLongitude != null)
+				.And(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId)
+				.List();
 		}
 	}
 }

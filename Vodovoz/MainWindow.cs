@@ -227,6 +227,9 @@ public partial class MainWindow : Gtk.Window
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
+		
+		//Скрываем справочник стажеров
+		ActionTrainee.Visible = false;
 
 		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
 		ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
