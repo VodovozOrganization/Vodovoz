@@ -133,13 +133,13 @@ namespace VodovozFiasWidgets
 				return;
 			}
 
-			if(StreetGuid != Guid.Empty)
+			if(StreetGuid != null)
 			{
 				HousesDataLoader.LoadHouses(Text, StreetGuid);
 				return;
 			}
 
-			if(CityGuid != Guid.Empty)
+			if(CityGuid != null)
 			{
 				HousesDataLoader.LoadHouses(Text, null, CityGuid);
 			}

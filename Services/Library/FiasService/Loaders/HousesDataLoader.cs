@@ -51,6 +51,10 @@ namespace Fias.Service.Loaders
 			{
 				CurrentLoadTask = Task.Run(() => Fias.GetHousesFromCityByCriteria((Guid)cityGuid, searchString), cancelTokenSource.Token);
 			}
+			else
+			{
+				return;
+			}
 
 			CurrentLoadTask.ContinueWith(SaveHouses, cancelTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 
