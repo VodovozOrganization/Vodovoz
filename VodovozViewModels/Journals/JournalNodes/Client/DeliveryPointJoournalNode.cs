@@ -11,8 +11,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
 		public string Address1c { get; set; }
 		public string Counterparty { get; set; }
 		public bool IsActive { get; set; }
-		public bool FoundOnOsm { get; set; }
-		public bool FixedInOsm { get; set; }
+		public bool FoundInFias { get; set; }
+		public bool FixedInFias { get; set; }
 		public string RowColor => IsActive ? "black" : "grey";
 		public string IdString => Id.ToString();
 	}

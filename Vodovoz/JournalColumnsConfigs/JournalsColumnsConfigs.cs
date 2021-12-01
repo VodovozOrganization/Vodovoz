@@ -40,6 +40,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
+using Vodovoz.ViewModels.Journals.JournalNodes.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -48,6 +49,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -626,8 +628,8 @@ namespace Vodovoz.JournalColumnsConfigs
 			//DeliveryPointJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DeliveryPointJournalViewModel>(
 				() => FluentColumnsConfig<DeliveryPointJournalNode>.Create()
-					.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да" : "")
-					.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да" : "")
+					.AddColumn("ФИАС").AddTextRenderer(x => x.FoundInFias ? "Да" : "")
+					.AddColumn("Испр.").AddTextRenderer(x => x.FixedInFias ? "Да" : "")
 					.AddColumn("Адрес")
 						.AddTextRenderer(node => node.CompiledAddress)
 						.WrapMode(Pango.WrapMode.WordChar)
@@ -1348,6 +1350,38 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer (node => node.AvailableText)
 						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
 					.AddColumn("")
+					.Finish()
+			);
+			
+			//ComplaintResultsOfCounterpartyJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintResultsOfCounterpartyJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintResultsOfCounterpartyJournalNode>.Create()
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(node => node.IsArchive)
+						.Editing(false)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((cell, node) => cell.Foreground = node.IsArchive ? "grey" : "black")
+					.Finish()
+			);
+			
+			//ComplaintResultsOfEmployeesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintResultsOfEmployeesJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintResultsOfEmployeesJournalNode>.Create()
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(node => node.IsArchive)
+						.Editing(false)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((cell, node) => cell.Foreground = node.IsArchive ? "grey" : "black")
 					.Finish()
 			);
 		}

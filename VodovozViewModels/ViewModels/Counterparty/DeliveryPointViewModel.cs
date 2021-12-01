@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fias.Service.Loaders;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;

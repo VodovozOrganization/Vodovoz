@@ -35,6 +35,10 @@ namespace Vodovoz.Domain.Client
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
 		private bool? _isBeforeIntervalDelivery;
+		private Guid? _cityFiasGuid;
+		private Guid? _streetFiasGuid;
+		private string _streetTypeShort;
+		private Guid? _buildingFiasGuid;
 
 		#region Свойства
 
@@ -103,7 +107,9 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityType.GetEnumShortTitle()} {City}, ";
+					address += $"{LocalityTypeShort}. {City}, ";
+				if(!string.IsNullOrWhiteSpace(StreetType))
+					address += $"{StreetType.ToLower()} ";
 				if(!string.IsNullOrWhiteSpace(Street))
 					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
@@ -129,7 +135,9 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityType.GetEnumShortTitle()} {City}, ";
+					address += $"{LocalityTypeShort}. {City}, ";
+				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
+					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))
 					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
@@ -152,10 +160,12 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = string.Empty;
-				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
-					address += $"{LocalityType.GetEnumShortTitle()} {AddressHelper.ShortenCity(City)}, ";
+				if(!string.IsNullOrWhiteSpace(City))
+					address += $"{LocalityTypeShort} {City}, ";
+				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
+					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))
-					address += $"{AddressHelper.ShortenStreet(Street)}, ";
+					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
 					address += $"д.{Building}, ";
 				if(!string.IsNullOrWhiteSpace(Letter))
@@ -171,26 +181,49 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		public virtual Guid? CityFiasGuid
+		{
+			get => _cityFiasGuid;
+			set => SetField(ref _cityFiasGuid, value);
+		}
+
+		public virtual Guid? StreetFiasGuid
+		{
+			get => _streetFiasGuid;
+			set => SetField(ref _streetFiasGuid, value);
+		}
+
+		public virtual Guid? BuildingFiasGuid
+		{
+			get => _buildingFiasGuid;
+			set => SetField(ref _buildingFiasGuid, value);
+		}
+		
 		string city;
 
 		[Display(Name = "Город")]
-		public virtual string City {
+		public virtual string City
+		{
 			get => city;
-			set {
-				if(SetField(ref city, value, () => City)) {
-					Building = null;
-					Street = null;
-					StreetDistrict = null;
-				}
-			}
+			set => SetField(ref city, value);
 		}
 
-		LocalityType localityType;
+		string localityType;
 
 		[Display(Name = "Тип населенного пункта")]
-		public virtual LocalityType LocalityType {
+		public virtual string LocalityType
+		{
 			get => localityType;
-			set => SetField(ref localityType, value, () => LocalityType);
+			set => SetField(ref localityType, value);
+		}
+
+		string _localityTypeShort;
+
+		[Display(Name = "Тип населенного пункта (сокращ.)")]
+		public virtual string LocalityTypeShort
+		{
+			get => _localityTypeShort;
+			set => SetField(ref _localityTypeShort, value, () => LocalityTypeShort);
 		}
 
 		string cityDistrict;
@@ -207,6 +240,22 @@ namespace Vodovoz.Domain.Client
 		public virtual string Street {
 			get => street;
 			set => SetField(ref street, value, () => Street);
+		}
+
+		string streetType;
+
+		[Display(Name = "Тип улицы")]
+		public virtual string StreetType
+		{
+			get => streetType;
+			set => SetField(ref streetType, value);
+		}
+
+		[Display(Name = "Тип улицы (сокр.)")]
+		public virtual string StreetTypeShort
+		{
+			get => _streetTypeShort;
+			set => SetField(ref _streetTypeShort, value);
 		}
 
 		string streetDistrict;
@@ -649,7 +698,7 @@ namespace Vodovoz.Domain.Client
 		{
 			CompiledAddress = string.Empty;
 			City = "Санкт-Петербург";
-			LocalityType = LocalityType.city;
+			LocalityType = "Город";
 			Street = string.Empty;
 			Building = string.Empty;
 			Room = string.Empty;

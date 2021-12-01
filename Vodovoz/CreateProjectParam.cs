@@ -96,6 +96,7 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
@@ -192,7 +193,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CreateComplaintViewModel, CreateComplaintView>()
 				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
 				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
-				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultView>()
+				.RegisterWidgetForTabViewModel<ComplaintResultOfCounterpartyViewModel, ComplaintResultOfCounterpartyView>()
+				.RegisterWidgetForTabViewModel<ComplaintResultOfEmployeesViewModel, ComplaintResultOfEmployeesView>()
 				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
 				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
 				.RegisterWidgetForTabViewModel<RequestToSupplierViewModel, RequestToSupplierView>()
