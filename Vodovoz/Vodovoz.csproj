@@ -1823,7 +1823,7 @@
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
-      <Project>{7936ec8a-ae6d-4c17-8be2-fb5861987b16}</Project>
+      <Project>{f07f6926-f868-44f4-a9b9-3a366d41281c}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
