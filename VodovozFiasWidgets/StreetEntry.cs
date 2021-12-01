@@ -28,7 +28,7 @@ namespace VodovozFiasWidgets
 		{
 			Binding = new BindingControler<StreetEntry>(this, new Expression<Func<StreetEntry, object>>[]
 			{
-				w => w.FiasGuid, w => w.StreetName, w=>w.StreetDistrict, w => w.StreetTypeName, w => w.StreetTypeNameShort
+				w => w.FiasGuid, w => w.StreetName, w => w.StreetDistrict, w => w.StreetTypeName, w => w.StreetTypeNameShort
 			});
 
 			Completion = new EntryCompletion();
@@ -69,7 +69,7 @@ namespace VodovozFiasWidgets
 
 		private void EntryTextChanges(object o, TextInsertedArgs args)
 		{
-			if(CityGuid != Guid.Empty)
+			if(CityGuid != null)
 			{
 				if(_firstCompletion)
 				{
