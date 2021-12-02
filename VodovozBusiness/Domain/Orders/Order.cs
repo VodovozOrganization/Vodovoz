@@ -1089,7 +1089,7 @@ namespace Vodovoz.Domain.Orders
                 if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
                     yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
-            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(!SelfDelivery && DeliveryPoint == null)
@@ -1427,30 +1427,43 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		private DiscountReason GetDiscountReasonStockBottle(
+			IOrderParametersProvider orderParametersProvider, decimal discount)
+		{
+			var reasonId = discount == 10m
+				? orderParametersProvider.GetDiscountReasonStockBottle10PercentsId
+				: orderParametersProvider.GetDiscountReasonStockBottle20PercentsId;
+			
+			var discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId)
+				?? throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
+			
+			return discountReasonStockBottle;
+		}
+		
 		/// <summary>
 		/// Рассчитывает скидки в товарах по акции "Бутыль"
 		/// </summary>
-		public virtual void CalculateBottlesStockDiscounts(IStandartDiscountsService standartDiscountsService, bool byActualCount = false)
+		public virtual void CalculateBottlesStockDiscounts(IOrderParametersProvider orderParametersProvider, bool byActualCount = false)
 		{
-			if(standartDiscountsService == null) {
-				throw new ArgumentNullException(nameof(standartDiscountsService));
+			if(orderParametersProvider == null) {
+				throw new ArgumentNullException(nameof(orderParametersProvider));
 			}
-			var reasonId = standartDiscountsService.GetDiscountForStockBottle();
-			DiscountReason discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId);
-			if(discountReasonStockBottle == null) {
-				throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
-			}
-
+			
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal discountForStock = 0m;
-
-			if(bottlesByStock == Total19LBottlesToDeliver) {
+			DiscountReason discountReasonStockBottle = null;
+			
+			if(bottlesByStock == Total19LBottlesToDeliver)
+			{
 				discountForStock = 10m;
+				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
 			}
-			if(bottlesByStock > Total19LBottlesToDeliver) {
+			if(bottlesByStock > Total19LBottlesToDeliver)
+			{
 				discountForStock = 20m;
+				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
 			}
-
+			
 			foreach(OrderItem item in ObservableOrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
@@ -1491,13 +1504,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void RecalculateStockBottles(IStandartDiscountsService standartDiscountsService)
+		public virtual void RecalculateStockBottles(IOrderParametersProvider orderParametersProvider)
 		{
 			if(!IsBottleStock) {
 				BottlesByStockCount = 0;
 				BottlesByStockActualCount = 0;
 			}
-			CalculateBottlesStockDiscounts(standartDiscountsService);
+			CalculateBottlesStockDiscounts(orderParametersProvider);
 		}
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
@@ -1707,8 +1720,10 @@ namespace Vodovoz.Domain.Orders
 					reason = null;
 			}
 
-			if(discount > 0 && reason == null)
+			if(discount > 0 && reason == null && proSet == null)
+			{
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
+			}	
 
 			decimal price = GetWaterPrice(nomenclature, proSet, count);
 			
@@ -3963,39 +3978,6 @@ namespace Vodovoz.Domain.Orders
 		
 		#endregion Аренда
 		
-		#region работа со скидками
-		public virtual void SetDiscountUnitsForAll(DiscountUnits unit)
-		{
-			foreach(OrderItem i in ObservableOrderItems) {
-				i.IsDiscountInMoney = unit == DiscountUnits.money;
-			}
-		}
-
-		/// <summary>
-		/// Устанавливает скидку в рублях или процентах.
-		/// Если скидка в %, то просто применяется к каждой строке заказа,
-		/// а если в рублях - расчитывается % в зависимости от суммы заказа и рублёвой скидки
-		/// и применяется этот % аналогично случаю с процентной скидкой.
-		/// </summary>
-		/// <param name="reason">Причина для скидки.</param>
-		/// <param name="discount">Значение скидки.</param>
-		/// <param name="unit">рубли или %.</param>
-		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit)
-		{
-			if(unit == DiscountUnits.money) {
-				var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-				if(sum == 0)
-					return;
-				discount = 100 * discount / sum;
-			}
-			foreach(OrderItem item in ObservableOrderItems) {
-				item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
-				item.DiscountReason = reason;
-			}
-		}
-
-		#endregion
-
 		#region Акции
 
 		/// <summary>

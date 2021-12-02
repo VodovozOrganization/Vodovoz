@@ -123,6 +123,7 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -555,7 +556,10 @@ public partial class MainWindow : Gtk.Window
 			{
 				return new DiscountReasonJournalViewModel(
 					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
+					ServicesConfig.CommonServices,
+					new DiscountReasonRepository(),
+					new ProductGroupJournalFactory(),
+					new NomenclatureSelectorFactory()
 				);
 			}
 		);
@@ -1596,7 +1600,7 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new DiscountReasonRepository()))
 		);
 	}
 
@@ -1694,7 +1698,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new DiscountReasonRepository()))
 		);
 	}
 

@@ -37,16 +37,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
-
-		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
-
-		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
 		/// <returns>Список оборудования от клиенту</returns>

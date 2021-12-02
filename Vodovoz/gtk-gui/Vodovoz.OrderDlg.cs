@@ -1912,7 +1912,7 @@ namespace Vodovoz
 			this.ycomboboxReason.AddIfNotExist = false;
 			this.ycomboboxReason.DefaultFirst = false;
 			this.ycomboboxReason.ShowSpecialStateAll = false;
-			this.ycomboboxReason.ShowSpecialStateNot = false;
+			this.ycomboboxReason.ShowSpecialStateNot = true;
 			this.hbox10.Add(this.ycomboboxReason);
 			global::Gtk.Box.BoxChild w135 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ycomboboxReason]));
 			w135.Position = 5;
@@ -3065,7 +3065,6 @@ namespace Vodovoz
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
 			this.btnDeleteOrderItem.Clicked += new global::System.EventHandler(this.OnBtnDeleteOrderItemClicked);
-			this.ycomboboxReason.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYcomboboxReasonItemSelected);
 			this.enumDiscountUnit.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs>(this.OnEnumDiscountUnitEnumItemSelected);
 			this.spinDiscount.ValueChanged += new global::System.EventHandler(this.OnSpinDiscountValueChanged);
 			this.buttonDeposits.Clicked += new global::System.EventHandler(this.OnButtonDepositsClicked);

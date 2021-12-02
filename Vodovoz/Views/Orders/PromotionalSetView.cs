@@ -17,16 +17,15 @@ namespace Vodovoz.Views.Orders
 
 		private void ConfigureDlg()
 		{
-			yCmbDiscountReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			yCmbDiscountReason.Binding.AddBinding(ViewModel, vm => vm.DiscountReasonSource, cmb => cmb.ItemsList).InitializeFromSource();
-			yCmbDiscountReason.Binding.AddBinding(ViewModel, vm => vm.DiscountReason, w => w.SelectedItem).InitializeFromSource();
-			yCmbDiscountReason.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			yentryPromotionalSetName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryPromotionalSetName.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+
+			yentryDiscountReason.Binding.AddBinding(ViewModel.Entity, e => e.DiscountReasonInfo, w => w.Text).InitializeFromSource();
+			yentryDiscountReason.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active).InitializeFromSource();
 			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
