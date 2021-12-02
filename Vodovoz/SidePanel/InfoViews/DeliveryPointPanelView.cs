@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Fias.Service;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -12,6 +13,8 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewWidgets.Mango;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
@@ -24,12 +27,16 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		DeliveryPoint DeliveryPoint { get; set; }
 
 		public DeliveryPointPanelView()
 		{
 			this.Build();
+			IParametersProvider parametersProvider = new ParametersProvider();
+			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+			IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
 			Configure();
 		}
 

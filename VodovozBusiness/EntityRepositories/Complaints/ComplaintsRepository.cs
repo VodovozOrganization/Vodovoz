@@ -4,9 +4,11 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 
 namespace Vodovoz.EntityRepositories.Complaints
 {
@@ -73,34 +75,6 @@ namespace Vodovoz.EntityRepositories.Complaints
 				query.Where(c => c.PlannedCompletionDate >= DateTime.Today);
 
 			return query.Select(Projections.Count<Complaint>(c => c.Id)).SingleOrDefault<int>();
-		}
-
-		public IList<object[]> GetComplaintsResults(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
-		{
-			ComplaintResult complaintResultAlias = null;
-
-			var query = uow.Session.QueryOver<Complaint>()
-						   .Left.JoinAlias(c => c.ComplaintResult, () => complaintResultAlias)
-						   .Where(c => c.Status == ComplaintStatuses.Closed)
-						   ;
-
-			if(start != null && end != null)
-				query.Where(c => c.CreationDate >= start)
-					 .Where(c => c.CreationDate <= end);
-
-			var result = query.SelectList(list => list
-										  .SelectGroup(() => complaintResultAlias.Name)
-										  .Select(
-										  		Projections.SqlFunction(
-													new SQLFunctionTemplate(NHibernateUtil.Int32, "COUNT(IFNULL(?1, 0))"),
-													NHibernateUtil.Int32,
-													Projections.Property(() => complaintResultAlias.Id)
-												)
-										  ))
-							  .List<object[]>()
-							  ;
-
-			return result;
 		}
 
 		public IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork)
