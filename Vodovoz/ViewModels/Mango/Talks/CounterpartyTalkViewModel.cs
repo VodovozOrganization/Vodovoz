@@ -8,6 +8,7 @@ using QS.Project.Domain;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -107,9 +108,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 		public void NewClientCommand()
 		{
-			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg>(this);
-			var tab = page.TdiTab as CounterpartyDlg;
-			page.PageClosed += NewCounerpatry_PageClosed;
+			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg, Phone>(this, ActiveCall.Phone);
+			page.PageClosed += OnNewCounterpartyPageClosed;
 		}
 
 		public void ExistingClientCommand()
@@ -119,14 +119,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
 		}
 
-		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		private void OnNewCounterpartyPageClosed(object sender, PageClosedEventArgs e)
 		{
-			if(e.CloseSource == CloseSource.Save) {
-				List<Counterparty> clients = new List<Counterparty>();
+			if(e.CloseSource == CloseSource.Save)
+			{
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
-				client.Phones.Add(ActiveCall.Phone);
-				clients.Add(client);
-				_uow.Save<Counterparty>(client);
 				
 				CounterpartyOrderViewModel model = 
 					new CounterpartyOrderViewModel(
@@ -146,7 +143,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
 			}
-			(sender as IPage).PageClosed -= NewCounerpatry_PageClosed;
+			(sender as IPage).PageClosed -= OnNewCounterpartyPageClosed;
 		}
 
 		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)

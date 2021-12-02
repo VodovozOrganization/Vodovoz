@@ -16,7 +16,6 @@ using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
-using QS.Osm;
 using QS.Tools;
 using SmsPaymentService;
 using System.Security.Principal;
@@ -152,9 +151,6 @@ namespace Vodovoz
 
 			DatePicker.CalendarFontSize = 16;
 			DateRangePicker.CalendarFontSize = 16;
-
-			OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
-			OsmWorker.ServicePort = 7073;
 
 			QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			

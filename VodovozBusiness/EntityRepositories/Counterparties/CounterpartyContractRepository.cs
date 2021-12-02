@@ -82,12 +82,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					}else {
 						return ContractType.CashFL;
 					}
-				case PaymentType.BeveragesWorld:
-					if(clientType == PersonType.legal) {
-						return ContractType.CashBeveragesUL;
-					} else {
-						return ContractType.CashBeveragesFL;
-					}
 				case PaymentType.cashless:
 				case PaymentType.ContractDoc:
 					return ContractType.Cashless;
@@ -97,7 +91,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					return ContractType.Cashless;
 			}
 		}
-
 	}
 }
 

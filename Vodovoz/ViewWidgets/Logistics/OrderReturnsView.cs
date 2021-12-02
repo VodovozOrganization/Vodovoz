@@ -364,7 +364,6 @@ namespace Vodovoz
 				.Finish();
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
-			yenumcomboOrderPayment.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
 			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();

@@ -206,7 +206,7 @@ namespace Vodovoz.Domain.Logistic
 				if(!IsDelivered()) {
 					return 0;
 				}
-				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+				if(Order.PaymentType != PaymentType.cash) {
 					return 0;
 				}
 				return Order.OrderCashSum + OldBottleDepositsCollected + OldEquipmentDepositsCollected + ExtraCash;

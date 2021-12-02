@@ -24,6 +24,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
@@ -392,7 +393,6 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
-						case PaymentType.BeveragesWorld:
 						case PaymentType.ContractDoc:
 							OnlineOrder = null;
 							PaymentByCardFrom = null;
@@ -888,6 +888,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private Organization _ourOrganization;
+		[Display(Name = "Наша организация")]
+		public virtual Organization OurOrganization
+		{
+			get => _ourOrganization;
+			set => SetField(ref _ourOrganization, value);
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -957,7 +965,8 @@ namespace Vodovoz.Domain.Orders
 					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
-					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.OrderSum > 0m)
+
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash) && this.OrderSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
@@ -1225,8 +1234,9 @@ namespace Vodovoz.Domain.Orders
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
-		public virtual decimal OrderCashSum {
-			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSum : 0;
+		public virtual decimal OrderCashSum 
+		{
+			get => PaymentType == PaymentType.cash ? OrderSum : 0;
 			protected set {; }
 		}
 
@@ -1580,6 +1590,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			Contract = counterpartyContract;
+			
 			foreach(var orderItem in OrderItems)
 			{
 				orderItem.CalculateVATType();
@@ -2907,7 +2918,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld)
+			if(PaymentType != PaymentType.cash)
 				return;
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
@@ -3242,9 +3253,9 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
-			switch(PaymentType) {
+			switch(PaymentType)
+			{
 				case PaymentType.cash:
-				case PaymentType.BeveragesWorld:
 					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
@@ -3287,9 +3298,9 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
-			switch(PaymentType) {
+			switch(PaymentType)
+			{
 				case PaymentType.cash:
-				case PaymentType.BeveragesWorld:
 					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
 					break;
 				case PaymentType.cashless:

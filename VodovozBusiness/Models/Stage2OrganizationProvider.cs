@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -29,8 +29,22 @@ namespace Vodovoz.Models
 			_geographicGroupParametersProvider = geographicGroupParametersProvider
 				?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
 		}
-
-		public Organization GetOrganization(IUnitOfWork uow, Order order)
+		
+		/// <summary>
+		/// Метод подбора организации.
+		/// Если в заказе установлена наша организация - берем ее,
+		/// Иначе, если у клиента прописана организация с которой он работает - возвращаем ее
+		/// Иначе подбираем организацию по параметрам: если заполнены параметры paymentFrom и paymentType,
+		/// то они берутся для подбора организации вместо соответствующих полей заказа
+		/// </summary>
+		/// <param name="uow">Unit Of Work</param>
+		/// <param name="order">Заказ, для которого подбираем организацию</param>
+		/// <param name="paymentFrom">Откуда произведена оплата, если не null берем его для подбора организации</param>
+		/// <param name="paymentType">Тип оплаты, если не null берем его для подбора организации</param>
+		/// <returns>Организация для заказа</returns>
+		/// <exception cref="ArgumentNullException">Исключение при order = null</exception>
+		/// <exception cref="InvalidOperationException">Исключение при дате доставки = null</exception>
+		public Organization GetOrganization(IUnitOfWork uow, Order order, PaymentFrom paymentFrom = null, PaymentType? paymentType = null)
 		{
 			if(order == null)
 			{
@@ -41,13 +55,60 @@ namespace Vodovoz.Models
 				throw new InvalidOperationException("Order delivery date cannot be null");
 			}
 
+			if(order.OurOrganization != null)
+			{
+				return order.OurOrganization;
+			}
+			if(order.Client.WorksThroughOrganization != null)
+			{
+				return order.Client.WorksThroughOrganization;
+			}
+
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
-			return GetOrganization(uow, order.PaymentType, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
+
+			if(paymentFrom != null && paymentType != null)
+			{
+				return GetOrganizationForOrderParameters(uow, paymentType.Value, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
+					paymentFrom, order.DeliveryPoint?.District?.GeographicGroup);
+			}
+			
+			return GetOrganizationForOrderParameters(uow, order.PaymentType, isSelfDelivery, order.DeliveryDate.Value, order.OrderItems,
 				order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup);
 		}
+		
+		public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
+		{
+			if(uow == null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+			if(order == null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
 
-		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime deliveryDate,
-			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
+			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
+				? _organizationParametersProvider.VodovozSouthOrganizationId
+				: _organizationParametersProvider.VodovozOrganizationId;
+
+			return uow.GetById<Organization>(organizationId);
+		}
+
+		/// <summary>
+		/// Подбор организации исходя из переданных параметров
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <param name="isSelfDelivery">Самовывоз, или нет</param>
+		/// <param name="deliveryDate">Дата доставки</param>
+		/// <param name="orderItems">Список строк заказа</param>
+		/// <param name="paymentFrom">Откуда произведена оплата</param>
+		/// <param name="geographicGroup">Часть города</param>
+		/// <returns>Организация для заказа</returns>
+		/// <exception cref="ArgumentNullException">Исключение при uow = null</exception>
+		private Organization GetOrganizationForOrderParameters(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
+			DateTime deliveryDate, IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null,
+			GeographicGroup geographicGroup = null)
 		{
 			if(uow == null)
 			{
@@ -83,9 +144,6 @@ namespace Vodovoz.Models
 					break;
 				case PaymentType.ByCard:
 					organizationId = GetOrganizationIdForByCard(paymentFrom, geographicGroup);
-					break;
-				case PaymentType.BeveragesWorld:
-					organizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
 					break;
 				default:
 					throw new NotSupportedException(
@@ -128,30 +186,9 @@ namespace Vodovoz.Models
 				case PaymentType.ByCard:
 					organizationId = GetOrganizationIdForByCard(paymentFrom, geographicGroup);
 					break;
-				case PaymentType.BeveragesWorld:
-					organizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
-					break;
 				default:
 					throw new NotSupportedException($"Тип оплаты {paymentType} не поддерживается, невозможно подобрать организацию.");
 			}
-
-			return uow.GetById<Organization>(organizationId);
-		}
-
-		public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
-		{
-			if(uow == null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-			if(order == null)
-			{
-				throw new ArgumentNullException(nameof(order));
-			}
-
-			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
-				? _organizationParametersProvider.VodovozSouthOrganizationId
-				: _organizationParametersProvider.VodovozOrganizationId;
 
 			return uow.GetById<Organization>(organizationId);
 		}
