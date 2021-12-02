@@ -64,7 +64,8 @@ namespace Vodovoz.FilterViewModels
 				commonServices,
 				subdivisionRepository,
 				employeeSelectorFactory.CreateEmployeeAutocompleteSelectorFactory(),
-				UoW
+				UoW,
+				true
 			);
 
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {

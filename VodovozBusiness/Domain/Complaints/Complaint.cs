@@ -140,11 +140,18 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref resultText, value, () => ResultText);
 		}
 
-		private ComplaintResult complaintResult;
-		[Display(Name = "Результат")]
-		public virtual ComplaintResult ComplaintResult {
-			get => complaintResult;
-			set => SetField(ref complaintResult, value, () => ComplaintResult);
+		private ComplaintResultOfCounterparty _complaintResultOfCounterparty;
+		[Display(Name = "Результат по клиенту")]
+		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty {
+			get => _complaintResultOfCounterparty;
+			set => SetField(ref _complaintResultOfCounterparty, value, () => ComplaintResultOfCounterparty);
+		}
+		
+		private ComplaintResultOfEmployees _complaintResultOfEmployees;
+		[Display(Name = "Результат по сотрудникам")]
+		public virtual ComplaintResultOfEmployees ComplaintResultOfEmployees {
+			get => _complaintResultOfEmployees;
+			set => SetField(ref _complaintResultOfEmployees, value);
 		}
 
 		private DateTime? actualCompletionDate;
@@ -304,17 +311,30 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)
 		{
-			var oldStatus = Status;
-			List<string> result = new List<string>();
-			if(newStatus == ComplaintStatuses.Closed) {
-				if(ComplaintResult == null)
-					result.Add("Заполните поле \"Итог работы\".");
+			IList<string> result = new List<string>();
+			if(newStatus == ComplaintStatuses.Closed)
+			{
+				if(ComplaintResultOfCounterparty == null)
+				{
+					result.Add("Заполните поле \"Итог работы по клиенту\".");
+				}
+				
+				if(ComplaintResultOfEmployees == null)
+				{
+					result.Add("Заполните поле \"Итог работы по сотрудникам\".");
+				}
+
 				if(string.IsNullOrWhiteSpace(ResultText))
+				{
 					result.Add("Заполните поле \"Результат\".");
+				}
 			}
 
 			if(!result.Any())
+			{
 				Status = newStatus;
+			}
+
 			return result;
 		}
 
@@ -356,17 +376,24 @@ namespace Vodovoz.Domain.Complaints
 				}
 			}
 
-			if(Status == ComplaintStatuses.Closed) {
-				if(ComplaintResult == null)
+			if(Status == ComplaintStatuses.Closed) 
+			{
+				if(ComplaintResultOfCounterparty == null)
+				{
 					yield return new ValidationResult(
-					"Заполните поле \"Итог работы\".",
-					new[] { this.GetPropertyName(o => o.ComplaintResult) }
-				);
+						"Заполните поле \"Итог работы по клиенту\".", new[] { nameof(ComplaintResultOfCounterparty) });
+				}
+				
+				if(ComplaintResultOfEmployees == null)
+				{
+					yield return new ValidationResult(
+						"Заполните поле \"Итог работы по сотрудникам\".", new[] { nameof(ComplaintResultOfEmployees) });
+				}
+
 				if(string.IsNullOrWhiteSpace(ResultText))
-					yield return new ValidationResult(
-						"Заполните поле \"Результат\".",
-						new[] { this.GetPropertyName(o => o.ComplaintResult) }
-					);
+				{
+					yield return new ValidationResult("Заполните поле \"Результат\".", new[] { nameof(ResultText) });
+				}
 			}
 		}
 
