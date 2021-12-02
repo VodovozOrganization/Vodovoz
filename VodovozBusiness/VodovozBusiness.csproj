@@ -187,7 +187,6 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\ClosedComplaintResultNode.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\ComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
-    <Compile Include="EntityRepositories\Counterparties\CounterpartyContractFactory.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />

@@ -95,7 +95,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.List<string>();
 		}
 
-		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld };
+		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash };
 
 		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
