@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Fias.Service.Loaders;
 using QS.Commands;
@@ -303,6 +304,23 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public DelegateCommand OpenCounterpartyCommand => _openCounterpartyCommand ?? (_openCounterpartyCommand = new DelegateCommand(
 			() => _gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id),
 			() => Entity.Counterparty != null
+		));
+
+		private DelegateCommand _openOnMap;
+
+		public DelegateCommand OpenOnMap => _openOnMap ?? (_openOnMap = new DelegateCommand(
+			() =>
+			{
+				NumberFormatInfo numberFormatInfo = new NumberFormatInfo
+				{
+					NumberDecimalSeparator = "."
+				};
+
+				var ln = Entity.Longitude.Value.ToString(numberFormatInfo);
+				var lt = Entity.Latitude.Value.ToString(numberFormatInfo);
+
+				System.Diagnostics.Process.Start($"https://yandex.ru/maps/?whatshere[point]={ln},{lt}&whatshere[zoom]=16");
+			}
 		));
 
 		#endregion

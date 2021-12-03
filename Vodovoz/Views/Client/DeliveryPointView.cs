@@ -66,18 +66,7 @@ namespace Vodovoz.Views.Client
 
 			ybuttonOpenOnMap.Binding.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible).InitializeFromSource();
 
-			ybuttonOpenOnMap.Clicked += (s, a) =>
-			{
-				NumberFormatInfo numberFormatInfo = new NumberFormatInfo
-				{
-					NumberDecimalSeparator = "."
-				};
-				
-				var ln = ViewModel.Entity.Longitude.Value.ToString(numberFormatInfo);
-				var lt = ViewModel.Entity.Latitude.Value.ToString(numberFormatInfo);
-
-				System.Diagnostics.Process.Start($"https://yandex.ru/maps/?whatshere[point]={ln},{lt}&whatshere[zoom]=16");
-			};
+			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMap.Execute();
 
 			#region Address entries
 
