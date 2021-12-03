@@ -23,10 +23,6 @@ namespace SmsPaymentService
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
-			if(!order.DeliveryDate.HasValue)
-			{
-				throw new InvalidOperationException("Order delivery date cannot be null");
-			}
 
 			var newSmsPaymentDTO = new SmsPaymentDTO
 			{
@@ -44,7 +40,7 @@ namespace SmsPaymentService
 						uow,
 						PaymentType.ByCard,
 						order.SelfDelivery,
-						order.DeliveryDate.Value,
+						order.CreateDate,
 						order.OrderItems,
 						paymentFrom,
 						order.DeliveryPoint?.District?.GeographicGroup
