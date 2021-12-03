@@ -42,8 +42,8 @@ namespace Vodovoz.Models
 				order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup);
 		}
 
-		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime? orderCreateDate = null,
-			IEnumerable<OrderItem> orderItems = null, PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
+		public Organization GetOrganization(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery, DateTime? orderCreateDate,
+			IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom, GeographicGroup geographicGroup)
 		{
 			if(uow == null)
 			{
@@ -60,8 +60,8 @@ namespace Vodovoz.Models
 				: GetOrganizationForOtherOptions(uow, paymentType, orderCreateDate, paymentFrom, geographicGroup);
 		}
 
-		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate = null,
-			PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
+		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
+			PaymentFrom paymentFrom, GeographicGroup geographicGroup)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -105,7 +105,7 @@ namespace Vodovoz.Models
 		}
 
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
-			PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null)
+			PaymentFrom paymentFrom, GeographicGroup geographicGroup)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -158,7 +158,7 @@ namespace Vodovoz.Models
 				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
 		}
 
-		private int GetOrganizationIdForByCard(PaymentFrom paymentFrom = null, GeographicGroup geographicGroup = null, DateTime? orderCreateDate = null)
+		private int GetOrganizationIdForByCard(PaymentFrom paymentFrom, GeographicGroup geographicGroup, DateTime? orderCreateDate)
 		{
 			if(paymentFrom == null)
 			{
