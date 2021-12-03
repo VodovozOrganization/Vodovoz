@@ -66,7 +66,7 @@ namespace Vodovoz.Views.Client
 
 			ybuttonOpenOnMap.Binding.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible).InitializeFromSource();
 
-			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMap.Execute();
+			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMapCommand.Execute();
 
 			#region Address entries
 

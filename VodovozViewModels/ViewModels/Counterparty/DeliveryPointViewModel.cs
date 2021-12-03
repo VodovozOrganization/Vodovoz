@@ -306,9 +306,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			() => Entity.Counterparty != null
 		));
 
-		private DelegateCommand _openOnMap;
+		private DelegateCommand _openOnMapCommand;
 
-		public DelegateCommand OpenOnMap => _openOnMap ?? (_openOnMap = new DelegateCommand(
+		public DelegateCommand OpenOnMapCommand => _openOnMapCommand ?? (_openOnMapCommand = new DelegateCommand(
 			() =>
 			{
 				NumberFormatInfo numberFormatInfo = new NumberFormatInfo
