@@ -748,7 +748,7 @@ namespace Vodovoz
 				hboxDocumentType.Add(torg12OnlyLabel);
 				torg12OnlyLabel.Show();
 			}
-			else if(hboxDocumentType.Children.Contains(torg12OnlyLabel))
+			else if(!Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(torg12OnlyLabel))
 			{
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
