@@ -121,8 +121,7 @@ namespace Vodovoz
 		private IOrderParametersProvider _orderParametersProvider;
 
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
-		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
-			new EntityDocumentsPrinterFactory();
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -153,6 +152,7 @@ namespace Vodovoz
 		private bool _canChoosePremiumDiscount;
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
+		private IOrderDailyNumberController _dailyNumberController;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -407,6 +407,7 @@ namespace Vodovoz
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -1247,11 +1248,11 @@ namespace Vodovoz
 							return false;
 						}
 					}
-					Entity.SaveEntity(UoWGeneric, _currentEmployee);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController);
 					if(sendEmail)
 						SendBillByEmail(emailAddressForBill);
 				} else {
-					Entity.SaveEntity(UoWGeneric, _currentEmployee);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController);
 				}
 				logger.Info("Ok.");
 				UpdateUIState();
