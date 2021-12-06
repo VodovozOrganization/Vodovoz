@@ -790,20 +790,35 @@ namespace Vodovoz.EntityRepositories.Orders
 			return unitOfWork.GetById<VodovozOrder>(orderId);
         }
 
-		public int? GetMaxOrderDailyNumberForDate(IUnitOfWork uow, DateTime deliveryDate)
+		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
 		{
-			return uow.Session.QueryOver<VodovozOrder>()
-				.Where(o => o.DeliveryDate == deliveryDate)
-				.Select(Projections.Max<VodovozOrder>(o => o.DailyNumber))
-				.SingleOrDefault<int?>();
+			int? dailyNumber;
+
+			using(var uow = uowFactory.CreateWithoutRoot(
+				$"Получение максимального ежедневного номера заказа на {deliveryDate}"))
+			{
+				dailyNumber = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.DeliveryDate == deliveryDate)
+					.Select(Projections.Max<VodovozOrder>(o => o.DailyNumber))
+					.SingleOrDefault<int?>();
+			}
+
+			return dailyNumber;
 		}
 		
-		public DateTime? GetOrderDeliveryDate(IUnitOfWork uow, int orderId)
+		public DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId)
 		{
-			return uow.Session.QueryOver<VodovozOrder>()
-				.Where(o => o.Id == orderId)
-				.Select(o => o.DeliveryDate)
-				.SingleOrDefault<DateTime?>();
+			DateTime? deliveryDate;
+			
+			using(var uow = uowFactory.CreateWithoutRoot($"Получение даты доставки заказа №{orderId}"))
+			{
+				deliveryDate = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.Id == orderId)
+					.Select(o => o.DeliveryDate)
+					.SingleOrDefault<DateTime?>();
+			}
+
+			return deliveryDate;
 		}
     }
 }
