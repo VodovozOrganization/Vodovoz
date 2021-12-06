@@ -119,6 +119,7 @@
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
+    <Compile Include="Domain\IOrderDailyNumberController.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\CarEvent.cs" />
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Domain\Orders\DiscountReasonNomenclatureCategory.cs" />
     <Compile Include="Domain\Orders\IDiscount.cs" />
     <Compile Include="Domain\Orders\SelectableNomenclatureCategoryNode.cs" />
+    <Compile Include="Domain\OrderDailyNumberController.cs" />
     <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
