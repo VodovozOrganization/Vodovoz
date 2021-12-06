@@ -28,6 +28,7 @@ using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
 using QSReport;
+using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
@@ -96,7 +97,8 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
@@ -420,11 +422,20 @@ namespace Vodovoz
 
 			#region Vodovoz
 
+			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
+			
 			#region Adapters
 
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
 			
+			#endregion
+
+			#region Controllers
+
+			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
+			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
+
 			#endregion
 			
 			#region Services
@@ -453,6 +464,7 @@ namespace Vodovoz
 			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
 			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
 			builder.RegisterType<ExpenseCategorySelectorFactory>().As<IExpenseCategorySelectorFactory>();
+			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
 
 			#endregion
 			

@@ -53,26 +53,6 @@ namespace Vodovoz.ViewModels.Orders
 
 		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : String.Empty;
 
-		private IEnumerable<DiscountReason> discountReasonSource;
-		public IEnumerable<DiscountReason> DiscountReasonSource {
-			get => discountReasonSource ?? (discountReasonSource = UoW.GetAll<DiscountReason>());
-		}
-
-		private DiscountReason discountReason;
-		public DiscountReason DiscountReason {
-			get {
-				discountReason = Entity.PromoSetDiscountReason;
-				return discountReason;
-			}
-			set {
-				if(SetField(ref discountReason, value)) {
-					Entity.PromoSetDiscountReason = value;
-					if(value != null)
-						Entity.Name = value.Name;
-				}
-			}
-		}
-
 		private PromotionalSetItem selectedPromoItem;
 		public PromotionalSetItem SelectedPromoItem {
 			get => selectedPromoItem;

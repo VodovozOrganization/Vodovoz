@@ -57,6 +57,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\IOrderDiscountsController.cs" />
+    <Compile Include="Controllers\OrderDiscountsController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
@@ -132,6 +134,9 @@
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
+    <Compile Include="Domain\Orders\DiscountReasonNomenclatureCategory.cs" />
+    <Compile Include="Domain\Orders\IDiscount.cs" />
+    <Compile Include="Domain\Orders\SelectableNomenclatureCategoryNode.cs" />
     <Compile Include="Domain\OrderDailyNumberController.cs" />
     <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
@@ -189,7 +194,6 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\ClosedComplaintResultNode.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\ComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
-    <Compile Include="EntityRepositories\Counterparties\CounterpartyContractFactory.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
@@ -200,6 +204,8 @@
     <Compile Include="EntityRepositories\Counterparties\IWaterPricesRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPriceNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPricesRepository.cs" />
+    <Compile Include="EntityRepositories\DiscountReasons\DiscountReasonRepository.cs" />
+    <Compile Include="EntityRepositories\DiscountReasons\IDiscountReasonRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentKindRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentLocation.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentRepository.cs" />
@@ -304,6 +310,7 @@
     <Compile Include="HibernateMapping\Logistic\CarEventTypeMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
@@ -346,6 +353,7 @@
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
+    <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
@@ -586,6 +594,7 @@
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
+    <Compile Include="Services\IFiasApiParametersProvider.cs" />
     <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
@@ -1138,13 +1147,13 @@
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
-      <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
-      <Name>QS.Osm</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
       <Name>GMap.NET.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
+      <Project>{72968EF4-2127-45C7-9BFE-2470DACDDC3E}</Project>
+      <Name>QS.Osm</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>

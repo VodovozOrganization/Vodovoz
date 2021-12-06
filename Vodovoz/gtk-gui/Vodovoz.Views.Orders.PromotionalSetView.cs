@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Vodovoz.Core.WidgetContainerView widgetcontainerview;
 
-		private global::Gamma.Widgets.ySpecComboBox yCmbDiscountReason;
+		private global::Gamma.GtkWidgets.yEntry yentryDiscountReason;
 
 		private global::Gamma.GtkWidgets.yEntry yentryPromotionalSetName;
 
@@ -205,7 +205,7 @@ namespace Vodovoz.Views.Orders
 			this.lblName = new global::Gtk.Label();
 			this.lblName.Name = "lblName";
 			this.lblName.Xalign = 1F;
-			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Основание скидки:");
+			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Согласованная акция:");
 			this.table2.Add(this.lblName);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.lblName]));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -243,15 +243,13 @@ namespace Vodovoz.Views.Orders
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.yCmbDiscountReason = new global::Gamma.Widgets.ySpecComboBox();
-			this.yCmbDiscountReason.Name = "yCmbDiscountReason";
-			this.yCmbDiscountReason.AddIfNotExist = false;
-			this.yCmbDiscountReason.DefaultFirst = false;
-			this.yCmbDiscountReason.ShowSpecialStateAll = false;
-			this.yCmbDiscountReason.ShowSpecialStateNot = true;
-			this.yCmbDiscountReason.NameForSpecialStateNot = "Нет";
-			this.table2.Add(this.yCmbDiscountReason);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table2[this.yCmbDiscountReason]));
+			this.yentryDiscountReason = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryDiscountReason.CanFocus = true;
+			this.yentryDiscountReason.Name = "yentryDiscountReason";
+			this.yentryDiscountReason.IsEditable = true;
+			this.yentryDiscountReason.InvisibleChar = '•';
+			this.table2.Add(this.yentryDiscountReason);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table2[this.yentryDiscountReason]));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));

@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Globalization;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Domain.Client;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
 	public class SpecialUPDDocument : PrintableOrderDocument, IPrintableRDLDocument
 	{
 		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
+		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
+			new OrganizationParametersProvider(new ParametersProvider());
 
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.SpecialUPD;
@@ -41,11 +44,16 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
 
 		int copiesToPrint = 2;
-		public override int CopiesToPrint {
+		public override int CopiesToPrint
+		{
 			get
 			{
-				if (Order.PaymentType == PaymentType.BeveragesWorld && Order.Client.UPDCount.HasValue)
+				if(Order.OurOrganization != null
+					&& Order.OurOrganization.Id == _organizationParametersProvider.BeveragesWorldOrganizationId
+					&& Order.Client.UPDCount.HasValue)
+				{
 					return Order.Client.UPDCount.Value;
+				}
 
 				return copiesToPrint;
 			}

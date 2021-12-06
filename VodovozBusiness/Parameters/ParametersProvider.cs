@@ -3,6 +3,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain;
 
@@ -163,6 +164,37 @@ namespace Vodovoz.Parameters
 			}
 
 			return value;
+		}
+
+		public T GetValue<T>(string parameterId) where T : struct
+		{
+			if(!ContainsParameter(parameterId))
+			{
+				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterId})");
+			}
+
+			string value = GetParameterValue(parameterId);
+			if(string.IsNullOrWhiteSpace(value))
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})");
+			}
+
+			T result;
+			try
+			{
+				var resultAsObject = TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(value);
+				if(resultAsObject == null)
+				{
+					throw new InvalidOperationException("Ошибка при приведении типа");
+				}
+				result = (T)resultAsObject;
+			}
+			catch(Exception e)
+			{
+				throw new InvalidProgramException($"В параметрах базы неверно заполнено значение параметра ({parameterId})", e);
+			}
+
+			return result;
 		}
 
 		public void CreateOrUpdateParameter(string name, string value)

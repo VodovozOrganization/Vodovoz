@@ -135,8 +135,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			.SelectList(list => list
 				.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
-				.Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundOnOsm)
-				.Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInOsm)
+				.Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundInFias)
+				.Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInFias)
 				.Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
 				.Select(() => deliveryPointAlias.Address1c).WithAlias(() => resultAlias.Address1c)
 				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Counterparty)

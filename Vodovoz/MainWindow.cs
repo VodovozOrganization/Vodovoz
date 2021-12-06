@@ -102,6 +102,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Journals.FilterViewModels;
 using System.Runtime.InteropServices;
+using Fias.Service;
 using Vodovoz.ViewModels.Reports;
 using MySql.Data.MySqlClient;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -111,9 +112,6 @@ using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
 using QS.ChangePassword.Views;
 using QS.Dialog;
-using QS.Osm;
-using QS.Osm.Loaders;
-using QS.Osm.Osrm;
 using QS.Project.Repositories;
 using QS.Report.ViewModels;
 using QS.ViewModels;
@@ -125,6 +123,7 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -557,7 +556,10 @@ public partial class MainWindow : Gtk.Window
 			{
 				return new DiscountReasonJournalViewModel(
 					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
+					ServicesConfig.CommonServices,
+					new DiscountReasonRepository(),
+					new ProductGroupJournalFactory(),
+					new NomenclatureSelectorFactory()
 				);
 			}
 		);
@@ -1212,9 +1214,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
+		IParametersProvider parametersProvider = new ParametersProvider();
+		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+		IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg()
+			() => new MergeAddressesDlg(fiasService)
 		);
 	}
 
@@ -1594,7 +1600,7 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new DiscountReasonRepository()))
 		);
 	}
 
@@ -1692,7 +1698,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new DiscountReasonRepository()))
 		);
 	}
 

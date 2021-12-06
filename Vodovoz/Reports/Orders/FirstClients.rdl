@@ -733,60 +733,71 @@
         WHEN 'natural' THEN 'ФЛ'
         WHEN 'legal' THEN 'ЮЛ'
         else c.person_type
-    END AS person_type,    
+        END AS person_type,
     dp.compiled_address_short AS address_of_delivery,
     GROUP_CONCAT(DISTINCT nomenclature.name SEPARATOR ', ') AS nomenclatures,
     o.sum_to_receive ,
-    CASE o.payment_type 
+    CASE o.payment_type
         WHEN 'cash' THEN 'НАЛ'
         WHEN 'cashless' THEN 'БЕЗНАЛ'
         WHEN 'ByCard' THEN 'ПО КАРТЕ'
         WHEN 'Terminal' THEN 'ТЕР-МИНАЛ'
         ELSE o.payment_type
-    END AS payment_type,
+        END AS payment_type,
     gg.name as geographic_group,
     IFNULL(
-        GROUP_CONCAT(
-            DISTINCT
-            CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.name,''))
-            SEPARATOR '\n'
-        ),
-        GROUP_CONCAT(
-            DISTINCT
-            CONCAT(c_ph.number, ' ', IFNULL(c_ph.name,''))
-            SEPARATOR '\n'
-        )
-    ) AS phone,
+            GROUP_CONCAT(
+                    DISTINCT
+                    CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.name,''))
+                    SEPARATOR '\n'
+                ),
+            GROUP_CONCAT(
+                    DISTINCT
+                    CONCAT(c_ph.number, ' ', IFNULL(c_ph.name,''))
+                    SEPARATOR '\n'
+                )
+        ) AS phone,
     #GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ') AS discount,
     (
-        SELECT GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ')
+        SELECT GROUP_CONCAT(DISTINCT IFNULL(ps.discount_reason_info, IFNULL(d.name, '')) SEPARATOR ', ')
         FROM order_items i
-        JOIN discount_reasons d ON i.discount_reason_id = d.id
+           LEFT JOIN discount_reasons d ON i.discount_reason_id = d.id
+           LEFT JOIN promotional_sets ps on i.promotional_set_id = ps.id
         WHERE i.order_id = o.id
+            AND
+            ( 
+                d.id is not null OR i.promotional_set_id is not null
+            )
     ) AS discount,
     cc.name as came_from ,
     o.comment AS comment ,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
     districts.district_name as delivery_district
-FROM 
+FROM
     orders o
-    INNER JOIN order_items i ON o.id = i.order_id
-    INNER JOIN nomenclature ON nomenclature.id = i.nomenclature_id
-    INNER JOIN discount_reasons d ON i.discount_reason_id = d.id
-    INNER JOIN counterparty c ON o.id = c.first_order_id
-    INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
-    LEFT JOIN employees e ON e.id = o.author_employee_id
-    LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
-    INNER JOIN districts ON districts.id = dp.district_id
-    LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
-    LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
-    LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
-WHERE 
+        INNER JOIN order_items i ON o.id = i.order_id
+        INNER JOIN nomenclature ON nomenclature.id = i.nomenclature_id
+        LEFT JOIN discount_reasons d ON i.discount_reason_id = d.id
+        INNER JOIN counterparty c ON o.id = c.first_order_id
+        INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
+        LEFT JOIN employees e ON e.id = o.author_employee_id
+        LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
+        INNER JOIN districts ON districts.id = dp.district_id
+        LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
+        LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
+        LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
+WHERE
     o.delivery_date BETWEEN @start_date AND @end_date
-    AND (@discount_id = 0 OR d.id = @discount_id)
-    AND (@district_id = '' OR districts.id = @district_id)
-GROUP BY o.id DESC
-;</CommandText>
+  AND(
+      CASE
+          WHEN @discount_id = 0 AND !@has_promotional_sets THEN d.id is not null
+          WHEN @discount_id = 0 AND @has_promotional_sets THEN i.promotional_set_id is not null
+          WHEN @discount_id != 0 AND !@has_promotional_sets THEN d.id = @discount_id
+          WHEN @discount_id != 0 AND @has_promotional_sets THEN d.id = @discount_id OR i.promotional_set_id is not null
+    END)
+  AND (@district_id = '' OR districts.id = @district_id)
+GROUP BY o.id DESC;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -799,6 +810,9 @@ GROUP BY o.id DESC
           </QueryParameter>
           <QueryParameter Name="district_id">
             <Value>=Parameters!district_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="has_promotional_sets">
+            <Value>={?has_promotional_sets}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -962,6 +976,14 @@ FROM
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="has_promotional_sets">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>

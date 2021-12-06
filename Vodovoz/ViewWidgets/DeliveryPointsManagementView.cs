@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Fias.Service;
 using Gamma.ColumnConfig;
 using Gtk;
 using QSOrmProject;
@@ -7,6 +8,8 @@ using Vodovoz.Domain.Client;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -14,7 +17,7 @@ namespace Vodovoz
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private Counterparty _counterparty;
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeletePermission;
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
@@ -54,6 +57,11 @@ namespace Vodovoz
 				.Finish();
 			_canDeletePermission =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
+
+			IParametersProvider parametersProvider = new ParametersProvider();
+			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+			IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
 		}
 
 		private void OnSelectionChanged(object sender, EventArgs e)
