@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels
 
 		private readonly SearchHelper _searchHelper;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
 
 		private DelegateCommand _revertAllocatedSum = null;
@@ -55,9 +56,11 @@ namespace Vodovoz.ViewModels
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IOrderRepository orderRepository,
+			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			if(uowBuilder.IsNewEntity)
@@ -500,8 +503,7 @@ namespace Vodovoz.ViewModels
 							continue;
 						}
 
-						var otherPaymentsSum = _orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
-													  .Sum(x => x.Sum);
+						var otherPaymentsSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, item.Order.Id);
 
 						var totalSum = otherPaymentsSum + item.Sum;
 

@@ -175,6 +175,7 @@ namespace Vodovoz.JournalViewModels
 						_unitOfWorkFactory,
 						_commonServices,
 						_orderRepository,
+						new PaymentItemsRepository(),
 						_paymentsRepository
 					),
 					//функция идентификации документа 

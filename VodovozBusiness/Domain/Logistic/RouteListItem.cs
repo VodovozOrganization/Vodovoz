@@ -645,23 +645,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Обнуляет фактическое количетво
 		/// Использовать если заказ отменен или полностью не доставлен
 		/// </summary>
-		public virtual void FillCountsOnCanceled()
-		{
-			foreach(var item in Order.OrderItems) {
-				if(!item.OriginalDiscountMoney.HasValue || !item.OriginalDiscount.HasValue) {
-					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
-					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
-					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
-				}
-				item.ActualCount = 0m;
-                BottlesReturned = 0;
-            }
-            foreach (var equip in Order.OrderEquipments)
-                equip.ActualCount = 0;
-
-			foreach(var deposit in Order.OrderDepositItems)
-				deposit.ActualCount = 0;
-		}
+		public virtual void FillCountsOnCanceled() => Order.FillCountsOnCanceled();
 
 		public virtual void RestoreOrder()
 		{
