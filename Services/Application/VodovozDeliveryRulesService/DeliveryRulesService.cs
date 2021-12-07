@@ -184,6 +184,7 @@ namespace VodovozDeliveryRulesService
 
 		private DeliveryInfoDTO FillDeliveryInfoDTO(District district)
 		{
+			var date = DateTime.Now;
 			var info = new DeliveryInfoDTO
 			{
 				WeekDayDeliveryInfos = new List<WeekDayDeliveryInfoDTO>(),
@@ -195,17 +196,16 @@ namespace VodovozDeliveryRulesService
 			{
 				var rules = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).ToList();
 
-				List<DeliverySchedule> scheduleRestrictions;
-				if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
+				IList<DeliverySchedule> scheduleRestrictions;
+				if(weekDay == WeekDayName.Today)
 				{
-					scheduleRestrictions = new List<DeliverySchedule>();
+					scheduleRestrictions = isStoppedOnlineDeliveriesToday
+						? new List<DeliverySchedule>()
+						: GetScheduleRestrictions(district, weekDay);
 				}
 				else
 				{
-					scheduleRestrictions = district
-						.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
-						.Select(x => x.DeliverySchedule)
-						.ToList();
+					scheduleRestrictions = GetScheduleRestrictionsByDate(district, weekDay, date);
 				}
 				
 				var item = new WeekDayDeliveryInfoDTO
@@ -264,6 +264,29 @@ namespace VodovozDeliveryRulesService
 					Price = $"{rule.Price:N0}"
 				})
 				.ToList();
+		}
+
+		private IList<DeliverySchedule> GetScheduleRestrictions(District district, WeekDayName weekDay)
+		{
+			return district
+				.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+				.Select(x => x.DeliverySchedule)
+				.ToList();
+		}
+		
+		private IList<DeliverySchedule> GetScheduleRestrictionsByDate(District district, WeekDayName weekDay, DateTime date)
+		{
+			var dayOfWeek = District.ConvertDayOfWeekToWeekDayName(date.DayOfWeek);
+			if((weekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && weekDay - dayOfWeek == 6))
+			{
+				return district
+					.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+					.Where(x => x.AcceptBefore.Time > date.TimeOfDay)
+					.Select(x => x.DeliverySchedule)
+					.ToList();
+			}
+			
+			return GetScheduleRestrictions(district, weekDay);
 		}
 	}
 }
