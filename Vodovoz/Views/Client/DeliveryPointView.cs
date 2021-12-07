@@ -64,6 +64,10 @@ namespace Vodovoz.Views.Client
 			radioInformation.Toggled += RadioInformationOnToggled;
 			radioFixedPrices.Toggled += RadioFixedPricesOnToggled;
 
+			ybuttonOpenOnMap.Binding.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible).InitializeFromSource();
+
+			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMapCommand.Execute();
+
 			#region Address entries
 
 			entryCity.CitiesDataLoader = ViewModel.CitiesDataLoader;
@@ -75,7 +79,6 @@ namespace Vodovoz.Views.Client
 			entryCity.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.City, w => w.CityName)
 				.AddBinding(e => e.CityFiasGuid, w => w.FiasGuid)
-				.AddBinding(e => e.LocalityType, w => w.CityTypeName)
 				.AddBinding(e => e.LocalityTypeShort, w => w.CityTypeNameShort)
 				.InitializeFromSource();
 
@@ -366,18 +369,19 @@ namespace Vodovoz.Views.Client
 			var addressChanged = entryCity.CityName != _cityBeforeChange
 								 || entryStreet.StreetName != _streetBeforeChange
 								 || entryBuilding.BuildingName != _buildingBeforeChange;
-			if(!addressChanged || !entryBuilding.FiasCompletion.HasValue)
+
+			if(!addressChanged)
 			{
 				return;
 			}
 
-			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion.Value;
-
-			entryBuilding.GetCoordinates(out var longitude, out var latitude);
+			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
 
 			_cityBeforeChange = entryCity.CityName;
 			_streetBeforeChange = entryStreet.StreetName;
 			_buildingBeforeChange = entryBuilding.BuildingName;
+
+			entryBuilding.GetCoordinates(out var longitude, out var latitude);
 
 			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
 			{
