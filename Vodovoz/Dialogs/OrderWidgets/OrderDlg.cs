@@ -120,8 +120,7 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
-		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
-			new EntityDocumentsPrinterFactory();
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -153,6 +152,7 @@ namespace Vodovoz
 		private bool _canChoosePremiumDiscount;
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
+		private IOrderDailyNumberController _dailyNumberController;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -408,6 +408,7 @@ namespace Vodovoz
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -748,7 +749,7 @@ namespace Vodovoz
 				hboxDocumentType.Add(torg12OnlyLabel);
 				torg12OnlyLabel.Show();
 			}
-			else if(hboxDocumentType.Children.Contains(torg12OnlyLabel))
+			else if(!Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(torg12OnlyLabel))
 			{
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
@@ -1254,11 +1255,11 @@ namespace Vodovoz
 							return false;
 						}
 					}
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _paymentFromBankClientController);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 					if(sendEmail)
 						SendBillByEmail(emailAddressForBill);
 				} else {
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _paymentFromBankClientController);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 				}
 				logger.Info("Ok.");
 				UpdateUIState();

@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Services
+using System;
+
+namespace Vodovoz.Services
 {
     public interface IOrganizationParametersProvider
     {
@@ -11,5 +13,6 @@
         int VodovozNorthOrganizationId { get; }
         int VodovozDeshitsOrganizationId { get; }
         int CommonCashDistributionOrganisationId { get; }
+        TimeSpan LatestCreateTimeForSouthOrganizationInByCardOrder { get; }
     }
 }

@@ -22,7 +22,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Entrance)				.Column("entrance");
 			Map(x => x.City)			  		.Column("city");
 			Map(x => x.CityFiasGuid)			.Column("city_fias_guid");
-			Map(x => x.LocalityType)	  		.Column("locality_type");
 			Map(x => x.LocalityTypeShort)  		.Column("locality_type_short");
 			Map(x => x.CityDistrict)	  		.Column("city_district");
 			Map(x => x.Street)			  		.Column("street");

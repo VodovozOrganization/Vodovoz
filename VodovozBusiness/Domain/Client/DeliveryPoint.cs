@@ -160,8 +160,8 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = string.Empty;
-				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityTypeShort} {City}, ";
+				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
+					address += $"{LocalityTypeShort}. {City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
 					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))
@@ -206,15 +206,6 @@ namespace Vodovoz.Domain.Client
 		{
 			get => city;
 			set => SetField(ref city, value);
-		}
-
-		string localityType;
-
-		[Display(Name = "Тип населенного пункта")]
-		public virtual string LocalityType
-		{
-			get => localityType;
-			set => SetField(ref localityType, value);
 		}
 
 		string _localityTypeShort;
@@ -698,7 +689,7 @@ namespace Vodovoz.Domain.Client
 		{
 			CompiledAddress = string.Empty;
 			City = "Санкт-Петербург";
-			LocalityType = "Город";
+			LocalityTypeShort = "г";
 			Street = string.Empty;
 			Building = string.Empty;
 			Room = string.Empty;
