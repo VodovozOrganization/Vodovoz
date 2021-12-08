@@ -38,6 +38,9 @@ namespace Vodovoz.Domain.Client
 		private Guid? _cityFiasGuid;
 		private Guid? _streetFiasGuid;
 		private string _streetTypeShort;
+		private string _streetDistrict;
+		private string _localityTypeShort;
+		private string _localityType;
 		private Guid? _buildingFiasGuid;
 
 		#region Свойства
@@ -208,13 +211,18 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref city, value);
 		}
 
-		string _localityTypeShort;
+		[Display(Name = "Тип населенного пункта")]
+		public virtual string LocalityType
+		{
+			get => _localityType;
+			set => SetField(ref _localityType, value);
+		}
 
 		[Display(Name = "Тип населенного пункта (сокращ.)")]
 		public virtual string LocalityTypeShort
 		{
 			get => _localityTypeShort;
-			set => SetField(ref _localityTypeShort, value, () => LocalityTypeShort);
+			set => SetField(ref _localityTypeShort, value);
 		}
 
 		string cityDistrict;
@@ -222,7 +230,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Район области")]
 		public virtual string CityDistrict {
 			get => cityDistrict;
-			set => SetField(ref cityDistrict, value, () => CityDistrict);
+			set => SetField(ref cityDistrict, value);
 		}
 
 		string street;
@@ -230,7 +238,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Улица")]
 		public virtual string Street {
 			get => street;
-			set => SetField(ref street, value, () => Street);
+			set => SetField(ref street, value);
 		}
 
 		string streetType;
@@ -249,12 +257,10 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _streetTypeShort, value);
 		}
 
-		string streetDistrict;
-
 		[Display(Name = "Район города")]
 		public virtual string StreetDistrict {
-			get => streetDistrict;
-			set => SetField(ref streetDistrict, value, () => StreetDistrict);
+			get => _streetDistrict;
+			set => SetField(ref _streetDistrict, value);
 		}
 
 

@@ -171,7 +171,7 @@ namespace VodovozFiasWidgets
 					Completion.Model = _completionListStore;
 					if(HasFocus)
 					{
-						Completion?.Complete();
+						Completion.Complete();
 					}
 				}
 			});
