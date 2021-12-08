@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки счета без отгрузки на предоплату",
 		Nominative = "строка счета без отгрузки на предоплату")]
-	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject
+	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject, IDiscount
 	{
 		public virtual int Id { get; set; }
 

@@ -33,7 +33,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Address1c)                         .Column("address_1c");
 			Map(x => x.Address1cCode)                     .Column("address_1c_code");
 			Map(x => x.DeliverySchedule1c)                .Column("delivery_schedule_1c");
-			Map(x => x.DailyNumber)                       .Column("daily_number_1c").ReadOnly();
+			Map(x => x.DailyNumber)                       .Column("daily_number_1c");
 			Map(x => x.ClientPhone)                       .Column("client_phone");
 			Map(x => x.LastEditedTime)                    .Column("last_edited_time");
 			Map(x => x.CommentManager)                    .Column("comment_manager");
@@ -94,6 +94,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.PaymentByCardFrom)          .Column("payment_from_id").Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.ReturnTareReason)           .Column("return_tare_reason_id");
 			References(x => x.ReturnTareReasonCategory)   .Column("return_tare_reason_category_id");
+			References(x => x.OurOrganization)            .Column("our_organization_id");
 
 			HasMany(x => x.OrderDocuments)                .KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
