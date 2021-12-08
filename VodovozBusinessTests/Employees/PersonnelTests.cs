@@ -41,7 +41,7 @@ namespace VodovozBusinessTests.Employees
 
 			var phones = new List<Vodovoz.Domain.Contacts.Phone>();
 			//TODO возможно здесь нужно сделать мок для Phone
-			phones.Add(new Vodovoz.Domain.Contacts.Phone { Name = "TestPhoneName" });
+			phones.Add(new Vodovoz.Domain.Contacts.Phone { Comment = "TestPhoneName" });
 			traineeMock.Phones.Returns(phones);
 
 			var documents = new List<EmployeeDocument>();
