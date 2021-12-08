@@ -98,7 +98,8 @@ namespace VodovozFiasWidgets
 			{
 				streetDistrict = $"({ streetDistrict })";
 			}
-			(cell as CellRendererText).Markup =
+
+			((CellRendererText) cell).Markup =
 				string.IsNullOrWhiteSpace(streetDistrict) ? $"{ streetTypeName.ToLower() } { streetName }" :
 					$"{ streetTypeName.ToLower() } { streetName } { streetDistrict }";
 		}
@@ -149,7 +150,7 @@ namespace VodovozFiasWidgets
 
 		private void EmptyCompletion()
 		{
-			_completionListStore = new ListStore(typeof(Guid), typeof(string), typeof(string), typeof(string)/*, typeof(string)*/);
+			_completionListStore = new ListStore(typeof(Guid), typeof(string), typeof(string), typeof(string));
 			_completionListStore.AppendValues("", "Загрузка...", "");
 			Completion.Model = _completionListStore;
 			Completion.Complete();
