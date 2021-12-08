@@ -30,6 +30,8 @@ namespace Vodovoz.Domain.Employees
 	[HistoryTrace]
 	public class Employee : Personnel, IEmployee
 	{
+		private string _comment;
+
 		#region Свойства
 
 		public override EmployeeType EmployeeType {
@@ -322,6 +324,12 @@ namespace Vodovoz.Domain.Employees
             get => email;
             set => SetField(ref email, value);
         }
+		
+		[Display(Name = "Комментарий по сотруднику")]
+		public virtual string Comment {
+			get => _comment;
+			set => SetField(ref _comment, value);
+		}
 
         #endregion
 
