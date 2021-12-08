@@ -142,6 +142,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
@@ -2505,5 +2506,21 @@ public partial class MainWindow : Gtk.Window
 		var complaintResultsOfEmployeesViewModel =
 			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
+	}
+
+	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyPatronymicJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
 	}
 }

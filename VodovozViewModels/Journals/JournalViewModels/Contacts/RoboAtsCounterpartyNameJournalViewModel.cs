@@ -11,7 +11,7 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Contacts
 {
-	public class RoboAtsCounterpartyNameJournalViewModel : SingleEntityJournalViewModelBase<RoboAtsCounterpartyName, RoboatsCounterpartyNameViewModel,
+	public class RoboAtsCounterpartyNameJournalViewModel : SingleEntityJournalViewModelBase<RoboAtsCounterpartyName, RoboAtsCounterpartyNameViewModel,
 		RoboAtsCounterpartyNameJournalNode>
 	{
 		public RoboAtsCounterpartyNameJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
@@ -44,10 +44,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Contacts
 			return itemsQuery;
 		};
 
-		protected override Func<RoboatsCounterpartyNameViewModel> CreateDialogFunction => () =>
-			new RoboatsCounterpartyNameViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+		protected override Func<RoboAtsCounterpartyNameViewModel> CreateDialogFunction => () =>
+			new RoboAtsCounterpartyNameViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 
-		protected override Func<RoboAtsCounterpartyNameJournalNode, RoboatsCounterpartyNameViewModel> OpenDialogFunction =>
-			(node) => new RoboatsCounterpartyNameViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+		protected override Func<RoboAtsCounterpartyNameJournalNode, RoboAtsCounterpartyNameViewModel> OpenDialogFunction =>
+			(node) => new RoboAtsCounterpartyNameViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}
 }

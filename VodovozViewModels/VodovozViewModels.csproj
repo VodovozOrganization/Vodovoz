@@ -157,7 +157,7 @@
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Contacts\RoboAtsCounterpartyPatronymicJournalViewModel - Copy.cs" />
+    <Compile Include="Journals\JournalViewModels\Contacts\RoboAtsCounterpartyPatronymicJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\RoboAtsCounterpartyNameJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
@@ -192,8 +192,8 @@
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
-    <Compile Include="ViewModels\Contacts\RoboatsCounterpartyNameViewModel.cs" />
-    <Compile Include="ViewModels\Contacts\RoboatsCounterpartyPatronymicViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\RoboAtsCounterpartyNameViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\RoboAtsCounterpartyPatronymicViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
