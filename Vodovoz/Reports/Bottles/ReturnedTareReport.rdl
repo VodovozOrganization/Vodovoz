@@ -1123,7 +1123,7 @@
         CONCAT(
             '+7 ',
             p.number,
-            IF(p.name IS NULL, '', CONCAT(' ', p.name)))
+            IF(p.comment IS NULL, '', CONCAT(' ', p.comment)))
         SEPARATOR '\n'
         ) from phones p where p.delivery_point_id = dp.id
     ) as delivery_point_contact,
@@ -1131,7 +1131,7 @@
         CONCAT(
             '+7 ',
             p.number,
-            IF(p.name IS NULL, '', CONCAT(' ', p.name)))
+            IF(p.comment IS NULL, '', CONCAT(' ', p.comment)))
         SEPARATOR '\n'
         ) from phones p where p.counterparty_id = c.id
     ) as client_contact,
