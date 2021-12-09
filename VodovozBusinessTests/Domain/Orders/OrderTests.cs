@@ -1010,7 +1010,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("9211234567"));
+			Assert.That(contact, Is.EqualTo("+79211234567"));
 		}
 
 		[Test(Description = "Возврат электронного адреса клиента если самовывоз и у клиента есть не мобильный номер и эл.адрес")]
@@ -1066,7 +1066,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("9211234567"));
+			Assert.That(contact, Is.EqualTo("+79211234567"));
 		}
 
 		[Test(Description = "Возврат мобильного телефона точки доставки если не самовывоз, у точки доставки есть мобильный номер и у клиента есть эл.адрес")]
@@ -1096,7 +1096,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("9211234567"));
+			Assert.That(contact, Is.EqualTo("+79211234567"));
 		}
 
 		[Test(Description = "Возврат электронного адреса клиента если не самовывоз, у точки доставки есть НЕ мобильный номер и у клиента есть эл.адрес")]
@@ -1150,7 +1150,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("8121234567"));
+			Assert.That(contact, Is.EqualTo("+78121234567"));
 		}
 
 		[Test(Description = "Возврат телефона для чеков точки доставки если он есть")]
@@ -1178,7 +1178,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("1234567"));
+			Assert.That(contact, Is.EqualTo("+71234567"));
 		}
 
 		[Test(Description = "Возврат e-mail не для чеков или счетов, если отсутствуют мобильные телефоны и телефоны и email для чеков и счетов")]
