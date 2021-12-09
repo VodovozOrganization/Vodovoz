@@ -3573,18 +3573,18 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		/// <summary>
-		/// Возврат первого попавшегося контакта из цепочки:
-		///0. Телефон для чеков точки доставки;
-		///1. Телефон для чеков контрагента;
-		///2. Эл.почта для чеков контрагентов;
-		///3. Мобильный телефон точки доставки;
-		///4. Мобильный телефон контрагента;
-		///5. Эл.почта для счетов контрагента;
-		///6. Иная эл. почта (не для чеков или счетов);
-		///7. Городской телефон точки доставки;
-		///8. Городской телефон контрагента.
+		/// Возврат первого попавшегося контакта из цепочки:<br/>
+		///0. Телефон для чеков точки доставки;<br/>
+		///1. Телефон для чеков контрагента;<br/>
+		///2. Эл.почта для чеков контрагентов;<br/>
+		///3. Мобильный телефон точки доставки;<br/>
+		///4. Мобильный телефон контрагента;<br/>
+		///5. Эл.почта для счетов контрагента;<br/>
+		///6. Иная эл. почта (не для чеков или счетов);<br/>
+		///7. Городской телефон точки доставки;<br/>
+		///8. Городской телефон контрагента.<br/>
 		/// </summary>
-		/// <returns>Контакт с минимальным весом.</returns>
+		/// <returns>Контакт с минимальным весом.<br/>Телефоны возвращает в формате +7</returns>
 		public virtual string GetContact()
 		{
 			if(Client == null)
@@ -3594,16 +3594,16 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
 
-					var receiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
+					var deliveryPointReceiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
 						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
-					if(receiptPhone != null)
-						contacts[0] = receiptPhone;
+					if(deliveryPointReceiptPhone != null)
+						contacts[0] = "+7" + deliveryPointReceiptPhone;
 
 					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
-						contacts[3] = phone.DigitsNumber;
+						contacts[3] = "+7" + phone.DigitsNumber;
 					else if(DeliveryPoint.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[7] = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[7] = "+7" + DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3611,16 +3611,16 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(Client.Phones.Any()) {
 
-					var receiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) 
+					var clientReceiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
 						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
-					if(receiptPhone != null)
-						contacts[0] = receiptPhone;
+					if(clientReceiptPhone != null)
+						contacts[1] = "+7" + clientReceiptPhone;
 
 					var phone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
-						contacts[4] = phone.DigitsNumber;
+						contacts[4] = "+7" + phone.DigitsNumber;
 					else if(Client.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[8] = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[8] = "+7" + Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
