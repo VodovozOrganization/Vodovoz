@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -32,9 +32,9 @@
 			'+7 ',
 			counterparty_phones.number,
 			IF(
-				counterparty_phones.name IS NULL,
+				counterparty_phones.comment IS NULL,
 				'',
-				CONCAT(' ', counterparty_phones.name)
+				CONCAT(' ', counterparty_phones.comment)
 			)
 		)
 		SEPARATOR '; '

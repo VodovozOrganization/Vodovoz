@@ -6,7 +6,6 @@ namespace Vodovoz.Services
     {
         int GetCashlessOrganisationId { get; }
         int GetCashOrganisationId { get; }
-        
         int BeveragesWorldOrganizationId { get; }
         int SosnovcevOrganizationId { get; }
         int VodovozOrganizationId { get; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Project.Journal.EntitySelector;
@@ -87,8 +88,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount).Editing()
-				.AddSetter(
+					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
+					.Editing()
+					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)(n.Price * n.Count), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
@@ -97,23 +100,46 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
 				.AddColumn("Скидка \nв рублях?")
-					.AddToggleRenderer(x => x.IsDiscountInMoney).Editing()
+					.AddToggleRenderer(x => x.IsDiscountInMoney)
+					.AddSetter((c, n) => c.Activatable = ViewModel.CanChangeDiscountValue)
+					.Editing()
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.OrderRepository.GetDiscountReasons(ViewModel.UoW))
-					.AddSetter((c, n) => c.Editable = n.Discount > 0)
-					.AddSetter(
-						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
-						? colorLightRed
-						: colorWhite
+					.DynamicFillListFunc(item =>
+					{
+						var list = ViewModel.DiscountReasons.Where(
+							dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
+						return list;
+					})
+					.EditedEvent(OnDiscountReasonComboEdited)
+				.AddSetter(
+						(c, n) =>
+							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
+								? colorLightRed
+								: colorWhite
 					)
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderWithoutDeliveryForAdvancePaymentItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+		}
+		
+		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
+		{
+			Application.Invoke((sender, eventArgs) =>
+			{
+				var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+				
+				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
+				//комбо-бокс не откроется, но событие сработает и прилетит null
+				if(node is OrderWithoutShipmentForAdvancePaymentItem item && item.DiscountReason != null)
+				{
+					ViewModel.DiscountsController.SetDiscountFromDiscountReasonForOrderItemWithoutShipment(item.DiscountReason, item);
+				}
+			});
 		}
 
 		private void TreeItems_Selection_Changed(object sender, EventArgs e)

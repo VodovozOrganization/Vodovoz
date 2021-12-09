@@ -283,7 +283,7 @@ namespace Vodovoz.Domain.Cash
 			var existsExpense = cashRepository.GetExpenseReturnSumForOrder(uow, Order.Id);
 			if(Id == 0) {
 				decimal orderCash = 0m;
-				if(Order.PaymentType == PaymentType.cash || Order.PaymentType == PaymentType.BeveragesWorld) {
+				if(Order.PaymentType == PaymentType.cash) {
 					orderCash = Math.Abs(Order.OrderNegativeSum);
 				}
 				var result = orderCash - existsExpense;
@@ -327,7 +327,7 @@ namespace Vodovoz.Domain.Cash
 					yield return new ValidationResult("Должен быть выбран заказ.",
 					new[] { this.GetPropertyName(o => o.Order) });
 				} else {
-					if(Order.PaymentType != PaymentType.cash && Order.PaymentType != PaymentType.BeveragesWorld) {
+					if(Order.PaymentType != PaymentType.cash) {
 						yield return new ValidationResult("Должен быть выбран наличный заказ");
 					}
 					if(!Order.SelfDelivery) {
