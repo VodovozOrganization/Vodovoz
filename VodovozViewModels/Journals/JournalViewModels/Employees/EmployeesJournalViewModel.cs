@@ -478,14 +478,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(editAction);
 		}
 
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if(TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
-		}
-
 		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(
 			_authorizationServiceFactory.CreateNewAuthorizationService(),
 			_employeeWageParametersFactory,

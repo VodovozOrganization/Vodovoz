@@ -45,7 +45,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly ICommonServices _commonServices;
-		
+		private readonly IPermissionResult _routeListPermissionSet;
+
 		#region Constructor
 
 		public RouteListAnalysisViewModel(
@@ -94,6 +95,8 @@ namespace Vodovoz.ViewModels.Logistic
 			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 
+			_routeListPermissionSet = _commonServices.PermissionService.ValidateUserPermission(typeof(RouteList), _commonServices.UserService.CurrentUserId);
+
 			TabName = $"Диалог разбора {Entity.Title}";
 		}
 		
@@ -111,6 +114,8 @@ namespace Vodovoz.ViewModels.Logistic
 		public Employee CurrentEmployee { get; }
 
 		public RouteListItem SelectedItem { get; set; }
+
+		public bool CanEditRouteList => _routeListPermissionSet.CanUpdate;
 
 		#endregion
 
@@ -327,5 +332,12 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void CalculateWages() =>
 			Entity.CalculateWages(_wageParameterService);
+
+		public override bool HasChanges
+		{
+			//Костыль чтобы TdiNotebook не спрашивал о сохранении при закрытии вкладки через крестик если нет прав на сохранение
+			get => CanEditRouteList && base.HasChanges;
+			set => base.HasChanges = value;
+		}
 	}
 }

@@ -216,9 +216,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				PhonesViewModel.RemoveEmpty();
 
-				return UoWGeneric.HasChanges
+				return CanEditEmployee 
+				       && (UoWGeneric.HasChanges
 				       || !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					   || (_terminalManagementViewModel?.HasChanges ?? false);
+					   || (_terminalManagementViewModel?.HasChanges ?? false));
 			}
 		}
 		
