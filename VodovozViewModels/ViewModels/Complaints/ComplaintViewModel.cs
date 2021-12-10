@@ -45,6 +45,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 
+		private bool _canAddGuiltyInComplaintsPermissionResult;
+		private bool _canCloseComplaintsPermissionResult;
+
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
@@ -117,6 +120,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 
+			_canAddGuiltyInComplaintsPermissionResult = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
+			_canCloseComplaintsPermissionResult =  CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+
 			if(Entity.ComplaintResultOfEmployees != null && Entity.ComplaintResultOfEmployees.IsArchive)
 			{
 				ComplaintResultsOfEmployees =
@@ -126,6 +132,13 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
 			}
+		}
+
+		public override bool HasChanges
+		{
+			//Костыль чтобы TdiNotebook не спрашивал о сохранении при закрытии вкладки через крестик если нет прав на сохранение
+			get => CanEdit && base.HasChanges;
+			set => base.HasChanges = value;
 		}
 
 		protected void ConfigureEntityChangingRelations()
@@ -344,17 +357,13 @@ namespace Vodovoz.ViewModels.Complaints
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
 		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;
-
 		public bool IsClientComplaint => Entity.ComplaintType == ComplaintType.Client;
-
-		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine))]
+		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine), nameof(CanSelectDeliveryPoint),
+			nameof(CanAddGuilty), nameof(CanClose))]
 		public bool CanEdit => PermissionResult.CanUpdate;
-
-		public bool CanAddGuilty => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
-		public bool CanClose => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
-
-		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
-
+		public bool CanAddGuilty => CanEdit && _canAddGuiltyInComplaintsPermissionResult;
+		public bool CanClose => CanEdit && _canCloseComplaintsPermissionResult;
+		public bool CanSelectDeliveryPoint => CanEdit && Entity.Counterparty != null;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 
