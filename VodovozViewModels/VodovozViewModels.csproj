@@ -105,7 +105,7 @@
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Contacts\RoboAtsCounterpartyPatronymicJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyPatronymicJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\CarEventTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
@@ -126,7 +126,7 @@
     <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonTypeJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Contacts\RoboAtsCounterpartyNameJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyNameJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\CarEventJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\NomenclaturePlanJournalNode.cs" />
@@ -157,8 +157,8 @@
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Contacts\RoboAtsCounterpartyPatronymicJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Contacts\RoboAtsCounterpartyNameJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\RoboAtsCounterpartyPatronymicJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\RoboAtsCounterpartyNameJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\PremiumTemplateJournalViewModel.cs" />
@@ -192,8 +192,8 @@
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
-    <Compile Include="ViewModels\Contacts\RoboAtsCounterpartyNameViewModel.cs" />
-    <Compile Include="ViewModels\Contacts\RoboAtsCounterpartyPatronymicViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />

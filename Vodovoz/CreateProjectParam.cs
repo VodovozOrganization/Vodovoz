@@ -137,6 +137,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
@@ -263,6 +264,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
 				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
 				.RegisterWidgetForTabViewModel<GeneralSettingsViewModel, GeneralSettingsView>()
+				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyNameViewModel, RoboAtsCounterpartyNameView>()
+				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyPatronymicViewModel, RoboAtsCounterpartyPatronymicView>()
 				;
 
             //Регистрация виджетов

@@ -51,8 +51,6 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
-using Vodovoz.ViewModels.Journals.JournalNodes.Contacts;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Contacts;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

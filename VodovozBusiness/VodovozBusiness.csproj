@@ -71,8 +71,8 @@
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultOfEmployees.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultType.cs" />
-    <Compile Include="Domain\Contacts\RoboAtsCounterpartyName.cs" />
-    <Compile Include="Domain\Contacts\RoboAtsCounterpartyPatronymic.cs" />
+    <Compile Include="Domain\Client\RoboAtsCounterpartyName.cs" />
+    <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
@@ -283,6 +283,8 @@
     <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointEstimatedCoordinateMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />

@@ -142,7 +142,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
