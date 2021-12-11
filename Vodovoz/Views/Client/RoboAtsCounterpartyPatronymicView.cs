@@ -15,7 +15,7 @@ namespace Vodovoz.Views.Client
 
 		private void Configure()
 		{
-			yentryPatronymic.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryPatronymic.Binding.AddBinding(ViewModel.Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
 			yentryAccent.Binding.AddBinding(ViewModel.Entity, e => e.Accent, w => w.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();

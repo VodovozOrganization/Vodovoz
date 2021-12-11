@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
-	public class RoboAtsCounterpartyPatronymicViewModel : EntityTabViewModelBase<RoboAtsCounterpartyName>
+	public class RoboAtsCounterpartyPatronymicViewModel : EntityTabViewModelBase<RoboAtsCounterpartyPatronymic>
 	{
 		public RoboAtsCounterpartyPatronymicViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)

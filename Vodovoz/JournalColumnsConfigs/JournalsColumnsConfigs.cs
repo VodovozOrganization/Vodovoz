@@ -1394,7 +1394,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//RoboAtsCounterpartyNameJournalViewModel
+			//RoboAtsCounterpartyPatronymicJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RoboAtsCounterpartyPatronymicJournalViewModel>(
 				() => FluentColumnsConfig<RoboAtsCounterpartyPatronymicJournalNode>.Create()
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)

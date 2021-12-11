@@ -18,6 +18,8 @@ namespace Vodovoz.Domain.Contacts
 		#region Свойства
 		private DeliveryPoint _deliveryPoint;
 		private Counterparty _counterparty;
+		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
+		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
 
 		public virtual int Id { get; set; }
 
@@ -52,6 +54,7 @@ namespace Vodovoz.Domain.Contacts
 		}
 
 		private string _comment;
+
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get => _comment;
@@ -70,6 +73,20 @@ namespace Vodovoz.Domain.Contacts
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
+		}
+
+		[Display(Name = "Имя контрагента")]
+		public virtual RoboAtsCounterpartyName RoboAtsCounterpartyName
+		{
+			get => _roboAtsCounterpartyName;
+			set => SetField(ref _roboAtsCounterpartyName, value);
+		}
+
+		[Display(Name = "Отчество контрагента")]
+		public virtual RoboAtsCounterpartyPatronymic RoboAtsCounterpartyPatronymic
+		{
+			get => _roboAtsCounterpartyPatronymic;
+			set => SetField(ref _roboAtsCounterpartyPatronymic, value);
 		}
 
 		#endregion

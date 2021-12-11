@@ -10,6 +10,8 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
@@ -36,15 +38,26 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters)
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters,
+			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory)
 		{
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
+			if(roboAtsCounterpartyJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
+			}
+			RoboAtsCounterpartyNameSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyNameAutocompleteSelectorFactory();
+			RoboAtsCounterpartyPatronymicSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyPatronymicAutocompleteSelectorFactory();
 			PhoneTypes = phoneRepository.GetPhoneTypes(uow);
 			CreateCommands();
 		}
 
 		IContactsParameters contactsParameters;
+
+		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyNameSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyPatronymicSelectorFactory { get; }
+
 		IPhoneRepository phoneRepository;
 
 		#endregion Prorerties

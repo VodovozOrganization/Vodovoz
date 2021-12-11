@@ -36,8 +36,10 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _accent, value);
 		}
 
-
 		#endregion
+
+		public virtual string Title => Patronymic;
+
 
 		#region IValidatableObject implementation
 

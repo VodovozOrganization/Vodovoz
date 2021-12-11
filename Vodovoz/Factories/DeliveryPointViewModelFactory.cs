@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Factories
@@ -50,7 +51,8 @@ namespace Vodovoz.Factories
 				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForOpen(id),
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices);
+				ServicesConfig.CommonServices,
+				new RoboAtsCounterpartyJournalFactory());
 
 			return dpViewModel;
 		}
@@ -79,6 +81,7 @@ namespace Vodovoz.Factories
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				new RoboAtsCounterpartyJournalFactory(),
 				client);
 
 			return dpViewModel;
