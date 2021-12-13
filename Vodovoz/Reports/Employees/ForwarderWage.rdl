@@ -244,8 +244,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>43.5pt</Top>
+        <Left>0.0pt</Left>
+        <Top>49.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -348,8 +348,8 @@
         </Footer>
       </Table>
       <Textbox Name="Textbox2">
-        <Height>24.05pt</Height>
-        <Width>569.21pt</Width>
+        <Height>23.30pt</Height>
+        <Width>567.71pt</Width>
         <Value>=First(Fields!name, "ForwarderName") + " " + First(Fields!last_name, "ForwarderName") + " " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -499,7 +499,7 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>226.7pt</Top>
+        <Top>233.1pt</Top>
       </Table>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
@@ -508,8 +508,8 @@
 - Sum(Fields!money.Value, "ForwarderFines")
 )</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.9pt</Left>
-        <Top>276.7pt</Top>
+        <Left>0.0pt</Left>
+        <Top>283.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -641,8 +641,8 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>1.5pt</Left>
-        <Top>305.2pt</Top>
+        <Left>0.0pt</Left>
+        <Top>311.6pt</Top>
       </Table>
       <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>ForwarderFines</DataSetName>
@@ -814,8 +814,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.0pt</Left>
-        <Top>108.5pt</Top>
+        <Left>0.0pt</Left>
+        <Top>114.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1032,7 +1032,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>166.1pt</Top>
+        <Top>172.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1097,8 +1097,8 @@
         <Width>1in</Width>
         <Value>Штрафы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.4pt</Left>
-        <Top>95.2pt</Top>
+        <Left>0.0pt</Left>
+        <Top>101.6pt</Top>
       </Textbox>
       <Textbox Name="Textbox57">
         <Height>12pt</Height>
@@ -1106,7 +1106,7 @@
         <Value>Премии:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>153.1pt</Top>
+        <Top>159.5pt</Top>
       </Textbox>
       <Textbox Name="Textbox58">
         <Height>12pt</Height>
@@ -1114,7 +1114,23 @@
         <Value>Авансы:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>213.7pt</Top>
+        <Top>220.1pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox47" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.05pt</Height>
+        <Width>566.96pt</Width>
+        <Value>=First({comment}, "ForwarderName")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>26.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>16pt</FontSize>
+        </Style>
+        <CanGrow>true</CanGrow>
       </Textbox>
     </ReportItems>
     <Columns>1</Columns>
@@ -1139,7 +1155,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="ForwarderWage">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.date 										AS date,
@@ -1190,7 +1206,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1218,22 +1234,31 @@ GROUP BY route_lists.id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderName">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT name, last_name FROM employees WHERE id = @forwarder_id;</CommandText>
+        <CommandText>SELECT
+    name,
+    last_name,
+    comment
+FROM employees
+WHERE id = @forwarder_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="forwarder_id">
             <Value>=Parameters!forwarder_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="last_name">
           <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

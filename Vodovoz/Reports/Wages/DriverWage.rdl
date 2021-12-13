@@ -276,8 +276,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6pt</Left>
-        <Top>38.9pt</Top>
+        <Left>6.8pt</Left>
+        <Top>50.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -565,8 +565,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6pt</Left>
-        <Top>93.1pt</Top>
+        <Left>6.8pt</Left>
+        <Top>104.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -651,8 +651,8 @@
         <Width>292.84pt</Width>
         <Value>="Итого:  " + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") + Sum(Fields!money.Value, "DriverPremiums") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>10pt</Left>
-        <Top>256.7pt</Top>
+        <Left>10.8pt</Left>
+        <Top>268.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -796,8 +796,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6pt</Left>
-        <Top>213.1pt</Top>
+        <Left>6.8pt</Left>
+        <Top>224.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -862,8 +862,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -969,8 +969,8 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>9.2pt</Left>
-        <Top>289.1pt</Top>
+        <Left>10.0pt</Left>
+        <Top>300.4pt</Top>
       </Table>
       <Table Name="Table5">
         <DataSetName>UnclosedAdvances</DataSetName>
@@ -979,8 +979,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1134,16 +1134,16 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6pt</Left>
-        <Top>330.3pt</Top>
+        <Left>6.8pt</Left>
+        <Top>341.6pt</Top>
       </Table>
       <Textbox Name="Textbox52">
         <Height>12.75pt</Height>
         <Width>121.20pt</Width>
         <Value>Незакрытые авансы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>10pt</Left>
-        <Top>316.60pt</Top>
+        <Left>10.8pt</Left>
+        <Top>327.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1155,8 +1155,8 @@
         <Width>167.86pt</Width>
         <Value>Незакрытые маршрутные листы</Value>
         <ZIndex>1</ZIndex>
-        <Left>10pt</Left>
-        <Top>360.8pt</Top>
+        <Left>10.8pt</Left>
+        <Top>372.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1170,8 +1170,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1294,8 +1294,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6pt</Left>
-        <Top>374.7pt</Top>
+        <Left>6.8pt</Left>
+        <Top>386.0pt</Top>
       </Table>
       <Table Name="Table7">
         <DataSetName>DriverBalance</DataSetName>
@@ -1343,7 +1343,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Left >10pt</Left>
+                      <Left>10pt</Left>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1351,8 +1351,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.8pt</Left>
-        <Top>407.9pt</Top>
+        <Left>5.6pt</Left>
+        <Top>419.2pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DriverPremiums</DataSetName>
@@ -1490,8 +1490,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6pt</Left>
-        <Top>152.5pt</Top>
+        <Left>6.8pt</Left>
+        <Top>163.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1556,9 +1556,9 @@
         <Width>1in</Width>
         <Value>Премии:</Value>
         <ZIndex>1</ZIndex>
-        <Left>10pt</Left>
-        <Top>139.4pt</Top>
-        <Style >
+        <Left>10.8pt</Left>
+        <Top>150.7pt</Top>
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -1569,9 +1569,9 @@
         <Width>72.27pt</Width>
         <Value>Авансы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>10.00pt</Left>
-        <Top>200.00pt</Top>
-        <Style >
+        <Left>10.8pt</Left>
+        <Top>211.3pt</Top>
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -1582,13 +1582,29 @@
         <Width>1in</Width>
         <Value>Штрафы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>10pt</Left>
-        <Top>78.8pt</Top>
-        <Style >
+        <Left>10.8pt</Left>
+        <Top>90.1pt</Top>
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
+      </Textbox>
+      <Textbox Name="Textbox64" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.35pt</Height>
+        <Width>563.13pt</Width>
+        <Value>=First({comment}, "DriverName")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.00pt</Left>
+        <Top>27.10pt</Top>
+        <Style>
+          <FontSize>16pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+        <CanGrow>true</CanGrow>
       </Textbox>
     </ReportItems>
     <Columns>1</Columns>
@@ -1684,22 +1700,31 @@ GROUP BY route_lists.id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DriverName">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT name, last_name FROM employees WHERE id = @driver_id;</CommandText>
+        <CommandText>SELECT 
+    name,
+    last_name,
+    comment
+FROM employees
+WHERE id = @driver_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
             <Value>=Parameters!driver_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="last_name">
           <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
