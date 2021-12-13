@@ -51,11 +51,11 @@ namespace Vodovoz.Domain.Contacts
 			set { SetField(ref phoneType, value, () => PhoneType); }
 		}
 
-		private string name;
-		[Display(Name = "Имя")]
-		public virtual string Name {
-			get => name;
-			set { SetField(ref name, value, () => Name); }
+		private string _comment;
+		[Display(Name = "Комментарий")]
+		public virtual string Comment {
+			get => _comment;
+			set { SetField(ref _comment, value); }
 		}
 
 		[Display(Name = "Точка доставки")]
@@ -81,7 +81,7 @@ namespace Vodovoz.Domain.Contacts
 				return PhoneType?.Name
 					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
 					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
-					 + (String.IsNullOrWhiteSpace(Name) ? "" : $"\n[{Name}]");
+					 + (String.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace Vodovoz.Domain.Contacts
 		/// 	Phone.LonqText = [понятно]
 		/// </summary>
 		/// <param name="number">Number.</param>
-		public Phone(string number,string name = null)
+		public Phone(string number, string comment = null)
 		{
 			var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
 			string phone = formatter.FormatString(number);
@@ -113,7 +113,7 @@ namespace Vodovoz.Domain.Contacts
 			phone = formatter.FormatString(number);
 			this.digitsNumber = phone;
 
-			this.name = name;
+			_comment = comment;
 		}
 
 		public virtual Phone Init(IContactsParameters contactsParameters)

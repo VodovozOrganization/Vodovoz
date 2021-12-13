@@ -748,12 +748,12 @@
     IFNULL(
             GROUP_CONCAT(
                     DISTINCT
-                    CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.name,''))
+                    CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.comment,''))
                     SEPARATOR '\n'
                 ),
             GROUP_CONCAT(
                     DISTINCT
-                    CONCAT(c_ph.number, ' ', IFNULL(c_ph.name,''))
+                    CONCAT(c_ph.number, ' ', IFNULL(c_ph.comment,''))
                     SEPARATOR '\n'
                 )
         ) AS phone,
