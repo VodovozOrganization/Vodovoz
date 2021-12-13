@@ -2506,4 +2506,20 @@ public partial class MainWindow : Gtk.Window
 			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
 	}
+
+	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyPatronymicJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
 }

@@ -54,7 +54,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository(), new RoboAtsCounterpartyJournalFactory());
 		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();

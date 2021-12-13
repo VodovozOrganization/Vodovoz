@@ -66,7 +66,7 @@ namespace Vodovoz.TempAdapters
 			_subdivisionJournalFactory = new SubdivisionJournalFactory();
 			_employeePostsJournalFactory = new EmployeePostsJournalFactory();
 			_validationContextFactory = new ValidationContextFactory();
-			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
+			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository(), new RoboAtsCounterpartyJournalFactory());
 			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		}
 
