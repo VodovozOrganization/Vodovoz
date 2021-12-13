@@ -70,7 +70,7 @@ namespace Vodovoz.Dialogs.Phones
 			var phoneDataEntry = new yValidatedEntry();
 			phoneDataEntry.ValidationMode = ValidationType.phone;
 			phoneDataEntry.Tag = newPhone;
-			phoneDataEntry.WidthRequest = 125;
+			phoneDataEntry.WidthRequest = 110;
 			phoneDataEntry.WidthChars = 19;
 			phoneDataEntry.Binding.AddBinding(newPhone, e => e.Number, w => w.Text).InitializeFromSource();
 			phoneDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
@@ -86,14 +86,14 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.SetChildPacking(textAdditionalLabel, false, false, 0, PackType.Start);
 
 			var additionalDataEntry = new yEntry();
-			additionalDataEntry.WidthRequest = 50;
+			additionalDataEntry.WidthRequest = 40;
 			additionalDataEntry.MaxLength = 10;
 			additionalDataEntry.Binding.AddBinding(newPhone, e => e.Additional, w => w.Text).InitializeFromSource();
 			additionalDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(additionalDataEntry);
 			hBox.SetChildPacking(additionalDataEntry, false, false, 0, PackType.Start);
 
-			var labelComment = new Label("комментарий:");
+			var labelComment = new Label("коммент.:");
 			hBox.Add(labelComment);
 			hBox.SetChildPacking(labelComment, false, false, 0, PackType.Start);
 
@@ -104,27 +104,27 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(entryComment);
 			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
 
-			//var labelName = new Label("имя:");
-			//hBox.Add(labelName);
-			//hBox.SetChildPacking(labelName, false, false, 0, PackType.Start);
+			var labelName = new Label("имя:");
+			hBox.Add(labelName);
+			hBox.SetChildPacking(labelName, false, false, 0, PackType.Start);
 
-			//var entityviewmodelentryName = new EntityViewModelEntry();
-			//entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
-			//entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject).InitializeFromSource();
-			//entityviewmodelentryName.WidthRequest = 35;
-			//hBox.Add(entityviewmodelentryName);
-			//hBox.SetChildPacking(entityviewmodelentryName, true, true, 0, PackType.Start);
+			var entityviewmodelentryName = new EntityViewModelEntry();
+			entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
+			entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryName.WidthRequest = 170;
+			hBox.Add(entityviewmodelentryName);
+			hBox.SetChildPacking(entityviewmodelentryName, true, true, 0, PackType.Start);
 
-			//var labelPatronymic = new Label("отч-во:");
-			//hBox.Add(labelPatronymic);
-			//hBox.SetChildPacking(labelPatronymic, false, false, 0, PackType.Start);
+			var labelPatronymic = new Label("отч.:");
+			hBox.Add(labelPatronymic);
+			hBox.SetChildPacking(labelPatronymic, false, false, 0, PackType.Start);
 
-			//var entityviewmodelentryPatronymic = new EntityViewModelEntry();
-			//entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
-			//entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject).InitializeFromSource();
-			//entityviewmodelentryPatronymic.WidthRequest = 35;
-			//hBox.Add(entityviewmodelentryPatronymic);
-			//hBox.SetChildPacking(entityviewmodelentryPatronymic, true, true, 0, PackType.Start);
+			var entityviewmodelentryPatronymic = new EntityViewModelEntry();
+			entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
+			entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryPatronymic.WidthRequest = 170;
+			hBox.Add(entityviewmodelentryPatronymic);
+			hBox.SetChildPacking(entityviewmodelentryPatronymic, true, true, 0, PackType.Start);
 
 			yButton deleteButton = new yButton();
 			Image image = new Image();

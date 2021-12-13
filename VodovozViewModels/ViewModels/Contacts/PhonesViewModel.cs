@@ -22,6 +22,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public IList<PhoneType> PhoneTypes;
 		public event Action PhonesListReplaced; //Убрать
 		public DeliveryPoint DeliveryPoint { get; set; }
+		public Domain.Client.Counterparty Counterparty { get; set; }
 
 		private GenericObservableList<Phone> phonesList ;
 		public virtual GenericObservableList<Phone> PhonesList {
@@ -73,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				() => {
 					var phone = new Phone().Init(ContactParametersProvider.Instance);
 					phone.DeliveryPoint = DeliveryPoint;
+					phone.Counterparty = Counterparty;
 					if(PhonesList == null)
 						PhonesList = new GenericObservableList<Phone>();
 					PhonesList.Add(phone);
