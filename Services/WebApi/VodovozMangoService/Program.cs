@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,12 +34,6 @@ namespace VodovozMangoService
                         .UseKestrel( (context, k) =>
                         {
                             var appServices = k.ApplicationServices;
-                            k.Listen(
-                                IPAddress.Any, Int32.Parse(context.Configuration["MangoService:https_port"]),
-                                o => o.UseHttps(h =>
-                                {
-                                    h.UseLettuceEncrypt(appServices);
-                                }));
                             k.Listen(IPAddress.Any, Int32.Parse(context.Configuration["MangoService:http_port"]));
                         })
                         .UseStartup<Startup>();
