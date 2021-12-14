@@ -34,6 +34,7 @@ namespace VodovozDeliveryRulesService
 		{
 			try 
 			{
+				var date = DateTime.Now;
 				logger.Info("Поступил запрос на получение правил доставки");
 				
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
@@ -56,7 +57,7 @@ namespace VodovozDeliveryRulesService
 					if(district != null) 
 					{
 						logger.Info($"Район получен {district.DistrictName}");
-
+						
 						var response = new DeliveryRulesDTO 
 						{
 							WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
@@ -76,18 +77,7 @@ namespace VodovozDeliveryRulesService
 								rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
 							}
 
-							List<DeliverySchedule> scheduleRestrictions;
-							if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
-							{
-								scheduleRestrictions = new List<DeliverySchedule>();
-							}
-							else
-							{
-								scheduleRestrictions = district
-									.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
-									.Select(x => x.DeliverySchedule)
-									.ToList();
-							}
+							var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
 
 							var item = new WeekDayDeliveryRuleDTO {
 								WeekDayEnum = weekDay,
@@ -196,18 +186,8 @@ namespace VodovozDeliveryRulesService
 			{
 				var rules = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).ToList();
 
-				IList<DeliverySchedule> scheduleRestrictions;
-				if(weekDay == WeekDayName.Today)
-				{
-					scheduleRestrictions = isStoppedOnlineDeliveriesToday
-						? new List<DeliverySchedule>()
-						: GetScheduleRestrictions(district, weekDay);
-				}
-				else
-				{
-					scheduleRestrictions = GetScheduleRestrictionsByDate(district, weekDay, date);
-				}
-				
+				var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
+
 				var item = new WeekDayDeliveryInfoDTO
 				{
 					DeliveryRules = rules.Any()
@@ -266,7 +246,20 @@ namespace VodovozDeliveryRulesService
 				.ToList();
 		}
 
-		private IList<DeliverySchedule> GetScheduleRestrictions(District district, WeekDayName weekDay)
+		private IList<DeliverySchedule> GetScheduleRestrictions(
+			District district, WeekDayName weekDay, DateTime date, bool isStoppedOnlineDeliveriesToday)
+		{
+			if(weekDay == WeekDayName.Today)
+			{
+				return isStoppedOnlineDeliveriesToday
+					? new List<DeliverySchedule>()
+					: GetScheduleRestrictionsForWeekDay(district, weekDay);
+			}
+			
+			return GetScheduleRestrictionsByDate(district, weekDay, date);
+		}
+
+		private IList<DeliverySchedule> GetScheduleRestrictionsForWeekDay(District district, WeekDayName weekDay)
 		{
 			return district
 				.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
@@ -281,12 +274,12 @@ namespace VodovozDeliveryRulesService
 			{
 				return district
 					.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
-					.Where(x => x.AcceptBefore.Time > date.TimeOfDay)
+					.Where(x => x.AcceptBefore == null || x.AcceptBefore.Time > date.TimeOfDay)
 					.Select(x => x.DeliverySchedule)
 					.ToList();
 			}
 			
-			return GetScheduleRestrictions(district, weekDay);
+			return GetScheduleRestrictionsForWeekDay(district, weekDay);
 		}
 	}
 }

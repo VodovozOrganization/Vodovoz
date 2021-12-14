@@ -82,14 +82,15 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeScheduleRestrictions.ColumnsConfig = ColumnsConfigFactory.Create<DeliveryScheduleRestriction>()
 				.AddColumn("График")
-					.MinWidth(150)
+					.MinWidth(100)
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DeliverySchedule.Name)
-				.AddColumn("Прием до")
+				.AddColumn(acceptBeforeColumnTag)
 					.SetTag(acceptBeforeColumnTag)
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.AcceptBeforeTitle)
-					.AddSetter((c, r) => c.BackgroundGdk = r.AcceptBefore == null ? colorRed : colorWhite)
+					.AddSetter((c, r) =>
+						c.BackgroundGdk = r.WeekDay == WeekDayName.Today && r.AcceptBefore == null ? colorRed : colorWhite)
 				.Finish();
 			ytreeScheduleRestrictions.Binding.AddBinding(ViewModel, vm => vm.ScheduleRestrictions, w => w.ItemsDataSource);
 			ytreeScheduleRestrictions.Selection.Changed += (sender, args) =>
@@ -376,7 +377,9 @@ namespace Vodovoz.Views.Logistic
 					switch (args.PropertyName) {
 						case nameof(ViewModel.SelectedWeekDayName):
 							var column = ytreeScheduleRestrictions.ColumnsConfig.GetColumnsByTag(acceptBeforeColumnTag).First();
-							column.Visible = ViewModel.SelectedWeekDayName == WeekDayName.Today;
+							column.Title = ViewModel.SelectedWeekDayName == WeekDayName.Today
+								? acceptBeforeColumnTag
+								: $"{acceptBeforeColumnTag} прошлого дня";
 							break;
 						case nameof(ViewModel.SelectedDistrict):
 							if(ViewModel.SelectedDistrict != null)
