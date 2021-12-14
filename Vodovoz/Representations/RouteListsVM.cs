@@ -6,12 +6,8 @@ using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using MoreLinq;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Linq;
 using NHibernate.Transform;
-using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -173,20 +169,21 @@ namespace Vodovoz.ViewModel
 				.Left.JoinAlias(o => o.Car, () => carAlias)
 				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
-				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
-				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
-				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
-				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
-				   .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
-				   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
-				   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
-				   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
-				   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-				   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
-				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
-				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
-				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
-				   .Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+					.SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
+					.Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
+					.Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
+					.Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
+					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.Select(() => driverAlias.Comment).WithAlias(() => resultAlias.DriverComment)
+					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
+					.Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
+					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
+					.Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
+					.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
@@ -213,6 +210,10 @@ namespace Vodovoz.ViewModel
 				.WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Комментарий по закрытию")
 				.AddTextRenderer(node => node.ClosinComments)
+				.WrapWidth(300)
+				.WrapMode(Pango.WrapMode.WordChar)
+			.AddColumn("Комментарий по водителю")
+				.AddTextRenderer(node => node.DriverComment)
 				.WrapWidth(300)
 				.WrapMode(Pango.WrapMode.WordChar)
 			.RowCells()
@@ -720,6 +721,7 @@ namespace Vodovoz.ViewModel
 		public string DriverSurname { get; set; }
 		public string DriverName { get; set; }
 		public string DriverPatronymic { get; set; }
+		public string DriverComment { get; set; }
 
 		public string Driver => PersonHelper.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
 
