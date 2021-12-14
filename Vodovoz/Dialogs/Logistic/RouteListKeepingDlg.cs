@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using Chats;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
@@ -28,13 +27,11 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewWidgets.Mango;
 
@@ -46,9 +43,9 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		
 		//2 уровня доступа к виджетам, для всех и для логистов.
-		private bool allEditing = true;
-		private bool logisticanEditing = true;
-		private bool isUserLogist = true;
+		private readonly bool _allEditing;
+		private readonly bool _logisticanEditing;
+		private readonly bool _isUserLogist;
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
@@ -59,10 +56,10 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = string.Format("Ведение МЛ №{0}", Entity.Id);
-			allEditing = Entity.Status == RouteListStatus.EnRoute;
-			isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-			logisticanEditing = isUserLogist && allEditing;
+			TabName = $"Ведение МЛ №{Entity.Id}";
+			_allEditing = Entity.Status == RouteListStatus.EnRoute && permissionResult.CanUpdate;
+			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			_logisticanEditing = _isUserLogist && _allEditing;
 
 			ConfigureDlg();
 		}
@@ -80,8 +77,14 @@ namespace Vodovoz
 			}
 		}
 
-		public override bool HasChanges {
-			get {
+		public override bool HasChanges
+		{
+			get
+			{
+				if(!_allEditing)
+				{
+					return false;
+				}
 				if(items.All(x => x.Status != RouteListItemStatus.EnRoute))
 					return true; //Хак, чтобы вылезало уведомление о закрытии маршрутного листа, даже если ничего не меняли.
 				return base.HasChanges;
@@ -111,17 +114,19 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 		RouteListKeepingItemNode selectedItem;
 
-		public void ConfigureDlg()
+		private void ConfigureDlg()
 		{
+			buttonSave.Sensitive = _allEditing;
+			
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
-			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged; ;
+			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.Sensitive = logisticanEditing;
+			entityviewmodelentryCar.Sensitive = _logisticanEditing;
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -130,7 +135,7 @@ namespace Vodovoz
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			evmeDriver.Sensitive = logisticanEditing;
+			evmeDriver.Sensitive = _logisticanEditing;
 
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
@@ -139,34 +144,34 @@ namespace Vodovoz
 			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			evmeForwarder.Sensitive = logisticanEditing;
+			evmeForwarder.Sensitive = _logisticanEditing;
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
 			var employeeFactory = new EmployeeJournalFactory();
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
-			evmeLogistician.Sensitive = logisticanEditing;
+			evmeLogistician.Sensitive = _logisticanEditing;
 
 			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
-			speccomboShift.Sensitive = logisticanEditing;
+			speccomboShift.Sensitive = _logisticanEditing;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
-			datePickerDate.Sensitive = logisticanEditing;
+			datePickerDate.Sensitive = _logisticanEditing;
 
 			ylabelLastTimeCall.Binding.AddFuncBinding(Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource();
-			yspinActualDistance.Sensitive = allEditing;
+			yspinActualDistance.Sensitive = _allEditing;
 
-			buttonMadeCall.Sensitive = allEditing;
+			buttonMadeCall.Sensitive = _allEditing;
 
-			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist
+			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && _isUserLogist
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_retrieve_routelist_en_route");
 
 			btnReDeliver.Binding.AddBinding(Entity, e => e.CanChangeStatusToDelivered, w => w.Sensitive).InitializeFromSource();
 
-			buttonNewFine.Sensitive = allEditing;
+			buttonNewFine.Sensitive = _allEditing;
 
-			buttonRefresh.Sensitive = allEditing;
+			buttonRefresh.Sensitive = _allEditing;
 
 			//Заполняем иконки
 			var ass = Assembly.GetAssembly(typeof(MainClass));
@@ -187,7 +192,7 @@ namespace Vodovoz
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
-					.AddSetter((c, n) => c.Editable = allEditing && n.Status != RouteListItemStatus.Transfered)
+					.AddSetter((c, n) => c.Editable = _allEditing && n.Status != RouteListItemStatus.Transfered)
 				.AddColumn("Отгрузка")
 					.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
 					.Where(b => b.Nomenclature.Category == NomenclatureCategory.water && b.Nomenclature.TareVolume == TareVolume.Vol19L)
@@ -200,7 +205,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
-					.Editable(allEditing)
+					.Editable(_allEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
 				.RowCells()
@@ -208,7 +213,7 @@ namespace Vodovoz
 				.Finish();
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
-			ytreeviewAddresses.Sensitive = allEditing;
+			ytreeviewAddresses.Sensitive = _allEditing;
 			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
 
 			//Point!
@@ -362,10 +367,10 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args)
 		{
-			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any() && allEditing;
+			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any() && _allEditing;
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 
 													&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")
-													&& allEditing;								
+													&& _allEditing;								
 		}
 
 		void ReferenceForwarder_Changed(object sender, EventArgs e)

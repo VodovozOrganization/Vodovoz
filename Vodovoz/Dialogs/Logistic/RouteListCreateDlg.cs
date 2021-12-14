@@ -14,35 +14,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vodovoz.Additions.Logistic;
+using QS.Navigation;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Core.DataService;
-using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -61,26 +57,12 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
+		private readonly WageParameterService _wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 
-		private IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-		private ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
-		private WageParameterService _wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
-
-		private bool _isEditable;
 		private bool _canClose = true;
 		private Employee _oldDriver;
-
-		protected bool IsEditable
-		{
-			get => _isEditable;
-			set
-			{
-				_isEditable = value;
-				speccomboShift.Sensitive = _isEditable;
-				ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive = yspeccomboboxCashSubdivision.Sensitive = _isEditable;
-				createroutelistitemsview1.IsEditable(_isEditable);
-			}
-		}
 
 		public RouteListCreateDlg()
 		{
@@ -113,6 +95,19 @@ namespace Vodovoz
 				ConfigureDlg();
 			}
 		}
+		
+		public override bool HasChanges
+		{
+			get
+			{
+				if(permissionResult.CanRead && !(permissionResult.CanCreate && permissionResult.CanUpdate))
+				{
+					return false;
+				}
+				return base.HasChanges;
+			}
+			set => base.HasChanges = value;
+		}
 
 		private bool ConfigSubdivisionCombo()
 		{
@@ -127,7 +122,7 @@ namespace Vodovoz
 			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
 			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
 			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
-			yspeccomboboxCashSubdivision.ItemSelected += YspeccomboboxCashSubdivision_ItemSelected;
+			yspeccomboboxCashSubdivision.ItemSelected += OnYSpecCmbCashSubdivisionItemSelected;
 
 			if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id))
 			{
@@ -139,6 +134,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			buttonCancel.Clicked -= OnButtonCancelClicked;
+			buttonCancel.Clicked += OnCancelClicked;
+			printTimeButton.Clicked += OnPrintTimeButtonClicked;
+			
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
@@ -203,6 +202,7 @@ namespace Vodovoz
 			}
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
+			createroutelistitemsview1.PermissionResult = permissionResult;
 
 			buttonAccept.Visible = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed;
 			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)
@@ -214,9 +214,6 @@ namespace Vodovoz
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
-
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-			IsEditable = Entity.Status == RouteListStatus.New && logistician;
 
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
@@ -231,7 +228,6 @@ namespace Vodovoz
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, IsLoadDocumentPrintable
 																			  && !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
-			CheckCarLoadDocuments();
 
 			//Телефон
 			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
@@ -239,6 +235,7 @@ namespace Vodovoz
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			var hasAccessToDriverTerminal = logistician ||
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
@@ -251,19 +248,43 @@ namespace Vodovoz
 			}
 
 			_oldDriver = Entity.Driver;
+			UpdateDlg(logistician);
+		}
+		
+		private void OnCancelClicked(object sender, EventArgs e)
+		{
+			OnCloseTab(false, CloseSource.Cancel);
+		}
+		
+		private void UpdateDlg(bool logistician)
+		{
+			if(Entity.Status == RouteListStatus.New && logistician && (permissionResult.CanCreate || permissionResult.CanUpdate))
+			{
+				UpdateElements(true);
+			}
+			else if(logistician && (permissionResult.CanUpdate))
+			{
+				UpdateElements(false);
+			}
+			else
+			{
+				var canOpenOrder = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
+				UpdateElements(false, canOpenOrder);
+				buttonAccept.Sensitive = buttonSave.Sensitive = false;
+			}
 		}
 
-		private void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		private void UpdateElements(bool isEditable, bool canOpenOrder = true)
+		{
+			speccomboShift.Sensitive = isEditable;
+			ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive =
+				yspeccomboboxCashSubdivision.Sensitive = isEditable;
+			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
+		}
+
+		private void OnYSpecCmbCashSubdivisionItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			Entity.ClosingSubdivision = yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
-		}
-
-		private void CheckCarLoadDocuments()
-		{
-			if(Entity.Id > 0 && _routeListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
-			{
-				IsEditable = false;
-			}
 		}
 
 		private void PrintSelectedDocument(RouteListPrintableDocuments choise)
@@ -330,7 +351,7 @@ namespace Vodovoz
 			{
 				case RouteListStatus.New:
 					{
-						IsEditable = true;
+						UpdateElements(true);
 						var icon = new Image
 						{
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
@@ -342,7 +363,7 @@ namespace Vodovoz
 					}
 				case RouteListStatus.Confirmed:
 					{
-						IsEditable = false;
+						UpdateElements(false);
 						var icon = new Image
 						{
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
@@ -354,7 +375,7 @@ namespace Vodovoz
 					}
 				case RouteListStatus.InLoading:
 					{
-						IsEditable = false;
+						UpdateElements(false);
 						var icon = new Image
 						{
 							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)

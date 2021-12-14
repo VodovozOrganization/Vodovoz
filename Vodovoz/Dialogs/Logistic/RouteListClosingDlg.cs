@@ -20,7 +20,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Fuel;
@@ -46,7 +45,6 @@ using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalFilters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
@@ -76,7 +74,7 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private readonly bool _editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		private bool _editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		
@@ -154,8 +152,15 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public override bool HasChanges
+		{
+			get => _editing && base.HasChanges;
+			set => base.HasChanges = value;
+		}
+
 		private void ConfigureDlg()
 		{
+			_editing = _editing && permissionResult.CanUpdate;
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
 				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
 			}
@@ -251,7 +256,7 @@ namespace Vodovoz
 																   .Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
 			foreach(var item in returnableOrderItems) {
 				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
-					allReturnsToWarehouse.Add(new EntityRepositories.Logistic.ReturnsNode {
+					allReturnsToWarehouse.Add(new ReturnsNode {
 						Name = item.Nomenclature.Name,
 						Trackable = item.Nomenclature.IsSerial,
 						NomenclatureId = item.Nomenclature.Id,
@@ -346,6 +351,8 @@ namespace Vodovoz
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
 				toggleWageDetails.Sensitive = _editing;
+				permissioncommentview.Sensitive = _editing;
+				buttonSave.Sensitive = _editing;
 
 				HasChanges = false;
 
@@ -366,6 +373,7 @@ namespace Vodovoz
 			routeListAddressesView.IsEditing = _editing;
 			ycheckHideCells.Sensitive = _editing;
 			routelistdiscrepancyview.Sensitive = _editing;
+			buttonReturnedRefresh.Sensitive = _editing;
 			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
 			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
 			enummenuRLActions.Sensitive = _editing;
@@ -374,6 +382,8 @@ namespace Vodovoz
 			buttonCalculateCash.Sensitive = _editing;
 			labelWage1.Visible = _editing;
 			toggleWageDetails.Sensitive = _editing;
+			permissioncommentview.Sensitive = _editing;
+			buttonSave.Sensitive = _editing;
 			UpdateButtonState();
 		}
 
