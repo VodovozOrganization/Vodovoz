@@ -24,8 +24,7 @@ namespace Vodovoz.Controllers
 		/// <param name="orderItem">Строка заказа</param>
 		/// <returns>true/false</returns>
 		private bool CanSetDiscount(DiscountReason reason, OrderItem orderItem) =>
-			!OrderItemContainsPromoSetOrFixedPrice(orderItem)
-			&& IsApplicableDiscount(reason, orderItem.Nomenclature)
+			IsApplicableDiscount(reason, orderItem.Nomenclature)
 			&& orderItem.Price * orderItem.CurrentCount != default(decimal);
 		
 		/// <summary>
@@ -93,6 +92,41 @@ namespace Vodovoz.Controllers
 
 				return false;
 			}
+		}
+		
+		/// <summary>
+		/// Содержит ли строка заказа промонабор или есть фикса
+		/// </summary>
+		/// <param name="orderItem">Строка заказа</param>
+		/// <returns>true/false</returns>
+		private bool OrderItemContainsPromoSetOrFixedPrice(OrderItem orderItem)
+		{
+			if(orderItem == null)
+			{
+				throw new ArgumentNullException(nameof(orderItem));
+			}
+			
+			if(orderItem.PromoSet != null)
+			{
+				return true;
+			}
+
+			if(orderItem.Order.SelfDelivery)
+			{
+				if(orderItem.Order.Client != null)
+				{
+					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.Client, orderItem.Nomenclature);
+				}
+			}
+			else
+			{
+				if(orderItem.Order.DeliveryPoint != null)
+				{
+					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.DeliveryPoint, orderItem.Nomenclature);
+				}
+			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -187,11 +221,21 @@ namespace Vodovoz.Controllers
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="orderItems">Список строк заказа</param>
-		public void SetDiscountFromDiscountReasonForOrder(DiscountReason reason, IList<OrderItem> orderItems)
+		/// <param name="canChangeDiscountValue">Может ли пользователь менять скидку</param>
+		/// <param name="messages">Описание позиций на которые не применилась скидка</param>
+		public void SetDiscountFromDiscountReasonForOrder(
+			DiscountReason reason, IList<OrderItem> orderItems, bool canChangeDiscountValue, out string messages)
 		{
-			foreach(var item in orderItems)
+			messages = null;
+			
+			for(var i = 0; i < orderItems.Count; i++)
 			{
-				SetDiscountFromDiscountReasonForOrderItem(reason, item);
+				SetDiscountFromDiscountReasonForOrderItem(reason, orderItems[i], canChangeDiscountValue, out string message);
+
+				if(message != null)
+				{
+					messages += $"№{i + 1} {message}";
+				}
 			}
 		}
 
@@ -200,10 +244,23 @@ namespace Vodovoz.Controllers
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="orderItem">Строка заказа</param>
-		public void SetDiscountFromDiscountReasonForOrderItem(DiscountReason reason, OrderItem orderItem)
+		/// <param name="canChangeDiscountValue">Может ли пользователь менять скидку</param>
+		/// <param name="message">Описание позици на которую не применилась скидка</param>
+		public void SetDiscountFromDiscountReasonForOrderItem(
+			DiscountReason reason, OrderItem orderItem, bool canChangeDiscountValue, out string message)
 		{
+			message = null;
+			
 			if(!CanSetDiscount(reason, orderItem))
 			{
+				orderItem.DiscountReason = null;
+				return;
+			}
+			
+			if(!canChangeDiscountValue && OrderItemContainsPromoSetOrFixedPrice(orderItem))
+			{
+				orderItem.DiscountReason = null;
+				message = $"{orderItem.Nomenclature.Name}\n";
 				return;
 			}
 
@@ -224,36 +281,6 @@ namespace Vodovoz.Controllers
 			}
 
 			SetDiscount(reason, orderItem);
-		}
-
-		/// <summary>
-		/// Содержит ли строка заказа промонабор или есть фикса
-		/// </summary>
-		/// <param name="orderItem">Строка заказа</param>
-		/// <returns>true/false</returns>
-		public bool OrderItemContainsPromoSetOrFixedPrice(OrderItem orderItem)
-		{
-			if(orderItem.PromoSet != null)
-			{
-				return true;
-			}
-
-			if(orderItem.Order.SelfDelivery)
-			{
-				if(orderItem.Order.Client != null)
-				{
-					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.Client, orderItem.Nomenclature);
-				}
-			}
-			else
-			{
-				if(orderItem.Order.DeliveryPoint != null)
-				{
-					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.DeliveryPoint, orderItem.Nomenclature);
-				}
-			}
-
-			return false;
 		}
 
 		/// <summary>
