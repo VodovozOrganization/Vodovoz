@@ -118,7 +118,7 @@ namespace Vodovoz
 
 			foreach(var driverId in selectedDriverIds)
 			{
-				if(!lastSelectedDrivers.ContainsKey(driverId) && carMarkers != null && carMarkers.ContainsKey (driverId))
+				if(!lastSelectedDrivers.ContainsKey(driverId) && carMarkers != null && carMarkers.ContainsKey(driverId))
 				{
 					lastSelectedDrivers.Add(driverId, carMarkers[driverId].Type);
 					carMarkers[driverId].Type = CarMarkerType.BlackCar;
@@ -129,8 +129,12 @@ namespace Vodovoz
 			{
 				if(!selectedDriverIds.Contains(pair.Key) && carMarkers != null)
 				{
-					carMarkers[pair.Key].Type = pair.Value;
-					lastSelectedDrivers.Remove (pair.Key);
+					if(carMarkers.ContainsKey(pair.Key))
+					{
+						carMarkers[pair.Key].Type = pair.Value;
+					}
+
+					lastSelectedDrivers.Remove(pair.Key);
 				}
 			}
 		}

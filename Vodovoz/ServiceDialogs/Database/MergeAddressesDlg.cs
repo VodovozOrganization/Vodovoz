@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
+using Fias.Service;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using QS.Deletion;
@@ -11,20 +12,13 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Osm;
-using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using QS.Project.Services;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
@@ -35,9 +29,10 @@ namespace Vodovoz.ServiceDialogs.Database
 		private readonly IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private List<DublicateNode> _duplicates;
 		private GenericObservableList<DublicateNode> _observableDuplicates;
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		private readonly ReplaceEntity _replaceEntity;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-		public MergeAddressesDlg()
+		public MergeAddressesDlg(IFiasService fiasService)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance")) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
@@ -62,6 +57,9 @@ namespace Vodovoz.ServiceDialogs.Database
 				.AddColumn("Код 1С").AddTextRenderer(x => x.Address.Code1c)
 				.AddColumn("Адрес 1с").AddTextRenderer(x => x.PangoText, useMarkup: true)
 				.Finish();
+
+			_replaceEntity = new ReplaceEntity(DeleteConfig.Main);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
 		}
 
 		void DuplicateSelection_Changed(object sender, EventArgs e)
@@ -153,7 +151,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				var main = dup.Addresses.First(x => x.IsMain);
 				foreach(var deleted in dup.Addresses.Where(x => !x.IsMain && !x.Ignore))
 				{
-					totalLinks += ReplaceEntity.ReplaceEverywhere(_uow, deleted.Address, main.Address);
+					totalLinks += _replaceEntity.ReplaceEverywhere(_uow, deleted.Address, main.Address);
 					_uow.Delete(deleted.Address);
 					_uow.Commit();
 

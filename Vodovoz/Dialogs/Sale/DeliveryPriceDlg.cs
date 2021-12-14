@@ -5,7 +5,6 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
-using QS.Osm.DTO;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Tools.Logistic;
@@ -28,14 +27,20 @@ namespace Vodovoz.Dialogs.Sale
 			TabName = "Расчет стоимости доставки";
 
 			entryCity.CitySelected += (sender, e) => {
-				entryBuilding.House = string.Empty;
-				entryStreet.CityId = entryCity.OsmId;
-				entryStreet.Street = string.Empty;
+				entryStreet.CityGuid = entryCity.FiasGuid;
+				entryStreet.StreetTypeName = string.Empty;
+				entryStreet.StreetTypeNameShort = string.Empty;
+				entryStreet.StreetName = string.Empty;
 				entryStreet.StreetDistrict = string.Empty;
+				entryStreet.FireStreetChange();
+				entryBuilding.StreetGuid = null;
+				entryBuilding.CityGuid = entryCity.FiasGuid;
+				entryBuilding.BuildingName = string.Empty;
 			};
 
-			entryStreet.StreetSelected += (sender, e) => {
-				entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+			entryStreet.StreetSelected += (sender, e) =>
+			{
+				entryBuilding.StreetGuid = entryStreet.FiasGuid;
 			};
 
 			entryBuilding.CompletionLoaded += EntryBuilding_Changed;
@@ -63,7 +68,7 @@ namespace Vodovoz.Dialogs.Sale
 		}
 		void EntryBuilding_Changed(object sender, EventArgs e)
 		{
-			if(entryBuilding.OsmCompletion.HasValue && entryBuilding.OsmCompletion.Value) {
+			if(entryBuilding.FiasCompletion.HasValue && entryBuilding.FiasCompletion.Value) {
 				entryBuilding.GetCoordinates(out decimal? lng, out decimal? lat);
 				SetCoordinates(lat, lng);
 				deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(latitude, longitude, yspinBottles.ValueAsInt);

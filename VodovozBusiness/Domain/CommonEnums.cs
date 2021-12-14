@@ -45,8 +45,6 @@ namespace Vodovoz.Domain.Client
 		ContractDoc,
 		[Display(Name = "Безналичная", ShortName = "б/н.")]
 		cashless,
-		[Display(Name = "Мир напитков", ShortName = "нал.")]
-		BeveragesWorld
 	}
 
 	public class PaymentTypeStringType : NHibernate.Type.EnumStringType

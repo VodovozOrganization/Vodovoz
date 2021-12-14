@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
                 addressTypeNodes.Last().PropertyChanged += OnStatusCheckChanged;
             }
 
-            GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
+            GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>();
 
             var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
 
@@ -105,14 +105,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
             }
         }
 
-        private List<GeographicGroup> geographicGroups;
-        /// <summary>
+		/// <summary>
         /// Части города для отображения в фильтре
         /// </summary>
-        public List<GeographicGroup> GeographicGroups { get => geographicGroups; set => geographicGroups = value; }
+        public IList<GeographicGroup> GeographicGroups { get; }
 
 
-        private GeographicGroup geographicGroup;
+		private GeographicGroup geographicGroup;
         /// <summary>
         /// Часть города
         /// </summary>

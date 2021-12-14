@@ -246,8 +246,8 @@ namespace Vodovoz.Domain.Cash
 			if(Id == 0) {
 				var existsIncome = cashRepository.GetIncomePaidSumForOrder(uow, Order.Id);
 				decimal orderCash = 0m;
-				if(Order.PaymentType == PaymentType.cash || Order.PaymentType == PaymentType.BeveragesWorld) {
-					orderCash = Order.OrderSum + (Order.ExtraMoney < 0 ? 0 : Order.ExtraMoney);
+				if(Order.PaymentType == PaymentType.cash) {
+					orderCash = Order.OrderSum;
 				}
 				var result = orderCash - existsIncome;
 				Money = result < 0 ? 0 : result;
@@ -279,13 +279,13 @@ namespace Vodovoz.Domain.Cash
 					yield return new ValidationResult("Должен быть выбран заказ.",
 					new[] { this.GetPropertyName(o => o.Order) });
 				} else {
-					if(Order.PaymentType != PaymentType.cash && Order.PaymentType != PaymentType.BeveragesWorld) {
+					if(Order.PaymentType != PaymentType.cash) {
 						yield return new ValidationResult("Должен быть выбран наличный заказ");
 					}
 					if(!Order.SelfDelivery) {
 						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
 					}
-					if(Order.OrderSum < Money) {
+					if(Order.OrderPositiveSum < Money) {
 						yield return new ValidationResult("Сумма к оплате не может быть больше чем сумма в заказе");
 					}
 				}

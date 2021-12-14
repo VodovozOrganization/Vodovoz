@@ -35,7 +35,11 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.ServiceModel.Configuration;
+using FluentNHibernate.Utils;
+using Gamma.ColumnConfig;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -44,11 +48,13 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
@@ -57,6 +63,7 @@ using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
@@ -78,7 +85,6 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.Representations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -119,8 +125,7 @@ namespace Vodovoz
 		private IOrderParametersProvider _orderParametersProvider;
 
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
-		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
-			new EntityDocumentsPrinterFactory();
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -130,6 +135,7 @@ namespace Vodovoz
 		private readonly IServiceClaimRepository _serviceClaimRepository = new ServiceClaimRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
@@ -139,11 +145,18 @@ namespace Vodovoz
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
+		private readonly bool _canSetOurOrganization =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _addedFlyersNomenclaturesIds;
 		private Employee _currentEmployee;
+		private bool _canChangeDiscountValue;
+		private bool _canChoosePremiumDiscount;
+		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
+		private IOrderDiscountsController _discountsController;
+		private IOrderDailyNumberController _dailyNumberController;
 
 		private readonly string _mailPrepareQueueId = "MailPrepareQueue"; // Заменить на что-то другое
 
@@ -364,16 +377,16 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int id)
 		{
-			templateOrder = UoW.GetById<Order>(id);
-			Entity.Client = templateOrder.Client;
-			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
-			Entity.ClientPhone = templateOrder.ClientPhone;
-			Entity.OrderAddressType = templateOrder.OrderAddressType;
-			Entity.CopyPromotionalSetsFrom(templateOrder);
-			Entity.CopyItemsFrom(templateOrder);
-			Entity.CopyDocumentsFrom(templateOrder);
-			Entity.CopyEquipmentFrom(templateOrder);
-			Entity.CopyDepositItemsFrom(templateOrder);
+			var order = UoW.GetById<Order>(id);
+			Entity.Client = order.Client;
+			Entity.DeliveryPoint = order.DeliveryPoint;
+			Entity.ClientPhone = order.ClientPhone;
+			Entity.OrderAddressType = order.OrderAddressType;
+			Entity.CopyPromotionalSetsFrom(order);
+			Entity.CopyItemsFrom(order);
+			Entity.CopyDocumentsFrom(order);
+			Entity.CopyEquipmentFrom(order);
+			Entity.CopyDepositItemsFrom(order);
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			OrderAddressTypeChanged();
@@ -386,22 +399,31 @@ namespace Vodovoz
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
+			_canChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			_canChoosePremiumDiscount = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
+			_nomenclatureFixedPriceProvider	=
+				new NomenclatureFixedPriceController(
+					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
+			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
+
+			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
+
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
-			_discountReasons = _orderRepository.GetActiveDiscountReasons(UoW);
 			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
 			
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty, Phone>(OnCounterpartyChanged);
+			
 			ConfigureTrees();
 			ConfigureAcceptButtons();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
 
-			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 			spinDiscount.Adjustment.Upper = 100;
 
 			if(Entity.PreviousOrder != null) {
@@ -458,6 +480,11 @@ namespace Vodovoz
 			chkContractCloser.Binding.AddBinding(Entity, c => c.IsContractCloser, w => w.Active).InitializeFromSource();
 
 			chkCommentForDriver.Binding.AddBinding(Entity, c => c.HasCommentForDriver, w => w.Active).InitializeFromSource();
+
+			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
+			specialListCmbOurOrganization.Sensitive = _canSetOurOrganization;
+			specialListCmbOurOrganization.ItemSelected += OnOurOrganisationsItemSelected;
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
@@ -548,12 +575,7 @@ namespace Vodovoz
 			ntbOrder.Page = 0;
 
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
-
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			if(Entity.PaymentType != PaymentType.BeveragesWorld)
-			{
-				enumPaymentType.AddEnumToHideList(new Enum[] { PaymentType.BeveragesWorld });
-			}
 			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			SetSensitivityOfPaymentType();
 
@@ -594,7 +616,7 @@ namespace Vodovoz
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
-			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.TotalSum), w => w.LabelProp).InitializeFromSource();
+			labelSum.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderSum), w => w.LabelProp).InitializeFromSource();
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
@@ -620,8 +642,8 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ShowSpecialStateNot = true;
 			ycomboboxReason.ItemsList = _discountReasons;
+			ycomboboxReason.ItemSelected += OnYComboBoxReasonItemSelected;
 
 			yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
 			yCmbReturnTareReasonCategories.ItemsList = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
@@ -656,8 +678,11 @@ namespace Vodovoz
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) => {
-				Entity.RecalculateStockBottles(_baseParametersProvider);
+				Entity.RecalculateStockBottles(_orderParametersProvider);
 				ControlsActionBottleAccessibility();
+				ycomboboxReason.Sensitive = !yChkActionBottle.Active;
+				SetDiscountUnitEditable();
+				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
@@ -714,15 +739,23 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+		}
+
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
 
 		private void OnContractChanged()
 		{
-			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType)) {
+			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType))
+			{
 				hboxDocumentType.Remove(enumDocumentType);
 				hboxDocumentType.Add(torg12OnlyLabel);
 				torg12OnlyLabel.Show();
-			} else if(hboxDocumentType.Children.Contains(torg12OnlyLabel)) {
+			}
+			else if(!Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(torg12OnlyLabel))
+			{
 				hboxDocumentType.Remove(torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
 			}
@@ -805,13 +838,13 @@ namespace Vodovoz
 
 		private void RefreshCounterpartyWithPhones()
 		{
-			Counterparty.ReloadChildCollection(x => x.ObservablePhones, x => x.Counterparty, UoW.Session);
+			Counterparty.ReloadChildCollection(x => x.Phones, x => x.Counterparty, UoW.Session);
 			RefreshEntity(Counterparty);
 		}
 
 		private void RefreshDeliveryPointWithPhones()
 		{
-			DeliveryPoint.ReloadChildCollection(x => x.ObservablePhones, x => x.DeliveryPoint, UoW.Session);
+			DeliveryPoint.ReloadChildCollection(x => x.Phones, x => x.DeliveryPoint, UoW.Session);
 			RefreshEntity(DeliveryPoint);
 		}
 
@@ -820,7 +853,7 @@ namespace Vodovoz
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
 			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
 			{
-				DeliveryPoint.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
+				DeliveryPoint.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
 				RefreshEntity(DeliveryPoint);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -828,7 +861,7 @@ namespace Vodovoz
 			
 			if(changedEntities.Any(x => x.Counterparty != null && Counterparty != null && x.Counterparty.Id == Counterparty.Id))
 			{
-				Counterparty.ReloadChildCollection(x => x.ObservableNomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
+				Counterparty.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.Counterparty, UoW.Session);
 				RefreshEntity(Counterparty);
 				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 				return;
@@ -870,7 +903,11 @@ namespace Vodovoz
 			var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
-			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem>()
+			_discountReasons = _canChoosePremiumDiscount
+				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
+				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
+
+			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => Entity.OrderItems.IndexOf(node) + 1)
@@ -885,6 +922,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
+					.EditedEvent(OnCountEdited)
 				.AddTextRenderer(node => node.ActualCount.HasValue ? string.Format("[{0}]", node.ActualCount) : string.Empty)
 				.AddTextRenderer(node => node.CanShowReturnedCount ? string.Format("({0})", node.ReturnedCount) : string.Empty)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
@@ -926,38 +964,55 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
+					.AddSetter((c, n) =>
+						c.Editable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(n) && _canChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)(n.Price * n.CurrentCount), 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
-					.AddSetter((c, n) => {
+					.AddSetter((c, n) =>
+					{
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
+						{
 							c.Text = n.ManualChangingOriginalDiscount.ToString();
-					}) 
+						}
+					})
 					.Digits(2)
 					.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
 				.AddColumn("Скидка \nв рублях?")
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
-					.AddSetter((c, n) => c.Activatable = n.PromoSet == null)
+					.AddSetter((c, n) =>
+						c.Activatable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(n) && _canChangeDiscountValue)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(node => node.DiscountReason)
+					.AddComboRenderer(x => x.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(_discountReasons)
-					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
+					.DynamicFillListFunc(item =>
+						{
+							var list = _discountReasons.Where(
+								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
+							return list;
+						})
+					.EditedEvent(OnDiscountReasonComboEdited)
+					.AddSetter((cell, node) =>
+						cell.Editable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(node) && node.DiscountByStock == 0)
 					.AddSetter(
-						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
-						? colorLightRed
-						: colorWhite
+						(c, n) =>
+							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorWhite
 					)
-					.AddSetter((c, n) => {
-						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
-							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
-						}
-					)
+					.AddSetter((c, n) => 
+						{
+							if(n.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
+							{
+								c.Text = n.PromoSet.DiscountReasonInfo;
+							}
+							else if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
+							{
+								c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
+							}
+						})
 				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
@@ -990,8 +1045,7 @@ namespace Vodovoz
 					{
 						toggle.Activatable = true;  // по умолчанию Activatable false
 					}
-					
-				} ) // Сделать только для  ISignableDocument и UDP
+				}) // Сделать только для  ISignableDocument и UDP
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;
@@ -1016,6 +1070,28 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
+		}
+
+		private void OnCountEdited(object o, EditedArgs args)
+		{
+			var path = new TreePath(args.Path);
+			treeItems.YTreeModel.GetIter(out var iter, path);
+			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+		
+		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
+		{
+			Application.Invoke((sender, eventArgs) =>
+			{
+				var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+				
+				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
+				//комбо-бокс не откроется, но событие сработает и прилетит null
+				if(node is OrderItem orderItem && orderItem.DiscountReason != null)
+				{
+					_discountsController.SetDiscountFromDiscountReasonForOrderItem(orderItem.DiscountReason, orderItem);
+				}
+			});
 		}
 
 		private void ConfigureAcceptButtons()
@@ -1180,13 +1256,13 @@ namespace Vodovoz
 							return false;
 						}
 					}
-					Entity.SaveEntity(UoWGeneric, _currentEmployee);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController);
 					if(sendEmail)
 					{
 						SendBillByEmail(emailAddressForBill);
 					}
 				} else {
-					Entity.SaveEntity(UoWGeneric, _currentEmployee);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController);
 				}
 				logger.Info("Ok.");
 				UpdateUIState();
@@ -1405,10 +1481,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
-				() => new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
-			);
+			TabParent.AddSlaveTab(this, new AddExistingDocumentsDlg(UoWGeneric, Entity.Client));
 		}
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
@@ -1795,19 +1868,23 @@ namespace Vodovoz
 		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
 		{
 			if(Entity.IsLoadedFrom1C)
+			{
 				return;
+			}
 
-			if (proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
-				foreach (var proSetItem in proSet.PromotionalSetItems) {
+			if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any())
+			{
+				foreach(var proSetItem in proSet.PromotionalSetItems)
+				{
 					var nomenclature = proSetItem.Nomenclature;
-					if (Entity.OrderItems.Any(x =>
+					if(Entity.OrderItems.Any(x =>
 							!Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 						&& nomenclature.Category == NomenclatureCategory.master) {
 						MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 						return;
 					}
 
-					if (Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+					if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
 						&& !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
 						MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 						return;
@@ -1818,7 +1895,7 @@ namespace Vodovoz
 						proSetItem.Count,
 						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 						proSetItem.IsDiscountInMoney,
-						proSetItem.PromoSet.PromoSetDiscountReason,
+						null,
 						proSetItem.PromoSet
 					);
 				}
@@ -1957,11 +2034,6 @@ namespace Vodovoz
 		protected void OnReferenceContractChanged(object sender, EventArgs e)
 		{
 			OnReferenceDeliveryPointChanged(sender, e);
-		}
-
-		protected void OnYcomboboxReasonItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			SetDiscountUnitEditable();
 		}
 
 		#endregion
@@ -2208,9 +2280,7 @@ namespace Vodovoz
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
-				(Entity.Client != null &&
-				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
-				);
+				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
 			
 			hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
 			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.ByCard;
@@ -2218,7 +2288,7 @@ namespace Vodovoz
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
-				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
+				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash);
 			spinSumDifference.Visible = spinSumDifference.Visible && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			Entity.SetProxyForOrder();
@@ -2334,11 +2404,6 @@ namespace Vodovoz
 				entOnlineOrder.Text = string.Empty;//костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
 
-		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)
-		{
-			SetDiscount();
-		}
-
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)
 		{
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object> {
@@ -2369,7 +2434,7 @@ namespace Vodovoz
 
 		protected void OnYEntTareActBtlFromClientChanged(object sender, EventArgs e)
 		{
-			Entity.CalculateBottlesStockDiscounts(_baseParametersProvider);
+			Entity.CalculateBottlesStockDiscounts(_orderParametersProvider);
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
@@ -2395,19 +2460,47 @@ namespace Vodovoz
 		{
 			SetSensitivityOfPaymentType();
 		}
+		
+		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)
+		{
+			if(spinDiscount.ValueAsDecimal != default(decimal))
+			{
+				SetDiscount();
+			}
+		}
+		
+		private void OnYComboBoxReasonItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			if(ycomboboxReason.SelectedItem != null)
+			{
+				SetDiscount();
+			}
+			else
+			{
+				SetDiscountUnitEditable();
+				spinDiscount.ValueAsDecimal = default(decimal);
+				SetDiscountEditable();
+				_discountsController.RemoveDiscountFromOrder(Entity.ObservableOrderItems);
+			}
+		}
 
 		protected void OnEnumDiscountUnitEnumItemSelected(object sender, EnumItemClickedEventArgs e)
 		{
+			SetDiscountEditable();
 			var sum = Entity.ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
 			var unit = (DiscountUnits)e.ItemEnum;
 			spinDiscount.Adjustment.Upper = unit == DiscountUnits.money ? (double)sum : 100d;
+			
 			if(unit == DiscountUnits.percent && spinDiscount.Value > 100)
+			{
 				spinDiscount.Value = 100;
-			if((SpecialComboState)enumDiscountUnit.SelectedItem != SpecialComboState.None) {
-				Entity.SetDiscountUnitsForAll(unit);
-				SetDiscountEditable();
-				SetDiscount();
 			}
+			if(spinDiscount.ValueAsDecimal == default(decimal))
+			{
+				return;
+			}
+			
+			SetDiscount();
 		}
 
 		private void OnEntryBottlesToReturnChanged(object sender, EventArgs e)
@@ -2842,13 +2935,10 @@ namespace Vodovoz
 
 		void SetDiscountEditable(bool? canEdit = null)
 		{
-			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null;
+			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null && _canChangeDiscountValue && !Entity.IsBottleStock;
 		}
 
-		void SetDiscountUnitEditable(bool? canEdit = null)
-		{
-			enumDiscountUnit.Sensitive = canEdit ?? ycomboboxReason.SelectedItem != null;
-		}
+		void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = _canChangeDiscountValue && !Entity.IsBottleStock;
 
 		/// <summary>
 		/// Переключает видимость элементов управления депозитами
@@ -2864,15 +2954,23 @@ namespace Vodovoz
 
 		private void SetDiscount()
 		{
-			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
-			DiscountUnits unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-			if(decimal.TryParse(spinDiscount.Text, out decimal discount)) {
+			var reason = ycomboboxReason.SelectedItem as DiscountReason;
+			if(decimal.TryParse(spinDiscount.Text, out decimal discount))
+			{
 				if(reason == null && discount > 0) {
 					MessageDialogHelper.RunErrorDialog("Необходимо выбрать основание для скидки");
 					return;
 				}
-				Entity.SetDiscountUnitsForAll(unit);
-				Entity.SetDiscount(reason, discount, unit);
+
+				if(discount > 0)
+				{
+					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
+					_discountsController.SetCustomDiscountForOrder(reason, discount, unit, Entity.ObservableOrderItems);
+				}
+				else
+				{
+					_discountsController.SetDiscountFromDiscountReasonForOrder(reason, Entity.ObservableOrderItems);
+				}
 			}
 		}
 
@@ -3069,7 +3167,7 @@ namespace Vodovoz
 
 			ylblPaymentType.Text = Entity.PaymentType.GetEnumTitle();
 
-			ylblPlannedSum.Text = $"{ Entity.OrderSum } руб.";
+			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
 			ylblTrifleFrom.Visible = isPaymentTypeCash;

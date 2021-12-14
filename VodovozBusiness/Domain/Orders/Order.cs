@@ -24,6 +24,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
@@ -392,7 +393,6 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
-						case PaymentType.BeveragesWorld:
 						case PaymentType.ContractDoc:
 							OnlineOrder = null;
 							PaymentByCardFrom = null;
@@ -548,8 +548,7 @@ namespace Vodovoz.Domain.Orders
 		private int? dailyNumber;
 
 		/// <summary>
-		/// Уникапльный номер в передлах одного дня.
-		/// ВАЖНО! Номер генерируется и изменяется на стороне БД
+		/// Уникальный номер в пределах одного дня
 		/// </summary>
 		[Display(Name = "Ежедневный номер")]
 		public virtual int? DailyNumber {
@@ -888,6 +887,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private Organization _ourOrganization;
+		[Display(Name = "Наша организация")]
+		public virtual Organization OurOrganization
+		{
+			get => _ourOrganization;
+			set => SetField(ref _ourOrganization, value);
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -915,15 +922,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			//FIXME Убрать эту проверку после 2021-10-14
-			if(DeliveryDate == Convert.ToDateTime("2021-10-13") && PaymentType == PaymentType.Terminal)
-			{
-				yield return new ValidationResult(
-					"Нельзя принимать заказы на 13.10.21 с формой оплаты \"Терминал\". " +
-					"Выберите другую дату или другую форму оплаты",
-					new[] { nameof(DeliveryDate), nameof(PaymentType) });
-			}
-
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -957,7 +955,8 @@ namespace Vodovoz.Domain.Orders
 					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
-					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
+
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash) && this.OrderSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
@@ -1080,7 +1079,7 @@ namespace Vodovoz.Domain.Orders
                 if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
                     yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
-            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
+            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(!SelfDelivery && DeliveryPoint == null)
@@ -1125,7 +1124,7 @@ namespace Vodovoz.Domain.Orders
 			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
-			if(ObservableOrderDepositItems.Any(x => x.Total < 0)) {
+			if(ObservableOrderDepositItems.Any(x => x.ActualSum < 0)) {
 				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
@@ -1176,19 +1175,19 @@ namespace Vodovoz.Domain.Orders
 
 			if (DeliveryPoint != null)
             {
-				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderTotalSum < DeliveryPoint.MinimalOrderSumLimit)
+				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderSum < DeliveryPoint.MinimalOrderSumLimit)
 				{
 					yield return new ValidationResult(
 						"Сумма заказа меньше минимальной погоровой установленной для точки доставки",
-						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+						new[] { this.GetPropertyName(o => o.OrderSum) }
 					);
 				}
 
-				if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderTotalSum > DeliveryPoint.MaximalOrderSumLimit)
+				if (DeliveryPoint.MaximalOrderSumLimit != 0 && OrderSum > DeliveryPoint.MaximalOrderSumLimit)
 				{
 					yield return new ValidationResult(
 						"Сумма заказа больше максимальной погоровой установленной для точки доставки",
-						new[] { this.GetPropertyName(o => o.OrderTotalSum) }
+						new[] { this.GetPropertyName(o => o.OrderSum) }
 					);
 				}
 			}
@@ -1225,18 +1224,22 @@ namespace Vodovoz.Domain.Orders
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
-		public virtual decimal OrderCashSum {
-			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSumTotal - OrderSumReturnTotal : 0;
+		public virtual decimal OrderCashSum 
+		{
+			get => PaymentType == PaymentType.cash ? OrderSum : 0;
 			protected set {; }
 		}
 
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
 		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal OrderTotalSum => OrderSumTotal - OrderSumReturnTotal;
+		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
 
-		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal TotalSum => OrderSum - OrderSumReturn;
-
-		public virtual decimal OrderSum {
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveSum {
 			get {
 				decimal sum = 0;
 				foreach(OrderItem item in ObservableOrderItems) {
@@ -1246,51 +1249,21 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal OrderSumTotal {
-			get {
-				decimal result = OrderSum;
-				if(ExtraMoney > 0) {
-					result += ExtraMoney;
-				}
-				return result;
-			}
-		}
-
-		public virtual decimal OrderSumReturn {
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public virtual decimal OrderNegativeSum {
 			get {
 				decimal sum = 0;
 				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					sum += dep.Total;
+					sum += dep.ActualSum;
 				}
 				return sum;
 			}
 		}
 
-		public virtual decimal OrderSumReturnTotal {
-			get {
-				decimal result = OrderSumReturn;
-				if(ExtraMoney < 0) {
-					result += Math.Abs(ExtraMoney);
-				}
-				return result;
-			}
-		}
-
-		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
-		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
-
-		public virtual decimal ActualTotalSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems)
-					sum += item.ActualSum;
-
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems)
-					sum -= Math.Round(dep.Deposit * dep.Count, 2);
-
-				return sum;
-			}
-		}
+		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
+		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 
 		[Obsolete("Должно быть не актуально после ввода новой системы расчёта ЗП (I-2150)")]
 		public virtual decimal MoneyForMaster =>
@@ -1444,30 +1417,43 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		private DiscountReason GetDiscountReasonStockBottle(
+			IOrderParametersProvider orderParametersProvider, decimal discount)
+		{
+			var reasonId = discount == 10m
+				? orderParametersProvider.GetDiscountReasonStockBottle10PercentsId
+				: orderParametersProvider.GetDiscountReasonStockBottle20PercentsId;
+			
+			var discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId)
+				?? throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
+			
+			return discountReasonStockBottle;
+		}
+		
 		/// <summary>
 		/// Рассчитывает скидки в товарах по акции "Бутыль"
 		/// </summary>
-		public virtual void CalculateBottlesStockDiscounts(IStandartDiscountsService standartDiscountsService, bool byActualCount = false)
+		public virtual void CalculateBottlesStockDiscounts(IOrderParametersProvider orderParametersProvider, bool byActualCount = false)
 		{
-			if(standartDiscountsService == null) {
-				throw new ArgumentNullException(nameof(standartDiscountsService));
+			if(orderParametersProvider == null) {
+				throw new ArgumentNullException(nameof(orderParametersProvider));
 			}
-			var reasonId = standartDiscountsService.GetDiscountForStockBottle();
-			DiscountReason discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId);
-			if(discountReasonStockBottle == null) {
-				throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
-			}
-
+			
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal discountForStock = 0m;
-
-			if(bottlesByStock == Total19LBottlesToDeliver) {
+			DiscountReason discountReasonStockBottle = null;
+			
+			if(bottlesByStock == Total19LBottlesToDeliver)
+			{
 				discountForStock = 10m;
+				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
 			}
-			if(bottlesByStock > Total19LBottlesToDeliver) {
+			if(bottlesByStock > Total19LBottlesToDeliver)
+			{
 				discountForStock = 20m;
+				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
 			}
-
+			
 			foreach(OrderItem item in ObservableOrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
@@ -1508,13 +1494,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void RecalculateStockBottles(IStandartDiscountsService standartDiscountsService)
+		public virtual void RecalculateStockBottles(IOrderParametersProvider orderParametersProvider)
 		{
 			if(!IsBottleStock) {
 				BottlesByStockCount = 0;
 				BottlesByStockActualCount = 0;
 			}
-			CalculateBottlesStockDiscounts(standartDiscountsService);
+			CalculateBottlesStockDiscounts(orderParametersProvider);
 		}
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
@@ -1581,10 +1567,6 @@ namespace Vodovoz.Domain.Orders
 			{
 				return;
 			}
-			if(DeliveryDate == null)
-			{
-				return;
-			}
 
 			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this,
 				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
@@ -1594,6 +1576,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			Contract = counterpartyContract;
+			
 			foreach(var orderItem in OrderItems)
 			{
 				orderItem.CalculateVATType();
@@ -1723,8 +1706,10 @@ namespace Vodovoz.Domain.Orders
 					reason = null;
 			}
 
-			if(discount > 0 && reason == null)
+			if(discount > 0 && reason == null && proSet == null)
+			{
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
+			}	
 
 			decimal price = GetWaterPrice(nomenclature, proSet, count);
 			
@@ -2780,7 +2765,7 @@ namespace Vodovoz.Domain.Orders
 				UoW.Delete(refundToDelete);
 				var totalPayed = paymentItems.Sum(pi => pi.Sum);
 
-				OrderPaymentStatus = ActualTotalSum > totalPayed
+				OrderPaymentStatus = OrderSum > totalPayed
 					? OrderPaymentStatus.PartiallyPaid
 					: OrderPaymentStatus.Paid;
 			}
@@ -2804,7 +2789,7 @@ namespace Vodovoz.Domain.Orders
 
 			OrderPaymentStatus = totalPayed == 0
 				? OrderPaymentStatus.UnPaid
-				: ActualTotalSum > totalPayed
+				: OrderSum > totalPayed
 					? OrderPaymentStatus.PartiallyPaid
 					: OrderPaymentStatus.Paid;
 		}
@@ -2919,7 +2904,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld)
+			if(PaymentType != PaymentType.cash)
 				return;
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
@@ -2963,7 +2948,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal totalPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 
-			return OrderSumTotal == totalPaid;
+			return OrderPositiveSum == totalPaid;
 		}
 
 		/// <summary>
@@ -2973,7 +2958,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal totalReturned = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 
-			return OrderSumReturnTotal == totalReturned;
+			return OrderNegativeSum == totalReturned;
 		}
 
 		private decimal GetSelfDeliveryTotalPayedCash(ICashRepository cashRepository)
@@ -2995,7 +2980,7 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
 				return;
 
-			if(PayAfterShipment || OrderTotalSum == 0)
+			if(PayAfterShipment || OrderSum == 0)
 				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
 			else
 				ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, callTaskWorker);
@@ -3254,9 +3239,9 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
-			switch(PaymentType) {
+			switch(PaymentType)
+			{
 				case PaymentType.cash:
-				case PaymentType.BeveragesWorld:
 					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
@@ -3299,9 +3284,9 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
-			switch(PaymentType) {
+			switch(PaymentType)
+			{
 				case PaymentType.cash:
-				case PaymentType.BeveragesWorld:
 					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
 					break;
 				case PaymentType.cashless:
@@ -3588,18 +3573,18 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		/// <summary>
-		/// Возврат первого попавшегося контакта из цепочки:
-		///0. Телефон для чеков точки доставки;
-		///1. Телефон для чеков контрагента;
-		///2. Эл.почта для чеков контрагентов;
-		///3. Мобильный телефон точки доставки;
-		///4. Мобильный телефон контрагента;
-		///5. Эл.почта для счетов контрагента;
-		///6. Иная эл. почта (не для чеков или счетов);
-		///7. Городской телефон точки доставки;
-		///8. Городской телефон контрагента.
+		/// Возврат первого попавшегося контакта из цепочки:<br/>
+		///0. Телефон для чеков точки доставки;<br/>
+		///1. Телефон для чеков контрагента;<br/>
+		///2. Эл.почта для чеков контрагентов;<br/>
+		///3. Мобильный телефон точки доставки;<br/>
+		///4. Мобильный телефон контрагента;<br/>
+		///5. Эл.почта для счетов контрагента;<br/>
+		///6. Иная эл. почта (не для чеков или счетов);<br/>
+		///7. Городской телефон точки доставки;<br/>
+		///8. Городской телефон контрагента.<br/>
 		/// </summary>
-		/// <returns>Контакт с минимальным весом.</returns>
+		/// <returns>Контакт с минимальным весом.<br/>Телефоны возвращает в формате +7</returns>
 		public virtual string GetContact()
 		{
 			if(Client == null)
@@ -3609,16 +3594,16 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
 
-					var receiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
+					var deliveryPointReceiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
 						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
-					if(receiptPhone != null)
-						contacts[0] = receiptPhone;
+					if(deliveryPointReceiptPhone != null)
+						contacts[0] = "+7" + deliveryPointReceiptPhone;
 
 					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
-						contacts[3] = phone.DigitsNumber;
+						contacts[3] = "+7" + phone.DigitsNumber;
 					else if(DeliveryPoint.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[7] = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[7] = "+7" + DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3626,16 +3611,16 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(Client.Phones.Any()) {
 
-					var receiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) 
+					var clientReceiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
 						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
-					if(receiptPhone != null)
-						contacts[0] = receiptPhone;
+					if(clientReceiptPhone != null)
+						contacts[1] = "+7" + clientReceiptPhone;
 
 					var phone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
-						contacts[4] = phone.DigitsNumber;
+						contacts[4] = "+7" + phone.DigitsNumber;
 					else if(Client.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[8] = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[8] = "+7" + Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3681,7 +3666,7 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee)
+		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee, IOrderDailyNumberController orderDailyNumberController)
 		{
 			SetFirstOrder();
 			if(Contract == null)
@@ -3692,6 +3677,7 @@ namespace Vodovoz.Domain.Orders
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();
+			orderDailyNumberController.UpdateDailyNumber(this);
 			uow.Save();
 		}
 		
@@ -3734,7 +3720,7 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateRentsCount();
 			
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 		
@@ -3815,7 +3801,7 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateRentsCount();
 			
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 		
@@ -3890,7 +3876,7 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateRentsCount();
 			
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 		
@@ -3979,39 +3965,6 @@ namespace Vodovoz.Domain.Orders
 		
 		#endregion Аренда
 		
-		#region работа со скидками
-		public virtual void SetDiscountUnitsForAll(DiscountUnits unit)
-		{
-			foreach(OrderItem i in ObservableOrderItems) {
-				i.IsDiscountInMoney = unit == DiscountUnits.money;
-			}
-		}
-
-		/// <summary>
-		/// Устанавливает скидку в рублях или процентах.
-		/// Если скидка в %, то просто применяется к каждой строке заказа,
-		/// а если в рублях - расчитывается % в зависимости от суммы заказа и рублёвой скидки
-		/// и применяется этот % аналогично случаю с процентной скидкой.
-		/// </summary>
-		/// <param name="reason">Причина для скидки.</param>
-		/// <param name="discount">Значение скидки.</param>
-		/// <param name="unit">рубли или %.</param>
-		public virtual void SetDiscount(DiscountReason reason, decimal discount, DiscountUnits unit)
-		{
-			if(unit == DiscountUnits.money) {
-				var sum = ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
-				if(sum == 0)
-					return;
-				discount = 100 * discount / sum;
-			}
-			foreach(OrderItem item in ObservableOrderItems) {
-				item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
-				item.DiscountReason = reason;
-			}
-		}
-
-		#endregion
-
 		#region Акции
 
 		/// <summary>
@@ -4045,12 +3998,12 @@ namespace Vodovoz.Domain.Orders
 
 		void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 		}
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged(nameof(TotalSum));
+			OnPropertyChanged(nameof(OrderSum));
 			UpdateDocuments();
 		}
 
@@ -4129,8 +4082,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow)
 		{
-			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
-			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
+			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
+			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
 			return operations;
 		}

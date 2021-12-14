@@ -171,7 +171,7 @@ namespace Vodovoz.ViewModels
 
 		private void FillSumToAllocate()
 		{
-			if(Entity.Status == PaymentState.undistributed)
+			if(Entity.CashlessMovementOperation == null)
 			{
 				SumToAllocate = Entity.Total + LastBalance;
 			}
@@ -301,12 +301,6 @@ namespace Vodovoz.ViewModels
 					}
 				}
 
-				if(Entity.CashlessMovementOperation != null)
-				{
-					Entity.UpdateIncomeOperation(false);
-					UoW.Save(Entity.CashlessMovementOperation);
-				}
-
 				if(Entity.Status != PaymentState.undistributed)
 				{
 					Entity.Status = PaymentState.undistributed;
@@ -422,7 +416,6 @@ namespace Vodovoz.ViewModels
 			AddCounterpatyCommand = new DelegateCommand<Payment>(
 				payment =>
 				{
-
 					var client = new Counterparty();
 					client.Name = payment.CounterpartyName;
 					client.FullName = payment.CounterpartyName;
@@ -512,7 +505,7 @@ namespace Vodovoz.ViewModels
 
 						var totalSum = otherPaymentsSum + item.Sum;
 
-						item.Order.OrderPaymentStatus = item.Order.ActualTotalSum > totalSum
+						item.Order.OrderPaymentStatus = item.Order.OrderSum > totalSum
 							? OrderPaymentStatus.PartiallyPaid
 							: OrderPaymentStatus.Paid;
 
@@ -574,8 +567,10 @@ namespace Vodovoz.ViewModels
 
 		private void CreateOperations()
 		{
-			Entity.UpdateIncomeOperation(true);
-			UoW.Save(Entity.CashlessMovementOperation);
+			if(Entity.CreateIncomeOperation())
+			{
+				UoW.Save(Entity.CashlessMovementOperation);
+			}
 
 			foreach(PaymentItem item in Entity.ObservableItems)
 			{

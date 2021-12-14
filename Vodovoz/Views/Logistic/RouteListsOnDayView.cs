@@ -11,18 +11,21 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -125,7 +128,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
-						.FillItems(ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
+						.FillItems(ViewModel.GeographicGroupsExceptEast)
 						.AddSetter(
 							(c, n) => {
 								c.Editable = n.Car != null;
@@ -477,7 +480,8 @@ namespace Vodovoz.Views.Logistic
 			addressesOverlay.Clear();
 
 			//добавляем маркеры складов
-			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupsExceptEast)
+			{
 				addressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -797,7 +801,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			driverAddressesOverlay.Clear();
 
-			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupsExceptEast)
+			{
 				driverAddressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -877,20 +882,26 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var SelectDriverCar = new OrmReference(
-				ViewModel.UoW,
-				ViewModel.CarRepository.ActiveCompanyCarsQuery()
-			);
-			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			SelectDriverCar.Tag = driver;
-			SelectDriverCar.Mode = OrmReferenceMode.Select;
-			SelectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			ViewModel.TabParent.AddSlaveTab(ViewModel, SelectDriverCar);
-		}
-
-		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			ViewModel.SelectCarForDriver(e.Tag as AtWorkDriver, e.Subject as Car);
+			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+			
+			if(driver == null)
+			{
+				ViewModel.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран водитель!");
+				return;
+			}
+			
+			var filter = new CarJournalFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
+				x => x.IncludeArchive = false);
+			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ViewModel.CommonServices);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += (o, args) =>
+			{
+				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				ViewModel.SelectCarForDriver(driver, car);
+			};
+			ViewModel.TabParent.AddSlaveTab(ViewModel, journal);
 		}
 
 		void OnLoadTimeEdited(object o, EditedArgs args)

@@ -10,6 +10,7 @@
         int GetIntValue(string parameterId);
         string GetStringValue(string parameterId);
         bool GetBoolValue(string parameterId);
+        T GetValue<T>(string parameterId) where T : struct;
 
         void RefreshParameters();
     }

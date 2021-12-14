@@ -441,10 +441,11 @@ namespace Vodovoz
 
 		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 
-		private decimal GetTerminalOrdersSum() {
-			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal &&
-																		x.Status != RouteListItemStatus.Transfered)
-												 .Sum(x => x.Order.ActualTotalSum);
+		private decimal GetTerminalOrdersSum()
+		{
+			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal
+					&& x.Status != RouteListItemStatus.Transfered)
+				.Sum(x => x.Order.OrderSum);
 
 			return result;
 		}

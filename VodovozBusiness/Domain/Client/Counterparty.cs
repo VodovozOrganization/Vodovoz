@@ -19,6 +19,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
@@ -43,6 +44,7 @@ namespace Vodovoz.Domain.Client
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		public virtual IUnitOfWork UoW { get; set; }
+		private const int _cargoReceiverLimitSymbols = 500;
 
 		#region Свойства
 
@@ -742,6 +744,14 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		private Organization _worksThroughOrganization;
+		[Display(Name = "Работает через организацию")]
+		public virtual Organization WorksThroughOrganization
+		{
+			get => _worksThroughOrganization;
+			set => SetField(ref _worksThroughOrganization, value);
+		}
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
@@ -974,6 +984,11 @@ namespace Vodovoz.Domain.Client
 			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
+			}
+			
+			if(CargoReceiver != null && CargoReceiver.Length > _cargoReceiverLimitSymbols) {
+				yield return new ValidationResult(
+					$"Длина строки \"Грузополучатель\" не должна превышать {_cargoReceiverLimitSymbols} символов");
 			}
 
 			if(CheckForINNDuplicate(counterpartyRepository))

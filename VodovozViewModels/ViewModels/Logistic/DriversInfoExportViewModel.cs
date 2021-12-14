@@ -291,6 +291,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 				.Select(() => routeListAlias.Date).WithAlias(() => resultAlias.RouteListDate)
 				.Select(() => routeListAlias.Status).WithAlias(() => resultAlias.RouteListStatus)
+				.Select(() => routeListAlias.PlanedDistance).WithAlias(() => resultAlias.RouteListPlanedDistance)
+				.Select(() => routeListAlias.RecalculatedDistance).WithAlias(() => resultAlias.RouteListRecalculatedDistance)
+				.Select(() => routeListAlias.ConfirmedDistance).WithAlias(() => resultAlias.RouteListConfirmedDistance)
 				.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
 				.Select(() => driverAlias.Status).WithAlias(() => resultAlias.DriverStatus)
 				.Select(() => driverWageOperationAlias.Money).WithAlias(() => resultAlias.DriverRouteListWageFact)
@@ -348,6 +351,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					RouteListId = groupNode.Key,
 					RouteListDateString = firstNode.RouteListDate.ToString("d"),
 					RouteListStatus = firstNode.RouteListStatus,
+					RouteListPlanedDistance = firstNode.RouteListPlanedDistance,
+					RouteListRecalculatedDistance = firstNode.RouteListRecalculatedDistance,
+					RouteListConfirmedDistance = firstNode.RouteListConfirmedDistance,
 					DriverId = firstNode.DriverId,
 					DriverStatus = firstNode.DriverStatus,
 					DriverRouteListWageFact = firstNode.DriverRouteListWageFact,
@@ -852,8 +858,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private static string GetRouteListGroupingCsvString(IList<DriverInfoNode> exportData, bool isPlan, bool isFact)
 		{
 			var sb = new StringBuilder();
-			sb.Append("Код МЛ;Дата МЛ;Статус МЛ;Код водителя;Водитель;Статус водителя;ЗП водителя за МЛ (план+факт);" +
-			              "ЗП водителя за период;Гос. номер авто;Раскат;Принадлежность авто;Кол-во отраб. дней за период;");
+			sb.Append("Код МЛ;Дата МЛ;Статус МЛ;Код водителя;Водитель;Статус водителя;Планируемое расстояние;Рассчитанное расстояние;" +
+				"Подтвержденное расстояние;ЗП водителя за МЛ (план+факт);ЗП водителя за период;Гос. номер авто;Раскат;Принадлежность авто;" +
+				"Кол-во отраб. дней за период;");
 
 			if(isPlan)
 			{
@@ -926,7 +933,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var lines = new List<string>
 				{
 					item.RouteListId.ToString(), item.RouteListDateString, item.RouteListStatus.GetEnumTitle(), item.DriverId.ToString(),
-					item.DriverFullName, item.DriverStatus.GetEnumTitle(), item.DriverRouteListWageForRouteListGroupingString,
+					item.DriverFullName, item.DriverStatus.GetEnumTitle(),
+					item.RouteListPlanedDistance.HasValue ? $"{item.RouteListPlanedDistance:N2}" : $"{default(decimal)}",
+					item.RouteListRecalculatedDistance.HasValue ? $"{item.RouteListRecalculatedDistance:N2}" : $"{default(decimal)}",
+					item.RouteListConfirmedDistance.ToString(), item.DriverRouteListWageForRouteListGroupingString,
 					item.DriverPeriodWageString, item.CarRegNumber, item.CarIsRaskat ? "Да" : "Нет",
 					item.CarTypeOfUse.GetEnumTitle(), item.DriverDaysWorkedCount.ToString()
 				};
@@ -1199,6 +1209,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public RouteListStatus RouteListStatus { get; set; }
 		public string RouteListReturnedBottlesCount { get; set; }
+		
+		public decimal? RouteListPlanedDistance { get; set; }
+		public decimal? RouteListRecalculatedDistance { get; set; }
+		public decimal RouteListConfirmedDistance { get; set; }
 
 		#endregion
 

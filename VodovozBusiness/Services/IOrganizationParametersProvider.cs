@@ -1,10 +1,11 @@
+using System;
+
 namespace Vodovoz.Services
 {
     public interface IOrganizationParametersProvider
     {
         int GetCashlessOrganisationId { get; }
         int GetCashOrganisationId { get; }
-        
         int BeveragesWorldOrganizationId { get; }
         int SosnovcevOrganizationId { get; }
         int VodovozOrganizationId { get; }
@@ -12,5 +13,6 @@ namespace Vodovoz.Services
         int VodovozNorthOrganizationId { get; }
         int VodovozDeshitsOrganizationId { get; }
         int CommonCashDistributionOrganisationId { get; }
+        TimeSpan LatestCreateTimeForSouthOrganizationInByCardOrder { get; }
     }
 }

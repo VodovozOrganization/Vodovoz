@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using Fias.Service.Loaders;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Osm.Loaders;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -37,64 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
-
-		#region Свойства
-
-		//permissions
-		public readonly bool CanArchiveDeliveryPoint;
-		public readonly bool CanSetFreeDelivery;
-		public readonly bool CanEditOrderLimits;
-
-		//widget binds
-		public int CurrentPage
-		{
-			get => _currentPage;
-			private set => SetField(ref _currentPage, value);
-		}
-		public bool IsNotSaving
-		{
-			get => _isNotSaving;
-			private set => SetField(ref _isNotSaving, value);
-		}
-		public bool CurrentUserIsAdmin => CurrentUser.IsAdmin;
-		public bool CoordsWasChanged => Entity.СoordsLastChangeUser != null;
-		public string CoordsLastChangeUserName => Entity.СoordsLastChangeUser.Name;
-
-		//widget init
-		public FixedPricesViewModel FixedPricesViewModel =>
-			_fixedPricesViewModel ??
-			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this));
-
-		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
-			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());
-
-		public PhonesViewModel PhonesViewModel { get; }
-		public ICitiesDataLoader CitiesDataLoader { get; }
-		public IStreetsDataLoader StreetsDataLoader { get; }
-		public IHousesDataLoader HousesDataLoader { get; }
-		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
-		public INomenclatureSelectorFactory NomenclatureSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
-
-		#endregion
-
-		public override bool HasChanges
-		{
-			get
-			{
-				PhonesViewModel.RemoveEmpty();
-				return base.HasChanges;
-			}
-			set => base.HasChanges = value;
-		}
-
-		#region IDeliveryPointInfoProvider
-
-		public DeliveryPoint DeliveryPoint => Entity;
-		public PanelViewType[] InfoWidgets => new[] {PanelViewType.DeliveryPricePanelView};
-		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
-
-		#endregion
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
@@ -153,6 +96,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_arc_counterparty_and_deliverypoint");
 			CanSetFreeDelivery = commonServices.CurrentPermissionService.ValidatePresetPermission("can_set_free_delivery");
 			CanEditOrderLimits = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_edit_orders_limits");
+			CanEditNomenclatureFixedPrice =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_point_fixed_prices");
 
 			DeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
@@ -171,6 +116,65 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				}
 			};
 		}
+		
+		#region Свойства
+
+		//permissions
+		public bool CanArchiveDeliveryPoint { get; }
+		public bool CanSetFreeDelivery { get; }
+		public bool CanEditOrderLimits { get; }
+		public bool CanEditNomenclatureFixedPrice { get; }
+
+		//widget binds
+		public int CurrentPage
+		{
+			get => _currentPage;
+			private set => SetField(ref _currentPage, value);
+		}
+		public bool IsNotSaving
+		{
+			get => _isNotSaving;
+			private set => SetField(ref _isNotSaving, value);
+		}
+		public bool CurrentUserIsAdmin => CurrentUser.IsAdmin;
+		public bool CoordsWasChanged => Entity.СoordsLastChangeUser != null;
+		public string CoordsLastChangeUserName => Entity.СoordsLastChangeUser.Name;
+
+		//widget init
+		public FixedPricesViewModel FixedPricesViewModel =>
+			_fixedPricesViewModel ??
+			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this));
+
+		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
+			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());
+
+		public PhonesViewModel PhonesViewModel { get; }
+		public ICitiesDataLoader CitiesDataLoader { get; }
+		public IStreetsDataLoader StreetsDataLoader { get; }
+		public IHousesDataLoader HousesDataLoader { get; }
+		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
+		public INomenclatureSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
+
+		public override bool HasChanges
+		{
+			get
+			{
+				PhonesViewModel.RemoveEmpty();
+				return base.HasChanges;
+			}
+			set => base.HasChanges = value;
+		}
+		
+		#endregion
+
+		#region IDeliveryPointInfoProvider
+
+		public DeliveryPoint DeliveryPoint => Entity;
+		public PanelViewType[] InfoWidgets => new[] {PanelViewType.DeliveryPricePanelView};
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		#endregion
 
 		public void OpenFixedPrices()
 		{
@@ -300,6 +304,23 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public DelegateCommand OpenCounterpartyCommand => _openCounterpartyCommand ?? (_openCounterpartyCommand = new DelegateCommand(
 			() => _gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id),
 			() => Entity.Counterparty != null
+		));
+
+		private DelegateCommand _openOnMapCommand;
+
+		public DelegateCommand OpenOnMapCommand => _openOnMapCommand ?? (_openOnMapCommand = new DelegateCommand(
+			() =>
+			{
+				NumberFormatInfo numberFormatInfo = new NumberFormatInfo
+				{
+					NumberDecimalSeparator = "."
+				};
+
+				var ln = Entity.Longitude.Value.ToString(numberFormatInfo);
+				var lt = Entity.Latitude.Value.ToString(numberFormatInfo);
+
+				System.Diagnostics.Process.Start($"https://yandex.ru/maps/?whatshere[point]={ln},{lt}&whatshere[zoom]=16");
+			}
 		));
 
 		#endregion

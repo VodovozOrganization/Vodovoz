@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
+using System.Threading.Tasks;
 using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -63,6 +65,10 @@ namespace Vodovoz.Views.Client
 			radioInformation.Toggled += RadioInformationOnToggled;
 			radioFixedPrices.Toggled += RadioFixedPricesOnToggled;
 
+			ybuttonOpenOnMap.Binding.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible).InitializeFromSource();
+
+			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMapCommand.Execute();
+
 			#region Address entries
 
 			entryCity.CitiesDataLoader = ViewModel.CitiesDataLoader;
@@ -70,19 +76,35 @@ namespace Vodovoz.Views.Client
 			entryBuilding.HousesDataLoader = ViewModel.HousesDataLoader;
 			entryCity.CitySelected += EntryCityOnCitySelected;
 			entryStreet.StreetSelected += EntryStreetOnStreetSelected;
+			entryStreet.FocusOutEvent += EntryStreetOnFocusOutEvent;
 			entryBuilding.FocusOutEvent += EntryBuildingOnFocusOutEvent;
 			entryCity.Binding.AddSource(ViewModel.Entity)
-				.AddBinding(e => e.CityDistrict, w => w.CityDistrict)
-				.AddBinding(e => e.City, w => w.City)
-				.AddBinding(e => e.LocalityType, w => w.Locality).InitializeFromSource();
-			entryStreet.Binding.AddSource(ViewModel.Entity)
-				.AddBinding(e => e.StreetDistrict, w => w.StreetDistrict)
-				.AddBinding(e => e.Street, w => w.Street).InitializeFromSource();
-			entryBuilding.Binding.AddBinding(ViewModel.Entity, e => e.Building, w => w.House).InitializeFromSource();
+				.AddBinding(e => e.City, w => w.CityName)
+				.AddBinding(e => e.CityFiasGuid, w => w.FiasGuid)
+				.AddBinding(e => e.LocalityType, w => w.CityTypeName)
+				.AddBinding(e => e.LocalityTypeShort, w => w.CityTypeNameShort)
+				.InitializeFromSource();
 
-			_cityBeforeChange = entryCity.City;
-			_streetBeforeChange = entryStreet.Street;
-			_buildingBeforeChange = entryBuilding.House;
+			entryCity.FireCityChange();
+
+			entryStreet.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.Street, w => w.StreetName)
+				.AddBinding(e => e.StreetDistrict, w => w.StreetDistrict)
+				.AddBinding(e => e.StreetType, w => w.StreetTypeName)
+				.AddBinding(e => e.StreetTypeShort, w => w.StreetTypeNameShort)
+				.AddBinding(e => e.StreetFiasGuid, w => w.FiasGuid)
+				.InitializeFromSource();
+
+			entryStreet.FireStreetChange();
+
+			entryBuilding.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.BuildingFiasGuid, w => w.FiasGuid)
+				.AddBinding(e => e.Building, w => w.BuildingName)
+				.InitializeFromSource();
+
+			_cityBeforeChange = entryCity.CityName;
+			_streetBeforeChange = entryStreet.StreetName;
+			_buildingBeforeChange = entryBuilding.BuildingName;
 
 			#endregion
 
@@ -345,54 +367,72 @@ namespace Vodovoz.Views.Client
 
 		#region AddressEntriesEvents
 
-		private void EntryBuildingOnFocusOutEvent(object o, FocusOutEventArgs args)
+		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			var addressChanged = entryCity.City != _cityBeforeChange
-			                     || entryStreet.Street != _streetBeforeChange
-			                     || entryBuilding.House != _buildingBeforeChange;
-			if(!addressChanged || !entryBuilding.OsmCompletion.HasValue)
+			if(IsAddressChanged)
 			{
-				return;
-			}
-
-			ViewModel.Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
-
-			entryBuilding.GetCoordinates(out var longitude, out var latitude);
-
-			_cityBeforeChange = entryCity.City;
-			_streetBeforeChange = entryStreet.Street;
-			_buildingBeforeChange = entryBuilding.House;
-
-			ViewModel.WriteCoordinates(latitude, longitude, false);
-
-			if(entryBuilding.OsmHouse != null && !string.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name))
-			{
-				labelHouseName.Visible = true;
-				labelHouseName.LabelProp = entryBuilding.OsmHouse.Name;
-			}
-			else
-			{
-				labelHouseName.Visible = false;
+				await WriteCoordinates();
 			}
 		}
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
-			if(string.IsNullOrWhiteSpace(entryStreet.Street))
+			entryBuilding.StreetGuid = entryStreet.FiasGuid;
+			entryBuilding.BuildingName = string.Empty;
+		}
+
+		private async void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
+		{
+			if(!IsAddressChanged)
 			{
 				return;
 			}
 
-			entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
-			entryBuilding.House = string.Empty;
+			entryBuilding.StreetGuid = entryStreet.FiasGuid;
+
+			if(string.IsNullOrWhiteSpace(entryStreet.StreetName))
+			{
+				entryBuilding.BuildingName = string.Empty;
+				await WriteCoordinates();
+			}
+		}
+
+		private async Task WriteCoordinates()
+		{
+			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
+
+			_cityBeforeChange = entryCity.CityName;
+			_streetBeforeChange = entryStreet.StreetName;
+			_buildingBeforeChange = entryBuilding.BuildingName;
+
+			entryBuilding.GetCoordinates(out var longitude, out var latitude);
+
+			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
+			{
+				var findedByGeoCoder = await entryBuilding.GetCoordinatesByGeocoderAsync($"{ entryCity.CityTypeName } { entryCity.CityName }, { entryStreet.StreetName } { entryStreet.StreetTypeName }, { entryBuilding.BuildingName }");
+				if(findedByGeoCoder != null)
+				{
+					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+					culture.NumberFormat.NumberDecimalSeparator = ".";
+					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
+					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
+				}
+			}
+
+			ViewModel.WriteCoordinates(latitude, longitude, false);
 		}
 
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
 		{
-			entryStreet.CityId = entryCity.OsmId;
-			entryStreet.Street = string.Empty;
+			entryStreet.CityGuid = entryCity.FiasGuid;
+			entryStreet.StreetTypeName = string.Empty;
+			entryStreet.StreetTypeNameShort = string.Empty;
+			entryStreet.StreetName = string.Empty;
 			entryStreet.StreetDistrict = string.Empty;
-			entryBuilding.House = string.Empty;
+			entryStreet.FireStreetChange();
+			entryBuilding.StreetGuid = null;
+			entryBuilding.CityGuid = entryCity.FiasGuid;
+			entryBuilding.BuildingName = string.Empty;
 		}
 
 		#endregion
@@ -414,12 +454,18 @@ namespace Vodovoz.Views.Client
 				if(fixedpricesview.ViewModel == null)
 				{
 					fixedpricesview.ViewModel = ViewModel.FixedPricesViewModel;
+					fixedpricesview.Sensitive = ViewModel.CanEditNomenclatureFixedPrice;
 				}
 
 				notebook1.CurrentPage = 1;
 			}
 		}
 
+		public bool IsAddressChanged =>
+			 entryCity.CityName != _cityBeforeChange
+			 || entryStreet.StreetName != _streetBeforeChange
+			 || entryBuilding.BuildingName != _buildingBeforeChange;
+			 
 		#endregion
 	}
 }

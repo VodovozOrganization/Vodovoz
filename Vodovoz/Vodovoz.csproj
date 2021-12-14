@@ -439,7 +439,6 @@
     <Compile Include="CreateProjectParam.cs" />
     <Compile Include="Dialogs\OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
@@ -748,7 +747,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
-    <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
@@ -1182,8 +1180,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintSourceView.cs" />
     <Compile Include="SidePanel\InfoViews\ComplaintPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.ComplaintPanelView.cs" />
-    <Compile Include="Views\Complaints\ComplaintResultView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultView.cs" />
+    <Compile Include="Views\Complaints\ComplaintResultOfCounterpartyView.cs" />
     <Compile Include="Views\Organization\SubdivisionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.SubdivisionView.cs" />
     <Compile Include="Filters\GtkViews\SubdivisionFilterView.cs" />
@@ -1668,6 +1665,13 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AnalyticsForUndeliveryReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRatesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
+    <Compile Include="Views\Logistic\CarView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarView.cs" />
+    <Compile Include="Views\Settings\GeneralSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.GeneralSettingsView.cs" />
+    <Compile Include="Views\Complaints\ComplaintResultOfEmployeesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfEmployeesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfCounterpartyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1688,7 +1692,7 @@
       <Name>QS.MachineConfig</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
-      <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
+      <Project>{72968EF4-2127-45C7-9BFE-2470DACDDC3E}</Project>
       <Name>QS.Osm</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
@@ -1698,6 +1702,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Report.Gtk\QS.Report.Gtk.csproj">
       <Project>{42708cee-08d8-43d5-afe0-9992eb46e9f9}</Project>
       <Name>QS.Report.Gtk</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
+      <Project>{00d32969-612c-417e-9565-bec6a7719f80}</Project>
+      <Name>QSOrmProject</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
@@ -1735,10 +1743,6 @@
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
       <Name>Gamma.Binding</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
-      <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
-      <Name>QSOsm</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
       <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
       <Name>QSBusinessCommon</Name>
@@ -1763,6 +1767,10 @@
       <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
       <Name>ApiClientProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\FiasService\Fias.Service.csproj">
+      <Project>{c90274e4-4bdd-41a1-9a9f-576e16a0a236}</Project>
+      <Name>Fias.Service</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
       <Name>SmsPaymentService</Name>
@@ -1786,10 +1794,6 @@
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
       <Name>GMap.NET.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
-      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
-      <Name>QSOrmProject</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
       <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
@@ -1827,6 +1831,10 @@
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
+      <Project>{f07f6926-f868-44f4-a9b9-3a366d41281c}</Project>
+      <Name>VodovozFiasWidgets</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{EF73674E-B8D5-461B-A072-AC73231C82B2}</Project>
       <Name>VodovozViewModels</Name>
@@ -1852,145 +1860,7 @@
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="icons\" />
-    <Folder Include="icons\menu\" />
-    <Folder Include="icons\toolbar\" />
-    <Folder Include="toolbars\" />
-    <Folder Include="Dialogs\" />
-    <Folder Include="Dialogs\DocumentDialogs\" />
-    <Folder Include="Reports\" />
-    <Folder Include="Representations\" />
-    <Folder Include="ViewWidgets\" />
-    <Folder Include="ServiceDialogs\" />
-    <Folder Include="ServiceDialogs\LoadFrom1c\" />
-    <Folder Include="ViewWidgets\Logistics\" />
-    <Folder Include="JournalViewers\" />
-    <Folder Include="JournalFilters\" />
-    <Folder Include="Dialogs\Store\" />
-    <Folder Include="Dialogs\Cash\" />
-    <Folder Include="JournalFilters\Cash\" />
-    <Folder Include="ReportsParameters\" />
-    <Folder Include="JournalViewers\Cash\" />
-    <Folder Include="Dialogs\Logistic\" />
-    <Folder Include="ViewWidgets\Store\" />
-    <Folder Include="Reports\Store\" />
-    <Folder Include="Commons\" />
-    <Folder Include="SidePanel\" />
-    <Folder Include="SidePanel\InfoViews\" />
-    <Folder Include="SidePanel\InfoProviders\" />
-    <Folder Include="ServiceDialogs\ExportTo1c\" />
-    <Folder Include="Dialogs\Client\" />
-    <Folder Include="Reports\Documents\" />
-    <Folder Include="Dialogs\Employees\" />
-    <Folder Include="Dialogs\Goods\" />
-    <Folder Include="Additions\" />
-    <Folder Include="Additions\Logistic\" />
-    <Folder Include="icons\map\" />
-    <Folder Include="Reports\RouteList\" />
-    <Folder Include="Reports\Sales\" />
-    <Folder Include="ReportsParameters\Logistic\" />
-    <Folder Include="ServiceDialogs\Chat\" />
-    <Folder Include="ServiceDialogs\Database\" />
-    <Folder Include="Additions\Logistic\RouteOptimization\" />
-    <Folder Include="Reports\ServiceCenter\" />
-    <Folder Include="Dialogs\Sale\" />
-    <Folder Include="ReportsParameters\Sales\" />
-    <Folder Include="ReportsParameters\Store\" />
-    <Folder Include="Core\" />
-    <Folder Include="Additions\Store\" />
-    <Folder Include="ReportsParameters\Bottles\" />
-    <Folder Include="Reports\Bottles\" />
-    <Folder Include="Dialogs\OnlineStore\" />
-    <Folder Include="icons\map\points\" />
-    <Folder Include="ReportsParameters\Payments\" />
-    <Folder Include="Core\Journal\" />
-    <Folder Include="Additions\Printing\" />
-    <Folder Include="Dialogs\Cash\CashTransfer\" />
-    <Folder Include="JournalFilters\QueryFilterViews\" />
-    <Folder Include="ReportsParameters\Orders\" />
-    <Folder Include="Dialogs\Fuel\" />
-    <Folder Include="Dialogs\OrderWidgets\" />
-    <Folder Include="Infrastructure\" />
-    <Folder Include="Filters\" />
-    <Folder Include="Filters\GtkViews\" />
-    <Folder Include="Filters\ViewModels\" />
-    <Folder Include="Infrastructure\Converters\" />
-    <Folder Include="Infrastructure\Services\" />
-    <Folder Include="Infrastructure\Journal\" />
-    <Folder Include="ReportsParameters\Bookkeeping\" />
-    <Folder Include="JournalViewModels\" />
-    <Folder Include="JournalNodes\" />
-    <Folder Include="JournalColumnsConfigs\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Views\" />
-    <Folder Include="Dialogs\Phones\" />
-    <Folder Include="Views\Complaints\" />
-    <Folder Include="Views\Employees\" />
-    <Folder Include="Views\Organization\" />
-    <Folder Include="Views\Client\" />
-    <Folder Include="ViewModels\Client\" />
-    <Folder Include="Views\Suppliers\" />
-    <Folder Include="ViewModels\Suppliers\" />
-    <Folder Include="JournalViewModels\Suppliers\" />
-    <Folder Include="Views\WageCalculation\" />
-    <Folder Include="ViewModels\Logistic\" />
-    <Folder Include="Views\Logistic\" />
-    <Folder Include="ViewModels\FuelDocuments\" />
-    <Folder Include="icons\buttons\NullableCheckBox\" />
-    <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
-    <Folder Include="TempAdapters\" />
-    <Folder Include="Views\Orders\" />
-    <Folder Include="ViewModels\Orders\" />
-    <Folder Include="ViewWidgets\PromoSetAction\" />
-    <Folder Include="JournalSelector\" />
-    <Folder Include="Views\Contacts\" />
-    <Folder Include="Views\Users\" />
-    <Folder Include="ViewWidgets\Permissions\" />
-    <Folder Include="Views\ErrorReporting\" />
-    <Folder Include="Views\Comments\" />
-    <Folder Include="ViewModels\Comments\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\Catalogs\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\ExportDefaults\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\ExportNodes\" />
-    <Folder Include="ViewModels\BusinessTasks\" />
-    <Folder Include="Views\BusinessTasks\" />
-    <Folder Include="Footers\" />
-    <Folder Include="Footers\Views\" />
-    <Folder Include="Footers\ViewModels\" />
-    <Folder Include="Views\Orders\OrdersWithoutShipment\" />
-    <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
-    <Folder Include="Dialogs\Email\" />
-    <Folder Include="Views\Cash\" />
-    <Folder Include="Views\Mango\" />
-    <Folder Include="ViewModels\Mango\" />
-    <Folder Include="Infrastructure\Mango\" />
-    <Folder Include="ViewModels\Mango\Talks\" />
-    <Folder Include="Views\Mango\Talks\" />
-    <Folder Include="Views\Mango\Incoming\" />
-    <Folder Include="ViewModels\Mango\WidgetsModel\" />
-    <Folder Include="ViewWidgets\Mango\" />
-    <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Goods\" />
-    <Folder Include="ReportsParameters\Production\" />
-    <Folder Include="Views\Accounting\" />
-    <Folder Include="Views\Payments\" />
-    <Folder Include="Views\Proposal\" />
-    <Folder Include="JournalFilters\Proposal\" />
-    <Folder Include="Views\Security\" />
-    <Folder Include="Views\Retail\" />
-    <Folder Include="ReportsParameters\Retail\" />
-    <Folder Include="Reports\Retail\" />
-    <Folder Include="Views\Rent\" />
-    <Folder Include="Views\Reports\" />
-    <Folder Include="ReportsParameters\Employees\" />
-    <Folder Include="JournalViewers\Complaints\" />
-    <Folder Include="Views\Flyers\" />
-    <Folder Include="Views\Print\" />
-    <Folder Include="Views\ReportsParameters\" />
-    <Folder Include="Views\ReportsParameters\Cash\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -2576,9 +2446,9 @@
     <None Include="Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  	<None Include="Reports\Sales\SalaryRatesReport.rdl">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  	</None>
+    <None Include="Reports\Sales\SalaryRatesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
@@ -2623,6 +2493,9 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="Autofac" Version="6.2.0" />
+    <PackageReference Include="Vodovoz.Fias.Search">
+      <Version>1.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\car_service.xml" />

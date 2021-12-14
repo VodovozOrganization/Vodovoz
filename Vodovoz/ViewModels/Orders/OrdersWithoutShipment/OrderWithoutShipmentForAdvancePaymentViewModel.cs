@@ -1,4 +1,8 @@
 ﻿using Gamma.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -15,11 +19,13 @@ using QSOrmProject;
 using QSReport;
 using System;
 using System.Linq;
+using Vodovoz.Controllers;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.FilterViewModels.Goods;
@@ -36,7 +42,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IParametersProvider _parametersProvider;
 
 		private object selectedItem;
 		public object SelectedItem {
@@ -60,19 +65,29 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
+			IDiscountReasonRepository discountReasonRepository,
+			IParametersProvider parametersProvider,
+			IOrderDiscountsController discountsController) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			if(parametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(parametersProvider));
+			}
+			if(discountReasonRepository == null)
+			{
+				throw new ArgumentNullException(nameof(discountReasonRepository));
+			}
+			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
 			bool canCreateBillsWithoutShipment = 
-				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_bills_without_shipment");
+			CanChangeDiscountValue = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
 			if (uowBuilder.IsNewEntity)
@@ -96,12 +111,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
-			
+
+
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), new EmailParametersProvider(new ParametersProvider()), currentEmployee, commonServices.InteractiveService, UoW);
+				new EmailRepository(), new EmailParametersProvider(parametersProvider), currentEmployee, commonServices.InteractiveService, UoW);
+
+
+			FillDiscountReasons(discountReasonRepository);
 		}
-		
-		public IOrderRepository OrderRepository { get; }
+
+		public IList<DiscountReason> DiscountReasons { get; private set; }
+		public IOrderDiscountsController DiscountsController { get; }
+		public bool CanChangeDiscountValue { get; }
 
 		#region Commands
 
@@ -192,6 +213,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				OpenCounterpartyJournal?.Invoke(string.Empty);
 		}
 
+		private void FillDiscountReasons(IDiscountReasonRepository discountReasonRepository)
+		{
+			var canChoosePremiumDiscount = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
+			DiscountReasons = canChoosePremiumDiscount
+				? discountReasonRepository.GetActiveDiscountReasons(UoW)
+				: discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
+		}
+		
 		bool CanAddNomenclaturesToOrder()
 		{
 			if(Entity.Client == null) {
