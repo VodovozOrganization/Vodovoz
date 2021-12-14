@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Threading.Tasks;
 using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -75,10 +76,12 @@ namespace Vodovoz.Views.Client
 			entryBuilding.HousesDataLoader = ViewModel.HousesDataLoader;
 			entryCity.CitySelected += EntryCityOnCitySelected;
 			entryStreet.StreetSelected += EntryStreetOnStreetSelected;
+			entryStreet.FocusOutEvent += EntryStreetOnFocusOutEvent;
 			entryBuilding.FocusOutEvent += EntryBuildingOnFocusOutEvent;
 			entryCity.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.City, w => w.CityName)
 				.AddBinding(e => e.CityFiasGuid, w => w.FiasGuid)
+				.AddBinding(e => e.LocalityType, w => w.CityTypeName)
 				.AddBinding(e => e.LocalityTypeShort, w => w.CityTypeNameShort)
 				.InitializeFromSource();
 
@@ -364,17 +367,38 @@ namespace Vodovoz.Views.Client
 
 		#region AddressEntriesEvents
 
-		private void EntryBuildingOnFocusOutEvent(object o, FocusOutEventArgs args)
+		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			var addressChanged = entryCity.CityName != _cityBeforeChange
-								 || entryStreet.StreetName != _streetBeforeChange
-								 || entryBuilding.BuildingName != _buildingBeforeChange;
+			if(IsAddressChanged)
+			{
+				await WriteCoordinates();
+			}
+		}
 
-			if(!addressChanged)
+		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
+		{
+			entryBuilding.StreetGuid = entryStreet.FiasGuid;
+			entryBuilding.BuildingName = string.Empty;
+		}
+
+		private async void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
+		{
+			if(!IsAddressChanged)
 			{
 				return;
 			}
 
+			entryBuilding.StreetGuid = entryStreet.FiasGuid;
+
+			if(string.IsNullOrWhiteSpace(entryStreet.StreetName))
+			{
+				entryBuilding.BuildingName = string.Empty;
+				await WriteCoordinates();
+			}
+		}
+
+		private async Task WriteCoordinates()
+		{
 			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
 
 			_cityBeforeChange = entryCity.CityName;
@@ -385,7 +409,7 @@ namespace Vodovoz.Views.Client
 
 			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
 			{
-				var findedByGeoCoder = entryBuilding.GetCoordinatesByGeocoderAsync($"{entryCity.CityTypeName}. {entryCity.CityName},{entryStreet.StreetName} {entryStreet.StreetTypeName}, {entryBuilding.BuildingName}").Result;
+				var findedByGeoCoder = await entryBuilding.GetCoordinatesByGeocoderAsync($"{ entryCity.CityTypeName } { entryCity.CityName }, { entryStreet.StreetName } { entryStreet.StreetTypeName }, { entryBuilding.BuildingName }");
 				if(findedByGeoCoder != null)
 				{
 					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
@@ -398,13 +422,6 @@ namespace Vodovoz.Views.Client
 			ViewModel.WriteCoordinates(latitude, longitude, false);
 		}
 
-		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
-		{
-			entryBuilding.StreetGuid = entryStreet.FiasGuid;
-			entryBuilding.StreetDistrict = entryStreet.StreetDistrict;
-			entryBuilding.BuildingName = string.Empty;
-		}
-
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
 		{
 			entryStreet.CityGuid = entryCity.FiasGuid;
@@ -413,7 +430,8 @@ namespace Vodovoz.Views.Client
 			entryStreet.StreetName = string.Empty;
 			entryStreet.StreetDistrict = string.Empty;
 			entryStreet.FireStreetChange();
-			entryBuilding.StreetGuid = Guid.Empty;
+			entryBuilding.StreetGuid = null;
+			entryBuilding.CityGuid = entryCity.FiasGuid;
 			entryBuilding.BuildingName = string.Empty;
 		}
 
@@ -443,6 +461,11 @@ namespace Vodovoz.Views.Client
 			}
 		}
 
+		public bool IsAddressChanged =>
+			 entryCity.CityName != _cityBeforeChange
+			 || entryStreet.StreetName != _streetBeforeChange
+			 || entryBuilding.BuildingName != _buildingBeforeChange;
+			 
 		#endregion
 	}
 }

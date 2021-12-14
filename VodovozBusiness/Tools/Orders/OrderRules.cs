@@ -257,14 +257,20 @@ namespace Vodovoz.Tools.Orders
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
 		
-		static bool ConditionForUPD(OrderStateKey key) => (
-			(GetConditionForBill(key) ||
+		static bool ConditionForUPD(OrderStateKey key)
+		{
+			var beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+			return (
+				(GetConditionForBill(key) ||
 				(key.Order.Client.UPDCount.HasValue
-					&& key.Order.OurOrganization != null
-					&& key.Order.OurOrganization.Id == _organizationParametersProvider.BeveragesWorldOrganizationId
-					&& IsOrderWithOrderItemsAndWithoutDeposits(key)))
-			&& (key.OrderStatus >= OrderStatus.Accepted || (key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
-		);
+				&& ((key.Order.OurOrganization != null && key.Order.OurOrganization.Id == beveragesWorldOrganizationId)
+					|| (key.Order.Client?.WorksThroughOrganization != null
+						&& key.Order.Client.WorksThroughOrganization.Id == beveragesWorldOrganizationId))
+				&& IsOrderWithOrderItemsAndWithoutDeposits(key)))
+				&& (key.OrderStatus >= OrderStatus.Accepted ||
+					(key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
+			);
+		}
 
 		static bool GetConditionForUPD(OrderStateKey key) =>
 		(

@@ -98,7 +98,7 @@ namespace Vodovoz.Dialogs.Phones
 
 			var entryName = new yEntry();
 			entryName.MaxLength = 150;
-			entryName.Binding.AddBinding(newPhone, e => e.Name, w => w.Text).InitializeFromSource();
+			entryName.Binding.AddBinding(newPhone, e => e.Comment, w => w.Text).InitializeFromSource();
 			entryName.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(entryName);
 			hBox.SetChildPacking(entryName, true, true, 0, PackType.Start);
