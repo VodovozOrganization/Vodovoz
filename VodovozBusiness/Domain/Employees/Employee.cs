@@ -30,6 +30,7 @@ namespace Vodovoz.Domain.Employees
 	[HistoryTrace]
 	public class Employee : Personnel, IEmployee
 	{
+		private const int _commentLimit = 255;
 		private string _comment;
 
 		#region Свойства
@@ -471,6 +472,12 @@ namespace Vodovoz.Domain.Employees
 			if(String.IsNullOrEmpty(DrivingLicense) && IsDriverForOneDay)
 				yield return new ValidationResult(String.Format("У разового водителя должно быть водительское удостоверение"),
 					new[] { this.GetPropertyName(x => x.DrivingLicense) });
+			
+			if(Comment != null && Comment.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
+			}
 		}
 
 		#endregion
