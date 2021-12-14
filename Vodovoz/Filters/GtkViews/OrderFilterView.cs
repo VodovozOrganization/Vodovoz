@@ -2,6 +2,7 @@
 using System.Linq;
 using NLog;
 using QS.Views.GtkUI;
+using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
@@ -23,6 +24,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			entryOrderId.ValidationMode = ValidationType.Numeric;
+			entryOrderId.Binding.AddBinding(ViewModel, vm => vm.OrderId, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			entryCounterpartyPhone.ValidationMode = ValidationType.Numeric;
+			entryCounterpartyPhone.Binding.AddBinding(ViewModel, vm => vm.CounterpartyPhone, w => w.Text).InitializeFromSource();
+
+			entryDeliveryPointPhone.ValidationMode = ValidationType.Numeric;
+			entryDeliveryPointPhone.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text).InitializeFromSource();
+
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 			enumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)

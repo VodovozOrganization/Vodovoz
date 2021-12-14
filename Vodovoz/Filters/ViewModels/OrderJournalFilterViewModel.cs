@@ -41,6 +41,9 @@ namespace Vodovoz.Filters.ViewModels
 		private ViewTypes _viewTypes;
 		private bool _canChangeDeliveryPoint = true;
 		private DeliveryPoint _deliveryPoint;
+		private int? _orderId;
+		private string _counterpartyPhone;
+		private string _deliveryPointPhone;
 
 		#endregion
 
@@ -398,6 +401,24 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _filterDateType;
 			set => UpdateFilterField(ref _filterDateType, value);
+		}
+
+		public int? OrderId
+		{
+			get => _orderId;
+			set => SetField(ref _orderId, value);
+		}
+
+		public string CounterpartyPhone
+		{
+			get => _counterpartyPhone;
+			set => SetField(ref _counterpartyPhone, value);
+		}
+
+		public string DeliveryPointPhone
+		{
+			get => _deliveryPointPhone;
+			set => SetField(ref _deliveryPointPhone, value);
 		}
 
 	}

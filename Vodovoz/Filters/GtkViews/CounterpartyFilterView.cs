@@ -1,5 +1,6 @@
 ﻿using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
+using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 
@@ -16,6 +17,14 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			entryName.Binding.AddBinding(ViewModel, vm => vm.CounterpartyName, w => w.Text).InitializeFromSource();
+
+			entryCounterpartyPhone.ValidationMode = ValidationType.Numeric;
+			entryCounterpartyPhone.Binding.AddBinding(ViewModel, vm => vm.CounterpartyPhone, w => w.Text).InitializeFromSource();
+			
+			entryDeliveryPointPhone.ValidationMode = ValidationType.Numeric;
+			entryDeliveryPointPhone.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text).InitializeFromSource();
+
 			yentryTag.RepresentationModel = ViewModel.TagVM;
 			yentryTag.Binding.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject).InitializeFromSource();
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
