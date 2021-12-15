@@ -1,8 +1,10 @@
 ﻿using Gamma.GtkWidgets;
+using Gtk;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
+using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -17,12 +19,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			entryName.KeyReleaseEvent += OnKeyReleased;
 			entryName.Binding.AddBinding(ViewModel, vm => vm.CounterpartyName, w => w.Text).InitializeFromSource();
 
 			entryCounterpartyPhone.ValidationMode = ValidationType.Numeric;
+			entryCounterpartyPhone.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyPhone.Binding.AddBinding(ViewModel, vm => vm.CounterpartyPhone, w => w.Text).InitializeFromSource();
 			
 			entryDeliveryPointPhone.ValidationMode = ValidationType.Numeric;
+			entryDeliveryPointPhone.KeyReleaseEvent += OnKeyReleased;
 			entryDeliveryPointPhone.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text).InitializeFromSource();
 
 			yentryTag.RepresentationModel = ViewModel.TagVM;
@@ -44,5 +49,21 @@ namespace Vodovoz.Filters.GtkViews
 				frame2.Visible = false;
 			}
         }
+
+		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
+		}
+
+		public override void Dispose()
+		{
+			entryName.KeyReleaseEvent -= OnKeyReleased;
+			entryCounterpartyPhone.KeyReleaseEvent -= OnKeyReleased;
+			entryDeliveryPointPhone.KeyReleaseEvent -= OnKeyReleased;
+			base.Dispose();
+		}
 	}
 }
