@@ -3026,7 +3026,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanEditOrder => EditableOrderStatuses.Contains(OrderStatus);
+		public virtual bool CanEditByStatus => EditableOrderStatuses.Contains(OrderStatus);
 
 		/// <summary>
 		/// Статусы из которых возможен переход заказа в подтвержденное состояние

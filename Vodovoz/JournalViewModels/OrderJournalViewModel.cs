@@ -149,7 +149,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead;
 				},
 				(selected) => selected.All(x => (x as OrderJournalNode).Sensitive),
 				(selected) => {
@@ -182,14 +182,6 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
-		}
-
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if (TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
