@@ -109,8 +109,10 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.SetChildPacking(labelName, false, false, 0, PackType.Start);
 
 			var entityviewmodelentryName = new EntityViewModelEntry();
-			entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
+			entityviewmodelentryName.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference).InitializeFromSource();
 			entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryName.Binding.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
+			entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
 			entityviewmodelentryName.WidthRequest = 170;
 			hBox.Add(entityviewmodelentryName);
 			hBox.SetChildPacking(entityviewmodelentryName, true, true, 0, PackType.Start);
@@ -120,8 +122,10 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.SetChildPacking(labelPatronymic, false, false, 0, PackType.Start);
 
 			var entityviewmodelentryPatronymic = new EntityViewModelEntry();
-			entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
+			entityviewmodelentryPatronymic.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
 			entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryPatronymic.Binding.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable).InitializeFromSource();
+			entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
 			entityviewmodelentryPatronymic.WidthRequest = 170;
 			hBox.Add(entityviewmodelentryPatronymic);
 			hBox.SetChildPacking(entityviewmodelentryPatronymic, true, true, 0, PackType.Start);
@@ -148,8 +152,9 @@ namespace Vodovoz.Dialogs.Phones
 		{
 			buttonAddPhone.Visible = !ViewModel.ReadOnly;
 
-			foreach(var child in vboxPhones.Children) 
+			foreach(var child in vboxPhones.Children.ToList())
 			{
+				child.Destroy();
 				vboxPhones.Remove(child);
 			}
 
@@ -157,16 +162,6 @@ namespace Vodovoz.Dialogs.Phones
 			{
 				DrawNewRow(phone);
 			}
-		}
-
-		private void DeleteRow(int rowNumber)
-		{
-			hBoxList.RemoveAt(rowNumber);
-		}
-
-		private void DeleteRow(HBox widget)
-		{
-			hBoxList.Remove(widget);
 		}
 	}
 }

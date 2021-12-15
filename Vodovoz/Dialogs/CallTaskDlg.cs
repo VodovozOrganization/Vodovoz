@@ -1,6 +1,8 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -38,6 +40,7 @@ namespace Vodovoz.Dialogs
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly ICommonServices _commonServices;
 
 		public CallTaskDlg()
 		{
@@ -49,6 +52,7 @@ namespace Vodovoz.Dialogs
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			_roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+			_commonServices = ServicesConfig.CommonServices;
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
 			Entity.Source = TaskSource.Handmade;
@@ -123,10 +127,10 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory);
+			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)

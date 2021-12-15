@@ -62,7 +62,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository(), new RoboAtsCounterpartyJournalFactory());
+		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();

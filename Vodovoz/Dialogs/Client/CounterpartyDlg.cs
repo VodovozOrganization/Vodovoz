@@ -40,6 +40,7 @@ using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using QS.Project.Journal;
+using QS.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -80,6 +81,7 @@ namespace Vodovoz
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IContactsParameters _contactsParameters = ContactParametersProvider.Instance;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
@@ -460,7 +462,7 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			_phonesViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory) { PhonesList = Entity.ObservablePhones, Counterparty = Entity };
+			_phonesViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices) { PhonesList = Entity.ObservablePhones, Counterparty = Entity };
 			phonesView.ViewModel = _phonesViewModel;
 
 			emailsView.UoW = UoWGeneric;

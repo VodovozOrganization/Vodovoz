@@ -164,7 +164,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			return new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory) {
+			return new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, CommonServices) {
 				ReadOnly = true
 			};
 		}

@@ -89,7 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, roboAtsCounterpartyJournalFactory) { PhonesList = Entity.ObservablePhones, DeliveryPoint = Entity };
+			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, roboAtsCounterpartyJournalFactory, CommonServices) { PhonesList = Entity.ObservablePhones, DeliveryPoint = Entity };
 
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));
 			StreetsDataLoader = streetsDataLoader ?? throw new ArgumentNullException(nameof(streetsDataLoader));
@@ -109,8 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				deliveryScheduleSelectorFactory?.CreateDeliveryScheduleAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(deliveryScheduleSelectorFactory));
 
-			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ??
-			                                     throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
+			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 
 			Entity.PropertyChanged += (sender, e) =>
 			{

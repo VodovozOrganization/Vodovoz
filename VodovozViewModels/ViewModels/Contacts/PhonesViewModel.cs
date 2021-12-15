@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using QS.Project.Journal.EntitySelector;
+using QS.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
@@ -40,16 +41,30 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		}
 
 		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory)
+			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory, ICommonServices commonServices)
 		{
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
+			
 			if(roboAtsCounterpartyJournalFactory == null)
 			{
 				throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 			}
+
 			RoboAtsCounterpartyNameSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyNameAutocompleteSelectorFactory();
 			RoboAtsCounterpartyPatronymicSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyPatronymicAutocompleteSelectorFactory();
+
+
+			var roboAtsCounterpartyNamePermissions = commonServices.PermissionService.ValidateUserPermission(typeof(RoboAtsCounterpartyName), 
+				commonServices.UserService.CurrentUserId);
+			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
+			CanEditCounterpartyName = roboAtsCounterpartyNamePermissions.CanUpdate;
+
+			var roboAtsCounterpartyPatronymicPermissions = commonServices.PermissionService.ValidateUserPermission(typeof(RoboAtsCounterpartyPatronymic),
+				commonServices.UserService.CurrentUserId);
+			CanReadCounterpartyPatronymic = roboAtsCounterpartyPatronymicPermissions.CanRead;
+			CanEditCounterpartyPatronymic = roboAtsCounterpartyPatronymicPermissions.CanUpdate;
+
 			PhoneTypes = phoneRepository.GetPhoneTypes(uow);
 			CreateCommands();
 		}
@@ -58,6 +73,10 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyNameSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyPatronymicSelectorFactory { get; }
+		public bool CanReadCounterpartyName { get; }
+		public bool CanEditCounterpartyName { get; }
+		public bool CanReadCounterpartyPatronymic { get; }
+		public bool CanEditCounterpartyPatronymic { get; }
 
 		IPhoneRepository phoneRepository;
 

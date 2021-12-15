@@ -57,15 +57,15 @@ namespace Vodovoz.Domain.Client
 					new[] { nameof(CarEventType) });
 			}
 
-			if(Patronymic?.Length > 50)
+			if(Patronymic?.Length > 20)
 			{
-				yield return new ValidationResult($"Превышена максимально допустимая длина отчества ({Patronymic.Length}/255).",
+				yield return new ValidationResult($"Превышена максимально допустимая длина отчества ({Patronymic.Length}/20).",
 					new[] { nameof(Patronymic) });
 			}
 
-			if(Accent?.Length > 50)
+			if(Accent?.Length > 20)
 			{
-				yield return new ValidationResult($"Превышена максимально допустимая длина ударения ({Accent.Length}/255).",
+				yield return new ValidationResult($"Превышена максимально допустимая длина ударения ({Accent.Length}/20).",
 					new[] { nameof(Accent) });
 			}
 		}
