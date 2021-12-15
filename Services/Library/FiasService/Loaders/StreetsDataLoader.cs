@@ -79,8 +79,8 @@ namespace Fias.Service.Loaders
 
 		protected void SaveStreets(Task<IEnumerable<StreetDTO>> newStreets)
 		{
-			Streets = newStreets.Result.ToArray();
-			logger.Info($"Улиц загружено : {Streets.Length}");
+			Streets = newStreets.Result?.ToArray();
+			logger.Info($"Улиц загружено : { Streets?.Length ?? 0 }");
 			StreetLoaded?.Invoke();
 		}
 

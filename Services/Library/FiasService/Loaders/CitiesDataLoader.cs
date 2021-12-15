@@ -46,7 +46,7 @@ namespace Fias.Service.Loaders
 		public CityDTO GetCity(string cityName)
 		{
 			var cities = Fias.GetCitiesByCriteria(cityName, 1);
-			return cities.SingleOrDefault();
+			return cities?.SingleOrDefault();
 		}
 
 		public void LoadCities(string searchString, int limit = 50)
@@ -88,8 +88,8 @@ namespace Fias.Service.Loaders
 
 		private void SaveCities(Task<IEnumerable<CityDTO>> newCities)
 		{
-			Cities = newCities.Result.ToArray();
-			logger.Info($"Городов загружено : { Cities?.Length }");
+			Cities = newCities.Result?.ToArray();
+			logger.Info($"Городов загружено : { Cities?.Length ?? 0}");
 			CitiesLoaded?.Invoke();
 		}
 

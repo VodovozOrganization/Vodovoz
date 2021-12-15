@@ -70,8 +70,8 @@ namespace Fias.Service.Loaders
 		{
 			var houses = newHouses.Result;
 
-			Houses = houses.OrderBy(x => x.ComplexNumber, new NaturalStringComparer()).ToArray();
-			_logger.Info($"Домов загружено : { Houses.Length }");
+			Houses = houses?.OrderBy(x => x.ComplexNumber, new NaturalStringComparer()).ToArray();
+			_logger.Info($"Домов загружено : { Houses?.Length ?? 0 }");
 			HousesLoaded?.Invoke();
 		}
 

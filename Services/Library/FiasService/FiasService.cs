@@ -29,7 +29,17 @@ namespace Fias.Service
 			{
 				_client.DefaultRequestHeaders.Accept.Clear();
 				_client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-				var response = await _client.GetAsync($"{ _requestPath }{ _requestParams }");
+				
+				HttpResponseMessage response;
+
+				try
+				{
+					response = await _client.GetAsync($"{ _requestPath }{ _requestParams }");
+				}
+				catch
+				{
+					return default;
+				}
 
 				if(response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.OK)
 				{
@@ -52,6 +62,7 @@ namespace Fias.Service
 			_client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", fiasApiToken);
 			_client.DefaultRequestHeaders.Accept.Clear();
 			_client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			_client.Timeout = TimeSpan.FromSeconds(5);
 		}
 
 		public IEnumerable<CityDTO> GetCitiesByCriteria(string searchString, int limit, bool isActive = true)

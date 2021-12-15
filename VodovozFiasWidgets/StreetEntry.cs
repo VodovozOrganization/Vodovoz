@@ -160,15 +160,19 @@ namespace VodovozFiasWidgets
 		{
 			var streets = _streetsDataLoader.GetStreets();
 			_completionListStore = new ListStore(typeof(Guid), typeof(string), typeof(string), typeof(string), typeof(string));
-			foreach(var s in streets)
+
+			if(streets != null)
 			{
-				_completionListStore.AppendValues(
-					s.FiasGuid,
-					s.Name,
-					s.TypeName,
-					s.TypeShortName,
-					s.StreetDistrict
-				);
+				foreach(var s in streets)
+				{
+					_completionListStore.AppendValues(
+						s.FiasGuid,
+						s.Name,
+						s.TypeName,
+						s.TypeShortName,
+						s.StreetDistrict
+					);
+				}
 			}
 
 			Application.Invoke((sender, e) =>

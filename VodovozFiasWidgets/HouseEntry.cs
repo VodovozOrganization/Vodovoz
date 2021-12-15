@@ -105,9 +105,12 @@ namespace VodovozFiasWidgets
 				var houses = HousesDataLoader.GetHouses();
 				_completionListStore = new ListStore(typeof(HouseDTO));
 
-				foreach(var house in houses)
+				if(houses != null)
 				{
-					_completionListStore.AppendValues(house);
+					foreach(var house in houses)
+					{
+						_completionListStore.AppendValues(house);
+					}
 				}
 
 				if(Completion != null)
