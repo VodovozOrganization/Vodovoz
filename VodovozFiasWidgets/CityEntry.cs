@@ -157,17 +157,14 @@ namespace VodovozFiasWidgets
 				var cities = _citiesDataLoader.GetCities();
 				_completionListStore = new ListStore(typeof(Guid), typeof(string), typeof(string), typeof(string));
 
-				if(cities != null)
+				foreach(var city in cities)
 				{
-					foreach(var city in cities)
-					{
-						_completionListStore.AppendValues(
-							city.FiasGuid,
-							city.TypeName,
-							city.TypeShortName,
-							city.Name
-						);
-					}
+					_completionListStore.AppendValues(
+						city.FiasGuid,
+						city.TypeName,
+						city.TypeShortName,
+						city.Name
+					);
 				}
 
 				if(Completion != null)

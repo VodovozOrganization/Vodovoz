@@ -31,7 +31,7 @@ namespace Fias.Service.Loaders
 
 		protected HouseDTO[] Houses;
 
-		public HousesDataLoader(IFiasService fiasService) : base(fiasService)
+		public HousesDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
 		{
 		}
 
@@ -70,8 +70,8 @@ namespace Fias.Service.Loaders
 		{
 			var houses = newHouses.Result;
 
-			Houses = houses?.OrderBy(x => x.ComplexNumber, new NaturalStringComparer()).ToArray();
-			_logger.Info($"Домов загружено : { Houses?.Length ?? 0 }");
+			Houses = houses.OrderBy(x => x.ComplexNumber, new NaturalStringComparer()).ToArray();
+			_logger.Info($"Домов загружено : { Houses.Length }");
 			HousesLoaded?.Invoke();
 		}
 

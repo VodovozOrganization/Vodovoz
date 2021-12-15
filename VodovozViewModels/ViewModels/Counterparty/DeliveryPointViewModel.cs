@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Fias.Service.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -32,7 +33,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	{
 		private int _currentPage = 0;
 		private User _currentUser;
-		private bool _isNotSaving = true;
+		private bool _isBaseNotSaving = true;
+		private bool _isBuildingsNotLoading = true;
 		private FixedPricesViewModel _fixedPricesViewModel;
 		private List<DeliveryPointResponsiblePerson> _responsiblePersons;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -131,11 +133,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			get => _currentPage;
 			private set => SetField(ref _currentPage, value);
 		}
-		public bool IsNotSaving
-		{
-			get => _isNotSaving;
-			private set => SetField(ref _isNotSaving, value);
-		}
+
+		public bool IsNotSaving => _isBaseNotSaving && _isBuildingsNotLoading;
+
 		public bool CurrentUserIsAdmin => CurrentUser.IsAdmin;
 		public bool CoordsWasChanged => Entity.СoordsLastChangeUser != null;
 		public string CoordsLastChangeUserName => Entity.СoordsLastChangeUser.Name;
@@ -185,7 +185,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		{
 			try
 			{
-				IsNotSaving = false;
+				_isBaseNotSaving = false;
 				if(!HasChanges)
 				{
 					return base.Save(close);
@@ -207,11 +207,17 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					return false;
 				}
 
+				if(!_isBuildingsNotLoading)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
+					return false;
+				}
+
 				return base.Save(close);
 			}
 			finally
 			{
-				IsNotSaving = true;
+				_isBaseNotSaving = true;
 			}
 		}
 
@@ -282,17 +288,27 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			return Math.Round(coordDiff, 6) == decimal.Zero;
 		}
 
+		public string CityBeforeChange { get; set; }
+		public string StreetBeforeChange { get; set; }
+		public string BuildingBeforeChange { get; set; }
+
+		public bool IsAddressChanged =>
+			Entity.City != CityBeforeChange
+			|| Entity.Street != StreetBeforeChange
+			|| Entity.Building != BuildingBeforeChange;
+
+
 		#region ITDICloseControlTab
 
 		public bool CanClose()
 		{
-			if(!_isNotSaving)
+			if(!IsNotSaving)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 					"Дождитесь завершения сохранения точки доставки и повторите", "Сохранение...");
 			}
 
-			return _isNotSaving;
+			return IsNotSaving;
 		}
 
 		#endregion
@@ -324,5 +340,33 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		));
 
 		#endregion
+
+		public async Task UpdateCoordinatesAsync(decimal? longitude, decimal? latitude, IHousesDataLoader entryBuildingHousesDataLoader, bool? isFoundOnOsm)
+		{
+			_isBuildingsNotLoading = false;
+
+			Entity.FoundOnOsm = isFoundOnOsm != null && isFoundOnOsm.Value; ;
+
+			CityBeforeChange = Entity.City;
+			StreetBeforeChange = Entity.Street;
+			BuildingBeforeChange = Entity.Building;
+
+			if(!string.IsNullOrWhiteSpace(Entity.Building) && (longitude == null || latitude == null))
+			{
+				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address);
+				if(findedByGeoCoder != null)
+				{
+					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+					culture.NumberFormat.NumberDecimalSeparator = ".";
+					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
+					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
+				}
+			}
+
+			WriteCoordinates(latitude, longitude, false);
+
+			_isBuildingsNotLoading = true;
+		}
 	}
 }

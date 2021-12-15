@@ -9,10 +9,9 @@ using Fias.Search.DTO;
 
 namespace Fias.Service
 {
-	public class FiasService : IFiasService
+	public class FiasApiClient : IFiasApiClient
 	{
 		private static HttpClient _client;
-		private readonly string _fiasApiBaseUrl;
 
 		private class RequestSender<T>
 		{
@@ -51,10 +50,8 @@ namespace Fias.Service
 			}
 		}
 
-		public FiasService(string fiasApiBaseUrl, string fiasApiToken)
+		public FiasApiClient(string fiasApiBaseUrl, string fiasApiToken)
 		{
-			_fiasApiBaseUrl = fiasApiBaseUrl ?? throw new ArgumentNullException(nameof(fiasApiBaseUrl));
-
 			_client = new HttpClient()
 			{
 				BaseAddress = new Uri(fiasApiBaseUrl)
@@ -75,19 +72,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<CityDTO>>("/api/GetCitiesByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result;
-		}
-
-		public IEnumerable<CityDTO> GetCities(int limit, bool isActive = true)
-		{
-			var inputParams = new Dictionary<string, string>
-			{
-				{ "limit", limit.ToString() },
-				{ "isActive", isActive.ToString() }
-			};
-			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
-			var requestSender = new RequestSender<IEnumerable<CityDTO>>("/api/GetCities", requestParams);
-			return requestSender.GetResponseAsync().Result;
+			return requestSender.GetResponseAsync().Result ?? new List<CityDTO>();
 		}
 
 		public IEnumerable<StreetDTO> GetStreetsByCriteria(Guid cityGuid, string searchString, int limit, bool isActive = true)
@@ -101,7 +86,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<StreetDTO>>("/api/GetStreetsByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result;
+			return requestSender.GetResponseAsync().Result ?? new List<StreetDTO>();
 		}
 
 		public IEnumerable<HouseDTO> GetHousesFromStreetByCriteria(Guid streetGuid, string searchString, int? limit = null, bool isActive = true)
@@ -115,7 +100,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<HouseDTO>>("/api/GetHousesFromStreetByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result;
+			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
 		}
 
 		public IEnumerable<HouseDTO> GetHousesFromCityByCriteria(Guid cityGuid, string searchString, int? limit = null, bool isActive = true)
@@ -129,7 +114,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<HouseDTO>>("/api/GetHousesFromCityByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result;
+			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
 		}
 
 		public Task<PointDTO> GetCoordinatesByGeoCoderAsync(string address)

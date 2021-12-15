@@ -32,7 +32,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		private readonly ReplaceEntity _replaceEntity;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-		public MergeAddressesDlg(IFiasService fiasService)
+		public MergeAddressesDlg(IFiasApiClient fiasApiClient)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance")) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
@@ -59,7 +59,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				.Finish();
 
 			_replaceEntity = new ReplaceEntity(DeleteConfig.Main);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 		}
 
 		void DuplicateSelection_Changed(object sender, EventArgs e)

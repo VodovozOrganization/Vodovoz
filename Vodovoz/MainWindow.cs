@@ -1216,11 +1216,11 @@ public partial class MainWindow : Gtk.Window
 	{
 		IParametersProvider parametersProvider = new ParametersProvider();
 		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg(fiasService)
+			() => new MergeAddressesDlg(fiasApiClient)
 		);
 	}
 
