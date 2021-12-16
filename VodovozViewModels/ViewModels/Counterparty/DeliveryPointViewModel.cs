@@ -312,7 +312,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					"Дождитесь завершения сохранения точки доставки и повторите", "Сохранение...");
 			}
 
-			return IsInProcess;
+			return !IsInProcess;
 		}
 
 		#endregion
@@ -379,10 +379,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 		}
 
-		public override void Close(bool askSave, CloseSource source)
+		public override void Dispose()
 		{
 			_cancellationTokenSource.Cancel();
-			base.Close(askSave, source);
+			base.Dispose();
 		}
 	}
 }
