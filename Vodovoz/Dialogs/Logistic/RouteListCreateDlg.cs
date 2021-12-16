@@ -201,8 +201,9 @@ namespace Vodovoz
 								.List();
 			}
 
+			var isLogistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
-			createroutelistitemsview1.PermissionResult = permissionResult;
+			createroutelistitemsview1.SetParameters(permissionResult, isLogistician);
 
 			buttonAccept.Visible = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed;
 			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)
@@ -235,8 +236,7 @@ namespace Vodovoz
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-			var hasAccessToDriverTerminal = logistician ||
+			var hasAccessToDriverTerminal = isLogistician ||
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
@@ -248,7 +248,7 @@ namespace Vodovoz
 			}
 
 			_oldDriver = Entity.Driver;
-			UpdateDlg(logistician);
+			UpdateDlg(isLogistician);
 		}
 		
 		private void OnCancelClicked(object sender, EventArgs e)
@@ -258,7 +258,7 @@ namespace Vodovoz
 		
 		private void UpdateDlg(bool logistician)
 		{
-			if(Entity.Status == RouteListStatus.New && logistician && (permissionResult.CanCreate || permissionResult.CanUpdate))
+			if(Entity.Status == RouteListStatus.New && logistician && (permissionResult.CanCreate && Entity.Id == 0 || permissionResult.CanUpdate))
 			{
 				UpdateElements(true);
 			}

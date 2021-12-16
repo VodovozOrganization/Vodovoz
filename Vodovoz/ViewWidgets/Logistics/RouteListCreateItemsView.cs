@@ -42,7 +42,9 @@ namespace Vodovoz
 		private int goodsColumnsCount = -1;
 		private bool _isEditable = true;
 		private bool _canOpenOrder = true;
+		private bool _isLogistician;
 
+		private IPermissionResult _permissionResult;
 		private RouteListItem _selectedRouteListItem;
 		private IList<RouteColumn> _columnsInfo;
 
@@ -69,8 +71,6 @@ namespace Vodovoz
 				CalculateTotal();
 			}
 		}
-		
-		public IPermissionResult PermissionResult { get; set; }
 
 		public void SubscribeOnChanges()
         {
@@ -84,8 +84,8 @@ namespace Vodovoz
             ytreeviewItems?.YTreeModel?.EmitModelChanged();
         }
 
-		private bool CanEditRows => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican")
-										&& (PermissionResult.CanCreate || PermissionResult.CanUpdate)
+		private bool CanEditRows => _isLogistician
+										&& (_permissionResult.CanCreate && RouteListUoW.Root.Id == 0 || _permissionResult.CanUpdate)
 										&& RouteListUoW.Root.Status != RouteListStatus.Closed
 										&& RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
 
@@ -196,6 +196,12 @@ namespace Vodovoz
 			this.Build();
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
+		}
+		
+		public void SetParameters(IPermissionResult permissionResult, bool isLogistician)
+		{
+			_permissionResult = permissionResult;
+			_isLogistician = isLogistician;
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
