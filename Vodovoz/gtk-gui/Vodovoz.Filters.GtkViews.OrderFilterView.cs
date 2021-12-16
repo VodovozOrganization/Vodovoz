@@ -64,6 +64,20 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckLessThreeHours;
 
+		private global::Gtk.HBox hboxSearchFields;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOrderId;
+
+		private global::QS.Widgets.ValidatedEntry entryOrderId;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCounterpartyPhone;
+
+		private global::QS.Widgets.ValidatedEntry entryCounterpartyPhone;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointPhone;
+
+		private global::QS.Widgets.ValidatedEntry entryDeliveryPointPhone;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -439,6 +453,77 @@ namespace Vodovoz.Filters.GtkViews
 			w29.Position = 1;
 			w29.Expand = false;
 			w29.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hboxSearchFields = new global::Gtk.HBox();
+			this.hboxSearchFields.Name = "hboxSearchFields";
+			this.hboxSearchFields.Spacing = 6;
+			// Container child hboxSearchFields.Gtk.Box+BoxChild
+			this.ylabelOrderId = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOrderId.Name = "ylabelOrderId";
+			this.ylabelOrderId.LabelProp = global::Mono.Unix.Catalog.GetString("Номер:");
+			this.hboxSearchFields.Add(this.ylabelOrderId);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hboxSearchFields[this.ylabelOrderId]));
+			w30.Position = 0;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child hboxSearchFields.Gtk.Box+BoxChild
+			this.entryOrderId = new global::QS.Widgets.ValidatedEntry();
+			this.entryOrderId.CanFocus = true;
+			this.entryOrderId.Name = "entryOrderId";
+			this.entryOrderId.IsEditable = true;
+			this.entryOrderId.InvisibleChar = '•';
+			this.hboxSearchFields.Add(this.entryOrderId);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hboxSearchFields[this.entryOrderId]));
+			w31.Position = 1;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child hboxSearchFields.Gtk.Box+BoxChild
+			this.ylabelCounterpartyPhone = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCounterpartyPhone.Name = "ylabelCounterpartyPhone";
+			this.ylabelCounterpartyPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон контрагента:");
+			this.hboxSearchFields.Add(this.ylabelCounterpartyPhone);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxSearchFields[this.ylabelCounterpartyPhone]));
+			w32.Position = 2;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child hboxSearchFields.Gtk.Box+BoxChild
+			this.entryCounterpartyPhone = new global::QS.Widgets.ValidatedEntry();
+			this.entryCounterpartyPhone.TooltipMarkup = "Формат телефона: Без +7 и 8 в начале";
+			this.entryCounterpartyPhone.CanFocus = true;
+			this.entryCounterpartyPhone.Name = "entryCounterpartyPhone";
+			this.entryCounterpartyPhone.IsEditable = true;
+			this.entryCounterpartyPhone.InvisibleChar = '•';
+			this.hboxSearchFields.Add(this.entryCounterpartyPhone);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxSearchFields[this.entryCounterpartyPhone]));
+			w33.Position = 3;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child hboxSearchFields.Gtk.Box+BoxChild
+			this.ylabelDeliveryPointPhone = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDeliveryPointPhone.Name = "ylabelDeliveryPointPhone";
+			this.ylabelDeliveryPointPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Телефон точки доставки:");
+			this.hboxSearchFields.Add(this.ylabelDeliveryPointPhone);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxSearchFields[this.ylabelDeliveryPointPhone]));
+			w34.Position = 4;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child hboxSearchFields.Gtk.Box+BoxChild
+			this.entryDeliveryPointPhone = new global::QS.Widgets.ValidatedEntry();
+			this.entryDeliveryPointPhone.TooltipMarkup = "Формат телефона: Без +7 и 8 в начале";
+			this.entryDeliveryPointPhone.CanFocus = true;
+			this.entryDeliveryPointPhone.Name = "entryDeliveryPointPhone";
+			this.entryDeliveryPointPhone.IsEditable = true;
+			this.entryDeliveryPointPhone.InvisibleChar = '•';
+			this.hboxSearchFields.Add(this.entryDeliveryPointPhone);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxSearchFields[this.entryDeliveryPointPhone]));
+			w35.Position = 5;
+			w35.Expand = false;
+			w35.Fill = false;
+			this.vbox2.Add(this.hboxSearchFields);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxSearchFields]));
+			w36.Position = 2;
+			w36.Expand = false;
+			w36.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
