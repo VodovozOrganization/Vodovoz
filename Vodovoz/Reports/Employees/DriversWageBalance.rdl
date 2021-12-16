@@ -52,7 +52,7 @@
           <TableColumn>
             <Width>227.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>222.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -76,7 +76,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -94,13 +94,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>Комментарий</Value>
@@ -113,7 +113,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -130,7 +130,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -179,7 +179,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
                       <Value>={comment}</Value>
@@ -192,6 +192,8 @@
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
                         <Color>Black</Color>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -324,7 +326,7 @@
           <TableColumn>
             <Width>220.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>224.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -348,7 +350,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -366,13 +368,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
                       <Value>Комментарий</Value>
@@ -385,7 +387,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -402,7 +404,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -448,7 +450,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
                       <Value>={comment}</Value>
@@ -459,6 +461,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -588,7 +592,7 @@
           <TableColumn>
             <Width>223.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>223.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -612,7 +616,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -632,13 +636,13 @@
                         <FontFamily>Arial</FontFamily>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
                       <Value>Комментарий</Value>
@@ -653,7 +657,7 @@
                         <FontFamily>Arial</FontFamily>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -670,7 +674,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -716,7 +720,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
                       <Value>={comment}</Value>
@@ -727,6 +731,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1024,7 +1030,7 @@
           <TableColumn>
             <Width>223.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>223.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1048,7 +1054,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1066,13 +1072,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox73">
                       <Value>Комментарий</Value>
@@ -1085,7 +1091,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1102,7 +1108,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1148,7 +1154,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox74">
                       <Value>={comment}</Value>
@@ -1159,6 +1165,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1288,7 +1296,7 @@
           <TableColumn>
             <Width>222.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>224.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1312,7 +1320,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1330,13 +1338,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox66">
                       <Value>Комментарий</Value>
@@ -1349,7 +1357,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1366,7 +1374,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1412,7 +1420,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
                       <Value>={comment}</Value>
@@ -1423,6 +1431,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1552,7 +1562,7 @@
           <TableColumn>
             <Width>224.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>224.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1576,7 +1586,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1594,13 +1604,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
                       <Value>Комментарий</Value>
@@ -1613,7 +1623,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1630,7 +1640,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1678,7 +1688,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
                       <Value>={comment}</Value>
@@ -1690,6 +1700,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1828,7 +1840,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1860,7 +1872,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1884,7 +1896,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1911,7 +1923,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1935,7 +1947,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1965,7 +1977,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1989,7 +2001,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2019,7 +2031,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2078,7 +2090,7 @@ HAVING balance &lt;&gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2107,7 +2119,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2131,7 +2143,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="TruckBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2161,7 +2173,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
