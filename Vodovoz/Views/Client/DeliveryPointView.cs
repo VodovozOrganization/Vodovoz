@@ -53,9 +53,9 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
-			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonCancel.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonCancel.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Fias.Search.DTO;
 
@@ -24,7 +25,7 @@ namespace Fias.Service
 				_requestParams = requestParams != null ? $"?{requestParams}" : "";
 			}
 
-			public async Task<T> GetResponseAsync()
+			public async Task<T> GetResponseAsync(CancellationToken? cancellationToken = null)
 			{
 				_client.DefaultRequestHeaders.Accept.Clear();
 				_client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -33,7 +34,14 @@ namespace Fias.Service
 
 				try
 				{
-					response = await _client.GetAsync($"{ _requestPath }{ _requestParams }");
+					if(cancellationToken != null)
+					{
+						response = await _client.GetAsync($"{_requestPath}{_requestParams}", cancellationToken.Value);
+					}
+					else
+					{
+						response = await _client.GetAsync($"{ _requestPath }{ _requestParams }");
+					}
 				}
 				catch
 				{
@@ -117,7 +125,7 @@ namespace Fias.Service
 			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
 		}
 
-		public Task<PointDTO> GetCoordinatesByGeoCoderAsync(string address)
+		public Task<PointDTO> GetCoordinatesByGeoCoderAsync(string address, CancellationToken cancellationToken)
 		{
 			var inputParams = new Dictionary<string, string>
 			{
@@ -125,7 +133,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
-			return requestSender.GetResponseAsync();
+			return requestSender.GetResponseAsync(cancellationToken);
 		}
 	}
 }
