@@ -393,6 +393,8 @@ namespace Vodovoz
 				return;
 			}
 
+			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
+			
 			Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
@@ -404,6 +406,7 @@ namespace Vodovoz
 					
 					if(message != null)
 					{
+						orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
 							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");

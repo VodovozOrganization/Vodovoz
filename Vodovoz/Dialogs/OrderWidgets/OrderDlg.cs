@@ -1079,6 +1079,8 @@ namespace Vodovoz
 				return;
 			}
 
+			var previousDiscountReason = orderItem.DiscountReason;
+
 			Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
@@ -1090,6 +1092,7 @@ namespace Vodovoz
 
 					if(message != null)
 					{
+						orderItem.DiscountReason = previousDiscountReason;
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
 							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");
@@ -2975,7 +2978,7 @@ namespace Vodovoz
 					_discountsController.SetDiscountFromDiscountReasonForOrder(
 						reason, Entity.ObservableOrderItems, _canChangeDiscountValue, out string messages);
 
-					if(messages.Length > 0)
+					if(messages?.Length > 0)
 					{
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							"На следующие позиции не применилась скидка," +

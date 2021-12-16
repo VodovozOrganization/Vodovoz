@@ -253,13 +253,11 @@ namespace Vodovoz.Controllers
 			
 			if(!CanSetDiscount(reason, orderItem))
 			{
-				orderItem.DiscountReason = null;
 				return;
 			}
 			
 			if(!canChangeDiscountValue && OrderItemContainsPromoSetOrFixedPrice(orderItem))
 			{
-				orderItem.DiscountReason = null;
 				message = $"{orderItem.Nomenclature.Name}\n";
 				return;
 			}
