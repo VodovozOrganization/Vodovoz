@@ -469,7 +469,7 @@ namespace Vodovoz
 			dlg.DlgSaved += (s, ea) =>
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
-				_routeListItem.FillCountsOnCanceled();
+				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};
@@ -482,7 +482,7 @@ namespace Vodovoz
 			dlg.DlgSaved += (s, ea) =>
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
-				_routeListItem.FillCountsOnCanceled();
+				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};

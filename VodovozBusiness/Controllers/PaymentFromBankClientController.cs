@@ -55,7 +55,6 @@ namespace Vodovoz.Controllers
 					if(paymentItem.Sum > diff)
 					{
 						paymentItem.UpdateSum(paymentItem.Sum - diff);
-						uow.Save(paymentItem.CashlessMovementOperation);
 						uow.Save(paymentItem);
 						break;
 					}

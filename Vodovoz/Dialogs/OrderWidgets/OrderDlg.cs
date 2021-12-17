@@ -2387,12 +2387,12 @@ namespace Vodovoz
 				if(routeListItem != null)
 				{
 					routeListItem.StatusLastUpdate = DateTime.Now;
-					routeListItem.FillCountsOnCanceled();
+					routeListItem.SetOrderActualCountsToZeroOnCanceled();
 					UoW.Save(routeListItem);
 				}
 				else
 				{
-					Entity.FillCountsOnCanceled();
+					Entity.SetActualCountsToZeroOnCanceled();
 				}
 				
 				UpdateUIState();

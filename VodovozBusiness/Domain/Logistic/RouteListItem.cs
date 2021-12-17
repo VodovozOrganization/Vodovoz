@@ -510,7 +510,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
@@ -526,7 +526,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
 			uow.Save(Order);
@@ -545,7 +545,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
@@ -561,7 +561,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
 			uow.Save(Order);
@@ -645,7 +645,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Обнуляет фактическое количетво
 		/// Использовать если заказ отменен или полностью не доставлен
 		/// </summary>
-		public virtual void FillCountsOnCanceled() => Order.FillCountsOnCanceled();
+		public virtual void SetOrderActualCountsToZeroOnCanceled() => Order.SetActualCountsToZeroOnCanceled();
 
 		public virtual void RestoreOrder()
 		{

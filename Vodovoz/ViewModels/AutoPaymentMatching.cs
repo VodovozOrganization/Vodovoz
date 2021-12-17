@@ -32,13 +32,13 @@ namespace Vodovoz.ViewModels
 				return false;
 			}
 
-			var str = ParsePaymentPurpose(payment);
+			var orderNumbers = ParsePaymentPurpose(payment);
 
-			if(str.Any())
+			if(orderNumbers.Any())
 			{
-				foreach(string st in str)
+				foreach(string numberString in orderNumbers)
 				{
-					var order = _uow.GetById<Order>(int.Parse(st));
+					var order = _uow.GetById<Order>(int.Parse(numberString));
 
 					if(order == null || _orderUndeliveredStatuses.Contains(order.OrderStatus))
 					{

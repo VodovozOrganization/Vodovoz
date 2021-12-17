@@ -3666,7 +3666,7 @@ namespace Vodovoz.Domain.Orders
 				ReturnTareReasonCategory = null;
 		}
 		
-		public virtual void FillCountsOnCanceled()
+		public virtual void SetActualCountsToZeroOnCanceled()
 		{
 			foreach(var item in OrderItems)
 			{
