@@ -223,6 +223,7 @@ namespace Vodovoz.JournalViewModels
 					   .Select(() => driverAlias.LastName).WithAlias(() => routeListJournalNodeAlias.DriverSurname)
 					   .Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
 					   .Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
+					   .Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
 					   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					   .Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)

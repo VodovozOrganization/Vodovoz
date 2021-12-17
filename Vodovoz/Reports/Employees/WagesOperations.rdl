@@ -54,39 +54,61 @@
     <Height>96.6pt</Height>
     <ReportItems>
       <List Name="List1">
-        <Height>26.36pt</Height>
-        <Width>569.21pt</Width>
+        <Height>46.61pt</Height>
+        <Width>568.64pt</Width>
         <Left>0.00pt</Left>
-        <Top>0.00pt</Top>
+        <Top>1.50pt</Top>
         <ReportItems>
           <Textbox Name="Textbox3">
             <Height>13.48pt</Height>
             <Width>551.15pt</Width>
             <Value>="Сотрудник: " + {employee_name}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>0.0pt</Top>
+            <ZIndex>0</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox4">
-            <Height>12.04pt</Height>
-            <Width>568.44pt</Width>
-            <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + Iif(Fields!balance.IsMissing, 0, {balance})</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>13.2pt</Top>
+          <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.48pt</Height>
+            <Width>551.15pt</Width>
+            <Value>="Комментарий: " + {comment}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>13.60pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
+            <CanGrow >true</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox4">
+            <Height>13.54pt</Height>
+            <Width>564.69pt</Width>
+            <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + Iif(Fields!balance.IsMissing, 0, {balance})</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>28.40pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <PaddingBottom >6pt</PaddingBottom>
+            </Style>
+            <CanGrow >true</CanGrow>
           </Textbox>
         </ReportItems>
         <DataSetName>Employee_info</DataSetName>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <PaddingBottom >6pt</PaddingBottom>
+        </Style>
       </List>
       <Table Name="Table1">
         <DataSetName>WageBalance</DataSetName>
@@ -293,7 +315,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>29.4pt</Top>
+        <Top>61.4pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -328,15 +350,16 @@
     <DataSet Name="Employee_info">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     SUM(wages_movement_operations.money) AS balance,
-    CONCAT_WS(" ", employees.last_name, employees.name, employees.patronymic) as employee_name
+    CONCAT_WS(" ", employees.last_name, employees.name, employees.patronymic) as employee_name,
+    employees.comment as comment
 FROM
     wages_movement_operations
-    RIGHT JOIN employees ON employees.id = @employee_id
+        RIGHT JOIN employees ON employees.id = @employee_id
 WHERE
-    employee_id = @employee_id
-        AND wages_movement_operations.operation_time &lt; @start_date;</CommandText>
+        employee_id = @employee_id
+  AND wages_movement_operations.operation_time &lt; @start_date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -355,10 +378,14 @@ WHERE
           <DataField>employee_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="WageBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
@@ -423,7 +450,7 @@ ORDER BY wages_movement_operations.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
