@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Tdi;
+using QS.ViewModels.Extension;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -37,7 +38,7 @@ using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
 {
-	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
+	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
@@ -81,15 +82,13 @@ namespace Vodovoz
 		{
 			get
 			{
-				if(!_allEditing)
-				{
-					return false;
-				}
 				if(items.All(x => x.Status != RouteListItemStatus.EnRoute))
 					return true; //Хак, чтобы вылезало уведомление о закрытии маршрутного листа, даже если ничего не меняли.
 				return base.HasChanges;
 			}
 		}
+
+		public bool AskSaveOnClose => permissionResult.CanUpdate;
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {

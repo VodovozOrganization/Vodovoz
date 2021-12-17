@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic;
 using QS.Project.Services;
 using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels.Extension;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.CallTasks;
@@ -29,7 +30,7 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
-	public partial class RouteListMileageCheckDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
+	public partial class RouteListMileageCheckDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region Поля
 
@@ -68,11 +69,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public override bool HasChanges
-		{
-			get => _canEdit && base.HasChanges;
-			set => base.HasChanges = value;
-		}
+		public bool AskSaveOnClose => _canEdit;
 
 		#region Настройка конфигураций
 

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using QS.Navigation;
+using QS.ViewModels.Extension;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Core.DataService;
@@ -45,7 +46,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
-	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
+	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
@@ -95,19 +96,8 @@ namespace Vodovoz
 				ConfigureDlg();
 			}
 		}
-		
-		public override bool HasChanges
-		{
-			get
-			{
-				if(permissionResult.CanRead && !(permissionResult.CanCreate && permissionResult.CanUpdate))
-				{
-					return false;
-				}
-				return base.HasChanges;
-			}
-			set => base.HasChanges = value;
-		}
+
+		public bool AskSaveOnClose => permissionResult.CanCreate && Entity.Id == 0 || permissionResult.CanUpdate;
 
 		private bool ConfigSubdivisionCombo()
 		{
@@ -203,7 +193,7 @@ namespace Vodovoz
 
 			var isLogistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
-			createroutelistitemsview1.SetParameters(permissionResult, isLogistician);
+			createroutelistitemsview1.SetPermissionParameters(permissionResult, isLogistician);
 
 			buttonAccept.Visible = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed;
 			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)

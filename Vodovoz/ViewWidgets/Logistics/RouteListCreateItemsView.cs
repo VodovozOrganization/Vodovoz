@@ -198,7 +198,7 @@ namespace Vodovoz
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 		}
 		
-		public void SetParameters(IPermissionResult permissionResult, bool isLogistician)
+		public void SetPermissionParameters(IPermissionResult permissionResult, bool isLogistician)
 		{
 			_permissionResult = permissionResult;
 			_isLogistician = isLogistician;

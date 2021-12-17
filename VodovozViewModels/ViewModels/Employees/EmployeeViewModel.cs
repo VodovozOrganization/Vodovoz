@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.Attachments.ViewModels.Widgets;
+using QS.ViewModels.Extension;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -39,7 +40,7 @@ using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
-	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog
+	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog, IAskSaveOnCloseViewModel
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IAuthorizationService _authorizationService;
@@ -216,12 +217,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				PhonesViewModel.RemoveEmpty();
 
-				return CanEditEmployee 
-				       && (UoWGeneric.HasChanges
-				       || !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					   || (_terminalManagementViewModel?.HasChanges ?? false));
+				return UoWGeneric.HasChanges
+					|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
+					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
+
+		public bool AskSaveOnClose => CanEditEmployee;
 		
 		public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
 		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }

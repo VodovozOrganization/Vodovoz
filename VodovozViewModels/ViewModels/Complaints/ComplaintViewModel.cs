@@ -14,6 +14,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -31,7 +32,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
-	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
+	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>, IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
@@ -134,12 +135,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public override bool HasChanges
-		{
-			//Костыль чтобы TdiNotebook не спрашивал о сохранении при закрытии вкладки через крестик если нет прав на сохранение
-			get => CanEdit && base.HasChanges;
-			set => base.HasChanges = value;
-		}
+		public bool AskSaveOnClose => CanEdit;
 
 		protected void ConfigureEntityChangingRelations()
 		{

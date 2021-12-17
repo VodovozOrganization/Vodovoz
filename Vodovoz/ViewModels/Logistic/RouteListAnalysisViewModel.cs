@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Project.Journal;
+using QS.ViewModels.Extension;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
@@ -31,7 +32,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>
+	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
@@ -330,14 +331,8 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.LogisticiansCommentAuthor = CurrentEmployee;
 		}
 
-		public void CalculateWages() =>
-			Entity.CalculateWages(_wageParameterService);
+		public void CalculateWages() => Entity.CalculateWages(_wageParameterService);
 
-		public override bool HasChanges
-		{
-			//Костыль чтобы TdiNotebook не спрашивал о сохранении при закрытии вкладки через крестик если нет прав на сохранение
-			get => CanEditRouteList && base.HasChanges;
-			set => base.HasChanges = value;
-		}
+		public bool AskSaveOnClose => CanEditRouteList;
 	}
 }

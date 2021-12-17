@@ -37,6 +37,7 @@ using System.ServiceModel.Configuration;
 using FluentNHibernate.Utils;
 using Gamma.ColumnConfig;
 using QS.Services;
+using QS.ViewModels.Extension;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -106,7 +107,8 @@ namespace Vodovoz
 		ICallTaskProvider,
 		ITDICloseControlTab,
 		ISmsSendProvider,
-		IFixedPricesHolderProvider
+		IFixedPricesHolderProvider,
+		IAskSaveOnCloseViewModel
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
@@ -146,7 +148,7 @@ namespace Vodovoz
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly bool _canEditSealAndSignatureUpd =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
-		private IPermissionResult _orderPremissionResult;
+		private IPermissionResult _orderPermissionResult;
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
@@ -251,12 +253,7 @@ namespace Vodovoz
 
 		private bool? isForRetail = null;
 
-		public override bool HasChanges
-		{
-			//Костыль чтобы TdiNotebook не спрашивал о сохранении при закрытии вкладки через крестик если нет прав на сохранение
-			get => CanEditByPermission && base.HasChanges;
-			set => base.HasChanges = value;
-		}
+		public bool AskSaveOnClose => CanEditByPermission;
 
 		#endregion
 
@@ -404,7 +401,7 @@ namespace Vodovoz
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
-			_orderPremissionResult = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
+			_orderPermissionResult = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			_canChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_nomenclatureFixedPriceProvider	=
@@ -2756,7 +2753,7 @@ namespace Vodovoz
 			}
 		}
 
-		private bool CanEditByPermission => _orderPremissionResult.CanUpdate || _orderPremissionResult.CanCreate && Entity.Id == 0;
+		private bool CanEditByPermission => _orderPermissionResult.CanUpdate || _orderPermissionResult.CanCreate && Entity.Id == 0;
 
 		private void UpdateUIState()
 		{
