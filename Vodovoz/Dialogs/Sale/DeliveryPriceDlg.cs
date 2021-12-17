@@ -33,14 +33,14 @@ namespace Vodovoz.Dialogs.Sale
 				entryStreet.StreetName = string.Empty;
 				entryStreet.StreetDistrict = string.Empty;
 				entryStreet.FireStreetChange();
-				entryBuilding.StreetGuid = Guid.Empty;
+				entryBuilding.StreetGuid = null;
+				entryBuilding.CityGuid = entryCity.FiasGuid;
 				entryBuilding.BuildingName = string.Empty;
 			};
 
 			entryStreet.StreetSelected += (sender, e) =>
 			{
 				entryBuilding.StreetGuid = entryStreet.FiasGuid;
-				entryBuilding.StreetDistrict = entryStreet.StreetDistrict;
 			};
 
 			entryBuilding.CompletionLoaded += EntryBuilding_Changed;

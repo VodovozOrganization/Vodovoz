@@ -55,8 +55,10 @@ namespace Vodovoz.Domain.Orders.Documents
 			{
 				if(copiesToPrint < 0)
 				{
-					if(Order.OurOrganization != null
-						&& Order.OurOrganization.Id == _organizationParametersProvider.BeveragesWorldOrganizationId
+					var beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+					if(((Order.OurOrganization != null && Order.OurOrganization.Id == beveragesWorldOrganizationId)
+						|| (Order.Client?.WorksThroughOrganization != null
+							&& Order.Client.WorksThroughOrganization.Id == beveragesWorldOrganizationId))
 						&& Order.Client.UPDCount.HasValue)
 					{
 						return Order.Client.UPDCount.Value;

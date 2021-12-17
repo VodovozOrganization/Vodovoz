@@ -17,7 +17,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT orders.id, orders.delivery_date, CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number, counterparty.full_name, 
 delivery_points.compiled_address, organizations.name as organization,
-(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.name IS NULL,'',phones.name)) SEPARATOR '; ')
+(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones 
 WHERE phones.delivery_point_id = orders.delivery_point_id OR phones.counterparty_id = orders.client_id
 ORDER BY phones.delivery_point_id #Для того чтобы телефоны точки были первыми

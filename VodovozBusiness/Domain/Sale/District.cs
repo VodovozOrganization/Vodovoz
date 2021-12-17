@@ -591,7 +591,7 @@ namespace Vodovoz.Domain.Sale
 			}
 			if(ObservableTodayDeliveryScheduleRestrictions.Any(i => i.AcceptBefore == null)) {
 				yield return new ValidationResult(
-					$"Для графиков доставки для района \"{DistrictName}\" должно быть указано время приема до"
+					$"Для графиков доставки \"день в день\" для района \"{DistrictName}\" должно быть указано время приема до"
 				);
 			}
 		}

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
+using Gtk;
 using NLog;
 using QS.Views.GtkUI;
+using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -23,6 +26,18 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			entryOrderId.ValidationMode = ValidationType.Numeric;
+			entryOrderId.KeyReleaseEvent += OnKeyReleased;
+			entryOrderId.Binding.AddBinding(ViewModel, vm => vm.OrderId, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			entryCounterpartyPhone.ValidationMode = ValidationType.Numeric;
+			entryCounterpartyPhone.KeyReleaseEvent += OnKeyReleased;
+			entryCounterpartyPhone.Binding.AddBinding(ViewModel, vm => vm.CounterpartyPhone, w => w.Text).InitializeFromSource();
+
+			entryDeliveryPointPhone.ValidationMode = ValidationType.Numeric;
+			entryDeliveryPointPhone.KeyReleaseEvent += OnKeyReleased;
+			entryDeliveryPointPhone.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text).InitializeFromSource();
+
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 			enumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)
@@ -90,7 +105,6 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
 			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
 
-
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();
 			speciallistCmbPaymentsFrom.ItemsList = ViewModel.PaymentsFrom;
@@ -135,9 +149,20 @@ namespace Vodovoz.Filters.GtkViews
 			#endregion PaymentTypeRestriction
 		}
 
+		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
+		}
+
 		public override void Destroy()
 		{
 			_logger.Info($"Вызван Destroy() у {typeof(OrderFilterView)}");
+			entryOrderId.KeyReleaseEvent -= OnKeyReleased;
+			entryCounterpartyPhone.KeyReleaseEvent -= OnKeyReleased;
+			entryDeliveryPointPhone.KeyReleaseEvent -= OnKeyReleased;
 			entryCounterparty.DestroyEntry();
 			entryDeliveryPoint.DestroyEntry();
 			base.Destroy();
