@@ -167,7 +167,8 @@ namespace Vodovoz.JournalViewModels
 						_organizationParametersProvider,
 						_profitCategoryProvider,
 						_paymentsRepository,
-						new CounterpartyRepository()
+						new CounterpartyRepository(),
+						_orderRepository
 					),
 					//функция диалога открытия документа
 					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(
