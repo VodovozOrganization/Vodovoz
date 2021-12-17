@@ -296,7 +296,6 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Файлы
 
-
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 			attachmentsView.Sensitive = ViewModel.CanEditEmployee;
 
