@@ -148,7 +148,6 @@ namespace Vodovoz
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly bool _canEditSealAndSignatureUpd =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
-		private IPermissionResult _orderPermissionResult;
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
@@ -401,7 +400,6 @@ namespace Vodovoz
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
-			_orderPermissionResult = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			_canChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_nomenclatureFixedPriceProvider	=
@@ -2753,7 +2751,7 @@ namespace Vodovoz
 			}
 		}
 
-		private bool CanEditByPermission => _orderPermissionResult.CanUpdate || _orderPermissionResult.CanCreate && Entity.Id == 0;
+		private bool CanEditByPermission => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
 
 		private void UpdateUIState()
 		{
