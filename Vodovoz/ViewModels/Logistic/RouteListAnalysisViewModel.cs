@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 
-			_routeListPermissionSet = _commonServices.PermissionService.ValidateUserPermission(typeof(RouteList), _commonServices.UserService.CurrentUserId);
+			_routeListPermissionSet = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RouteList));
 
 			TabName = $"Диалог разбора {Entity.Title}";
 		}

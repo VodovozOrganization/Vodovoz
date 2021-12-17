@@ -124,8 +124,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			buttonCancel.Clicked -= OnButtonCancelClicked;
-			buttonCancel.Clicked += OnCancelClicked;
+			btnCancel.Clicked += OnCancelClicked;
 			printTimeButton.Clicked += OnPrintTimeButtonClicked;
 			
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
@@ -395,7 +394,7 @@ namespace Vodovoz
 		{
 			_canClose = isSensetive;
 			buttonSave.Sensitive = isSensetive;
-			buttonCancel.Sensitive = isSensetive;
+			btnCancel.Sensitive = isSensetive;
 			buttonAccept.Sensitive = isSensetive;
 		}
 

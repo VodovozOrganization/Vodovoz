@@ -173,9 +173,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanRegisterMobileUser = string.IsNullOrWhiteSpace(Entity.AndroidLogin) && string.IsNullOrWhiteSpace(Entity.AndroidPassword);
 
-			_employeePermissionSet = 
-				_commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
-			
+			_employeePermissionSet = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee));
+
 			if(!_employeePermissionSet.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
 			}
