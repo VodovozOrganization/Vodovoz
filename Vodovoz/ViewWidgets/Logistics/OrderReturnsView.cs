@@ -401,12 +401,14 @@ namespace Vodovoz
 				//комбо-бокс не откроется, но событие сработает и прилетит null
 				if(orderItemNode.OrderItem != null && orderItemNode.DiscountReason != null)
 				{
-					_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-						orderItemNode.DiscountReason, orderItemNode.OrderItem, _canEditPrices, out string message);
+					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
+						orderItemNode.DiscountReason, orderItemNode.OrderItem, _canEditPrices, out string message))
+					{
+						orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
+					}
 					
 					if(message != null)
 					{
-						orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
 							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");

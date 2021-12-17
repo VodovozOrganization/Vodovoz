@@ -1087,12 +1087,14 @@ namespace Vodovoz
 				//комбо-бокс не откроется, но событие сработает и прилетит null
 				if(orderItem.DiscountReason != null)
 				{
-					_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-						orderItem.DiscountReason, orderItem, _canChangeDiscountValue, out string message);
-
-					if(message != null)
+					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
+						orderItem.DiscountReason, orderItem, _canChangeDiscountValue, out string message))
 					{
 						orderItem.DiscountReason = previousDiscountReason;
+					}
+					
+					if(message != null)
+					{
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
 							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");

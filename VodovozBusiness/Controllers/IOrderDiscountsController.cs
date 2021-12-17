@@ -10,7 +10,7 @@ namespace Vodovoz.Controllers
 		void SetCustomDiscountForOrder(DiscountReason reason, decimal discount, DiscountUnits unit, IList<OrderItem> orderItems);
 		void SetDiscountFromDiscountReasonForOrder(
 			DiscountReason reason, IList<OrderItem> orderItems, bool canChangeDiscountValue, out string messages);
-		void SetDiscountFromDiscountReasonForOrderItem(
+		bool SetDiscountFromDiscountReasonForOrderItem(
 			DiscountReason reason, OrderItem orderItem, bool canChangeDiscountValue, out string message);
 		void SetDiscountFromDiscountReasonForOrderItemWithoutShipment(
 			DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem);

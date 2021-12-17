@@ -246,23 +246,25 @@ namespace Vodovoz.Controllers
 		/// <param name="orderItem">Строка заказа</param>
 		/// <param name="canChangeDiscountValue">Может ли пользователь менять скидку</param>
 		/// <param name="message">Описание позици на которую не применилась скидка</param>
-		public void SetDiscountFromDiscountReasonForOrderItem(
+		/// <returns>true/false - установилась скидка или нет</returns>
+		public bool SetDiscountFromDiscountReasonForOrderItem(
 			DiscountReason reason, OrderItem orderItem, bool canChangeDiscountValue, out string message)
 		{
 			message = null;
 			
 			if(!CanSetDiscount(reason, orderItem))
 			{
-				return;
+				return false;
 			}
 			
 			if(!canChangeDiscountValue && OrderItemContainsPromoSetOrFixedPrice(orderItem))
 			{
 				message = $"{orderItem.Nomenclature.Name}\n";
-				return;
+				return false;
 			}
 
 			SetDiscount(reason, orderItem);
+			return true;
 		}
 		
 		/// <summary>
