@@ -29,6 +29,7 @@ using Vodovoz.Infrastructure.Services;
 using QS.Tdi;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Orders;
@@ -328,6 +329,35 @@ namespace Vodovoz.JournalViewModels
 				}
 			}
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				Phone deliveryPointPhoneAlias = null;
+
+				var deliveryPointPhonesSubquery = QueryOver.Of<Phone>(() => deliveryPointPhoneAlias)
+					.Where(() => deliveryPointPhoneAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.And(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(deliveryPointPhonesSubquery.DetachedCriteria));
+			}
+
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -470,6 +500,28 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
+
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSDAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				query.Where(x => x.Id == null);
+			}
 			
 			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias);
@@ -605,6 +657,28 @@ namespace Vodovoz.JournalViewModels
 												   )
 											   );
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSPAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				query.Where(x => x.Id == null);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => orderWSPAlias.Id,
 				() => counterpartyAlias.Name,
@@ -726,6 +800,28 @@ namespace Vodovoz.JournalViewModels
 														Projections.Property(() => orderWSAPItemAlias.DiscountMoney)})
 												   )
 										   );
+
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSAPAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				query.Where(x => x.Id == null);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => orderWSAPAlias.Id,

@@ -36,6 +36,37 @@ namespace Vodovoz.TempAdapters
 
 			return vm;
 		}
+
+		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel()
+		{
+			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
+
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			var counterpartySelectorFactory =
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices);
+
+			var nomenclatureSelectorFactory =
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+					ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
+
+			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeService(),
+				nomenclatureSelectorFactory,
+				counterpartySelectorFactory,
+				nomenclatureRepository,
+				userRepository
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Single;
+
+			return vm;
+		}
 		
 		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null, bool multipleSelect = true)
 		{

@@ -10,7 +10,6 @@ using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.DB;
 using QS.Project.Services;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
@@ -45,8 +44,9 @@ namespace Vodovoz.Views.Employees
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			
 			ConfigureRadioButtons();
-			
-			//Вкладка Информация
+
+			#region Вкладка Информация
+
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding
 				.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem)
@@ -166,6 +166,11 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.Citizenship, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
+
+			textViewComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Editable)
+				.InitializeFromSource();
 			
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding
@@ -214,7 +219,10 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			//Вкладка Логистика
+			#endregion
+
+			#region Вкладка Логистика
+
 			dataentryAndroidLogin.Binding
 				.AddBinding(ViewModel.Entity, e => e.AndroidLogin, w => w.Text)
 				.InitializeFromSource();
@@ -270,8 +278,11 @@ namespace Vodovoz.Views.Employees
 			
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();
-			
-			//Вкладка Реквизиты
+
+			#endregion
+
+			#region Вкладка Реквизиты
+
 			entryInn.Binding
 				.AddBinding(ViewModel.Entity, e => e.INN, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -281,22 +292,37 @@ namespace Vodovoz.Views.Employees
 			accountsView.SetTitle("Банковские счета сотрудника");
 			accountsView.Sensitive = ViewModel.CanEditEmployee;
 
-			//Вкладка Файлы
+			#endregion
+
+			#region Вкладка Файлы
+
+
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 			attachmentsView.Sensitive = ViewModel.CanEditEmployee;
 
-			//Вкладка Документы
-			if(radioTabEmployeeDocument.Sensitive = ViewModel.CanReadEmployeeDocuments && ViewModel.CanEditEmployee)
+			#endregion
+
+			#region Вкладка Документы
+
+			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanEditEmployee;
+			radioTabEmployeeDocument.Sensitive = haveAccessToDocuments;
+			if(haveAccessToDocuments)
 			{
 				ConfigureDocumentsTabButtons();
 				ConfigureTreeEmployeeDocuments();
 			}
+
+			#endregion
+
+			#region Вкладка Договора
 			
-			//Вкладка Договора
 			ConfigureContractsTabButtons();
 			ConfigureTreeEmployeeContracts();
+			
+			#endregion
 
-			//Вкладка Зарплата
+			#region Вкладка Зарплата
+
 			specialListCmbOrganisation.ItemsList = ViewModel.organizations;
 			specialListCmbOrganisation.Binding
 				.AddBinding(ViewModel.Entity, e => e.OrganisationForSalary, w => w.SelectedItem)
@@ -305,6 +331,8 @@ namespace Vodovoz.Views.Employees
 
 			wageParametersView.ViewModel = 
 				ViewModel.EmployeeWageParametersFactory.CreateEmployeeWageParametersViewModel(ViewModel.Entity, ViewModel, ViewModel.UoW);
+
+			#endregion
 		}
 
 		private void ConfigureRadioButtons()

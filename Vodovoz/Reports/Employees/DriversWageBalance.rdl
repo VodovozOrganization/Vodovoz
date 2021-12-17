@@ -15,12 +15,12 @@
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox2">
-        <Height>25.55pt</Height>
-        <Width>566.68pt</Width>
+        <Height>27.05pt</Height>
+        <Width>553.91pt</Width>
         <Value>="Отчет по балансу водителей до " +  Format(CDate({?date}), "d") </Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
-        <Top>4.74pt</Top>
+        <Top>3.24pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -50,10 +50,13 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>440pt</Width>
+            <Width>227.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.4pt</Width>
+            <Width>222.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>73.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -73,6 +76,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -90,8 +94,27 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -107,6 +130,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -157,6 +181,26 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <Color>Black</Color>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
@@ -177,8 +221,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
-        <Top>14.8pt</Top>
+        <Left>0.0pt</Left>
+        <Top>14.0pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision">
@@ -212,7 +256,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -239,7 +283,7 @@
                           <Value>Итого:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -280,10 +324,13 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>440pt</Width>
+            <Width>220.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.4pt</Width>
+            <Width>224.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>77.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -303,6 +350,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -320,8 +368,27 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -337,6 +404,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -384,6 +452,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
@@ -403,8 +488,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
-        <Top>251.6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>253.2pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_largus">
@@ -438,7 +523,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -465,7 +550,7 @@
                           <Value>Итого:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -505,10 +590,13 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>440pt</Width>
+            <Width>223.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.4pt</Width>
+            <Width>223.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>73.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -528,6 +616,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -547,8 +636,29 @@
                         <FontFamily>Arial</FontFamily>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontStyle>Normal</FontStyle>
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -564,6 +674,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -606,6 +717,24 @@
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -664,7 +793,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -691,7 +820,7 @@
                           <Value>Итого:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -899,10 +1028,13 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>440pt</Width>
+            <Width>223.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.4pt</Width>
+            <Width>223.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>76.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -922,6 +1054,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -939,8 +1072,27 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox73">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -956,6 +1108,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1003,6 +1156,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
@@ -1022,8 +1192,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.5pt</Left>
-        <Top>407.2pt</Top>
+        <Left>0.0pt</Left>
+        <Top>405.6pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_raskat">
@@ -1056,7 +1226,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1083,7 +1253,7 @@
                           <Value>Итого:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -1124,10 +1294,13 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>440pt</Width>
+            <Width>222.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.4pt</Width>
+            <Width>224.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>75.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1147,6 +1320,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1164,8 +1338,27 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1181,6 +1374,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1228,6 +1422,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
@@ -1247,8 +1459,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
-        <Top>171.3pt</Top>
+        <Left>0.0pt</Left>
+        <Top>174.5pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_gazelle">
@@ -1281,7 +1493,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1308,7 +1520,7 @@
                           <Value>Итого:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -1348,10 +1560,13 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>440pt</Width>
+            <Width>224.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.4pt</Width>
+            <Width>224.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>73.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1371,6 +1586,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1388,8 +1604,27 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1405,6 +1640,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1454,6 +1690,25 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
@@ -1474,8 +1729,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
-        <Top>94.1pt</Top>
+        <Left>0.0pt</Left>
+        <Top>94.9pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_truck">
@@ -1509,7 +1764,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1536,7 +1791,7 @@
                           <Value>Итого:</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -1585,11 +1840,11 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>
-SELECT
+        <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
+    employees.comment as comment,
     SUM(wages_movement_operations.money) AS balance,
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
@@ -1607,8 +1862,7 @@ WHERE
   AND (cars.is_archive = false OR cars.is_archive IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver
-;</CommandText>
+ORDER BY driver;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1618,7 +1872,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1633,29 +1887,33 @@ ORDER BY driver
         </Field>
         <Field Name="parent_subdivision">
           <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
-	SUM(wages_movement_operations.money) AS balance,
-	employees.category,
-	IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
+    employees.comment as comment,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
+    IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
-	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'forwarder'
+  AND wages_movement_operations.employee_id IN (@drivers)
+  AND employees.category = 'forwarder'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver
-;</CommandText>
+ORDER BY driver;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1665,7 +1923,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1680,32 +1938,36 @@ ORDER BY driver
         </Field>
         <Field Name="parent_subdivision">
           <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
-	SUM(wages_movement_operations.money) AS balance,
-	employees.category,
+    employees.comment as comment,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN cars ON employees.id = cars.driver_id
-LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+         LEFT JOIN cars ON employees.id = cars.driver_id
+         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
-	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'driver'
-	AND employees.driver_of = 'CompanyLargus'
-	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND wages_movement_operations.employee_id IN (@drivers)
+  AND employees.category = 'driver'
+  AND employees.driver_of = 'CompanyLargus'
+  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver
-;</CommandText>
+ORDER BY driver;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1715,7 +1977,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1730,32 +1992,36 @@ ORDER BY driver
         </Field>
         <Field Name="parent_subdivision">
           <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
-	SUM(wages_movement_operations.money) AS balance,
-	employees.category,
+    employees.comment as comment,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN cars ON employees.id = cars.driver_id
-LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+         LEFT JOIN cars ON employees.id = cars.driver_id
+         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
-	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'driver'
-	AND employees.driver_of = 'CompanyGAZelle'
-	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND wages_movement_operations.employee_id IN (@drivers)
+  AND employees.category = 'driver'
+  AND employees.driver_of = 'CompanyGAZelle'
+  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver
-;</CommandText>
+ORDER BY driver;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1765,7 +2031,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1780,6 +2046,10 @@ ORDER BY driver
         </Field>
         <Field Name="parent_subdivision">
           <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1820,26 +2090,26 @@ HAVING balance &lt;&gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
-	SUM(wages_movement_operations.money) AS balance,
-	employees.category,
+    employees.comment as comment,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN cars ON employees.id = cars.driver_id
-LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+         LEFT JOIN cars ON employees.id = cars.driver_id
+         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
-	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'driver' 
-	AND cars.is_raskat = true
+  AND wages_movement_operations.employee_id IN (@drivers)
+  AND employees.category = 'driver'
+  AND cars.is_raskat = true
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver
-;</CommandText>
+ORDER BY driver;</CommandText>
         <QueryParameters>
           <QueryParameter Name="drivers">
             <Value>=Parameters!drivers</Value>
@@ -1849,7 +2119,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1866,30 +2136,34 @@ ORDER BY driver
           <DataField>parent_subdivision</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="TruckBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
-	SUM(wages_movement_operations.money) AS balance,
-	employees.category,
+    employees.comment as comment,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN cars ON employees.id = cars.driver_id
-LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+         LEFT JOIN cars ON employees.id = cars.driver_id
+         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
-	AND wages_movement_operations.employee_id IN (@drivers)
-	AND employees.category = 'driver'
-	AND employees.driver_of = 'CompanyTruck'
-	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND wages_movement_operations.employee_id IN (@drivers)
+  AND employees.category = 'driver'
+  AND employees.driver_of = 'CompanyTruck'
+  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver
-;</CommandText>
+ORDER BY driver;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
@@ -1899,7 +2173,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1914,6 +2188,10 @@ ORDER BY driver
         </Field>
         <Field Name="parent_subdivision">
           <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

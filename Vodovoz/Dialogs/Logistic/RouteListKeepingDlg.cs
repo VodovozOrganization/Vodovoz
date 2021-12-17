@@ -419,21 +419,7 @@ namespace Vodovoz
 					MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 					return true;
 				}
-
-				foreach(var item in changedList) {
-					if(item.HasChanged)
-						GetChatService()
-							.SendOrderStatusNotificationToDriver(
-								currentEmployee.Id,
-								item.RouteListItem.Id
-							);
-					if(item.ChangedDeliverySchedule)
-						GetChatService()
-							.SendDeliveryScheduleNotificationToDriver(
-								currentEmployee.Id,
-								item.RouteListItem.Id
-							);
-				}
+				
 				return true;
 			} finally {
 				SetSensetivity(true);
@@ -441,14 +427,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		static IChatService GetChatService()
-		{
-			return new ChannelFactory<IChatService>(
-				new BasicHttpBinding(),
-				"http://driver.vod.qsolution.ru:7071/ChatService"
-			).CreateChannel();
-		}
 
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
