@@ -46,7 +46,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly ICommonServices _commonServices;
-		private readonly IPermissionResult _routeListPermissionSet;
 
 		#region Constructor
 
@@ -96,8 +95,6 @@ namespace Vodovoz.ViewModels.Logistic
 			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 
-			_routeListPermissionSet = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RouteList));
-
 			TabName = $"Диалог разбора {Entity.Title}";
 		}
 		
@@ -116,7 +113,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public RouteListItem SelectedItem { get; set; }
 
-		public bool CanEditRouteList => _routeListPermissionSet.CanUpdate;
+		public bool CanEditRouteList => PermissionResult.CanUpdate;
 
 		#endregion
 

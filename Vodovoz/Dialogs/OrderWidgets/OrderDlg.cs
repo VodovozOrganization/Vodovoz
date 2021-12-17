@@ -1204,11 +1204,11 @@ namespace Vodovoz
 			return canClose;
 		}
 
-		private void SetSensetivity(bool isSensetive)
+		private void SetSensitivity(bool isSensitive)
 		{
-			canClose = isSensetive;
-			buttonSave.Sensitive = CanEditByPermission && isSensetive;
-			buttonCancel.Sensitive = isSensetive;
+			canClose = isSensitive;
+			buttonSave.Sensitive = CanEditByPermission && isSensitive;
+			buttonCancel.Sensitive = isSensitive;
 		}
 
 		protected bool Validate(ValidationContext validationContext)
@@ -1220,7 +1220,7 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			try {
-				SetSensetivity(false);
+				SetSensitivity(false);
 				Entity.CheckAndSetOrderIsService();
 
 				ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object>{
@@ -1267,7 +1267,7 @@ namespace Vodovoz
 				UpdateUIState();
 				return true;
 			} finally {
-				SetSensetivity(true);
+				SetSensitivity(true);
 			}
 		}
 
@@ -2200,7 +2200,7 @@ namespace Vodovoz
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
 			try {
-				SetSensetivity(false);
+				SetSensitivity(false);
 				var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
 				if(allList.Count <= 0)
 					return;
@@ -2230,7 +2230,7 @@ namespace Vodovoz
 					_documentPrinter.PrintAllODTDocuments(selectedPrintableODTDocuments);
 				}
 			} finally {
-				SetSensetivity(true);
+				SetSensitivity(true);
 			}
 		}
 

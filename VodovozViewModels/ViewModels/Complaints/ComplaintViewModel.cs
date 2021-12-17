@@ -46,8 +46,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 
-		private bool _canAddGuiltyInComplaintsPermissionResult;
-		private bool _canCloseComplaintsPermissionResult;
+		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
+		private readonly bool _canCloseComplaintsPermissionResult;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
