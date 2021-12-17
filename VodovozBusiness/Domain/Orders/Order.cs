@@ -1587,10 +1587,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			for (int i = 0; i < ObservableOrderItems.Count; i++) {
-				if(ObservableOrderItems[i].Nomenclature.Category == NomenclatureCategory.water) {
-					ObservableOrderItems[i].RecalculatePrice();
-				}
+			foreach(var orderItem in OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water))
+			{
+				orderItem.RecalculatePrice();
 			}
 		}
 
