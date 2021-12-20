@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
@@ -70,6 +71,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
+		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
@@ -81,7 +83,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
-			ICommonServices commonServices) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
@@ -90,6 +93,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
+			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";
@@ -118,6 +122,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
+			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory,
 			int counterpartyId,
 			int deliveryPointId) 
 			: this(employeeRepository, 
@@ -129,7 +134,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 					organizationProvider,
 					counterpartyContractRepository,
 					counterpartyContractFactory,
-					commonServices
+					commonServices,
+					roboAtsCounterpartyJournalFactory
 					)
 		{
 			Entity.Counterparty = UoW.GetById<Counterparty>(counterpartyId);
@@ -158,7 +164,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			return new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance) {
+			return new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, CommonServices) {
 				ReadOnly = true
 			};
 		}

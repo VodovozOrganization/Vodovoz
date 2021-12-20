@@ -220,7 +220,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label24;
 
-		private global::Vodovoz.Views.Contacts.PhonesView phonesView;
+		private global::Vodovoz.Dialogs.Phones.PhonesView phonesView;
 
 		private global::Gtk.Label lblContacts;
 
@@ -1554,10 +1554,9 @@ namespace Vodovoz
 			w109.XOptions = ((global::Gtk.AttachOptions)(4));
 			w109.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.phonesView = new global::Vodovoz.Views.Contacts.PhonesView();
+			this.phonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
-			this.phonesView.IsReadOnly = false;
 			this.datatable2.Add(this.phonesView);
 			global::Gtk.Table.TableChild w110 = ((global::Gtk.Table.TableChild)(this.datatable2[this.phonesView]));
 			w110.LeftAttach = ((uint)(1));
