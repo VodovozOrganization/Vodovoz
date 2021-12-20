@@ -266,11 +266,5 @@ namespace VodovozFiasWidgets
 				latitude = decimal.Parse(house.Latitude, culture);
 			}
 		}
-
-		public async Task<PointDTO> GetCoordinatesByGeocoderAsync(string address)
-		{
-			var coordinates = await HousesDataLoader.GetCoordinatesByGeocoderAsync(address);
-			return coordinates;
-		}
 	}
 }
