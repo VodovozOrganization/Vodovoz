@@ -7,6 +7,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -28,7 +29,8 @@ namespace Vodovoz
             if (warehousesList.Count > 5)
             {
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
+                entryWarehouses.SetEntityAutocompleteSelectorFactory(
+					new WarehouseSelectorFactory(new WarehouseJournalFilterViewModel(warehousesList.Select(x => x.Id))));
 
                 entryWarehouses.Visible = true;
                 comboWarehouses.Visible = false;

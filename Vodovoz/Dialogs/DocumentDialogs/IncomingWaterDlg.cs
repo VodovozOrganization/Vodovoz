@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
@@ -29,8 +30,6 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IEntityAutocompleteSelectorFactory _warehouseAutocompleteSelectorFactory =
-			new WarehouseSelectorFactory();
 
 		public IncomingWaterDlg()
 		{
@@ -87,9 +86,13 @@ namespace Vodovoz
 				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = true;
 			}
 
-			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(_warehouseAutocompleteSelectorFactory);
+			var availableWarehousesIds = StoreDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissions.IncomingWaterEdit);
+			var warehouseAutocompleteSelectorFactory =
+				new WarehouseSelectorFactory(new WarehouseJournalFilterViewModel(availableWarehousesIds));
+			
+			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
 			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
-			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(_warehouseAutocompleteSelectorFactory);
+			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
 			destinationWarehouseEntry.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;

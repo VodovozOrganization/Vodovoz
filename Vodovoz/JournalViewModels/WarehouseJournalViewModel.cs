@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -51,6 +52,11 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.WhereRestrictionOn(x => x.Id).Not.IsIn(_filterViewModel.ExcludeWarehousesIds);
 			}
+			
+			if(_filterViewModel?.IncludeWarehouseIds != null)
+			{
+				query.WhereRestrictionOn(x => x.Id).IsInG(_filterViewModel.IncludeWarehouseIds);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => warehouseAlias.Id,
@@ -81,6 +87,12 @@ namespace Vodovoz.JournalViewModels
 
 	public class WarehouseJournalFilterViewModel
 	{
+		public WarehouseJournalFilterViewModel(IEnumerable<int> includeWarehouseIds = null)
+		{
+			IncludeWarehouseIds = includeWarehouseIds;
+		}
+		
+		public IEnumerable<int> IncludeWarehouseIds { get; }
 		public int[] ExcludeWarehousesIds { get; set; }
 	}
 }
