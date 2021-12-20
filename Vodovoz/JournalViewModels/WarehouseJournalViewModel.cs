@@ -87,12 +87,7 @@ namespace Vodovoz.JournalViewModels
 
 	public class WarehouseJournalFilterViewModel
 	{
-		public WarehouseJournalFilterViewModel(IEnumerable<int> includeWarehouseIds = null)
-		{
-			IncludeWarehouseIds = includeWarehouseIds;
-		}
-		
-		public IEnumerable<int> IncludeWarehouseIds { get; }
+		public IEnumerable<int> IncludeWarehouseIds { get; set; }
 		public int[] ExcludeWarehousesIds { get; set; }
 	}
 }

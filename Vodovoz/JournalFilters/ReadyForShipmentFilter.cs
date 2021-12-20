@@ -28,8 +28,11 @@ namespace Vodovoz
             if (warehousesList.Count > 5)
             {
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-                entryWarehouses.SetEntityAutocompleteSelectorFactory(
-					new WarehouseSelectorFactory(new WarehouseJournalFilterViewModel(warehousesList.Select(x => x.Id))));
+				var warehouseFilter = new WarehouseJournalFilterViewModel
+				{
+					IncludeWarehouseIds = warehousesList.Select(x => x.Id)
+				};
+                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory(warehouseFilter));
 
                 entryWarehouses.Visible = true;
                 yspeccomboWarehouse.Visible = false;

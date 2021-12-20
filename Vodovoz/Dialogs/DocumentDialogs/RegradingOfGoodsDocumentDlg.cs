@@ -75,9 +75,11 @@ namespace Vodovoz
 			}
 
 			var availableWarehousesIds = StoreDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissions.RegradingOfGoodsEdit);
-			
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(
-				new WarehouseSelectorFactory(new WarehouseJournalFilterViewModel(availableWarehousesIds)));
+			var warehouseFilter = new WarehouseJournalFilterViewModel
+			{
+				IncludeWarehouseIds = availableWarehousesIds
+			};
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory(warehouseFilter));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
