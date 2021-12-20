@@ -81,6 +81,8 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			_roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+			_commonServices = ServicesConfig.CommonServices;
 			TabName = Entity.Counterparty?.Name;
 			labelCreator.Text = $"Создатель : {Entity.TaskCreator?.ShortName}";
 			ConfigureDlg();
