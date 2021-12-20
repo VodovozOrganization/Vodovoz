@@ -28,9 +28,6 @@ namespace Vodovoz.Views.Client
 		private yEnumComboBox _comboMapType;
 		private GMapControl _mapWidget;
 		private GMapMarker _addressMarker;
-		private string _cityBeforeChange;
-		private string _streetBeforeChange;
-		private string _buildingBeforeChange;
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
 		private readonly Clipboard _clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
@@ -56,9 +53,9 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
-			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonCancel.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonCancel.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();
@@ -102,9 +99,9 @@ namespace Vodovoz.Views.Client
 				.AddBinding(e => e.Building, w => w.BuildingName)
 				.InitializeFromSource();
 
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
+			ViewModel.CityBeforeChange = entryCity.CityName;
+			ViewModel.StreetBeforeChange = entryStreet.StreetName;
+			ViewModel.BuildingBeforeChange = entryBuilding.BuildingName;
 
 			#endregion
 
@@ -369,9 +366,10 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(IsAddressChanged)
+			if(ViewModel.IsAddressChanged)
 			{
-				await WriteCoordinates();
+				entryBuilding.GetCoordinates(out var longitude, out var latitude);
+				await ViewModel.UpdateCoordinatesAsync(longitude, latitude, entryBuilding.HousesDataLoader, entryBuilding.FiasCompletion);
 			}
 		}
 
@@ -383,7 +381,7 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(!IsAddressChanged)
+			if(!ViewModel.IsAddressChanged)
 			{
 				return;
 			}
@@ -393,33 +391,14 @@ namespace Vodovoz.Views.Client
 			if(string.IsNullOrWhiteSpace(entryStreet.StreetName))
 			{
 				entryBuilding.BuildingName = string.Empty;
-				await WriteCoordinates();
 			}
-		}
 
-		private async Task WriteCoordinates()
-		{
-			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
-
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
-
-			entryBuilding.GetCoordinates(out var longitude, out var latitude);
-
-			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
+			if(entryBuilding.StreetGuid == null)
 			{
-				var findedByGeoCoder = await entryBuilding.GetCoordinatesByGeocoderAsync($"{ entryCity.CityTypeName } { entryCity.CityName }, { entryStreet.StreetName } { entryStreet.StreetTypeName }, { entryBuilding.BuildingName }");
-				if(findedByGeoCoder != null)
-				{
-					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-					culture.NumberFormat.NumberDecimalSeparator = ".";
-					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
-				}
+				entryBuilding.FiasGuid = null;
 			}
 
-			ViewModel.WriteCoordinates(latitude, longitude, false);
+			await ViewModel.UpdateCoordinatesAsync(null, null, entryBuilding.HousesDataLoader, entryBuilding.FiasCompletion);
 		}
 
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
@@ -461,11 +440,6 @@ namespace Vodovoz.Views.Client
 			}
 		}
 
-		public bool IsAddressChanged =>
-			 entryCity.CityName != _cityBeforeChange
-			 || entryStreet.StreetName != _streetBeforeChange
-			 || entryBuilding.BuildingName != _buildingBeforeChange;
-			 
 		#endregion
 	}
 }
