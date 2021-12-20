@@ -104,7 +104,7 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(entryComment);
 			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
 
-			if(ViewModel.IsShowRoboAtsNameAndPatronymic)
+			if(ViewModel.ShowRoboAtsCounterpartyNameAndPatronymic)
 			{
 				var labelName = new Label("имя:");
 				hBox.PackStart(labelName, false, false, 0);

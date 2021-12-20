@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			{
 				PhonesList = Entity.ObservablePhones, 
 				DeliveryPoint = Entity,
-				IsShowRoboAtsNameAndPatronymic = true
+				ShowRoboAtsCounterpartyNameAndPatronymic = true
 			};
 
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));

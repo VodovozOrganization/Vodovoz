@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public bool CanEditCounterpartyName { get; }
 		public bool CanReadCounterpartyPatronymic { get; }
 		public bool CanEditCounterpartyPatronymic { get; }
-		public bool IsShowRoboAtsNameAndPatronymic { get; set; }
+		public bool ShowRoboAtsCounterpartyNameAndPatronymic { get; set; }
 
 		IPhoneRepository phoneRepository;
 

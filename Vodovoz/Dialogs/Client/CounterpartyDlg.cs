@@ -466,7 +466,7 @@ namespace Vodovoz
 			{
 				PhonesList = Entity.ObservablePhones, 
 				Counterparty = Entity,
-				IsShowRoboAtsNameAndPatronymic = true
+				ShowRoboAtsCounterpartyNameAndPatronymic = true
 			};
 			phonesView.ViewModel = _phonesViewModel;
 
