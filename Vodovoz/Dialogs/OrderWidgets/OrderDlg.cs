@@ -958,8 +958,7 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-					.AddSetter((c, n) =>
-						c.Editable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(n) && _canChangeDiscountValue)
+					.AddSetter((c, n) => c.Editable = _canChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)(n.Price * n.CurrentCount), 1, 100, 1)
@@ -977,8 +976,7 @@ namespace Vodovoz
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
 				.AddColumn("Скидка \nв рублях?")
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
-					.AddSetter((c, n) =>
-						c.Activatable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(n) && _canChangeDiscountValue)
+					.AddSetter((c, n) => c.Activatable = _canChangeDiscountValue)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(x => x.DiscountReason)
@@ -990,8 +988,7 @@ namespace Vodovoz
 							return list;
 						})
 					.EditedEvent(OnDiscountReasonComboEdited)
-					.AddSetter((cell, node) =>
-						cell.Editable = !_discountsController.OrderItemContainsPromoSetOrFixedPrice(node) && node.DiscountByStock == 0)
+					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
 					.AddSetter(
 						(c, n) =>
 							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorWhite
@@ -1075,15 +1072,33 @@ namespace Vodovoz
 		
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
+			var index = int.Parse(args.Path);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			var previousDiscountReason = orderItem.DiscountReason;
+
 			Application.Invoke((sender, eventArgs) =>
 			{
-				var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-				
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(node is OrderItem orderItem && orderItem.DiscountReason != null)
+				if(orderItem.DiscountReason != null)
 				{
-					_discountsController.SetDiscountFromDiscountReasonForOrderItem(orderItem.DiscountReason, orderItem);
+					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
+						orderItem.DiscountReason, orderItem, _canChangeDiscountValue, out string message))
+					{
+						orderItem.DiscountReason = previousDiscountReason;
+					}
+					
+					if(message != null)
+					{
+						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
+							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");
+					}
 				}
 			});
 		}
@@ -2962,7 +2977,15 @@ namespace Vodovoz
 				}
 				else
 				{
-					_discountsController.SetDiscountFromDiscountReasonForOrder(reason, Entity.ObservableOrderItems);
+					_discountsController.SetDiscountFromDiscountReasonForOrder(
+						reason, Entity.ObservableOrderItems, _canChangeDiscountValue, out string messages);
+
+					if(messages?.Length > 0)
+					{
+						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+							"На следующие позиции не применилась скидка," +
+							$" т.к. они из промо-набора или на них есть фикса:\n{messages}Обратитесь к руководителю");
+					}
 				}
 			}
 		}
