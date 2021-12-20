@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public RoboAtsCounterpartyPatronymicViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			TabName = "Отчества контрагентов RoboATS";
+			TabName = "Отчество контрагента RoboATS";
 		}
 	}
 }

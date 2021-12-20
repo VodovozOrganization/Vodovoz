@@ -104,31 +104,37 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(entryComment);
 			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
 
-			var labelName = new Label("имя:");
-			hBox.Add(labelName);
-			hBox.SetChildPacking(labelName, false, false, 0, PackType.Start);
+			if(ViewModel.IsShowRoboAtsNameAndPatronymic)
+			{
+				var labelName = new Label("имя:");
+				hBox.PackStart(labelName, false, false, 0);
 
-			var entityviewmodelentryName = new EntityViewModelEntry();
-			entityviewmodelentryName.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference).InitializeFromSource();
-			entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryName.Binding.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
-			entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
-			entityviewmodelentryName.WidthRequest = 170;
-			hBox.Add(entityviewmodelentryName);
-			hBox.SetChildPacking(entityviewmodelentryName, true, true, 0, PackType.Start);
+				var entityviewmodelentryName = new EntityViewModelEntry();
+				entityviewmodelentryName.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference)
+					.InitializeFromSource();
+				entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject)
+					.InitializeFromSource();
+				entityviewmodelentryName.Binding
+					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
+				entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
+				entityviewmodelentryName.WidthRequest = 170;
+				hBox.PackStart(entityviewmodelentryName,true,true,0);
 
-			var labelPatronymic = new Label("отч.:");
-			hBox.Add(labelPatronymic);
-			hBox.SetChildPacking(labelPatronymic, false, false, 0, PackType.Start);
+				var labelPatronymic = new Label("отч.:");
+				hBox.PackStart(labelPatronymic,false,false,0);
 
-			var entityviewmodelentryPatronymic = new EntityViewModelEntry();
-			entityviewmodelentryPatronymic.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
-			entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryPatronymic.Binding.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable).InitializeFromSource();
-			entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
-			entityviewmodelentryPatronymic.WidthRequest = 170;
-			hBox.Add(entityviewmodelentryPatronymic);
-			hBox.SetChildPacking(entityviewmodelentryPatronymic, true, true, 0, PackType.Start);
+				var entityviewmodelentryPatronymic = new EntityViewModelEntry();
+				entityviewmodelentryPatronymic.Binding
+					.AddBinding(viewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
+				entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject)
+					.InitializeFromSource();
+				entityviewmodelentryPatronymic.Binding
+					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable)
+					.InitializeFromSource();
+				entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
+				entityviewmodelentryPatronymic.WidthRequest = 170;
+				hBox.PackStart(entityviewmodelentryPatronymic, true,true,0);
+			}
 
 			yButton deleteButton = new yButton();
 			Image image = new Image();

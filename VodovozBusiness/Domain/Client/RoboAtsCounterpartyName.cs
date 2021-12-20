@@ -7,12 +7,11 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Client
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "имена контргентов",
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "имена контрагентов",
 		Nominative = "имя контрагента")]
 	[EntityPermission]
 	[HistoryTrace]
-
 	public class RoboAtsCounterpartyName : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private string _name;
@@ -36,7 +35,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _accent, value);
 		}
 
-
 		#endregion
 
 		#region IValidatableObject implementation
@@ -46,13 +44,13 @@ namespace Vodovoz.Domain.Client
 			if(string.IsNullOrEmpty(Name))
 			{
 				yield return new ValidationResult("Имя должно быть заполнено.",
-					new[] { nameof(CarEventType) });
+					new[] { nameof(Name) });
 			}
 
 			if(string.IsNullOrEmpty(Accent))
 			{
 				yield return new ValidationResult("Ударение должно быть заполнено.",
-					new[] { nameof(CarEventType) });
+					new[] { nameof(Accent) });
 			}
 
 			if(Name?.Length > 20)

@@ -7,12 +7,11 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Client
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "отчества контргентов",
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "отчества контрагентов",
 		Nominative = "отчество контрагента")]
 	[EntityPermission]
 	[HistoryTrace]
-
 	public class RoboAtsCounterpartyPatronymic : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private string _patronymic;
@@ -40,7 +39,6 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string Title => Patronymic;
 
-
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -48,13 +46,13 @@ namespace Vodovoz.Domain.Client
 			if(string.IsNullOrEmpty(Patronymic))
 			{
 				yield return new ValidationResult("Отчество должно быть заполнено.",
-					new[] { nameof(CarEventType) });
+					new[] { nameof(Patronymic) });
 			}
 
 			if(string.IsNullOrEmpty(Accent))
 			{
 				yield return new ValidationResult("Ударение должно быть заполнено.",
-					new[] { nameof(CarEventType) });
+					new[] { nameof(Accent) });
 			}
 
 			if(Patronymic?.Length > 20)

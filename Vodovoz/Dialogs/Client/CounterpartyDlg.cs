@@ -465,7 +465,8 @@ namespace Vodovoz
 			_phonesViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
 				PhonesList = Entity.ObservablePhones, 
-				Counterparty = Entity
+				Counterparty = Entity,
+				IsShowRoboAtsNameAndPatronymic = true
 			};
 			phonesView.ViewModel = _phonesViewModel;
 

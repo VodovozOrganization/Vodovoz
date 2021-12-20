@@ -54,14 +54,11 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			RoboAtsCounterpartyNameSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyNameAutocompleteSelectorFactory();
 			RoboAtsCounterpartyPatronymicSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyPatronymicAutocompleteSelectorFactory();
 
-
-			var roboAtsCounterpartyNamePermissions = commonServices.PermissionService.ValidateUserPermission(typeof(RoboAtsCounterpartyName), 
-				commonServices.UserService.CurrentUserId);
+			var roboAtsCounterpartyNamePermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
 			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
 			CanEditCounterpartyName = roboAtsCounterpartyNamePermissions.CanUpdate;
 
-			var roboAtsCounterpartyPatronymicPermissions = commonServices.PermissionService.ValidateUserPermission(typeof(RoboAtsCounterpartyPatronymic),
-				commonServices.UserService.CurrentUserId);
+			var roboAtsCounterpartyPatronymicPermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyPatronymic));
 			CanReadCounterpartyPatronymic = roboAtsCounterpartyPatronymicPermissions.CanRead;
 			CanEditCounterpartyPatronymic = roboAtsCounterpartyPatronymicPermissions.CanUpdate;
 
@@ -77,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public bool CanEditCounterpartyName { get; }
 		public bool CanReadCounterpartyPatronymic { get; }
 		public bool CanEditCounterpartyPatronymic { get; }
+		public bool IsShowRoboAtsNameAndPatronymic { get; set; }
 
 		IPhoneRepository phoneRepository;
 
