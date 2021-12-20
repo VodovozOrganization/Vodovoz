@@ -43,7 +43,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 			daterangepicker.PeriodChangedByUser += Daterangepicker_PeriodChangedByUser;
 			yenumcomboboxDateType.ItemsEnum = typeof(OrderDateType);
 			yenumcomboboxDateType.SelectedItem = OrderDateType.CreationDate;
-			//entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
 			buttonHelp.Clicked += OnButtonHelpClicked;
 			
 			ConfigureFilter();
@@ -111,7 +110,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);
-			//vboxParameters.Add(filterWidget);
+			vboxMultiParameters.Add(filterWidget);
 			filterWidget.Show();
 		}
 
