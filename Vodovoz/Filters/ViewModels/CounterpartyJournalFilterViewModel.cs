@@ -12,6 +12,10 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>, IJournalFilter
 	{
+		private string _counterpartyName;
+		private string _deliveryPointPhone;
+		private string _counterpartyPhone;
+
 		public CounterpartyJournalFilterViewModel()
 		{
 			UpdateWith(
@@ -78,7 +82,25 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
-		private void UnsubscribeOnCheckChanged()
+        public string CounterpartyName
+        {
+	        get => _counterpartyName;
+	        set => SetField(ref _counterpartyName, value);
+        }
+
+        public string CounterpartyPhone
+        {
+	        get => _counterpartyPhone;
+	        set => SetField(ref _counterpartyPhone, value);
+        }
+
+        public string DeliveryPointPhone
+        {
+	        get => _deliveryPointPhone;
+	        set => SetField(ref _deliveryPointPhone, value);
+        }
+
+        private void UnsubscribeOnCheckChanged()
 		{
 			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
 			{

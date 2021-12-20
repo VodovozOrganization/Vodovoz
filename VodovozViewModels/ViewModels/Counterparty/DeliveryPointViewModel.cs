@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Fias.Service.Loaders;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -33,13 +36,15 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	{
 		private int _currentPage = 0;
 		private User _currentUser;
-		private bool _isNotSaving = true;
+		private bool _isEntityInSavingProcess;
+		private bool _isBuildingsInLoadingProcess;
 		private FixedPricesViewModel _fixedPricesViewModel;
 		private List<DeliveryPointResponsiblePerson> _responsiblePersons;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
@@ -89,7 +94,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, roboAtsCounterpartyJournalFactory, CommonServices) { PhonesList = Entity.ObservablePhones, DeliveryPoint = Entity };
+			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, roboAtsCounterpartyJournalFactory, CommonServices)
+			{
+				PhonesList = Entity.ObservablePhones, 
+				DeliveryPoint = Entity
+			};
 
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));
 			StreetsDataLoader = streetsDataLoader ?? throw new ArgumentNullException(nameof(streetsDataLoader));
@@ -113,7 +122,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			Entity.PropertyChanged += (sender, e) =>
 			{
-				switch (e.PropertyName)
+				switch(e.PropertyName)
 				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
 					case nameof(Entity.District):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
@@ -121,7 +130,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				}
 			};
 		}
-		
+
 		#region Свойства
 
 		//permissions
@@ -136,11 +145,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			get => _currentPage;
 			private set => SetField(ref _currentPage, value);
 		}
-		public bool IsNotSaving
-		{
-			get => _isNotSaving;
-			private set => SetField(ref _isNotSaving, value);
-		}
+
+		public bool IsInProcess => _isEntityInSavingProcess || _isBuildingsInLoadingProcess;
+
 		public bool CurrentUserIsAdmin => CurrentUser.IsAdmin;
 		public bool CoordsWasChanged => Entity.СoordsLastChangeUser != null;
 		public string CoordsLastChangeUserName => Entity.СoordsLastChangeUser.Name;
@@ -170,13 +177,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 			set => base.HasChanges = value;
 		}
-		
+
 		#endregion
 
 		#region IDeliveryPointInfoProvider
 
 		public DeliveryPoint DeliveryPoint => Entity;
-		public PanelViewType[] InfoWidgets => new[] {PanelViewType.DeliveryPricePanelView};
+		public PanelViewType[] InfoWidgets => new[] { PanelViewType.DeliveryPricePanelView };
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		#endregion
@@ -190,7 +197,14 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		{
 			try
 			{
-				IsNotSaving = false;
+				_isEntityInSavingProcess = true;
+
+				if(_isBuildingsInLoadingProcess)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
+					return false;
+				}
+
 				if(!HasChanges)
 				{
 					return base.Save(close);
@@ -216,7 +230,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 			finally
 			{
-				IsNotSaving = true;
+				_isEntityInSavingProcess = false;
 			}
 		}
 
@@ -287,17 +301,27 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			return Math.Round(coordDiff, 6) == decimal.Zero;
 		}
 
+		public string CityBeforeChange { get; set; }
+		public string StreetBeforeChange { get; set; }
+		public string BuildingBeforeChange { get; set; }
+
+		public bool IsAddressChanged =>
+			Entity.City != CityBeforeChange
+			|| Entity.Street != StreetBeforeChange
+			|| Entity.Building != BuildingBeforeChange;
+
+
 		#region ITDICloseControlTab
 
 		public bool CanClose()
 		{
-			if(!_isNotSaving)
+			if(IsInProcess)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 					"Дождитесь завершения сохранения точки доставки и повторите", "Сохранение...");
 			}
 
-			return _isNotSaving;
+			return !IsInProcess;
 		}
 
 		#endregion
@@ -329,5 +353,45 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		));
 
 		#endregion
+
+		public async Task UpdateCoordinatesAsync(decimal? longitude, decimal? latitude,
+			IHousesDataLoader entryBuildingHousesDataLoader, bool? isFoundOnOsm)
+		{
+			try
+			{
+				_isBuildingsInLoadingProcess = true;
+
+				Entity.FoundOnOsm = isFoundOnOsm != null && isFoundOnOsm.Value; ;
+
+				CityBeforeChange = Entity.City;
+				StreetBeforeChange = Entity.Street;
+				BuildingBeforeChange = Entity.Building;
+
+				if(!string.IsNullOrWhiteSpace(Entity.Building) && (longitude == null || latitude == null))
+				{
+					var address = $"{Entity.LocalityType} {Entity.City}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+					var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
+					if(findedByGeoCoder != null)
+					{
+						var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+						culture.NumberFormat.NumberDecimalSeparator = ".";
+						latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
+						longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
+					}
+				}
+
+				WriteCoordinates(latitude, longitude, false);
+			}
+			finally
+			{
+				_isBuildingsInLoadingProcess = false;
+			}
+		}
+
+		public override void Dispose()
+		{
+			_cancellationTokenSource.Cancel();
+			base.Dispose();
+		}
 	}
 }

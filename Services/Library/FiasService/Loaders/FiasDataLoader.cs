@@ -10,12 +10,12 @@ namespace Fias.Service.Loaders
 
 		protected CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 
-		protected FiasDataLoader(IFiasService fiasService)
+		protected FiasDataLoader(IFiasApiClient fiasApiClient)
 		{
-			Fias = fiasService ?? throw new ArgumentNullException(nameof(fiasService));
+			Fias = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
 		}
 
-		protected IFiasService Fias { get; }
+		protected IFiasApiClient Fias { get; }
 
 		protected abstract void CancelLoading();
 	}

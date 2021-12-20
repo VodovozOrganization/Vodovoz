@@ -109,8 +109,10 @@ namespace Vodovoz.Domain.Client
 		public virtual string CompiledAddress {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityTypeShort}. {City}, ";
+					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetType))
 					address += $"{StreetType.ToLower()} ";
 				if(!string.IsNullOrWhiteSpace(Street))
@@ -137,8 +139,10 @@ namespace Vodovoz.Domain.Client
 		public virtual string CompiledAddressWOAddition {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityTypeShort}. {City}, ";
+					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
 					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))
@@ -163,8 +167,10 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
-					address += $"{LocalityTypeShort}. {City}, ";
+					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
 					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))

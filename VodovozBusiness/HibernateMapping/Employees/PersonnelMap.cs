@@ -24,8 +24,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.AddressCurrent)		.Column("address_current");
 			Map(x => x.INN)					.Column("inn");
 			Map(x => x.IsRussianCitizen).Column("is_russian_citizen");
-
-
+			
 			References(x => x.Nationality)	.Column("nationality_id");
 			References(x => x.Citizenship)	.Column("citizenship_id");
 
@@ -64,6 +63,7 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.MaxRouteAddresses) .Column("max_route_addresses");
 				Map(x => x.DriverType)        .Column("driver_type").CustomType<DriverTypeStringType>();
                 Map(x => x.SkillLevel)        .Column("skill_level");
+                Map(x => x.Comment)           .Column("comment");
 
                 References(x => x.Subdivision)          .Column("subdivision_id");
 				References(x => x.User)                 .Column("user_id");

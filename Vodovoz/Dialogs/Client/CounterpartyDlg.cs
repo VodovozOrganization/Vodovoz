@@ -462,7 +462,11 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			_phonesViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices) { PhonesList = Entity.ObservablePhones, Counterparty = Entity };
+			_phonesViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
+			{
+				PhonesList = Entity.ObservablePhones, 
+				Counterparty = Entity
+			};
 			phonesView.ViewModel = _phonesViewModel;
 
 			emailsView.UoW = UoWGeneric;
