@@ -75,13 +75,13 @@ namespace Vodovoz.Views.Employees
 
 			photoviewEmployee.GetSaveFileName = () => ViewModel.Entity.FullName;
 			
-			entryEmployeePost.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeePostsJournalFactory.CreateEmployeePostsAutocompleteSelectorFactory());
 			entryEmployeePost.Binding
 				.AddBinding(ViewModel.Entity, e => e.Post, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+			entryEmployeePost.SetEntityAutocompleteSelectorFactory(
+				ViewModel.EmployeePostsJournalFactory.CreateEmployeePostsAutocompleteSelectorFactory());
+
 			comboSkillLevel.ItemsList = ViewModel.Entity.GetSkillLevels();
 			comboSkillLevel.Binding
 				.AddBinding(
