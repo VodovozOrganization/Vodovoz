@@ -323,10 +323,8 @@ namespace Vodovoz
 
 		public void CopyOrderFrom(int orderId)
 		{
-			var parametersProvider = new ParametersProvider();
-			var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
-			var flyerRepository = new FlyerRepository();
-			OrderCopyModel orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, flyerRepository);
+			var nomenclatureParameterProvider = new NomenclatureParametersProvider(_parametersProvider);
+			var orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
 				.CopyPromotionalSets()
@@ -348,10 +346,8 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int orderId)
 		{
-			var parametersProvider = new ParametersProvider();
-			var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
-			var flyerRepository = new FlyerRepository();
-			OrderCopyModel orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, flyerRepository);
+			var nomenclatureParameterProvider = new NomenclatureParametersProvider(_parametersProvider);
+			var orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields(
 					x => x.Client,
