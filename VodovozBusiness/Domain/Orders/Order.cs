@@ -1452,25 +1452,25 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
-			decimal discountForStock = 0m;
-			DiscountReason discountReasonStockBottle = null;
+			decimal stockBottleDiscountPercent = 0m;
+			DiscountReason stockBottleDiscountReason = null;
 			
 			if(bottlesByStock == Total19LBottlesToDeliver)
 			{
-				discountForStock = 10m;
-				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
+				stockBottleDiscountPercent = 10m;
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
 			}
 			if(bottlesByStock > Total19LBottlesToDeliver)
 			{
-				discountForStock = 20m;
-				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
+				stockBottleDiscountPercent = 20m;
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
 			}
 			
 			foreach(OrderItem item in ObservableOrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
-				item.SetDiscountByStock(discountReasonStockBottle, discountForStock);
+				item.SetDiscountByStock(stockBottleDiscountReason, stockBottleDiscountPercent);
 			}
 		}
 
