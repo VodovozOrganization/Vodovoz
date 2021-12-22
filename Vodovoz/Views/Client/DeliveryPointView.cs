@@ -366,12 +366,29 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(ViewModel.IsAddressChanged)
+			if(!ViewModel.IsAddressChanged)
 			{
-				entryBuilding.GetCoordinates(out var longitude, out var latitude);
-				await ViewModel.UpdateCoordinatesAsync(longitude, latitude, entryBuilding.HousesDataLoader, entryBuilding.FiasCompletion);
+				return;
+			}
+
+			ViewModel.ResetAddressChanges();
+			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
+			entryBuilding.GetCoordinates(out var longitude, out var latitude);
+			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate();
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (longitude == null || latitude == null))
+			{
+				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
+			}
+
+			if(!ViewModel.IsInDisposing)
+			{
+				Application.Invoke((o, args) =>
+				{
+					ViewModel.WriteCoordinates(coordinate.Latitude, coordinate.Longitude, false);
+				});
 			}
 		}
+		
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
@@ -379,12 +396,14 @@ namespace Vodovoz.Views.Client
 			entryBuilding.BuildingName = string.Empty;
 		}
 
-		private async void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
+		private void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
 		{
 			if(!ViewModel.IsAddressChanged)
 			{
 				return;
 			}
+
+			ViewModel.ResetAddressChanges();
 
 			entryBuilding.StreetGuid = entryStreet.FiasGuid;
 
@@ -398,7 +417,7 @@ namespace Vodovoz.Views.Client
 				entryBuilding.FiasGuid = null;
 			}
 
-			await ViewModel.UpdateCoordinatesAsync(null, null, entryBuilding.HousesDataLoader, entryBuilding.FiasCompletion);
+			ViewModel.WriteCoordinates(null, null, false);
 		}
 
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
