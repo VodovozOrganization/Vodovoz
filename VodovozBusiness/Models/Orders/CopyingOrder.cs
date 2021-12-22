@@ -143,10 +143,7 @@ namespace Vodovoz.Models.Orders
 				var deliveryOrderItemTo = _resultOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _paidDeliveryNomenclatureId);
 				if(deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
 				{
-					deliveryOrderItemTo.IsDiscountInMoney = deliveryOrderItemFrom.IsDiscountInMoney;
-					deliveryOrderItemTo.DiscountMoney = deliveryOrderItemFrom.DiscountMoney;
-					deliveryOrderItemTo.Discount = deliveryOrderItemFrom.Discount;
-					deliveryOrderItemTo.DiscountReason = deliveryOrderItemFrom.DiscountReason ?? deliveryOrderItemFrom.OriginalDiscountReason;
+					CopyDiscount(deliveryOrderItemFrom, deliveryOrderItemTo);
 				}
 			}
 
@@ -201,7 +198,6 @@ namespace Vodovoz.Models.Orders
 			if(_copiedOrder.PaymentType != PaymentType.ByCard)
 			{
 				return this;
-
 			}
 
 			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
@@ -254,41 +250,6 @@ namespace Vodovoz.Models.Orders
 
 		private void CopyOrderItem(OrderItem orderItem)
 		{
-			decimal discountMoney;
-			decimal discountPercent;
-
-			if(orderItem.DiscountMoney == 0)
-			{
-				if(orderItem.OriginalDiscountMoney == null)
-				{
-					discountMoney = 0;
-				}
-				else
-				{
-					discountMoney = orderItem.OriginalDiscountMoney.Value;
-				}
-			}
-			else
-			{
-				discountMoney = orderItem.DiscountMoney;
-			}
-
-			if(orderItem.Discount == 0)
-			{
-				if(orderItem.OriginalDiscount == null)
-				{
-					discountPercent = 0;
-				}
-				else
-				{
-					discountPercent = orderItem.OriginalDiscount.Value;
-				}
-			}
-			else
-			{
-				discountPercent = orderItem.Discount;
-			}
-
 			var newOrderItem = new OrderItem
 			{
 				Order = _resultOrder,
@@ -298,13 +259,34 @@ namespace Vodovoz.Models.Orders
 				IsUserPrice = orderItem.IsUserPrice,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS,
-				IsDiscountInMoney = orderItem.IsDiscountInMoney,
-				DiscountMoney = discountMoney,
-				Discount = discountPercent,
-				DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason
 			};
 
+			CopyDiscount(orderItem, newOrderItem);
+
 			_resultOrder.AddOrderItem(newOrderItem);
+		}
+
+		private void CopyDiscount(OrderItem orderItemFrom, OrderItem orderItemTo)
+		{
+			if(orderItemFrom.DiscountByStock > 0)
+			{
+				return;
+			}
+
+			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && orderItemFrom.DiscountReason != null)
+			{
+				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
+				orderItemTo.Discount = orderItemFrom.Discount;
+				orderItemTo.DiscountMoney = orderItemFrom.DiscountMoney;
+				orderItemTo.DiscountReason = orderItemFrom.DiscountReason;
+			}
+			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && orderItemFrom.OriginalDiscountReason != null)
+			{
+				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
+				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
+				orderItemTo.DiscountMoney = orderItemFrom.OriginalDiscountMoney.Value;
+				orderItemTo.DiscountReason = orderItemFrom.OriginalDiscountReason;
+			}
 		}
 
 		private void CopyOrderEquipment(OrderEquipment orderEquipment)
