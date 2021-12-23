@@ -167,7 +167,7 @@ namespace Vodovoz.ReportsParameters
 			}
 
 			string identifier;
-			//Если не выбран ниодин сотрудник, открываем общий отчет, иначе подробный по сотрудникам
+			//Если не выбран ни один сотрудник, открываем общий отчет, иначе подробный по сотрудникам
 			if(parameters.ContainsKey(_orderAuthorIncludeParameter)
 				&& parameters[_orderAuthorIncludeParameter] is object[] values
 				&& values.Length == 1
