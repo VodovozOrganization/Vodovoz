@@ -355,42 +355,53 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 		#endregion
 
-		public async Task UpdateCoordinatesAsync(decimal? longitude, decimal? latitude,
-			IHousesDataLoader entryBuildingHousesDataLoader, bool? isFoundOnOsm)
+		public void ResetAddressChanges()
 		{
+			CityBeforeChange = Entity.City;
+			StreetBeforeChange = Entity.Street;
+			BuildingBeforeChange = Entity.Building;
+		}
+
+		public async Task<Coordinate> UpdateCoordinatesFromGeoCoderAsync(IHousesDataLoader entryBuildingHousesDataLoader)
+		{
+			decimal? latitude = null, longitude = null;
 			try
 			{
 				_isBuildingsInLoadingProcess = true;
 
-				Entity.FoundOnOsm = isFoundOnOsm != null && isFoundOnOsm.Value; ;
-
-				CityBeforeChange = Entity.City;
-				StreetBeforeChange = Entity.Street;
-				BuildingBeforeChange = Entity.Building;
-
-				if(!string.IsNullOrWhiteSpace(Entity.Building) && (longitude == null || latitude == null))
+				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
+				if(findedByGeoCoder != null)
 				{
-					var address = $"{Entity.LocalityType} {Entity.City}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
-					var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
-					if(findedByGeoCoder != null)
-					{
-						var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-						culture.NumberFormat.NumberDecimalSeparator = ".";
-						latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-						longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
-					}
+					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+					culture.NumberFormat.NumberDecimalSeparator = ".";
+					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
+					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
 				}
-
-				WriteCoordinates(latitude, longitude, false);
 			}
 			finally
 			{
 				_isBuildingsInLoadingProcess = false;
 			}
+
+			return new Coordinate
+			{
+				Latitude = latitude,
+				Longitude = longitude
+			};
 		}
+
+		public class Coordinate
+		{
+			public decimal? Latitude { get; set; }
+			public decimal? Longitude { get; set; }
+		}
+
+		public bool IsDisposed { get; private set; }
 
 		public override void Dispose()
 		{
+			IsDisposed = true;
 			_cancellationTokenSource.Cancel();
 			base.Dispose();
 		}
