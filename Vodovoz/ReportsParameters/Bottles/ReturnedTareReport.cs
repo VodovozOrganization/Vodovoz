@@ -50,7 +50,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private void ConfigureFilter()
 		{
-			_filter.CreateParameterSet(
+			var subdivisionsFilter = _filter.CreateParameterSet(
 				"Подразделения",
 				"subdivision",
 				new ParametersFactory(UoW, (filters) =>
@@ -74,7 +74,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 				})
 			);
 			
-			_filter.CreateParameterSet(
+			var orderAuthorsFilter = _filter.CreateParameterSet(
 				"Авторы заказов",
 				"order_author",
 				new ParametersFactory(UoW, (filters) =>
@@ -86,7 +86,12 @@ namespace Vodovoz.ReportsParameters.Bottles
 					{
 						foreach(var f in filters)
 						{
-							query.Where(f());
+							var criterion = f();
+
+							if(criterion != null)
+							{
+								query.Where(criterion);
+							}
 						}
 					}
 
@@ -106,6 +111,19 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 					return paremetersSet;
 				})
+			);
+			
+			orderAuthorsFilter.AddFilterOnSourceSelectionChanged(subdivisionsFilter,
+				() =>
+				{
+					var selectedValues = subdivisionsFilter.GetSelectedValues().ToArray();
+
+					return !selectedValues.Any()
+						? null
+						: subdivisionsFilter.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Employee>(x => x.Subdivision).IsIn(selectedValues)
+							: Restrictions.On<Employee>(x => x.Subdivision).Not.IsIn(selectedValues);
+				}
 			);
 
 			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
