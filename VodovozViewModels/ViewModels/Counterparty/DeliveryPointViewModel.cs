@@ -397,11 +397,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			public decimal? Longitude { get; set; }
 		}
 
-		public bool Disposed { get; private set; }
+		public bool IsDisposed { get; private set; }
 
 		public override void Dispose()
 		{
-			Disposed = true;
+			IsDisposed = true;
 			_cancellationTokenSource.Cancel();
 			base.Dispose();
 		}

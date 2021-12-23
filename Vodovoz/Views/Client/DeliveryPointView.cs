@@ -380,7 +380,7 @@ namespace Vodovoz.Views.Client
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}
 
-			if(!ViewModel.Disposed)
+			if(!ViewModel.IsDisposed)
 			{
 				Application.Invoke((o, args) =>
 				{
