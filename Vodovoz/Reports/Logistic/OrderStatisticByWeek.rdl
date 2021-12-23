@@ -127,7 +127,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -169,7 +169,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -193,7 +193,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -217,7 +217,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,7 +241,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -265,7 +265,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -289,7 +289,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -369,7 +369,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -560,7 +560,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -1562,7 +1562,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1581,7 +1581,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1904,7 +1904,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1923,7 +1923,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1950,7 +1950,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontSize>7pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1973,7 +1973,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1996,7 +1996,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2019,7 +2019,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2042,7 +2042,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2065,7 +2065,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2088,7 +2088,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2111,7 +2111,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2134,7 +2134,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2157,7 +2157,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2180,7 +2180,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2203,7 +2203,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2226,7 +2226,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2249,7 +2249,7 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2272,7 +2272,7 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2319,7 +2319,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>Data</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -2533,7 +2533,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT
@@ -2647,7 +2647,7 @@ ORDER BY week_begin</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2735,7 +2735,7 @@ FROM
 WHERE
     old_order.delivery_date &gt;= @start_date
     and old_order.delivery_date &lt;= @end_date
-    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46))
+    and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46, 51))
     and geographic_groups.id in (@geographic_group_id)
 ;</CommandText>
         <QueryParameters>
