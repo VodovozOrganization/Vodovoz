@@ -67,7 +67,7 @@
   <Body>
     <Height>200.0pt</Height>
     <Columns>1</Columns>
-    <ReportItems >
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>data</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -83,13 +83,13 @@
           <TableColumn>
             <Width>42.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>43.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>85.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>91.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -155,7 +155,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>№ заказа</Value>
@@ -191,7 +191,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>ФИО логиста</Value>
@@ -379,7 +379,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>={order_id}</Value>
@@ -414,7 +414,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>={logistician_name}</Value>
@@ -658,99 +658,103 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	master.emplName as empl_name,
+    master.emplName as empl_name,
     master.logisticianName as logistician_name,
-	master.rlId as rl_id,
+    master.rlId as rl_id,
     master.oId as order_id,
-	master.driverOf as driver_of,
-	master.subName as sub_name,
-	master.address as address,
-	master.overpayment as overpayment,
-	master.distName as dist_name,
-	servant.districtsSet as districts_set,
-	master.commentForFine as comment_for_fine
+    master.driverOf as driver_of,
+    master.subName as sub_name,
+    master.address as address,
+    master.overpayment as overpayment,
+    master.distName as dist_name,
+    servant.districtsSet as districts_set,
+    master.commentForFine as comment_for_fine
 FROM
-(
-	SELECT
-		rla.id as rlaID,
-		rl.id as rlId,
-        o.id as oId,
-		(IFNULL(IF(rl.forwarder_id is null,
-			(wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
-			(wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder))
-		, 0)) as overpayment,
-		wr.id as wrId,
-		wr_foreign.id as wrfId,
-		GET_PERSON_NAME_WITH_INITIALS(empl.last_name, empl.name, empl.patronymic) as emplName,
-        GET_PERSON_NAME_WITH_INITIALS(logistician.last_name, logistician.name, logistician.patronymic) as logisticianName,
-		(CASE
-			WHEN empl.driver_of ='CompanyLargus' THEN 'КЛ'
-		    WHEN empl.driver_of ='CompanyGAZelle' THEN 'КГ'
-		    WHEN empl.driver_of ='CompanyTruck' THEN 'КФ'
-		    WHEN empl.driver_of ='DriverCar' AND empl.category='driver' THEN 'Н'
-		END) as driverOf,
-		s.short_name as subName,
-		dp.compiled_address_short as address,
-		dists.district_name as distName,
-		rla.comment_for_fine as commentForFine
-	FROM 
-		route_list_addresses rla
-	INNER JOIN 
-		route_lists rl ON rla.route_list_id = rl.id AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-	INNER JOIN 
-		employees empl ON rl.driver_id = empl.id AND (empl.driver_of=@driver_of OR @driver_of='')
-												 AND (empl.id=@empl_id OR @empl_id='')
+    (
+        SELECT
+            rla.id as rlaID,
+            rl.id as rlId,
+            o.id as oId,
+            (IFNULL(IF(rl.forwarder_id is null,
+                       (wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
+                       (wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder))
+                , 0)) as overpayment,
+            wr.id as wrId,
+            wr_foreign.id as wrfId,
+            GET_PERSON_NAME_WITH_INITIALS(empl.last_name, empl.name, empl.patronymic) as emplName,
+            GET_PERSON_NAME_WITH_INITIALS(logistician.last_name, logistician.name, logistician.patronymic) as logisticianName,
+            (CASE
+                 WHEN empl.driver_of ='CompanyLargus' THEN 'КЛ'
+                 WHEN empl.driver_of ='CompanyGAZelle' THEN 'КГ'
+                 WHEN empl.driver_of ='CompanyTruck' THEN 'КФ'
+                 WHEN empl.driver_of ='DriverCar' AND empl.category='driver' THEN 'Н'
+             END) as driverOf,
+            s.short_name as subName,
+            dp.compiled_address_short as address,
+            dists.district_name as distName,
+            rla.comment_for_fine as commentForFine
+        FROM
+            route_list_addresses rla
+            INNER JOIN
+                route_lists rl ON rla.route_list_id = rl.id AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
+            INNER JOIN
+                employees empl ON rl.driver_id = empl.id AND (empl.driver_of=@driver_of OR @driver_of='')
+                    AND (empl.id=@empl_id OR @empl_id='')
+            INNER JOIN
+                employees logistician on rl.logistican_id = logistician.id  AND (logistician.id=@logistician_id OR @logistician_id='')
+            LEFT JOIN
+                subdivisions s on empl.subdivision_id = s.id
+            LEFT JOIN
+                orders o ON o.id = rla.order_id
+            LEFT JOIN
+                delivery_points dp ON dp.id = o.delivery_point_id
+            LEFT JOIN
+                districts dists ON dists.id = dp.district_id
+            LEFT JOIN
+                wage_parameters wp ON wp.employee_id = rl.driver_id AND wp.start_date &lt;= rl.date AND (wp.end_date is null OR wp.end_date &gt; rl.date)
+            LEFT JOIN
+                cars c ON c.id = rl.car_id
+            LEFT JOIN
+                wage_parameter_items wpi ON wpi.id = IF(c.type_of_use='DriverCar', wp.wage_parameter_item_id, wp.driver_with_our_cars_wage_parameter_item_id)
+            LEFT JOIN
+                wage_district_level_rate wdlr ON
+                    wdlr.wage_district_level_rates_id = wpi.wage_district_level_rates_id
+                        AND wdlr.wage_district_id = dists.wage_district_id
+                        AND wdlr.car_type_of_use = c.type_of_use
+            LEFT JOIN
+                wage_rates wr		  ON wr.id 		   = (SELECT sub_wr.id FROM wage_rates sub_wr WHERE sub_wr.wage_district_level_rate_id = IF(rl.status='closed', rla.driver_wage_calculation_methodic_id, wdlr.id)
+                                                                                                       AND sub_wr.wage_rate_type = 'Address')
+            LEFT JOIN
+                wage_rates wr_foreign ON wr_foreign.id = (SELECT sub_wr.id FROM wage_rates sub_wr WHERE sub_wr.wage_district_level_rate_id = IF(rl.status='closed', rla.driver_wage_calculation_methodic_id, wdlr.id)
+                                                                                                    AND sub_wr.wage_rate_type = 'ForeignAddress')
+        WHERE rla.is_driver_foreign_district=1
+          AND IF(rl.forwarder_id is null, (wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
+                 (wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder)) &gt; 0
+          AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
+        GROUP BY rla.id ORDER BY empl.last_name, rla.id
+    ) as master
     INNER JOIN
-        employees logistician on rl.logistican_id = logistician.id  AND (logistician.id=@logistician_id OR @logistician_id='')
-	LEFT JOIN 
-		subdivisions s on empl.subdivision_id = s.id 
-	LEFT JOIN
-		orders o ON o.id = rla.order_id
-	LEFT JOIN
-		delivery_points dp ON dp.id = o.delivery_point_id 
-	LEFT JOIN
-		districts dists ON dists.id = dp.district_id 
-	LEFT JOIN
-		wage_parameters wp ON wp.employee_id = rl.driver_id AND wp.start_date &lt;= rl.date AND (wp.end_date is null OR wp.end_date &gt; rl.date)
-	LEFT JOIN
-		cars c ON c.id = rl.car_id 
-	LEFT JOIN
-		wage_parameter_items wpi ON wpi.id = IF(c.type_of_use='DriverCar', wp.wage_parameter_item_id, wp.driver_with_our_cars_wage_parameter_item_id)
-	LEFT JOIN
-		wage_district_level_rate wdlr ON wdlr.wage_district_level_rates_id = wpi.wage_district_level_rates_id AND wdlr.wage_district_id = dists.wage_district_id 
-	LEFT JOIN 
-		wage_rates wr		  ON wr.id 		   = (SELECT sub_wr.id FROM wage_rates sub_wr WHERE sub_wr.wage_district_level_rate_id = IF(rl.status='closed', rla.driver_wage_calculation_methodic_id, wdlr.id)
-																							AND sub_wr.wage_rate_type = 'Address')
-	LEFT JOIN
-		wage_rates wr_foreign ON wr_foreign.id = (SELECT sub_wr.id FROM wage_rates sub_wr WHERE sub_wr.wage_district_level_rate_id = IF(rl.status='closed', rla.driver_wage_calculation_methodic_id, wdlr.id)
-																							AND sub_wr.wage_rate_type = 'ForeignAddress')
-	WHERE rla.is_driver_foreign_district=1
-	AND IF(rl.forwarder_id is null, (wr_foreign.for_driver_without_forwarder - wr.for_driver_without_forwarder),
-								 (wr_foreign.for_driver_with_forwarder - wr.for_driver_with_forwarder)) &gt; 0
-	AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
-	GROUP BY rla.id ORDER BY empl.last_name, rla.id
-) as master
-INNER JOIN
-(
-	SELECT
-		rla.id as rlaID,
-		rl.id as rlID,
-		group_concat(dists.district_name ORDER BY dists.district_name SEPARATOR ', ') as districtsSet
-	FROM 
-		route_list_addresses rla
-	INNER JOIN 
-		route_lists rl ON rla.route_list_id = rl.id AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-	LEFT JOIN 
-		driver_district_priority_sets ddps ON ddps.driver_id = rl.driver_id AND ((ddps.is_active=1 AND ddps.date_activated &lt;= rl.date)
-														  					 OR (ddps.is_active=0 AND ddps.date_activated &lt;= rl.date AND ddps.date_deactivated &gt; rl.date))
-	LEFT JOIN
-		driver_district_priorities ddp ON ddp.driver_district_priority_set_id = ddps.id
-	LEFT JOIN
-		districts dists ON dists.id = ddp.district_id
-	WHERE rla.is_driver_foreign_district=1
-	AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
-	GROUP BY rla.id
-) as servant on servant.rlaID = master.rlaID</CommandText>
+        (
+            SELECT
+                rla.id as rlaID,
+                rl.id as rlID,
+                group_concat(dists.district_name ORDER BY dists.district_name SEPARATOR ', ') as districtsSet
+            FROM
+                route_list_addresses rla
+                INNER JOIN
+                    route_lists rl ON rla.route_list_id = rl.id AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
+                LEFT JOIN
+                    driver_district_priority_sets ddps ON ddps.driver_id = rl.driver_id AND ((ddps.is_active=1 AND ddps.date_activated &lt;= rl.date)
+                        OR (ddps.is_active=0 AND ddps.date_activated &lt;= rl.date AND ddps.date_deactivated &gt; rl.date))
+                LEFT JOIN
+                    driver_district_priorities ddp ON ddp.driver_district_priority_set_id = ddps.id
+                LEFT JOIN
+                    districts dists ON dists.id = ddp.district_id
+            WHERE rla.is_driver_foreign_district=1
+              AND (rla.status = 'Completed' OR rla.status = 'EnRoute')
+            GROUP BY rla.id
+        ) as servant on servant.rlaID = master.rlaID
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="@start_date">
             <Value>={?start_date}</Value>
@@ -817,9 +821,9 @@ INNER JOIN
       </Fields>
     </DataSet>
   </DataSets>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

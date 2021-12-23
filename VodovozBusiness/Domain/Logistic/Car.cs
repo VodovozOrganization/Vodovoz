@@ -306,6 +306,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public static CarTypeOfUse[] GetCompanyHavingsTypes() => new CarTypeOfUse[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyTruck };
 
+		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle };
+
 		public Car()
 		{
 			Model = String.Empty;
@@ -359,13 +361,13 @@ namespace Vodovoz.Domain.Logistic
 
 	public enum CarTypeOfUse
 	{
-		[Display(Name = "Ларгус компании")]
+		[Display(Name = "Ларгус компании", ShortName = "Ларгус")]
 		CompanyLargus,
-		[Display(Name = "Фура компании")]
+		[Display(Name = "Фура компании", ShortName = "Фура")]
 		CompanyTruck,
-		[Display(Name = "ГАЗель компании")]
+		[Display(Name = "ГАЗель компании", ShortName = "ГАЗель")]
 		CompanyGAZelle,
-		[Display(Name = "Автомобиль водителя")]
+		[Display(Name = "Автомобиль водителя", ShortName = "А/м водителя")]
 		DriverCar
 	}
 

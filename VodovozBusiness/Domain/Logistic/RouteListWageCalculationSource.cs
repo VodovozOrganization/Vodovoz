@@ -41,8 +41,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool DriverOfOurCar => rl.Car.IsCompanyCar;
 
-		public bool IsLargusOrGazelle => rl.Car.TypeOfUse.HasValue 
-			&& (rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyLargus || rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyGAZelle);
+		public CarTypeOfUse CarTypeOfUse => rl.Car.TypeOfUse
+			?? throw new InvalidOperationException("Поле CarTypeOfUse в автомобиле МЛ не может быть null");
 
 		public DateTime RouteListDate => rl.Date;
 

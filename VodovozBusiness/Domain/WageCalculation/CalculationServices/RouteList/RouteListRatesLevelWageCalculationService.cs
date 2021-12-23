@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			decimal resultSum = 0;
 
-			if(!src.IsValidForWageCalculation)
+			if(!src.IsValidForWageCalculation || !Car.GetCarTypesOfUseForRatesLevelWageCalculation().Contains(src.CarTypeOfUse))
 			{
 				return new RouteListItemWageResult(0, GetCurrentWageDistrictLevelRate(src));
 			}
@@ -203,24 +203,23 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		WageDistrictLevelRate GetCurrentWageDistrictLevelRate(IRouteListItemWageCalculationSource src)
 		{
-			return src.WageCalculationMethodic ?? wageParameterItem.WageDistrictLevelRates
-															   .LevelRates
-															   .FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress);
+			return src.WageCalculationMethodic
+				?? wageParameterItem.WageDistrictLevelRates.LevelRates
+					.FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress && r.CarTypeOfUse == src.CarTypeOfUse);
 		}
 
 		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)
 		{
 			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
 			{
-				RouteListItemWageCalculationName = wageParameterItem.Title,
+				RouteListItemWageCalculationName = $"Ставка: {wageParameterItem.WageDistrictLevelRates.Name} №{wageParameterItem.WageDistrictLevelRates.Id}. ",
 				WageCalculationEmployeeCategory = src.EmployeeCategory
 			};
 
-			if(!src.IsValidForWageCalculation)
+			if(!src.IsValidForWageCalculation || !Car.GetCarTypesOfUseForRatesLevelWageCalculation().Contains(src.CarTypeOfUse))
 			{
 				return addressWageDetails;
 			}
-
 
 			IList<WageRate> wageRates = GetCurrentWageDistrictLevelRate(src).WageRates;
 
