@@ -44,8 +44,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 			Configure();
 		}
 

@@ -27,6 +27,7 @@ using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.JournalViewModels
@@ -43,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
+		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
@@ -57,7 +59,8 @@ namespace Vodovoz.JournalViewModels
 			IPhoneRepository phoneRepository,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory
+			CounterpartyContractFactory counterpartyContractFactory,
+			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
@@ -70,6 +73,7 @@ namespace Vodovoz.JournalViewModels
 			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			this.footerViewModel = footerViewModel;
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 
 			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
@@ -312,7 +316,8 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
-						commonServices
+						commonServices,
+						_roboAtsCounterpartyJournalFactory
 					),
 					//функция диалога открытия документа
 					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
@@ -325,7 +330,8 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
-						commonServices
+						commonServices,
+						_roboAtsCounterpartyJournalFactory
 					),
 					//функция идентификации документа 
 					(BusinessTaskJournalNode node) => {

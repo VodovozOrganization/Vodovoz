@@ -117,11 +117,19 @@ namespace VodovozDeliveryRulesService
 
 				logger.Info("Server started.");
 
-				UnixSignal[] signals = {
-					new UnixSignal (Signum.SIGINT),
-					new UnixSignal (Signum.SIGHUP),
-					new UnixSignal (Signum.SIGTERM)};
-				UnixSignal.WaitAny(signals);
+				if(Environment.OSVersion.Platform == PlatformID.Unix)
+				{
+					UnixSignal[] signals = {
+						new UnixSignal (Signum.SIGINT),
+						new UnixSignal (Signum.SIGHUP),
+						new UnixSignal (Signum.SIGTERM)
+					};
+					UnixSignal.WaitAny(signals);
+				}
+				else
+				{
+					Console.ReadLine();
+				}
 			}
 			catch(Exception e) {
 				logger.Fatal(e);

@@ -1,6 +1,8 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -20,6 +22,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
@@ -36,6 +39,8 @@ namespace Vodovoz.Dialogs
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
+		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly ICommonServices _commonServices;
 
 		public CallTaskDlg()
 		{
@@ -46,6 +51,8 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			_roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+			_commonServices = ServicesConfig.CommonServices;
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
 			Entity.Source = TaskSource.Handmade;
@@ -74,6 +81,8 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			_roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+			_commonServices = ServicesConfig.CommonServices;
 			TabName = Entity.Counterparty?.Name;
 			labelCreator.Text = $"Создатель : {Entity.TaskCreator?.ShortName}";
 			ConfigureDlg();
@@ -120,10 +129,10 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance);
+			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)
