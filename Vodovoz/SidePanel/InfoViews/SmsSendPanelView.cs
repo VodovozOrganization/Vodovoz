@@ -4,6 +4,7 @@ using Cairo;
 using Gamma.GtkWidgets;
 using NHibernate.Hql.Ast;
 using QS.Dialog.GtkUI;
+using QS.Services;
 using SmsPaymentService;
 using Vodovoz.Additions;
 using Vodovoz.Domain.Client;
@@ -18,8 +19,13 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
-		public SmsSendPanelView()
+		private readonly bool _canSendSmsForAnyOrderStatus;
+		
+		public SmsSendPanelView(ICommonServices commonServices)
 		{
+			_canSendSmsForAnyOrderStatus = (commonServices ?? throw new ArgumentNullException(nameof(commonServices)))
+				.CurrentPermissionService.ValidatePresetPermission("can_send_sms_for_any_order_status");
+
 			this.Build();
 			validatedPhoneEntry.WidthRequest = 135;
 			validatedPhoneEntry.ValidationMode = QSWidgetLib.ValidationType.phone;
@@ -92,16 +98,16 @@ namespace Vodovoz.SidePanel.InfoViews
 		}
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
-		
-		public bool VisibleOnPanel => 
-		(new OrderStatus[]
-		{
-			OrderStatus.Accepted,
-			OrderStatus.OnTheWay,
-			OrderStatus.Shipped,
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading
-		}.Contains(Order.OrderStatus));
 
+		public bool VisibleOnPanel =>
+			(new OrderStatus[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading
+			}.Contains(Order.OrderStatus))
+			|| _canSendSmsForAnyOrderStatus;
 	}
 }
