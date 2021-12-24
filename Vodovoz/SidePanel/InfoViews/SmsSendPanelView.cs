@@ -19,12 +19,12 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
-		private readonly bool _canSendSmsForAnyOrderStatus;
+		private readonly bool _canSendSmsForAdditionalOrderStatuses;
 		
 		public SmsSendPanelView(ICommonServices commonServices)
 		{
-			_canSendSmsForAnyOrderStatus = (commonServices ?? throw new ArgumentNullException(nameof(commonServices)))
-				.CurrentPermissionService.ValidatePresetPermission("can_send_sms_for_any_order_status");
+			_canSendSmsForAdditionalOrderStatuses = (commonServices ?? throw new ArgumentNullException(nameof(commonServices)))
+				.CurrentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 
 			this.Build();
 			validatedPhoneEntry.WidthRequest = 135;
@@ -107,7 +107,13 @@ namespace Vodovoz.SidePanel.InfoViews
 				OrderStatus.Shipped,
 				OrderStatus.InTravelList,
 				OrderStatus.OnLoading
-			}.Contains(Order.OrderStatus))
-			|| _canSendSmsForAnyOrderStatus;
+			}.Contains(Order.OrderStatus)) 
+			|| (_canSendSmsForAdditionalOrderStatuses 
+			    && new OrderStatus[] 
+			    {
+				    OrderStatus.Closed, 
+				    OrderStatus.UnloadingOnStock,
+			    }.Contains(Order.OrderStatus)
+			    );
 	}
 }
