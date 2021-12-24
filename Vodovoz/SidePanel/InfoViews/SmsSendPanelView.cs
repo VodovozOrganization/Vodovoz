@@ -21,10 +21,13 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly bool _canSendSmsForAdditionalOrderStatuses;
 		
-		public SmsSendPanelView(ICommonServices commonServices)
+		public SmsSendPanelView(ICurrentPermissionService currentPermissionService)
 		{
-			_canSendSmsForAdditionalOrderStatuses = (commonServices ?? throw new ArgumentNullException(nameof(commonServices)))
-				.CurrentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
+			if(currentPermissionService == null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+			_canSendSmsForAdditionalOrderStatuses = currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 
 			this.Build();
 			validatedPhoneEntry.WidthRequest = 135;
@@ -99,21 +102,30 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
 
-		public bool VisibleOnPanel =>
-			(new OrderStatus[]
+		public bool VisibleOnPanel
+		{
+			get
 			{
-				OrderStatus.Accepted,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading
-			}.Contains(Order.OrderStatus)) 
-			|| (_canSendSmsForAdditionalOrderStatuses 
-			    && new OrderStatus[] 
-			    {
-				    OrderStatus.Closed, 
-				    OrderStatus.UnloadingOnStock,
-			    }.Contains(Order.OrderStatus)
-			    );
+				var isStatusAllowedByDefaultForSendingSms =
+					new OrderStatus[]
+					{
+						OrderStatus.Accepted,
+						OrderStatus.OnTheWay,
+						OrderStatus.Shipped,
+						OrderStatus.InTravelList,
+						OrderStatus.OnLoading
+					}.Contains(Order.OrderStatus);
+
+				var isAdditionalOrderStatus =
+					new OrderStatus[]
+					{
+						OrderStatus.Closed,
+						OrderStatus.UnloadingOnStock,
+					}.Contains(Order.OrderStatus);
+
+				return isStatusAllowedByDefaultForSendingSms
+					   || (isAdditionalOrderStatus && _canSendSmsForAdditionalOrderStatuses);
+			}
+		}
 	}
 }
