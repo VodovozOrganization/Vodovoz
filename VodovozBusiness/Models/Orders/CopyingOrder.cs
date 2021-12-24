@@ -120,8 +120,7 @@ namespace Vodovoz.Models.Orders
 		/// <summary>
 		/// Копирование товаров (<see cref="OrderItem"/>) заказа и связанного с ним оборудования (<see cref="OrderEquipment"/>)
 		/// </summary>
-		/// <param name="copyDeliveryDiscount">Необходимо ли перенести скидку на стоимость доставки</param>
-		public CopyingOrder CopyOrderItems(bool copyDeliveryDiscount = true)
+		public CopyingOrder CopyOrderItems()
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
@@ -135,17 +134,6 @@ namespace Vodovoz.Models.Orders
 
 			_resultOrder.RecalculateItemsPrice();
 			_resultOrder.CalculateDeliveryPrice();
-
-			if(copyDeliveryDiscount)
-			{
-				//Перенос скидки на доставку
-				var deliveryOrderItemFrom = _copiedOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _paidDeliveryNomenclatureId);
-				var deliveryOrderItemTo = _resultOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _paidDeliveryNomenclatureId);
-				if(deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
-				{
-					CopyDiscount(deliveryOrderItemFrom, deliveryOrderItemTo);
-				}
-			}
 
 			return this;
 		}
@@ -261,32 +249,7 @@ namespace Vodovoz.Models.Orders
 				IncludeNDS = orderItem.IncludeNDS,
 			};
 
-			CopyDiscount(orderItem, newOrderItem);
-
 			_resultOrder.AddOrderItem(newOrderItem);
-		}
-
-		private void CopyDiscount(OrderItem orderItemFrom, OrderItem orderItemTo)
-		{
-			if(orderItemFrom.DiscountByStock > 0)
-			{
-				return;
-			}
-
-			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && orderItemFrom.DiscountReason != null)
-			{
-				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
-				orderItemTo.Discount = orderItemFrom.Discount;
-				orderItemTo.DiscountMoney = orderItemFrom.DiscountMoney;
-				orderItemTo.DiscountReason = orderItemFrom.DiscountReason;
-			}
-			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && orderItemFrom.OriginalDiscountReason != null)
-			{
-				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
-				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
-				orderItemTo.DiscountMoney = orderItemFrom.OriginalDiscountMoney.Value;
-				orderItemTo.DiscountReason = orderItemFrom.OriginalDiscountReason;
-			}
 		}
 
 		private void CopyOrderEquipment(OrderEquipment orderEquipment)
