@@ -69,7 +69,7 @@ function CopyFiles {
 }
 
 function CopyFilesPublished {
-	rsync -vizaP --delete -e "ssh -p $serverPort" Application/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
+	rsync -vizaP --delete -e "ssh -p $serverPort" WebApi/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
 }
 
 function PublishProject {
@@ -164,7 +164,7 @@ function UpdateSmsPaymentService {
 function UpdateMangoService {
 	printf "\nОбновление службы работы с Mango\n"
 
-  PublishProject $mangoServiceFolder
+  	PublishProject $mangoServiceFolder
 
 	ssh $serverAddress -p$serverPort sudo systemctl stop $mangoServiceName
 	echo "-- Stoping $mangoServiceName"
