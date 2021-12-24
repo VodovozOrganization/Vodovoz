@@ -1719,7 +1719,8 @@ group by wdlrs.id, name, car_type_of_use) AS T
 ORDER BY
     T.name,
     T.car_type_of_use = 'Ларгус' DESC,
-    T.with_out_forwarder = 'С экспедитором' DESC
+    T.with_out_forwarder = 'С экспедитором' DESC,
+    T.with_out_forwarder = 'Без экспедитора' DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="wageIds">

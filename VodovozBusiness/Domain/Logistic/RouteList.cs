@@ -59,6 +59,8 @@ namespace Vodovoz.Domain.Logistic
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
 		private static readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -143,6 +145,12 @@ namespace Vodovoz.Domain.Logistic
 							foreach(var group in value.GeographicGroups)
 								ObservableGeographicGroups.Add(group);
 					}
+
+					if(!CanAddForwarder)
+					{
+						Forwarder = null;
+					}
+					OnPropertyChanged(nameof(CanAddForwarder));
 				}
 			}
 		}
@@ -1383,6 +1391,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual bool CanAddForwarder =>
+			Car?.TypeOfUse != CarTypeOfUse.CompanyLargus || _generalSettingsParameters.GetCanAddForwardersToLargus;
 
 		#endregion
 
