@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			var allWageDistricts = _wageCalculationRepository.AllWageDistricts(UoW).ToList();
 
-			foreach(var carTypeOfUse in Car.GetCarTypesOfUseForRatesLevelWageCalculation())
+			foreach(var carTypeOfUse in new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle })
 			{
 				foreach(var district in allWageDistricts)
 				{
