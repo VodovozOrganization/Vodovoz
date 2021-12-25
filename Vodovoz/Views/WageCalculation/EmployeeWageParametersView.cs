@@ -15,7 +15,8 @@ namespace Vodovoz.Views.WageCalculation
 		protected override void ConfigureWidget()
 		{
 			treeViewWageParameters.ColumnsConfig = FluentColumnsConfig<EmployeeWageParameterNode>.Create()
-				.AddColumn("Тип расчета").AddTextRenderer(x => x.WageType)
+				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+				.AddColumn("Тип расчета").AddTextRenderer(x => x.Name)
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate)
 				.Finish();

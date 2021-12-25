@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -8,6 +10,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using QS.Navigation;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz.ViewModels.WageCalculation
@@ -150,6 +153,17 @@ namespace Vodovoz.ViewModels.WageCalculation
 			
 			OnWageParameterCreated?.Invoke(this, entity);
 			Close(false, CloseSource.Save);
+		}
+
+		public IList<WageParameterItemTypes> GetWageParameterItemTypesToHide()
+		{
+			if(entity.Employee != null
+			   && entity.Employee.DriverOf == CarTypeOfUse.CompanyTruck
+			   && entity.WageParameterItem?.WageParameterItemType != WageParameterItemTypes.RatesLevel)
+			{
+				return new List<WageParameterItemTypes> { WageParameterItemTypes.RatesLevel };
+			}
+			return new List<WageParameterItemTypes>();
 		}
 	}
 }
