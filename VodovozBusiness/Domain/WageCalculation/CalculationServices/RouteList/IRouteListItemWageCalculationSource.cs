@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
@@ -106,6 +107,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// Текущая зарплата за адрес
 		/// </summary>
 		decimal CurrentWage { get; }
+
+		/// <summary>
+		/// Тип авто в МЛ
+		/// </summary>
+		CarTypeOfUse CarTypeOfUse { get; }
 
 		IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource { get; }
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }

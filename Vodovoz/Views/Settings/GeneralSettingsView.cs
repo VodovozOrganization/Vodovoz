@@ -1,5 +1,4 @@
-﻿using QS.Navigation;
-using QS.Views;
+﻿using QS.Views;
 using Vodovoz.ViewModels.ViewModels.Settings;
 
 namespace Vodovoz.Views.Settings
@@ -15,12 +14,22 @@ namespace Vodovoz.Views.Settings
 
 		private void Configure()
 		{
-			btnSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
-			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			btnSaveRouteListPrintedPhones.Clicked += (sender, args) => ViewModel.SaveRouteListPrintedFormPhonesCommand.Execute();
+			btnSaveRouteListPrintedPhones.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListPrintedFormPhones, w => w.Sensitive)
+				.InitializeFromSource();
 
 			textviewRouteListPrintedFormPhones.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.RouteListPrintedFormPhones, w => w.Buffer.Text)
 				.AddBinding(vm => vm.CanEditRouteListPrintedFormPhones, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnSaveCanAddForwardersToLargus.Clicked += (sender, args) => ViewModel.SaveCanAddForwardersToLargusCommand.Execute();
+			btnSaveCanAddForwardersToLargus.Binding.AddBinding(ViewModel, vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckCanAddForwardersToLargus.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanAddForwardersToLargus, w => w.Active)
+				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 	}

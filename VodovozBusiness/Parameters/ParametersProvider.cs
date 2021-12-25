@@ -230,6 +230,7 @@ namespace Vodovoz.Parameters
 					logger.Debug($"Изменяем параметр базы {name}='{value}'");
 				}
 				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+				RefreshParameter(name);
 			}
 
 			logger.Debug("Ок");
