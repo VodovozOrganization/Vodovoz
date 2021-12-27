@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Impl;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Core;
@@ -112,12 +114,20 @@ namespace Vodovoz.Additions.Store
 
 		public static IList<Warehouse> GetRestrictedWarehousesList(IUnitOfWork uow, params WarehousePermissions[] permissions)
 		{
-			var result = GetRestrictedWarehouseQuery(permissions)
-				.DetachedCriteria
+			var result = GetRestrictedWarehouses(permissions)
 				.GetExecutableCriteria(uow.Session)
-				.List<Warehouse>()
-				.Where(w => w.OwningSubdivision != null)
-				.ToList();
+				.List<Warehouse>();
+				
+			return result;
+		}
+		
+		public static IEnumerable<int> GetRestrictedWarehousesIds(IUnitOfWork uow, params WarehousePermissions[] permissions)
+		{
+			var result = GetRestrictedWarehouses(permissions)
+				.GetExecutableCriteria(uow.Session)
+				.SetProjection(Projections.Property(nameof(Warehouse.Id)))
+				.List<int>();
+				
 			return result;
 		}
 
@@ -129,6 +139,15 @@ namespace Vodovoz.Additions.Store
 			return QueryOver.Of<Warehouse>()
 							.Where(w => w.Id.IsIn(CurrentPermissions.Warehouse.AnyPermissions().Select(x => x.Id).ToArray()))
 							.AndNot(w => w.IsArchive);
+		}
+
+		private static DetachedCriteria GetRestrictedWarehouses(params WarehousePermissions[] permissions)
+		{
+			var result = GetRestrictedWarehouseQuery(permissions)
+				.DetachedCriteria
+				.Add(Restrictions.IsNotNull(nameof(Warehouse.OwningSubdivision)));
+
+			return result;
 		}
 	}
 }
