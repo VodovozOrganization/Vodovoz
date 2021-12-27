@@ -47,6 +47,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool ContractCancelation => false;
 
+		public CarTypeOfUse CarTypeOfUse => item.RouteList.Car.TypeOfUse
+			?? throw new InvalidOperationException("Поле CarTypeOfUse в автомобиле МЛ не может быть null");
+
 		public IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource => item.Order.OrderItems;
 
 		public IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource => item.Order.OrderDepositItems;

@@ -13,8 +13,8 @@ namespace Vodovoz.Domain.WageCalculation
 	[
 		Appellative(
 			Gender = GrammaticalGender.Feminine,
-			NominativePlural = "ставки по зарплатномым районам и уровням",
-			Nominative = "ставка по зарплатномым районам и уровням"
+			NominativePlural = "ставки по зарплатным районам и уровням",
+			Nominative = "ставка по зарплатным районам и уровням"
 		)
 	]
 	[HistoryTrace]

@@ -19,15 +19,17 @@ namespace Vodovoz.SidePanel.InfoViews
 		private Counterparty _counterparty;
 		private Order _order;
 		private readonly IPermissionResult _orderPermissionResult;
+		private readonly bool _canSendSmsForAdditionalOrderStatuses;
 
-		public SmsSendPanelView(ICommonServices commonServices)
+		public SmsSendPanelView(ICurrentPermissionService currentPermissionService)
 		{
-			if(commonServices == null)
+			if(currentPermissionService == null)
 			{
-				throw new ArgumentNullException(nameof(commonServices));
+				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 			Build();
-			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
+			_orderPermissionResult = currentPermissionService.ValidateEntityPermission(typeof(Order));
+			_canSendSmsForAdditionalOrderStatuses = currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			Configure();
 		}
 
@@ -102,13 +104,29 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
 
-		public bool VisibleOnPanel => new[]
+		public bool VisibleOnPanel
 		{
-			OrderStatus.Accepted,
-			OrderStatus.OnTheWay,
-			OrderStatus.Shipped,
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading
-		}.Contains(_order.OrderStatus);
+			get
+			{
+				var isStatusAllowedByDefaultForSendingSms =
+					new OrderStatus[]
+					{
+						OrderStatus.Accepted,
+						OrderStatus.OnTheWay,
+						OrderStatus.Shipped,
+						OrderStatus.InTravelList,
+						OrderStatus.OnLoading
+					}.Contains(_order.OrderStatus);
+
+				var isAdditionalOrderStatus =
+					new OrderStatus[]
+					{
+						OrderStatus.Closed,
+						OrderStatus.UnloadingOnStock,
+					}.Contains(_order.OrderStatus);
+
+				return isStatusAllowedByDefaultForSendingSms || (isAdditionalOrderStatus && _canSendSmsForAdditionalOrderStatuses);
+			}
+		}
 	}
 }

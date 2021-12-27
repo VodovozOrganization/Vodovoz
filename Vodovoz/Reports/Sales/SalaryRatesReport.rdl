@@ -893,7 +893,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>={name}</Value>
+                      <Value>={name} + '\n(' + {car_type_of_use} + ')'</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1554,7 +1554,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
+        <Left>1.6pt</Left>
         <Top>19.8pt</Top>
       </Table>
     </ReportItems>
@@ -1585,9 +1585,16 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>select wdlrs.name as name, 
+        <CommandText>SELECT * FROM
+(SELECT
+        wdlrs.name AS name,
+        CASE wdlr.car_type_of_use
+            WHEN 'CompanyLargus' THEN 'Ларгус'
+            WHEN 'CompanyGAZelle' THEN 'Газель'
+            ELSE wdlr.car_type_of_use
+        END as car_type_of_use,
        'С экспедитором' as with_out_forwarder,
        SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as PhoneCompensationCity,
        SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as Bottle19LCity,
@@ -1618,13 +1625,19 @@
        SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ForeignAddressSuburb,
        SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ContractCancelationSuburb
 from wage_rates wr
-    left join wage_district_level_rate wdlr on wr.wage_district_level_rate_id = wdlr.id
-    left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
-    left join wage_districts wd on wdlr.wage_district_id = wd.id
+left join wage_district_level_rate wdlr on wr.wage_district_level_rate_id = wdlr.id
+left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
+left join wage_districts wd on wdlr.wage_district_id = wd.id
 where wdlrs.id in (@wageIds)
-group by name, with_out_forwarder
-union 
-select wdlrs.name as name, 
+group by wdlrs.id, name, car_type_of_use
+union
+select
+        wdlrs.name AS name,
+        CASE wdlr.car_type_of_use
+            WHEN 'CompanyLargus' THEN 'Ларгус'
+            WHEN 'CompanyGAZelle' THEN 'Газель'
+            ELSE wdlr.car_type_of_use
+        END as car_type_of_use,
        'Без экспедитора' as with_out_forwarder,
        SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationCity,
        SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as Bottle19LCity,
@@ -1655,13 +1668,19 @@ select wdlrs.name as name,
        SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressSuburb,
        SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationSuburb
 from wage_rates wr2
-    left join wage_district_level_rate wdlr on wr2.wage_district_level_rate_id = wdlr.id
-    left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
-    left join wage_districts wd on wdlr.wage_district_id = wd.id
+left join wage_district_level_rate wdlr on wr2.wage_district_level_rate_id = wdlr.id
+left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
+left join wage_districts wd on wdlr.wage_district_id = wd.id
 where wdlrs.id in (@wageIds)
-group by name, with_out_forwarder
-union 
-select wdlrs.name as name, 
+group by wdlrs.id, name, car_type_of_use
+union
+SELECT
+       wdlrs.name AS name,
+       CASE wdlr.car_type_of_use
+           WHEN 'CompanyLargus' THEN 'Ларгус'
+           WHEN 'CompanyGAZelle' THEN 'Газель'
+           ELSE wdlr.car_type_of_use
+       END as car_type_of_use,
        'Для экспедитора' as with_out_forwarder,
        SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = @cityId, wr3.for_forwarder, 0)) as PhoneCompensationCity,
        SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = @cityId, wr3.for_forwarder, 0)) as Bottle19LCity,
@@ -1691,12 +1710,18 @@ select wdlrs.name as name,
        SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = @suburbId, wr3.for_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ForeignAddressSuburb,
        SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ContractCancelationSuburb
-from wage_rates wr3 
-    left join wage_district_level_rate wdlr on wr3.wage_district_level_rate_id = wdlr.id
-    left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
-    left join wage_districts wd on wdlr.wage_district_id = wd.id
+from wage_rates wr3
+left join wage_district_level_rate wdlr on wr3.wage_district_level_rate_id = wdlr.id
+left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
+left join wage_districts wd on wdlr.wage_district_id = wd.id
 where wdlrs.id in (@wageIds)
-group by name, with_out_forwarder;</CommandText>
+group by wdlrs.id, name, car_type_of_use) AS T
+ORDER BY
+    T.name,
+    T.car_type_of_use = 'Ларгус' DESC,
+    T.with_out_forwarder = 'С экспедитором' DESC,
+    T.with_out_forwarder = 'Без экспедитора' DESC
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="wageIds">
             <Value>=Parameters!wageIds</Value>
@@ -1709,7 +1734,7 @@ group by name, with_out_forwarder;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1829,6 +1854,10 @@ group by name, with_out_forwarder;</CommandText>
         <Field Name="ContractCancelationSuburb">
           <DataField>ContractCancelationSuburb</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="car_type_of_use">
+          <DataField>car_type_of_use</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>

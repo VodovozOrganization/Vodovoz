@@ -198,7 +198,10 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
 			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
+			evmeForwarder.Binding.AddSource(Entity)
+				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
+				.AddFuncBinding(rl => rl.CanAddForwarder && _canEdit, widget => widget.Sensitive)
+				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
 			var employeeFactory = new EmployeeJournalFactory();

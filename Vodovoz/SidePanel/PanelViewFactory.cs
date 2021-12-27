@@ -38,7 +38,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository());
 				case PanelViewType.SmsSendPanelView:
-					return new SmsSendPanelView(ServicesConfig.CommonServices);
+					return new SmsSendPanelView(ServicesConfig.CommonServices.CurrentPermissionService);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
