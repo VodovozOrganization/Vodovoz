@@ -130,8 +130,7 @@ namespace DriverAPI.Library.Models
 
 		public string GetActualDriverPushNotificationsTokenByOrderId(int orderId)
 		{
-			return _employeeRepository.GetEmployeePushTokenByOrderId(_unitOfWork, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Не найден токен для PUSH-сообщения водителя заказа {orderId}");
+			return _employeeRepository.GetEmployeePushTokenByOrderId(_unitOfWork, orderId);
 		}
 
 		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId)
