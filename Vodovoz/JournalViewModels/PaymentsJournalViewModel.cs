@@ -31,6 +31,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly bool _canCreateNewPayment;
 
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
@@ -49,6 +50,8 @@ namespace Vodovoz.JournalViewModels
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_navigationManager = navigationManager;
+			_canCreateNewPayment =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_new_payment_from_bank_client");
 			
 			TabName = "Журнал платежей из банк-клиента";
 
@@ -138,6 +141,7 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateAddNewPaymentAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 
@@ -151,6 +155,17 @@ namespace Vodovoz.JournalViewModels
 				x => true,
 				x => true,
 				selectedItems => CompleteAllocation()
+				)
+			);
+		}
+
+		private void CreateAddNewPaymentAction()
+		{
+			NodeActionsList.Add(new JournalAction(
+					"Создать новый платеж", 
+					x => true,
+					x => _canCreateNewPayment,
+					selectedItems => throw new NotImplementedException()
 				)
 			);
 		}
