@@ -173,8 +173,13 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.CanChangeStatus = false);
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.Changed += (sender, args) => lblDriverComment.Text = UpdateEmployeeComment(Entity.Driver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+
+			hboxDriverComment.Binding
+				.AddFuncBinding(Entity, e => e.Driver != null && !string.IsNullOrWhiteSpace(e.Driver.Comment), w => w.Visible)
+				.InitializeFromSource();
 
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
@@ -187,8 +192,14 @@ namespace Vodovoz
 			evmeForwarder.Changed += (sender, args) =>
 			{
 				createroutelistitemsview1.OnForwarderChanged();
+				lblForwarderComment.Text = UpdateEmployeeComment(Entity.Forwarder);
 			};
 
+			hboxForwarderComment.Binding
+				.AddFuncBinding(Entity, e => e.Forwarder != null && !string.IsNullOrWhiteSpace(e.Forwarder.Comment), w => w.Visible)
+				.InitializeFromSource();
+			lblForwarderComment.Text = UpdateEmployeeComment(Entity.Forwarder);
+			
 			var employeeFactory = new EmployeeJournalFactory();
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Sensitive = false;
@@ -262,6 +273,8 @@ namespace Vodovoz
 
 			_oldDriver = Entity.Driver;
 		}
+
+		private string UpdateEmployeeComment(Employee employee) => employee?.Comment;
 
 		private void YspeccomboboxCashSubdivision_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{

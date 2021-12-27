@@ -38,15 +38,15 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yHBox hboxDriverComment;
 
-		private global::Gamma.GtkWidgets.yLabel lblDriverCommentTitle1;
+		private global::Gamma.GtkWidgets.yLabel lblDriverCommentTitle;
 
-		private global::Gamma.GtkWidgets.yLabel lblDriverComment1;
+		private global::Gamma.GtkWidgets.yLabel lblDriverComment;
 
 		private global::Gamma.GtkWidgets.yHBox hboxForwarderComment;
 
-		private global::Gamma.GtkWidgets.yLabel lblForwarderCommentTitle1;
+		private global::Gamma.GtkWidgets.yLabel lblForwarderCommentTitle;
 
-		private global::Gamma.GtkWidgets.yLabel lblForwarderComment1;
+		private global::Gamma.GtkWidgets.yLabel lblForwarderComment;
 
 		private global::Gtk.HSeparator hseparator2;
 
@@ -269,21 +269,21 @@ namespace Vodovoz
 			this.hboxDriverComment.Name = "hboxDriverComment";
 			this.hboxDriverComment.Spacing = 6;
 			// Container child hboxDriverComment.Gtk.Box+BoxChild
-			this.lblDriverCommentTitle1 = new global::Gamma.GtkWidgets.yLabel();
-			this.lblDriverCommentTitle1.Name = "lblDriverCommentTitle1";
-			this.lblDriverCommentTitle1.Xalign = 1F;
-			this.lblDriverCommentTitle1.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий по водителю:");
-			this.hboxDriverComment.Add(this.lblDriverCommentTitle1);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxDriverComment[this.lblDriverCommentTitle1]));
+			this.lblDriverCommentTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblDriverCommentTitle.Name = "lblDriverCommentTitle";
+			this.lblDriverCommentTitle.Xalign = 1F;
+			this.lblDriverCommentTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий по водителю:");
+			this.hboxDriverComment.Add(this.lblDriverCommentTitle);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxDriverComment[this.lblDriverCommentTitle]));
 			w17.Position = 0;
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child hboxDriverComment.Gtk.Box+BoxChild
-			this.lblDriverComment1 = new global::Gamma.GtkWidgets.yLabel();
-			this.lblDriverComment1.Name = "lblDriverComment1";
-			this.lblDriverComment1.LabelProp = global::Mono.Unix.Catalog.GetString("\"Комментарий по водителю\"");
-			this.hboxDriverComment.Add(this.lblDriverComment1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxDriverComment[this.lblDriverComment1]));
+			this.lblDriverComment = new global::Gamma.GtkWidgets.yLabel();
+			this.lblDriverComment.Name = "lblDriverComment";
+			this.lblDriverComment.LabelProp = global::Mono.Unix.Catalog.GetString("\"Комментарий по водителю\"");
+			this.hboxDriverComment.Add(this.lblDriverComment);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxDriverComment[this.lblDriverComment]));
 			w18.Position = 1;
 			w18.Expand = false;
 			w18.Fill = false;
@@ -300,21 +300,21 @@ namespace Vodovoz
 			this.hboxForwarderComment.Name = "hboxForwarderComment";
 			this.hboxForwarderComment.Spacing = 6;
 			// Container child hboxForwarderComment.Gtk.Box+BoxChild
-			this.lblForwarderCommentTitle1 = new global::Gamma.GtkWidgets.yLabel();
-			this.lblForwarderCommentTitle1.Name = "lblForwarderCommentTitle1";
-			this.lblForwarderCommentTitle1.Xalign = 1F;
-			this.lblForwarderCommentTitle1.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий по экспедитору:");
-			this.hboxForwarderComment.Add(this.lblForwarderCommentTitle1);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hboxForwarderComment[this.lblForwarderCommentTitle1]));
+			this.lblForwarderCommentTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblForwarderCommentTitle.Name = "lblForwarderCommentTitle";
+			this.lblForwarderCommentTitle.Xalign = 1F;
+			this.lblForwarderCommentTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий по экспедитору:");
+			this.hboxForwarderComment.Add(this.lblForwarderCommentTitle);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hboxForwarderComment[this.lblForwarderCommentTitle]));
 			w20.Position = 0;
 			w20.Expand = false;
 			w20.Fill = false;
 			// Container child hboxForwarderComment.Gtk.Box+BoxChild
-			this.lblForwarderComment1 = new global::Gamma.GtkWidgets.yLabel();
-			this.lblForwarderComment1.Name = "lblForwarderComment1";
-			this.lblForwarderComment1.LabelProp = global::Mono.Unix.Catalog.GetString("\"Комментарий по экспедитору\"");
-			this.hboxForwarderComment.Add(this.lblForwarderComment1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxForwarderComment[this.lblForwarderComment1]));
+			this.lblForwarderComment = new global::Gamma.GtkWidgets.yLabel();
+			this.lblForwarderComment.Name = "lblForwarderComment";
+			this.lblForwarderComment.LabelProp = global::Mono.Unix.Catalog.GetString("\"Комментарий по экспедитору\"");
+			this.hboxForwarderComment.Add(this.lblForwarderComment);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxForwarderComment[this.lblForwarderComment]));
 			w21.Position = 1;
 			w21.Expand = false;
 			w21.Fill = false;
