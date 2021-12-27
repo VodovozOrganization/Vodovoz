@@ -1377,7 +1377,7 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
-		private void AddOrderItem(OrderItem orderItem)
+		public virtual void AddOrderItem(OrderItem orderItem)
 		{
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
@@ -1417,6 +1417,18 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void UpdateAddressType()
+		{
+			if(Client != null && Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				OrderAddressType = OrderAddressType.ChainStore;
+			}
+			if(Client != null && !Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature) && OrderAddressType != OrderAddressType.StorageLogistics)
+			{
+				OrderAddressType = OrderAddressType.Delivery;
+			}
+		}
+
 		private DiscountReason GetDiscountReasonStockBottle(
 			IOrderParametersProvider orderParametersProvider, decimal discount)
 		{
@@ -1440,25 +1452,25 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
-			decimal discountForStock = 0m;
-			DiscountReason discountReasonStockBottle = null;
+			decimal stockBottleDiscountPercent = 0m;
+			DiscountReason stockBottleDiscountReason = null;
 			
 			if(bottlesByStock == Total19LBottlesToDeliver)
 			{
-				discountForStock = 10m;
-				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
+				stockBottleDiscountPercent = 10m;
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
 			}
 			if(bottlesByStock > Total19LBottlesToDeliver)
 			{
-				discountForStock = 20m;
-				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
+				stockBottleDiscountPercent = 20m;
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
 			}
 			
 			foreach(OrderItem item in ObservableOrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
-				item.SetDiscountByStock(discountReasonStockBottle, discountForStock);
+				item.SetDiscountByStock(stockBottleDiscountReason, stockBottleDiscountPercent);
 			}
 		}
 
@@ -1587,10 +1599,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			for (int i = 0; i < ObservableOrderItems.Count; i++) {
-				if(ObservableOrderItems[i].Nomenclature.Category == NomenclatureCategory.water) {
-					ObservableOrderItems[i].RecalculatePrice();
-				}
+			foreach(var orderItem in OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water))
+			{
+				orderItem.RecalculatePrice();
 			}
 		}
 
@@ -2083,165 +2094,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Наполнение списка товаров нового заказа элементами списка другого заказа.
-		/// </summary>
-		/// <param name="order">Заказ, из которого будет производится копирование товаров</param>
-		public virtual void CopyItemsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(OrderItem orderItem in order.OrderItems) {
-
-				if (orderItem.Nomenclature.Id == PaidDeliveryNomenclatureId) {
-					continue;
-				}
-				
-				decimal discMoney;
-				if(orderItem.DiscountMoney == 0) {
-					if(orderItem.OriginalDiscountMoney == null)
-						discMoney = 0;
-					else
-						discMoney = orderItem.OriginalDiscountMoney.Value;
-				} else {
-					discMoney = orderItem.DiscountMoney;
-				}
-
-				decimal disc;
-				if(orderItem.Discount == 0) {
-					if(orderItem.OriginalDiscount == null)
-						disc = 0;
-					else
-						disc = orderItem.OriginalDiscount.Value;
-				} else {
-					disc = orderItem.Discount;
-				}
-
-				var newItem = new OrderItem {
-					Order = this,
-					Nomenclature = orderItem.Nomenclature,
-					Equipment = orderItem.Equipment,
-					PromoSet = orderItem.PromoSet,
-					Price = orderItem.Price,
-					IsUserPrice = orderItem.IsUserPrice,
-					Count = orderItem.Count,
-					IncludeNDS = orderItem.IncludeNDS,
-					IsDiscountInMoney = orderItem.IsDiscountInMoney,
-					DiscountMoney = discMoney,
-					Discount = disc,
-					DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason
-				};
-				AddOrderItem(newItem);
-			}
-
-			RecalculateItemsPrice();
-
-			//Перенос скидки на доставку
-			var deliveryOrderItemFrom = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-			var deliveryOrderItemTo = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-			if (deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
-			{
-				deliveryOrderItemTo.IsDiscountInMoney = deliveryOrderItemFrom.IsDiscountInMoney;
-				deliveryOrderItemTo.DiscountMoney = deliveryOrderItemFrom.DiscountMoney;
-				deliveryOrderItemTo.Discount = deliveryOrderItemFrom.Discount;
-				deliveryOrderItemTo.DiscountReason = deliveryOrderItemFrom.DiscountReason ?? deliveryOrderItemFrom.OriginalDiscountReason;
-			}
-		}
-
-		/// <summary>
-		/// Наполнение списка промо-наборов нового заказа элементами списка другого заказа.
-		/// </summary>
-		/// <param name="order">Заказ, из которого будет производится копирование оборудования</param>
-		public virtual void CopyPromotionalSetsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(var proSet in order.PromotionalSets)
-				ObservablePromotionalSets.Add(proSet);
-		}
-
-		/// <summary>
-		/// Наполнение списка оборудования нового заказа элементами списка другого заказа.
-		/// </summary>
-		/// <param name="order">Заказ, из которого будет производится копирование оборудования</param>
-		public virtual void CopyEquipmentFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка оборудования из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
-			{
-				var flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(UoW);
-				
-				if (flyersNomenclaturesIds.Contains(orderEquipment.Nomenclature.Id))
-				{
-					continue;
-				}
-				
-				ObservableOrderEquipments.Add(
-					new OrderEquipment {
-						Order = this,
-						Direction = orderEquipment.Direction,
-						DirectionReason = orderEquipment.DirectionReason,
-						OrderItem = orderEquipment.OrderItem,
-						Equipment = orderEquipment.Equipment,
-						OwnType = orderEquipment.OwnType,
-						Nomenclature = orderEquipment.Nomenclature,
-						Reason = orderEquipment.Reason,
-						Confirmed = orderEquipment.Confirmed,
-						ConfirmedComment = orderEquipment.ConfirmedComment,
-						Count = orderEquipment.Count
-					}
-				);
-			}
-		}
-
-		/// <summary>
-		/// Копирует таблицу залогов в новый заказа из другого заказа
-		/// </summary>
-		/// <param name="order">Order.</param>
-		public virtual void CopyDepositItemsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка залогов из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(OrderDepositItem oDepositItem in order.OrderDepositItems) {
-				ObservableOrderDepositItems.Add(
-					new OrderDepositItem {
-						Order = this,
-						Count = oDepositItem.Count,
-						Deposit = oDepositItem.Deposit,
-						DepositType = oDepositItem.DepositType,
-						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
-					}
-				);
-			}
-		}
-
-		public virtual void CopyDocumentsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка документов из другого заказа недопустимо, если этот заказ не новый.");
-
-			var counterpartyDocTypes = typeof(OrderDocumentType).GetFields()
-													   .Where(x => !x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
-													   .Where(x => !x.Name.Equals("value__"))
-													   .Select(x => (OrderDocumentType)x.GetValue(null))
-													   .ToArray();
-
-			var orderDocTypes = typeof(OrderDocumentType).GetFields()
-													   .Where(x => x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
-													   .Select(x => (OrderDocumentType)x.GetValue(null))
-													   .ToArray();
-
-			var counterpartyDocs = order.OrderDocuments.Where(d => counterpartyDocTypes.Contains(d.Type)).ToList();
-			var orderDocs = order.OrderDocuments.Where(d => orderDocTypes.Contains(d.Type) && d.AttachedToOrder.Id != d.Order.Id).ToList();
-			AddAdditionalDocuments(counterpartyDocs);
-			AddAdditionalDocuments(orderDocs);
-		}
-
-		/// <summary>
 		/// Удаляет дополнительные документы выделенные пользователем, которые не относятся к текущему заказу.
 		/// </summary>
 		/// <returns>Документы текущего заказа, которые не были удалены.</returns>
@@ -2266,9 +2118,9 @@ namespace Vodovoz.Domain.Orders
 		/// Добавляет дополнительные документы выбранные пользователем в диалоге,
 		/// с проверкой их наличия в текущем заказе
 		/// </summary>
-		public virtual void AddAdditionalDocuments(List<OrderDocument> documentsList)
+		public virtual void AddAdditionalDocuments(IEnumerable<OrderDocument> documents)
 		{
-			foreach(var item in documentsList) {
+			foreach(var item in documents) {
 				switch(item.Type) {
 					case OrderDocumentType.Contract:
 						OrderContract oc = (item as OrderContract);
@@ -2285,13 +2137,19 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.M2Proxy:
-						OrderM2Proxy m2 = (item as OrderM2Proxy);
-						if(observableOrderDocuments
+						OrderM2Proxy m2 = item as OrderM2Proxy;
+						var hasDocument = observableOrderDocuments
 						   .OfType<OrderM2Proxy>()
-						   .FirstOrDefault(x => x.M2Proxy == m2.M2Proxy
-										   && x.Order == m2.Order)
-						   == null) {
-							ObservableOrderDocuments.Add(m2);
+						   .Any(x => x.M2Proxy == m2.M2Proxy && x.Order == m2.Order);
+
+						if(!hasDocument) 
+						{
+							var newM2 = new OrderM2Proxy();
+							newM2.AttachedToOrder = this;
+							newM2.Order = m2.Order;
+							newM2.M2Proxy = m2.M2Proxy;
+
+							ObservableOrderDocuments.Add(newM2);
 						}
 						break;
 					case OrderDocumentType.Bill:
