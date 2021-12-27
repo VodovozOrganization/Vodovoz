@@ -70,8 +70,15 @@ namespace DriverAPI.Controllers
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-			_logger.LogInformation($"Sending PUSH message of status changed for order: { orderId }");
-			await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа { orderId }");
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation($"No token found for order driver PUSH message. Order: {orderId}");
+			}
+			else
+			{
+				_logger.LogInformation($"Sending PUSH message of status changed for order: {orderId}");
+				await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
+			}
 		}
 	}
 }
