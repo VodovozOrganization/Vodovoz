@@ -533,6 +533,9 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyActivityKind>();
 
+			DeleteConfig.AddHibernateDeleteInfo<RoboAtsCounterpartyName>();
+			DeleteConfig.AddHibernateDeleteInfo<RoboAtsCounterpartyPatronymic>();
+
 			#endregion
 
 			#region Logistics
@@ -725,7 +728,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<DiscountReason>()
 				.AddDeleteDependence<OrderItem>(x => x.DiscountReason)
-				.AddDeleteDependence<PromotionalSet>(x => x.PromoSetDiscountReason)
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<NonReturnReason>();

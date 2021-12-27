@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Threading.Tasks;
 using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -27,9 +28,6 @@ namespace Vodovoz.Views.Client
 		private yEnumComboBox _comboMapType;
 		private GMapControl _mapWidget;
 		private GMapMarker _addressMarker;
-		private string _cityBeforeChange;
-		private string _streetBeforeChange;
-		private string _buildingBeforeChange;
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
 		private readonly Clipboard _clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
@@ -55,14 +53,18 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
-			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonCancel.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonCancel.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();
 			radioInformation.Toggled += RadioInformationOnToggled;
 			radioFixedPrices.Toggled += RadioFixedPricesOnToggled;
+
+			ybuttonOpenOnMap.Binding.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible).InitializeFromSource();
+
+			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMapCommand.Execute();
 
 			#region Address entries
 
@@ -71,6 +73,7 @@ namespace Vodovoz.Views.Client
 			entryBuilding.HousesDataLoader = ViewModel.HousesDataLoader;
 			entryCity.CitySelected += EntryCityOnCitySelected;
 			entryStreet.StreetSelected += EntryStreetOnStreetSelected;
+			entryStreet.FocusOutEvent += EntryStreetOnFocusOutEvent;
 			entryBuilding.FocusOutEvent += EntryBuildingOnFocusOutEvent;
 			entryCity.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.City, w => w.CityName)
@@ -96,9 +99,9 @@ namespace Vodovoz.Views.Client
 				.AddBinding(e => e.Building, w => w.BuildingName)
 				.InitializeFromSource();
 
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
+			ViewModel.CityBeforeChange = entryCity.CityName;
+			ViewModel.StreetBeforeChange = entryStreet.StreetName;
+			ViewModel.BuildingBeforeChange = entryBuilding.BuildingName;
 
 			#endregion
 
@@ -361,44 +364,60 @@ namespace Vodovoz.Views.Client
 
 		#region AddressEntriesEvents
 
-		private void EntryBuildingOnFocusOutEvent(object o, FocusOutEventArgs args)
+		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			var addressChanged = entryCity.CityName != _cityBeforeChange
-								 || entryStreet.StreetName != _streetBeforeChange
-								 || entryBuilding.BuildingName != _buildingBeforeChange;
-			if(!addressChanged || !entryBuilding.FiasCompletion.HasValue)
+			if(!ViewModel.IsAddressChanged)
 			{
 				return;
 			}
 
-			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion.Value;
-
+			ViewModel.ResetAddressChanges();
+			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
 			entryBuilding.GetCoordinates(out var longitude, out var latitude);
-
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
-
-			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
+			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate();
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (longitude == null || latitude == null))
 			{
-				var findedByGeoCoder = entryBuilding.GetCoordinatesByGeocoderAsync($"{entryCity.CityTypeName}. {entryCity.CityName},{entryStreet.StreetName} {entryStreet.StreetTypeName}, {entryBuilding.BuildingName}").Result;
-				if(findedByGeoCoder != null)
-				{
-					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-					culture.NumberFormat.NumberDecimalSeparator = ".";
-					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
-				}
+				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}
 
-			ViewModel.WriteCoordinates(latitude, longitude, false);
+			if(!ViewModel.IsDisposed)
+			{
+				Application.Invoke((o, args) =>
+				{
+					ViewModel.WriteCoordinates(coordinate.Latitude, coordinate.Longitude, false);
+				});
+			}
 		}
+		
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
 			entryBuilding.StreetGuid = entryStreet.FiasGuid;
-			entryBuilding.StreetDistrict = entryStreet.StreetDistrict;
 			entryBuilding.BuildingName = string.Empty;
+		}
+
+		private void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
+		{
+			if(!ViewModel.IsAddressChanged)
+			{
+				return;
+			}
+
+			ViewModel.ResetAddressChanges();
+
+			entryBuilding.StreetGuid = entryStreet.FiasGuid;
+
+			if(string.IsNullOrWhiteSpace(entryStreet.StreetName))
+			{
+				entryBuilding.BuildingName = string.Empty;
+			}
+
+			if(entryBuilding.StreetGuid == null)
+			{
+				entryBuilding.FiasGuid = null;
+			}
+
+			ViewModel.WriteCoordinates(null, null, false);
 		}
 
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
@@ -409,7 +428,8 @@ namespace Vodovoz.Views.Client
 			entryStreet.StreetName = string.Empty;
 			entryStreet.StreetDistrict = string.Empty;
 			entryStreet.FireStreetChange();
-			entryBuilding.StreetGuid = Guid.Empty;
+			entryBuilding.StreetGuid = null;
+			entryBuilding.CityGuid = entryCity.FiasGuid;
 			entryBuilding.BuildingName = string.Empty;
 		}
 

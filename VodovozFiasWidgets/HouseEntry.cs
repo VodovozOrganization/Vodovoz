@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Fias.Service.Loaders;
 using Key = Gdk.Key;
@@ -22,8 +23,6 @@ namespace VodovozFiasWidgets
 		private ListStore _completionListStore;
 		private Guid? _fiasGuid;
 		private IHousesDataLoader _housesDataLoader;
-		private Guid? _streetGuid;
-		//private HouseDTO[] _loadedHouses;
 
 		public HouseEntry()
 		{
@@ -117,7 +116,7 @@ namespace VodovozFiasWidgets
 
 					if(HasFocus)
 					{
-						Completion?.Complete();
+						Completion.Complete();
 					}
 
 					CompletionLoaded?.Invoke(null, EventArgs.Empty);
@@ -234,8 +233,6 @@ namespace VodovozFiasWidgets
 		
 		public Guid? CityGuid { get; set; }
 
-		public string StreetDistrict { get; set; }
-
 		public Guid? FiasGuid
 		{
 			get => _fiasGuid;
@@ -268,12 +265,6 @@ namespace VodovozFiasWidgets
 				longitude = decimal.Parse(house.Longitude, culture);
 				latitude = decimal.Parse(house.Latitude, culture);
 			}
-		}
-
-		public async Task<PointDTO> GetCoordinatesByGeocoderAsync(string address)
-		{
-			var coordinates = await HousesDataLoader.GetCoordinatesByGeocoderAsync(address);
-			return coordinates;
 		}
 	}
 }

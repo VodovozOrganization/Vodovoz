@@ -37,16 +37,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
-
-		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
-
-		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
 		/// <returns>Список оборудования от клиенту</returns>
@@ -147,7 +137,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
-    }
+		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
+		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
+	}
 
 	public class ClientEquipmentNode
 	{

@@ -57,6 +57,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\IOrderDiscountsController.cs" />
+    <Compile Include="Controllers\OrderDiscountsController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
@@ -69,6 +71,8 @@
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultOfEmployees.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultType.cs" />
+    <Compile Include="Domain\Client\RoboAtsCounterpartyName.cs" />
+    <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
@@ -117,6 +121,7 @@
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
+    <Compile Include="Domain\IOrderDailyNumberController.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\CarEvent.cs" />
     <Compile Include="Domain\Logistic\DeliverySummary.cs" />
@@ -131,6 +136,10 @@
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
+    <Compile Include="Domain\Orders\DiscountReasonNomenclatureCategory.cs" />
+    <Compile Include="Domain\Orders\IDiscount.cs" />
+    <Compile Include="Domain\Orders\SelectableNomenclatureCategoryNode.cs" />
+    <Compile Include="Domain\OrderDailyNumberController.cs" />
     <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
@@ -187,7 +196,6 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\ClosedComplaintResultNode.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\ComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
-    <Compile Include="EntityRepositories\Counterparties\CounterpartyContractFactory.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
@@ -198,6 +206,8 @@
     <Compile Include="EntityRepositories\Counterparties\IWaterPricesRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPriceNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPricesRepository.cs" />
+    <Compile Include="EntityRepositories\DiscountReasons\DiscountReasonRepository.cs" />
+    <Compile Include="EntityRepositories\DiscountReasons\IDiscountReasonRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentKindRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentLocation.cs" />
     <Compile Include="EntityRepositories\Equipments\EquipmentRepository.cs" />
@@ -273,6 +283,8 @@
     <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointEstimatedCoordinateMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
@@ -302,6 +314,7 @@
     <Compile Include="HibernateMapping\Logistic\CarEventTypeMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />

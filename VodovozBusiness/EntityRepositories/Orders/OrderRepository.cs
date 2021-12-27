@@ -4,7 +4,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +14,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
-using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -383,25 +380,6 @@ namespace Vodovoz.EntityRepositories.Orders
 							.List<object[]>()
 							.GroupBy(x => (int)x[0]).ToDictionary(x => x.Key, x => x.Select(y => (int)y[1]));
 			return rls;
-		}
-
-		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
-		{
-			var query = UoW.Session.QueryOver<DiscountReason>()
-						   .OrderBy(i => i.Name);
-			return orderByDescending ? query.Desc().List() : query.Asc().List();
-		}
-
-		public IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow)
-		{
-			return uow.Session.QueryOver<DiscountReason>()
-				.WhereNot(dr => dr.IsArchive).OrderBy(dr => dr.Name).Asc().List();
 		}
 
 		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
@@ -811,5 +789,36 @@ namespace Vodovoz.EntityRepositories.Orders
         {
 			return unitOfWork.GetById<VodovozOrder>(orderId);
         }
+
+		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
+		{
+			int? dailyNumber;
+
+			using(var uow = uowFactory.CreateWithoutRoot(
+				$"Получение максимального ежедневного номера заказа на {deliveryDate}"))
+			{
+				dailyNumber = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.DeliveryDate == deliveryDate)
+					.Select(Projections.Max<VodovozOrder>(o => o.DailyNumber))
+					.SingleOrDefault<int?>();
+			}
+
+			return dailyNumber;
+		}
+		
+		public DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId)
+		{
+			DateTime? deliveryDate;
+			
+			using(var uow = uowFactory.CreateWithoutRoot($"Получение даты доставки заказа №{orderId}"))
+			{
+				deliveryDate = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.Id == orderId)
+					.Select(o => o.DeliveryDate)
+					.SingleOrDefault<DateTime?>();
+			}
+
+			return deliveryDate;
+		}
     }
 }

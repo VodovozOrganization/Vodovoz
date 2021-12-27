@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities.Text;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.Domain.WageCalculation
@@ -32,6 +33,13 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual WageDistrict WageDistrict {
 			get => wageDistrict;
 			set => SetField(ref wageDistrict, value);
+		}
+
+		CarTypeOfUse _carTypeOfUse;
+		[Display(Name = "Тип ТС")]
+		public virtual CarTypeOfUse CarTypeOfUse {
+			get => _carTypeOfUse;
+			set => SetField(ref _carTypeOfUse, value);
 		}
 
 		WageDistrictLevelRates wageDistrictLevelRates;

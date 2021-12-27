@@ -1027,6 +1027,10 @@ namespace Vodovoz.JournalColumnsConfigs
                         .AddTextRenderer(node => node.ClosinComments)
                         .WrapWidth(300)
                         .WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Комментарий по водителю")
+						.AddTextRenderer(node => node.DriverComment)
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
                     .RowCells()
                         .AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
                     .Finish()
@@ -1382,6 +1386,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((cell, node) => cell.Foreground = node.IsArchive ? "grey" : "black")
+					.Finish()
+			);
+
+			//RoboAtsCounterpartyNameJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboAtsCounterpartyNameJournalViewModel>(
+				() => FluentColumnsConfig<RoboAtsCounterpartyNameJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Имя").AddTextRenderer(node => node.Name)
+					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
+					.Finish()
+			);
+
+			//RoboAtsCounterpartyPatronymicJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboAtsCounterpartyPatronymicJournalViewModel>(
+				() => FluentColumnsConfig<RoboAtsCounterpartyPatronymicJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Отчество").AddTextRenderer(node => node.Patronymic)
+					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
 					.Finish()
 			);
 		}

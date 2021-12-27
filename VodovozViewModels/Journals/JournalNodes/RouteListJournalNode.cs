@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
         public string DriverSurname { get; set; }
         public string DriverName { get; set; }
         public string DriverPatronymic { get; set; }
+        public string DriverComment { get; set; }
 
         public string Driver => PersonHelper.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
 

@@ -7,8 +7,6 @@ using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QSOrmProject;
@@ -42,7 +40,7 @@ using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using QS.Project.Journal;
-using QS.ViewModels.Control.EEVM;
+using QS.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -60,6 +58,9 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz
 {
@@ -67,6 +68,8 @@ namespace Vodovoz
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
+		private readonly bool _canSetWorksThroughOrganization =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -75,6 +78,10 @@ namespace Vodovoz
 		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly IContactsParameters _contactsParameters = ContactParametersProvider.Instance;
+		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
@@ -84,6 +91,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
+		private PhonesViewModel _phonesViewModel;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -179,7 +187,7 @@ namespace Vodovoz
 		{
 			get
 			{
-				phonesView.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				return base.HasChanges;
 			}
@@ -367,6 +375,10 @@ namespace Vodovoz
 
 			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
 
+			specialListCmbWorksThroughOrganization.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbWorksThroughOrganization.Binding.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem).InitializeFromSource();
+			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization;
+
 			enumTax.ItemsEnum = typeof(TaxType);
 
 			if(Entity.CreateDate != null)
@@ -450,14 +462,13 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			phonesView.UoW = UoWGeneric;
-			if(UoWGeneric.Root.Phones == null)
+			_phonesViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
-				UoWGeneric.Root.Phones = new List<Phone>();
-			}
-
-			phonesView.Counterparty = Entity;
-			phonesView.Phones = UoWGeneric.Root.Phones;
+				PhonesList = Entity.ObservablePhones, 
+				Counterparty = Entity,
+				ShowRoboAtsCounterpartyNameAndPatronymic = true
+			};
+			phonesView.ViewModel = _phonesViewModel;
 
 			emailsView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Emails == null)
@@ -816,7 +827,7 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				phonesView.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				UoWGeneric.Save();
 				_logger.Info("Ok.");

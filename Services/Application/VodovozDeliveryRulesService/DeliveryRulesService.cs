@@ -34,6 +34,7 @@ namespace VodovozDeliveryRulesService
 		{
 			try 
 			{
+				var date = DateTime.Now;
 				logger.Info("Поступил запрос на получение правил доставки");
 				
 				using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
@@ -56,7 +57,7 @@ namespace VodovozDeliveryRulesService
 					if(district != null) 
 					{
 						logger.Info($"Район получен {district.DistrictName}");
-
+						
 						var response = new DeliveryRulesDTO 
 						{
 							WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
@@ -76,18 +77,7 @@ namespace VodovozDeliveryRulesService
 								rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
 							}
 
-							List<DeliverySchedule> scheduleRestrictions;
-							if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
-							{
-								scheduleRestrictions = new List<DeliverySchedule>();
-							}
-							else
-							{
-								scheduleRestrictions = district
-									.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
-									.Select(x => x.DeliverySchedule)
-									.ToList();
-							}
+							var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
 
 							var item = new WeekDayDeliveryRuleDTO {
 								WeekDayEnum = weekDay,
@@ -184,6 +174,7 @@ namespace VodovozDeliveryRulesService
 
 		private DeliveryInfoDTO FillDeliveryInfoDTO(District district)
 		{
+			var date = DateTime.Now;
 			var info = new DeliveryInfoDTO
 			{
 				WeekDayDeliveryInfos = new List<WeekDayDeliveryInfoDTO>(),
@@ -195,19 +186,8 @@ namespace VodovozDeliveryRulesService
 			{
 				var rules = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).ToList();
 
-				List<DeliverySchedule> scheduleRestrictions;
-				if(weekDay == WeekDayName.Today && isStoppedOnlineDeliveriesToday)
-				{
-					scheduleRestrictions = new List<DeliverySchedule>();
-				}
-				else
-				{
-					scheduleRestrictions = district
-						.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
-						.Select(x => x.DeliverySchedule)
-						.ToList();
-				}
-				
+				var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
+
 				var item = new WeekDayDeliveryInfoDTO
 				{
 					DeliveryRules = rules.Any()
@@ -264,6 +244,58 @@ namespace VodovozDeliveryRulesService
 					Price = $"{rule.Price:N0}"
 				})
 				.ToList();
+		}
+
+		private IList<DeliverySchedule> GetScheduleRestrictions(
+			District district, WeekDayName weekDay, DateTime currentDate, bool isStoppedOnlineDeliveriesToday)
+		{
+			if(weekDay == WeekDayName.Today)
+			{
+				return isStoppedOnlineDeliveriesToday
+					? new List<DeliverySchedule>()
+					: GetScheduleRestrictionsForWeekDay(district, weekDay);
+			}
+			
+			return GetScheduleRestrictionsByDate(district, weekDay, currentDate);
+		}
+
+		private IList<DeliverySchedule> GetScheduleRestrictionsForWeekDay(District district, WeekDayName weekDay)
+		{
+			return district
+				.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+				.Select(x => x.DeliverySchedule)
+				.ToList();
+		}
+		
+		/// <summary>
+		/// Формирует список доступных интервалов доставки на день недели
+		/// Если день недели - следующий день после времени запроса, то выбираем только те интервалы у которых
+		/// либо не заполнено время приема до предыдущего дня заказа
+		/// либо время приема до предыдущего дня больше текущего времени
+		/// Иначе берем все интервалы дня недели
+		/// Т.е. если запрос поступил в понедельник в 17:30, то на вторник мы отправляем интервалы у которых не заполнено время приема
+		/// и где время больше 17:30
+		/// Показатель следующего дня вычисляется через разность дня недели на который надо отправить интервалы и текущего дня
+		/// разница между ними всегда будет равна 1, кроме случая когда текущий день - воскресение. В этом случае разница равна 6
+		/// </summary>
+		/// <param name="district">Район</param>
+		/// <param name="weekDay">День недели, на который нужно отправить доступные интервалы доставки</param>
+		/// <param name="currentDate">Текущее время(когда пришел запрос)</param>
+		/// <returns>Список доступных интервалов доставки на день недели</returns>
+		private IList<DeliverySchedule> GetScheduleRestrictionsByDate(District district, WeekDayName weekDay, DateTime currentDate)
+		{
+			var dayOfWeek = District.ConvertDayOfWeekToWeekDayName(currentDate.DayOfWeek);
+			
+			if((weekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && weekDay - dayOfWeek == 6))
+			{
+				return district
+					.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+					.Where(x => x.AcceptBefore == null || x.AcceptBefore.Time > currentDate.TimeOfDay)
+					.Select(x => x.DeliverySchedule)
+					.ToList();
+			}
+			
+			return GetScheduleRestrictionsForWeekDay(district, weekDay);
 		}
 	}
 }

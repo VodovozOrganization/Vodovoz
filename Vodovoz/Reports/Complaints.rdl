@@ -44,55 +44,63 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>18.8pt</Width>
+            <Width>16.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>18.8pt</Width>
+            <Width>21.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.1pt</Width>
+            <Width>37.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.1pt</Width>
+            <Width>35.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>37.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.8pt</Width>
+            <Width>47.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.9pt</Width>
+            <Width>50.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.5pt</Width>
+            <Width>48.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>47.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.3pt</Width>
+            <Width>45.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>95.1pt</Width>
+            <Width>91.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.6pt</Width>
+            <Width>66.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.3pt</Width>
+            <Width>43.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>16.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.1pt</Width>
+            <Width>87.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -112,7 +120,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -129,7 +137,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -144,14 +152,14 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>Время
@@ -162,7 +170,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>7pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -179,7 +187,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -196,7 +204,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -213,7 +221,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -230,14 +238,14 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>Объект</Value>
@@ -247,7 +255,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -264,7 +272,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -281,7 +289,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -298,7 +306,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -315,7 +323,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -326,14 +334,14 @@
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>Дата факт. 
-завершения</Value>
+заверш.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>7pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -350,7 +358,7 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>7pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -367,7 +375,41 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7.5pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Результат по клиенту</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>7pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>Результат по сотрудникам</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>6.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -392,7 +434,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -410,7 +452,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -428,7 +470,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6.5pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -438,7 +480,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>=Fields!creation_date.Value</Value>
@@ -446,7 +488,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -465,7 +507,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -483,7 +525,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -501,7 +543,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -519,7 +561,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -528,7 +570,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>={complaint_object_text}</Value>
@@ -536,7 +578,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -553,7 +595,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -572,7 +614,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -593,7 +635,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -611,7 +653,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -632,7 +674,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -650,13 +692,13 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -668,16 +710,54 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>={result_of_counterparty}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6.5pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>={result_of_employees}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6.5pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -722,72 +802,76 @@
         WHEN complaints.status = 'InProcess' THEN 'В работе'
         WHEN complaints.status = 'Checking' THEN 'На проверке'
         WHEN complaints.status = 'Closed' THEN 'Закрыт'
-    END AS complaint_status,
+        END AS complaint_status,
     GROUP_CONCAT(DISTINCT subdivisions.name SEPARATOR ' ') AS subdivisions,
     counterparty.name AS client,
     complaints.arrangement_text AS arrangement_text,
     GROUP_CONCAT(DISTINCT
-        CASE complaint_guilty_items.guilty_type
-            WHEN 'Supplier' THEN 'Поставщик'
-            WHEN 'Client' THEN 'Клиент'
-            WHEN 'None'	THEN 'Нет'
-            WHEN 'Employee' THEN GET_PERSON_NAME_WITH_INITIALS(guiltyEmployee.last_name, guiltyEmployee.name, guiltyEmployee.patronymic)
-            WHEN 'Subdivision' THEN guiltySubdivisions.name
-        END SEPARATOR ';\n')
-    AS guilties,
+                 CASE complaint_guilty_items.guilty_type
+                     WHEN 'Supplier' THEN 'Поставщик'
+                     WHEN 'Client' THEN 'Клиент'
+                     WHEN 'None'	THEN 'Нет'
+                     WHEN 'Employee' THEN GET_PERSON_NAME_WITH_INITIALS(guiltyEmployee.last_name, guiltyEmployee.name, guiltyEmployee.patronymic)
+                     WHEN 'Subdivision' THEN guiltySubdivisions.name
+                     END SEPARATOR ';\n')
+        AS guilties,
     complaints.complaint_text,
     GROUP_CONCAT(DISTINCT ROUND(fines.total_money,2) SEPARATOR ' ') AS fines,
     complaints.result_text,
     complaints.actual_completion_date,
     DATEDIFF(complaints.actual_completion_date, complaints.creation_date) AS days_at_work,
     complaint_kinds.name as complaint_kind_text,
-    complaint_objects.name as complaint_object_text
+    complaint_objects.name as complaint_object_text,
+    cr_counterparty.name as result_of_counterparty,
+    cr_employees.name as result_of_employees
 FROM
     complaints
-    LEFT JOIN complaint_discussions ON complaint_discussions.complaint_id = complaints.id
-    LEFT JOIN subdivisions ON subdivisions.id = complaint_discussions.subdivision_id
-    LEFT JOIN counterparty ON counterparty.id = complaints.counterparty_id
-    LEFT JOIN orders ON orders.id = complaints.order_id
-    LEFT JOIN complaint_guilty_items ON complaint_guilty_items.complaint_id = complaints.id
-    LEFT JOIN employees AS guiltyEmployee ON guiltyEmployee.id = complaint_guilty_items.employee_id
-    LEFT JOIN subdivisions AS guiltySubdivisions ON guiltySubdivisions.id = complaint_guilty_items.subdivision_id
-    LEFT JOIN employees ON employees.id = complaints.created_by_id
-    LEFT JOIN complaint_fines ON complaint_fines.complaint_id = complaints.id
-    LEFT JOIN fines ON complaint_fines.fine_id = fines.id
-    LEFT JOIN complaint_kinds ON complaints.complaint_kind_id = complaint_kinds.id
-    LEFT JOIN complaint_objects ON complaint_kinds.complaint_object_id = complaint_objects.id
+        LEFT JOIN complaint_discussions ON complaint_discussions.complaint_id = complaints.id
+        LEFT JOIN subdivisions ON subdivisions.id = complaint_discussions.subdivision_id
+        LEFT JOIN counterparty ON counterparty.id = complaints.counterparty_id
+        LEFT JOIN orders ON orders.id = complaints.order_id
+        LEFT JOIN complaint_guilty_items ON complaint_guilty_items.complaint_id = complaints.id
+        LEFT JOIN employees AS guiltyEmployee ON guiltyEmployee.id = complaint_guilty_items.employee_id
+        LEFT JOIN subdivisions AS guiltySubdivisions ON guiltySubdivisions.id = complaint_guilty_items.subdivision_id
+        LEFT JOIN employees ON employees.id = complaints.created_by_id
+        LEFT JOIN complaint_fines ON complaint_fines.complaint_id = complaints.id
+        LEFT JOIN fines ON complaint_fines.fine_id = fines.id
+        LEFT JOIN complaint_kinds ON complaints.complaint_kind_id = complaint_kinds.id
+        LEFT JOIN complaint_objects ON complaint_kinds.complaint_object_id = complaint_objects.id
+        LEFT JOIN complaint_results cr_counterparty on complaints.complaint_result_of_counterparty_id = cr_counterparty.id
+        LEFT JOIN complaint_results cr_employees on complaints.complaint_result_of_employees_id = cr_employees.id
 WHERE
     (
-        (
-            @subdivision_id = 0 OR (@subdivision_id = 1
-            AND (@start_date = '' OR complaints.planned_completion_date &gt;= @start_date)
-            AND (@end_date = '' OR complaints.planned_completion_date &lt;= @end_date))
+            (
+                        @subdivision_id = 0 OR (@subdivision_id = 1
+                    AND (@start_date = '' OR complaints.planned_completion_date &gt;= @start_date)
+                    AND (@end_date = '' OR complaints.planned_completion_date &lt;= @end_date))
+                )
+            OR EXISTS
+                (
+                    SELECT
+                        *
+                    FROM
+                        complaint_discussions as disc
+                    WHERE
+                            disc.complaint_id = complaints.id
+                      AND disc.subdivision_id = @subdivision_id
+                      AND (@start_date = '' OR disc.planned_completion_date &gt;= @start_date)
+                      AND (@end_date = '' OR disc.planned_completion_date &lt;= @end_date)
+                )
         )
-        OR EXISTS
-        (
-            SELECT
-                *
-            FROM 
-                complaint_discussions as disc
-            WHERE
-                disc.complaint_id = complaints.id
-                AND disc.subdivision_id = @subdivision_id
-                AND (@start_date = '' OR disc.planned_completion_date &gt;= @start_date)
-                AND (@end_date = '' OR disc.planned_completion_date &lt;= @end_date)
-        )
-    )
-    AND (@employee_id = 0 OR complaints.created_by_id = @employee_id)
-    AND (@status = '' OR complaints.status = @status)
-    AND (@type = '' OR complaints.type = @type)
-    AND (@guilty_type = '' OR complaint_guilty_items.guilty_type = @guilty_type)
-    AND (@complaint_kind = '' OR complaint_kinds.name = @complaint_kind)
-    AND 
-		(@start_date = '' 
-		OR (@date_type = 'CreationDate' AND DATE(complaints.creation_date) &lt;= Date(@end_date) AND DATE(complaints.creation_date) &gt;= DATE(@start_date))
-		OR (@date_type = 'PlannedCompletionDate' AND DATE(complaints.planned_completion_date) &lt;= DATE(@end_date) AND DATE(complaints.planned_completion_date) &gt;= DATE(@start_date)))
+  AND (@employee_id = 0 OR complaints.created_by_id = @employee_id)
+  AND (@status = '' OR complaints.status = @status)
+  AND (@type = '' OR complaints.type = @type)
+  AND (@guilty_type = '' OR complaint_guilty_items.guilty_type = @guilty_type)
+  AND (@complaint_kind = '' OR complaint_kinds.name = @complaint_kind)
+  AND
+    (@start_date = ''
+        OR (@date_type = 'CreationDate' AND DATE(complaints.creation_date) &lt;= Date(@end_date) AND DATE(complaints.creation_date) &gt;= DATE(@start_date))
+        OR (@date_type = 'PlannedCompletionDate' AND DATE(complaints.planned_completion_date) &lt;= DATE(@end_date) AND DATE(complaints.planned_completion_date) &gt;= DATE(@start_date)))
 GROUP BY
     complaints.id
-    ORDER BY complaints.id DESC</CommandText>
+ORDER BY complaints.id DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -862,6 +946,14 @@ GROUP BY
         </Field>
         <Field Name="complaint_object_text">
           <DataField>complaint_object_text</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="result_of_counterparty">
+          <DataField>result_of_counterparty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="result_of_employees">
+          <DataField>result_of_employees</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

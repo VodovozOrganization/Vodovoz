@@ -8,6 +8,15 @@ namespace Vodovoz.TempAdapters
 {
 	public class FixedPricesDialogOpener : IFixedPricesDialogOpener
 	{
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
+
+		public FixedPricesDialogOpener()
+		{
+			IParametersProvider parametersProvider = new ParametersProvider();
+			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+		}
 		public void OpenFixedPricesForSelfDelivery(int counterpartyId)
 		{
 			CounterpartyDlg counterpartyDlg = new CounterpartyDlg(counterpartyId);
@@ -17,11 +26,7 @@ namespace Vodovoz.TempAdapters
 
 		public void OpenFixedPricesForDeliveryPoint(int deliveryPointId)
 		{
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
-			var deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
-			var dpViewModel = deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(deliveryPointId);
+			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(deliveryPointId);
 			TDIMain.MainNotebook.AddTab(dpViewModel);
 			dpViewModel.OpenFixedPrices();
 		}

@@ -20,17 +20,8 @@ echo "1) Release"
 echo "2) Debug"
 read build;
 
-driverServiceFolder="VodovozAndroidDriverService"
-driverServiceName="vodovoz-driver.service"
-
 emailServiceFolder="VodovozEmailService"
 emailServiceName="vodovoz-email.service"
-
-mobileServiceFolder="VodovozMobileService"
-mobileServiceName="vodovoz-mobile.service"
-
-osmServiceFolder="VodovozOSMService"
-osmServiceName="vodovoz-osm.service"
 
 smsServiceFolder="VodovozSmsInformerService"
 smsServiceName="vodovoz-smsinformer.service"
@@ -78,26 +69,12 @@ function CopyFiles {
 }
 
 function CopyFilesPublished {
-	rsync -vizaP --delete -e "ssh -p $serverPort" Application/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
+	rsync -vizaP --delete -e "ssh -p $serverPort" WebApi/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
 }
 
 function PublishProject {
     dotnet build "WebApi/$1" --configuration $buildFolderName
     dotnet publish "WebApi/$1" --configuration $buildFolderName
-}
-
-function UpdateDriverService {
-	printf "\nОбновление службы водителей\n"
-
-	echo "-- Stoping $driverServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $driverServiceName
-
-	echo "-- Copying $driverServiceName files"
-	DeleteHttpDll $driverServiceFolder
-	CopyFiles $driverServiceFolder
-
-	echo "-- Starting $driverServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $driverServiceName
 }
 
 function UpdateEmailService {
@@ -112,34 +89,6 @@ function UpdateEmailService {
 
 	echo "-- Starting $emailServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $emailServiceName
-}
-
-function UpdateMobileService {
-	printf "\nОбновление службы мобильного приложения\n"
-
-	echo "-- Stoping $mobileServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $mobileServiceName	
-
-	echo "-- Copying $mobileServiceName files"
-	DeleteHttpDll $mobileServiceFolder
-	CopyFiles $mobileServiceFolder
-
-	echo "-- Starting $mobileServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $mobileServiceName
-}
-
-function UpdateOSMService {
-	printf "\nОбновление службы OSM\n"
-
-	echo "-- Stoping $osmServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $osmServiceName
-
-	echo "-- Copying $osmServiceName files"
-	DeleteHttpDll $osmServiceFolder
-	CopyFiles $osmServiceFolder
-
-	echo "-- Starting $osmServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $osmServiceName
 }
 
 function UpdateSMSInformerService {
@@ -215,7 +164,7 @@ function UpdateSmsPaymentService {
 function UpdateMangoService {
 	printf "\nОбновление службы работы с Mango\n"
 
-  PublishProject $mangoServiceFolder
+  	PublishProject $mangoServiceFolder
 
 	ssh $serverAddress -p$serverPort sudo systemctl stop $mangoServiceName
 	echo "-- Stoping $mangoServiceName"
@@ -230,17 +179,8 @@ function UpdateMangoService {
 
 service2=",$service,"
 case $service2 in
-	*,1,*)
-		UpdateDriverService
-	;;&
 	*,2,*)
 		UpdateEmailService
-	;;&
-	*,3,*)
-		UpdateMobileService
-	;;&
-	*,4,*)
-		UpdateOSMService
 	;;&
 	*,5,*)
 		UpdateSMSInformerService

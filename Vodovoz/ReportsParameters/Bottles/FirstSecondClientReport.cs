@@ -6,7 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -14,16 +14,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstSecondClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FirstSecondClientReport(IOrderRepository orderRepository)
+		public FirstSecondClientReport(IDiscountReasonRepository discountReasonRepository)
 		{
-			if(orderRepository == null)
+			if(discountReasonRepository == null)
 			{
-				throw new ArgumentNullException(nameof(orderRepository));
+				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
 			
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var reasons = orderRepository.GetDiscountReasons(UoW);
+			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
@@ -54,9 +54,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 				{
 					{ "start_date", daterangepicker.StartDateOrNull },
 					{ "end_date", daterangepicker.EndDateOrNull },
-					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0},
-					{ "show_only_client_with_one_order" , ycheckbutton1.Active},
-					{ "author_employer_id" , (evmeAuthor.Subject as Employee)?.Id ?? 0}
+					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
+					{ "show_only_client_with_one_order", ycheckbutton1.Active },
+					{ "author_employer_id", (evmeAuthor.Subject as Employee)?.Id ?? 0 },
+					{ "has_promo_set", chkHasPromoSet.Active }
 				}
 			};
 		}

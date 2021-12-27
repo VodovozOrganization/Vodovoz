@@ -123,6 +123,7 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -578,7 +579,10 @@ public partial class MainWindow : Gtk.Window
 			{
 				return new DiscountReasonJournalViewModel(
 					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
+					ServicesConfig.CommonServices,
+					new DiscountReasonRepository(),
+					new ProductGroupJournalFactory(),
+					new NomenclatureSelectorFactory()
 				);
 			}
 		);
@@ -1235,11 +1239,11 @@ public partial class MainWindow : Gtk.Window
 	{
 		IParametersProvider parametersProvider = new ParametersProvider();
 		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg(fiasService)
+			() => new MergeAddressesDlg(fiasApiClient)
 		);
 	}
 
@@ -1619,7 +1623,7 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new DiscountReasonRepository()))
 		);
 	}
 
@@ -1717,7 +1721,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new OrderRepository()))
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new DiscountReasonRepository()))
 		);
 	}
 
@@ -2524,5 +2528,21 @@ public partial class MainWindow : Gtk.Window
 		var complaintResultsOfEmployeesViewModel =
 			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
+	}
+
+	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyPatronymicJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
 	}
 }
