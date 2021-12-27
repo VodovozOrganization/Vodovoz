@@ -151,6 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 		public bool CurrentUserIsAdmin => CurrentUser.IsAdmin;
 		public bool CoordsWasChanged => Entity.СoordsLastChangeUser != null;
+		public bool CanEdit => PermissionResult.CanUpdate || PermissionResult.CanCreate && Entity.Id == 0;
 		public string CoordsLastChangeUserName => Entity.СoordsLastChangeUser.Name;
 
 		//widget init

@@ -6,6 +6,7 @@ using Gtk;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using QS.Project.Services;
+using QS.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -17,10 +18,39 @@ namespace Vodovoz
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private Counterparty _counterparty;
+		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
-		private readonly bool _canDeletePermission;
+		private readonly bool _canDeleteByPresetPermission;
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
+		public DeliveryPointsManagementView()
+		{
+			this.Build();
+
+			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
+				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
+				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
+				.AddColumn("")
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
+				.Finish();
+			_canDeleteByPresetPermission =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
+			_permissionResult = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
+			
+			buttonAdd.Sensitive = _permissionResult.CanCreate;
+
+			if(_permissionResult.CanUpdate)
+			{
+				treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
+			}
+			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
+			
+			IParametersProvider parametersProvider = new ParametersProvider();
+			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+		}
+		
 		public Counterparty Counterparty
 		{
 			set
@@ -37,38 +67,12 @@ namespace Vodovoz
 				UpdateNodes();
 			}
 		}
-
-		private bool CanDelete()
-		{
-			return _canDeletePermission && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
-		}
-
-		public DeliveryPointsManagementView()
-		{
-			this.Build();
-
-			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
-			treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
-			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
-				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
-				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
-				.AddColumn("")
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
-				.Finish();
-			_canDeletePermission =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
-
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
-		}
-
+		
 		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			var selected = treeDeliveryPoints.Selection.CountSelectedRows() > 0;
-			buttonEdit.Sensitive = selected;
-			buttonDelete.Sensitive = CanDelete();
+			buttonEdit.Sensitive = selected && _permissionResult.CanUpdate;
+			buttonDelete.Sensitive = selected && _permissionResult.CanDelete && _canDeleteByPresetPermission;
 		}
 
 		private void OnButtonAddClicked(object sender, EventArgs e)
