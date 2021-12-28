@@ -149,6 +149,8 @@ using Vodovoz.Views.Print;
 using Vodovoz.Views.Rent;
 using Vodovoz.Views.Settings;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.Views.Payments;
 
 namespace Vodovoz
 {
@@ -261,6 +263,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
+				.RegisterWidgetForTabViewModel<PaymentFromBankClientViewModel, PaymentFromBankClientView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
 				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
 				.RegisterWidgetForTabViewModel<GeneralSettingsViewModel, GeneralSettingsView>()

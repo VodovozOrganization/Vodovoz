@@ -1679,6 +1679,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyNameView.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
+    <Compile Include="Views\Payments\PaymentFromBankClientView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentFromBankClientView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

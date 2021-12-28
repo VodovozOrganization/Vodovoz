@@ -402,6 +402,7 @@
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
+    <Compile Include="ViewModels\Payments\PaymentFromBankClientViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -432,6 +433,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Counterparty\" />
     <Folder Include="ViewModels\Rent\" />
+    <Folder Include="ViewModels\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">

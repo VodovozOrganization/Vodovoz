@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -165,7 +166,16 @@ namespace Vodovoz.JournalViewModels
 					"Создать новый платеж", 
 					x => true,
 					x => _canCreateNewPayment,
-					selectedItems => throw new NotImplementedException()
+					selectedItems => 
+					{
+						var viewModel = new PaymentFromBankClientViewModel(
+							EntityUoWBuilder.ForCreate(),
+							_unitOfWorkFactory,
+							_commonServices
+						);
+
+						TabParent.AddTab(viewModel, this);
+					}
 				)
 			);
 		}
