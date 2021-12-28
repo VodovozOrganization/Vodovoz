@@ -1144,20 +1144,25 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 			
+			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
+			
 			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
 			{
-				IOrderParametersProvider _orderParametersProvider = (validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider); 
-				if(_orderParametersProvider == null)
+				if(orderParametersProvider == null)
 				{
-					throw new ArgumentException("Не был передан необходимый аргумент IOrderParametersProvider");
+					throw new ArgumentNullException(nameof(IOrderParametersProvider));
 				}
-				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+				if(PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
 				{
 					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
 				}
 			}
 
-			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
+			if((new[] { PaymentType.cash, PaymentType.Terminal }.Contains(PaymentType)
+				|| (PaymentType == PaymentType.ByCard
+					&& PaymentByCardFrom != null
+					&& !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
+						.PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
 				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",

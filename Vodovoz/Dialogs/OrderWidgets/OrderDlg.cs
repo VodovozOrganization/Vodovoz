@@ -2323,6 +2323,7 @@ namespace Vodovoz
 
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
+			UpdateOnlineOrderText();
 		}
 
 		protected void CheckForStopDelivery()
@@ -2390,8 +2391,13 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
+			UpdateOnlineOrderText();
+		}
+
+		private void UpdateOnlineOrderText()
+		{
 			if(Entity.PaymentType != PaymentType.ByCard)
-				entOnlineOrder.Text = string.Empty;//костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
+				entOnlineOrder.Text = string.Empty; //костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
 
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)
