@@ -33,9 +33,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.ServiceModel.Configuration;
-using FluentNHibernate.Utils;
-using Gamma.ColumnConfig;
+using QS.Navigation;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -1282,20 +1280,23 @@ namespace Vodovoz
 			UpdateUIState();
 		}
 
-		private void AcceptOrder()
+		private bool AcceptOrder()
 		{
-			if(!Entity.CanSetOrderAsAccepted) {
-				return;
+			if(!Entity.CanSetOrderAsAccepted)
+			{
+				return false;
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
-			if(canContinue.HasValue && !canContinue.Value) {
+			if(canContinue.HasValue && !canContinue.Value)
+			{
 				toggleGoods.Activate();
-				return;
+				return false;
 			}
 
-			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true)) {
-				return;
+			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true))
+			{
+				return false;
 			}
 
 			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(ServicesConfig.InteractiveService);
@@ -1304,9 +1305,11 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint != null) {
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
-			if(Entity.OrderItems.Any(x => x.PromoSet != null)) {
-				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones)) {
-					return;
+			if(Entity.OrderItems.Any(x => x.PromoSet != null)) 
+			{
+				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
+				{
+					return false;
 				}
 			}
 
@@ -1317,15 +1320,22 @@ namespace Vodovoz
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 
 			treeItems.Selection.UnselectAll();
-			Save();
+			if(!Save())
+			{
+				return false;
+			}
 			ProcessSmsNotification();
 			UpdateUIState();
+
+			return true;
 		}
 
 		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
 		{
-			AcceptOrder();
-			SaveAndClose();
+			if(AcceptOrder())
+			{
+				OnCloseTab(false, CloseSource.Save);
+			}
 		}
 
 		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e)
