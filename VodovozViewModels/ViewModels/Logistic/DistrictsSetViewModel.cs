@@ -43,13 +43,21 @@ namespace Vodovoz.ViewModels.Logistic
                 Entity.Status = DistrictsSetStatus.Draft;
             }
 
-            var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
-            CanEditDistrict = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
-            CanCreateDistrict = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
-            
-            var permissionRes = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
-            CanEdit = permissionRes.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+            var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
+            CanEditDistrict = districtPermissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+            CanDeleteDistrict = (districtPermissionResult.CanDelete || districtPermissionResult.CanCreate && Entity.Id == 0) && Entity.Status != DistrictsSetStatus.Active;
+            CanCreateDistrict = districtPermissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
+
+            var deliveryScheduleRestrictionPermissionResult =
+	            commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryScheduleRestriction));
+            CanEditDeliveryScheduleRestriction =
+	            (deliveryScheduleRestrictionPermissionResult.CanUpdate
+		            || deliveryScheduleRestrictionPermissionResult.CanCreate && Entity.Id == 0)
+	            || CanEditDistrict;
+
+            var districtSetPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
+            CanSave = districtSetPermissionResult.CanUpdate || districtSetPermissionResult.CanCreate && Entity.Id == 0;
+            CanEdit = CanSave && Entity.Status != DistrictsSetStatus.Active;
 
             SortDistricts();
 
@@ -63,8 +71,10 @@ namespace Vodovoz.ViewModels.Logistic
 
         public readonly bool CanChangeDistrictWageTypePermissionResult;
         public readonly bool CanEditDistrict;
+        public readonly bool CanEditDeliveryScheduleRestriction;
         public readonly bool CanDeleteDistrict;
         public readonly bool CanCreateDistrict;
+        public readonly bool CanSave;
         public readonly bool CanEdit;
 
         public IDistrictRuleRepository DistrictRuleRepository { get; }
@@ -201,6 +211,11 @@ namespace Vodovoz.ViewModels.Logistic
             () => {
                 var distrToDel = selectedDistrict;
                 Entity.ObservableDistricts.Remove(SelectedDistrict);
+                if(distrToDel.Id == 0)
+                {
+	                return;
+                }
+
                 if(_entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW)) {
                     SelectedDistrict = null;
                 }
@@ -407,7 +422,7 @@ namespace Vodovoz.ViewModels.Logistic
         }
 
         public override bool HasChanges {
-            get => base.HasChanges && (CanEditDistrict || CanEdit);
+            get => base.HasChanges && (CanEditDistrict || CanSave);
             set => base.HasChanges = value;
         }
 
