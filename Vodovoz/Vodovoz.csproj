@@ -405,6 +405,7 @@
     <Compile Include="Factories\AttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
+    <Compile Include="Factories\DialogsFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
     <Compile Include="Factories\PhonesViewModelFactory.cs" />
     <Compile Include="Factories\ValidationContextFactory.cs" />
@@ -1333,16 +1334,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
     <Compile Include="ErrorHandlers.cs" />
-    <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
     <Compile Include="Views\Payments\PaymentLoaderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
-    <Compile Include="ViewModels\PaymentLoaderViewModel.cs" />
-    <Compile Include="ViewModels\AutoPaymentMatching.cs" />
     <Compile Include="JournalViewModels\PaymentsJournalViewModel.cs" />
     <Compile Include="JournalNodes\PaymentJournalNode.cs" />
     <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
-    <Compile Include="ViewModels\ManualPaymentMatchingViewModel.cs" />
     <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\PaymentsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PaymentsFilterView.cs" />

@@ -25,34 +25,56 @@ namespace Vodovoz.Domain.Payments
 	[EntityPermission]
 	public class Payment : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private const int _commentLimit = 300;
+		private const int _paymentPurposeLimit = 300;
+		private int _paymentNum;
+		private DateTime _date;
+		private decimal _total;
+		private string _paymentPurpose;
+		private string _comment;
+		private string _counterpartyAcc;
+		private string _counterpartyCurrentAcc;
+		private string _counterpartyInn;
+		private string _counterpartyKpp;
+		private string _counterpartyName;
+		private string _counterpartyBank;
+		private string _counterpartyBik;
+		private string _counterpartyCorrespondentAcc;
+		private bool _isManualCreated;
+		private PaymentState _status;
+		private CashlessMovementOperation _cashlessMovementOperation;
+		private Counterparty _counterparty;
+		private Account _counterpartyAccount;
+		private Organization _organization;
+		private Account _organizationAccount;
+		private ProfitCategory _profitCategory;
+		private Payment _refundedPayment;
+		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
+
 		public virtual int Id { get; set; }
 
-		int paymentNum;
 		[Display(Name = "Номер")]
 		public virtual int PaymentNum {
-			get => paymentNum;
-			set => SetField(ref paymentNum, value);
+			get => _paymentNum;
+			set => SetField(ref _paymentNum, value);
 		}
 
-		DateTime date;
 		[Display(Name = "Дата")]
 		public virtual DateTime Date {
-			get => date;
-			set => SetField(ref date, value);
+			get => _date;
+			set => SetField(ref _date, value);
 		}
 
-		decimal total;
 		[Display(Name = "Сумма")]
 		public virtual decimal Total {
-			get => total;
-			set => SetField(ref total, value);
+			get => _total;
+			set => SetField(ref _total, value);
 		}
 
-		IList<PaymentItem> paymentItems = new List<PaymentItem>();
 		[Display(Name = "Строки платежа")]
 		public virtual IList<PaymentItem> PaymentItems {
-			get => paymentItems;
-			set => SetField(ref paymentItems, value);
+			get => _paymentItems;
+			set => SetField(ref _paymentItems, value);
 		}
 
 		GenericObservableList<PaymentItem> observableItems;
@@ -64,120 +86,109 @@ namespace Vodovoz.Domain.Payments
 			}
 		}
 
-		CashlessMovementOperation cashlessMovementOperation;
 		[Display(Name = "Операция передвижения безнала")]
 		public virtual CashlessMovementOperation CashlessMovementOperation {
-			get => cashlessMovementOperation;
-			set => SetField(ref cashlessMovementOperation, value); 
+			get => _cashlessMovementOperation;
+			set => SetField(ref _cashlessMovementOperation, value); 
 		}
 
-		Counterparty counterparty;
 		public virtual Counterparty Counterparty {
-			get => counterparty;
-			set => SetField(ref counterparty, value);
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
-		Account counterpartyAccount;
 		public virtual Account CounterpartyAccount {
-			get => counterpartyAccount;
-			set => SetField(ref counterpartyAccount, value);
+			get => _counterpartyAccount;
+			set => SetField(ref _counterpartyAccount, value);
 		}
 
-		Organization organization;
 		[Display(Name = "Организация")]
 		public virtual Organization Organization {
-			get => organization;
-			set => SetField(ref organization, value);
+			get => _organization;
+			set => SetField(ref _organization, value);
 		}
 
-		Account organizationAccount;
 		public virtual Account OrganizationAccount {
-			get => organizationAccount;
-			set => SetField(ref organizationAccount, value);
+			get => _organizationAccount;
+			set => SetField(ref _organizationAccount, value);
 		}
 
-		string paymentPurpose;
 		[Display(Name = "Назначение платежа")]
 		public virtual string PaymentPurpose {
-			get => paymentPurpose;
-			set => SetField(ref paymentPurpose, value);
+			get => _paymentPurpose;
+			set => SetField(ref _paymentPurpose, value);
 		}
 
-		PaymentState status;
 		[Display(Name = "Статус платежа")]
 		public virtual PaymentState Status {
-			get => status;
-			set => SetField(ref status, value);
+			get => _status;
+			set => SetField(ref _status, value);
 		}
 
-		CategoryProfit profitCategory;
 		[Display(Name = "Категория дохода")]
-		public virtual CategoryProfit ProfitCategory {
-			get => profitCategory;
-			set => SetField(ref profitCategory, value);
+		public virtual ProfitCategory ProfitCategory {
+			get => _profitCategory;
+			set => SetField(ref _profitCategory, value);
 		}
 
-		string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value);
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
-		private string counterpartyAcc;
 		public virtual string CounterpartyAcc {						// р/сч плательщика
-			get => counterpartyAcc;
-			set => SetField(ref counterpartyAcc, value);
+			get => _counterpartyAcc;
+			set => SetField(ref _counterpartyAcc, value);
 		} 
 
-		private string counterpartyCurrentAcc;
 		public virtual string CounterpartyCurrentAcc { 				// р/сч плательщика
-			get => counterpartyCurrentAcc;
-			set => SetField(ref counterpartyCurrentAcc, value);
+			get => _counterpartyCurrentAcc;
+			set => SetField(ref _counterpartyCurrentAcc, value);
 		} 
 
-		private string counterpartyInn;
 		public virtual string CounterpartyInn {
-			get => counterpartyInn;
-			set=> SetField(ref counterpartyInn, value);
+			get => _counterpartyInn;
+			set=> SetField(ref _counterpartyInn, value);
 		}
 
-		private string counterpartyKpp;
 		public virtual string CounterpartyKpp {
-			get => counterpartyKpp;
-			set => SetField(ref counterpartyKpp, value);
+			get => _counterpartyKpp;
+			set => SetField(ref _counterpartyKpp, value);
 		}
 
-		private string counterpartyName;
 		public virtual string CounterpartyName {
-			get => counterpartyName;
-			set => SetField(ref counterpartyName, value);
+			get => _counterpartyName;
+			set => SetField(ref _counterpartyName, value);
 		}
 
-		private string counterpartyBank;
 		public virtual string CounterpartyBank {
-			get => counterpartyBank;
-			set => SetField(ref counterpartyBank, value);
+			get => _counterpartyBank;
+			set => SetField(ref _counterpartyBank, value);
 		}
 
-		private string counterpartyBik;
 		public virtual string CounterpartyBik {
-			get => counterpartyBik;
-			set => SetField(ref counterpartyBik, value);
+			get => _counterpartyBik;
+			set => SetField(ref _counterpartyBik, value);
 		}
 
-		private string counterpartyCorrespondentAcc;
 		public virtual string CounterpartyCorrespondentAcc {
-			get => counterpartyCorrespondentAcc;
-			set => SetField(ref counterpartyCorrespondentAcc, value);
+			get => _counterpartyCorrespondentAcc;
+			set => SetField(ref _counterpartyCorrespondentAcc, value);
 		}
 
-		private Payment _refundedPayment;
 		[Display(Name = "Возвращаемый платеж")]
 		public virtual Payment RefundedPayment
 		{
 			get => _refundedPayment;
 			set => SetField(ref _refundedPayment, value);
+		}
+		
+		[Display(Name = "Платеж создан вручную?")]
+		public virtual bool IsManualCreated
+		{
+			get => _isManualCreated;
+			set => SetField(ref _isManualCreated, value);
 		}
 
 		public virtual string NumOrders { get; set; }
@@ -293,11 +304,32 @@ namespace Vodovoz.Domain.Payments
 				RefundedPayment = this
 			};
 		}
+		
+		public virtual void FillPropertiesFromCounterparty()
+		{
+			CounterpartyInn = Counterparty.INN;
+			CounterpartyKpp = Counterparty.KPP;
+			CounterpartyName = Counterparty.Name;
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Counterparty == null)
+			{
 				yield return new ValidationResult("Заполните контрагента.", new[] { nameof(Counterparty) });
+			}
+
+			if(Comment != null && Comment.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
+			}
+			
+			if(PaymentPurpose != null && PaymentPurpose.Length > _paymentPurposeLimit)
+			{
+				yield return new ValidationResult($"Длина назначения платежа превышена на {PaymentPurpose.Length - _paymentPurposeLimit}",
+					new[] { nameof(PaymentPurpose) });
+			}
 		}
 	}
 

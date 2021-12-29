@@ -16,9 +16,9 @@ namespace Vodovoz.Views.Payments
 
 		private global::Gamma.GtkWidgets.yTable tablePayment;
 
-		private global::QS.Widgets.GtkUI.DatePicker datepicker1;
+		private global::QS.Widgets.GtkUI.DatePicker paymentDatePicker;
 
-		private global::QS.Views.Control.EntityEntry entityentry1;
+		private global::QS.Views.Control.EntityEntry counterpartyEntry;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -46,7 +46,7 @@ namespace Vodovoz.Views.Payments
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotal;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotal1;
+		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentNum;
 
 		private global::Gamma.GtkWidgets.yHBox hbox;
 
@@ -109,26 +109,26 @@ namespace Vodovoz.Views.Payments
 			this.tablePayment.RowSpacing = ((uint)(6));
 			this.tablePayment.ColumnSpacing = ((uint)(6));
 			// Container child tablePayment.Gtk.Table+TableChild
-			this.datepicker1 = new global::QS.Widgets.GtkUI.DatePicker();
-			this.datepicker1.Events = ((global::Gdk.EventMask)(256));
-			this.datepicker1.Name = "datepicker1";
-			this.datepicker1.WithTime = false;
-			this.datepicker1.HideCalendarButton = false;
-			this.datepicker1.Date = new global::System.DateTime(0);
-			this.datepicker1.IsEditable = false;
-			this.datepicker1.AutoSeparation = false;
-			this.tablePayment.Add(this.datepicker1);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.datepicker1]));
+			this.paymentDatePicker = new global::QS.Widgets.GtkUI.DatePicker();
+			this.paymentDatePicker.Events = ((global::Gdk.EventMask)(256));
+			this.paymentDatePicker.Name = "paymentDatePicker";
+			this.paymentDatePicker.WithTime = false;
+			this.paymentDatePicker.HideCalendarButton = false;
+			this.paymentDatePicker.Date = new global::System.DateTime(0);
+			this.paymentDatePicker.IsEditable = false;
+			this.paymentDatePicker.AutoSeparation = false;
+			this.tablePayment.Add(this.paymentDatePicker);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.paymentDatePicker]));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
-			this.entityentry1 = new global::QS.Views.Control.EntityEntry();
-			this.entityentry1.Events = ((global::Gdk.EventMask)(256));
-			this.entityentry1.Name = "entityentry1";
-			this.tablePayment.Add(this.entityentry1);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.entityentry1]));
+			this.counterpartyEntry = new global::QS.Views.Control.EntityEntry();
+			this.counterpartyEntry.Events = ((global::Gdk.EventMask)(256));
+			this.counterpartyEntry.Name = "counterpartyEntry";
+			this.tablePayment.Add(this.counterpartyEntry);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.counterpartyEntry]));
 			w6.TopAttach = ((uint)(2));
 			w6.BottomAttach = ((uint)(3));
 			w6.LeftAttach = ((uint)(1));
@@ -280,16 +280,16 @@ namespace Vodovoz.Views.Payments
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
-			this.yspinPaymentTotal1 = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
-			this.yspinPaymentTotal1.CanFocus = true;
-			this.yspinPaymentTotal1.Name = "yspinPaymentTotal1";
-			this.yspinPaymentTotal1.Adjustment.PageIncrement = 100D;
-			this.yspinPaymentTotal1.ClimbRate = 1D;
-			this.yspinPaymentTotal1.Numeric = true;
-			this.yspinPaymentTotal1.ValueAsDecimal = 0m;
-			this.yspinPaymentTotal1.ValueAsInt = 0;
-			this.tablePayment.Add(this.yspinPaymentTotal1);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.yspinPaymentTotal1]));
+			this.yspinPaymentNum = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinPaymentNum.CanFocus = true;
+			this.yspinPaymentNum.Name = "yspinPaymentNum";
+			this.yspinPaymentNum.Adjustment.PageIncrement = 100D;
+			this.yspinPaymentNum.ClimbRate = 1D;
+			this.yspinPaymentNum.Numeric = true;
+			this.yspinPaymentNum.ValueAsDecimal = 0m;
+			this.yspinPaymentNum.ValueAsInt = 0;
+			this.tablePayment.Add(this.yspinPaymentNum);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.yspinPaymentNum]));
 			w20.LeftAttach = ((uint)(3));
 			w20.RightAttach = ((uint)(4));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));

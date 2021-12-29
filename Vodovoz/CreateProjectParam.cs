@@ -100,6 +100,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -403,8 +404,13 @@ namespace Vodovoz
 			var builder = new ContainerBuilder();
 
 			#region База
+			
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-			builder.RegisterType<BaseParametersProvider>().As<ITerminalNomenclatureProvider>().AsSelf();
+			builder.RegisterType<BaseParametersProvider>()
+				.As<ITerminalNomenclatureProvider>()
+				.As<IProfitCategoryProvider>()
+				.AsSelf();
+			
 			#endregion
 
 			#region Сервисы
@@ -429,6 +435,7 @@ namespace Vodovoz
 			#region Vodovoz
 
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
+			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 			
 			#region Adapters
 

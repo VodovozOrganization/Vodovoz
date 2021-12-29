@@ -28,7 +28,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.HideCompleted, w => w.Active)
 				.InitializeFromSource();
 			chkIsManualCreate.Binding
-				.AddBinding(ViewModel, vm => vm.IsManualCreate, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.IsManualCreated, w => w.Active)
 				.InitializeFromSource();
 		}
 	}

@@ -11,6 +11,7 @@ using Vodovoz.Infrastructure.Converters;
 using QS.Project.Search.GtkUI;
 using QS.Project.Search;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
 {

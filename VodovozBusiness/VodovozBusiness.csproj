@@ -240,6 +240,8 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Payments\ProfitCategoryRepository.cs" />
+    <Compile Include="EntityRepositories\Payments\IProfitCategoryRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IPaymentsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentByCardOnlineNode.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentsRepository.cs" />
@@ -1003,9 +1005,9 @@
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
     <Compile Include="Services\IDefaultDeliveryDayScheduleSettings.cs" />
     <Compile Include="Domain\Payments\Payment.cs" />
-    <Compile Include="Domain\Payments\CategoryProfit.cs" />
+    <Compile Include="Domain\Payments\ProfitCategory.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />
-    <Compile Include="HibernateMapping\Accounting\CategoryProfitMap.cs" />
+    <Compile Include="HibernateMapping\Accounting\ProfitCategoryMap.cs" />
     <Compile Include="HibernateMapping\Accounting\PaymentMap.cs" />
     <Compile Include="Services\IProfitCategoryProvider.cs" />
     <Compile Include="Domain\Operations\CashlessMovementOperation.cs" />
