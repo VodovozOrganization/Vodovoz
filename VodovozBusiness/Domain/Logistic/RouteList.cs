@@ -1403,20 +1403,21 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
+						var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider));
 						foreach(var address in Addresses) {
 							var orderValidator = new ObjectValidator();
-							orderValidator.Validate(
-									address.Order,
-									new ValidationContext(
-										address.Order,
-										null,
-										new Dictionary<object, object> {
-											{ "NewStatus", OrderStatus.Closed},
-                                            { "cash_order_close", cashOrderClose},
-											{ "AddressStatus", address.Status}
-										}
-									)
-								);
+							var orderValidationContext = new ValidationContext(
+								address.Order,
+								null,
+								new Dictionary<object, object>
+								{
+									{ "NewStatus", OrderStatus.Closed },
+									{ "cash_order_close", cashOrderClose },
+									{ "AddressStatus", address.Status }
+								}
+							);
+							orderValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+							orderValidator.Validate(address.Order, orderValidationContext);
 
 							foreach(var result in orderValidator.Results)
 								yield return result;

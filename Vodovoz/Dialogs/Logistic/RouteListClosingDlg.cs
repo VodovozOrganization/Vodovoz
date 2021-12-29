@@ -42,6 +42,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
@@ -72,6 +73,7 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly bool _isOpenFromCash;
 
 		private Track track = null;
@@ -804,14 +806,19 @@ namespace Vodovoz
 				return;
 			}
 
-			var validationContext = new Dictionary<object, object> {
-				{"NewStatus", RouteListStatus.MileageCheck},
-				{"cash_order_close", true},
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()},
-				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
-			};
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+			var validationContext = _validationContextFactory.CreateNewValidationContext(
+				Entity,
+				new Dictionary<object, object> {
+					{"NewStatus", RouteListStatus.MileageCheck},
+					{"cash_order_close", true},
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
+				});
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),
+				new OrderParametersProvider(_parametersProvider));
+
+			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+			{
 				return;
 			}
 
