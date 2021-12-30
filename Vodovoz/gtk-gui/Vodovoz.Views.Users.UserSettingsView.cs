@@ -88,6 +88,20 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.Label GtkLabel15;
 
+		private global::Gamma.GtkWidgets.yVBox vboxUpdateFixedPrices;
+
+		private global::Gamma.GtkWidgets.yLabel lblUpdateFixedPricesTitle;
+
+		private global::Gamma.GtkWidgets.yHBox hboxUpdateFixedPrices;
+
+		private global::Gamma.GtkWidgets.yLabel lblIncrementFixedPrices;
+
+		private global::Gamma.GtkWidgets.ySpinButton spinBtnIncrementFixedPrices;
+
+		private global::Gamma.GtkWidgets.yButton btnUpdateFixedPrices;
+
+		private global::Gtk.ProgressBar updateFixedPricesProgress;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -458,6 +472,76 @@ namespace Vodovoz.Views.Users
 			w39.Position = 2;
 			w39.Expand = false;
 			w39.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.vboxUpdateFixedPrices = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxUpdateFixedPrices.Name = "vboxUpdateFixedPrices";
+			this.vboxUpdateFixedPrices.Spacing = 6;
+			// Container child vboxUpdateFixedPrices.Gtk.Box+BoxChild
+			this.lblUpdateFixedPricesTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblUpdateFixedPricesTitle.Name = "lblUpdateFixedPricesTitle";
+			this.lblUpdateFixedPricesTitle.Xalign = 0F;
+			this.lblUpdateFixedPricesTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Обновление фиксы</b>");
+			this.lblUpdateFixedPricesTitle.UseMarkup = true;
+			this.vboxUpdateFixedPrices.Add(this.lblUpdateFixedPricesTitle);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxUpdateFixedPrices[this.lblUpdateFixedPricesTitle]));
+			w40.Position = 0;
+			w40.Expand = false;
+			w40.Fill = false;
+			// Container child vboxUpdateFixedPrices.Gtk.Box+BoxChild
+			this.hboxUpdateFixedPrices = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxUpdateFixedPrices.Name = "hboxUpdateFixedPrices";
+			this.hboxUpdateFixedPrices.Spacing = 6;
+			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
+			this.lblIncrementFixedPrices = new global::Gamma.GtkWidgets.yLabel();
+			this.lblIncrementFixedPrices.Name = "lblIncrementFixedPrices";
+			this.lblIncrementFixedPrices.LabelProp = global::Mono.Unix.Catalog.GetString("Увеличить фиксу на:");
+			this.hboxUpdateFixedPrices.Add(this.lblIncrementFixedPrices);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.lblIncrementFixedPrices]));
+			w41.Position = 0;
+			w41.Expand = false;
+			w41.Fill = false;
+			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
+			this.spinBtnIncrementFixedPrices = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.spinBtnIncrementFixedPrices.CanFocus = true;
+			this.spinBtnIncrementFixedPrices.Name = "spinBtnIncrementFixedPrices";
+			this.spinBtnIncrementFixedPrices.Adjustment.PageIncrement = 10D;
+			this.spinBtnIncrementFixedPrices.ClimbRate = 1D;
+			this.spinBtnIncrementFixedPrices.Numeric = true;
+			this.spinBtnIncrementFixedPrices.Value = 20D;
+			this.spinBtnIncrementFixedPrices.ValueAsDecimal = 0m;
+			this.spinBtnIncrementFixedPrices.ValueAsInt = 0;
+			this.hboxUpdateFixedPrices.Add(this.spinBtnIncrementFixedPrices);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.spinBtnIncrementFixedPrices]));
+			w42.Position = 1;
+			w42.Expand = false;
+			w42.Fill = false;
+			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
+			this.btnUpdateFixedPrices = new global::Gamma.GtkWidgets.yButton();
+			this.btnUpdateFixedPrices.CanFocus = true;
+			this.btnUpdateFixedPrices.Name = "btnUpdateFixedPrices";
+			this.btnUpdateFixedPrices.UseUnderline = true;
+			this.btnUpdateFixedPrices.Label = global::Mono.Unix.Catalog.GetString("Обновить фиксу");
+			this.hboxUpdateFixedPrices.Add(this.btnUpdateFixedPrices);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.btnUpdateFixedPrices]));
+			w43.Position = 2;
+			w43.Expand = false;
+			w43.Fill = false;
+			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
+			this.updateFixedPricesProgress = new global::Gtk.ProgressBar();
+			this.updateFixedPricesProgress.Name = "updateFixedPricesProgress";
+			this.hboxUpdateFixedPrices.Add(this.updateFixedPricesProgress);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.updateFixedPricesProgress]));
+			w44.Position = 3;
+			this.vboxUpdateFixedPrices.Add(this.hboxUpdateFixedPrices);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vboxUpdateFixedPrices[this.hboxUpdateFixedPrices]));
+			w45.Position = 1;
+			w45.Expand = false;
+			w45.Fill = false;
+			this.vbox4.Add(this.vboxUpdateFixedPrices);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vboxUpdateFixedPrices]));
+			w46.Position = 3;
+			w46.Expand = false;
+			w46.Fill = false;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{
