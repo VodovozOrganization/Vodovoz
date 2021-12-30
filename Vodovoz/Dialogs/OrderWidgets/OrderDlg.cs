@@ -277,6 +277,7 @@ namespace Vodovoz
 		public OrderDlg(Counterparty client) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
+			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			CheckForStopDelivery();
 			OrderAddressTypeChanged();
@@ -3163,7 +3164,10 @@ namespace Vodovoz
 
 			ylblBottlesPlannedToReturn.Text = $"{ Entity.BottlesReturn ?? 0 } бут.";
 
-			ylblPaymentType.Text = Entity.PaymentType.GetEnumTitle();
+			var isIncorrectLegalClientPaymentType = Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
+			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
+				? $"<span foreground='red'>{ Entity.PaymentType.GetEnumTitle() }</span>"
+				: Entity.PaymentType.GetEnumTitle();
 
 			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
 
