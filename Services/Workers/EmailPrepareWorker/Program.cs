@@ -44,7 +44,7 @@ namespace EmailPrepareWorker
 					services.AddTransient<IEmailParametersProvider, EmailParametersProvider>();
 					services.AddTransient<IEmailRepository, EmailRepository>();
 
-					services.AddHostedService<Worker>();
+					services.AddHostedService<EmailPrepareWorker>();
 				});
 	}
 }

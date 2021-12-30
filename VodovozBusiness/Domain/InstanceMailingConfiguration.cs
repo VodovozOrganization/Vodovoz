@@ -16,7 +16,5 @@ namespace VodovozInfrastructure.Configuration
 		public virtual string MessageBrokerPassword { get; set; }
 		public virtual string EmailSendExchange { get; set; }
 		public virtual string EmailSendKey { get; set; }
-		public virtual string EmailPrepareExchange { get; set; }
-		public virtual string EmailPrepareKey { get; set; }
 	}
 }

@@ -9,8 +9,6 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 		{
 			Table("stored_emails");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			References(x => x.Order).Column("order_id");
-			Map(x => x.DocumentType).Column("document_type");
 			Map(x => x.ExternalId).Column("external_id");
 			Map(x => x.SendDate).Column("send_date");
 			Map(x => x.State).Column("state").CustomType<StoredEmailActionStatesStringType>();

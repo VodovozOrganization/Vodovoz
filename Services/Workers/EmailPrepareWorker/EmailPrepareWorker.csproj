@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Report\QS.Report.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QSOrmProject\QSOrmProject.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
     <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />

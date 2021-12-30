@@ -182,12 +182,12 @@ namespace Vodovoz.Dialogs.Email
 
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				IList<StoredEmail> listEmails = null;
+				IList<OrderDocumentEmail> listEmails = null;
 
 				switch(Document.Type)
 				{
 					case OrderDocumentType.Bill :
-						listEmails = uow.Session.QueryOver<StoredEmail>()
+						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
 							.Where(x => x.Order.Id == Document.Order.Id)
 							.And(x => x.DocumentType == OrderDocumentType.Bill)
 							.List();
@@ -197,27 +197,30 @@ namespace Vodovoz.Dialogs.Email
 												&& Document.Order.Id > 0;
 						break;
 					case OrderDocumentType.BillWSForDebt:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.OrderWithoutShipmentForDebt.Id == Document.Id)
-							.And(x => x.DocumentType == OrderDocumentType.BillWSForDebt)
+						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
+							.Where(ode => ode.DocumentType == OrderDocumentType.BillWSForDebt)
+							.JoinQueryOver(ode => ode.StoredEmail)
+							.Where(se => se.OrderWithoutShipmentForDebt.Id == Document.Id)
 							.List();
 
 						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForDebt
 												&& _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForAdvancePayment:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
-							.And(x => x.DocumentType == OrderDocumentType.BillWSForAdvancePayment)
+						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
+							.Where(ode => ode.DocumentType == OrderDocumentType.BillWSForAdvancePayment)
+							.JoinQueryOver(ode => ode.StoredEmail)
+							.Where(se => se.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
 							.List();
 
 						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForAdvancePayment
 												&& _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForPayment:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.OrderWithoutShipmentForPayment.Id == Document.Id)
-							.And(x => x.DocumentType == OrderDocumentType.BillWSForPayment)
+						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
+							.Where(ode => ode.DocumentType == OrderDocumentType.BillWSForPayment)
+							.JoinQueryOver(ode => ode.StoredEmail)
+							.Where(se => se.OrderWithoutShipmentForPayment.Id == Document.Id)
 							.List();
 
 						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForPayment
@@ -230,7 +233,7 @@ namespace Vodovoz.Dialogs.Email
 				
 				if(listEmails != null && listEmails.Any())
 				{
-					UpdateSentEmailsList(listEmails);
+					UpdateSentEmailsList(listEmails.Select(x => x.StoredEmail).ToList());
 				}
 			}
 		}
@@ -313,43 +316,24 @@ namespace Vodovoz.Dialogs.Email
 				return;
 			}
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>())
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithNewRoot<OrderDocumentEmail>())
 			{
-				unitOfWork.Root.Author = _employee;
-				unitOfWork.Root.ManualSending = true;
+				var storedEmail = new StoredEmail();
+				storedEmail.Author = _employee;
+				storedEmail.ManualSending = true;
+				storedEmail.SendDate = DateTime.Now;
+				storedEmail.StateChangeDate = DateTime.Now;
+				storedEmail.State = StoredEmailStates.PreparingToSend;
+				storedEmail.RecipientAddress = EmailString;
+				unitOfWork.Save(storedEmail);
+				unitOfWork.Root.StoredEmail = storedEmail;
 				unitOfWork.Root.DocumentType = Document.Type;
 				unitOfWork.Root.Order = Document.Order;
-				unitOfWork.Root.SendDate = DateTime.Now;
-				unitOfWork.Root.StateChangeDate = DateTime.Now;
-				unitOfWork.Root.State = StoredEmailStates.WaitingToSend;
-				unitOfWork.Root.RecipientAddress = EmailString;
 
 				unitOfWork.Save();
 
-				var prepareMailMessage = new PrepareEmailMessage
-				{
-					StoredEmailId = unitOfWork.Root.Id,
-					SendAttemptsCount = 5
-				};
-
-				var serializedMessage = JsonSerializer.Serialize(prepareMailMessage);
-				var preparingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-				var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
-				var configuration = unitOfWork.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
-
-				var connectionFactory = new RabbitMQConnectionFactory(Logger);
-				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
-				var channel = connection.CreateModel();
-
 				try
 				{
-					var properties = channel.CreateBasicProperties();
-					properties.Persistent = true;
-
-					channel.BasicPublish(configuration.EmailPrepareExchange, configuration.EmailPrepareKey, false, properties, preparingBody);
-
 					switch(Document.Type)
 					{
 						case OrderDocumentType.BillWSForDebt:

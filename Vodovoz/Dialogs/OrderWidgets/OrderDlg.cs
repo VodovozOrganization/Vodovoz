@@ -3000,21 +3000,23 @@ namespace Vodovoz
 
 			int storedEmailId;
 
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"Добавление записи о письме со счетом"))
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<OrderDocumentEmail>($"Добавление записи о письме со счетом"))
 			{
 				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 
+				var storedEmail = new StoredEmail();
+				storedEmail.SendDate = DateTime.Now;
+				storedEmail.StateChangeDate = DateTime.Now;
+				storedEmail.State = StoredEmailStates.WaitingToSend;
+				storedEmail.RecipientAddress = clientEmail.Address;
+				storedEmail.ManualSending = false;
+				storedEmail.Author = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				uow.Save(storedEmail);
 				uow.Root.Order = Order;
-
 				uow.Root.DocumentType = OrderDocumentType.Bill;
-				uow.Root.SendDate = DateTime.Now;
-				uow.Root.StateChangeDate = DateTime.Now;
-				uow.Root.State = StoredEmailStates.WaitingToSend;
-				uow.Root.RecipientAddress = clientEmail.Address;
-				uow.Root.ManualSending = false;
-				uow.Root.Author = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
 				try
 				{
 					uow.Save();
@@ -3043,7 +3045,7 @@ namespace Vodovoz
 					var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
 					var channel = connection.CreateModel();
 
-					channel.BasicPublish(configuration.EmailPrepareExchange, configuration.EmailPrepareKey, false, null, preparingBody);
+					channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, null, preparingBody);
 				}
 				catch(Exception e)
 				{

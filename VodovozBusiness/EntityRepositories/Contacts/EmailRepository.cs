@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
@@ -19,10 +21,32 @@ namespace Vodovoz.EntityRepositories
 
 		public List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId)
 		{
-			return uow.Session.QueryOver<StoredEmail>()
-				      .Where(x => x.Order.Id == orderId)
-				      .List()
-				      .ToList();
+			StoredEmail storedEmailAlias = null;
+
+			return uow.Session.QueryOver<StoredEmail>(() => storedEmailAlias)
+					.WithSubquery.WhereExists(
+						QueryOver.Of<OrderDocumentEmail>()
+							.Where(ode => ode.Order.Id == orderId)
+							.And(ode => ode.StoredEmail.Id == storedEmailAlias.Id)
+							.Select(x => x.Id))
+					  .List()
+					  .ToList();
+		}
+
+		public List<OrderDocumentEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<OrderDocumentEmail>()
+				.Where(ode => ode.DocumentType.IsIn(new[]
+								{
+									OrderDocumentType.Bill,
+									OrderDocumentType.BillWSForDebt,
+									OrderDocumentType.BillWSForPayment,
+									OrderDocumentType.BillWSForAdvancePayment
+								}))
+				.JoinQueryOver(ode => ode.StoredEmail)
+				.Where(se => se.State == StoredEmailStates.PreparingToSend)
+				.List()
+				.ToList();
 		}
 
 		public List<BillDocument> GetAllUnsentDocuments(IUnitOfWork uow, DateTime date)
@@ -33,8 +57,8 @@ namespace Vodovoz.EntityRepositories
 					  .Left.JoinAlias(bdoc => bdoc.Order, () => orderAlias)
 					  .Where(() => orderAlias.CreateDate >= date)
 					  .WithSubquery.WhereNotExists(
-					  	QueryOver.Of<StoredEmail>()
-						.Where(se => se.Order.Id == orderAlias.Id)
+					  	QueryOver.Of<OrderDocumentEmail>()
+						.Where(ode => ode.Order.Id == orderAlias.Id)
 						.Select(x => x.Id))
 					  .List().Take(1)
 					  .ToList();
@@ -47,16 +71,19 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmail(int orderId, OrderDocumentType type)
 		{
-			IList<StoredEmail> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем")){
+			IList<OrderDocumentEmail> result;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
+			{
 
-				result = uow.Session.QueryOver<StoredEmail>()
-				            .Where(x => x.Order.Id == orderId)
-				            .Where(x => x.DocumentType == type)
-				            .Where(x => x.State != StoredEmailStates.SendingError
-				                   && x.State != StoredEmailStates.Undelivered)
-				            .List();
+				result = uow.Session.QueryOver<OrderDocumentEmail>()
+							.Where(ode => ode.Order.Id == orderId)
+							.And(ode => ode.DocumentType == type)
+							.JoinQueryOver(ode => ode.StoredEmail)
+							.Where(se => se.State != StoredEmailStates.SendingError)
+							.And(se => se.State != StoredEmailStates.Undelivered)
+							.List();
 			}
+
 			return result.Any();
 		}
 
@@ -64,15 +91,20 @@ namespace Vodovoz.EntityRepositories
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
 			double timeLimit = 10;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка")) {
-				if(type == OrderDocumentType.Bill) {
-					var lastSendTime = uow.Session.QueryOver<StoredEmail>()
-										  .Where(x => x.RecipientAddress == address)
-										  .Where(x => x.Order.Id == orderId)
-										  .Where(x => x.State != StoredEmailStates.SendingError)
-										  .Select(Projections.Max<StoredEmail>(y => y.SendDate))
-										  .SingleOrDefault<DateTime>();
-					if(lastSendTime != default(DateTime)) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
+			{
+				if(type == OrderDocumentType.Bill)
+				{
+					StoredEmail storedEmailAlias = null;
+					var lastSendTime = uow.Session.QueryOver<OrderDocumentEmail>()
+						.Where(ode => ode.Order.Id == orderId)
+						.JoinAlias(ode=> ode.StoredEmail, () => storedEmailAlias)
+						.Where(() => storedEmailAlias.RecipientAddress == address)
+						.And(() => storedEmailAlias.State != StoredEmailStates.SendingError)
+						.Select(Projections.Max(() => storedEmailAlias.SendDate))
+						.SingleOrDefault<DateTime>();
+					if(lastSendTime != default(DateTime))
+					{
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
 				}

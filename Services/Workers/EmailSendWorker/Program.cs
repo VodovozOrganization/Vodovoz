@@ -47,7 +47,7 @@ namespace EmailSendWorker
 						return new SendEndpoint(apiHelper);
 					});
 
-					services.AddHostedService<Worker>();
+					services.AddHostedService<EmailSendWorker>();
 				});
 	}
 }

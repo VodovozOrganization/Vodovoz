@@ -9,6 +9,7 @@ namespace Vodovoz.EntityRepositories
 	public interface IEmailRepository
 	{
 		List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId);
+		List<OrderDocumentEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow);
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmail(int orderId, OrderDocumentType type);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);

@@ -41,7 +41,7 @@ namespace EmailStatusUpdateWorker
 
 					services.AddTransient<IEmailRepository, EmailRepository>();
 
-					services.AddHostedService<Worker>();
+					services.AddHostedService<EmailStatusUpdateWorker>();
 				});
 	}
 }

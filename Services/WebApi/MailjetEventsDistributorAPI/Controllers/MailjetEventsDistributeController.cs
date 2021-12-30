@@ -174,6 +174,7 @@ namespace MailjetEventsDistributorAPI.Controllers
 					EventPayload = payload,
 					RecievedAt = dateTimeRecieved,
 					Status = mailjetEvent.EventType,
+					MailjetMessageId = mailjetEvent.MessageId.ToString(),
 					ErrorInfo = ""
 				};
 

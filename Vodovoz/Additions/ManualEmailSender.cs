@@ -25,12 +25,12 @@ namespace Vodovoz.Additions
 
 		public void ResendEmailWithErrorSendingStatus(DateTime date)
 		{
-			IList<StoredEmail> errorSendedEmails;
+			IList<OrderDocumentEmail> errorSendedEmails;
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var configuration = uowLocal.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-				StoredEmail unsendedEmailAlias = null;
+				OrderDocumentEmail unsendedEmailAlias = null;
 
 				var dateCriterion = Projections.SqlFunction(
 				   new SQLFunctionTemplate(
@@ -43,14 +43,16 @@ namespace Vodovoz.Additions
 				ICriterion dateResctict = Restrictions.Eq(dateCriterion, date.Date);
 				ICriterion dateResctictGe = Restrictions.Ge(dateCriterion, date.Date);
 
-				var resendedQuery = QueryOver.Of<StoredEmail>()
-					.Where(Restrictions.EqProperty(Projections.Property<StoredEmail>(x => x.Order.Id), Projections.Property(() => unsendedEmailAlias.Order.Id)))
+				var resendedQuery = QueryOver.Of<OrderDocumentEmail>()
+					.Where(Restrictions.EqProperty(Projections.Property<OrderDocumentEmail>(ode => ode.Order.Id), Projections.Property(() => unsendedEmailAlias.Order.Id)))
+					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(x => x.State != StoredEmailStates.SendingError)
 					.Where(dateResctictGe)
 					.Select(Projections.Count(Projections.Id()));
 
-				errorSendedEmails = uowLocal.Session.QueryOver<StoredEmail>(() => unsendedEmailAlias)
-					.Where(x => x.State == StoredEmailStates.SendingError)
+				errorSendedEmails = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => unsendedEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
 					.Where(dateResctict)
 					.WithSubquery.WhereValue(0).Eq(resendedQuery)
 					.List();
@@ -79,7 +81,7 @@ namespace Vodovoz.Additions
 						var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
 						var channel = connection.CreateModel();
 
-						channel.BasicPublish(configuration.EmailPrepareExchange, configuration.EmailPrepareKey, false, null, preparingBody);
+						channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, null, preparingBody);
 					}
 					catch(Exception e)
 					{

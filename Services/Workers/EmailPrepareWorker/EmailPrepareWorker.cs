@@ -20,30 +20,31 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using QSOrmProject;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker
 {
-	public class Worker : BackgroundService
+	public class EmailPrepareWorker : BackgroundService
 	{
 		private const string _queuesConfigurationSection = "Queues";
-		private const string _emailPrepareQueueParameter = "EmailPrepareQueue";
 		private const string _emailSendExchangeParameter = "EmailSendExchange";
 		private const string _emailSendKeyParameter = "EmailSendKey";
 
 		private readonly string _emailSendKey;
 		private readonly string _emailSendExchange;
-		private readonly string _emailPrepareQueue;
 
-		private readonly ILogger<Worker> _logger;
+		private readonly ILogger<EmailPrepareWorker> _logger;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
-		private readonly AsyncEventingBasicConsumer _consumer;
+		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(10);
 
-		public Worker(ILogger<Worker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
+		public EmailPrepareWorker(ILogger<EmailPrepareWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
 				IEmailParametersProvider emailParametersProvider)
 		{
 			if(configuration is null)
@@ -59,12 +60,7 @@ namespace EmailPrepareWorker
 				.GetValue<string>(_emailSendKeyParameter);
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendExchangeParameter);
-			_emailPrepareQueue = configuration.GetSection(_queuesConfigurationSection)
-				.GetValue<string>(_emailPrepareQueueParameter);
-			_channel.QueueDeclare(_emailPrepareQueue, true, false, false, null);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
-			_consumer = new AsyncEventingBasicConsumer(_channel);
-			_consumer.Received += MessageRecieved;
 
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -82,6 +78,8 @@ namespace EmailPrepareWorker
 									 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 									 .ConnectionString(QSMain.ConnectionString);
 
+			OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
+
 			OrmConfig.ConfigureOrm(db_config,
 				new System.Reflection.Assembly[] {
 					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
@@ -96,8 +94,12 @@ namespace EmailPrepareWorker
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_channel.BasicConsume(_emailPrepareQueue, false, _consumer);
-			await Task.Delay(0, stoppingToken);
+			_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+			while(!stoppingToken.IsCancellationRequested)
+			{
+				await PrepareAndSendEmails();
+				await Task.Delay(_workDelay, stoppingToken);
+			}
 		}
 
 		public override Task StartAsync(CancellationToken cancellationToken)
@@ -112,21 +114,15 @@ namespace EmailPrepareWorker
 			return base.StopAsync(cancellationToken);
 		}
 
-		private async Task MessageRecieved(object sender, BasicDeliverEventArgs e)
+		private async Task PrepareAndSendEmails()
 		{
 			try
 			{
-				var body = e.Body;
-
-				var message = JsonSerializer.Deserialize<PrepareEmailMessage>(body.Span);
-
-				_logger.LogInformation($"Recieved message to prepare for stored Email: { message.StoredEmailId }");
-
 				var sendingMessage = new SendEmailMessage();
 
 				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
 				{
-					var storedEmail = _emailRepository.GetById(unitOfWork, message.StoredEmailId);
+					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
 
 					sendingMessage.From = new EmailContact
 					{
@@ -134,65 +130,73 @@ namespace EmailPrepareWorker
 						Email = _emailParametersProvider.DocumentEmailSenderAddress
 					};
 
-					sendingMessage.To = new List<EmailContact>
+					foreach(var orderDocumentEmail in emailsToSend)
 					{
-						new EmailContact
+						_logger.LogInformation($"Found message to prepare for stored email: { orderDocumentEmail.StoredEmail.Id }");
+
+						sendingMessage.To = new List<EmailContact>
 						{
-							Name = storedEmail.Order.Client.FullName,
-							Email = storedEmail.RecipientAddress
+							new EmailContact
+							{
+								Name = orderDocumentEmail.Order.Client.FullName,
+								Email = orderDocumentEmail.StoredEmail.RecipientAddress
+							}
+						};
+
+						var documentType = orderDocumentEmail.DocumentType;
+						var document = orderDocumentEmail.Order.OrderDocuments.FirstOrDefault(
+									od => od.Type == documentType && od is IEmailableDocument) as IEmailableDocument;
+						var template = document.GetEmailTemplate();
+
+						sendingMessage.Subject = $"{template.Title} {document.Title}";
+						sendingMessage.TextPart = template.Text;
+						sendingMessage.HTMLPart = template.TextHtml;
+
+						var inlinedAttachments = new List<InlinedEmailAttachment>();
+
+						foreach(var item in template.Attachments)
+						{
+							inlinedAttachments.Add(new InlinedEmailAttachment
+							{
+								ContentID = item.Key,
+								ContentType = item.Value.MIMEType,
+								Filename = item.Value.FileName,
+								Base64Content = item.Value.Base64Content
+							});
 						}
-					};
 
-					var documentType = storedEmail.DocumentType;
-					var document = storedEmail.Order.OrderDocuments.FirstOrDefault(od => od.Type == documentType && od is IEmailableDocument) as IEmailableDocument;
-					var template = document.GetEmailTemplate();
+						sendingMessage.InlinedAttachments = inlinedAttachments;
 
-					sendingMessage.Subject = $"{ template.Title } { document.Title }";
-					sendingMessage.TextPart = template.Text;
-					sendingMessage.HTMLPart = template.TextHtml;
-
-					var inlinedAttachments = new List<InlinedEmailAttachment>();
-
-					foreach(var item in template.Attachments)
-					{
-						inlinedAttachments.Add(new InlinedEmailAttachment
+						var attachments = new List<EmailAttachment>
 						{
-							ContentID = item.Key,
-							ContentType = item.Value.MIMEType,
-							Filename = item.Value.FileName,
-							Base64Content = item.Value.Base64Content
-						});
+							await PrepareDocument(document)
+						};
+
+						sendingMessage.Attachments = attachments;
+
+						sendingMessage.Payload = new EmailPayload
+						{
+							Id = orderDocumentEmail.StoredEmail.Id, //message.StoredEmailId,
+							Trackable = true,
+							InstanceId = Convert.ToInt32(unitOfWork.Session
+								.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+								.List<object>()
+								.FirstOrDefault())
+						};
+
+						var serializedMessage = JsonSerializer.Serialize(sendingMessage);
+						var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+
+						var properties = _channel.CreateBasicProperties();
+						properties.Persistent = true;
+
+						_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+
+						orderDocumentEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+						unitOfWork.Save(orderDocumentEmail.StoredEmail);
+						unitOfWork.Commit();
 					}
-
-					sendingMessage.InlinedAttachments = inlinedAttachments;
-
-					var attachments = new List<EmailAttachment>
-					{
-						await PrepareDocument(document)
-					};
-
-					sendingMessage.Attachments = attachments;
-
-					sendingMessage.Payload = new EmailPayload
-					{
-						Id = message.StoredEmailId,
-						Trackable = true,
-						InstanceId = Convert.ToInt32(unitOfWork.Session
-							.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-							.List<object>()
-							.FirstOrDefault())
-					};
 				}
-
-				var serializedMessage = JsonSerializer.Serialize(sendingMessage);
-				var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-				var properties = _channel.CreateBasicProperties();
-				properties.Persistent = true;
-
-				_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
-
-				_channel.BasicAck(e.DeliveryTag, false);
 			}
 			catch(Exception ex)
 			{

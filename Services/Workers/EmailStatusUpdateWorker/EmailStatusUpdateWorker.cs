@@ -18,19 +18,19 @@ using Vodovoz.EntityRepositories;
 
 namespace EmailStatusUpdateWorker
 {
-	public class Worker : BackgroundService
+	public class EmailStatusUpdateWorker : BackgroundService
 	{
 		private const string _queuesConfigurationSection = "Queues";
 		private const string _emailStatusUpdateQueueParameter = "EmailStatusUpdateQueue";
 
 		private readonly string _storedEmailStatusUpdatingQueueId;
 
-		private readonly ILogger<Worker> _logger;
+		private readonly ILogger<EmailStatusUpdateWorker> _logger;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public Worker(ILogger<Worker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
+		public EmailStatusUpdateWorker(ILogger<EmailStatusUpdateWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
 		{
 			if(configuration is null)
 			{
@@ -134,6 +134,7 @@ namespace EmailStatusUpdateWorker
 
 									storedEmail.State = newStatus;
 									storedEmail.StateChangeDate = message.RecievedAt;
+									storedEmail.ExternalId = message.MailjetMessageId;
 
 									unitOfWork.Save(storedEmail);
 									unitOfWork.Commit();

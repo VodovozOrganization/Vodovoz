@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace EmailSendWorker
 {
-	public class Worker : BackgroundService
+	public class EmailSendWorker : BackgroundService
 	{
 		private const string _mailjetConfigurationSection = "Mailjet";
 		private const string _queuesConfigurationSection = "Queues";
@@ -27,12 +27,12 @@ namespace EmailSendWorker
 		private readonly string _mailSendingQueueId;
 		private readonly bool _sandboxMode;
 
-		private readonly ILogger<Worker> _logger;
+		private readonly ILogger<EmailSendWorker> _logger;
 		private readonly IModel _channel;
 		private readonly SendEndpoint _sendEndpoint;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public Worker(ILogger<Worker> logger, IConfiguration configuration, IModel channel, SendEndpoint sendEndpoint)
+		public EmailSendWorker(ILogger<EmailSendWorker> logger, IConfiguration configuration, IModel channel, SendEndpoint sendEndpoint)
 		{
 			if(configuration is null)
 			{
