@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 			Map(x => x.DocumentType).Column("document_type");
 			References(x => x.Order).Column("order_id");
 			References(x => x.StoredEmail).Column("stored_email_id");
+			References(x => x.OrderDocument).Column("order_document_id");
 		}
 	}
 }

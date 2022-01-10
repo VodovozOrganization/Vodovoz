@@ -101,7 +101,7 @@ namespace EmailSendWorker
 						_logger.LogError(exc, exc.Message);
 						await Task.Delay(_retryDelay);
 
-						if(i >= _retriesCount)
+						if(i >= _retriesCount - 1)
 						{
 							throw;
 						}

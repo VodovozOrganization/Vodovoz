@@ -17,6 +17,7 @@ namespace Vodovoz.Domain.StoredEmails
 		private Order _order;
 		private OrderDocumentType _documentType;
 		private StoredEmail _storedEmail;
+		private OrderDocument _orderDocument;
 
 		public virtual int Id { get; set; }
 
@@ -39,6 +40,13 @@ namespace Vodovoz.Domain.StoredEmails
 		{
 			get => _storedEmail;
 			set => SetField(ref _storedEmail, value);
+		}
+
+		[Display(Name = "Документ заказа для отправки")]
+		public virtual OrderDocument OrderDocument
+		{
+			get => _orderDocument;
+			set => SetField(ref _orderDocument, value);
 		}
 	}
 }

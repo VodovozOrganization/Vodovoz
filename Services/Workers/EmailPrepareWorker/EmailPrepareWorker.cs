@@ -43,6 +43,7 @@ namespace EmailPrepareWorker
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(10);
+		private readonly int _instanceId;
 
 		public EmailPrepareWorker(ILogger<EmailPrepareWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
 				IEmailParametersProvider emailParametersProvider)
@@ -90,6 +91,14 @@ namespace EmailPrepareWorker
 			});
 
 			QS.HistoryLog.HistoryMain.Enable();
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Status update worker"))
+			{
+				_instanceId = Convert.ToInt32(unitOfWork.Session
+					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+					.List<object>()
+					.FirstOrDefault());
+			}
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -143,12 +152,11 @@ namespace EmailPrepareWorker
 							}
 						};
 
-						var documentType = orderDocumentEmail.DocumentType;
-						var document = orderDocumentEmail.Order.OrderDocuments.FirstOrDefault(
-									od => od.Type == documentType && od is IEmailableDocument) as IEmailableDocument;
+						var document = (IEmailableDocument) orderDocumentEmail.OrderDocument;
+
 						var template = document.GetEmailTemplate();
 
-						sendingMessage.Subject = $"{template.Title} {document.Title}";
+						sendingMessage.Subject = $"{ template.Title } { document.Title }";
 						sendingMessage.TextPart = template.Text;
 						sendingMessage.HTMLPart = template.TextHtml;
 
@@ -176,12 +184,9 @@ namespace EmailPrepareWorker
 
 						sendingMessage.Payload = new EmailPayload
 						{
-							Id = orderDocumentEmail.StoredEmail.Id, //message.StoredEmailId,
+							Id = orderDocumentEmail.StoredEmail.Id,
 							Trackable = true,
-							InstanceId = Convert.ToInt32(unitOfWork.Session
-								.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-								.List<object>()
-								.FirstOrDefault())
+							InstanceId = _instanceId
 						};
 
 						var serializedMessage = JsonSerializer.Serialize(sendingMessage);

@@ -329,6 +329,7 @@ namespace Vodovoz.Dialogs.Email
 				unitOfWork.Root.StoredEmail = storedEmail;
 				unitOfWork.Root.DocumentType = Document.Type;
 				unitOfWork.Root.Order = Document.Order;
+				unitOfWork.Root.OrderDocument = (OrderDocument) Document;
 
 				unitOfWork.Save();
 
