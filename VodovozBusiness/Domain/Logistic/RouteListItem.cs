@@ -510,7 +510,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
@@ -526,7 +526,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
 			uow.Save(Order);
@@ -545,7 +545,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
@@ -561,7 +561,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
 			uow.Save(Order);
@@ -645,23 +645,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Обнуляет фактическое количетво
 		/// Использовать если заказ отменен или полностью не доставлен
 		/// </summary>
-		public virtual void FillCountsOnCanceled()
-		{
-			foreach(var item in Order.OrderItems) {
-				if(!item.OriginalDiscountMoney.HasValue || !item.OriginalDiscount.HasValue) {
-					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
-					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
-					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
-				}
-				item.ActualCount = 0m;
-                BottlesReturned = 0;
-            }
-            foreach (var equip in Order.OrderEquipments)
-                equip.ActualCount = 0;
-
-			foreach(var deposit in Order.OrderDepositItems)
-				deposit.ActualCount = 0;
-		}
+		public virtual void SetOrderActualCountsToZeroOnCanceled() => Order.SetActualCountsToZeroOnCanceled();
 
 		public virtual void RestoreOrder()
 		{

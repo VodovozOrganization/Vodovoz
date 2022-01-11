@@ -31,6 +31,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Infrastructure;
@@ -40,6 +41,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Tools;
@@ -82,6 +84,7 @@ namespace Vodovoz
 		
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
 
@@ -156,6 +159,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			_paymentFromBankClientController = new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
 				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
 			}
@@ -759,6 +763,11 @@ namespace Vodovoz
 
 			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+			}
+
+			foreach(var address in Entity.Addresses)
+			{
+				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
 			}
 			
 			UoW.Save();
