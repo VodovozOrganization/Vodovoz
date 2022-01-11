@@ -78,11 +78,11 @@ namespace Vodovoz.ViewModels
 			CanRevertPayFromOrder = CommonServices.PermissionService.ValidateUserPresetPermission("can_revert_pay_from_order", CurrentUser.Id);
 
 			GetLastBalance();
-			FillSumToAllocate();
-			CurrentBalance = SumToAllocate - AllocatedSum;
+			UpdateSumToAllocate();
+			UpdateCurrentBalance();
 			CreateCommands();
 
-			GetCounterpatyDebt();
+			GetCounterpartyDebt();
 
 			HasPaymentItems = Entity.PaymentItems.Any();
 			Entity.ObservableItems.ElementRemoved +=
@@ -166,13 +166,12 @@ namespace Vodovoz.ViewModels
 
 		public void GetLastBalance()
 		{
-			if(Entity.Counterparty != null)
-			{
-				LastBalance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
-			}
+			LastBalance = Entity.Counterparty != null
+				? _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id)
+				: default(decimal);
 		}
 
-		private void FillSumToAllocate()
+		public void UpdateSumToAllocate()
 		{
 			if(Entity.CashlessMovementOperation == null)
 			{
@@ -335,7 +334,7 @@ namespace Vodovoz.ViewModels
 			CreateCloseViewModelCommand();
 		}
 
-		private void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
+		public void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
 
 		private void UpdateCounterpartyDebt(ManualPaymentMatchingViewModelNode node)
 		{
@@ -527,8 +526,8 @@ namespace Vodovoz.ViewModels
 				if(RevertPay())
 				{
 					GetLastBalance();
-					FillSumToAllocate();
-					GetCounterpatyDebt();
+					UpdateSumToAllocate();
+					GetCounterpartyDebt();
 					UpdateNodes();
 				}
 			},
@@ -621,7 +620,11 @@ namespace Vodovoz.ViewModels
 
 			if(Entity.Counterparty != null)
 			{
-				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);
+				incomePaymentQuery.Where(x => x.Client.Id == Entity.Counterparty.Id);
+			}
+			else
+			{
+				incomePaymentQuery.Where(x => x.Client.Id == -1);
 			}
 
 			if(StartDate.HasValue && EndDate.HasValue)
@@ -730,12 +733,11 @@ namespace Vodovoz.ViewModels
 			}
 		}
 
-		public void GetCounterpatyDebt()
+		public void GetCounterpartyDebt()
 		{
-			if(Entity.Counterparty != null)
-			{
-				CounterpartyDebt = _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
-			}
+			CounterpartyDebt = Entity.Counterparty != null
+				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
+				: default(decimal);
 		}
 
 		private string TryGetOrganizationType(string name)
