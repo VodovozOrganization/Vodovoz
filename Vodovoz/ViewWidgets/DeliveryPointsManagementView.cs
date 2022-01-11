@@ -39,7 +39,7 @@ namespace Vodovoz
 			
 			buttonAdd.Sensitive = _permissionResult.CanCreate;
 
-			if(_permissionResult.CanUpdate)
+			if(_permissionResult.CanRead)
 			{
 				treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
 			}
@@ -71,7 +71,7 @@ namespace Vodovoz
 		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			var selected = treeDeliveryPoints.Selection.CountSelectedRows() > 0;
-			buttonEdit.Sensitive = selected && _permissionResult.CanUpdate;
+			buttonEdit.Sensitive = selected && _permissionResult.CanRead;
 			buttonDelete.Sensitive = selected && _permissionResult.CanDelete && _canDeleteByPresetPermission;
 		}
 
