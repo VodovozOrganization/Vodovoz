@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -37,7 +38,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository());
 				case PanelViewType.SmsSendPanelView:
-					return new SmsSendPanelView();
+					return new SmsSendPanelView(ServicesConfig.CommonServices.CurrentPermissionService);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener);

@@ -62,7 +62,6 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 
-		private IWarehouseRepository _warehouseRepository = new WarehouseRepository();
 		private ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private WageParameterService _wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 
@@ -147,13 +146,24 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.ChangedByUser += (sender, e) =>
 			{
-				if(Entity.Car != null)
+				if(Entity.Car == null)
 				{
-					Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.Car.Driver : null;
-					evmeDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
-					//Водители на Авто компании катаются без экспедитора
-					Entity.Forwarder = Entity.Car.IsCompanyCar ? null : Entity.Forwarder;
-					evmeForwarder.IsEditable = !Entity.Car.IsCompanyCar;
+					evmeForwarder.IsEditable = true;
+					return;
+				}
+
+				Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.Car.Driver : null;
+				evmeDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
+
+				if(!Entity.Car.IsCompanyCar || Entity.Car.TypeOfUse == CarTypeOfUse.CompanyLargus && Entity.CanAddForwarder)
+				{
+					Entity.Forwarder = Entity.Forwarder;
+					evmeForwarder.IsEditable = true;
+				}
+				else
+				{
+					Entity.Forwarder = null;
+					evmeForwarder.IsEditable = false;
 				}
 			};
 

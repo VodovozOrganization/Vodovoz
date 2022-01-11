@@ -109,8 +109,10 @@ namespace Vodovoz.Domain.Client
 		public virtual string CompiledAddress {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityTypeShort}. {City}, ";
+					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetType))
 					address += $"{StreetType.ToLower()} ";
 				if(!string.IsNullOrWhiteSpace(Street))
@@ -137,8 +139,10 @@ namespace Vodovoz.Domain.Client
 		public virtual string CompiledAddressWOAddition {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityTypeShort}. {City}, ";
+					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
 					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))
@@ -163,8 +167,10 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
-					address += $"{LocalityTypeShort}. {City}, ";
+					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
 					address += $"{StreetTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(Street))
@@ -677,13 +683,14 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
-		public bool FindAndAssociateDistrict(IUnitOfWork uow)
+		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
+		public bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
 		{
 			if(!CoordinatesExist) {
 				return false;
 			}
 
-			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value);
+			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
 			if(foundDistrict == null) {
 				return false;
 			}

@@ -20,7 +20,7 @@ namespace Fias.Service.Loaders
 
 		HouseDTO[] GetHouses();
 
-		Task<PointDTO> GetCoordinatesByGeocoderAsync(string address);
+		Task<PointDTO> GetCoordinatesByGeocoderAsync(string address, CancellationToken cancellationToken);
 	}
 
 	public class HousesDataLoader : FiasDataLoader, IHousesDataLoader
@@ -31,7 +31,7 @@ namespace Fias.Service.Loaders
 
 		protected HouseDTO[] Houses;
 
-		public HousesDataLoader(IFiasService fiasService) : base(fiasService)
+		public HousesDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
 		{
 		}
 
@@ -86,9 +86,9 @@ namespace Fias.Service.Loaders
 			cancelTokenSource = new CancellationTokenSource();
 		}
 
-		public async Task<PointDTO> GetCoordinatesByGeocoderAsync(string address)
+		public async Task<PointDTO> GetCoordinatesByGeocoderAsync(string address, CancellationToken cancellationToken)
 		{
-			return await Fias.GetCoordinatesByGeoCoderAsync(address);
+			return await Fias.GetCoordinatesByGeoCoderAsync(address, cancellationToken);
 		}
 	}
 }

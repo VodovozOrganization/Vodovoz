@@ -1216,11 +1216,11 @@ public partial class MainWindow : Gtk.Window
 	{
 		IParametersProvider parametersProvider = new ParametersProvider();
 		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg(fiasService)
+			() => new MergeAddressesDlg(fiasApiClient)
 		);
 	}
 
@@ -1932,10 +1932,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-			() => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory.CreateEmployeeAutocompleteSelectorFactory(), ServicesConfig.InteractiveService))
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport(ServicesConfig.InteractiveService))
 		);
 	}
 
@@ -2505,5 +2504,21 @@ public partial class MainWindow : Gtk.Window
 		var complaintResultsOfEmployeesViewModel =
 			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
+	}
+
+	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new RoboAtsCounterpartyPatronymicJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
 	}
 }

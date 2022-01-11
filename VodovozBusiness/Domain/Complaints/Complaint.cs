@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Complaints
 	[EntityPermission]
 	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private const int _phoneLimit = 45;
 
 		public virtual int Id { get; set; }
 
@@ -374,6 +374,12 @@ namespace Vodovoz.Domain.Complaints
 				if(ComplaintSource == null) {
 					yield return new ValidationResult("Необходимо выбрать источник");
 				}
+			}
+			
+			if(Phone != null && Phone.Length > _phoneLimit)
+			{
+				yield return new ValidationResult($"Длина поля телефон превышена на {Phone.Length - _phoneLimit}",
+					new[] { nameof(Phone) });
 			}
 
 			if(Status == ComplaintStatuses.Closed) 

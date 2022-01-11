@@ -38,6 +38,11 @@ namespace Vodovoz.ViewModels.WageCalculation
 		void Configure()
 		{
 			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).ToList();
+			if(Entity.WageDistrictLevelRates != null && WageLevels.All(x => x.Id != Entity.WageDistrictLevelRates.Id))
+			{
+				WageLevels.Add(Entity.WageDistrictLevelRates);
+			}
+			WageLevels = WageLevels.OrderByDescending(x => x.Id).ToList();
 		}
 
 		public bool CanEdit { get; }

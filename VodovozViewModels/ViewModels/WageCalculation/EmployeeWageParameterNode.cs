@@ -1,19 +1,34 @@
 ﻿using System;
 using Vodovoz.Domain.WageCalculation;
-using Gamma.Utilities;
+
 namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class EmployeeWageParameterNode
 	{
-		public EmployeeWageParameter EmployeeWageParameter { get; private set; }
+		public EmployeeWageParameter EmployeeWageParameter { get; }
 
 		public EmployeeWageParameterNode(EmployeeWageParameter wageParameter)
 		{
-			this.EmployeeWageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			EmployeeWageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
 		}
 
 		public int Id => EmployeeWageParameter.Id;
-		public string WageType => EmployeeWageParameter.Title;
+
+		public string Name
+		{
+			get
+			{
+				if(EmployeeWageParameter.WageParameterItem is RatesLevelWageParameterItem driverCarParameter &&
+				   EmployeeWageParameter.WageParameterItemForOurCars is RatesLevelWageParameterItem companyCarParameter)
+				{
+					return "Уровень ставок:\n" +
+						$"\tДля а/м компании: ({driverCarParameter.WageDistrictLevelRates.Id}) {driverCarParameter.WageDistrictLevelRates.Name}\n" +
+						$"\tДля а/м водителя: ({companyCarParameter.WageDistrictLevelRates.Id}) {companyCarParameter.WageDistrictLevelRates.Name}";
+				}
+				return EmployeeWageParameter.Title;
+			}
+		}
+
 		public string StartDate => EmployeeWageParameter.StartDate.ToString("G");
 		public string EndDate => EmployeeWageParameter.EndDate.HasValue ? EmployeeWageParameter.EndDate.Value.ToString("G") : "";
 	}

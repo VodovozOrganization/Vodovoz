@@ -879,7 +879,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Повторить заказ",
-					IsOrder,
+					IsOrder, 
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();

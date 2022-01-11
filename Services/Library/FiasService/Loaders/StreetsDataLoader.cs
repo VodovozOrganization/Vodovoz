@@ -33,7 +33,7 @@ namespace Fias.Service.Loaders
 
 		protected StreetDTO[] Streets;
 
-		public StreetsDataLoader(IFiasService fiasService) : base(fiasService)
+		public StreetsDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
 		{
 		}
 
@@ -80,7 +80,7 @@ namespace Fias.Service.Loaders
 		protected void SaveStreets(Task<IEnumerable<StreetDTO>> newStreets)
 		{
 			Streets = newStreets.Result.ToArray();
-			logger.Info($"Улиц загружено : {Streets.Length}");
+			logger.Info($"Улиц загружено : { Streets.Length }");
 			StreetLoaded?.Invoke();
 		}
 

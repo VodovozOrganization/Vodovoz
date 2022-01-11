@@ -28,9 +28,6 @@ namespace Vodovoz.Views.Client
 		private yEnumComboBox _comboMapType;
 		private GMapControl _mapWidget;
 		private GMapMarker _addressMarker;
-		private string _cityBeforeChange;
-		private string _streetBeforeChange;
-		private string _buildingBeforeChange;
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
 		private readonly Clipboard _clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
@@ -56,9 +53,9 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
-			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonCancel.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonCancel.Binding.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive).InitializeFromSource();
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();
@@ -102,9 +99,9 @@ namespace Vodovoz.Views.Client
 				.AddBinding(e => e.Building, w => w.BuildingName)
 				.InitializeFromSource();
 
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
+			ViewModel.CityBeforeChange = entryCity.CityName;
+			ViewModel.StreetBeforeChange = entryStreet.StreetName;
+			ViewModel.BuildingBeforeChange = entryBuilding.BuildingName;
 
 			#endregion
 
@@ -369,11 +366,29 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(IsAddressChanged)
+			if(!ViewModel.IsAddressChanged)
 			{
-				await WriteCoordinates();
+				return;
+			}
+
+			ViewModel.ResetAddressChanges();
+			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
+			entryBuilding.GetCoordinates(out var longitude, out var latitude);
+			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate();
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (longitude == null || latitude == null))
+			{
+				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
+			}
+
+			if(!ViewModel.IsDisposed)
+			{
+				Application.Invoke((o, args) =>
+				{
+					ViewModel.WriteCoordinates(coordinate.Latitude, coordinate.Longitude, false);
+				});
 			}
 		}
+		
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
@@ -381,45 +396,28 @@ namespace Vodovoz.Views.Client
 			entryBuilding.BuildingName = string.Empty;
 		}
 
-		private async void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
+		private void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(!IsAddressChanged)
+			if(!ViewModel.IsAddressChanged)
 			{
 				return;
 			}
+
+			ViewModel.ResetAddressChanges();
 
 			entryBuilding.StreetGuid = entryStreet.FiasGuid;
 
 			if(string.IsNullOrWhiteSpace(entryStreet.StreetName))
 			{
 				entryBuilding.BuildingName = string.Empty;
-				await WriteCoordinates();
 			}
-		}
 
-		private async Task WriteCoordinates()
-		{
-			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
-
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
-
-			entryBuilding.GetCoordinates(out var longitude, out var latitude);
-
-			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
+			if(entryBuilding.StreetGuid == null)
 			{
-				var findedByGeoCoder = await entryBuilding.GetCoordinatesByGeocoderAsync($"{ entryCity.CityTypeName } { entryCity.CityName }, { entryStreet.StreetName } { entryStreet.StreetTypeName }, { entryBuilding.BuildingName }");
-				if(findedByGeoCoder != null)
-				{
-					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-					culture.NumberFormat.NumberDecimalSeparator = ".";
-					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
-				}
+				entryBuilding.FiasGuid = null;
 			}
 
-			ViewModel.WriteCoordinates(latitude, longitude, false);
+			ViewModel.WriteCoordinates(null, null, false);
 		}
 
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
@@ -461,11 +459,6 @@ namespace Vodovoz.Views.Client
 			}
 		}
 
-		public bool IsAddressChanged =>
-			 entryCity.CityName != _cityBeforeChange
-			 || entryStreet.StreetName != _streetBeforeChange
-			 || entryBuilding.BuildingName != _buildingBeforeChange;
-			 
 		#endregion
 	}
 }
