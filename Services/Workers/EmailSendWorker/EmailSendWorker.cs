@@ -11,6 +11,12 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
+using QSProjectsLib;
+using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
+using MySql.Data.MySqlClient;
 
 namespace EmailSendWorker
 {
@@ -32,7 +38,9 @@ namespace EmailSendWorker
 		private readonly SendEndpoint _sendEndpoint;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public EmailSendWorker(ILogger<EmailSendWorker> logger, IConfiguration configuration, IModel channel, SendEndpoint sendEndpoint)
+		private readonly IEmailRepository _emailRepository;
+
+		public EmailSendWorker(ILogger<EmailSendWorker> logger, IConfiguration configuration, IModel channel, SendEndpoint sendEndpoint, IEmailRepository emailRepository)
 		{
 			if(configuration is null)
 			{
@@ -48,6 +56,42 @@ namespace EmailSendWorker
 			_consumer = new AsyncEventingBasicConsumer(_channel);
 			_consumer.Received += MessageRecieved;
 			_sandboxMode = configuration.GetSection(_mailjetConfigurationSection).GetValue(_sandboxModeParameter, true);
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+
+			try
+			{
+				var conStrBuilder = new MySqlConnectionStringBuilder();
+
+				var databaseSection = configuration.GetSection("Database");
+
+				conStrBuilder.Server = databaseSection.GetValue("Host", "localhost");
+				conStrBuilder.Port = databaseSection.GetValue<uint>("Port", 3306);
+				conStrBuilder.UserID = databaseSection.GetValue("Username", "");
+				conStrBuilder.Password = databaseSection.GetValue("Password", "");
+				conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
+				conStrBuilder.SslMode = MySqlSslMode.None;
+
+				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+					.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+					.ConnectionString(QSMain.ConnectionString);
+
+				OrmConfig.ConfigureOrm(db_config,
+					new System.Reflection.Assembly[] {
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap))
+					});
+
+				QS.HistoryLog.HistoryMain.Enable();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogCritical(ex, "Ошибка чтения конфигурационного файла.");
+				return;
+			}
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -89,7 +133,8 @@ namespace EmailSendWorker
 
 				for(var i = 0; i < _retriesCount; i++)
 				{
-					_logger.LogInformation($"Sending email {message.Payload.Id} {i}/{_retriesCount}");
+					_logger.LogInformation($"Sending email { message.Payload.Id } { i }/{ _retriesCount + 1 }");
+
 					try
 					{
 						var response = await _sendEndpoint.Send(payload);
@@ -103,22 +148,50 @@ namespace EmailSendWorker
 
 						if(i >= _retriesCount - 1)
 						{
-							throw;
+							FailedToSend(message);
 						}
 
 						continue;
 					}
 				}
 			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, ex.Message);
-				throw;
-			}
 			finally
 			{
 				_logger.LogInformation("Free message from queue");
 				_channel.BasicAck(e.DeliveryTag, false);
+			}
+		}
+
+		private void FailedToSend(SendEmailMessage message)
+		{
+			_logger.LogInformation($"Failed to send email after { _retriesCount + 1 } attempts to send");
+
+			try
+			{
+				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email send worker"))
+				{
+					var storedEmail = _emailRepository.GetById(unitOfWork, message.Payload.Id);
+
+					if(storedEmail != null)
+					{
+						_logger.LogInformation($"Email {storedEmail.Id}: status {storedEmail.State}");
+
+						storedEmail.State = StoredEmailStates.SendingError;
+
+						unitOfWork.Save(storedEmail);
+						unitOfWork.Commit();
+
+						_logger.LogInformation($"Email {storedEmail.Id}: status changed to {storedEmail.State}");
+					}
+					else
+					{
+						_logger.LogWarning($"Stored Email with id: {message.Payload.Id} not found");
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, $"Error during status change for stored email with id { message.Payload.Id } : { ex.Message }");
 			}
 		}
 	}

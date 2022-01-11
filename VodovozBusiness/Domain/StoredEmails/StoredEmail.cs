@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.StoredEmails
 		PreparingToSend,
 		[Display(Name = "Ожидание отправки")]
 		WaitingToSend,
-		[Display(Name = "Ошибка")]
+		[Display(Name = "Ошибка отправки")]
 		SendingError,
 		[Display(Name = "Успешно отправлено")]
 		SendingComplete,
