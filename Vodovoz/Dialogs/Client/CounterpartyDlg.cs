@@ -42,6 +42,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -65,7 +66,8 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
+	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
+		IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -197,6 +199,12 @@ namespace Vodovoz
 			}
 			set => base.HasChanges = value;
 		}
+		
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
 
 		public CounterpartyDlg()
 		{

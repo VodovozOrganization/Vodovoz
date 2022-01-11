@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Client
 
 		public DeliveryPointView(DeliveryPointViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
