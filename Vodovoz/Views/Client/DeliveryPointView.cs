@@ -321,6 +321,7 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.UoW = ViewModel.UoW;
 				deliverypointresponsiblepersonsview1.DeliveryPoint = ViewModel.DeliveryPoint;
 				deliverypointresponsiblepersonsview1.ResponsiblePersons = ViewModel.ResponsiblePersons;
+				deliverypointresponsiblepersonsview1.Sensitive = ViewModel.CanEdit;
 			}
 			else
 			{
