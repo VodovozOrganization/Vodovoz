@@ -47,6 +47,11 @@ namespace MailjetDebugAPI
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
 			services.AddControllers();
+
+			services.AddSignalR(hubOptions =>
+			{
+				hubOptions.MaximumReceiveMessageSize = 10485760;
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -133,7 +133,7 @@ namespace EmailSendWorker
 
 				for(var i = 0; i < _retriesCount; i++)
 				{
-					_logger.LogInformation($"Sending email { message.Payload.Id } { i }/{ _retriesCount + 1 }");
+					_logger.LogInformation($"Sending email { message.Payload.Id } { i + 1 }/{ _retriesCount }");
 
 					try
 					{
@@ -164,7 +164,7 @@ namespace EmailSendWorker
 
 		private void FailedToSend(SendEmailMessage message)
 		{
-			_logger.LogInformation($"Failed to send email after { _retriesCount + 1 } attempts to send");
+			_logger.LogInformation($"Failed to send email after { _retriesCount } attempts to send");
 
 			try
 			{

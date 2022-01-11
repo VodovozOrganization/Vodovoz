@@ -42,7 +42,7 @@ namespace EmailPrepareWorker
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
-		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(10);
+		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
 
 		public EmailPrepareWorker(ILogger<EmailPrepareWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
