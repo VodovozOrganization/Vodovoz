@@ -24,8 +24,8 @@ namespace Vodovoz.TempAdapters
 			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasService fiasService = new FiasService(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasService);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 		}
 
 		public void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter)

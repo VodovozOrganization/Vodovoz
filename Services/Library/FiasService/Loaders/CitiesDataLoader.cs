@@ -35,7 +35,7 @@ namespace Fias.Service.Loaders
 
 		protected Task<IEnumerable<CityDTO>> CurrentLoadTask;
 
-		public CitiesDataLoader(IFiasService fiasService) : base(fiasService)
+		public CitiesDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
 		{
 		}
 
@@ -89,7 +89,7 @@ namespace Fias.Service.Loaders
 		private void SaveCities(Task<IEnumerable<CityDTO>> newCities)
 		{
 			Cities = newCities.Result.ToArray();
-			logger.Info($"Городов загружено : { Cities?.Length }");
+			logger.Info($"Городов загружено : { Cities.Length }");
 			CitiesLoaded?.Invoke();
 		}
 

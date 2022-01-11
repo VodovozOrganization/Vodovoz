@@ -474,89 +474,95 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
-	GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS name,
-	w.full_quantity AS full_plan,
-	w.empty_quantity AS empty_plan,
-	CAST(sold.full_sold AS SIGNED) AS full_sold,
-	CAST(sold.empty_returned AS SIGNED) AS empty_returned,
-          sold.adds_sum
+    GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS name,
+    w.full_quantity AS full_plan,
+    w.empty_quantity AS empty_plan,
+    CAST(sold.full_sold AS SIGNED) AS full_sold,
+    CAST(sold.empty_returned AS SIGNED) AS empty_returned,
+    sold.adds_sum
 FROM employees e
-JOIN (
-	SELECT
-		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
-		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
-		w.employee_id
-	FROM wage_parameters w
-	LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
-	LEFT JOIN sales_plans ON sales_plans.id = wpi.sales_plan_id
-	WHERE wpi.wage_parameter_item_type = 'SalesPlan'
-		AND (w.end_date IS NULL OR w.end_date &gt;= CURDATE())
+         JOIN (
+    SELECT
+        sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
+        sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
+        w.employee_id
+    FROM wage_parameters w
+             LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id
+             LEFT JOIN sales_plans ON sales_plans.id = wpi.sales_plan_id
+    WHERE wpi.wage_parameter_item_type = 'SalesPlan'
+      AND (w.end_date IS NULL OR w.end_date &gt;= CURDATE())
 ) w ON w.employee_id = e.id
-LEFT JOIN (
-	SELECT
-		o.id AS order_id,
-		o.author_employee_id AS employee_id,
-		SUM(IFNULL(items.count, 0)) AS full_sold,
-		SUM(
-			IF(
-				o.self_delivery,
-				IFNULL(o.returned_tare, 0),
-				IFNULL(a.bottles_returned, 0)
-			)
-			+ IFNULL(o.bottles_by_stock_actual_count, 0)
-		) AS empty_returned,
-          SUM(IFNULL(additions.adds_sum, 0)) as adds_sum
-	FROM orders o
-	LEFT JOIN (
-		SELECT
-			o.id AS order_id,
-			SUM(IFNULL(i.actual_count, i.count)) AS count,
-			n.id AS nom_id
-		FROM orders o
-		LEFT JOIN order_items i ON o.id = i.order_id
-		LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-		WHERE (IF(@is_creation_date,
-			   o.create_date BETWEEN @start_date AND @end_date,
-			   o.delivery_date BETWEEN @start_date AND @end_date))
-			AND (IF(@is_creation_date,
-               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
-			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
-               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
-			AND !o.is_contract_closer
-			AND n.category = 'water' AND n.tare_volume = 'Vol19L'
-		GROUP BY o.id
-	) AS items ON o.id = items.order_id
-	LEFT JOIN ( -- расчет дополнительных продаж
-		SELECT
-			SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)) as adds_sum,
-			o.id as order_id,
-			adds.id as nom_id
-		FROM orders o
-		LEFT JOIN order_items oi ON o.id = oi.order_id
-		LEFT JOIN nomenclature adds ON adds.id = oi.nomenclature_id
-		WHERE (IF(@is_creation_date,
-			   o.create_date BETWEEN @start_date AND @end_date,
-			   o.delivery_date BETWEEN @start_date AND @end_date))
-			AND (IF(@is_creation_date,
-               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
-			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
-               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
-			AND !o.is_contract_closer
-			AND (adds.category != 'water' OR adds.tare_volume != 'Vol19L')
-		GROUP BY o.id
-		) AS additions on additions.order_id = o.id
-	LEFT JOIN route_list_addresses a ON a.order_id = o.id
-	WHERE (IF(@is_creation_date,
-			   o.create_date BETWEEN @start_date AND @end_date,
-			   o.delivery_date BETWEEN @start_date AND @end_date))
-			AND (IF(@is_creation_date,
-               o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
-			   o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
-               OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
-		AND !o.is_contract_closer
-		AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.nom_id IS NOT NULL)
-		AND !(a.status &lt;=&gt; 'Transfered')
-	GROUP BY o.author_employee_id
+    AND (
+             ((IF(e.subdivision_id IS NULL, 0, e.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+                 OR
+              (IF(e.subdivision_id IS NULL, 0, e.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+             OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+         )
+         LEFT JOIN (
+    SELECT
+        o.id AS order_id,
+        o.author_employee_id AS employee_id,
+        SUM(IFNULL(items.count, 0)) AS full_sold,
+        SUM(
+                    IF(
+                            o.self_delivery,
+                            IFNULL(o.returned_tare, 0),
+                            IFNULL(a.bottles_returned, 0)
+                        )
+                    + IFNULL(o.bottles_by_stock_actual_count, 0)
+            ) AS empty_returned,
+        SUM(IFNULL(additions.adds_sum, 0)) as adds_sum
+    FROM orders o
+             LEFT JOIN (
+        SELECT
+            o.id AS order_id,
+            SUM(IFNULL(i.actual_count, i.count)) AS count,
+            n.id AS nom_id
+        FROM orders o
+                 LEFT JOIN order_items i ON o.id = i.order_id
+                 LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
+        WHERE (IF(@is_creation_date,
+                  o.create_date BETWEEN @start_date AND @end_date,
+                  o.delivery_date BETWEEN @start_date AND @end_date))
+          AND (IF(@is_creation_date,
+                  o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+                  o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+                      OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
+          AND !o.is_contract_closer
+          AND n.category = 'water' AND n.tare_volume = 'Vol19L'
+        GROUP BY o.id
+    ) AS items ON o.id = items.order_id
+             LEFT JOIN ( -- расчет дополнительных продаж
+        SELECT
+            SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)) as adds_sum,
+            o.id as order_id,
+            adds.id as nom_id
+        FROM orders o
+                 LEFT JOIN order_items oi ON o.id = oi.order_id
+                 LEFT JOIN nomenclature adds ON adds.id = oi.nomenclature_id
+        WHERE (IF(@is_creation_date,
+                  o.create_date BETWEEN @start_date AND @end_date,
+                  o.delivery_date BETWEEN @start_date AND @end_date))
+          AND (IF(@is_creation_date,
+                  o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+                  o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+                      OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
+          AND !o.is_contract_closer
+          AND (adds.category != 'water' OR adds.tare_volume != 'Vol19L')
+        GROUP BY o.id
+    ) AS additions on additions.order_id = o.id
+             LEFT JOIN route_list_addresses a ON a.order_id = o.id
+    WHERE (IF(@is_creation_date,
+              o.create_date BETWEEN @start_date AND @end_date,
+              o.delivery_date BETWEEN @start_date AND @end_date))
+      AND (IF(@is_creation_date,
+              o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered'),
+              o.order_status NOT IN('NewOrder','Canceled', 'DeliveryCanceled', 'NotDelivered', 'WaitForPayment')
+                  OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)))
+      AND !o.is_contract_closer
+      AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.nom_id IS NOT NULL)
+      AND !(a.status &lt;=&gt; 'Transfered')
+    GROUP BY o.author_employee_id
 ) AS sold ON sold.employee_id = e.id
 WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL OR sold.adds_sum &gt; 0
 ORDER BY e.last_name</CommandText>
@@ -569,6 +575,12 @@ ORDER BY e.last_name</CommandText>
           </QueryParameter>
           <QueryParameter Name="is_creation_date">
             <Value>=Parameters!is_creation_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>={?subdivision_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>={?subdivision_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -658,6 +670,20 @@ ORDER BY e.last_name</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="subdivision_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="subdivision_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

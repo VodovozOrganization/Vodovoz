@@ -14,17 +14,18 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Factories
 {
 	public class DeliveryPointViewModelFactory : IDeliveryPointViewModelFactory
 	{
-		private readonly IFiasService _fiasService;
+		private readonly IFiasApiClient _fiasApiClient;
 
-		public DeliveryPointViewModelFactory(IFiasService fiasService)
+		public DeliveryPointViewModelFactory(IFiasApiClient fiasApiClient)
 		{
-			_fiasService = fiasService ?? throw new ArgumentNullException(nameof(fiasService));
+			_fiasApiClient = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
 		}
 
 		public DeliveryPointViewModel GetForOpenDeliveryPointViewModel(int id)
@@ -41,16 +42,17 @@ namespace Vodovoz.Factories
 				new GtkTabsOpener(),
 				new PhoneRepository(),
 				ContactParametersProvider.Instance,
-				new CitiesDataLoader(_fiasService),
-				new StreetsDataLoader(_fiasService),
-				new HousesDataLoader(_fiasService),
+				new CitiesDataLoader(_fiasApiClient),
+				new StreetsDataLoader(_fiasApiClient),
+				new HousesDataLoader(_fiasApiClient),
 				new NomenclatureSelectorFactory(),
 				controller,
 				new DeliveryPointRepository(),
 				new DeliveryScheduleSelectorFactory(),
 				EntityUoWBuilder.ForOpen(id),
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices);
+				ServicesConfig.CommonServices,
+				new RoboAtsCounterpartyJournalFactory());
 
 			return dpViewModel;
 		}
@@ -69,9 +71,9 @@ namespace Vodovoz.Factories
 				new GtkTabsOpener(),
 				new PhoneRepository(),
 				ContactParametersProvider.Instance,
-				new CitiesDataLoader(_fiasService),
-				new StreetsDataLoader(_fiasService),
-				new HousesDataLoader(_fiasService),
+				new CitiesDataLoader(_fiasApiClient),
+				new StreetsDataLoader(_fiasApiClient),
+				new HousesDataLoader(_fiasApiClient),
 				new NomenclatureSelectorFactory(),
 				controller,
 				new DeliveryPointRepository(),
@@ -79,6 +81,7 @@ namespace Vodovoz.Factories
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				new RoboAtsCounterpartyJournalFactory(),
 				client);
 
 			return dpViewModel;

@@ -200,7 +200,10 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
 			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
+			evmeForwarder.Binding.AddSource(Entity)
+				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
+				.AddFuncBinding(rl => rl.CanAddForwarder && _editing, widget => widget.Sensitive)
+				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
 			var employeeFactory = new EmployeeJournalFactory();
@@ -360,7 +363,7 @@ namespace Vodovoz
 			vbxFuelTickets.Sensitive = CheckIfCashier();
 			entityviewmodelentryCar.Sensitive = _editing;
 			evmeDriver.Sensitive = _editing;
-			evmeForwarder.Sensitive = _editing;
+			evmeForwarder.Sensitive = _editing && Entity.CanAddForwarder;
 			evmeLogistician.Sensitive = _editing;
 			datePickerDate.Sensitive = _editing;
 			ycheckConfirmDifferences.Sensitive = _editing &&

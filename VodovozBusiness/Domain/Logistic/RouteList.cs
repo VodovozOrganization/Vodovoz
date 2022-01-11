@@ -59,6 +59,8 @@ namespace Vodovoz.Domain.Logistic
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
 		private static readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
 		
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -143,6 +145,12 @@ namespace Vodovoz.Domain.Logistic
 							foreach(var group in value.GeographicGroups)
 								ObservableGeographicGroups.Add(group);
 					}
+
+					if(!CanAddForwarder)
+					{
+						Forwarder = null;
+					}
+					OnPropertyChanged(nameof(CanAddForwarder));
 				}
 			}
 		}
@@ -1383,6 +1391,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual bool CanAddForwarder =>
+			Car?.TypeOfUse != CarTypeOfUse.CompanyLargus || _generalSettingsParameters.GetCanAddForwardersToLargus;
 
 		#endregion
 
@@ -2437,7 +2447,7 @@ namespace Vodovoz.Domain.Logistic
 		IRouteListWageCalculationSource ForwarderWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.forwarder);
 
 		private string CreateWageCalculationDetailsTextForAddress(RouteListItemWageCalculationDetails addressWageDetails, RouteListItem address,
-			EmployeeCategory employeeCategory, string carOwner)
+			EmployeeCategory employeeCategory, string carOwner, string wageDistrictName)
 		{
 			if(addressWageDetails == null)
 			{
@@ -2445,7 +2455,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			string addressDetailsText =
-				$"{ addressWageDetails.RouteListItemWageCalculationName } ({ carOwner }), адрес №{ address.Id }, заказ №{ address.Order.Id }" +
+				$"{ addressWageDetails.RouteListItemWageCalculationName } ({carOwner}, {wageDistrictName}), адрес №{ address.Id }, заказ №{ address.Order.Id }" +
 				$", категория \"{ employeeCategory.GetEnumTitle() }\":\n";
 
 			var wageRateTypeTitles = Enum.GetValues(typeof(WageRateTypes)).OfType<WageRateTypes>().Select(w => w.GetEnumTitle());
@@ -2492,7 +2502,7 @@ namespace Vodovoz.Domain.Logistic
 			string resultTextDriver = "ЗП водителя:\n\n";
 			string resultTextForwarder = "\n\nЗП экспедитора:\n\n";
 
-			string carOwner = DriverWageCalculationSrc.DriverOfOurCar ? "автомобиль компании" : "автомобиль водителя";
+			string carOwner = DriverWageCalculationSrc.CarTypeOfUse.GetEnumTitle();
 
 			if(routeListDriverWageCalculationService is RouteListWageCalculationService service
 			   && service.GetWageCalculationService is RouteListFixedWageCalculationService)
@@ -2517,8 +2527,12 @@ namespace Vodovoz.Domain.Logistic
 					addressWageDetailsList.Add(forwarderAddressWageDetails);
 				}
 
-				resultTextDriver += CreateWageCalculationDetailsTextForAddress(driverAddressWageDetails, address, EmployeeCategory.driver, carOwner);
-				resultTextForwarder += CreateWageCalculationDetailsTextForAddress(forwarderAddressWageDetails, address, EmployeeCategory.forwarder, carOwner);
+				var addressWageDistrict = address.DriverWageCalculationSrc.WageDistrictOfAddress.Name;
+
+				resultTextDriver += CreateWageCalculationDetailsTextForAddress(driverAddressWageDetails, address, EmployeeCategory.driver,
+					carOwner, addressWageDistrict);
+				resultTextForwarder += CreateWageCalculationDetailsTextForAddress(forwarderAddressWageDetails, address,
+					EmployeeCategory.forwarder, carOwner, addressWageDistrict);
 			}
 
 			var routeListDriverWageSum = addressWageDetailsList.Where(w=>w.WageCalculationEmployeeCategory == EmployeeCategory.driver).Sum(a => a.WageCalculationDetailsList.Sum(d =>

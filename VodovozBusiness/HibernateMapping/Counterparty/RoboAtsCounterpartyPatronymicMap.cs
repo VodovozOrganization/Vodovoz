@@ -1,0 +1,20 @@
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+
+namespace Vodovoz.HibernateMapping.Counterparty
+{
+	public class RoboAtsCounterpartyPatronymicMap : ClassMap<RoboAtsCounterpartyPatronymic>
+	{
+		public RoboAtsCounterpartyPatronymicMap()
+		{
+			Table("roboats_counterparty_patronymic_codes");
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+
+			Map(x => x.Patronymic).Column("patronymic");
+			Map(x => x.Accent).Column("accent");
+
+		}
+	}
+}

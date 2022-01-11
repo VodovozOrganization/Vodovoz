@@ -1675,6 +1675,10 @@
     <Compile Include="Views\Complaints\ComplaintResultOfEmployeesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfEmployeesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfCounterpartyView.cs" />
+    <Compile Include="Views\Client\RoboAtsCounterpartyNameView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyNameView.cs" />
+    <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

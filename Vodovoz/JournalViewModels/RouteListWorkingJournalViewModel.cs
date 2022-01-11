@@ -434,15 +434,20 @@ namespace Vodovoz.JournalViewModels
 				(selectedItems) => selectedItems.Any(x => _canGiveChangeForRL.Contains((x as RouteListJournalNode).StatusEnum)),
 				(selectedItems) =>
 				{
-					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					if(!(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode))
 					{
-						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+						return;
+					}
+
+					using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(UoW,
-							routeList.Driver,
-							UoW.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
-							null).Count > 0)
+						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+							   routeList.Driver,
+							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
+							   null).Count > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 								"Закройте сначала прошлые авансовые со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
@@ -453,7 +458,8 @@ namespace Vodovoz.JournalViewModels
 
 						if(!changesToOrders.Any())
 						{
-							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info, "Для данного МЛ нет наличных заказов требующих сдачи");
+							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
+								"Для данного МЛ нет наличных заказов требующих сдачи");
 							return;
 						}
 

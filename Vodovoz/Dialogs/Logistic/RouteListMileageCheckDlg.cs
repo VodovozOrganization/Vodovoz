@@ -90,8 +90,11 @@ namespace Vodovoz
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-		
+			evmeForwarder.Binding
+				.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject)
+				.AddBinding(Entity, rl => rl.CanAddForwarder, widget => widget.Sensitive)
+				.InitializeFromSource();
+
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
