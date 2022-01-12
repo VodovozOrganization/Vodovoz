@@ -135,7 +135,6 @@ namespace Vodovoz.Models.Orders
 			}
 
 			_resultOrder.RecalculateItemsPrice();
-			_resultOrder.CalculateDeliveryPrice();
 
 			return this;
 		}
