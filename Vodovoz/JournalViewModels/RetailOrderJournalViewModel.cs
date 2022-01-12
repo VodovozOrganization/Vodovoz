@@ -120,6 +120,55 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderItem)
 			);
 		}
+		
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailOrderJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					RetailOrderJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailOrderJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					RetailOrderJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
 		{
@@ -712,20 +761,33 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			bool IsOrder(object[] objs) 
+			RetailOrderJournalNode GetSelectedNode(object[] selectedItems)
 			{
-				var selectedNodes = objs.Cast<RetailOrderJournalNode>();
-				if(selectedNodes.Count() != 1)
-					return false;
+				var selectedNodes = selectedItems.OfType<RetailOrderJournalNode>();
+				return selectedNodes.Count() != 1 ? null : selectedNodes.FirstOrDefault();
+			}
 
-				return selectedNodes.FirstOrDefault().EntityType == typeof(VodovozOrder);
+			bool IsOrder(RetailOrderJournalNode selectedNode)
+			{
+				if(selectedNode == null)
+				{
+					return false;
+				}
+
+				return selectedNode.EntityType == typeof(VodovozOrder);
+			}
+
+			bool CanCreateOrder(object[] selectedItems)
+			{
+				var selectedNode = GetSelectedNode(selectedItems);
+				return IsOrder(selectedNode) && EntityConfigs[selectedNode.EntityType].PermissionResult.CanCreate;
 			}
 
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
-						x => AccessRouteListKeeping((x as RetailOrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessRouteListKeeping((x as RetailOrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -750,7 +812,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
 						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(
-							UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(selectedItems),
+							UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -790,7 +852,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть диалог закрытия",
 					(selectedItems) => selectedItems.Any(
-						x => AccessToRouteListClosing((x as RetailOrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessToRouteListClosing((x as RetailOrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -813,7 +875,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(координаты)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -837,7 +899,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(адрес)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -861,7 +923,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на карте OSM",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -879,7 +941,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Повторить заказ",
-					IsOrder, 
+					CanCreateOrder,
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
