@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using QS.Commands;
-using QS.DomainModel.NotifyChange;
+using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.SidePanels
@@ -15,10 +14,15 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
         private readonly IFixedPricesDialogOpener fixedPricesDialogOpener;
         private Domain.Client.Counterparty counterparty;
         private DeliveryPoint deliveryPoint;
-        
-        public FixedPricesPanelViewModel(IFixedPricesDialogOpener fixedPricesDialogOpener)
+        private readonly IPermissionResult _deliveryPointPermissionResult;
+        private readonly IPermissionResult _counterpartyPermissionResult;
+        private DelegateCommand _openFixedPricesDialogCommand;
+
+        public FixedPricesPanelViewModel(IFixedPricesDialogOpener fixedPricesDialogOpener, ICommonServices commonServices)
         {
             this.fixedPricesDialogOpener = fixedPricesDialogOpener ?? throw new ArgumentNullException(nameof(fixedPricesDialogOpener));
+            _deliveryPointPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
+            _counterpartyPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Domain.Client.Counterparty));
         }
 
         public string Title => deliveryPoint == null ? "Для самовывоза" : "Для точки доставки ";
@@ -49,17 +53,16 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
             OpenFixedPricesDialogCommand.RaiseCanExecuteChanged();
         }
 
-        private DelegateCommand openFixedPricesDialogCommand;
-        public DelegateCommand OpenFixedPricesDialogCommand {
-            get {
-                if (openFixedPricesDialogCommand == null) {
-                    openFixedPricesDialogCommand = new DelegateCommand(
-                        OpenFixedPricesDialog, 
-                        () => counterparty != null || deliveryPoint != null
-                    );
-                }
-                return openFixedPricesDialogCommand;
-            }
+        public DelegateCommand OpenFixedPricesDialogCommand
+        {
+	        get
+	        {
+		        return _openFixedPricesDialogCommand ?? (_openFixedPricesDialogCommand = new DelegateCommand(
+			        OpenFixedPricesDialog,
+			        () => (deliveryPoint != null && _deliveryPointPermissionResult.CanUpdate)
+				        || (deliveryPoint == null && counterparty != null && _counterpartyPermissionResult.CanUpdate)
+		        ));
+	        }
         }
 
         private void OpenFixedPricesDialog()

@@ -144,8 +144,57 @@ namespace Vodovoz.JournalViewModels
 			return counterpartyResultQuery;
 		};
 
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
 		protected override Func<RetailCounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					RetailCounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					RetailCounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
 	}
 }
