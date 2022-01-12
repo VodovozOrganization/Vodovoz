@@ -18,6 +18,7 @@ namespace Vodovoz.Parameters
 		public int PaymentByCardFromSmsId => _parametersProvider.GetIntValue("sms_payment_by_card_from_id");
 		public int PaymentFromTerminalId => _parametersProvider.GetIntValue("paymentfrom_terminal_id");
 		public int OldInternalOnlineStoreId => _parametersProvider.GetIntValue("OldInternalOnlineStoreId");
+		public int GetPaymentByCardFromMarketplaceId => _parametersProvider.GetIntValue("payment_by_card_from_marketplace_id");
 		public int GetDiscountReasonStockBottle10PercentsId =>
 			_parametersProvider.GetIntValue("discount_reason_stock_bottle_10_percents");
 		public int GetDiscountReasonStockBottle20PercentsId =>
@@ -29,7 +30,8 @@ namespace Vodovoz.Parameters
 				PaymentByCardFromMobileAppId,
 				PaymentByCardFromOnlineStoreId,
 				PaymentByCardFromSiteId,
-				PaymentByCardFromSmsId
+				PaymentByCardFromSmsId,
+				GetPaymentByCardFromMarketplaceId
 			};
 
 		public int[] PaymentsByCardFromForNorthOrganization =>
