@@ -24,8 +24,10 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -34,8 +36,10 @@ namespace Vodovoz
 	{
 		#region Поля
 
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		bool editing = true;
 
 		List<RouteListKeepingItemNode> items;
@@ -47,12 +51,12 @@ namespace Vodovoz
 				new CallTaskRepository(),
 				new OrderRepository(),
 				new EmployeeRepository(),
-				new BaseParametersProvider(new ParametersProvider()),
+				new BaseParametersProvider(_parametersProvider),
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance));
 
 		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 
 		#endregion
 
@@ -189,15 +193,20 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			var validationContext = new Dictionary<object, object> {
-				{ "NewStatus", RouteListStatus.Closed },
-				{ nameof(IRouteListItemRepository), new EntityRepositories.Logistic.RouteListItemRepository() }
-			};
-			var valid = new QSValidator<RouteList>(Entity, validationContext);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+			var validationContext = _validationContextFactory.CreateNewValidationContext(
+				Entity,
+				new Dictionary<object, object> {
+					{ "NewStatus", RouteListStatus.Closed },
+					{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+				});
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),
+				new OrderParametersProvider(_parametersProvider));
+
+			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+			{
 				return;
 			}
-
+			
 			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
