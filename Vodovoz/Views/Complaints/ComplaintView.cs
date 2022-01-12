@@ -98,16 +98,23 @@ namespace Vodovoz.Views.Complaints
 			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			arrangementTextView.Binding.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Buffer.Text).InitializeFromSource();
+			arrangementTextView.Binding
+				.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
-			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
-			cmbComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
+			cmbComplaintKind.Binding
+				.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(vm => vm.ComplaintObject, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			comboboxComplaintSource.SetRenderTextFunc<ComplaintSource>(x => x.Name);
@@ -136,7 +143,10 @@ namespace Vodovoz.Views.Complaints
 			ytextviewComplaintText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			comboType.ItemsEnum = typeof(ComplaintType);
-			comboType.Binding.AddBinding(ViewModel.Entity, vm => vm.ComplaintType, w => w.SelectedItem).InitializeFromSource();
+			comboType.Binding
+				.AddBinding(ViewModel.Entity, e => e.ComplaintType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
@@ -160,7 +170,9 @@ namespace Vodovoz.Views.Complaints
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel); };
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 		}

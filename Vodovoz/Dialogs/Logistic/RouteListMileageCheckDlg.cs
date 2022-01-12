@@ -8,10 +8,10 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
 using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels.Extension;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.CallTasks;
@@ -32,7 +32,7 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
-	public partial class RouteListMileageCheckDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
+	public partial class RouteListMileageCheckDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region Поля
 
@@ -40,7 +40,7 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		bool editing = true;
+		private readonly bool _canEdit;
 
 		List<RouteListKeepingItemNode> items;
 
@@ -63,23 +63,26 @@ namespace Vodovoz
 		public RouteListMileageCheckDlg(int id)
 		{
 			this.Build();
-			editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
+			_canEdit = currentPermissionService.ValidatePresetPermission("logistican") && permissionResult.CanUpdate;
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = string.Format("Контроль за километражем маршрутного листа №{0}", Entity.Id);
-			var canConfirmMileage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
-			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
+			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
+			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
+			_canEdit &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
 
 			ConfigureDlg();
 		}
 
+		public bool AskSaveOnClose => _canEdit;
+
 		#region Настройка конфигураций
 
-		public void ConfigureDlg()
+		private void ConfigureDlg()
 		{
-			if(!editing) {
+			if(!_canEdit)
+			{
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
-				HasChanges = false;
-				vbxMain.Sensitive = false;
+				UpdateSensitivity();
 			}
 			
 			buttonAcceptFine.Clicked += ButtonAcceptFineOnClicked;	
@@ -141,18 +144,32 @@ namespace Vodovoz
 			ytreeviewAddresses.ItemsDataSource = items;
 			ytextviewMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Buffer.Text).InitializeFromSource();
 			
-			if(Entity.Status == RouteListStatus.Closed) {
-
-				vboxRouteList.Sensitive = table2.Sensitive = false;
-			}
-			else
+			if(_canEdit && Entity.Status != RouteListStatus.Closed)
+			{
 				Entity.RecountMileage();
+			}
 
 			//Телефон
 			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
 			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
+		}
+
+		private void UpdateSensitivity()
+		{
+			if(_canEdit && Entity.Status == RouteListStatus.Closed)
+			{
+				vboxRouteList.Sensitive = table2.Sensitive = false;
+			}
+			else
+			{
+				buttonSave.Sensitive = false;
+				table2.Sensitive = false;
+				hboxMileageComment.Sensitive = false;
+				ytreeviewAddresses.Sensitive = false;
+				hbox9.Sensitive = false;
+			}
 		}
 
 		#endregion
@@ -162,7 +179,7 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			var validationContext = new Dictionary<object, object> {
-				{ nameof(IRouteListItemRepository), new EntityRepositories.Logistic.RouteListItemRepository() }
+				{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
 			};
 			var valid = new QSValidator<RouteList>(Entity, validationContext);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NHibernate;
@@ -150,7 +151,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead;
 				},
 				(selected) => selected.All(x => (x as OrderJournalNode).Sensitive),
 				(selected) => {
@@ -183,14 +184,6 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
-		}
-
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if (TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
@@ -912,20 +905,33 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			bool IsOrder(object[] objs) 
+			OrderJournalNode GetSelectedNode(object[] selectedItems)
 			{
-				var selectedNodes = objs.Cast<OrderJournalNode>();
-				if(selectedNodes.Count() != 1)
-					return false;
+				var selectedNodes = selectedItems.OfType<OrderJournalNode>();
+				return selectedNodes.Count() != 1 ? null : selectedNodes.FirstOrDefault();
+			}
 
-				return selectedNodes.FirstOrDefault().EntityType == typeof(VodovozOrder);
+			bool IsOrder(OrderJournalNode selectedNode)
+			{
+				if(selectedNode == null)
+				{
+					return false;
+				}
+
+				return selectedNode.EntityType == typeof(VodovozOrder);
+			}
+
+			bool CanCreateOrder(object[] selectedItems)
+			{
+				var selectedNode = GetSelectedNode(selectedItems);
+				return IsOrder(selectedNode) && EntityConfigs[selectedNode.EntityType].PermissionResult.CanCreate;
 			}
 
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
-						x => AccessRouteListKeeping((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessRouteListKeeping((x as OrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -950,7 +956,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
 						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()) 
-					        && IsOrder(selectedItems)
+					        && IsOrder(GetSelectedNode(selectedItems))
 							&& !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
@@ -990,7 +996,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть диалог закрытия",
 					(selectedItems) => selectedItems.Any(
-						x => AccessToRouteListClosing((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessToRouteListClosing((x as OrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -1013,7 +1019,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(координаты)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -1037,7 +1043,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(адрес)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -1061,7 +1067,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на карте OSM",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -1079,7 +1085,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Повторить заказ",
-					selectedItems => IsOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
+					selectedItems => CanCreateOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
