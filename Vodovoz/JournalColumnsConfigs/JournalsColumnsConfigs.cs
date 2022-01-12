@@ -73,6 +73,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Статус").AddEnumRenderer(node => node.Status)
 					.AddColumn("Подразделение").AddTextRenderer(node => node.SubdivisionTitle)
 					.AddColumn("Баланс").AddNumericRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Balance)).Digits(2)
+					.AddColumn("Комментарий по сотруднику").AddTextRenderer(node => node.EmployeeComment)
 					.AddColumn("")
 					.Finish()
 			);
