@@ -14,6 +14,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -32,7 +33,8 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
-	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab
+	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
+		IAskSaveOnCloseViewModel
 	{
 		private int _currentPage = 0;
 		private User _currentUser;
@@ -98,7 +100,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			{
 				PhonesList = Entity.ObservablePhones, 
 				DeliveryPoint = Entity,
-				ShowRoboAtsCounterpartyNameAndPatronymic = true
+				ShowRoboAtsCounterpartyNameAndPatronymic = true,
+				ReadOnly = !CanEdit
 			};
 
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));
@@ -151,6 +154,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 		public bool CurrentUserIsAdmin => CurrentUser.IsAdmin;
 		public bool CoordsWasChanged => Entity.СoordsLastChangeUser != null;
+		public bool CanEdit => PermissionResult.CanUpdate || PermissionResult.CanCreate && Entity.Id == 0;
 		public string CoordsLastChangeUserName => Entity.СoordsLastChangeUser.Name;
 
 		//widget init
@@ -324,6 +328,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			return !IsInProcess;
 		}
+
+		#endregion
+		
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
 
 		#endregion
 
