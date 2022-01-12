@@ -66,6 +66,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
@@ -118,6 +119,7 @@ namespace Vodovoz
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
+		private IPaymentFromBankClientController _paymentFromBankClientController;
 
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
@@ -139,6 +141,7 @@ namespace Vodovoz
 			= new RentPackagesJournalsViewModelsFactory(MainClass.MainWin.NavigationManager);
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
+		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private readonly bool _canSetOurOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
@@ -377,6 +380,7 @@ namespace Vodovoz
 				new NomenclatureFixedPriceController(
 					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
+			_paymentFromBankClientController = new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -895,8 +899,14 @@ namespace Vodovoz
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => c.Editable = node.CanEditAmount).WidthChars(10)
 					.EditedEvent(OnCountEdited)
-				.AddTextRenderer(node => node.ActualCount.HasValue ? string.Format("[{0}]", node.ActualCount) : string.Empty)
-				.AddTextRenderer(node => node.CanShowReturnedCount ? string.Format("({0})", node.ReturnedCount) : string.Empty)
+					.AddTextRenderer(node => node.ActualCount.HasValue
+						? string.Format("[{0:" + $"F{(node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)}" + "}]",
+							node.ActualCount)
+						: string.Empty)
+					.AddTextRenderer(node => node.CanShowReturnedCount
+						? string.Format("({0:" + $"F{(node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)}" + "})",
+							node.ReturnedCount)
+						: string.Empty)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
@@ -1241,11 +1251,11 @@ namespace Vodovoz
 							return false;
 						}
 					}
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 					if(sendEmail)
 						SendBillByEmail(emailAddressForBill);
 				} else {
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController);
+					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 				}
 				logger.Info("Ok.");
 				UpdateUIState();
@@ -2379,21 +2389,30 @@ namespace Vodovoz
 		/// </summary>
 		void OpenDlgToCreateNewUndeliveredOrder()
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
+			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
-			dlg.DlgSaved += (sender, e) => {
+			dlg.DlgSaved += (sender, e) =>
+			{
 				Entity.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
-				UpdateUIState();
 
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
-				if(routeListItem != null) {
+				if(routeListItem != null)
+				{
 					routeListItem.StatusLastUpdate = DateTime.Now;
-					routeListItem.FillCountsOnCanceled();
+					routeListItem.SetOrderActualCountsToZeroOnCanceled();
 					UoW.Save(routeListItem);
 				}
-
+				else
+				{
+					Entity.SetActualCountsToZeroOnCanceled();
+				}
+				
+				UpdateUIState();
+				
 				if(Save())
-					this.OnCloseTab(false);
+				{
+					OnCloseTab(false);
+				}
 			};
 		}
 

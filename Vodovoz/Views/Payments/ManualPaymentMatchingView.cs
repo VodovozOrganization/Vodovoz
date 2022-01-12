@@ -76,7 +76,9 @@ namespace Vodovoz.Views
             {
                 ViewModel.UpdateNodes();
                 ViewModel.GetLastBalance();
-                ViewModel.GetCounterpatyDebt();
+				ViewModel.UpdateSumToAllocate();
+				ViewModel.UpdateCurrentBalance();
+                ViewModel.GetCounterpartyDebt();
             };
 
             var searchView = new SearchView((SearchViewModel)ViewModel.Search);

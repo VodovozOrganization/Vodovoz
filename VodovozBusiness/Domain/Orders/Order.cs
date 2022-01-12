@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -59,10 +60,14 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IOrderRepository _orderRepository = new OrderRepository();
+		private static readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
+		private readonly IPaymentFromBankClientController _paymentFromBankClientController =
+			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -2531,7 +2536,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					ChangeOrderPaymentStatus();
+					_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, Id);
 					break;
 				default:
 					break;
@@ -2557,40 +2562,6 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
-		
-
-		public virtual void ChangeOrderPaymentStatus()
-		{
-			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
-
-			if (!paymentItems.Any()) 
-				return;
-			
-			var paymentSum = paymentItems.Select(x => x.CashlessMovementOperation).Sum(x => x.Expense);
-
-			if (paymentSum == 0)
-				return;
-			
-			if (OrderPaymentStatus != OrderPaymentStatus.UnPaid)
-			{
-				ReturnPaymentToTheClientBalance(paymentSum, paymentItems);
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-			}
-		}
-
-		private void ReturnPaymentToTheClientBalance(decimal paymentSum, IList<PaymentItem> paymentItems)
-		{
-			var payment = paymentItems.Select(x => x.Payment).FirstOrDefault();
-
-			if(payment == null)
-			{
-				return;
-			}
-
-			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, Id);
-			
-			UoW.Save(newPayment);
-		}
 
 		/// <summary>
 		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
@@ -2603,7 +2574,7 @@ namespace Vodovoz.Domain.Orders
 			    || previousStatus == OrderStatus.Canceled)
 			   && PaymentType == PaymentType.cashless)
 			{
-				var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
+				var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id);
 				var payment = paymentItems.FirstOrDefault()?.Payment;
 				if(payment == null)
 				{
@@ -2636,7 +2607,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
 		{
-			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id)
+			var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id)
 				.Where(pi => pi != ignoredItem).ToList();
 			if(!paymentItems.Any())
 			{
@@ -3529,7 +3500,11 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee, IOrderDailyNumberController orderDailyNumberController)
+		public virtual void SaveEntity(
+			IUnitOfWork uow,
+			Employee currentEmployee,
+			IOrderDailyNumberController orderDailyNumberController,
+			IPaymentFromBankClientController paymentFromBankClientController)
 		{
 			SetFirstOrder();
 			if(Contract == null)
@@ -3541,6 +3516,7 @@ namespace Vodovoz.Domain.Orders
 			ParseTareReason();
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
+			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			uow.Save();
 		}
 		
@@ -3551,6 +3527,30 @@ namespace Vodovoz.Domain.Orders
 
 			if(ReturnTareReasonCategory != null)
 				ReturnTareReasonCategory = null;
+		}
+		
+		public virtual void SetActualCountsToZeroOnCanceled()
+		{
+			foreach(var item in OrderItems)
+			{
+				if(!item.OriginalDiscountMoney.HasValue || !item.OriginalDiscount.HasValue)
+				{
+					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
+					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
+					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
+				}
+				item.ActualCount = 0m;
+			}
+
+			foreach(var equip in OrderEquipments)
+			{
+				equip.ActualCount = 0;
+			}
+
+			foreach(var deposit in OrderDepositItems)
+			{
+				deposit.ActualCount = 0;
+			}
 		}
 		
 		#endregion

@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels
 
 		private readonly SearchHelper _searchHelper;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
 
 		private DelegateCommand _revertAllocatedSum = null;
@@ -55,9 +56,11 @@ namespace Vodovoz.ViewModels
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IOrderRepository orderRepository,
+			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			if(uowBuilder.IsNewEntity)
@@ -75,11 +78,11 @@ namespace Vodovoz.ViewModels
 			CanRevertPayFromOrder = CommonServices.PermissionService.ValidateUserPresetPermission("can_revert_pay_from_order", CurrentUser.Id);
 
 			GetLastBalance();
-			FillSumToAllocate();
-			CurrentBalance = SumToAllocate - AllocatedSum;
+			UpdateSumToAllocate();
+			UpdateCurrentBalance();
 			CreateCommands();
 
-			GetCounterpatyDebt();
+			GetCounterpartyDebt();
 
 			HasPaymentItems = Entity.PaymentItems.Any();
 			Entity.ObservableItems.ElementRemoved +=
@@ -163,13 +166,12 @@ namespace Vodovoz.ViewModels
 
 		public void GetLastBalance()
 		{
-			if(Entity.Counterparty != null)
-			{
-				LastBalance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
-			}
+			LastBalance = Entity.Counterparty != null
+				? _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id)
+				: default(decimal);
 		}
 
-		private void FillSumToAllocate()
+		public void UpdateSumToAllocate()
 		{
 			if(Entity.CashlessMovementOperation == null)
 			{
@@ -332,7 +334,7 @@ namespace Vodovoz.ViewModels
 			CreateCloseViewModelCommand();
 		}
 
-		private void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
+		public void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
 
 		private void UpdateCounterpartyDebt(ManualPaymentMatchingViewModelNode node)
 		{
@@ -500,8 +502,7 @@ namespace Vodovoz.ViewModels
 							continue;
 						}
 
-						var otherPaymentsSum = _orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
-													  .Sum(x => x.Sum);
+						var otherPaymentsSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, item.Order.Id);
 
 						var totalSum = otherPaymentsSum + item.Sum;
 
@@ -525,8 +526,8 @@ namespace Vodovoz.ViewModels
 				if(RevertPay())
 				{
 					GetLastBalance();
-					FillSumToAllocate();
-					GetCounterpatyDebt();
+					UpdateSumToAllocate();
+					GetCounterpartyDebt();
 					UpdateNodes();
 				}
 			},
@@ -619,7 +620,11 @@ namespace Vodovoz.ViewModels
 
 			if(Entity.Counterparty != null)
 			{
-				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);
+				incomePaymentQuery.Where(x => x.Client.Id == Entity.Counterparty.Id);
+			}
+			else
+			{
+				incomePaymentQuery.Where(x => x.Client.Id == -1);
 			}
 
 			if(StartDate.HasValue && EndDate.HasValue)
@@ -728,12 +733,11 @@ namespace Vodovoz.ViewModels
 			}
 		}
 
-		public void GetCounterpatyDebt()
+		public void GetCounterpartyDebt()
 		{
-			if(Entity.Counterparty != null)
-			{
-				CounterpartyDebt = _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
-			}
+			CounterpartyDebt = Entity.Counterparty != null
+				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
+				: default(decimal);
 		}
 
 		private string TryGetOrganizationType(string name)

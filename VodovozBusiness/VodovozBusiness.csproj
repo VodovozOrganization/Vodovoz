@@ -58,7 +58,9 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Controllers\IOrderDiscountsController.cs" />
+    <Compile Include="Controllers\IPaymentFromBankClientController.cs" />
     <Compile Include="Controllers\OrderDiscountsController.cs" />
+    <Compile Include="Controllers\PaymentFromBankClientController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
@@ -240,8 +242,10 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Payments\IPaymentItemsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IPaymentsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentByCardOnlineNode.cs" />
+    <Compile Include="EntityRepositories\Payments\PaymentItemsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentsRepository.cs" />
     <Compile Include="EntityRepositories\RentPackages\IRentPackageRepository.cs" />
     <Compile Include="EntityRepositories\RentPackages\RentPackageRepository.cs" />
