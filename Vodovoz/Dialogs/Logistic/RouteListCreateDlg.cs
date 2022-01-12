@@ -162,7 +162,7 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.CanChangeStatus = false);
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
-			evmeDriver.Changed += (sender, args) => lblDriverComment.Text = UpdateEmployeeComment(Entity.Driver);
+			evmeDriver.Changed += (sender, args) => lblDriverComment.Text = Entity.Driver?.Comment;
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
@@ -181,13 +181,13 @@ namespace Vodovoz
 			evmeForwarder.Changed += (sender, args) =>
 			{
 				createroutelistitemsview1.OnForwarderChanged();
-				lblForwarderComment.Text = UpdateEmployeeComment(Entity.Forwarder);
+				lblForwarderComment.Text = Entity.Forwarder?.Comment;
 			};
 
 			hboxForwarderComment.Binding
 				.AddFuncBinding(Entity, e => e.Forwarder != null && !string.IsNullOrWhiteSpace(e.Forwarder.Comment), w => w.Visible)
 				.InitializeFromSource();
-			lblForwarderComment.Text = UpdateEmployeeComment(Entity.Forwarder);
+			lblForwarderComment.Text = Entity.Forwarder?.Comment;
 			
 			var employeeFactory = new EmployeeJournalFactory();
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
@@ -262,8 +262,6 @@ namespace Vodovoz
 			UpdateDlg(isLogistician);
 		}
 
-		private string UpdateEmployeeComment(Employee employee) => employee?.Comment;
-		
 		private void OnCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(false, CloseSource.Cancel);
