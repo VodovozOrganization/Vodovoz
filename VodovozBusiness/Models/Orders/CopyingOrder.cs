@@ -146,7 +146,7 @@ namespace Vodovoz.Models.Orders
 		public CopyingOrder CopyAdditionalOrderEquipments()
 		{
 			var orderEquipments = _copiedOrder.OrderEquipments
-					.Where(x => !_flyersNomenclaturesIds.Contains(x.Id))
+					.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
 					.Where(x => x.OrderItem == null);
 
 			foreach(var orderEquipment in orderEquipments)
@@ -227,7 +227,7 @@ namespace Vodovoz.Models.Orders
 		private void CopyDependentOrderEquipment(OrderItem orderItem)
 		{
 			var orderEquipments = _copiedOrder.OrderEquipments
-					.Where(x => !_flyersNomenclaturesIds.Contains(x.Id))
+					.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
 					.Where(x => x.OrderItem != null)
 					.Where(x => x.OrderItem.Id == orderItem.Id);
 
