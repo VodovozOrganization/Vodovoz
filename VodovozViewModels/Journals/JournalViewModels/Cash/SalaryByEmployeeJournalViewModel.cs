@@ -117,6 +117,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
 					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)
 					.Select(() => employeeAlias.Category).WithAlias(() => resultAlias.EmpCatEnum)
+					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
 				)
