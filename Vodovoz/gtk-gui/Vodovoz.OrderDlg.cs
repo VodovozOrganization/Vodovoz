@@ -2890,6 +2890,7 @@ namespace Vodovoz
 			this.ylblPaymentType.Name = "ylblPaymentType";
 			this.ylblPaymentType.Xalign = 0F;
 			this.ylblPaymentType.LabelProp = global::Mono.Unix.Catalog.GetString("наличная");
+			this.ylblPaymentType.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.ylblPaymentType);
 			global::Gtk.Table.TableChild w237 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPaymentType]));
 			w237.TopAttach = ((uint)(10));

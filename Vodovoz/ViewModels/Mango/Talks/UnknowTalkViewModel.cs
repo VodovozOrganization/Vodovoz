@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void SelectNewConterparty()
 		{
-			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg,Phone>(this, ActiveCall.Phone);
+			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg, Phone>(this, ActiveCall.Phone);
 			var tab = page.TdiTab as CounterpartyDlg;
 			page.PageClosed += NewCounerpatry_PageClosed;
 		}

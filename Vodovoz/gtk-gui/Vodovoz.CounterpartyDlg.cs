@@ -801,7 +801,6 @@ namespace Vodovoz
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.ycheckSpecialDocuments = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckSpecialDocuments.TooltipMarkup = "Больше не работаем с этим клиентом";
 			this.ycheckSpecialDocuments.CanFocus = true;
 			this.ycheckSpecialDocuments.Name = "ycheckSpecialDocuments";
 			this.ycheckSpecialDocuments.Label = global::Mono.Unix.Catalog.GetString("Особая печать документов");

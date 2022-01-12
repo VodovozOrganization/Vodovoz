@@ -235,6 +235,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			phone.Counterparty = Entity;
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
 		}
