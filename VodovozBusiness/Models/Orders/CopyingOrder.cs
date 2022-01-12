@@ -38,6 +38,8 @@ namespace Vodovoz.Models.Orders
 			_flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
 		}
 
+		public Order GetCopiedOrder => _copiedOrder;
+
 		/// <summary>
 		/// Копирование основных полей заказа
 		/// </summary>
