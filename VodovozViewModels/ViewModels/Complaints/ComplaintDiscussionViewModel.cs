@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly bool _canCompleteComplaintDiscussionPermission;
+		private readonly IPermissionResult _complaintPermissionResult;
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
 			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
+			_complaintPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Complaint));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 		}
@@ -70,7 +72,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
-		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEdit => PermissionResult.CanUpdate && _complaintPermissionResult.CanUpdate;
 
 		public bool CanEditDate => CanEdit && CanCompleteDiscussion;
 

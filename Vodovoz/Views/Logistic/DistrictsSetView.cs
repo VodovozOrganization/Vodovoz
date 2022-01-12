@@ -53,13 +53,13 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Название")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DistrictName)
-					.Editable()
+					.Editable(ViewModel.CanEditDistrict)
 				.AddColumn("Тарифная зона")
 					.HeaderAlignment(0.5f)
 				.AddComboRenderer(x => x.TariffZone)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList(), "Нет")
-					.Editing()
+					.Editing(ViewModel.CanEditDistrict)
 				.AddColumn("Мин. бутылей")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x =>
@@ -100,10 +100,10 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(p => p.Price)
-				.Digits(2)
+					.Digits(2)
 					.WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.Editing()
+					.Editing(ViewModel.CanEditDistrict)
 					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? colorRed : colorWhite)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
@@ -123,7 +123,7 @@ namespace Vodovoz.Views.Logistic
 					.Digits(2)
 					.WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.Editing()
+					.Editing(ViewModel.CanEditDistrict)
 					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? colorRed : colorWhite)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
@@ -139,7 +139,7 @@ namespace Vodovoz.Views.Logistic
 			#endregion
 
 			btnSave.Clicked += (sender, args) => ViewModel.Save();
-			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict || vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive).InitializeFromSource();
 			
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 			
@@ -193,7 +193,7 @@ namespace Vodovoz.Views.Logistic
 			btnSaturday.Clicked += (sender, args) => ViewModel.SelectedWeekDayName = WeekDayName.Saturday;
 			btnSunday.Clicked += (sender, args) => ViewModel.SelectedWeekDayName = WeekDayName.Sunday;
 
-			btnAddSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
+			btnAddSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryScheduleRestriction && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
 			btnAddSchedule.Clicked += (sender, args) => {
 				var selectSchedules = new OrmReference(typeof(DeliverySchedule), ViewModel.UoW) {
 					Mode = OrmReferenceMode.MultiSelect
@@ -210,10 +210,10 @@ namespace Vodovoz.Views.Logistic
 				Tab.TabParent.AddSlaveTab(this.Tab, selectSchedules);
 			};
 
-			btnRemoveSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryScheduleRestriction && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveSchedule.Clicked += (sender, args) => ViewModel.RemoveScheduleRestrictionCommand.Execute();
 
-			btnAddAcceptBefore.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
+			btnAddAcceptBefore.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryScheduleRestriction && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
 			btnAddAcceptBefore.Clicked += (sender, args) => {
 				var acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>(
 					x => x.Name,
@@ -242,7 +242,7 @@ namespace Vodovoz.Views.Logistic
 			};
 
 			btnRemoveAcceptBefore.Binding.AddFuncBinding(ViewModel,
-					vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null && vm.SelectedScheduleRestriction.AcceptBefore != null,
+					vm => vm.CanEditDeliveryScheduleRestriction && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null && vm.SelectedScheduleRestriction.AcceptBefore != null,
 					w => w.Sensitive)
 				.InitializeFromSource();
 			btnRemoveAcceptBefore.Clicked += (sender, args) => ViewModel.RemoveAcceptBeforeCommand.Execute();

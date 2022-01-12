@@ -34,6 +34,8 @@ namespace Vodovoz.Views.Logistic
 			table1.Sensitive = false;
 
 			buttonSave.Clicked += (sender, e) => Save();
+			buttonSave.Sensitive = ViewModel.CanEditRouteList;
+			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(
@@ -137,7 +139,12 @@ namespace Vodovoz.Views.Logistic
 						}
 					})
 				.Finish();
-			ytreeviewAddresses.ButtonReleaseEvent += OnYtreeviewAddressesButtonReleaseEvent;
+
+			if(ViewModel.CanEditRouteList)
+			{
+				ytreeviewAddresses.ButtonReleaseEvent += OnYtreeviewAddressesButtonReleaseEvent;
+			}
+
 			ytreeviewAddresses.ItemsDataSource = ViewModel.Entity.ObservableAddresses;
 			ytreeviewAddresses.Selection.Changed += OnYtreeviewAddressesSelectionChanged;
 			ytreeviewAddresses.RowActivated += OnYtreeviewAddressesRowActivated;

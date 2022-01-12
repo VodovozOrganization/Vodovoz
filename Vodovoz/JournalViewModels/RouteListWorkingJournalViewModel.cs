@@ -10,7 +10,6 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using NHibernate.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -434,15 +433,20 @@ namespace Vodovoz.JournalViewModels
 				(selectedItems) => selectedItems.Any(x => _canGiveChangeForRL.Contains((x as RouteListJournalNode).StatusEnum)),
 				(selectedItems) =>
 				{
-					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					if(!(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode))
 					{
-						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+						return;
+					}
+
+					using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(UoW,
-							routeList.Driver,
-							UoW.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
-							null).Count > 0)
+						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+							   routeList.Driver,
+							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
+							   null).Count > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 								"Закройте сначала прошлые авансовые со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
@@ -453,7 +457,8 @@ namespace Vodovoz.JournalViewModels
 
 						if(!changesToOrders.Any())
 						{
-							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info, "Для данного МЛ нет наличных заказов требующих сдачи");
+							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
+								"Для данного МЛ нет наличных заказов требующих сдачи");
 							return;
 						}
 
@@ -492,7 +497,47 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultEditAction();
+			CreateEditAction();
+		}
+		
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<RouteListJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					RouteListJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<RouteListJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					RouteListJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 	}
 }

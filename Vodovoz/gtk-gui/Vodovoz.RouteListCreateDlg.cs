@@ -24,7 +24,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gtk.Button btnCancel;
 
 		private global::Gtk.HBox hboxCash;
 
@@ -199,16 +199,16 @@ namespace Vodovoz
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
+			this.btnCancel = new global::Gtk.Button();
+			this.btnCancel.CanFocus = true;
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.UseUnderline = true;
+			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
 			global::Gtk.Image w9 = new global::Gtk.Image();
 			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w9;
-			this.hbox7.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonCancel]));
+			this.btnCancel.Image = w9;
+			this.hbox7.Add(this.btnCancel);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.btnCancel]));
 			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;

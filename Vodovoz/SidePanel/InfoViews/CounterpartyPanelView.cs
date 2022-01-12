@@ -6,6 +6,7 @@ using Pango;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
@@ -21,10 +22,16 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private Counterparty _counterparty;
+		private IPermissionResult _counterpartyPermissionResult;
 
-		public CounterpartyPanelView()
+		public CounterpartyPanelView(ICommonServices commonServices)
 		{
-			this.Build();
+			if(commonServices == null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+			Build();
+			_counterpartyPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
 			Configure();
 		}
 
@@ -32,6 +39,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			labelName.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
+			textviewComment.Editable = _counterpartyPermissionResult.CanUpdate;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
 				.AddNumericRenderer(node => node.Id)
@@ -71,7 +79,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			buttonSaveComment.Sensitive = true;
 			labelName.Text = _counterparty.FullName;
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
@@ -126,7 +133,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			btn.Clicked += OnBtnAddPhoneClicked;
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
-			btn.Sensitive = buttonSaveComment.Sensitive = _counterparty.Id != 0;
+			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
 		}
 
 		private void SetupPersonalManagers()
