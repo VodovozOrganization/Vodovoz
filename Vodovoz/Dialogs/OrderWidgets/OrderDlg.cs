@@ -341,7 +341,9 @@ namespace Vodovoz
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
 
-			if(templateOrder.PaymentType == PaymentType.ByCard && MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
+			templateOrder = copying.GetCopiedOrder;
+			if(templateOrder.PaymentType == PaymentType.ByCard
+				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{
 				copying.CopyPaymentByCardDataIfPossible();
 			}
