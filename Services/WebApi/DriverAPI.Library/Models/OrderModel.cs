@@ -202,6 +202,7 @@ namespace DriverAPI.Library.Models
 			int rating,
 			int driverComplaintReasonId,
 			string otherDriverComplaintReasonComment,
+			string driverComment,
 			DateTime recievedTime)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
@@ -229,8 +230,6 @@ namespace DriverAPI.Library.Models
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
-			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
-
 			if(routeList.Driver.Id != driver.Id)
 			{
 				_logger.LogWarning($"Водитель {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}");
@@ -250,6 +249,8 @@ namespace DriverAPI.Library.Models
 				_logger.LogWarning(error);
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
+
+			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
 
 			routeList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.Completed);
 
@@ -275,6 +276,21 @@ namespace DriverAPI.Library.Models
 				};
 
 				_unitOfWork.Save(complaint);
+			}
+
+			if(bottlesReturnCount != vodovozOrder.BottlesReturn)
+			{
+				if(!string.IsNullOrWhiteSpace(driverComment))
+				{
+					vodovozOrder.CommentManager =
+						string.IsNullOrWhiteSpace(vodovozOrder.CommentManager)
+							? driverComment
+							: vodovozOrder.CommentManager + Environment.NewLine + driverComment;
+				}
+
+				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
+
+				_unitOfWork.Save(vodovozOrder);
 			}
 
 			_unitOfWork.Save(routeListAddress);

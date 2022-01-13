@@ -261,7 +261,7 @@ namespace Vodovoz
 			_oldDriver = Entity.Driver;
 			UpdateDlg(isLogistician);
 		}
-
+		
 		private void OnCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(false, CloseSource.Cancel);
