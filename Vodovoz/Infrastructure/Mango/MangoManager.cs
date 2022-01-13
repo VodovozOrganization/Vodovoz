@@ -7,6 +7,7 @@ using Gtk;
 using MangoService;
 using NHibernate.Util;
 using NLog;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
@@ -31,6 +32,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private readonly IEmployeeService employeeService;
 		private readonly IUserService userService;
 		private readonly INavigationManager navigation;
+		private readonly IInteractiveService _interactiveService;
 		private ConnectionState connectionState;
 		private uint extension;
 		private MangoServiceClient mangoServiceClient;
@@ -38,19 +40,23 @@ namespace Vodovoz.Infrastructure.Mango
 		private IPage CurrentPage;
 		private uint timer;
 		private MangoController _mangoController;
+		private readonly string[] _exceptionMessagesToCatch =
+			{ "The error on the client side. Status code: 503", "The error on the client side. Status code: 429" };
 
 		public MangoManager(Gtk.Action toolbarIcon,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IUserService userService,
 			INavigationManager navigation,
-			BaseParametersProvider parameters)
+			BaseParametersProvider parameters,
+			IInteractiveService interactiveService)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_mangoController = new MangoController(parameters.VpbxApiKey, parameters.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
@@ -348,7 +354,21 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void MakeCall(string to_extension)
 		{
-			_mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
+			try
+			{
+				_mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
+			}
+			catch(Exception e)
+			{
+				if(e.InnerException != null && _exceptionMessagesToCatch.Contains(e.InnerException.Message))
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
+				}
+				else
+				{
+					throw;
+				}
+			}
 		}
 
 		public void ForwardCall(string to_extension, ForwardingMethod method)
