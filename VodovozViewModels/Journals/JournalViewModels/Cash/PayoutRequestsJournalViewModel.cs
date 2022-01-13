@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private bool _cashRequestFinancier;
 		private bool _cashRequestCoordinator;
 		private bool _roleCashier;
+		private bool _roleSecurityService;
 		private bool _canSeeCurrentSubdivisonRequests;
 		private int _currentEmployeeId;
 		private Employee _currentEmployee;
@@ -103,6 +104,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_cashRequestCoordinator =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_coordinator_cash_request", userId);
 			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission("role_сashier", userId);
+			_roleSecurityService =
+				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
 		}
@@ -260,7 +263,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				}
 			}
 
-			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier)
+			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
@@ -399,7 +402,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				}
 			}
 
-			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier)
+			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
