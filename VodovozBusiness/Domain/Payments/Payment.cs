@@ -277,7 +277,7 @@ namespace Vodovoz.Domain.Payments
 			return false;
 		}
 		
-		public virtual Payment CreatePaymentForReturnMoneyToClientBalance(decimal paymentSum, int orderId)
+		public virtual Payment CreatePaymentForReturnAllocatedSumToClientBalance(decimal paymentSum, int orderId)
 		{
 			return new Payment
 			{

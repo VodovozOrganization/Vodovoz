@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -59,10 +60,14 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IOrderRepository _orderRepository = new OrderRepository();
+		private static readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+
 		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
+		private readonly IPaymentFromBankClientController _paymentFromBankClientController =
+			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -1144,20 +1149,25 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 			
+			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
+			
 			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
 			{
-				IOrderParametersProvider _orderParametersProvider = (validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider); 
-				if(_orderParametersProvider == null)
+				if(orderParametersProvider == null)
 				{
-					throw new ArgumentException("Не был передан необходимый аргумент IOrderParametersProvider");
+					throw new ArgumentNullException(nameof(IOrderParametersProvider));
 				}
-				if(PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
+				if(PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
 				{
 					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
 				}
 			}
 
-			if(new[] { PaymentType.cash, PaymentType.Terminal, PaymentType.ByCard }.Contains(PaymentType)
+			if((new[] { PaymentType.cash, PaymentType.Terminal }.Contains(PaymentType)
+				|| (PaymentType == PaymentType.ByCard
+					&& PaymentByCardFrom != null
+					&& !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
+						.PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
 				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
 				yield return new ValidationResult(
 					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
@@ -1377,7 +1387,7 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
-		private void AddOrderItem(OrderItem orderItem)
+		public virtual void AddOrderItem(OrderItem orderItem)
 		{
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
@@ -1417,6 +1427,18 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void UpdateAddressType()
+		{
+			if(Client != null && Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature))
+			{
+				OrderAddressType = OrderAddressType.ChainStore;
+			}
+			if(Client != null && !Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature) && OrderAddressType != OrderAddressType.StorageLogistics)
+			{
+				OrderAddressType = OrderAddressType.Delivery;
+			}
+		}
+
 		private DiscountReason GetDiscountReasonStockBottle(
 			IOrderParametersProvider orderParametersProvider, decimal discount)
 		{
@@ -1440,25 +1462,25 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
-			decimal discountForStock = 0m;
-			DiscountReason discountReasonStockBottle = null;
+			decimal stockBottleDiscountPercent = 0m;
+			DiscountReason stockBottleDiscountReason = null;
 			
 			if(bottlesByStock == Total19LBottlesToDeliver)
 			{
-				discountForStock = 10m;
-				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
+				stockBottleDiscountPercent = 10m;
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
 			}
 			if(bottlesByStock > Total19LBottlesToDeliver)
 			{
-				discountForStock = 20m;
-				discountReasonStockBottle = GetDiscountReasonStockBottle(orderParametersProvider, discountForStock);
+				stockBottleDiscountPercent = 20m;
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
 			}
 			
 			foreach(OrderItem item in ObservableOrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
-				item.SetDiscountByStock(discountReasonStockBottle, discountForStock);
+				item.SetDiscountByStock(stockBottleDiscountReason, stockBottleDiscountPercent);
 			}
 		}
 
@@ -1587,10 +1609,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			for (int i = 0; i < ObservableOrderItems.Count; i++) {
-				if(ObservableOrderItems[i].Nomenclature.Category == NomenclatureCategory.water) {
-					ObservableOrderItems[i].RecalculatePrice();
-				}
+			foreach(var orderItem in OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water))
+			{
+				orderItem.RecalculatePrice();
 			}
 		}
 
@@ -2083,165 +2104,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Наполнение списка товаров нового заказа элементами списка другого заказа.
-		/// </summary>
-		/// <param name="order">Заказ, из которого будет производится копирование товаров</param>
-		public virtual void CopyItemsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(OrderItem orderItem in order.OrderItems) {
-
-				if (orderItem.Nomenclature.Id == PaidDeliveryNomenclatureId) {
-					continue;
-				}
-				
-				decimal discMoney;
-				if(orderItem.DiscountMoney == 0) {
-					if(orderItem.OriginalDiscountMoney == null)
-						discMoney = 0;
-					else
-						discMoney = orderItem.OriginalDiscountMoney.Value;
-				} else {
-					discMoney = orderItem.DiscountMoney;
-				}
-
-				decimal disc;
-				if(orderItem.Discount == 0) {
-					if(orderItem.OriginalDiscount == null)
-						disc = 0;
-					else
-						disc = orderItem.OriginalDiscount.Value;
-				} else {
-					disc = orderItem.Discount;
-				}
-
-				var newItem = new OrderItem {
-					Order = this,
-					Nomenclature = orderItem.Nomenclature,
-					Equipment = orderItem.Equipment,
-					PromoSet = orderItem.PromoSet,
-					Price = orderItem.Price,
-					IsUserPrice = orderItem.IsUserPrice,
-					Count = orderItem.Count,
-					IncludeNDS = orderItem.IncludeNDS,
-					IsDiscountInMoney = orderItem.IsDiscountInMoney,
-					DiscountMoney = discMoney,
-					Discount = disc,
-					DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason
-				};
-				AddOrderItem(newItem);
-			}
-
-			RecalculateItemsPrice();
-
-			//Перенос скидки на доставку
-			var deliveryOrderItemFrom = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-			var deliveryOrderItemTo = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-			if (deliveryOrderItemFrom != null && deliveryOrderItemTo != null)
-			{
-				deliveryOrderItemTo.IsDiscountInMoney = deliveryOrderItemFrom.IsDiscountInMoney;
-				deliveryOrderItemTo.DiscountMoney = deliveryOrderItemFrom.DiscountMoney;
-				deliveryOrderItemTo.Discount = deliveryOrderItemFrom.Discount;
-				deliveryOrderItemTo.DiscountReason = deliveryOrderItemFrom.DiscountReason ?? deliveryOrderItemFrom.OriginalDiscountReason;
-			}
-		}
-
-		/// <summary>
-		/// Наполнение списка промо-наборов нового заказа элементами списка другого заказа.
-		/// </summary>
-		/// <param name="order">Заказ, из которого будет производится копирование оборудования</param>
-		public virtual void CopyPromotionalSetsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(var proSet in order.PromotionalSets)
-				ObservablePromotionalSets.Add(proSet);
-		}
-
-		/// <summary>
-		/// Наполнение списка оборудования нового заказа элементами списка другого заказа.
-		/// </summary>
-		/// <param name="order">Заказ, из которого будет производится копирование оборудования</param>
-		public virtual void CopyEquipmentFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка оборудования из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(OrderEquipment orderEquipment in order.OrderEquipments)
-			{
-				var flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(UoW);
-				
-				if (flyersNomenclaturesIds.Contains(orderEquipment.Nomenclature.Id))
-				{
-					continue;
-				}
-				
-				ObservableOrderEquipments.Add(
-					new OrderEquipment {
-						Order = this,
-						Direction = orderEquipment.Direction,
-						DirectionReason = orderEquipment.DirectionReason,
-						OrderItem = orderEquipment.OrderItem,
-						Equipment = orderEquipment.Equipment,
-						OwnType = orderEquipment.OwnType,
-						Nomenclature = orderEquipment.Nomenclature,
-						Reason = orderEquipment.Reason,
-						Confirmed = orderEquipment.Confirmed,
-						ConfirmedComment = orderEquipment.ConfirmedComment,
-						Count = orderEquipment.Count
-					}
-				);
-			}
-		}
-
-		/// <summary>
-		/// Копирует таблицу залогов в новый заказа из другого заказа
-		/// </summary>
-		/// <param name="order">Order.</param>
-		public virtual void CopyDepositItemsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка залогов из другого заказа недопустимо, если этот заказ не новый.");
-
-			foreach(OrderDepositItem oDepositItem in order.OrderDepositItems) {
-				ObservableOrderDepositItems.Add(
-					new OrderDepositItem {
-						Order = this,
-						Count = oDepositItem.Count,
-						Deposit = oDepositItem.Deposit,
-						DepositType = oDepositItem.DepositType,
-						EquipmentNomenclature = oDepositItem.EquipmentNomenclature
-					}
-				);
-			}
-		}
-
-		public virtual void CopyDocumentsFrom(Order order)
-		{
-			if(Id > 0)
-				throw new InvalidOperationException("Копирование списка документов из другого заказа недопустимо, если этот заказ не новый.");
-
-			var counterpartyDocTypes = typeof(OrderDocumentType).GetFields()
-													   .Where(x => !x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
-													   .Where(x => !x.Name.Equals("value__"))
-													   .Select(x => (OrderDocumentType)x.GetValue(null))
-													   .ToArray();
-
-			var orderDocTypes = typeof(OrderDocumentType).GetFields()
-													   .Where(x => x.GetCustomAttributes(typeof(DocumentOfOrderAttribute), false).Any())
-													   .Select(x => (OrderDocumentType)x.GetValue(null))
-													   .ToArray();
-
-			var counterpartyDocs = order.OrderDocuments.Where(d => counterpartyDocTypes.Contains(d.Type)).ToList();
-			var orderDocs = order.OrderDocuments.Where(d => orderDocTypes.Contains(d.Type) && d.AttachedToOrder.Id != d.Order.Id).ToList();
-			AddAdditionalDocuments(counterpartyDocs);
-			AddAdditionalDocuments(orderDocs);
-		}
-
-		/// <summary>
 		/// Удаляет дополнительные документы выделенные пользователем, которые не относятся к текущему заказу.
 		/// </summary>
 		/// <returns>Документы текущего заказа, которые не были удалены.</returns>
@@ -2266,9 +2128,9 @@ namespace Vodovoz.Domain.Orders
 		/// Добавляет дополнительные документы выбранные пользователем в диалоге,
 		/// с проверкой их наличия в текущем заказе
 		/// </summary>
-		public virtual void AddAdditionalDocuments(List<OrderDocument> documentsList)
+		public virtual void AddAdditionalDocuments(IEnumerable<OrderDocument> documents)
 		{
-			foreach(var item in documentsList) {
+			foreach(var item in documents) {
 				switch(item.Type) {
 					case OrderDocumentType.Contract:
 						OrderContract oc = (item as OrderContract);
@@ -2285,13 +2147,19 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.M2Proxy:
-						OrderM2Proxy m2 = (item as OrderM2Proxy);
-						if(observableOrderDocuments
+						OrderM2Proxy m2 = item as OrderM2Proxy;
+						var hasDocument = observableOrderDocuments
 						   .OfType<OrderM2Proxy>()
-						   .FirstOrDefault(x => x.M2Proxy == m2.M2Proxy
-										   && x.Order == m2.Order)
-						   == null) {
-							ObservableOrderDocuments.Add(m2);
+						   .Any(x => x.M2Proxy == m2.M2Proxy && x.Order == m2.Order);
+
+						if(!hasDocument) 
+						{
+							var newM2 = new OrderM2Proxy();
+							newM2.AttachedToOrder = this;
+							newM2.Order = m2.Order;
+							newM2.M2Proxy = m2.M2Proxy;
+
+							ObservableOrderDocuments.Add(newM2);
 						}
 						break;
 					case OrderDocumentType.Bill:
@@ -2668,7 +2536,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					ChangeOrderPaymentStatus();
+					_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, Id);
 					break;
 				default:
 					break;
@@ -2694,40 +2562,6 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
-		
-
-		public virtual void ChangeOrderPaymentStatus()
-		{
-			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
-
-			if (!paymentItems.Any()) 
-				return;
-			
-			var paymentSum = paymentItems.Select(x => x.CashlessMovementOperation).Sum(x => x.Expense);
-
-			if (paymentSum == 0)
-				return;
-			
-			if (OrderPaymentStatus != OrderPaymentStatus.UnPaid)
-			{
-				ReturnPaymentToTheClientBalance(paymentSum, paymentItems);
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-			}
-		}
-
-		private void ReturnPaymentToTheClientBalance(decimal paymentSum, IList<PaymentItem> paymentItems)
-		{
-			var payment = paymentItems.Select(x => x.Payment).FirstOrDefault();
-
-			if(payment == null)
-			{
-				return;
-			}
-
-			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, Id);
-			
-			UoW.Save(newPayment);
-		}
 
 		/// <summary>
 		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
@@ -2740,7 +2574,7 @@ namespace Vodovoz.Domain.Orders
 			    || previousStatus == OrderStatus.Canceled)
 			   && PaymentType == PaymentType.cashless)
 			{
-				var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id);
+				var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id);
 				var payment = paymentItems.FirstOrDefault()?.Payment;
 				if(payment == null)
 				{
@@ -2773,7 +2607,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
 		{
-			var paymentItems = _orderRepository.GetPaymentItemsForOrder(UoW, Id)
+			var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id)
 				.Where(pi => pi != ignoredItem).ToList();
 			if(!paymentItems.Any())
 			{
@@ -3666,7 +3500,11 @@ namespace Vodovoz.Domain.Orders
 			UoW.Session.Refresh(this);
 		}
 
-		public virtual void SaveEntity(IUnitOfWork uow, Employee currentEmployee, IOrderDailyNumberController orderDailyNumberController)
+		public virtual void SaveEntity(
+			IUnitOfWork uow,
+			Employee currentEmployee,
+			IOrderDailyNumberController orderDailyNumberController,
+			IPaymentFromBankClientController paymentFromBankClientController)
 		{
 			SetFirstOrder();
 			if(Contract == null)
@@ -3678,6 +3516,7 @@ namespace Vodovoz.Domain.Orders
 			ParseTareReason();
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
+			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			uow.Save();
 		}
 		
@@ -3688,6 +3527,30 @@ namespace Vodovoz.Domain.Orders
 
 			if(ReturnTareReasonCategory != null)
 				ReturnTareReasonCategory = null;
+		}
+		
+		public virtual void SetActualCountsToZeroOnCanceled()
+		{
+			foreach(var item in OrderItems)
+			{
+				if(!item.OriginalDiscountMoney.HasValue || !item.OriginalDiscount.HasValue)
+				{
+					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
+					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
+					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
+				}
+				item.ActualCount = 0m;
+			}
+
+			foreach(var equip in OrderEquipments)
+			{
+				equip.ActualCount = 0;
+			}
+
+			foreach(var deposit in OrderDepositItems)
+			{
+				deposit.ActualCount = 0;
+			}
 		}
 		
 		#endregion

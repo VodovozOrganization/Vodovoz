@@ -181,6 +181,10 @@ namespace Vodovoz.Models
 			{
 				return _organizationParametersProvider.VodovozNorthOrganizationId;
 			}
+			if(paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromMarketplaceId)
+			{
+				return _organizationParametersProvider.VodovozOrganizationId;
+			}
 			if(paymentFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
 			{
 				if(geographicGroup == null || orderCreateDate == null)

@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
 using QS.ViewModels.Extension;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Infrastructure;
@@ -40,8 +41,10 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
@@ -71,6 +74,7 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 
@@ -82,6 +86,7 @@ namespace Vodovoz
 
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
 
@@ -159,6 +164,7 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{
 			_canEdit = _isRoleCashier && permissionResult.CanUpdate;
+			_paymentFromBankClientController = new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
 				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
 			}
@@ -767,6 +773,11 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
+
+			foreach(var address in Entity.Addresses)
+			{
+				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
+			}
 			
 			UoW.Save();
 
@@ -814,14 +825,19 @@ namespace Vodovoz
 				return;
 			}
 
-			var validationContext = new Dictionary<object, object> {
-				{"NewStatus", RouteListStatus.MileageCheck},
-				{"cash_order_close", true},
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()},
-				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
-			};
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+			var validationContext = _validationContextFactory.CreateNewValidationContext(
+				Entity,
+				new Dictionary<object, object> {
+					{"NewStatus", RouteListStatus.MileageCheck},
+					{"cash_order_close", true},
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
+				});
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),
+				new OrderParametersProvider(_parametersProvider));
+
+			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+			{
 				return;
 			}
 
