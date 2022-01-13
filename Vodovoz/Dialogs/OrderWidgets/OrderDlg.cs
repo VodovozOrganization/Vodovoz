@@ -2906,7 +2906,7 @@ namespace Vodovoz
 				buttonEditOrder.Visible = false;
 			}
 
-			textComments.Editable = CanEditByPermission && Entity.OrderStatus != OrderStatus.NewOrder;
+			textComments.Editable = CanEditByPermission;
 			btnSaveComment.Sensitive = CanEditByPermission && Entity.OrderStatus != OrderStatus.NewOrder;
 
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
