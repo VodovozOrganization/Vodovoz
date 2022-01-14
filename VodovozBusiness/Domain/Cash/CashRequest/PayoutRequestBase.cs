@@ -208,7 +208,10 @@ namespace Vodovoz.Domain.Cash
 		Other,
 
 		[Display(Name = "Бухгалтер")]
-		Accountant
+		Accountant,
+		
+		[Display(Name = "Служба безопасности")]
+		SecurityService,
 	}
 
 	public class CashRequestStateStringType : EnumStringType
