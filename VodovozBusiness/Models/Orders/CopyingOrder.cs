@@ -126,7 +126,7 @@ namespace Vodovoz.Models.Orders
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
-				.Where(x => x.Id != _paidDeliveryNomenclatureId);
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
 
 			foreach(var orderItem in orderItems)
 			{
@@ -207,11 +207,11 @@ namespace Vodovoz.Models.Orders
 
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet != null)
-				.Where(x => x.Id != _paidDeliveryNomenclatureId);
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
 
 			foreach(var promosetOrderItem in orderItems)
 			{
-				CopyOrderItem(promosetOrderItem);
+				CopyOrderItemFromPromoSet(promosetOrderItem);
 				CopyDependentOrderEquipment(promosetOrderItem);
 			}
 
@@ -235,6 +235,25 @@ namespace Vodovoz.Models.Orders
 			{
 				CopyOrderEquipment(orderEquipment);
 			}
+		}
+		
+		private void CopyOrderItemFromPromoSet(OrderItem orderItem)
+		{
+			var newOrderItem = new OrderItem
+			{
+				Order = _resultOrder,
+				Nomenclature = orderItem.Nomenclature,
+				PromoSet = orderItem.PromoSet,
+				Price = orderItem.Price,
+				IsUserPrice = orderItem.IsUserPrice,
+				IsDiscountInMoney = orderItem.IsDiscountInMoney,
+				Discount = orderItem.Discount,
+				DiscountMoney = orderItem.DiscountMoney,
+				Count = orderItem.Count,
+				IncludeNDS = orderItem.IncludeNDS,
+			};
+
+			_resultOrder.AddOrderItem(newOrderItem);
 		}
 
 		private void CopyOrderItem(OrderItem orderItem)
