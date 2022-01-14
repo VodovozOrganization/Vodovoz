@@ -251,6 +251,7 @@ namespace Vodovoz.Models.Orders
 				IsDiscountInMoney = orderItem.IsDiscountInMoney,
 				Discount = orderItem.Discount,
 				DiscountMoney = orderItem.DiscountMoney,
+				DiscountReason = orderItem.DiscountReason,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS,
 			};
