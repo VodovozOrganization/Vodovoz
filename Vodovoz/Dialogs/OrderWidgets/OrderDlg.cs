@@ -336,7 +336,7 @@ namespace Vodovoz
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
 				.CopyPromotionalSets()
-				.CopyOrderItems()
+				.CopyOrderItems(true)
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
