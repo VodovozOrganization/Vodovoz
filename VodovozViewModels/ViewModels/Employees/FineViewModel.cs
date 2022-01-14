@@ -9,17 +9,17 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using QS.Project.Journal;
 using Vodovoz.Domain;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.Project.Journal.EntitySelector;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Employees
 {
-	public class FineViewModel : EntityTabViewModelBase<Fine>
+	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUnitOfWorkFactory uowFactory;
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
@@ -39,6 +39,7 @@ namespace Vodovoz.ViewModels.Employees
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateEmployeeList();
@@ -63,7 +64,7 @@ namespace Vodovoz.ViewModels.Employees
 				x => x.FineType
 			);
 
-			Entity.ObservableItems.ListChanged += (aList) => { OnPropertyChanged(() => CanEditFineType); };
+			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
 		}
 
 		private Employee currentEmployee;
@@ -76,33 +77,45 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
-		public FineTypes FineType {
-			get { return Entity.FineType; }
-			set {
+		public FineTypes FineType
+		{
+			get => Entity.FineType;
+			set
+			{
 				Entity.FineType = value;
 				UpdateEmployeeList();
 			}
 		}
 
-		public string FineReasonString {
+		public string FineReasonString
+		{
 			get => Entity.FineReasonString;
 			set => Entity.FineReasonString = value;
 		}
 
-		public virtual RouteList RouteList {
-			get { return Entity.RouteList; }
-			set {
+		public virtual RouteList RouteList
+		{
+			get => Entity.RouteList;
+			set
+			{
 				Entity.RouteList = value;
 				UpdateEmployeeList();
 			}
 		}
 		
-		public virtual UndeliveredOrder UndeliveredOrder {
+		public virtual UndeliveredOrder UndeliveredOrder
+		{
 			get => Entity.UndeliveredOrder;
 			set => Entity.UndeliveredOrder = value;
 		}
 
-		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
+
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
 
 		[PropertyChangedAlso(nameof(CanShowRequestRouteListMessage))]
 		public bool IsFuelOverspendingFine => Entity.FineType == FineTypes.FuelOverspending;
@@ -120,9 +133,12 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void UpdateEmployeeList()
 		{
-			if(Entity.RouteList != null) {
+			if(Entity.RouteList != null)
+			{
 				ClearItems(Entity.RouteList.Driver);
-			} else {
+			}
+			else
+			{
 				ClearItems();
 			}
 		}
@@ -130,14 +146,19 @@ namespace Vodovoz.ViewModels.Employees
 		private void ClearItems(Employee driver = null)
 		{
 			FineItem item = null;
-			if(driver != null) {
+			if(driver != null)
+			{
 				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
 			}
 			Entity.ObservableItems.Clear();
-			if(driver != null) {
-				if(item != null) {
+			if(driver != null)
+			{
+				if(item != null)
+				{
 					Entity.ObservableItems.Add(item);
-				} else {
+				}
+				else
+				{
 					Entity.AddItem(driver);
 				}
 			}
@@ -152,7 +173,8 @@ namespace Vodovoz.ViewModels.Employees
 
 		public override bool Save(bool close)
 		{
-			if(Entity.Author == null) {
+			if(Entity.Author == null)
+			{
 				Entity.Author = CurrentEmployee;
 			}
 			return base.Save(close);
