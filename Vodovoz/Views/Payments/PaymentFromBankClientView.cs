@@ -26,10 +26,17 @@ namespace Vodovoz.Views.Payments
 			paymentDatePicker.Binding
 				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
 				.InitializeFromSource();
+
+			chkBtnUpdateBalance.Toggled += (sender, args) => ViewModel.ChangePaymentNumAndPaymentPurposeCommand.Execute();
+			chkBtnUpdateBalance.Binding
+				.AddBinding(ViewModel, vm => vm.IsPaymentForUpdateBalance, w => w.Active)
+				.InitializeFromSource();
+
 			
 			yspinPaymentNum.Binding
 				.AddBinding(ViewModel.Entity, e => e.PaymentNum, w => w.ValueAsInt)
 				.InitializeFromSource();
+			yspinPaymentNum.Adjustment.Lower = 1;
 			yspinPaymentTotal.Binding
 				.AddBinding(ViewModel.Entity, e => e.Total, w => w.ValueAsDecimal)
 				.InitializeFromSource();
@@ -44,7 +51,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			specListCmbCategoryProfit.ItemsList = ViewModel.ProfitCategories;
-			specListCmbCategoryProfit.SetRenderTextFunc<ProfitCategory>(cp => cp.Name);
+			specListCmbCategoryProfit.SetRenderTextFunc<ProfitCategory>(pc => pc.Name);
 			specListCmbCategoryProfit.Binding
 				.AddBinding(ViewModel.Entity, e => e.ProfitCategory, w => w.SelectedItem)
 				.InitializeFromSource();

@@ -12,6 +12,7 @@ using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using NHibernate.Dialect.Function;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
+using QS.Deletion;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -32,7 +33,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
-		private readonly bool _canCreateNewPayment;
+		private readonly bool _canCreateNewManualPayment;
 		
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
@@ -52,8 +53,8 @@ namespace Vodovoz.JournalViewModels
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
-			_canCreateNewPayment =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_new_payment_from_bank_client");
+			_canCreateNewManualPayment =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_new_manual_payment_from_bank_client");
 			
 			TabName = "Журнал платежей из банк-клиента";
 
@@ -152,11 +153,7 @@ namespace Vodovoz.JournalViewModels
 			CreateAddNewPaymentAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
-
-			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
-			{
-				CreateDefaultDeleteAction();
-			}
+			CreateDefaultDeleteAction();
 
 			NodeActionsList.Add(new JournalAction(
 				"Завершить распределение", 
@@ -172,7 +169,7 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Add(new JournalAction(
 					"Создать новый платеж", 
 					x => true,
-					x => _canCreateNewPayment,
+					x => _canCreateNewManualPayment,
 					selectedItems =>
 					{
 						_navigationManager.OpenViewModel<PaymentFromBankClientViewModel, IEntityUoWBuilder>(

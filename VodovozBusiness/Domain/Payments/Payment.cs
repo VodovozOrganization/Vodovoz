@@ -316,7 +316,7 @@ namespace Vodovoz.Domain.Payments
 		{
 			if(Counterparty == null)
 			{
-				yield return new ValidationResult("Заполните контрагента.", new[] { nameof(Counterparty) });
+				yield return new ValidationResult("Заполните контрагента", new[] { nameof(Counterparty) });
 			}
 
 			if(Comment != null && Comment.Length > _commentLimit)
@@ -329,6 +329,11 @@ namespace Vodovoz.Domain.Payments
 			{
 				yield return new ValidationResult($"Длина назначения платежа превышена на {PaymentPurpose.Length - _paymentPurposeLimit}",
 					new[] { nameof(PaymentPurpose) });
+			}
+
+			if(Total == 0)
+			{
+				yield return new ValidationResult($"Сумма платежа не может быть равной 0", new[] { nameof(Total) });
 			}
 		}
 	}
