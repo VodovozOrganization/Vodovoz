@@ -5,6 +5,7 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -28,11 +29,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
+		private readonly IPermissionResult _deliveryPointPermissionResult;
+		private readonly IPermissionResult _orderPermissionResult;
 		DeliveryPoint DeliveryPoint { get; set; }
 
-		public DeliveryPointPanelView()
+		public DeliveryPointPanelView(ICommonServices commonServices)
 		{
-			this.Build();
+			if(commonServices == null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+			Build();
+			_deliveryPointPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
+			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
 			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
@@ -88,7 +97,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			buttonSaveComment.Sensitive = true;
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 
 			foreach(var child in PhonesTable.Children)
@@ -129,6 +137,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
 			var depositsAtDeliveryPoint = _depositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
+
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 
 			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
@@ -136,6 +145,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			vboxLastOrders.Visible = currentOrders.Any();
 
 			table2.ShowAll();
+
+			buttonSaveComment.Sensitive = btn.Sensitive = textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
 		}
 
 		public bool VisibleOnPanel {
@@ -161,9 +172,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
-			var order = ytreeLastOrders.GetSelectedObject() as Order;
-			if(InfoProvider is OrderDlg) {
-				(InfoProvider as OrderDlg)?.FillOrderItems(order);
+			if(InfoProvider is OrderDlg orderDlg &&
+			   (_orderPermissionResult.CanUpdate || _orderPermissionResult.CanCreate && orderDlg.Order.Id == 0))
+			{
+				var order = ytreeLastOrders.GetSelectedObject() as Order;
+				orderDlg.FillOrderItems(order);
 			}
 		}
 

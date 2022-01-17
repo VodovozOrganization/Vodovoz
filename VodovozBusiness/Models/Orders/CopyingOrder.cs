@@ -38,6 +38,8 @@ namespace Vodovoz.Models.Orders
 			_flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
 		}
 
+		public Order GetCopiedOrder => _copiedOrder;
+
 		/// <summary>
 		/// Копирование основных полей заказа
 		/// </summary>
@@ -117,23 +119,24 @@ namespace Vodovoz.Models.Orders
 			return this;
 		}
 
+		
 		/// <summary>
 		/// Копирование товаров (<see cref="OrderItem"/>) заказа и связанного с ним оборудования (<see cref="OrderEquipment"/>)
 		/// </summary>
-		public CopyingOrder CopyOrderItems()
+		/// <param name="withDiscounts">Копируем со скидками или без</param>
+		public CopyingOrder CopyOrderItems(bool withDiscounts = false)
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
-				.Where(x => x.Id != _paidDeliveryNomenclatureId);
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
 
 			foreach(var orderItem in orderItems)
 			{
-				CopyOrderItem(orderItem);
+				CopyOrderItem(orderItem, withDiscounts);
 				CopyDependentOrderEquipment(orderItem);
 			}
 
 			_resultOrder.RecalculateItemsPrice();
-			_resultOrder.CalculateDeliveryPrice();
 
 			return this;
 		}
@@ -145,7 +148,7 @@ namespace Vodovoz.Models.Orders
 		public CopyingOrder CopyAdditionalOrderEquipments()
 		{
 			var orderEquipments = _copiedOrder.OrderEquipments
-					.Where(x => !_flyersNomenclaturesIds.Contains(x.Id))
+					.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
 					.Where(x => x.OrderItem == null);
 
 			foreach(var orderEquipment in orderEquipments)
@@ -206,11 +209,11 @@ namespace Vodovoz.Models.Orders
 
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet != null)
-				.Where(x => x.Id != _paidDeliveryNomenclatureId);
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
 
 			foreach(var promosetOrderItem in orderItems)
 			{
-				CopyOrderItem(promosetOrderItem);
+				CopyOrderItemFromPromoSet(promosetOrderItem);
 				CopyDependentOrderEquipment(promosetOrderItem);
 			}
 
@@ -226,7 +229,7 @@ namespace Vodovoz.Models.Orders
 		private void CopyDependentOrderEquipment(OrderItem orderItem)
 		{
 			var orderEquipments = _copiedOrder.OrderEquipments
-					.Where(x => !_flyersNomenclaturesIds.Contains(x.Id))
+					.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
 					.Where(x => x.OrderItem != null)
 					.Where(x => x.OrderItem.Id == orderItem.Id);
 
@@ -235,8 +238,28 @@ namespace Vodovoz.Models.Orders
 				CopyOrderEquipment(orderEquipment);
 			}
 		}
+		
+		private void CopyOrderItemFromPromoSet(OrderItem orderItem)
+		{
+			var newOrderItem = new OrderItem
+			{
+				Order = _resultOrder,
+				Nomenclature = orderItem.Nomenclature,
+				PromoSet = orderItem.PromoSet,
+				Price = orderItem.Price,
+				IsUserPrice = orderItem.IsUserPrice,
+				IsDiscountInMoney = orderItem.IsDiscountInMoney,
+				Discount = orderItem.Discount,
+				DiscountMoney = orderItem.DiscountMoney,
+				DiscountReason = orderItem.DiscountReason,
+				Count = orderItem.Count,
+				IncludeNDS = orderItem.IncludeNDS,
+			};
 
-		private void CopyOrderItem(OrderItem orderItem)
+			_resultOrder.AddOrderItem(newOrderItem);
+		}
+
+		private void CopyOrderItem(OrderItem orderItem, bool withDiscounts = false)
 		{
 			var newOrderItem = new OrderItem
 			{
@@ -246,10 +269,33 @@ namespace Vodovoz.Models.Orders
 				Price = orderItem.Price,
 				IsUserPrice = orderItem.IsUserPrice,
 				Count = orderItem.Count,
-				IncludeNDS = orderItem.IncludeNDS,
+				IncludeNDS = orderItem.IncludeNDS
 			};
 
+			if(withDiscounts)
+			{
+				CopyingDiscounts(orderItem, newOrderItem);
+			}
+
 			_resultOrder.AddOrderItem(newOrderItem);
+		}
+
+		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo)
+		{
+			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && orderItemFrom.DiscountReason != null)
+			{
+				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
+				orderItemTo.Discount = orderItemFrom.Discount;
+				orderItemTo.DiscountMoney = orderItemFrom.DiscountMoney;
+				orderItemTo.DiscountReason = orderItemFrom.DiscountReason;
+			}
+			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && orderItemFrom.OriginalDiscountReason != null)
+			{
+				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
+				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
+				orderItemTo.DiscountMoney = orderItemFrom.OriginalDiscountMoney.Value;
+				orderItemTo.DiscountReason = orderItemFrom.OriginalDiscountReason;
+			}
 		}
 
 		private void CopyOrderEquipment(OrderEquipment orderEquipment)

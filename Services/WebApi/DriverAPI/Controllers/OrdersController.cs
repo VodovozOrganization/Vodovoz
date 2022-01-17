@@ -78,6 +78,7 @@ namespace DriverAPI.Controllers
 					completedOrderRequestModel.Rating,
 					completedOrderRequestModel.DriverComplaintReasonId,
 					completedOrderRequestModel.OtherDriverComplaintReasonComment,
+					completedOrderRequestModel.DriverComment,
 					recievedTime
 				);
 			}

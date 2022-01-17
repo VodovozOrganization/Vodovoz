@@ -12,20 +12,21 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
-using QS.Tdi;
-using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		private bool userHaveAccessToRetail = false;
+		private readonly bool _userHaveAccessToRetail;
 
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CounterpartyJournalViewModel(
+			CounterpartyJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 
-			userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 			UpdateOnChanges(
 				typeof(Counterparty),
@@ -60,7 +61,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead;
 				},
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
 				(selected) => {
@@ -107,14 +108,6 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = selectAction;
 			}
 			NodeActionsList.Add(selectAction);
-		}
-
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if (TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
@@ -246,7 +239,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(
-								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
+								Restrictions.Eq(Projections.Constant(true), _userHaveAccessToRetail),
 								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
 							),
 							Projections.Constant(true),

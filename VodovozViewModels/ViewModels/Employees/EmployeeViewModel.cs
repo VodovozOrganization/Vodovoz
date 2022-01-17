@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.Attachments.ViewModels.Widgets;
+using QS.ViewModels.Extension;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -39,7 +40,7 @@ using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
-	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog
+	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog, IAskSaveOnCloseViewModel
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IAuthorizationService _authorizationService;
@@ -55,6 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
+		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
 		private bool _canRegisterMobileUser;
@@ -164,8 +166,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				Entity.Phones = new List<Phone>();
 			}
-			
-			SetPermissions();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
@@ -173,12 +173,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanRegisterMobileUser = string.IsNullOrWhiteSpace(Entity.AndroidLogin) && string.IsNullOrWhiteSpace(Entity.AndroidPassword);
 
-			var permissionResult = 
-				_commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
-			
-			if(!permissionResult.CanRead) {
+			_employeePermissionSet = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee));
+
+			if(!_employeePermissionSet.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
 			}
+
+			SetPermissions();
 		}
 
 		private Employee EmployeeForCurrentUser => 
@@ -216,10 +217,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				PhonesViewModel.RemoveEmpty();
 
 				return UoWGeneric.HasChanges
-				       || !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					   || (_terminalManagementViewModel?.HasChanges ?? false);
+					|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
+					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
+
+		public bool AskSaveOnClose => CanEditEmployee;
 		
 		public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
 		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
@@ -247,13 +250,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanManageDriversAndForwarders { get; private set; }
 		public bool CanManageOfficeWorkers { get; private set; }
 		public bool CanCreateNewUser => Entity.User == null && CanManageUsers;
-		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
+		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (CanManageOfficeWorkers || CanManageDriversAndForwarders) && CanEditEmployee;
 		public bool CanEditWage { get; private set; }
 		public bool CanEditOrganisationForSalary { get; private set; }
+		public bool CanEditEmployee { get; private set; }
 
 		public bool CanRegisterMobileUser
 		{
-			get => _canRegisterMobileUser;
+			get => _canRegisterMobileUser && CanEditEmployee;
 			set
 			{
 				if(SetField(ref _canRegisterMobileUser, value))
@@ -265,7 +269,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public bool IsValidNewMobileUser => !string.IsNullOrWhiteSpace(Entity.AndroidLogin)
 										 && Entity.AndroidPassword?.Length >= 3
-										 && CanRegisterMobileUser;
+										 && CanRegisterMobileUser
+										 && CanEditEmployee;
 
 		public string AddMobileLoginInfo => CanRegisterMobileUser
 			? "<span color=\"red\">Имя пользователя и пароль нельзя будет изменить!\n" +
@@ -292,9 +297,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			&& SelectedDistrictPrioritySet.DateActivated == null
 			&& SelectedDistrictPrioritySet.ObservableDriverDistrictPriorities
 				.All(x => x.District.DistrictsSet.Status == DistrictsSetStatus.Active)
-			&& _canActivateDriverDistrictPrioritySetPermission;
+			&& _canActivateDriverDistrictPrioritySetPermission
+			&& CanEditEmployee;
 		
-		public bool CanCopyDistrictPrioritySet => SelectedDistrictPrioritySet != null && DriverDistrictPrioritySetPermission.CanCreate;
+		public bool CanCopyDistrictPrioritySet => SelectedDistrictPrioritySet != null && DriverDistrictPrioritySetPermission.CanCreate && CanEditEmployee;
 		public bool CanEditDistrictPrioritySet => 
 			SelectedDistrictPrioritySet != null 
 			&& (DriverDistrictPrioritySetPermission.CanUpdate || DriverDistrictPrioritySetPermission.CanRead);
@@ -327,8 +333,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
 												|| _employeeDocumentsPermissionsSet.CanUpdate) 
-											&& SelectedEmployeeDocuments.Any();
-		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any();
+											&& SelectedEmployeeDocuments.Any()
+											&& CanEditEmployee;
+		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any() && CanEditEmployee;
 
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
 		{
@@ -343,12 +350,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 		
-		public bool CanEditEmployeeContract => SelectedEmployeeContracts.Any();
-		public bool CanRemoveEmployeeContract => SelectedEmployeeContracts.Any();
+		public bool CanEditEmployeeContract => SelectedEmployeeContracts.Any() && CanEditEmployee;
+		public bool CanRemoveEmployeeContract => SelectedEmployeeContracts.Any() && CanEditEmployee;
 		
-		public bool CanCopyDriverScheduleSet => SelectedDriverScheduleSet != null && DriverWorkScheduleSetPermission.CanCreate;
+		public bool CanCopyDriverScheduleSet => SelectedDriverScheduleSet != null && DriverWorkScheduleSetPermission.CanCreate && CanEditEmployee;
 		public bool CanEditDriverScheduleSet => 
-			SelectedDriverScheduleSet != null && (DriverWorkScheduleSetPermission.CanUpdate || DriverWorkScheduleSetPermission.CanRead);
+			SelectedDriverScheduleSet != null
+			&& (DriverWorkScheduleSetPermission.CanUpdate || DriverWorkScheduleSetPermission.CanRead)
+			&& CanEditEmployee;
 
 		public DelegateCommand OpenDistrictPrioritySetCreateWindowCommand =>
 			_openDistrictPrioritySetCreateWindowCommand ?? (_openDistrictPrioritySetCreateWindowCommand = new DelegateCommand(
@@ -638,6 +647,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
 			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
+
+			CanEditEmployee = _employeePermissionSet.CanUpdate
+			                  || (_employeePermissionSet.CanCreate && Entity.Id == 0);
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);

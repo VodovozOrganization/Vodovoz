@@ -936,7 +936,7 @@ public partial class MainWindow : Window
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				Buttons buttons = Buttons.Add | Buttons.Edit;
-				return new PermissionControlledRepresentationJournal(vm, buttons);
+				return new PermissionControlledRepresentationJournal(vm, buttons, true);
 			}
 		);
 	}

@@ -12,34 +12,59 @@ namespace Vodovoz.EntityRepositories.Delivery
 	{
 		#region Получение районов по координатам
 
-		public District GetDistrict(IUnitOfWork uow, decimal latitude, decimal longitude)
+		/// <summary>
+		/// Возвращает первый попавшийся район, в котором содержатся переданные координаты
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="latitude">Широта</param>
+		/// <param name="longitude">Долгота</param>
+		/// <param name="districtsSet">Версия районов, из которой будет подбираться район. Если равна null, то район подбирается из активной версии</param>
+		public District GetDistrict(IUnitOfWork uow, decimal latitude, decimal longitude, DistrictsSet districtsSet = null)
 		{
-			var districts = GetDistricts(uow, latitude, longitude);
+			var districts = GetDistricts(uow, latitude, longitude, districtsSet);
 			return districts.FirstOrDefault();
 		}
 
-		public IEnumerable<District> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude)
+		/// <summary>
+		/// Возвращает все районы, в которых содержатся переданные координаты
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="latitude">Широта</param>
+		/// <param name="longitude">Долгота</param>
+		/// <param name="districtsSet">Версия районов, из которой будут подбираться районы. Если равна null, то районы подбираются из активной версии</param>
+		public IEnumerable<District> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude, DistrictsSet districtsSet = null)
 		{
 			Point point = new Point((double)latitude, (double)longitude);
 
 			District districtAlias = null;
 			DistrictsSet districtsSetAlias = null;
-			
-			IList<District> districtsWithBorders = uow.Session.QueryOver<District>(() => districtAlias)
+
+			var query = uow.Session.QueryOver<District>(() => districtAlias)
 				.Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
-				.Where(x => x.DistrictBorder != null)
-				.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
-				.List<District>();
+				.Where(x => x.DistrictBorder != null);
 
-			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point));
+			if(districtsSet == null)
+			{
+				query.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active);
+			}
+			else
+			{
+				query.Where(() => districtsSetAlias.Id == districtsSet.Id);
+			}
 
-			if(districts.Any()) {
+			var districtsWithBorders = query.List<District>();
+			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point)).ToList();
+
+			if(districts.Any())
+			{
 				return districts;
 			}
 
-			foreach(var nearPoint in Get4PointsInRadiusOfXMetersFromBasePoint(point)) {
-				districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(nearPoint));
-				if(districts.Any()) {
+			foreach(var nearPoint in Get4PointsInRadiusOfXMetersFromBasePoint(point))
+			{
+				districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(nearPoint)).ToList();
+				if(districts.Any())
+				{
 					return districts;
 				}
 			}
