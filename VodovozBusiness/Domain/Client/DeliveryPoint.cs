@@ -167,7 +167,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = string.Empty;
-				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort) && City != "Санкт-Петербург")
 					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
 					address += $"{City}, ";
