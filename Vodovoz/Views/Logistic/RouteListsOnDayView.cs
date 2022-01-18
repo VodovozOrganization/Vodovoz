@@ -858,6 +858,14 @@ namespace Vodovoz.Views.Logistic
 		bool creatingInProgress;
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
+			if(ViewModel.DateForRouting < DateTime.Today.AddDays(-1))
+			{
+				ViewModel.CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Нельзя создавать маршруты на дату ранее вчерашнего дня!");
+				return;
+			}
+			
 			UpdateWarningButton();
 
 			if(creatingInProgress) {
