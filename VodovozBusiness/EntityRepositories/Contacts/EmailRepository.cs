@@ -36,13 +36,6 @@ namespace Vodovoz.EntityRepositories
 		public List<OrderDocumentEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<OrderDocumentEmail>()
-				.Where(ode => ode.DocumentType.IsIn(new[]
-								{
-									OrderDocumentType.Bill,
-									OrderDocumentType.BillWSForDebt,
-									OrderDocumentType.BillWSForPayment,
-									OrderDocumentType.BillWSForAdvancePayment
-								}))
 				.JoinQueryOver(ode => ode.StoredEmail)
 				.Where(se => se.State == StoredEmailStates.PreparingToSend)
 				.List()
@@ -74,14 +67,17 @@ namespace Vodovoz.EntityRepositories
 			IList<OrderDocumentEmail> result;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
-
-				result = uow.Session.QueryOver<OrderDocumentEmail>()
-							.Where(ode => ode.Order.Id == orderId)
-							.And(ode => ode.DocumentType == type)
-							.JoinQueryOver(ode => ode.StoredEmail)
-							.Where(se => se.State != StoredEmailStates.SendingError)
-							.And(se => se.State != StoredEmailStates.Undelivered)
-							.List();
+				OrderDocumentEmail orderDocumentEmailAlias = null;
+				result = uow.Session.QueryOver<OrderDocumentEmail>(()=>orderDocumentEmailAlias)
+					.Where(od => od.Order.Id == orderId)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se=> se.State != StoredEmailStates.SendingError 
+					           && se.State != StoredEmailStates.Undelivered)
+					.WithSubquery.WhereExists(
+						QueryOver.Of<BillDocument>()
+							.Where(bd => bd.Id == orderDocumentEmailAlias.OrderDocument.Id)
+							.Select(bd => bd.Id))
+					.List();
 			}
 
 			return result.Any();

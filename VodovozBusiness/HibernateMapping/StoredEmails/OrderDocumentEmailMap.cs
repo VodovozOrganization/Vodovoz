@@ -9,7 +9,6 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 		{
 			Table("order_document_emails");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.DocumentType).Column("document_type");
 			References(x => x.Order).Column("order_id");
 			References(x => x.StoredEmail).Column("stored_email_id");
 			References(x => x.OrderDocument).Column("order_document_id");

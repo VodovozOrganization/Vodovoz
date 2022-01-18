@@ -3000,28 +3000,37 @@ namespace Vodovoz
 
 			int storedEmailId;
 
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<OrderDocumentEmail>($"Добавление записи о письме со счетом"))
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"Добавление записи о письме со счетом"))
 			{
 				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 
-				var storedEmail = new StoredEmail();
-				storedEmail.SendDate = DateTime.Now;
-				storedEmail.StateChangeDate = DateTime.Now;
-				storedEmail.State = StoredEmailStates.WaitingToSend;
-				storedEmail.RecipientAddress = clientEmail.Address;
-				storedEmail.ManualSending = false;
-				storedEmail.Author = _employeeRepository.GetEmployeeForCurrentUser(uow);
-				uow.Save(storedEmail);
-				uow.Root.Order = Order;
-				uow.Root.DocumentType = OrderDocumentType.Bill;
-
+				uow.Root.SendDate = DateTime.Now;
+				uow.Root.StateChangeDate = DateTime.Now;
+				uow.Root.State = StoredEmailStates.PreparingToSend;
+				uow.Root.RecipientAddress = clientEmail.Address;
+				uow.Root.ManualSending = false;
+				uow.Root.Author = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				
 				try
 				{
 					uow.Save();
 					storedEmailId = uow.Root.Id;
+
+					var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
+
+					OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
+					{
+						StoredEmail = uow.Root,
+						Order = Order,
+						OrderDocument = document
+					};
+
+					uow.Save(orderDocumentEmail);
+					uow.Commit();
 				}
+
 				catch(Exception ex)
 				{
 					logger.Debug($"Ошибка при сохранении. Ошибка: { ex.Message }");

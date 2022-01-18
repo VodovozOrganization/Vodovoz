@@ -15,7 +15,6 @@ namespace Vodovoz.Domain.StoredEmails
 	public class OrderDocumentEmail : BusinessObjectBase<OrderDocumentEmail>, IDomainObject
 	{
 		private Order _order;
-		private OrderDocumentType _documentType;
 		private StoredEmail _storedEmail;
 		private OrderDocument _orderDocument;
 
@@ -26,13 +25,6 @@ namespace Vodovoz.Domain.StoredEmails
 		{
 			get => _order;
 			set => SetField(ref _order, value);
-		}
-
-		[Display(Name = "Тип документа")]
-		public virtual OrderDocumentType DocumentType
-		{
-			get => _documentType;
-			set => SetField(ref _documentType, value);
 		}
 
 		[Display(Name = "Электронная почта для отправки")]
