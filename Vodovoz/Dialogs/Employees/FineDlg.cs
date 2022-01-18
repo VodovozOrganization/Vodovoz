@@ -3,6 +3,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using Vodovoz.Domain;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
 using QS.Project.Services;
+using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -22,7 +24,7 @@ using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {
-	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>
+	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -93,26 +95,56 @@ namespace Vodovoz
 		{
 		}
 
+		private bool CanEdit => permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
+		
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
+		
 		private void ConfigureDlg()
 		{
+			buttonSave.Sensitive = CanEdit;
+			btnCancel.Clicked += (sender, args) => OnCloseTab(AskSaveOnClose, CloseSource.Cancel); 
+			buttonDivideAtAll.Sensitive = CanEdit;
+			buttonGetReasonFromTemplate.Sensitive = CanEdit;
+			
 			enumFineType.ItemsEnum = typeof(FineTypes);
-			enumFineType.Binding.AddBinding(Entity, s => s.FineType, w => w.SelectedItem).InitializeFromSource();
+			enumFineType.Sensitive = CanEdit;
+			enumFineType.Binding
+				.AddBinding(Entity, s => s.FineType, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			yspinLiters.Binding.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
+			yspinLiters.Sensitive = CanEdit;
+			yspinLiters.Binding
+				.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
 
 			ylabelAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.LabelProp,
 				new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
-			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
-			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
-			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
+			ylabelDate.Binding
+				.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp)
+				.InitializeFromSource();
+			yspinMoney.Binding
+				.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yentryFineReasonString.Sensitive = CanEdit;
+			yentryFineReasonString.Binding
+				.AddBinding(Entity, e => e.FineReasonString, w => w.Text)
+				.InitializeFromSource();
 			fineitemsview1.FineUoW = UoWGeneric;
+			fineitemsview1.Sensitive = CanEdit;
 
 			var filterRouteList = new RouteListsFilter(UoW);
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
-			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryreferenceRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			yentryreferenceRouteList.Sensitive = CanEdit;
+			yentryreferenceRouteList.Binding
+				.AddBinding(Entity, e => e.RouteList, w => w.Subject)
+				.InitializeFromSource();
+			yentryreferenceRouteList.CanEditReference =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
 			
@@ -122,7 +154,7 @@ namespace Vodovoz
 
 		void ObservableItems_ListChanged(object aList)
 		{
-			enumFineType.Sensitive = !(Entity.ObservableItems.Count() > 1);
+			enumFineType.Sensitive = !(Entity.ObservableItems.Count() > 1) && CanEdit;
 		}
 
 		public override bool Save ()
@@ -173,8 +205,8 @@ namespace Vodovoz
 				case FineTypes.Standart:
 					fineitemsview1.IsFuelOverspending = false;
 					buttonDivideAtAll.Visible = true;
-					yspinMoney.IsEditable = true;
-					yspinMoney.Sensitive = true;
+					yspinMoney.IsEditable = CanEdit;
+					yspinMoney.Sensitive = CanEdit;
 					labelOverspending.Visible = false;
 					yspinLiters.Visible = false;
 					labelRequestRouteList.Visible = false;
@@ -189,9 +221,13 @@ namespace Vodovoz
 					buttonGetReasonFromTemplate.Visible = false;
 					yentryFineReasonString.Text = Entity.FineType.GetEnumTitle();
 					labelRequestRouteList.Visible = yentryreferenceRouteList.Subject == null;
-					if(Entity.RouteList != null) {
+					
+					if(Entity.RouteList != null)
+					{
 						ClearItems(Entity.RouteList.Driver);
-					}else {
+					}
+					else
+					{
 						ClearItems();
 					}
 					break;
@@ -229,7 +265,6 @@ namespace Vodovoz
 		{
 			UpdateControlsState();
 			CalculateMoneyFromLiters();
-
 		}
 
 		private void ClearItems(Employee driver = null)
