@@ -52,7 +52,6 @@ namespace Vodovoz.ViewModel
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
 			Employee employeeAlias = null;
-			Subdivision subdivisionAlias = null;
 			RouteList routeListAlias = null;
 
 			var query = UoW.Session.QueryOver<Fine> (() => fineAlias)
