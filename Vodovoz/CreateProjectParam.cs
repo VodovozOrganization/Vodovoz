@@ -100,6 +100,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -149,6 +150,8 @@ using Vodovoz.Views.Print;
 using Vodovoz.Views.Rent;
 using Vodovoz.Views.Settings;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.Views.Payments;
 
 namespace Vodovoz
 {
@@ -261,6 +264,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
+				.RegisterWidgetForTabViewModel<CreateManualPaymentFromBankClientViewModel, PaymentFromBankClientView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
 				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
 				.RegisterWidgetForTabViewModel<GeneralSettingsViewModel, GeneralSettingsView>()
@@ -400,8 +404,13 @@ namespace Vodovoz
 			var builder = new ContainerBuilder();
 
 			#region База
+			
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-			builder.RegisterType<BaseParametersProvider>().As<ITerminalNomenclatureProvider>().AsSelf();
+			builder.RegisterType<BaseParametersProvider>()
+				.As<ITerminalNomenclatureProvider>()
+				.As<IProfitCategoryProvider>()
+				.AsSelf();
+			
 			#endregion
 
 			#region Сервисы
@@ -426,6 +435,7 @@ namespace Vodovoz
 			#region Vodovoz
 
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
+			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 			
 			#region Adapters
 

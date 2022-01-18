@@ -86,13 +86,16 @@
             <Width>88.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>153.7pt</Width>
+            <Width>138.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.5pt</Width>
+            <Width>93.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>41.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -277,6 +280,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>Плательщик</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>Ручной
+платеж</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -508,6 +529,25 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={manual_payment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>17pt</PaddingTop>
+                        <PaddingBottom>17pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -555,6 +595,7 @@
     IF(payments.counterparty_inn != client.inn, CONCAT(payments.counterparty_name, '\n', payments.counterparty_inn),'') AS payer,
     IFNULL(p_items.total, 0) as allocatedsum,
     CONCAT_WS('\n', payments.payment_purpose) as payment_purpose,
+    IF(payments.is_manual_created, 'Да', 'Нет') as manual_payment,
     CASE
         WHEN deposit.dep != 0 THEN 1
         WHEN payments.counterparty_id != orders.client_id THEN 2
@@ -628,6 +669,10 @@ ORDER BY ordering_col, payment_date DESC, orderdate DESC, orders.id DESC;</Comma
         </Field>
         <Field Name="payment_purpose">
           <DataField>payment_purpose</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="manual_payment">
+          <DataField>manual_payment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
