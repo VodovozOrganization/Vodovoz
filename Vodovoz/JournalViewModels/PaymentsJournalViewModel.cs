@@ -79,6 +79,11 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel != null) 
 			{
+				if(FilterViewModel.Counterparty != null)
+				{
+					paymentQuery.Where(p => p.Counterparty.Id == FilterViewModel.Counterparty.Id);
+				}
+				
 				if(FilterViewModel.StartDate.HasValue)
 				{
 					paymentQuery.Where(x => x.Date >= FilterViewModel.StartDate);
@@ -92,6 +97,11 @@ namespace Vodovoz.JournalViewModels
 				if(FilterViewModel.HideCompleted)
 				{
 					paymentQuery.Where(x => x.Status != PaymentState.completed);
+				}
+
+				if(FilterViewModel.HidePaymentsWithoutCounterparty)
+				{
+					paymentQuery.Where(p => p.Counterparty != null);
 				}
 
 				if(FilterViewModel.PaymentState.HasValue)
