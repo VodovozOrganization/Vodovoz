@@ -18,7 +18,7 @@ using QS.Commands;
 using System.Linq;
 using QS.Validation;
 using QS.Banks.Domain;
-using QSBanks.Repositories;
+using QS.Banks.Repositories;
 using QSProjectsLib;
 using System.Text.RegularExpressions;
 using QS.Project.Search;
@@ -27,6 +27,7 @@ using System.Linq.Expressions;
 using QS.Navigation;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using VodovozInfrastructure;
 
 namespace Vodovoz.ViewModels
 {
