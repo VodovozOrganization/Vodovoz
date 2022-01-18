@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.Payments
 			return uow.GetAll<ProfitCategory>();
 		}
 
-		public ProfitCategory GetProfitCategory(IUnitOfWork uow, int profitCategoryId)
+		public ProfitCategory GetProfitCategoryById(IUnitOfWork uow, int profitCategoryId)
 		{
 			return uow.Session.QueryOver<ProfitCategory>()
 				.Where(pc => pc.Id == profitCategoryId)

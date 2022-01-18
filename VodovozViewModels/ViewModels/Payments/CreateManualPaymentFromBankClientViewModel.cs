@@ -8,14 +8,13 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
-	public class PaymentFromBankClientViewModel : EntityTabViewModelBase<Payment>
+	public class CreateManualPaymentFromBankClientViewModel : EntityTabViewModelBase<Payment>
 	{
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
@@ -27,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private DelegateCommand _saveAndOpenManualPaymentMatchingCommand;
 		private DelegateCommand _changePaymentNumAndPaymentPurposeCommand;
 		
-		public PaymentFromBankClientViewModel(
+		public CreateManualPaymentFromBankClientViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
@@ -106,9 +105,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			ProfitCategories = profitCategoryRepository.GetAllProfitCategories(UoW);
 			Entity.Date = DateTime.Today;
 			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationParametersProvider.VodovozOrganizationId);
-			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategory(UoW, profitCategoryProvider.GetDefaultProfitCategory());
+			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, profitCategoryProvider.GetDefaultProfitCategory());
 			Entity.Status = PaymentState.undistributed;
-			Entity.IsManualCreated = true;
+			Entity.IsManuallyCreated = true;
 		}
 	}
 }

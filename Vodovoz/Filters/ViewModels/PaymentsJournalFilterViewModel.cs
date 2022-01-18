@@ -16,7 +16,7 @@ namespace Vodovoz.Filters.ViewModels
 		private DateTime? _endDate;
 		private PaymentState? _paymentState;
 		private bool _hideCompleted;
-		private bool _isManualCreated;
+		private bool _isManuallyCreated;
 
 		public DateTime? StartDate {
 			get => _startDate;
@@ -38,10 +38,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _hideCompleted, value);
 		}
 		
-		public bool IsManualCreated
+		public bool IsManuallyCreated
 		{
-			get => _isManualCreated;
-			set => UpdateFilterField(ref _isManualCreated, value);
+			get => _isManuallyCreated;
+			set => UpdateFilterField(ref _isManuallyCreated, value);
 		}
 	}
 }

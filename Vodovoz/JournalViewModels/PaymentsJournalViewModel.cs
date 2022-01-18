@@ -104,9 +104,9 @@ namespace Vodovoz.JournalViewModels
 					paymentQuery.Where(p => p.Status == FilterViewModel.PaymentState);
 				}
 
-				if(FilterViewModel.IsManualCreated)
+				if(FilterViewModel.IsManuallyCreated)
 				{
-					paymentQuery.Where(p => p.IsManualCreated);
+					paymentQuery.Where(p => p.IsManuallyCreated);
 				}
 			}
 
@@ -137,7 +137,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => paymentAlias.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
 				   .Select(() => profitCategoryAlias.Name).WithAlias(() => resultAlias.ProfitCategory)
 				   .Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
-				   .Select(() => paymentAlias.IsManualCreated).WithAlias(() => resultAlias.IsManualCreated)
+				   .Select(() => paymentAlias.IsManuallyCreated).WithAlias(() => resultAlias.IsManualCreated)
 				)
 				.OrderBy(() => paymentAlias.Status).Asc
 				.OrderBy(() => paymentAlias.CounterpartyName).Asc
@@ -175,7 +175,7 @@ namespace Vodovoz.JournalViewModels
 					x => _canCreateNewManualPayment,
 					selectedItems =>
 					{
-						_navigationManager.OpenViewModel<PaymentFromBankClientViewModel, IEntityUoWBuilder>(
+						_navigationManager.OpenViewModel<CreateManualPaymentFromBankClientViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForCreate());
 					}
 				)

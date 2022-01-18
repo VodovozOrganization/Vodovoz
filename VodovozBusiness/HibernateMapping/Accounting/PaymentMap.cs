@@ -24,7 +24,7 @@ namespace Vodovoz.HibernateMapping.Accounting
 			Map(x => x.CounterpartyBik).Column("counterparty_bik");
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.Status).Column("status").CustomType<PaymentStateStringType>();
-			Map(x => x.IsManualCreated).Column("is_manual_created");
+			Map(x => x.IsManuallyCreated).Column("is_manually_created");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.CounterpartyAccount).Column("counterparty_account_id");

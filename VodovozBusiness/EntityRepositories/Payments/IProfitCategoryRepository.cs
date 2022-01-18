@@ -7,6 +7,6 @@ namespace Vodovoz.EntityRepositories.Payments
 	public interface IProfitCategoryRepository
 	{
 		IEnumerable<ProfitCategory> GetAllProfitCategories(IUnitOfWork uow);
-		ProfitCategory GetProfitCategory(IUnitOfWork uow, int profitCategoryId);
+		ProfitCategory GetProfitCategoryById(IUnitOfWork uow, int profitCategoryId);
 	}
 }

@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Payments
 		private string _counterpartyBank;
 		private string _counterpartyBik;
 		private string _counterpartyCorrespondentAcc;
-		private bool _isManualCreated;
+		private bool _isManuallyCreated;
 		private PaymentState _status;
 		private CashlessMovementOperation _cashlessMovementOperation;
 		private Counterparty _counterparty;
@@ -185,10 +185,10 @@ namespace Vodovoz.Domain.Payments
 		}
 		
 		[Display(Name = "Платеж создан вручную?")]
-		public virtual bool IsManualCreated
+		public virtual bool IsManuallyCreated
 		{
-			get => _isManualCreated;
-			set => SetField(ref _isManualCreated, value);
+			get => _isManuallyCreated;
+			set => SetField(ref _isManuallyCreated, value);
 		}
 
 		public virtual string NumOrders { get; set; }

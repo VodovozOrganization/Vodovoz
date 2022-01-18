@@ -407,7 +407,7 @@
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
-    <Compile Include="ViewModels\Payments\PaymentFromBankClientViewModel.cs" />
+    <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

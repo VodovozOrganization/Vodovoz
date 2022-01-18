@@ -8,9 +8,9 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 namespace Vodovoz.Views.Payments
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PaymentFromBankClientView : TabViewBase<PaymentFromBankClientViewModel>
+	public partial class PaymentFromBankClientView : TabViewBase<CreateManualPaymentFromBankClientViewModel>
 	{
-		public PaymentFromBankClientView(PaymentFromBankClientViewModel viewModel) : base(viewModel)
+		public PaymentFromBankClientView(CreateManualPaymentFromBankClientViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
@@ -32,7 +32,6 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel, vm => vm.IsPaymentForUpdateBalance, w => w.Active)
 				.InitializeFromSource();
 
-			
 			yspinPaymentNum.Binding
 				.AddBinding(ViewModel.Entity, e => e.PaymentNum, w => w.ValueAsInt)
 				.InitializeFromSource();
