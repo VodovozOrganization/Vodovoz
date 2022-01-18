@@ -6,7 +6,7 @@ using QS.Banks.Domain;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
-using QSBanks.Repositories;
+using QS.Banks.Repositories;
 using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
+using VodovozInfrastructure;
 
 namespace Vodovoz
 {

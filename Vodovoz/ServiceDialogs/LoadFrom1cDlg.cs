@@ -7,7 +7,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QSBanks.Repositories;
+using QS.Banks.Repositories;
 using QS.BusinessCommon.Domain;
 using QS.BusinessCommon.Repository;
 using QSProjectsLib;
