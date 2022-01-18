@@ -830,7 +830,7 @@ public partial class MainWindow : Window
 				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
 														  ? Buttons.All
 														  : (Buttons.Add | Buttons.Edit);
-				return new PermissionControlledRepresentationJournal(vm, buttons).CustomTabName("Журнал штрафов");
+				return new PermissionControlledRepresentationJournal(vm, buttons, true).CustomTabName("Журнал штрафов");
 			}
 		);
 	}

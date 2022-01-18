@@ -361,6 +361,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//EmployeePostsJournalViewModel
             TreeViewColumnsConfigFactory.Register<EmployeePostsJournalViewModel>(
                 () => FluentColumnsConfig<EmployeePostJournalNode>.Create()
                     .AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
@@ -368,7 +369,7 @@ namespace Vodovoz.JournalColumnsConfigs
                     .Finish()
             );
 
-            //SubdivisionsJournalViewModel
+            //FinesJournalViewModel
             TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
 				() => FluentColumnsConfig<FineJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
@@ -400,7 +401,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//NomenclaturesJournalViewModel
+			//NomenclatureStockBalanceJournalViewModel
 			TreeViewColumnsConfigFactory.Register<NomenclatureStockBalanceJournalViewModel>(
 				() => FluentColumnsConfig<NomenclatureStockJournalNode>.Create()
 					.AddColumn("Код").HeaderAlignment(0.5f)
@@ -424,7 +425,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
-			//NomenclaturesJournalViewModel
+			//WaterJournalViewModel
 			TreeViewColumnsConfigFactory.Register<WaterJournalViewModel>(
 				() => FluentColumnsConfig<WaterJournalNode>.Create()
 					.AddColumn("Код")

@@ -14,7 +14,6 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="LettuceEncrypt" Version="1.1.0-beta.73" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.14" />
         <PackageReference Include="MySql.Data" Version="8.0.24" />
         <PackageReference Include="NLog" Version="4.7.10" />
@@ -46,6 +45,10 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
       <ProjectReference Include="..\MangoController\MangoController.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties" />
     </ItemGroup>
 
 </Project>

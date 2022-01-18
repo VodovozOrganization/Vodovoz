@@ -213,7 +213,7 @@ namespace Vodovoz.Models.Orders
 
 			foreach(var promosetOrderItem in orderItems)
 			{
-				CopyOrderItemFromPromoSet(promosetOrderItem);
+				CopyOrderItem(promosetOrderItem, true);
 				CopyDependentOrderEquipment(promosetOrderItem);
 			}
 
@@ -237,26 +237,6 @@ namespace Vodovoz.Models.Orders
 			{
 				CopyOrderEquipment(orderEquipment);
 			}
-		}
-		
-		private void CopyOrderItemFromPromoSet(OrderItem orderItem)
-		{
-			var newOrderItem = new OrderItem
-			{
-				Order = _resultOrder,
-				Nomenclature = orderItem.Nomenclature,
-				PromoSet = orderItem.PromoSet,
-				Price = orderItem.Price,
-				IsUserPrice = orderItem.IsUserPrice,
-				IsDiscountInMoney = orderItem.IsDiscountInMoney,
-				Discount = orderItem.Discount,
-				DiscountMoney = orderItem.DiscountMoney,
-				DiscountReason = orderItem.DiscountReason,
-				Count = orderItem.Count,
-				IncludeNDS = orderItem.IncludeNDS,
-			};
-
-			_resultOrder.AddOrderItem(newOrderItem);
 		}
 
 		private void CopyOrderItem(OrderItem orderItem, bool withDiscounts = false)
@@ -282,14 +262,16 @@ namespace Vodovoz.Models.Orders
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo)
 		{
-			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && orderItemFrom.DiscountReason != null)
+			var isPromoset = orderItemFrom.PromoSet != null;
+
+			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && (orderItemFrom.DiscountReason != null || isPromoset))
 			{
 				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
 				orderItemTo.Discount = orderItemFrom.Discount;
 				orderItemTo.DiscountMoney = orderItemFrom.DiscountMoney;
 				orderItemTo.DiscountReason = orderItemFrom.DiscountReason;
 			}
-			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && orderItemFrom.OriginalDiscountReason != null)
+			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && (orderItemFrom.OriginalDiscountReason != null || isPromoset))
 			{
 				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
 				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
