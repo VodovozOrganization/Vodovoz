@@ -64,6 +64,7 @@ namespace Vodovoz
 
 		private bool _canClose = true;
 		private Employee _oldDriver;
+		private DateTime _previousSelectedDate;
 
 		public RouteListCreateDlg()
 		{
@@ -128,6 +129,8 @@ namespace Vodovoz
 			printTimeButton.Clicked += OnPrintTimeButtonClicked;
 			
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
+			_previousSelectedDate = Entity.Date;
+			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
@@ -261,7 +264,20 @@ namespace Vodovoz
 			_oldDriver = Entity.Driver;
 			UpdateDlg(isLogistician);
 		}
-		
+
+		private void OnDatepickerDateDateChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Date < DateTime.Today.AddDays(-1))
+			{
+				MessageDialogHelper.RunWarningDialog("Нельзя выставлять дату ранее вчерашнего дня!");
+				Entity.Date = _previousSelectedDate;
+			}
+			else
+			{
+				_previousSelectedDate = Entity.Date;
+			}
+		}
+
 		private void OnCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(false, CloseSource.Cancel);
