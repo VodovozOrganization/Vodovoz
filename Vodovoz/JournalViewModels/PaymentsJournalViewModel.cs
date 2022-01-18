@@ -12,7 +12,6 @@ using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using NHibernate.Dialect.Function;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Criterion;
-using QS.Deletion;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -153,7 +152,11 @@ namespace Vodovoz.JournalViewModels
 			CreateAddNewPaymentAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
-			CreateDefaultDeleteAction();
+			
+			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			{
+				CreateDefaultDeleteAction();
+			}
 
 			NodeActionsList.Add(new JournalAction(
 				"Завершить распределение", 
