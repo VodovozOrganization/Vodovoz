@@ -20,7 +20,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Fuel;
@@ -31,6 +30,8 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
+using QS.ViewModels.Extension;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Infrastructure;
@@ -40,20 +41,21 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalFilters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
 
 namespace Vodovoz
 {
-	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
+	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region поля
 
@@ -72,16 +74,19 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
+		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly bool _isOpenFromCash;
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private readonly bool _editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
-		
+		private bool _canEdit;
+
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
 
@@ -154,8 +159,12 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public bool AskSaveOnClose => _canEdit;
+
 		private void ConfigureDlg()
 		{
+			_canEdit = _isRoleCashier && permissionResult.CanUpdate;
+			_paymentFromBankClientController = new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
 				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
 			}
@@ -169,7 +178,6 @@ namespace Vodovoz
 				Entity.CashierReviewComment = comment;
 				HasChanges = true;
 			};
-
 
 			canCloseRoutelist = new PermissionRepository()
 				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService);
@@ -198,7 +206,7 @@ namespace Vodovoz
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddSource(Entity)
 				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
-				.AddFuncBinding(rl => rl.CanAddForwarder && _editing, widget => widget.Sensitive)
+				.AddFuncBinding(rl => rl.CanAddForwarder && _canEdit, widget => widget.Sensitive)
 				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
@@ -254,7 +262,7 @@ namespace Vodovoz
 																   .Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
 			foreach(var item in returnableOrderItems) {
 				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
-					allReturnsToWarehouse.Add(new EntityRepositories.Logistic.ReturnsNode {
+					allReturnsToWarehouse.Add(new ReturnsNode {
 						Name = item.Nomenclature.Name,
 						Trackable = item.Nomenclature.IsSerial,
 						NomenclatureId = item.Nomenclature.Id,
@@ -319,7 +327,7 @@ namespace Vodovoz
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
 
-			_hasAccessToDriverTerminal = _editing;
+			_hasAccessToDriverTerminal = _canEdit;
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			_needToSelectTerminalCondition = baseDoc is DriverAttachedTerminalGiveoutDocument && baseDoc.CreationDate.Date <= Entity?.Date;
 			hboxTerminalCondition.Visible = _hasAccessToDriverTerminal && _needToSelectTerminalCondition;
@@ -348,7 +356,9 @@ namespace Vodovoz
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
-				toggleWageDetails.Sensitive = _editing;
+				toggleWageDetails.Sensitive = _canEdit;
+				permissioncommentview.Sensitive = _canEdit;
+				buttonSave.Sensitive = _canEdit;
 
 				HasChanges = false;
 
@@ -357,26 +367,29 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			entityviewmodelentryCar.Sensitive = _editing;
-			evmeDriver.Sensitive = _editing;
-			evmeForwarder.Sensitive = _editing && Entity.CanAddForwarder;
-			evmeLogistician.Sensitive = _editing;
-			datePickerDate.Sensitive = _editing;
-			ycheckConfirmDifferences.Sensitive = _editing &&
+			entityviewmodelentryCar.Sensitive = _canEdit;
+			evmeDriver.Sensitive = _canEdit;
+			evmeForwarder.Sensitive = _canEdit;
+			evmeLogistician.Sensitive = _canEdit;
+			datePickerDate.Sensitive = _canEdit;
+			ycheckConfirmDifferences.Sensitive = _canEdit &&
 				(Entity.Status == RouteListStatus.OnClosing || 
 				 Entity.Status == RouteListStatus.Delivered);
-			ytextClosingComment.Sensitive = _editing;
-			routeListAddressesView.IsEditing = _editing;
-			ycheckHideCells.Sensitive = _editing;
-			routelistdiscrepancyview.Sensitive = _editing;
-			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
-			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _editing;
-			enummenuRLActions.Sensitive = _editing;
-			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = _editing;
-			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _editing;
-			buttonCalculateCash.Sensitive = _editing;
-			labelWage1.Visible = _editing;
-			toggleWageDetails.Sensitive = _editing;
+			ytextClosingComment.Sensitive = _canEdit;
+			routeListAddressesView.IsEditing = _canEdit;
+			ycheckHideCells.Sensitive = _canEdit;
+			routelistdiscrepancyview.Sensitive = _canEdit;
+			buttonReturnedRefresh.Sensitive = _canEdit;
+			buttonAddFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _canEdit;
+			buttonDeleteFuelDocument.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && _canEdit;
+			enummenuRLActions.Sensitive = _canEdit;
+			advanceCheckbox.Sensitive = advanceSpinbutton.Sensitive = _canEdit;
+			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _canEdit;
+			buttonCalculateCash.Sensitive = _canEdit;
+			labelWage1.Visible = _canEdit;
+			toggleWageDetails.Sensitive = _canEdit;
+			permissioncommentview.Sensitive = _canEdit;
+			buttonSave.Sensitive = _canEdit;
 			UpdateButtonState();
 		}
 
@@ -760,6 +773,11 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.Delivered) {
 				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
 			}
+
+			foreach(var address in Entity.Addresses)
+			{
+				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
+			}
 			
 			UoW.Save();
 
@@ -807,14 +825,19 @@ namespace Vodovoz
 				return;
 			}
 
-			var validationContext = new Dictionary<object, object> {
-				{"NewStatus", RouteListStatus.MileageCheck},
-				{"cash_order_close", true},
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()},
-				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
-			};
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root, validationContext);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+			var validationContext = _validationContextFactory.CreateNewValidationContext(
+				Entity,
+				new Dictionary<object, object> {
+					{"NewStatus", RouteListStatus.MileageCheck},
+					{"cash_order_close", true},
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
+				});
+			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),
+				new OrderParametersProvider(_parametersProvider));
+
+			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
+			{
 				return;
 			}
 

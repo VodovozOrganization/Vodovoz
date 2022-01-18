@@ -14,6 +14,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -31,7 +32,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
-	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
+	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>, IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
@@ -44,6 +45,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private DelegateCommand _changeDeliveryPointCommand;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
+
+		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
+		private readonly bool _canCloseComplaintsPermissionResult;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEmployeeService EmployeeService { get; }
@@ -117,6 +121,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 
+			_canAddGuiltyInComplaintsPermissionResult = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
+			_canCloseComplaintsPermissionResult =  CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+
 			if(Entity.ComplaintResultOfEmployees != null && Entity.ComplaintResultOfEmployees.IsArchive)
 			{
 				ComplaintResultsOfEmployees =
@@ -127,6 +134,8 @@ namespace Vodovoz.ViewModels.Complaints
 				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
 			}
 		}
+
+		public bool AskSaveOnClose => CanEdit;
 
 		protected void ConfigureEntityChangingRelations()
 		{
@@ -344,17 +353,13 @@ namespace Vodovoz.ViewModels.Complaints
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
 		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;
-
 		public bool IsClientComplaint => Entity.ComplaintType == ComplaintType.Client;
-
-		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine))]
+		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine), nameof(CanSelectDeliveryPoint),
+			nameof(CanAddGuilty), nameof(CanClose))]
 		public bool CanEdit => PermissionResult.CanUpdate;
-
-		public bool CanAddGuilty => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
-		public bool CanClose => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
-
-		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
-
+		public bool CanAddGuilty => CanEdit && _canAddGuiltyInComplaintsPermissionResult;
+		public bool CanClose => CanEdit && _canCloseComplaintsPermissionResult;
+		public bool CanSelectDeliveryPoint => CanEdit && Entity.Counterparty != null;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 

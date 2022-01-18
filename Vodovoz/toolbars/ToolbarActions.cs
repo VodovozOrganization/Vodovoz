@@ -828,7 +828,7 @@ public partial class MainWindow : Window
 				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
 														  ? Buttons.All
 														  : (Buttons.Add | Buttons.Edit);
-				return new PermissionControlledRepresentationJournal(vm, buttons).CustomTabName("Журнал штрафов");
+				return new PermissionControlledRepresentationJournal(vm, buttons, true).CustomTabName("Журнал штрафов");
 			}
 		);
 	}
@@ -934,7 +934,7 @@ public partial class MainWindow : Window
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				Buttons buttons = Buttons.Add | Buttons.Edit;
-				return new PermissionControlledRepresentationJournal(vm, buttons);
+				return new PermissionControlledRepresentationJournal(vm, buttons, true);
 			}
 		);
 	}

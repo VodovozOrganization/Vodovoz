@@ -1955,10 +1955,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-			() => new QSReport.ReportViewDlg(new ReturnedTareReport(employeeFactory.CreateEmployeeAutocompleteSelectorFactory(), ServicesConfig.InteractiveService))
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport(ServicesConfig.InteractiveService))
 		);
 	}
 

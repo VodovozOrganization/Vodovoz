@@ -147,6 +147,10 @@ namespace Vodovoz.Journals.JournalViewModels
 					if(commonServices.InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\"")) {
 						var copy = (DistrictsSet)districtsSetToCopy.Clone();
 						copy.Name += " - копия";
+						if(copy.Name.Length > DistrictsSet.NameMaxLength)
+						{
+							copy.Name = copy.Name.Remove(DistrictsSet.NameMaxLength);
+						}
 						copy.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 						copy.Status = DistrictsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;

@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Project.Journal;
+using QS.ViewModels.Extension;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
@@ -31,7 +32,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>
+	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly ICommonServices _commonServices;
-		
+
 		#region Constructor
 
 		public RouteListAnalysisViewModel(
@@ -111,6 +112,8 @@ namespace Vodovoz.ViewModels.Logistic
 		public Employee CurrentEmployee { get; }
 
 		public RouteListItem SelectedItem { get; set; }
+
+		public bool CanEditRouteList => PermissionResult.CanUpdate;
 
 		#endregion
 
@@ -325,7 +328,8 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.LogisticiansCommentAuthor = CurrentEmployee;
 		}
 
-		public void CalculateWages() =>
-			Entity.CalculateWages(_wageParameterService);
+		public void CalculateWages() => Entity.CalculateWages(_wageParameterService);
+
+		public bool AskSaveOnClose => CanEditRouteList;
 	}
 }

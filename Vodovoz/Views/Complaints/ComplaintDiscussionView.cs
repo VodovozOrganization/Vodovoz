@@ -57,13 +57,13 @@ namespace Vodovoz.Views.Complaints
 				ytreeviewComments.ExpandAll();
 			};
 			ytreeviewComments.ExpandAll();
-			ytreeviewComments.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			filesview.ViewModel = ViewModel.FilesViewModel;
+			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
