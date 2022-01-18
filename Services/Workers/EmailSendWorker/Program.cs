@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
-using Vodovoz.EntityRepositories;
 
 namespace EmailSendWorker
 {
@@ -50,7 +49,6 @@ namespace EmailSendWorker
 
 					services.AddHostedService<EmailSendWorker>();
 
-					services.AddTransient<IEmailRepository, EmailRepository>();
 				});
 	}
 }

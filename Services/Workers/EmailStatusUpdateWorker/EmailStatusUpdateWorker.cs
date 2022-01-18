@@ -127,7 +127,7 @@ namespace EmailStatusUpdateWorker
 								{
 									var newStatus = ConvertFromMailjetStatus(message.Status);
 
-									if(newStatus == StoredEmailStates.Undelivered)
+									if(newStatus == StoredEmailStates.Undelivered || newStatus == StoredEmailStates.SendingError)
 									{
 										storedEmail.AddDescription(message.ErrorInfo);
 									}
@@ -174,6 +174,7 @@ namespace EmailStatusUpdateWorker
 				case MailEventType.spam:
 					return StoredEmailStates.MarkedAsSpam;
 				case MailEventType.bounce:
+					return StoredEmailStates.SendingError;
 				case MailEventType.blocked:
 					return StoredEmailStates.Undelivered;
 			}
