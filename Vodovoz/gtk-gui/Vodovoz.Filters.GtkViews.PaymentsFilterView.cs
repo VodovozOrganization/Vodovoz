@@ -16,6 +16,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbtnHideCompleted;
 
+		private global::Gamma.GtkWidgets.yHBox hboxCounterparty;
+
+		private global::QS.Views.Control.EntityEntry counterpartyEntry;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkPaymentsWithoutCounterparty;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -71,11 +77,41 @@ namespace Vodovoz.Filters.GtkViews
 			this.hbox10.Add(this.ycheckbtnHideCompleted);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ycheckbtnHideCompleted]));
 			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.vbox4.Add(this.hbox10);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox10]));
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.hboxCounterparty = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxCounterparty.Name = "hboxCounterparty";
+			this.hboxCounterparty.Spacing = 6;
+			// Container child hboxCounterparty.Gtk.Box+BoxChild
+			this.counterpartyEntry = new global::QS.Views.Control.EntityEntry();
+			this.counterpartyEntry.Events = ((global::Gdk.EventMask)(256));
+			this.counterpartyEntry.Name = "counterpartyEntry";
+			this.hboxCounterparty.Add(this.counterpartyEntry);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.counterpartyEntry]));
+			w6.Position = 0;
+			// Container child hboxCounterparty.Gtk.Box+BoxChild
+			this.chkPaymentsWithoutCounterparty = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkPaymentsWithoutCounterparty.CanFocus = true;
+			this.chkPaymentsWithoutCounterparty.Name = "chkPaymentsWithoutCounterparty";
+			this.chkPaymentsWithoutCounterparty.Label = global::Mono.Unix.Catalog.GetString("Скрыть платежи без контрагента");
+			this.chkPaymentsWithoutCounterparty.DrawIndicator = true;
+			this.chkPaymentsWithoutCounterparty.UseUnderline = true;
+			this.hboxCounterparty.Add(this.chkPaymentsWithoutCounterparty);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.chkPaymentsWithoutCounterparty]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.vbox4.Add(this.hboxCounterparty);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hboxCounterparty]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{
