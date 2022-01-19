@@ -2211,6 +2211,13 @@ namespace Vodovoz
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
+
+			if(DeliveryPoint != null)
+			{
+				Entity.Comment = string.IsNullOrWhiteSpace(Entity.Comment)
+					? DeliveryPoint.Comment
+					: string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
+			}
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)

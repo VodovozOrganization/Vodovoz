@@ -45,10 +45,8 @@
         ) AS contract_date,
     counterparty.full_name AS client_name,
     counterparty.address AS client_address,
-    delivery_points.address_addition AS address_comment,
     organizations.full_name AS org_name,
     organizations.address AS org_address,
-    delivery_points.comment AS delivery_point_comment,
     GROUP_CONCAT(
         DISTINCT
             CONCAT(
@@ -162,20 +160,12 @@ WHERE
           <DataField>client_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="address_comment">
-          <DataField>address_comment</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="org_name">
           <DataField>org_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_address">
           <DataField>org_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="delivery_point_comment">
-          <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_contact">
@@ -1675,11 +1665,6 @@ Iif({self_delivery}, "САМОВЫВОЗ",
             "["+ {logistics_area} + "]"
         )
         + {del_point_address}
-        + Iif(
-                {delivery_point_comment} != '',
-                '\n' + {delivery_point_comment},
-                ''
-            )
 )
 + ' ' + {organization}</Value>
                       <CanGrow>true</CanGrow>
@@ -1726,12 +1711,7 @@ Iif({self_delivery}, "САМОВЫВОЗ",
                   <ReportItems>
                     <Textbox Name="Textbox50">
                       <Value>= Trim(
-    Iif(
-        Fields!address_comment.IsMissing,
-        '',
-        {address_comment}
-    )
-    + Iif(
+   Iif(
             Fields!signature_type.IsMissing,
             '',
             ', ' + {signature_type}

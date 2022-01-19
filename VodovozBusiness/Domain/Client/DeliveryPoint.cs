@@ -62,15 +62,7 @@ namespace Vodovoz.Domain.Client
 			get => letter;
 			set => SetField(ref letter, value, () => Letter);
 		}
-
-		string addressAddition;
-
-		[Display(Name = "Дополнение к адресу")]
-		public virtual string АddressAddition {
-			get => addressAddition;
-			set => SetField(ref addressAddition, value, () => АddressAddition);
-		}
-
+		
 		string placement;
 
 		[Display(Name = "Помещение")]
@@ -127,8 +119,8 @@ namespace Vodovoz.Domain.Client
 					address += $"эт.{Floor}, ";
 				if(!string.IsNullOrWhiteSpace(Room))
 					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
-				if(!string.IsNullOrWhiteSpace(АddressAddition))
-					address += $"{АddressAddition}, ";
+				if(!string.IsNullOrWhiteSpace(Comment))
+					address += $"{Comment}, ";
 
 				return address.TrimEnd(',', ' ');
 			}

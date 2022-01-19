@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -30,8 +30,6 @@
     counterparty.address AS client_address,
     organizations.full_name AS org_name,
     organizations.address AS org_address,
-    delivery_points.comment AS delivery_point_comment,
-
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones 
     WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
@@ -116,10 +114,6 @@ WHERE
         </Field>
         <Field Name="org_address">
           <DataField>org_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="delivery_point_comment">
-          <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="delivery_point_contact">
@@ -1345,9 +1339,9 @@ payment_type='ToClient'</CommandText>
       </List>
       <Subreport Name="Subreport1">
         <Height>11.26pt</Height>
-        <Width>598.34pt</Width>
-        <Left>4.8pt</Left>
-        <Top>265.3pt</Top>
+        <Width>587.09pt</Width>
+        <Left>4.80pt</Left>
+        <Top>265.30pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1483,8 +1477,8 @@ payment_type='ToClient'</CommandText>
         <Width>343.62pt</Width>
         <Value>=Max({client_name}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>119.2pt</Left>
-        <Top>128.9pt</Top>
+        <Left>119.20pt</Left>
+        <Top>128.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1497,10 +1491,10 @@ payment_type='ToClient'</CommandText>
       <Textbox Name="Textbox74" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.00pt</Height>
         <Width>433.62pt</Width>
-        <Value>=Max({del_point_address}, "Order") + '\n' + Max({delivery_point_comment}, "Order")</Value>
+        <Value>=Max({del_point_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>119.2pt</Left>
-        <Top>158.9pt</Top>
+        <Left>119.20pt</Left>
+        <Top>158.90pt</Top>
         <Style>
           <BorderStyle>
             <Right>Solid</Right>
