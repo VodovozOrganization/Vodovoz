@@ -11,6 +11,13 @@ namespace Vodovoz.TempAdapters
 {
     public class WarehouseSelectorFactory : IEntityAutocompleteSelectorFactory
     {
+		private readonly WarehouseJournalFilterViewModel _filterViewModel;
+
+		public WarehouseSelectorFactory(WarehouseJournalFilterViewModel filterViewModel = null)
+		{
+			_filterViewModel = filterViewModel;
+		}
+		
         public Type EntityType => typeof(Warehouse);
 
         public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
@@ -18,7 +25,8 @@ namespace Vodovoz.TempAdapters
             var warehouseJournal = new WarehouseJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
-                new SubdivisionRepository(new ParametersProvider())
+                new SubdivisionRepository(new ParametersProvider()),
+				_filterViewModel
             )
             {
                 SelectionMode = QS.Project.Journal.JournalSelectionMode.Single

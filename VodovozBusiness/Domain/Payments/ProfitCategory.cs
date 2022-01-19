@@ -2,7 +2,7 @@
 using QS.DomainModel.Entity;
 namespace Vodovoz.Domain.Payments
 {
-	public class CategoryProfit : PropertyChangedBase, IDomainObject
+	public class ProfitCategory : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -13,6 +13,6 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref name, value);
 		}
 
-		public CategoryProfit() { }
+		public ProfitCategory() { }
 	}
 }

@@ -314,9 +314,7 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-						.AddSetter((cell, node) =>
-							cell.Editable = node.OrderItem != null
-								&&!_discountsController.OrderItemContainsPromoSetOrFixedPrice(node.OrderItem) && _canEditPrices)
+						.AddSetter((cell, node) => cell.Editable =  _canEditPrices)
 						.AddSetter(
 							(c, n) => c.Adjustment = n.IsDiscountInMoney
 								? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
@@ -327,9 +325,7 @@ namespace Vodovoz
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
 				.AddColumn("Скидка \nв рублях?")
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
-						.AddSetter((c, n) =>
-							c.Activatable = n.OrderItem != null
-								&&!_discountsController.OrderItemContainsPromoSetOrFixedPrice(n.OrderItem) && _canEditPrices)
+						.AddSetter((c, n) => c.Activatable = _canEditPrices)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
@@ -341,9 +337,7 @@ namespace Vodovoz
 							return list;
 						})
 						.EditedEvent(OnDiscountReasonComboEdited)
-						.AddSetter((c, n) =>
-							c.Editable = n.OrderItem != null
-								&& !_discountsController.OrderItemContainsPromoSetOrFixedPrice(n.OrderItem) && _canEditPrices)
+						.AddSetter((c, n) => c.Editable =  _canEditPrices)
 						.AddSetter(
 							(c, n) =>
 								c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.OrderItem?.PromoSet == null
@@ -392,17 +386,33 @@ namespace Vodovoz
 
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
+			var index = int.Parse(args.Path);
+			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItemReturnsNode orderItemNode))
+			{
+				return;
+			}
+
+			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
+			
 			Application.Invoke((sender, eventArgs) =>
 			{
-				var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
-				
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(node is OrderItemReturnsNode orderItemNode
-					&& orderItemNode.OrderItem != null
-					&& orderItemNode.DiscountReason != null)
+				if(orderItemNode.OrderItem != null && orderItemNode.DiscountReason != null)
 				{
-					_discountsController.SetDiscountFromDiscountReasonForOrderItem(orderItemNode.DiscountReason, orderItemNode.OrderItem);
+					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
+						orderItemNode.DiscountReason, orderItemNode.OrderItem, _canEditPrices, out string message))
+					{
+						orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
+					}
+					
+					if(message != null)
+					{
+						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
+							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");
+					}
 				}
 			});
 		}
@@ -469,7 +479,7 @@ namespace Vodovoz
 			dlg.DlgSaved += (s, ea) =>
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
-				_routeListItem.FillCountsOnCanceled();
+				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};
@@ -482,7 +492,7 @@ namespace Vodovoz
 			dlg.DlgSaved += (s, ea) =>
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
-				_routeListItem.FillCountsOnCanceled();
+				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};

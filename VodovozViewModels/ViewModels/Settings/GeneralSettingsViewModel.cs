@@ -1,29 +1,30 @@
 ﻿using System;
 using QS.Commands;
+using QS.Dialog;
 using QS.Navigation;
 using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Parameters;
-using TabViewModelBase = QS.ViewModels.TabViewModelBase;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
 	public class GeneralSettingsViewModel : TabViewModelBase
 	{
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly ICommonServices _commonServices;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
-		private DelegateCommand _saveCommand;
-		
+		private bool _canAddForwardersToLargus;
+		private DelegateCommand _saveRouteListPrintedFormPhonesCommand;
+		private DelegateCommand _saveCanAddForwardersToLargusCommand;
+
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ICommonServices commonServices,
 			INavigationManager navigation = null) : base(commonServices?.InteractiveService, navigation)
 		{
-			if(commonServices == null)
-			{
-				throw new ArgumentNullException(nameof(commonServices));
-			}
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_generalSettingsParametersProvider =
 				generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
@@ -31,10 +32,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			TabName = "Общие настройки";
 
 			RouteListPrintedFormPhones = _generalSettingsParametersProvider.GetRouteListPrintedFormPhones;
+			CanAddForwardersToLargus = _generalSettingsParametersProvider.GetCanAddForwardersToLargus;
 			CanEditRouteListPrintedFormPhones =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
+			CanEditCanAddForwardersToLargus =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
 		}
-		
+
+		#region RouteListPrintedFormPhones
+
 		public bool CanEditRouteListPrintedFormPhones { get; }
 
 		public string RouteListPrintedFormPhones
@@ -42,35 +48,30 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			get => _routeListPrintedFormPhones;
 			set => SetField(ref _routeListPrintedFormPhones, value);
 		}
-		public DelegateCommand SaveCommand => _saveCommand ?? (_saveCommand = new DelegateCommand(
-			() =>
-			{
-				if(Save())
-				{
-					Close(false, CloseSource.Save);
-				}
-			})
-		);
 
-		private bool Save()
+		public DelegateCommand SaveRouteListPrintedFormPhonesCommand => _saveRouteListPrintedFormPhonesCommand
+			?? (_saveRouteListPrintedFormPhonesCommand = new DelegateCommand(SaveRouteListPrintedFormPhones)
+			);
+
+		private void SaveRouteListPrintedFormPhones()
 		{
-			if(!Validate())
+			if(!ValidateRouteListPrintedFormPhones())
 			{
-				return false;
+				return;
 			}
 
 			_generalSettingsParametersProvider.UpdateRouteListPrintedFormPhones(RouteListPrintedFormPhones);
-			return true;
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
-		private bool Validate()
+		private bool ValidateRouteListPrintedFormPhones()
 		{
 			if(string.IsNullOrWhiteSpace(RouteListPrintedFormPhones))
 			{
 				ShowWarningMessage("Строка с телефонами для печатной формы МЛ не может быть пуста!");
 				return false;
 			}
-			
+
 			if(RouteListPrintedFormPhones != null && RouteListPrintedFormPhones.Length > _routeListPrintedFormPhonesLimitSymbols)
 			{
 				ShowWarningMessage(
@@ -80,5 +81,27 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			return true;
 		}
+
+		#endregion
+
+		#region CanAddForwardersToLargus
+
+		public bool CanEditCanAddForwardersToLargus { get; }
+
+		public bool CanAddForwardersToLargus
+		{
+			get => _canAddForwardersToLargus;
+			set => SetField(ref _canAddForwardersToLargus, value);
+		}
+
+		public DelegateCommand SaveCanAddForwardersToLargusCommand => _saveCanAddForwardersToLargusCommand
+			?? (_saveCanAddForwardersToLargusCommand = new DelegateCommand(() =>
+				{
+					_generalSettingsParametersProvider.UpdateCanAddForwardersToLargus(CanAddForwardersToLargus);
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+				})
+			);
+
+		#endregion
 	}
 }

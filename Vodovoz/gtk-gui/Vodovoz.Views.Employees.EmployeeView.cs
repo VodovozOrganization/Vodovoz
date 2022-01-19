@@ -1457,6 +1457,8 @@ namespace Vodovoz.Views.Employees
 			this.terminalmanagementview1.Name = "terminalmanagementview1";
 			this.table1.Add(this.terminalmanagementview1);
 			global::Gtk.Table.TableChild w101 = ((global::Gtk.Table.TableChild)(this.table1[this.terminalmanagementview1]));
+			w101.TopAttach = ((uint)(2));
+			w101.BottomAttach = ((uint)(3));
 			w101.LeftAttach = ((uint)(5));
 			w101.RightAttach = ((uint)(6));
 			w101.XOptions = ((global::Gtk.AttachOptions)(4));

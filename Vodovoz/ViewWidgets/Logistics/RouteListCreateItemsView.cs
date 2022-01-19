@@ -12,6 +12,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -27,8 +28,6 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -41,8 +40,12 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		private int goodsColumnsCount = -1;
-		private bool isEditable = true;
+		private bool _isEditable = true;
+		private bool _canOpenOrder = true;
+		private bool _isLogistician;
 
+		private IPermissionResult _permissionResult;
+		private RouteListItem _selectedRouteListItem;
 		private IList<RouteColumn> _columnsInfo;
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
@@ -69,7 +72,7 @@ namespace Vodovoz
 			}
 		}
 
-        public void SubscribeOnChanges()
+		public void SubscribeOnChanges()
         {
             RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
             RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
@@ -81,7 +84,8 @@ namespace Vodovoz
             ytreeviewItems?.YTreeModel?.EmitModelChanged();
         }
 
-		private bool CanEditRows => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican")
+		private bool CanEditRows => _isLogistician
+										&& (_permissionResult.CanCreate && RouteListUoW.Root.Id == 0 || _permissionResult.CanUpdate)
 										&& RouteListUoW.Root.Status != RouteListStatus.Closed
 										&& RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
 
@@ -123,7 +127,7 @@ namespace Vodovoz
 			var goodsColumns = items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-			.AddColumn("Заказ").SetDataProperty(node => node.Order.Id)
+			.AddColumn("Заказ").AddTextRenderer( node => node.Order.Id.ToString())
 			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : string.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? string.Empty : node.Order.DeliverySchedule.Name);
 			if(goodsColumnsCount != goodsColumns.Length) {
@@ -139,7 +143,8 @@ namespace Vodovoz
 			if(RouteListUoW.Root.Forwarder != null) {
 				config
 					.AddColumn("C экспедитором")
-					.AddToggleRenderer(node => node.WithForwarder).Editing(CanEditRows);
+					.AddToggleRenderer(node => node.WithForwarder)
+					.AddSetter((cell, node) => cell.Activatable = CanEditRows);
 			}
 			config
 				.AddColumn("Товары").AddTextRenderer(x => ShowAdditional(x.Order.OrderItems))
@@ -172,11 +177,12 @@ namespace Vodovoz
 			return string.Join("\n", stringParts);
 		}
 
-		public void IsEditable(bool val = false)
+		public void IsEditable(bool isEditable, bool canOpenOrder = true)
 		{
-			isEditable = val;
-			enumbuttonAddOrder.Sensitive = val;
-			OnSelectionChanged(this, EventArgs.Empty);
+			_isEditable = isEditable;
+			enumbuttonAddOrder.Sensitive = isEditable;
+			_canOpenOrder = canOpenOrder;
+			UpdateSensitivity();
 		}
 
 		void Items_ElementChanged(object aList, int[] aIdx)
@@ -191,19 +197,30 @@ namespace Vodovoz
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 		}
+		
+		public void SetPermissionParameters(IPermissionResult permissionResult, bool isLogistician)
+		{
+			_permissionResult = permissionResult;
+			_isLogistician = isLogistician;
+		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			bool selected = ytreeviewItems.Selection.CountSelectedRows() > 0;
-			buttonOpenOrder.Sensitive = selected;
-			buttonDelete.Sensitive = selected && isEditable;
+			_selectedRouteListItem = ytreeviewItems.GetSelectedObject<RouteListItem>();
+			UpdateSensitivity();
+		}
+
+		private void UpdateSensitivity()
+		{
+			buttonOpenOrder.Sensitive = _selectedRouteListItem != null && _canOpenOrder;
+			buttonDelete.Sensitive = _selectedRouteListItem != null && _isEditable;
 		}
 
 		GenericObservableList<RouteListItem> items;
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			if(!RouteListUoW.Root.TryRemoveAddress(ytreeviewItems.GetSelectedObject() as RouteListItem, out string message, new RouteListItemRepository()))
+			if(!RouteListUoW.Root.TryRemoveAddress(_selectedRouteListItem, out string message, new RouteListItemRepository()))
 				MessageDialogHelper.RunWarningDialog(
 					"Невозможно удалить",
 					message,
@@ -356,18 +373,21 @@ namespace Vodovoz
 
 		protected void OnButtonOpenOrderClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewItems.GetSelectedObject<RouteListItem>();
-			if(selected != null) {
+			if(_selectedRouteListItem != null)
+			{
 				MyTab.TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<Order>(selected.Order.Id),
-					() => new OrderDlg(selected.Order)
+					DialogHelper.GenerateDialogHashName<Order>(_selectedRouteListItem.Order.Id),
+					() => new OrderDlg(_selectedRouteListItem.Order)
 				);
 			}
 		}
 
 		protected void OnYtreeviewItemsRowActivated(object o, RowActivatedArgs args)
 		{
-			buttonOpenOrder.Click();
+			if(_canOpenOrder)
+			{
+				buttonOpenOrder.Click();
+			}
 		}
 	}
 

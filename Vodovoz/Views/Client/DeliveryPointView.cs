@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Globalization;
-using System.Threading.Tasks;
 using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -11,11 +9,9 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Osm.DTO;
-using QS.Tdi;
 using QS.Views.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
@@ -28,21 +24,20 @@ namespace Vodovoz.Views.Client
 		private yEnumComboBox _comboMapType;
 		private GMapControl _mapWidget;
 		private GMapMarker _addressMarker;
-		private string _cityBeforeChange;
-		private string _streetBeforeChange;
-		private string _buildingBeforeChange;
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
 		private readonly Clipboard _clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
 		public DeliveryPointView(DeliveryPointViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			notebook1.Binding.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage).InitializeFromSource();
+			notebook1.Binding
+				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
+				.InitializeFromSource();
 			notebook1.SwitchPage += (o, args) =>
 			{
 				if(args.PageNum == 1)
@@ -56,16 +51,25 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
-			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess && vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonCancel.Binding.AddBinding(ViewModel, vm => vm.IsNotSaving, w => w.Sensitive).InitializeFromSource();
+			buttonCancel.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive)
+				.InitializeFromSource();
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
+			buttonInsertFromBuffer.Sensitive = ViewModel.CanEdit;
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();
+			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Sensitive = ViewModel.CanEdit;
 			radioInformation.Toggled += RadioInformationOnToggled;
 			radioFixedPrices.Toggled += RadioFixedPricesOnToggled;
 
-			ybuttonOpenOnMap.Binding.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible).InitializeFromSource();
+			ybuttonOpenOnMap.Binding
+				.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybuttonOpenOnMap.Clicked += (s, a) => ViewModel.OpenOnMapCommand.Execute();
 
@@ -83,6 +87,8 @@ namespace Vodovoz.Views.Client
 				.AddBinding(e => e.CityFiasGuid, w => w.FiasGuid)
 				.AddBinding(e => e.LocalityType, w => w.CityTypeName)
 				.AddBinding(e => e.LocalityTypeShort, w => w.CityTypeNameShort)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryCity.FireCityChange();
@@ -93,6 +99,8 @@ namespace Vodovoz.Views.Client
 				.AddBinding(e => e.StreetType, w => w.StreetTypeName)
 				.AddBinding(e => e.StreetTypeShort, w => w.StreetTypeNameShort)
 				.AddBinding(e => e.StreetFiasGuid, w => w.FiasGuid)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryStreet.FireStreetChange();
@@ -100,70 +108,127 @@ namespace Vodovoz.Views.Client
 			entryBuilding.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.BuildingFiasGuid, w => w.FiasGuid)
 				.AddBinding(e => e.Building, w => w.BuildingName)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
+			ViewModel.CityBeforeChange = entryCity.CityName;
+			ViewModel.StreetBeforeChange = entryStreet.StreetName;
+			ViewModel.BuildingBeforeChange = entryBuilding.BuildingName;
 
 			#endregion
 
 			phonesview1.ViewModel = ViewModel.PhonesViewModel;
 
 			ySpecCmbCategory.ItemsList = ViewModel.DeliveryPointCategories;
-			ySpecCmbCategory.Binding.AddBinding(ViewModel.Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+			ySpecCmbCategory.Binding
+				.AddBinding(ViewModel.Entity, e => e.Category, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ycheckHaveResidue.Binding.AddSource(ViewModel.Entity)
 				.AddFuncBinding(e => e.HaveResidue.HasValue, w => w.Visible)
 				.AddFuncBinding(e => e.HaveResidue.HasValue && e.HaveResidue.Value, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			comboRoomType.ItemsEnum = typeof(RoomType);
-			comboRoomType.Binding.AddBinding(ViewModel.Entity, e => e.RoomType, w => w.SelectedItem).InitializeFromSource();
+			comboRoomType.Binding
+				.AddBinding(ViewModel.Entity, e => e.RoomType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			yenumEntranceType.ItemsEnum = typeof(EntranceType);
-			yenumEntranceType.Binding.AddBinding(ViewModel.Entity, e => e.EntranceType, w => w.SelectedItem).InitializeFromSource();
+			yenumEntranceType.Binding
+				.AddBinding(ViewModel.Entity, e => e.EntranceType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entryDefaultDeliverySchedule.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryScheduleSelectorFactory);
-			entryDefaultDeliverySchedule.Binding.AddBinding(ViewModel.Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
-
-			checkIsActive.Binding.AddBinding(ViewModel.Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
-			checkIsActive.Binding.AddFuncBinding(ViewModel, vm => vm.CanArchiveDeliveryPoint, w => w.Sensitive).InitializeFromSource();
-
-			textComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			labelCompiledAddress.Binding.AddBinding(ViewModel.Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
-			entryRoom.Binding.AddBinding(ViewModel.Entity, e => e.Room, w => w.Text).InitializeFromSource();
-			entryFloor.Binding.AddBinding(ViewModel.Entity, e => e.Floor, w => w.Text).InitializeFromSource();
-			entryEntrance.Binding.AddBinding(ViewModel.Entity, e => e.Entrance, w => w.Text).InitializeFromSource();
-			spinMinutesToUnload.Binding.AddBinding(ViewModel.Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
-
-			hboxOrganisation.Binding.AddFuncBinding(ViewModel.Entity,
-					e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
+			entryDefaultDeliverySchedule.Binding
+				.AddBinding(ViewModel.Entity, e => e.DeliverySchedule, w => w.Subject)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			ylabelOrganisation.Binding.AddFuncBinding(ViewModel.Entity,
-					e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
+
+			checkIsActive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsActive, w => w.Active)
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.CanArchiveDeliveryPoint, w => w.Sensitive)
 				.InitializeFromSource();
-			yentryOrganisation.Binding.AddBinding(ViewModel.Entity, e => e.Organization, w => w.Text).InitializeFromSource();
-			yentryKPP.Binding.AddBinding(ViewModel.Entity, e => e.KPP, w => w.Text).InitializeFromSource();
-			textAddressAddition.Binding.AddBinding(ViewModel.Entity, e => e.АddressAddition, w => w.Buffer.Text).InitializeFromSource();
+
+			textComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			labelCompiledAddress.Binding
+				.AddBinding(ViewModel.Entity, e => e.CompiledAddress, w => w.LabelProp)
+				.InitializeFromSource();
+			entryRoom.Binding
+				.AddBinding(ViewModel.Entity, e => e.Room, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			entryFloor.Binding
+				.AddBinding(ViewModel.Entity, e => e.Floor, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			entryEntrance.Binding
+				.AddBinding(ViewModel.Entity, e => e.Entrance, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			spinMinutesToUnload.Binding
+				.AddBinding(ViewModel.Entity, e => e.MinutesToUnload, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			hboxOrganisation.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
+				.InitializeFromSource();
+			ylabelOrganisation.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.Counterparty != null && e.Counterparty.PersonType == PersonType.natural, w => w.Visible)
+				.InitializeFromSource();
+			yentryOrganisation.Binding
+				.AddBinding(ViewModel.Entity, e => e.Organization, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryKPP.Binding
+				.AddBinding(ViewModel.Entity, e => e.KPP, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			textAddressAddition.Binding
+				.AddBinding(ViewModel.Entity, e => e.АddressAddition, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entryDefaultWater.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory.GetDefaultWaterSelectorFactory());
-			entryDefaultWater.Binding.AddBinding(ViewModel.Entity, e => e.DefaultWaterNomenclature, w => w.Subject).InitializeFromSource();
+			entryDefaultWater.Binding
+				.AddBinding(ViewModel.Entity, e => e.DefaultWaterNomenclature, w => w.Subject)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			#region Оставлено для корректного отображения старых заказов
 
 			yentryAddress1c.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.Address1c, w => w.Text)
 				.AddBinding(e => e.Address1c, w => w.TooltipText)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			labelAddress1c.Visible = yentryAddress1c.Visible = !string.IsNullOrWhiteSpace(ViewModel.Entity.Address1c);
-			yentryCode1c.Binding.AddBinding(ViewModel.Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
+			yentryCode1c.Binding
+				.AddBinding(ViewModel.Entity, e => e.Code1c, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			codeLabel.Visible = hboxCode.Visible = !string.IsNullOrWhiteSpace(ViewModel.Entity.Code1c);
 
 			#endregion
 
-			spinBottlesReserv.Binding.AddBinding(ViewModel.Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
-			ychkAlwaysFreeDelivery.Binding.AddBinding(ViewModel.Entity, e => e.AlwaysFreeDelivery, w => w.Active).InitializeFromSource();
+			spinBottlesReserv.Binding
+				.AddBinding(ViewModel.Entity, e => e.BottleReserv, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			ychkAlwaysFreeDelivery.Binding
+				.AddBinding(ViewModel.Entity, e => e.AlwaysFreeDelivery, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			ychkAlwaysFreeDelivery.Visible = ViewModel.CanSetFreeDelivery;
 			lblCounterparty.LabelProp = ViewModel.Entity.Counterparty.FullName;
 			lblId.LabelProp = ViewModel.Entity.Id.ToString();
@@ -178,14 +243,25 @@ namespace Vodovoz.Views.Client
 					? $"Изменено: {vm.CoordsLastChangeUserName}"
 					: "Никем не изменялись",
 				w => w.LabelProp).InitializeFromSource();
-			ycheckOsmFixed.Binding.AddBinding(ViewModel.Entity, e => e.IsFixedInOsm, w => w.Active).InitializeFromSource();
+			ycheckOsmFixed.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsFixedInOsm, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			ycheckOsmFixed.Visible = ViewModel.CurrentUserIsAdmin;
 
-			chkAddCertificatesAlways.Binding.AddBinding(ViewModel.Entity, e => e.AddCertificatesAlways, w => w.Active)
+			chkAddCertificatesAlways.Binding
+				.AddBinding(ViewModel.Entity, e => e.AddCertificatesAlways, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryLunchTimeFrom.Binding.AddBinding(ViewModel.Entity, e => e.LunchTimeFrom, w => w.Time).InitializeFromSource();
-			entryLunchTimeTo.Binding.AddBinding(ViewModel.Entity, e => e.LunchTimeTo, w => w.Time).InitializeFromSource();
+			entryLunchTimeFrom.Binding
+				.AddBinding(ViewModel.Entity, e => e.LunchTimeFrom, w => w.Time)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			entryLunchTimeTo.Binding
+				.AddBinding(ViewModel.Entity, e => e.LunchTimeTo, w => w.Time)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			//make actions menu
 			var menu = new Menu();
@@ -210,6 +286,7 @@ namespace Vodovoz.Views.Client
 			_mapWidget.ButtonPressEvent += MapWidgetOnButtonPressEvent;
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
 			_mapWidget.MotionNotifyEvent += MapWidgetOnMotionNotifyEvent;
+			_mapWidget.Sensitive = ViewModel.CanEdit;
 
 			_vboxMap = new VBox();
 			_comboMapType = new yEnumComboBox();
@@ -244,6 +321,7 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.UoW = ViewModel.UoW;
 				deliverypointresponsiblepersonsview1.DeliveryPoint = ViewModel.DeliveryPoint;
 				deliverypointresponsiblepersonsview1.ResponsiblePersons = ViewModel.ResponsiblePersons;
+				deliverypointresponsiblepersonsview1.Sensitive = ViewModel.CanEdit;
 			}
 			else
 			{
@@ -369,11 +447,29 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(IsAddressChanged)
+			if(!ViewModel.IsAddressChanged)
 			{
-				await WriteCoordinates();
+				return;
+			}
+
+			ViewModel.ResetAddressChanges();
+			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
+			entryBuilding.GetCoordinates(out var longitude, out var latitude);
+			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate();
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (longitude == null || latitude == null))
+			{
+				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
+			}
+
+			if(!ViewModel.IsDisposed)
+			{
+				Application.Invoke((o, args) =>
+				{
+					ViewModel.WriteCoordinates(coordinate.Latitude, coordinate.Longitude, false);
+				});
 			}
 		}
+		
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
@@ -381,45 +477,28 @@ namespace Vodovoz.Views.Client
 			entryBuilding.BuildingName = string.Empty;
 		}
 
-		private async void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
+		private void EntryStreetOnFocusOutEvent(object sender, EventArgs e)
 		{
-			if(!IsAddressChanged)
+			if(!ViewModel.IsAddressChanged)
 			{
 				return;
 			}
+
+			ViewModel.ResetAddressChanges();
 
 			entryBuilding.StreetGuid = entryStreet.FiasGuid;
 
 			if(string.IsNullOrWhiteSpace(entryStreet.StreetName))
 			{
 				entryBuilding.BuildingName = string.Empty;
-				await WriteCoordinates();
 			}
-		}
 
-		private async Task WriteCoordinates()
-		{
-			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
-
-			_cityBeforeChange = entryCity.CityName;
-			_streetBeforeChange = entryStreet.StreetName;
-			_buildingBeforeChange = entryBuilding.BuildingName;
-
-			entryBuilding.GetCoordinates(out var longitude, out var latitude);
-
-			if(!string.IsNullOrWhiteSpace(entryBuilding.Text) && (longitude == null || latitude == null))
+			if(entryBuilding.StreetGuid == null)
 			{
-				var findedByGeoCoder = await entryBuilding.GetCoordinatesByGeocoderAsync($"{ entryCity.CityTypeName } { entryCity.CityName }, { entryStreet.StreetName } { entryStreet.StreetTypeName }, { entryBuilding.BuildingName }");
-				if(findedByGeoCoder != null)
-				{
-					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-					culture.NumberFormat.NumberDecimalSeparator = ".";
-					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
-				}
+				entryBuilding.FiasGuid = null;
 			}
 
-			ViewModel.WriteCoordinates(latitude, longitude, false);
+			ViewModel.WriteCoordinates(null, null, false);
 		}
 
 		private void EntryCityOnCitySelected(object sender, EventArgs e)
@@ -454,18 +533,13 @@ namespace Vodovoz.Views.Client
 				if(fixedpricesview.ViewModel == null)
 				{
 					fixedpricesview.ViewModel = ViewModel.FixedPricesViewModel;
-					fixedpricesview.Sensitive = ViewModel.CanEditNomenclatureFixedPrice;
+					fixedpricesview.Sensitive = ViewModel.CanEditNomenclatureFixedPrice && ViewModel.CanEdit;
 				}
 
 				notebook1.CurrentPage = 1;
 			}
 		}
 
-		public bool IsAddressChanged =>
-			 entryCity.CityName != _cityBeforeChange
-			 || entryStreet.StreetName != _streetBeforeChange
-			 || entryBuilding.BuildingName != _buildingBeforeChange;
-			 
 		#endregion
 	}
 }

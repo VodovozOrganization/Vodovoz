@@ -39,7 +39,10 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using QS.Navigation;
 using QS.Project.Journal;
+using QS.Services;
+using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -58,15 +61,19 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
+	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
+		IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
+		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -75,6 +82,10 @@ namespace Vodovoz
 		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly IContactsParameters _contactsParameters = ContactParametersProvider.Instance;
+		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
@@ -84,6 +95,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
+		private PhonesViewModel _phonesViewModel;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -175,16 +187,24 @@ namespace Vodovoz
 
 		public Counterparty Counterparty => UoWGeneric.Root;
 
+		private bool CanEdit => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
+
 		public override bool HasChanges
 		{
 			get
 			{
-				phonesView.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
 		}
+		
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
 
 		public CounterpartyDlg()
 		{
@@ -215,28 +235,28 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			phone.Counterparty = Entity;
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
 		}
 
-		private Employee CurrentEmployee => _currentEmployee ??
-		                                    (_currentEmployee =
-			                                    _employeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId));
+		private Employee CurrentEmployee =>
+			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
 		private void ConfigureDlg()
 		{
+			buttonSave.Sensitive = CanEdit;
+			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
+
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
 			rbnPrices.Toggled += OnRbnPricesToggled;
 
 			_currentUserCanEditCounterpartyDetails =
-				UoW.IsNew
-				|| ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
-					"can_edit_counterparty_details",
-					ServicesConfig.CommonServices.UserService.CurrentUserId);
-
-
+				UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
+					"can_edit_counterparty_details", _currentUserId);
+			
 			if(UoWGeneric.Root.CounterpartyContracts == null)
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
@@ -273,7 +293,7 @@ namespace Vodovoz
 
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 
-			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails;
+			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
 			UpdateCargoReceiver();
 			Entity.PropertyChanged += (sender, args) =>
@@ -289,27 +309,42 @@ namespace Vodovoz
 
 		private void ConfigureTabInfo()
 		{
-			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails;
+			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
-			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
-			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
-			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
-			YEnumCounterpartyType_Changed(this, EventArgs.Empty);
+			yEnumCounterpartyType.Binding
+				.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			yEnumCounterpartyType.Sensitive = CanEdit;
+			yEnumCounterpartyType.Changed += OnEnumCounterpartyTypeChanged;
+			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
+			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			if(Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				"can_change_delay_days_for_buyers_and_chain_store"))
+			if((Entity.Id == 0 && permissionResult.CanCreate)
+				|| (Entity.Id > 0
+					&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"can_change_delay_days_for_buyers_and_chain_store")
+					&& permissionResult.CanUpdate))
+			{
+				checkIsChainStore.Sensitive = true;
+				DelayDaysForBuyerValue.Sensitive = true;
+			}
+			else
 			{
 				checkIsChainStore.Sensitive = false;
 				DelayDaysForBuyerValue.Sensitive = false;
 			}
 
 			checkIsChainStore.Toggled += CheckIsChainStoreOnToggled;
-			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
+			checkIsChainStore.Binding
+				.AddBinding(Entity, e => e.IsChainStore, w => w.Active)
+				.InitializeFromSource();
 
-			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			ycheckIsArchived.Binding
+				.AddBinding(Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 			SetSensitivityByPermission("can_arc_counterparty_and_deliverypoint", ycheckIsArchived);
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
@@ -318,58 +353,88 @@ namespace Vodovoz
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
-			ySpecCmbCameFrom.Sensitive = Entity.Id == 0;
+			ySpecCmbCameFrom.Sensitive = Entity.Id == 0 && CanEdit;
 			ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
 				UoW,
 				Entity.CameFrom == null || !Entity.CameFrom.IsArchive
 			);
 
-			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
+			ySpecCmbCameFrom.Binding
+				.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			ycheckIsForRetail.Binding.AddBinding(Entity, e => e.IsForRetail, w => w.Active).InitializeFromSource();
+			ycheckIsForRetail.Binding
+				.AddBinding(Entity, e => e.IsForRetail, w => w.Active)
+				.InitializeFromSource();
+			ycheckIsForRetail.Sensitive = CanEdit;
 
-			ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
+			ycheckNoPhoneCall.Binding
+				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
+				.InitializeFromSource();
 			SetSensitivityByPermission("user_can_activate_no_phone_call_in_counterparty", ycheckNoPhoneCall);
 			ycheckNoPhoneCall.Visible = Entity.IsForRetail;
 
-			DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
+			DelayDaysForBuyerValue.Binding
+				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
+				.InitializeFromSource();
 			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
 
-			yspinDelayDaysForTechProcessing.Binding.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
+			yspinDelayDaysForTechProcessing.Binding
+				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
 				.InitializeFromSource();
+			yspinDelayDaysForTechProcessing.Sensitive = CanEdit;
 
-			entryFIO.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			entryFIO.Binding
+				.AddBinding(Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
+			entryFIO.Sensitive = CanEdit;
 
-			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails;
-
+			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
 				.InitializeFromSource();
 
-			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails;
-			entryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
+			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			entryFullName.Binding
+				.AddBinding(Entity, e => e.FullName, w => w.Text)
+				.InitializeFromSource();
 
 			entryMainCounterparty
 				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
-			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
+			entryMainCounterparty.Binding
+				.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject)
+				.InitializeFromSource();
+			entryMainCounterparty.Sensitive = CanEdit;
 
 			entryPreviousCounterparty
 				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
-			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
+			entryPreviousCounterparty.Binding
+				.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject)
+				.InitializeFromSource();
+			entryPreviousCounterparty.Sensitive = CanEdit;
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
-			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumPayment.Binding
+				.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			enumPayment.Sensitive = CanEdit;
 
 			enumDefaultDocumentType.ItemsEnum = typeof(DefaultDocumentType);
-			enumDefaultDocumentType.Binding.AddBinding(Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull)
+			enumDefaultDocumentType.Binding
+				.AddBinding(Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			enumDefaultDocumentType.Sensitive = CanEdit;
+
+			lblTax.Binding
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
 
-			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
-
 			specialListCmbWorksThroughOrganization.ItemsList = UoW.GetAll<Organization>();
-			specialListCmbWorksThroughOrganization.Binding.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem).InitializeFromSource();
-			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization;
+			specialListCmbWorksThroughOrganization.Binding
+				.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem)
+				.InitializeFromSource();
+			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization && CanEdit;
 
 			enumTax.ItemsEnum = typeof(TaxType);
 
@@ -383,35 +448,55 @@ namespace Vodovoz
 				.AddBinding(e => e.TaxType, w => w.SelectedItem)
 				.AddFuncBinding(e => e.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
+			enumTax.Sensitive = CanEdit;
 
-			spinMaxCredit.Binding.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal).InitializeFromSource();
+			spinMaxCredit.Binding
+				.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal)
+				.InitializeFromSource();
 			SetSensitivityByPermission("max_loan_amount", spinMaxCredit);
 
-			dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			dataComment.Binding
+				.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text)
+				.InitializeFromSource();
+			dataComment.Editable = CanEdit;
 
 			// Прикрепляемые документы
 
-			var filesViewModel = new CounterpartyFilesViewModel(
-				Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository);
+			var filesViewModel =
+				new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository)
+				{
+					ReadOnly = !CanEdit
+				};
 			counterpartyfilesview1.ViewModel = filesViewModel;
 
-			chkNeedNewBottles.Binding.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active).InitializeFromSource();
+			chkNeedNewBottles.Binding
+				.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active)
+				.InitializeFromSource();
+			chkNeedNewBottles.Sensitive = CanEdit;
 
-			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
+			ycheckSpecialDocuments.Binding
+				.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active)
+				.InitializeFromSource();
+			ycheckSpecialDocuments.Sensitive = CanEdit;
 
-			ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active).InitializeFromSource();
+			ycheckAlwaysSendReceitps.Binding
+				.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active)
+				.InitializeFromSource();
 			ycheckAlwaysSendReceitps.Visible =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
+			ycheckAlwaysSendReceitps.Sensitive = CanEdit;
 
-			ycheckExpirationDateControl.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active)
+			ycheckExpirationDateControl.Binding
+				.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active)
 				.InitializeFromSource();
+			ycheckExpirationDateControl.Sensitive = CanEdit;
 			yspinExpirationDatePercent.Binding.AddSource(Entity)
 				.AddBinding(e => e.SpecialExpireDatePercentCheck, w => w.Visible)
 				.AddBinding(e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal)
 				.InitializeFromSource();
+			yspinExpirationDatePercent.Sensitive = CanEdit;
 
 			// Настройка каналов сбыта
-
 			if(Entity.IsForRetail)
 			{
 				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
@@ -436,6 +521,7 @@ namespace Vodovoz
 				}
 
 				ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
+				ytreeviewSalesChannels.Sensitive = CanEdit;
 			}
 			else
 			{
@@ -449,19 +535,21 @@ namespace Vodovoz
 				label49.Visible = false;
 			}
 
+			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
 		}
 
 		private void ConfigureTabContacts()
 		{
-			phonesView.UoW = UoWGeneric;
-			if(UoWGeneric.Root.Phones == null)
+			_phonesViewModel =
+				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
-				UoWGeneric.Root.Phones = new List<Phone>();
-			}
-
-			phonesView.Counterparty = Entity;
-			phonesView.Phones = UoWGeneric.Root.Phones;
+				PhonesList = Entity.ObservablePhones, 
+				Counterparty = Entity,
+				ShowRoboAtsCounterpartyNameAndPatronymic = true,
+				ReadOnly = !CanEdit
+			};
+			phonesView.ViewModel = _phonesViewModel;
 
 			emailsView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Emails == null)
@@ -470,6 +558,7 @@ namespace Vodovoz
 			}
 
 			emailsView.Emails = UoWGeneric.Root.Emails;
+			emailsView.Sensitive = CanEdit;
 
 			var employeeJournalFactory = new EmployeeJournalFactory();
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
@@ -477,14 +566,18 @@ namespace Vodovoz
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
-			entrySalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
+			entrySalesManager.Binding
+				.AddBinding(Entity, e => e.SalesManager, w => w.Subject)
+				.InitializeFromSource();
 
 			if(SetSensitivityByPermission("can_set_personal_accountant", entryAccountant))
 			{
 				entryAccountant.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
-			entryAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
+			entryAccountant.Binding
+				.AddBinding(Entity, e => e.Accountant, w => w.Subject)
+				.InitializeFromSource();
 
 			if(SetSensitivityByPermission("can_set_personal_bottles_manager", entryBottlesManager))
 			{
@@ -492,26 +585,35 @@ namespace Vodovoz
 			}
 
 			entryBottlesManager.CanEditReference = true;
-			entryBottlesManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
+			entryBottlesManager.Binding
+				.AddBinding(Entity, e => e.BottlesManager, w => w.Subject)
+				.InitializeFromSource();
 
 			//FIXME данный виджет создан с Visible = false и нигде не меняется
 			dataentryMainContact.RepresentationModel = new ContactsVM(UoW, Entity);
-			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
+			dataentryMainContact.Binding
+				.AddBinding(Entity, e => e.MainContact, w => w.Subject)
+				.InitializeFromSource();
 
 			//FIXME данный виджет создан с Visible = false и нигде не меняется
 			dataentryFinancialContact.RepresentationModel = new ContactsVM(UoW, Entity);
-			dataentryFinancialContact.Binding.AddBinding(Entity, e => e.FinancialContact, w => w.Subject).InitializeFromSource();
+			dataentryFinancialContact.Binding
+				.AddBinding(Entity, e => e.FinancialContact, w => w.Subject)
+				.InitializeFromSource();
 
-			txtRingUpPhones.Binding.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text).InitializeFromSource();
+			txtRingUpPhones.Binding
+				.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text)
+				.InitializeFromSource();
+			txtRingUpPhones.Editable = CanEdit;
 
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			contactsview1.Visible = true;
+			contactsview1.Sensitive = CanEdit;
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
 		{
-			return widget.Sensitive =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(permission);
+			return widget.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(permission) && CanEdit;
 		}
 
 		private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
@@ -527,27 +629,46 @@ namespace Vodovoz
 		private void ConfigureTabRequisites()
 		{
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
+			validatedINN.Binding
+				.AddBinding(Entity, e => e.INN, w => w.Text)
+				.InitializeFromSource();
+			validatedINN.IsEditable = CanEdit;
 
-			yentrySignFIO.Binding.AddBinding(Entity, e => e.SignatoryFIO, w => w.Text).InitializeFromSource();
-			validatedKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
-			yentrySignPost.Binding.AddBinding(Entity, e => e.SignatoryPost, w => w.Text).InitializeFromSource();
-			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
-			yentrySignBaseOf.Binding.AddBinding(Entity, e => e.SignatoryBaseOf, w => w.Text).InitializeFromSource();
+			yentrySignFIO.Binding
+				.AddBinding(Entity, e => e.SignatoryFIO, w => w.Text)
+				.InitializeFromSource();
+			yentrySignFIO.IsEditable = CanEdit;
+			validatedKPP.Binding
+				.AddBinding(Entity, e => e.KPP, w => w.Text)
+				.InitializeFromSource();
+			validatedKPP.IsEditable = CanEdit;
+			yentrySignPost.Binding
+				.AddBinding(Entity, e => e.SignatoryPost, w => w.Text)
+				.InitializeFromSource();
+			yentrySignPost.IsEditable = CanEdit;
+			entryJurAddress.Binding
+				.AddBinding(Entity, e => e.RawJurAddress, w => w.Text)
+				.InitializeFromSource();
+			entryJurAddress.IsEditable = CanEdit;
+			yentrySignBaseOf.Binding
+				.AddBinding(Entity, e => e.SignatoryBaseOf, w => w.Text)
+				.InitializeFromSource();
+			yentrySignBaseOf.IsEditable = CanEdit;
 
-			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails;
-
+			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
 		}
 
 		private void ConfigureTabProxies()
 		{
 			proxiesview1.CounterpartyUoW = UoWGeneric;
+			proxiesview1.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabContracts()
 		{
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
+			counterpartyContractsView.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabTags()
@@ -560,24 +681,54 @@ namespace Vodovoz
 				.Finish();
 
 			ytreeviewTags.ItemsDataSource = Entity.ObservableTags;
+			buttonAddTag.Sensitive = CanEdit;
+			buttonDeleteTag.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabSpecialFields()
 		{
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
-			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();
+			enumcomboCargoReceiverSource.Binding
+				.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem)
+				.InitializeFromSource();
+			enumcomboCargoReceiverSource.Sensitive = CanEdit;
 
-			yentryCargoReceiver.Binding.AddBinding(Entity, e => e.CargoReceiver, w => w.Text).InitializeFromSource();
-			yentryCustomer.Binding.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text).InitializeFromSource();
-			yentrySpecialContract.Binding.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text).InitializeFromSource();
-			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text).InitializeFromSource();
-			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
-			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
+			yentryCargoReceiver.Binding
+				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
+				.InitializeFromSource();
+			yentryCargoReceiver.IsEditable = CanEdit;
+			yentryCustomer.Binding
+				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
+				.InitializeFromSource();
+			yentryCustomer.IsEditable = CanEdit;
+			yentrySpecialContract.Binding
+				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
+				.InitializeFromSource();
+			yentrySpecialContract.IsEditable = CanEdit;
+			yentrySpecialKPP.Binding
+				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
+				.InitializeFromSource();
+			yentrySpecialKPP.IsEditable = CanEdit;
+			yentryGovContract.Binding
+				.AddBinding(Entity, e => e.GovContract, w => w.Text)
+				.InitializeFromSource();
+			yentryGovContract.IsEditable = CanEdit;
+			yentrySpecialDeliveryAddress.Binding
+				.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text)
+				.InitializeFromSource();
+			yentrySpecialDeliveryAddress.IsEditable = CanEdit;
 
-			buttonLoadFromDP.Clicked += ButtonLoadFromDP_Clicked;
+			buttonLoadFromDP.Clicked += OnButtonLoadFromDeliveryPointClicked;
+			buttonLoadFromDP.Sensitive = CanEdit;
 
-			yentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
-			yentryOKDP.Binding.AddBinding(Entity, e => e.OKDP, w => w.Text).InitializeFromSource();
+			yentryOKPO.Binding
+				.AddBinding(Entity, e => e.OKPO, w => w.Text)
+				.InitializeFromSource();
+			yentryOKPO.IsEditable = CanEdit;
+			yentryOKDP.Binding
+				.AddBinding(Entity, e => e.OKDP, w => w.Text)
+				.InitializeFromSource();
+			yentryOKDP.IsEditable = CanEdit;
 
 			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
@@ -585,9 +736,18 @@ namespace Vodovoz
 			yspeccomboboxTorg2Count.ItemsList = docCount;
 			yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
 
-			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
-			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
-			yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxTorg2Count.Binding
+				.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem)
+				.InitializeFromSource();
+			yspeccomboboxTorg2Count.Sensitive = CanEdit;
+			yspeccomboboxTTNCount.Binding
+				.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem)
+				.InitializeFromSource();
+			yspeccomboboxTTNCount.Sensitive = CanEdit;
+			yspeccomboboxUPDForNonCashlessCount.Binding
+				.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem)
+				.InitializeFromSource();
+			yspeccomboboxUPDForNonCashlessCount.Sensitive = CanEdit;
 
 			if(Entity.IsForRetail)
 			{
@@ -596,11 +756,22 @@ namespace Vodovoz
 				yspeccomboboxShetFacturaCount.ItemsList = docCount;
 				yspeccomboboxCarProxyCount.ItemsList = docCount;
 
-				yspeccomboboxUPDCount.Binding.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem).InitializeFromSource();
-				yspeccomboboxTorg12Count.Binding.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem).InitializeFromSource();
-				yspeccomboboxShetFacturaCount.Binding.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem)
+				yspeccomboboxUPDCount.Binding
+					.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem)
 					.InitializeFromSource();
-				yspeccomboboxCarProxyCount.Binding.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem).InitializeFromSource();
+				yspeccomboboxUPDCount.Sensitive = CanEdit;
+				yspeccomboboxTorg12Count.Binding
+					.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem)
+					.InitializeFromSource();
+				yspeccomboboxTorg12Count.Sensitive = CanEdit;
+				yspeccomboboxShetFacturaCount.Binding
+					.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem)
+					.InitializeFromSource();
+				yspeccomboboxShetFacturaCount.Sensitive = CanEdit;
+				yspeccomboboxCarProxyCount.Binding
+					.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem)
+					.InitializeFromSource();
+				yspeccomboboxCarProxyCount.Sensitive = CanEdit;
 			}
 			else
 			{
@@ -616,6 +787,10 @@ namespace Vodovoz
 				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
 				.Finish();
 			ytreeviewSpecialNomenclature.ItemsDataSource = Entity.ObservableSpecialNomenclatures;
+			ytreeviewSpecialNomenclature.Sensitive = CanEdit;
+
+			ybuttonAddNom.Sensitive = CanEdit;
+			ybuttonRemoveNom.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabDeliveryPoints()
@@ -626,6 +801,7 @@ namespace Vodovoz
 		private void ConfigureTabDocuments()
 		{
 			counterpartydocumentsview.Config(UoWGeneric, Entity);
+			counterpartydocumentsview.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabPrices()
@@ -641,6 +817,7 @@ namespace Vodovoz
 					NomenclatureSelectorFactory,
 					NomenclatureRepository,
 					_userRepository);
+			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabFixedPrices()
@@ -652,8 +829,7 @@ namespace Vodovoz
 			var nomSelectorFactory = new NomenclatureSelectorFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
-			fixedpricesview.Sensitive =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_counterparty_fixed_prices");
+			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
 
 		private void ConfigureValidationContext()
@@ -680,7 +856,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
+		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
 		{
 			var filter = new DeliveryPointJournalFilterViewModel
 			{
@@ -798,7 +974,7 @@ namespace Vodovoz
 		{
 			_canClose = isSensetive;
 			buttonSave.Sensitive = isSensetive;
-			buttonCancel.Sensitive = isSensetive;
+			btnCancel.Sensitive = isSensetive;
 		}
 
 		public override bool Save()
@@ -820,7 +996,7 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				phonesView.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				UoWGeneric.Save();
 				_logger.Info("Ok.");
@@ -940,12 +1116,12 @@ namespace Vodovoz
 			notebook1.CurrentPage = 10;
 		}
 
-		private void YEnumCounterpartyType_Changed(object sender, EventArgs e)
+		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
 		}
 
-		private void YEnumCounterpartyType_ChangedByUser(object sender, EventArgs e)
+		private void OnEnumCounterpartyTypeChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.ObservableSuplierPriceItems.Any() && Entity.CounterpartyType == CounterpartyType.Buyer)
 			{
@@ -999,6 +1175,10 @@ namespace Vodovoz
 
 		protected void OnYentrySignPostFocusInEvent(object o, Gtk.FocusInEventArgs args)
 		{
+			if(!CanEdit)
+			{
+				return;
+			}
 			if(yentrySignPost.Completion == null)
 			{
 				yentrySignPost.Completion = new EntryCompletion();
@@ -1011,6 +1191,10 @@ namespace Vodovoz
 
 		protected void OnYentrySignBaseOfFocusInEvent(object o, Gtk.FocusInEventArgs args)
 		{
+			if(!CanEdit)
+			{
+				return;
+			}
 			if(yentrySignBaseOf.Completion == null)
 			{
 				yentrySignBaseOf.Completion = new EntryCompletion();
@@ -1081,16 +1265,25 @@ namespace Vodovoz
 			labelCloseDelivery.LabelProp = "Поставки закрыл : " + Entity.GetCloseDeliveryInfo() + Environment.NewLine +
 			                               "<b>Комментарий по закрытию поставок:</b>";
 
-			if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
+			if(permissionResult.CanUpdate)
 			{
-				buttonSaveCloseComment.Sensitive = true;
-				buttonEditCloseDeliveryComment.Sensitive = false;
-				ytextviewCloseComment.Sensitive = true;
+				if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
+				{
+					buttonSaveCloseComment.Sensitive = true;
+					buttonEditCloseDeliveryComment.Sensitive = false;
+					ytextviewCloseComment.Sensitive = true;
+				}
+				else
+				{
+					buttonEditCloseDeliveryComment.Sensitive = true;
+					buttonSaveCloseComment.Sensitive = false;
+					ytextviewCloseComment.Sensitive = false;
+				}
 			}
 			else
 			{
-				buttonEditCloseDeliveryComment.Sensitive = true;
 				buttonSaveCloseComment.Sensitive = false;
+				buttonEditCloseDeliveryComment.Sensitive = false;
 				ytextviewCloseComment.Sensitive = false;
 			}
 		}

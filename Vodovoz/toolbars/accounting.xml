@@ -3,7 +3,7 @@
 		<!-- <toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/> -->
 		<toolitem name='ActionPaymentFromBank' action='ActionPaymentFromBank'/>
 		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
-		<toolitem name='ActionAccountFlow' action='ActionAccountFlow'/>
+		<!-- <toolitem name='ActionAccountFlow' action='ActionAccountFlow'/> -->
 		<toolitem name='ActionRevision' action='ActionRevision'/>
         <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
         <toolitem name='ActionOldExportTo1c' action='ActionOldExportTo1c'/>

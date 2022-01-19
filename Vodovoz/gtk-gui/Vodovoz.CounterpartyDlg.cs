@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gtk.Button btnCancel;
 
 		private global::QSWidgetLib.MenuButton menuActions;
 
@@ -220,7 +220,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label24;
 
-		private global::Vodovoz.Views.Contacts.PhonesView phonesView;
+		private global::Vodovoz.Dialogs.Phones.PhonesView phonesView;
 
 		private global::Gtk.Label lblContacts;
 
@@ -417,16 +417,16 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
+			this.btnCancel = new global::Gtk.Button();
+			this.btnCancel.CanFocus = true;
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.UseUnderline = true;
+			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w3;
-			this.hbox1.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
+			this.btnCancel.Image = w3;
+			this.hbox1.Add(this.btnCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
@@ -801,7 +801,6 @@ namespace Vodovoz
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.ycheckSpecialDocuments = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckSpecialDocuments.TooltipMarkup = "Больше не работаем с этим клиентом";
 			this.ycheckSpecialDocuments.CanFocus = true;
 			this.ycheckSpecialDocuments.Name = "ycheckSpecialDocuments";
 			this.ycheckSpecialDocuments.Label = global::Mono.Unix.Catalog.GetString("Особая печать документов");
@@ -1554,10 +1553,9 @@ namespace Vodovoz
 			w109.XOptions = ((global::Gtk.AttachOptions)(4));
 			w109.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.phonesView = new global::Vodovoz.Views.Contacts.PhonesView();
+			this.phonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
-			this.phonesView.IsReadOnly = false;
 			this.datatable2.Add(this.phonesView);
 			global::Gtk.Table.TableChild w110 = ((global::Gtk.Table.TableChild)(this.datatable2[this.phonesView]));
 			w110.LeftAttach = ((uint)(1));

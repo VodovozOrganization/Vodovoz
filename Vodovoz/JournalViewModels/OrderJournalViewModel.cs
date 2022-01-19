@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NHibernate;
@@ -29,6 +30,7 @@ using Vodovoz.Infrastructure.Services;
 using QS.Tdi;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Orders;
@@ -149,7 +151,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead;
 				},
 				(selected) => selected.All(x => (x as OrderJournalNode).Sensitive),
 				(selected) => {
@@ -182,14 +184,6 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
-		}
-
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if (TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
@@ -336,6 +330,35 @@ namespace Vodovoz.JournalViewModels
 				}
 			}
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				Phone deliveryPointPhoneAlias = null;
+
+				var deliveryPointPhonesSubquery = QueryOver.Of<Phone>(() => deliveryPointPhoneAlias)
+					.Where(() => deliveryPointPhoneAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.And(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(deliveryPointPhonesSubquery.DetachedCriteria));
+			}
+
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -478,6 +501,28 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
+
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSDAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				query.Where(x => x.Id == null);
+			}
 			
 			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias);
@@ -613,6 +658,28 @@ namespace Vodovoz.JournalViewModels
 												   )
 											   );
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSPAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				query.Where(x => x.Id == null);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => orderWSPAlias.Id,
 				() => counterpartyAlias.Name,
@@ -735,6 +802,28 @@ namespace Vodovoz.JournalViewModels
 												   )
 										   );
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSAPAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			{
+				query.Where(x => x.Id == null);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => orderWSAPAlias.Id,
 				() => counterpartyAlias.Name,
@@ -816,20 +905,33 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			bool IsOrder(object[] objs) 
+			OrderJournalNode GetSelectedNode(object[] selectedItems)
 			{
-				var selectedNodes = objs.Cast<OrderJournalNode>();
-				if(selectedNodes.Count() != 1)
-					return false;
+				var selectedNodes = selectedItems.OfType<OrderJournalNode>();
+				return selectedNodes.Count() != 1 ? null : selectedNodes.FirstOrDefault();
+			}
 
-				return selectedNodes.FirstOrDefault().EntityType == typeof(VodovozOrder);
+			bool IsOrder(OrderJournalNode selectedNode)
+			{
+				if(selectedNode == null)
+				{
+					return false;
+				}
+
+				return selectedNode.EntityType == typeof(VodovozOrder);
+			}
+
+			bool CanCreateOrder(object[] selectedItems)
+			{
+				var selectedNode = GetSelectedNode(selectedItems);
+				return IsOrder(selectedNode) && EntityConfigs[selectedNode.EntityType].PermissionResult.CanCreate;
 			}
 
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
-						x => AccessRouteListKeeping((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessRouteListKeeping((x as OrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -854,7 +956,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
 						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()) 
-					        && IsOrder(selectedItems)
+					        && IsOrder(GetSelectedNode(selectedItems))
 							&& !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
@@ -894,7 +996,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть диалог закрытия",
 					(selectedItems) => selectedItems.Any(
-						x => AccessToRouteListClosing((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessToRouteListClosing((x as OrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -917,7 +1019,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(координаты)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -941,7 +1043,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(адрес)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -965,7 +1067,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на карте OSM",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -983,7 +1085,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Повторить заказ",
-					selectedItems => IsOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
+					selectedItems => CanCreateOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();

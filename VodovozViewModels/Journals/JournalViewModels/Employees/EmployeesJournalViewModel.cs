@@ -11,6 +11,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Tdi;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
@@ -347,7 +348,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			
 			var resetPassAction = new JournalAction(
 				"Сбросить пароль",
-				x => x.FirstOrDefault() != null,
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<EmployeeJournalNode>();
+
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+
+					EmployeeJournalNode selectedNode = selectedNodes.First();
+
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+
+					return config.PermissionResult.CanUpdate;
+				},
 				x => true, 
 				selectedItems =>
 				{
@@ -385,6 +405,74 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			
 			PopupActionsList.Add(resetPassAction);
 			NodeActionsList.Add(resetPassAction);
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateCustomEditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		private void CreateCustomEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => 
+				{
+					var selectedNodes = selected.OfType<EmployeeJournalNode>();
+
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+
+					EmployeeJournalNode selectedNode = selectedNodes.First();
+
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => 
+				{
+					var selectedNodes = selected.OfType<EmployeeJournalNode>();
+					
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+
+					EmployeeJournalNode selectedNode = selectedNodes.First();
+
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+
+			NodeActionsList.Add(editAction);
 		}
 
 		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(

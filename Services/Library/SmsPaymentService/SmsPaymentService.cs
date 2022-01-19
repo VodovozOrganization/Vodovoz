@@ -231,14 +231,7 @@ namespace SmsPaymentService
                 _logger.Error(ex, $"Ошибка при обработке поступившего платежа (externalId: {externalId}, status: {status})");
                 return new StatusCode(HttpStatusCode.InternalServerError);
             }
-
-			try {
-				_androidDriverService.RefreshPaymentStatus(orderId);
-			}
-			catch(Exception ex) {
-				_logger.Error(ex, $"Не получилось уведомить службу водителей об обновлении статуса заказа");
-			}
-
+            
 			try
 			{
 				_smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();

@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Cairo;
 using Gamma.GtkWidgets;
-using NHibernate.Hql.Ast;
 using QS.Dialog.GtkUI;
+using QS.Services;
 using SmsPaymentService;
 using Vodovoz.Additions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -18,9 +15,26 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
-		public SmsSendPanelView()
+		private Phone _selectedPhone;
+		private Counterparty _counterparty;
+		private Order _order;
+		private readonly IPermissionResult _orderPermissionResult;
+		private readonly bool _canSendSmsForAdditionalOrderStatuses;
+
+		public SmsSendPanelView(ICurrentPermissionService currentPermissionService)
 		{
-			this.Build();
+			if(currentPermissionService == null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+			Build();
+			_orderPermissionResult = currentPermissionService.ValidateEntityPermission(typeof(Order));
+			_canSendSmsForAdditionalOrderStatuses = currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
+			Configure();
+		}
+
+		private void Configure()
+		{
 			validatedPhoneEntry.WidthRequest = 135;
 			validatedPhoneEntry.ValidationMode = QSWidgetLib.ValidationType.phone;
 			yPhonesListTreeView.ColumnsConfig = ColumnsConfigFactory.Create<Phone>()
@@ -28,15 +42,19 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddTextRenderer(x => x.Number)
 				.Finish();
 
-			yPhonesListTreeView.Selection.Changed += (sender, args) =>
+			if(_orderPermissionResult.CanUpdate)
 			{
-				selectedPhone = yPhonesListTreeView.GetSelectedObject() as Phone;
-				validatedPhoneEntry.Text = selectedPhone?.Number ?? "";
-			};
+				yPhonesListTreeView.Selection.Changed += (sender, args) =>
+				{
+					_selectedPhone = yPhonesListTreeView.GetSelectedObject() as Phone;
+					validatedPhoneEntry.Text = _selectedPhone?.Number ?? "";
+				};
+			}
+			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanUpdate;
 
 			ySendSmsButton.Pressed += (btn, args) =>
 			{
-				if (string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
+				if(string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
 				{
 					MessageDialogHelper.RunErrorDialog("Вы забыли выбрать номер.", "Ошибка при отправке Sms");
 					return;
@@ -50,8 +68,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				});
 
 				var smsSender = new SmsPaymentSender();
-				var result = smsSender.SendSmsPaymentToNumber(Order.Id, validatedPhoneEntry.Text);
-				switch (result.Status)
+				var result = smsSender.SendSmsPaymentToNumber(_order.Id, validatedPhoneEntry.Text);
+				switch(result.Status)
 				{
 					case PaymentResult.MessageStatus.Ok:
 						MessageDialogHelper.RunInfoDialog("Sms отправлена успешно");
@@ -62,46 +80,53 @@ namespace Vodovoz.SidePanel.InfoViews
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
-
 			};
 		}
-
-		private Phone selectedPhone;
-
-		Counterparty Counterparty { get; set; }
-		Order Order { get; set; }
-
 
 		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
 		{
-			if (InfoProvider is ISmsSendProvider smsSendProvider)
+			if(InfoProvider is ISmsSendProvider smsSendProvider)
 			{
-				Counterparty = smsSendProvider.Counterparty;
-				Order = smsSendProvider.Order;
+				_counterparty = smsSendProvider.Counterparty;
+				_order = smsSendProvider.Order;
 			}
 
-			if (Counterparty == null || Order == null)
+			if(_counterparty == null || _order == null)
+			{
 				return;
+			}
 
-			ySendSmsButton.Sensitive = true;
-			yPhonesListTreeView.ItemsDataSource = Counterparty.Phones;
-
-
+			ySendSmsButton.Sensitive = _orderPermissionResult.CanUpdate;
+			yPhonesListTreeView.ItemsDataSource = _counterparty.Phones;
 		}
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
-		
-		public bool VisibleOnPanel => 
-		(new OrderStatus[]
-		{
-			OrderStatus.Accepted,
-			OrderStatus.OnTheWay,
-			OrderStatus.Shipped,
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading
-		}.Contains(Order.OrderStatus));
 
+		public bool VisibleOnPanel
+		{
+			get
+			{
+				var isStatusAllowedByDefaultForSendingSms =
+					new OrderStatus[]
+					{
+						OrderStatus.Accepted,
+						OrderStatus.OnTheWay,
+						OrderStatus.Shipped,
+						OrderStatus.InTravelList,
+						OrderStatus.OnLoading
+					}.Contains(_order.OrderStatus);
+
+				var isAdditionalOrderStatus =
+					new OrderStatus[]
+					{
+						OrderStatus.Closed,
+						OrderStatus.UnloadingOnStock,
+					}.Contains(_order.OrderStatus);
+
+				return isStatusAllowedByDefaultForSendingSms || (isAdditionalOrderStatus && _canSendSmsForAdditionalOrderStatuses);
+			}
+		}
 	}
 }

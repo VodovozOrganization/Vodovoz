@@ -90,17 +90,23 @@ node('Vod3') {
 	stage('Deploy'){
 		echo "Checking the deployment for a branch " + env.BRANCH_NAME
 		script{
-			def OUTPUT_PATH = "F:\\WORK\\_BUILDS\\" + env.BRANCH_NAME
+			def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
 			if(
 				env.BRANCH_NAME == 'master'
 				|| env.BRANCH_NAME == 'develop'
 				|| env.BRANCH_NAME == 'Beta'
 				|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 			{
+				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
 				echo "Deploy branch " + env.BRANCH_NAME
 				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-			}else{
+			} else if(env.CHANGE_ID != null){
+				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
+				echo "Deploy pull request " + env.CHANGE_ID
+				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+			} else{
 				echo "Nothing to deploy"
 			}
 		}

@@ -2,21 +2,23 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.UoW;
-using QS.ViewModels;
-using QS.Services;
-using QS.Navigation;
-using Vodovoz.Services;
-using Vodovoz.Domain.Payments;
+using System.Threading.Tasks;
 using NLog;
 using QS.Commands;
-using Vodovoz.Domain.Orders;
-using System.Threading.Tasks;
 using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Services;
+using QS.ViewModels;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Services;
 
-namespace Vodovoz.ViewModels
+namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
@@ -24,10 +26,11 @@ namespace Vodovoz.ViewModels
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly int _vodovozId;
 		private readonly int _vodovozSouthId;
-		private IReadOnlyList<Domain.Organizations.Organization> _organisations;		
-		private IReadOnlyList<Domain.Organizations.Organization> _allVodOrganisations;
+		private IReadOnlyList<Organization> _organisations;
+		private IReadOnlyList<Organization> _allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
 		private readonly string[] _excludeInnForVodovozSouth = new []{ "2465037737", "7750005725" };
 
@@ -43,7 +46,8 @@ namespace Vodovoz.ViewModels
 			IOrganizationParametersProvider organizationParametersProvider,
 			IProfitCategoryProvider profitCategoryProvider,
 			IPaymentsRepository paymentsRepository,
-			ICounterpartyRepository counterpartyRepository) 
+			ICounterpartyRepository counterpartyRepository,
+			IOrderRepository orderRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -54,6 +58,7 @@ namespace Vodovoz.ViewModels
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			if(organizationParametersProvider == null)
 			{
@@ -75,7 +80,7 @@ namespace Vodovoz.ViewModels
 
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
-		public IList<CategoryProfit> ProfitCategories { get; private set; }
+		public IList<ProfitCategory> ProfitCategories { get; private set; }
 		public event Action<string, double> UpdateProgress;
 		public IInteractiveService InteractiveService { get; }
 		
@@ -118,11 +123,11 @@ namespace Vodovoz.ViewModels
 
 		private void GetOrganisations()
 		{
-			var orgs = new List<Domain.Organizations.Organization>();
+			var orgs = new List<Organization>();
 
-			var vodovozOrg = UoW.GetById<Domain.Organizations.Organization>(_vodovozId);
-			var vodovozSouthOrg = UoW.GetById<Domain.Organizations.Organization>(_vodovozSouthId);
-			_allVodOrganisations = UoW.GetAll<Domain.Organizations.Organization>().ToList();
+			var vodovozOrg = UoW.GetById<Organization>(_vodovozId);
+			var vodovozSouthOrg = UoW.GetById<Organization>(_vodovozSouthId);
+			_allVodOrganisations = UoW.GetAll<Organization>().ToList();
 
 			orgs.Add(vodovozOrg);
 			orgs.Add(vodovozSouthOrg);
@@ -135,7 +140,7 @@ namespace Vodovoz.ViewModels
 			CreateParseCommand();
 		}
 
-		private void GetProfitCategories() => ProfitCategories = UoW.GetAll<CategoryProfit>().ToList();
+		private void GetProfitCategories() => ProfitCategories = UoW.GetAll<ProfitCategory>().ToList();
 
 		#region Команды
 
@@ -156,9 +161,9 @@ namespace Vodovoz.ViewModels
 			ref int countDuplicates,
 			int totalCount,
 			AutoPaymentMatching autoPaymentMatching,
-			CategoryProfit defaultProfitCategory,
+			ProfitCategory defaultProfitCategory,
 			IList<TransferDocument> parsedPayments,
-			Domain.Organizations.Organization org)
+			Organization org)
 		{
 			foreach(var doc in parsedPayments)
 			{
@@ -232,7 +237,7 @@ namespace Vodovoz.ViewModels
 			}
 		}
 
-		public void Init(string docPath)
+		private void Init(string docPath)
 		{
 			IsNotAutoMatchingMode = false;
 			_progress = 0;
@@ -244,13 +249,13 @@ namespace Vodovoz.ViewModels
 			MatchPayments();
 		}
 
-		public void MatchPayments()
+		private void MatchPayments()
 		{
 			var count = 0;
 			var countDuplicates = 0;
 			
-			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
-			var defaultProfitCategory = UoW.GetById<CategoryProfit>(_profitCategoryProvider.GetDefaultProfitCategory());
+			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
+			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_profitCategoryProvider.GetDefaultProfitCategory());
 			var paymentsToVodovoz = 
 				Parser.TransferDocuments.Where(x => 
 					x.RecipientInn == _organisations[0].INN

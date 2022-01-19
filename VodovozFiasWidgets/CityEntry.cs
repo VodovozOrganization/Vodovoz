@@ -156,6 +156,7 @@ namespace VodovozFiasWidgets
 			{
 				var cities = _citiesDataLoader.GetCities();
 				_completionListStore = new ListStore(typeof(Guid), typeof(string), typeof(string), typeof(string));
+
 				foreach(var city in cities)
 				{
 					_completionListStore.AppendValues(

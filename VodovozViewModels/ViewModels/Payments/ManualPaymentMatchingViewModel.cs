@@ -1,34 +1,34 @@
 ﻿using System;
-using QS.DomainModel.UoW;
-using QS.Services;
-using QS.ViewModels;
-using VodOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Domain.Payments;
-using Vodovoz.Domain.Client;
-using NHibernate.Transform;
-using QS.Project.Journal;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using QS.Project.Domain;
-using NHibernate.Criterion;
-using Vodovoz.Domain.Orders;
-using NHibernate.Dialect.Function;
-using NHibernate;
-using QS.Commands;
 using System.Linq;
-using QS.Validation;
-using QS.Banks.Domain;
-using QSBanks.Repositories;
-using QSProjectsLib;
-using System.Text.RegularExpressions;
-using QS.Project.Search;
-using QS.Project.Journal.Search;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
+using QS.Banks.Domain;
+using QS.Banks.Repositories;
+using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Search;
+using QS.Services;
+using QS.ViewModels;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.ViewModels.TempAdapters;
+using VodovozInfrastructure;
+using SearchHelper = QS.Project.Journal.Search.SearchHelper;
+using VodOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.ViewModels
+namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class ManualPaymentMatchingViewModel : EntityTabViewModelBase<Payment>
 	{
@@ -46,7 +46,9 @@ namespace Vodovoz.ViewModels
 
 		private readonly SearchHelper _searchHelper;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly IDialogsFactory _dialogsFactory;
 
 		private DelegateCommand _revertAllocatedSum = null;
 
@@ -55,10 +57,14 @@ namespace Vodovoz.ViewModels
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IOrderRepository orderRepository,
-			IPaymentsRepository paymentsRepository) : base(uowBuilder, uowFactory, commonServices)
+			IPaymentItemsRepository paymentItemsRepository,
+			IPaymentsRepository paymentsRepository,
+			IDialogsFactory dialogsFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -75,11 +81,11 @@ namespace Vodovoz.ViewModels
 			CanRevertPayFromOrder = CommonServices.PermissionService.ValidateUserPresetPermission("can_revert_pay_from_order", CurrentUser.Id);
 
 			GetLastBalance();
-			FillSumToAllocate();
-			CurrentBalance = SumToAllocate - AllocatedSum;
+			UpdateSumToAllocate();
+			UpdateCurrentBalance();
 			CreateCommands();
 
-			GetCounterpatyDebt();
+			GetCounterpartyDebt();
 
 			HasPaymentItems = Entity.PaymentItems.Any();
 			Entity.ObservableItems.ElementRemoved +=
@@ -163,13 +169,12 @@ namespace Vodovoz.ViewModels
 
 		public void GetLastBalance()
 		{
-			if(Entity.Counterparty != null)
-			{
-				LastBalance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
-			}
+			LastBalance = Entity.Counterparty != null
+				? _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id)
+				: default(decimal);
 		}
 
-		private void FillSumToAllocate()
+		public void UpdateSumToAllocate()
 		{
 			if(Entity.CashlessMovementOperation == null)
 			{
@@ -332,7 +337,7 @@ namespace Vodovoz.ViewModels
 			CreateCloseViewModelCommand();
 		}
 
-		private void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
+		public void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
 
 		private void UpdateCounterpartyDebt(ManualPaymentMatchingViewModelNode node)
 		{
@@ -401,9 +406,7 @@ namespace Vodovoz.ViewModels
 			OpenOrderCommand = new DelegateCommand<VodOrder>(
 				order =>
 				{
-					var dlg = new OrderDlg(order);
-					dlg.HasChanges = false;
-					dlg.SetDlgToReadOnly();
+					var dlg = _dialogsFactory.CreateReadOnlyOrderDlg(order.Id);
 					TabParent.AddSlaveTab(this, dlg);
 				},
 				order => order != null
@@ -416,7 +419,7 @@ namespace Vodovoz.ViewModels
 			AddCounterpatyCommand = new DelegateCommand<Payment>(
 				payment =>
 				{
-					var client = new Counterparty();
+					var client = new Domain.Client.Counterparty();
 					client.Name = payment.CounterpartyName;
 					client.FullName = payment.CounterpartyName;
 					client.INN = payment.CounterpartyInn;
@@ -450,7 +453,8 @@ namespace Vodovoz.ViewModels
 
 					UoW.Save(client);
 
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(client.Id, UoW), UnitOfWorkFactory);
+					var dlg =
+						_dialogsFactory.CreateCounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(client.Id, UoW), UnitOfWorkFactory);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.EntitySaved += NewCounterpartySaved;
 				},
@@ -464,8 +468,8 @@ namespace Vodovoz.ViewModels
 			CompleteAllocation = new DelegateCommand(
 				() =>
 				{
-					var valid = new QSValidator<Payment>(UoWGeneric.Root);
-					if(valid.RunDlgIfNotValid())
+					var valid = CommonServices.ValidationService.Validate(Entity);
+					if(!valid)
 					{
 						return;
 					}
@@ -500,8 +504,7 @@ namespace Vodovoz.ViewModels
 							continue;
 						}
 
-						var otherPaymentsSum = _orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
-													  .Sum(x => x.Sum);
+						var otherPaymentsSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, item.Order.Id);
 
 						var totalSum = otherPaymentsSum + item.Sum;
 
@@ -525,8 +528,8 @@ namespace Vodovoz.ViewModels
 				if(RevertPay())
 				{
 					GetLastBalance();
-					FillSumToAllocate();
-					GetCounterpatyDebt();
+					UpdateSumToAllocate();
+					GetCounterpartyDebt();
 					UpdateNodes();
 				}
 			},
@@ -542,7 +545,6 @@ namespace Vodovoz.ViewModels
 
 			if(bank == null)
 			{
-
 				bank = new Bank
 				{
 					Bik = payment.CounterpartyBik,
@@ -559,7 +561,7 @@ namespace Vodovoz.ViewModels
 
 		private void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
 		{
-			var client = e.Entity as Counterparty;
+			var client = e.Entity as Domain.Client.Counterparty;
 
 			Entity.Counterparty = client;
 			Entity.CounterpartyAccount = client.DefaultAccount;
@@ -619,7 +621,11 @@ namespace Vodovoz.ViewModels
 
 			if(Entity.Counterparty != null)
 			{
-				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);
+				incomePaymentQuery.Where(x => x.Client.Id == Entity.Counterparty.Id);
+			}
+			else
+			{
+				incomePaymentQuery.Where(x => x.Client.Id == -1);
 			}
 
 			if(StartDate.HasValue && EndDate.HasValue)
@@ -728,20 +734,19 @@ namespace Vodovoz.ViewModels
 			}
 		}
 
-		public void GetCounterpatyDebt()
+		public void GetCounterpartyDebt()
 		{
-			if(Entity.Counterparty != null)
-			{
-				CounterpartyDebt = _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
-			}
+			CounterpartyDebt = Entity.Counterparty != null
+				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
+				: default(decimal);
 		}
 
 		private string TryGetOrganizationType(string name)
 		{
 			foreach(var pair in InformationHandbook.OrganizationTypes)
 			{
-				string pattern = string.Format(@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
-				string fullPattern = string.Format(@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
+				string pattern = $@".*(^|\(|\s|\W|['""]){pair.Key}($|\)|\s|\W|['""]).*";
+				string fullPattern = $@".*(^|\(|\s|\W|['""]){pair.Value}($|\)|\s|\W|['""]).*";
 				Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
 				if(regex.IsMatch(name))

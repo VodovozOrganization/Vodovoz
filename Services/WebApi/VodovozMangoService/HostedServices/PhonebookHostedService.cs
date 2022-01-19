@@ -7,117 +7,146 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using MangoService;
 using Microsoft.Extensions.Hosting;
+using NLog;
 
 namespace VodovozMangoService.HostedServices
 {
-    public class PhonebookHostedService : PhonebookService.PhonebookServiceBase, IHostedService
-    {
-        private readonly MangoController mangoController;
-        private readonly CallsHostedService callsService;
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+	public class PhonebookHostedService : PhonebookService.PhonebookServiceBase, IHostedService
+	{
+		private readonly MangoController _mangoController;
+		private readonly CallsHostedService _callsService;
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private List<PhoneEntry> phones = new List<PhoneEntry>();
+		private List<PhoneEntry> _phones = new List<PhoneEntry>();
 
-        #region GRPC
+		#region GRPC
 
-        public override Task<PhoneBook> GetBook(Empty request, ServerCallContext context)
-        {
-            var book = new PhoneBook();
-            foreach (var phone in phones)
-            {
-                if(phone.PhoneType == PhoneEntryType.Extension)
-                    phone.PhoneState = callsService.Calls.Values.Any(c =>
-                        (c.LastEvent.to.Extension == phone.Extension || c.LastEvent.from.Extension == phone.Extension) &&
-                        c.IsActive)
-                        ? PhoneState.Busy
-                        : PhoneState.Ready;
-                book.Entries.Add(phone);
-            }
-            return Task.FromResult(book);
-        }
+		public override Task<PhoneBook> GetBook(Empty request, ServerCallContext context)
+		{
+			var book = new PhoneBook();
+			foreach (var phone in _phones)
+			{
+				if(phone.PhoneType == PhoneEntryType.Extension)
+				{
+					phone.PhoneState = _callsService.Calls.Values.Any(c =>
+						(c.LastEvent.to.Extension == phone.Extension || c.LastEvent.@from.Extension == phone.Extension) &&
+						c.IsActive)
+						? PhoneState.Busy
+						: PhoneState.Ready;
+				}
+				book.Entries.Add(phone);
+			}
+			return Task.FromResult(book);
+		}
 
-        #endregion
-        
-        #region Timer
-        private Timer timer;
+		#endregion
 
-        public PhonebookHostedService(MangoController mangoController, CallsHostedService callsService)
-        {
-            this.mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
-            this.callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
-        }
+		#region Timer
+		private Timer _timer;
 
-        private void RefreshPhones(object state)
-        {
-            var list = new List<PhoneEntry>();
-            foreach(var user in mangoController.GetAllVPBXUsers())
-            {
-                if (uint.TryParse(user.telephony.extension, out uint extension))
-                {
-                    list.Add(new PhoneEntry
-                    {
-                        Extension = extension,
-                        Name = user.general.name,
-                        Department = user.general.department ?? String.Empty,
-                        PhoneType = PhoneEntryType.Extension
-                    });
-                }
-            }
+		public PhonebookHostedService(MangoController mangoController, CallsHostedService callsService)
+		{
+			_mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
+			_callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
+		}
 
-            foreach(var group in mangoController.GetAllVpbxGroups())
-            {
-                if (uint.TryParse(group.extension, out uint extension))
-                {
-                    list.Add(new PhoneEntry
-                    {
-                        Extension = extension,
-                        Name = group.name,
-                        Department = group.descpription ?? String.Empty,
-                        PhoneType = PhoneEntryType.Group,
-                        PhoneState = PhoneState.Ready
-                    });
-                }
-            }
+		private void RefreshPhones(object state)
+		{
+			try
+			{
+				RefreshPhones();
+			}
+			catch(Exception e)
+			{
+				_logger.Error(e, "Ошибка при обновлении телефонной книги манго");
+				if(_phones.Any())
+				{
+					return;
+				}
+				_phones.Add(
+					new PhoneEntry
+					{
+						Extension = 0,
+						Name = "Телефонная книга пуста",
+						Department = String.Empty,
+						PhoneType = PhoneEntryType.Extension,
+						PhoneState = PhoneState.Busy
+					}
+				);
+			}
+		}
 
-            phones = list;
-        }
-        #endregion
+		private void RefreshPhones()
+		{
+			var list = new List<PhoneEntry>();
+			foreach(var user in _mangoController.GetAllVPBXUsers())
+			{
+				if (uint.TryParse(user.telephony.extension, out uint extension))
+				{
+					list.Add(new PhoneEntry
+					{
+						Extension = extension,
+						Name = user.general.name,
+						Department = user.general.department ?? String.Empty,
+						PhoneType = PhoneEntryType.Extension
+					});
+				}
+			}
 
-        #region FindPhone
+			foreach(var group in _mangoController.GetAllVpbxGroups())
+			{
+				if (uint.TryParse(group.extension, out uint extension))
+				{
+					list.Add(new PhoneEntry
+					{
+						Extension = extension,
+						Name = group.name,
+						Department = group.descpription ?? String.Empty,
+						PhoneType = PhoneEntryType.Group,
+						PhoneState = PhoneState.Ready
+					});
+				}
+			}
 
-        public PhoneEntry FindPhone(string number)
-        {
-            if (uint.TryParse(number, out uint extension))
-            {
-                var phone = phones.Find(x => x.Extension == extension);
-                if (phone == null)
-                {
-                    RefreshPhones(null);
-                    phone = phones.Find(x => x.Extension == extension);
-                }
-                return phone;
-            }
-            return null;
-        }
+			_phones = list;
+		}
+		#endregion
 
-        #endregion
-        
-        #region IHostedService
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-             logger.Info("Сервис телефонной книги запущен.");
-             timer = new Timer(RefreshPhones, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
-             return Task.CompletedTask;
-        }
+		#region FindPhone
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            logger.Info("Сервис телефонной книги остановлен.");
+		public PhoneEntry FindPhone(string number)
+		{
+			if (uint.TryParse(number, out uint extension))
+			{
+				var phone = _phones.Find(x => x.Extension == extension);
+				if (phone == null)
+				{
+					RefreshPhones(null);
+					phone = _phones.Find(x => x.Extension == extension);
+				}
+				return phone;
+			}
+			return null;
+		}
 
-            timer?.Change(Timeout.Infinite, 0);
+		#endregion
 
-            return Task.CompletedTask;
-        }
-        #endregion
-    }
+		#region IHostedService
+		public Task StartAsync(CancellationToken cancellationToken)
+		{
+			 _logger.Info("Сервис телефонной книги запущен.");
+			 _timer = new Timer(RefreshPhones, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
+			 return Task.CompletedTask;
+		}
+
+		public Task StopAsync(CancellationToken cancellationToken)
+		{
+			_logger.Info("Сервис телефонной книги остановлен.");
+
+			_timer?.Change(Timeout.Infinite, 0);
+
+			return Task.CompletedTask;
+		}
+		#endregion
+	}
 }

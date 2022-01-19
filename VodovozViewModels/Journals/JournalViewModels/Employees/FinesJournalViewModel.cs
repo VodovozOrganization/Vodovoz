@@ -32,8 +32,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory,  commonServices)
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -41,6 +40,55 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Журнал штрафов";
+		}
+		
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+		
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<FineJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					FineJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<FineJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					FineJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Fine>> ItemsSourceQueryFunction => uow => {

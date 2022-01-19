@@ -73,6 +73,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Статус").AddEnumRenderer(node => node.Status)
 					.AddColumn("Подразделение").AddTextRenderer(node => node.SubdivisionTitle)
 					.AddColumn("Баланс").AddNumericRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Balance)).Digits(2)
+					.AddColumn("Комментарий по сотруднику").AddTextRenderer(node => node.EmployeeComment)
 					.AddColumn("")
 					.Finish()
 			);
@@ -360,6 +361,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//EmployeePostsJournalViewModel
             TreeViewColumnsConfigFactory.Register<EmployeePostsJournalViewModel>(
                 () => FluentColumnsConfig<EmployeePostJournalNode>.Create()
                     .AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
@@ -367,7 +369,7 @@ namespace Vodovoz.JournalColumnsConfigs
                     .Finish()
             );
 
-            //SubdivisionsJournalViewModel
+            //FinesJournalViewModel
             TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
 				() => FluentColumnsConfig<FineJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
@@ -399,7 +401,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//NomenclaturesJournalViewModel
+			//NomenclatureStockBalanceJournalViewModel
 			TreeViewColumnsConfigFactory.Register<NomenclatureStockBalanceJournalViewModel>(
 				() => FluentColumnsConfig<NomenclatureStockJournalNode>.Create()
 					.AddColumn("Код").HeaderAlignment(0.5f)
@@ -423,7 +425,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
-			//NomenclaturesJournalViewModel
+			//WaterJournalViewModel
 			TreeViewColumnsConfigFactory.Register<WaterJournalViewModel>(
 				() => FluentColumnsConfig<WaterJournalNode>.Create()
 					.AddColumn("Код")
@@ -667,6 +669,9 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Категория дохода/расхода")
 						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
+					.AddColumn("Создан вручную?")
+						.AddToggleRenderer(x => x.IsManualCreated)
+						.Editing(false)
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {
@@ -1386,6 +1391,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((cell, node) => cell.Foreground = node.IsArchive ? "grey" : "black")
+					.Finish()
+			);
+
+			//RoboAtsCounterpartyNameJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboAtsCounterpartyNameJournalViewModel>(
+				() => FluentColumnsConfig<RoboAtsCounterpartyNameJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Имя").AddTextRenderer(node => node.Name)
+					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
+					.Finish()
+			);
+
+			//RoboAtsCounterpartyPatronymicJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboAtsCounterpartyPatronymicJournalViewModel>(
+				() => FluentColumnsConfig<RoboAtsCounterpartyPatronymicJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Отчество").AddTextRenderer(node => node.Patronymic)
+					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
 					.Finish()
 			);
 		}

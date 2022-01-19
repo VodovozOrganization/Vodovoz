@@ -11,6 +11,7 @@ using Vodovoz.Infrastructure.Converters;
 using QS.Project.Search.GtkUI;
 using QS.Project.Search;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
 {
@@ -76,7 +77,9 @@ namespace Vodovoz.Views
             {
                 ViewModel.UpdateNodes();
                 ViewModel.GetLastBalance();
-                ViewModel.GetCounterpatyDebt();
+				ViewModel.UpdateSumToAllocate();
+				ViewModel.UpdateCurrentBalance();
+                ViewModel.GetCounterpartyDebt();
             };
 
             var searchView = new SearchView((SearchViewModel)ViewModel.Search);
