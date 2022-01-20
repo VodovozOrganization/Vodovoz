@@ -268,7 +268,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public void TreeViewAllocatedSumChangedByUser(ManualPaymentMatchingViewModelAllocatedNode node)
 		{
-
 			if(node == null)
 			{
 				return;
@@ -299,9 +298,17 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 					if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
 					{
-						order.OrderPaymentStatus = node.AllocatedSum == 0
-							? OrderPaymentStatus.UnPaid
-							: OrderPaymentStatus.PartiallyPaid;
+						var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrderWithoutCurrentPayment(UoW, order.Id, Entity.Id);
+
+						if(allocatedSum == 0 && node.AllocatedSum == 0)
+						{
+							order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+						}
+						else
+						{
+							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+						}
+						
 						UoW.Save(order);
 					}
 				}
@@ -504,7 +511,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 							continue;
 						}
 
-						var otherPaymentsSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, item.Order.Id);
+						var otherPaymentsSum =
+							_paymentItemsRepository.GetAllocatedSumForOrderWithoutCurrentPayment(UoW, item.Order.Id, Entity.Id);
 
 						var totalSum = otherPaymentsSum + item.Sum;
 
