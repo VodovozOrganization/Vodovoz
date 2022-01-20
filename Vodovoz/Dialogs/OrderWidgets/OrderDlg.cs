@@ -2214,9 +2214,17 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null)
 			{
-				Entity.Comment = string.IsNullOrWhiteSpace(Entity.Comment)
-					? DeliveryPoint.Comment
-					: string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
+				if(string.IsNullOrWhiteSpace(Entity.Comment))
+				{
+					Entity.Comment = DeliveryPoint.Comment;
+				}
+				else
+				{
+					if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment))
+					{
+						Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
+					}
+				}
 			}
 		}
 
