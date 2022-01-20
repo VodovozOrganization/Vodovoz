@@ -813,11 +813,6 @@ namespace Vodovoz.Domain.Client
 					string.Format("Длина строки \"Этаж\" не должна превышать 20 символов"),
 					new[] { this.GetPropertyName(o => o.Floor) });
 
-			if(Comment?.Length > 200)
-				yield return new ValidationResult(
-					string.Format("Длина строки \"Комментарий\" не должна превышать 200 символов"),
-					new[] { this.GetPropertyName(o => o.Comment) });
-
 			if(Code1c?.Length > 10)
 				yield return new ValidationResult(
 					string.Format("Длина строки \"Код 1С\" не должна превышать 10 символов"),
