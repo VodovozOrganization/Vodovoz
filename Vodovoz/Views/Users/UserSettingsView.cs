@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Gamma.ColumnConfig;
@@ -17,14 +18,13 @@ namespace Vodovoz.Views.Users
 	public partial class UserSettingsView : TabViewBase<UserSettingsViewModel>
 	{
 		public UserSettingsView(UserSettingsViewModel viewModel) : base(viewModel) {
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 		
 		public override void Destroy()
 		{
-			ViewModel.UpdateProgressAction -= UpdateProgress;
-			ViewModel.ShowBusyMessageAction -= ShowBusyMessage;
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 			base.Destroy();
 		}
 
@@ -123,31 +123,29 @@ namespace Vodovoz.Views.Users
 				.AddBinding(ViewModel, vm => vm.IncrementFixedPrices, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
-			ViewModel.UpdateProgressAction += UpdateProgress;
-			ViewModel.ShowBusyMessageAction += ShowBusyMessage;
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			#endregion
 		}
 
-		private void ShowBusyMessage()
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			Application.Invoke((s, args) =>
-				ViewModel.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Дождитесь завершения задачи и повторите"));
+			switch(e.PropertyName)
+			{
+				case nameof(ViewModel.ProgressMessage):
+					Application.Invoke((s, args) =>
+					{
+						updateFixedPricesProgress.Text = ViewModel.ProgressMessage;
+					});
+					break;
+				case nameof(ViewModel.ProgressFraction):
+					Application.Invoke((s, args) =>
+					{
+						updateFixedPricesProgress.Fraction = ViewModel.ProgressFraction;
+					});
+					break;
+			}
 		}
-
-		private void UpdateProgress(string message, double progress) => Application.Invoke((s, args) =>
-		{
-			updateFixedPricesProgress.Text = message;
-
-			if(progress == 1 || progress == 0)
-			{
-				updateFixedPricesProgress.Fraction = progress;
-			}
-			else
-			{
-				updateFixedPricesProgress.Fraction += progress;
-			}
-		});
 
 		private async void UpdateFixedPrices()
 		{
@@ -170,8 +168,12 @@ namespace Vodovoz.Views.Users
 				}
 				catch(Exception ex)
 				{
-					UpdateProgress("При обновлении фиксы произошла ошибка. Попробуйте повторить позже...", 0);
-					Application.Invoke((s, eventArgs) => throw ex);
+					Application.Invoke((s, eventArgs) =>
+					{
+						updateFixedPricesProgress.Text = "При обновлении фиксы произошла ошибка. Попробуйте повторить позже...";
+						updateFixedPricesProgress.Fraction = 0;
+						throw ex;
+					});
 				}
 			});
 		}

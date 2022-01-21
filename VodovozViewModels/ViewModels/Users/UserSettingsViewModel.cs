@@ -29,6 +29,8 @@ namespace Vodovoz.ViewModels.Users
 		private DelegateCommand _updateFixedPricesCommand;
 		private bool _sortingSettingsUpdated;
 		private bool _isFixedPricesUpdating;
+		private string _progressMessage;
+		private double _progressFraction;
 		private decimal _incrementFixedPrices = 20;
 		private const double _progressStep = 0.25;
 
@@ -78,6 +80,18 @@ namespace Vodovoz.ViewModels.Users
 			get => _isFixedPricesUpdating;
 			private set => SetField(ref _isFixedPricesUpdating, value);
 		}
+
+		public string ProgressMessage
+		{
+			get => _progressMessage;
+			private set => SetField(ref _progressMessage, value);
+		}
+
+		public double ProgressFraction
+		{
+			get => _progressFraction;
+			private set => SetField(ref _progressFraction, value);
+		}
 		
 		public IInteractiveService InteractiveService { get; }
 		public IEntityAutocompleteSelectorFactory SubdivisionSelectorDefaultFactory { get; }
@@ -98,23 +112,22 @@ namespace Vodovoz.ViewModels.Users
 						try
 						{
 							IsFixedPricesUpdating = true;
-							UpdateProgressAction?.Invoke("Получаем фиксу, которую нужно обновить...", _progressStep);
+							UpdateProgress("Получаем фиксу, которую нужно обновить...");
 							using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 							{
 								var fixedPrices = _nomenclatureFixedPriceRepository.GetFixedPricesFor19LWater(uow);
+								UpdateProgress($"Получили данные, которые нужно обновить. Всего {fixedPrices.Count} объектов");
 								
-								UpdateProgressAction?.Invoke(CreateMessage(fixedPrices.Count), _progressStep);
-
 								for(int i = 0; i < fixedPrices.Count; i++)
 								{
 									fixedPrices[i].Price += IncrementFixedPrices;
 									uow.Save(fixedPrices[i]);
 								}
-
-								UpdateProgressAction?.Invoke(
-									$"{CreateMessage(fixedPrices.Count)} Обновляем фиксу с записью в историю изменений...", _progressStep);
+								
+								UpdateProgress($"Получили данные, которые нужно обновить. Всего {fixedPrices.Count} объектов. " +
+									"Обновляем фиксу с записью в историю изменений...");
 								uow.Commit();
-								UpdateProgressAction?.Invoke("Готово", 1);
+								UpdateProgress("Готово");
 							}
 						}
 						finally
@@ -127,10 +140,7 @@ namespace Vodovoz.ViewModels.Users
 		);
 
 		#endregion
-
-		public event Action<string, double> UpdateProgressAction;
-		public event Action ShowBusyMessageAction;
-
+		
 		public override void Close(bool askSave, CloseSource source)
 		{
 			if(_sortingSettingsUpdated && source == CloseSource.Cancel)
@@ -152,7 +162,7 @@ namespace Vodovoz.ViewModels.Users
 		{
 			if(IsFixedPricesUpdating)
 			{
-				ShowBusyMessageAction?.Invoke();
+				ShowWarningMessage("Дождитесь завершения задачи и повторите");
 			}
 
 			return !IsFixedPricesUpdating;
@@ -166,6 +176,12 @@ namespace Vodovoz.ViewModels.Users
 			IsUserFromRetail = CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			UserIsCashier = CommonServices.CurrentPermissionService.ValidatePresetPermission("role_cashier");
 		}
+		
+		private void UpdateProgress(string message)
+		{
+			ProgressMessage = message;
+			ProgressFraction += _progressStep;
+		}
 
 		private void ConfigureCashSorting()
 		{
@@ -173,7 +189,5 @@ namespace Vodovoz.ViewModels.Users
 
 			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions);
 		}
-		
-		private string CreateMessage(int pricesCount) => $"Получили данные, которые нужно обновить. Всего {pricesCount} объектов.";
 	}
 }
