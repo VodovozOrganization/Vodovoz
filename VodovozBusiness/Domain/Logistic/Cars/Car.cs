@@ -11,7 +11,7 @@ using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",

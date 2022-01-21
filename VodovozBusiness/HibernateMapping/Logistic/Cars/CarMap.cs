@@ -1,7 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.HibernateMapping.Logistic.Cars
 {
 	public class CarMap : ClassMap<Car>
 	{
