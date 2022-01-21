@@ -7,5 +7,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 	{
 		Organization GetOrganizationByInn(IUnitOfWork uow, string inn);
 		Organization GetOrganizationByAccountNumber(IUnitOfWork uow, string accountNumber);
+		Organization GetOrganizationById(IUnitOfWork uow, int organizationId);
 	}
 }

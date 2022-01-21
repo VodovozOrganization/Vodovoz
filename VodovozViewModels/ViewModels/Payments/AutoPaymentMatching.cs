@@ -1,20 +1,25 @@
-﻿using System.Collections.Generic;
-using Vodovoz.Domain.Payments;
-using QS.DomainModel.UoW;
-using System.Text.RegularExpressions;
-using Vodovoz.Domain.Orders;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories.Orders;
 
-namespace Vodovoz.ViewModels
+namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class AutoPaymentMatching
 	{
-		readonly IUnitOfWork UoW;
+		private readonly IUnitOfWork _uow;
+		private readonly OrderStatus[] _orderUndeliveredStatuses;
 
-		public AutoPaymentMatching(IUnitOfWork uow)
+		public AutoPaymentMatching(IUnitOfWork uow, IOrderRepository orderRepository)
 		{
-			UoW = uow;
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_orderUndeliveredStatuses = (orderRepository ?? throw new ArgumentNullException(nameof(orderRepository)))
+				.GetUndeliveryStatuses();
 		}
 
 		public bool IncomePaymentMatch(Payment payment)
@@ -27,15 +32,15 @@ namespace Vodovoz.ViewModels
 				return false;
 			}
 
-			var str = CheckPaymentPurpose(payment);
+			var orderNumbers = ParsePaymentPurpose(payment);
 
-			if(str.Any())
+			if(orderNumbers.Any())
 			{
-				foreach(string st in str)
+				foreach(string numberString in orderNumbers)
 				{
-					var order = UoW.GetById<Order>(int.Parse(st));
+					var order = _uow.GetById<Order>(int.Parse(numberString));
 
-					if(order == null)
+					if(order == null || _orderUndeliveredStatuses.Contains(order.OrderStatus))
 					{
 						return false;
 					}
@@ -58,11 +63,9 @@ namespace Vodovoz.ViewModels
 						{
 							return false;
 						}
-						else
-						{
-							payment.AddPaymentItem(order);
-							sb.AppendLine(order.Id.ToString());
-						}
+						
+						payment.AddPaymentItem(order);
+						sb.AppendLine(order.Id.ToString());
 					}
 				}
 			}
@@ -75,7 +78,7 @@ namespace Vodovoz.ViewModels
 			return true;
 		}
 
-		private string[] CheckPaymentPurpose(Payment payment)
+		private string[] ParsePaymentPurpose(Payment payment)
 		{
 			string pattern = @"([0-9]{6,7})";
 

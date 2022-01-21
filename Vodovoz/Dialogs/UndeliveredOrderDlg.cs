@@ -161,8 +161,10 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			Save();
-			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+			if(Save())
+			{
+				DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+			}
 		}
 
 		private void ProcessSmsNotification()

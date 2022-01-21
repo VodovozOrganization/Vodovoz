@@ -1,57 +1,81 @@
 ﻿using System;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalViewers
 {
-	public partial class WarehousesView : QS.Dialog.Gtk.TdiTabBase
+	public partial class WarehousesView : TdiTabBase
 	{
-		IUnitOfWork uow;
+		private readonly IPermissionResult _permissionResult =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Warehouse));
 		private WarehousesVM _vm;
+		
 		public WarehousesView()
 		{
-			this.Build();
-			this.TabName = "Журнал складов";
-			ConfigureWidget();
+			Build();
+			TabName = "Журнал складов";
+			Configure();
 		}
 
-		void ConfigureWidget()
+		private void Configure()
 		{
 			_vm = new WarehousesVM();
 			tableWarehouses.ColumnsConfig = _vm.ColumnsConfig;
-			_vm.UpdateNodes();
-			tableWarehouses.YTreeModel = _vm.TreeModel;
-			uow = _vm.UoW;
 			tableWarehouses.Selection.Changed += OnSelectionChanged;
-			tableWarehouses.ExpandAll();
-			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+			btnAdd.Sensitive = _permissionResult.CanCreate;
+
+			Update();
 		}
 
-		void OnSelectionChanged(object sender, EventArgs e)
+		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			bool isSensitive = tableWarehouses.Selection.CountSelectedRows() > 0
 				&& (tableWarehouses.GetSelectedObjects()[0] as SubdivisionWithWarehousesVMNode).WarehouseId.HasValue;
 
-			buttonEdit.Sensitive = isSensitive;
-			buttonDelete.Sensitive = isSensitive;
+			buttonEdit.Sensitive = isSensitive && _permissionResult.CanRead;
+			buttonDelete.Sensitive = isSensitive && _permissionResult.CanDelete;
+		}
+
+		private void Update()
+		{
+			_vm.UpdateNodes();
+			tableWarehouses.YTreeModel = _vm.TreeModel;
+			tableWarehouses.ExpandAll();
+		}
+		
+		private void DisposeUowAndUpdate()
+		{
+			_vm?.UoW?.Dispose();
+			Update();
+		}
+
+		private WarehouseDlg CreateWarehouseDlg(int warehouseId)
+		{
+			var dlg = warehouseId == 0 ? new WarehouseDlg() : new WarehouseDlg(warehouseId);
+			dlg.EntitySaved += (o, args) => DisposeUowAndUpdate();
+			return dlg;
 		}
 
 		protected void OnBtnAddClicked(object sender, EventArgs e)
 		{
 			TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Warehouse>(0),
-				() => new WarehouseDlg(),
+				() => CreateWarehouseDlg(0),
 				this
 			);
 		}
 
 		protected void OnTableWarehousesRowActivated(object o, RowActivatedArgs args)
 		{
-			buttonEdit.Click();
+			if(_permissionResult.CanRead)
+			{
+				buttonEdit.Click();
+			}
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
@@ -61,11 +85,7 @@ namespace Vodovoz.JournalViewers
 				if(id.HasValue)
 					TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<Warehouse>(id.Value),
-							() => {
-								var dlg = new WarehouseDlg(id.Value);
-								dlg.EntitySaved += (s, ea) => ConfigureWidget();
-								return dlg;
-							},
+							() => CreateWarehouseDlg(id.Value),
 							this
 						);
 			}
@@ -75,10 +95,12 @@ namespace Vodovoz.JournalViewers
 		{
 			var item = tableWarehouses.GetSelectedObject<SubdivisionWithWarehousesVMNode>();
 			if(item.WarehouseId.HasValue && OrmMain.DeleteObject<Warehouse>(item.WarehouseId.Value))
-				tableWarehouses.RepresentationModel.UpdateNodes();
+			{
+				DisposeUowAndUpdate();
+			}
 		}
 
-		protected void OnButtonRefreshClicked(object sender, EventArgs e) => ConfigureWidget();
+		protected void OnButtonRefreshClicked(object sender, EventArgs e) => DisposeUowAndUpdate();
 
 		protected override void OnDestroyed()
 		{

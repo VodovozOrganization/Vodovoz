@@ -2,9 +2,9 @@
 using Vodovoz.Domain.Payments;
 namespace Vodovoz.HibernateMapping.Accounting
 {
-	public class CategoryProfitMap : ClassMap<CategoryProfit>
+	public class ProfitCategoryMap : ClassMap<ProfitCategory>
 	{
-		public CategoryProfitMap()
+		public ProfitCategoryMap()
 		{
 			Table("payment_profit_category");
 

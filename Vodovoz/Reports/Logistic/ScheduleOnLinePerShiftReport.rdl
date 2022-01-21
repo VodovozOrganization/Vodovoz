@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -313,7 +311,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={transport_type}</GroupExpression>
+                <GroupExpression>={transport_type}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -348,7 +346,7 @@
                 </TableRow>
               </TableRows>
             </Header>
-            <Footer >
+            <Footer>
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
@@ -362,8 +360,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -392,8 +389,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -405,8 +401,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -418,8 +413,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -431,8 +425,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -527,7 +520,7 @@
                      reason_author.last_name,
                      IF(reason_author.name = '', NULL, reason_author.name),
                      IF(reason_author.patronymic = '', NULL, reason_author.patronymic)),'') AS last_author_removed,
-    ifnull(comment,'') as comment,
+    ifnull(at_work_drivers.comment,'') as comment,
     ifnull(CONCAT_WS(' ',
                      comment_author.last_name,
                      IF(comment_author.name = '', NULL, comment_author.name),
@@ -660,7 +653,7 @@ where
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -671,8 +664,7 @@ where
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -684,8 +676,7 @@ where
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geo_group_ids">
       <DataType>Integer</DataType>
@@ -697,32 +688,28 @@ where
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="transport_type">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="is_raskat">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="vse_TS">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

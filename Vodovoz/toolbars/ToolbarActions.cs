@@ -65,6 +65,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
@@ -670,11 +671,12 @@ public partial class MainWindow : Window
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			NavigationManagerProvider.NavigationManager,
+			NavigationManager,
 			new OrderRepository(),
 			new OrganizationParametersProvider(parametersProvider),
 			new BaseParametersProvider(parametersProvider),
-			paymentsRepository
+			paymentsRepository,
+			new DialogsFactory()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
@@ -828,7 +830,7 @@ public partial class MainWindow : Window
 				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
 														  ? Buttons.All
 														  : (Buttons.Add | Buttons.Edit);
-				return new PermissionControlledRepresentationJournal(vm, buttons).CustomTabName("Журнал штрафов");
+				return new PermissionControlledRepresentationJournal(vm, buttons, true).CustomTabName("Журнал штрафов");
 			}
 		);
 	}
@@ -934,7 +936,7 @@ public partial class MainWindow : Window
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				Buttons buttons = Buttons.Add | Buttons.Edit;
-				return new PermissionControlledRepresentationJournal(vm, buttons);
+				return new PermissionControlledRepresentationJournal(vm, buttons, true);
 			}
 		);
 	}

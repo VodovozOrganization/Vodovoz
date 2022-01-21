@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private bool _cashRequestFinancier;
 		private bool _cashRequestCoordinator;
 		private bool _roleCashier;
+		private bool _roleSecurityService;
 		private bool _canSeeCurrentSubdivisonRequests;
 		private int _currentEmployeeId;
 		private Employee _currentEmployee;
@@ -103,6 +104,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_cashRequestCoordinator =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_coordinator_cash_request", userId);
 			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission("role_сashier", userId);
+			_roleSecurityService =
+				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
 		}
@@ -114,8 +117,48 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			CreateEditAction();
 			CreateDeleteAction();
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<PayoutRequestJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					PayoutRequestJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<PayoutRequestJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					PayoutRequestJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 
 		private void CreateDeleteAction()
@@ -260,7 +303,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				}
 			}
 
-			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier)
+			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
@@ -399,7 +442,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				}
 			}
 
-			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier)
+			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{

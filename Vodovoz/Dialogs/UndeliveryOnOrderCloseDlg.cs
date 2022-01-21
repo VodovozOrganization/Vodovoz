@@ -55,12 +55,18 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if(Save() && undelivery.NewOrder != null
-			          && undelivery.OrderTransferType == TransferType.AutoTransferNotApproved
-			          && undelivery.NewOrder.OrderStatus != OrderStatus.Canceled)
+			if(!Save())
+			{
+				return;
+			}
+
+			if(undelivery.NewOrder != null
+			   && undelivery.OrderTransferType == TransferType.AutoTransferNotApproved
+			   && undelivery.NewOrder.OrderStatus != OrderStatus.Canceled)
 			{
 				ProcessSmsNotification();
 			}
+
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
 		}
 
