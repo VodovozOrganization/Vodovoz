@@ -21,12 +21,6 @@ namespace Vodovoz.Views.Users
 			Build();
 			ConfigureDlg();
 		}
-		
-		public override void Destroy()
-		{
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-			base.Destroy();
-		}
 
 		private void ConfigureDlg()
 		{
@@ -176,6 +170,12 @@ namespace Vodovoz.Views.Users
 					});
 				}
 			});
+		}
+		
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }
