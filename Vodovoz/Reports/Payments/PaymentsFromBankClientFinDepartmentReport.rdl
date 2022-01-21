@@ -595,7 +595,7 @@
     IF(payments.counterparty_inn != client.inn, CONCAT(payments.counterparty_name, '\n', payments.counterparty_inn),'') AS payer,
     IFNULL(p_items.total, 0) as allocatedsum,
     CONCAT_WS('\n', payments.payment_purpose) as payment_purpose,
-    IF(payments.is_manual_created, 'Да', 'Нет') as manual_payment,
+    IF(payments.is_manually_created, 'Да', 'Нет') as manual_payment,
     CASE
         WHEN deposit.dep != 0 THEN 1
         WHEN payments.counterparty_id != orders.client_id THEN 2
