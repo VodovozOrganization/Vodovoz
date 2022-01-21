@@ -166,6 +166,7 @@ namespace Vodovoz
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
+		private bool _isSaveInterrupted;
 
 		private readonly string _mailPrepareQueueId = "MailPrepareQueue"; // Заменить на что-то другое
 
@@ -1269,6 +1270,7 @@ namespace Vodovoz
 					if(emailAddressForBill == null) {
 						sendEmail = false;
 						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
+							_isSaveInterrupted = true;
 							return false;
 						}
 					}
@@ -1310,7 +1312,7 @@ namespace Vodovoz
 
 		private bool AcceptOrder()
 		{
-			if(!Entity.CanSetOrderAsAccepted)
+			if(!Entity.CanSetOrderAsAccepted && !_isSaveInterrupted)
 			{
 				return false;
 			}

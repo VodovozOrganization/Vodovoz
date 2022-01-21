@@ -161,14 +161,12 @@ namespace Vodovoz.Dialogs.Email
 			
 			EmailString = email;
 
-			if(!string.IsNullOrEmpty(EmailString))
-			{
-				UpdateEmails();
-			}
-			else
+			if(string.IsNullOrEmpty(EmailString) || Document == null)
 			{
 				BtnSendEmailSensitive = false;
 			}
+
+			UpdateEmails();
 		}
 
 		public void UpdateEmails()
