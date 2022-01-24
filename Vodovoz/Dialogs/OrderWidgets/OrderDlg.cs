@@ -117,6 +117,7 @@ namespace Vodovoz
 
 		Order templateOrder;
 
+		private int _previousDeliveryPointId;
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
@@ -2220,11 +2221,13 @@ namespace Vodovoz
 				}
 				else
 				{
-					if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment))
+					if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
 					{
 						Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
 					}
 				}
+
+				_previousDeliveryPointId = DeliveryPoint.Id;
 			}
 		}
 
