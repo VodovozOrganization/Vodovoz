@@ -721,6 +721,9 @@ namespace Vodovoz
 			if(Entity != null && Entity.Id != 0) {
 				Entity.CheckDocumentExportPermissions();
 			}
+
+			ybuttonToStorageLogicAddressType.Sensitive = ybuttonToDeliveryAddressType.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
