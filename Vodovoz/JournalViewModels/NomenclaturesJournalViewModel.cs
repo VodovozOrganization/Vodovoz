@@ -24,7 +24,6 @@ namespace Vodovoz.JournalViewModels
 {
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{
-		private readonly int currentUserId;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
@@ -43,13 +42,14 @@ namespace Vodovoz.JournalViewModels
 		) : base(filterViewModel, unitOfWorkFactory, commonServices) 
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			this.nomenclatureSelectorFactory =
+				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			this.counterpartySelectorFactory =
+				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Журнал ТМЦ";
-			this.currentUserId = commonServices.UserService.CurrentUserId;
 			SetOrder(x => x.Name);
 			UpdateOnChanges(
 				typeof(Nomenclature),
@@ -66,6 +66,55 @@ namespace Vodovoz.JournalViewModels
 		public bool CalculateQtyOnStock { get; set; } = false;
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+		
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<NomenclatureJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					NomenclatureJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<NomenclatureJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					NomenclatureJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
 			Nomenclature nomenclatureAlias = null;
