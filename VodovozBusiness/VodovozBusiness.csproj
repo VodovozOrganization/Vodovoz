@@ -219,6 +219,8 @@
     <Compile Include="EntityRepositories\Flyers\FlyerRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\IFlyerRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
