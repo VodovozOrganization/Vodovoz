@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.StoredEmails
 		NominativePlural = "Документы заказа для электронной почты",
 		Nominative = "Документ заказа для электронной почты"
 	)]
-	public class OrderDocumentEmail : BusinessObjectBase<OrderDocumentEmail>, IDomainObject
+	public class OrderDocumentEmail : PropertyChangedBase, IDomainObject
 	{
 		private Order _order;
 		private StoredEmail _storedEmail;

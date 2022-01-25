@@ -66,22 +66,32 @@ namespace Vodovoz.Additions
 
 					try
 					{
-						var prepareMailMessage = new PrepareEmailMessage
+
+						using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
 						{
-							StoredEmailId = sendedEmail.Id,
-							SendAttemptsCount = 5
-						};
+							var storedEmail = new StoredEmail
+							{
+								State = StoredEmailStates.PreparingToSend,
+								Author = sendedEmail.StoredEmail.Author,
+								ManualSending = true,
+								SendDate = DateTime.Now,
+								StateChangeDate = DateTime.Now,
+								RecipientAddress = sendedEmail.StoredEmail.RecipientAddress
+							};
 
-						var serializedMessage = JsonSerializer.Serialize(prepareMailMessage);
-						var preparingBody = Encoding.UTF8.GetBytes(serializedMessage);
+							unitOfWork.Save(storedEmail);
 
-						var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
+							var orderDocumentEmail = new OrderDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Order = sendedEmail.Order,
+								OrderDocument = sendedEmail.OrderDocument
+							};
 
-						var connectionFactory = new RabbitMQConnectionFactory(Logger);
-						var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
-						var channel = connection.CreateModel();
+							unitOfWork.Save(orderDocumentEmail);
 
-						channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, null, preparingBody);
+							unitOfWork.Commit();
+						}
 					}
 					catch(Exception e)
 					{

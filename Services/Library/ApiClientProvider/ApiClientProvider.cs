@@ -1,34 +1,47 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace ApiClientProvider
 {
-	public class ApiClientProvider : IApiClientProvider
+	public class ApiClientProvider : IApiClientProvider, IDisposable
 	{
-		protected HttpClient _сlient;
+		private HttpClient _customHttpClient;
 		private readonly string _apiBaseParameter = "BaseUri";
+		private readonly ICustomHttpClientFactory _customHttpClientFactory;
+		private readonly HttpClient _serviceHttpClient;
 
-		public ApiClientProvider(IConfigurationSection apiConfiguration)
+		public ApiClientProvider(IConfigurationSection apiConfiguration, ICustomHttpClientFactory customHttpClientFactory)
 		{
+			_customHttpClientFactory = customHttpClientFactory ?? throw new ArgumentNullException(nameof(customHttpClientFactory));
 			InitializeClient(apiConfiguration ?? throw new ArgumentNullException(nameof(apiConfiguration)));
 		}
 
-		public HttpClient Client
+		public ApiClientProvider(IConfigurationSection apiConfiguration, HttpClient servicetHttpClient)
 		{
-			get
-			{
-				return _сlient;
-			}
+			_serviceHttpClient = servicetHttpClient ?? throw new ArgumentNullException(nameof(servicetHttpClient));
+			InitializeClient(apiConfiguration ?? throw new ArgumentNullException(nameof(apiConfiguration)));
 		}
 
 		protected virtual void InitializeClient(IConfigurationSection apiConfiguration)
 		{
-			_сlient = new HttpClient();
-			_сlient.BaseAddress = new Uri(apiConfiguration.GetValue<string>(_apiBaseParameter));
-			_сlient.DefaultRequestHeaders.Accept.Clear();
-			_сlient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			if(_customHttpClientFactory != null)
+			{
+				_customHttpClient = _customHttpClientFactory.CreateClient();
+			}
+
+			if(Client.BaseAddress == null)
+			{
+				var baseUri = new Uri(apiConfiguration.GetValue<string>(_apiBaseParameter));
+				Client.ConfigureHttpClient(baseUri);
+			}
+		}
+
+		public HttpClient Client => _customHttpClient ?? _serviceHttpClient;
+
+		public void Dispose()
+		{
+			Client?.Dispose();
 		}
 	}
 }

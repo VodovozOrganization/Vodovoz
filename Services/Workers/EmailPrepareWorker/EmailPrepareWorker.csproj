@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\..\..\QSProjects\QSOrmProject\QSOrmProject.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
     <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\VodovozReports\VodovozReports.csproj" />
     <ProjectReference Include="..\..\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
   </ItemGroup>
@@ -31,19 +32,5 @@
     <Content Update="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Reports\Documents\Bill.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Reports\Documents\BillWithoutShipmentForAdvancePayment.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Reports\Documents\BillWithoutShipmentForDebt.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Reports\Documents\BillWithoutShipmentForPayment.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

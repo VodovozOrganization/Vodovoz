@@ -1493,7 +1493,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
 				&& PaymentType == PaymentType.cashless
-				&& !emailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
+				&& !emailRepository.HaveSendedEmailForBill(Id, OrderDocumentType.Bill)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}

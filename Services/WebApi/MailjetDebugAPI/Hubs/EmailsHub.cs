@@ -11,14 +11,14 @@ namespace MailjetDebugAPI.Hubs
 		public const string HubUrl = "/emails";
 		private readonly ILogger<EmailsHub> _logger;
 
-		public async Task EmailRecieved(EmailMessage emailMessage)
-		{
-			await Clients.All.SendAsync("EmailRecieved", emailMessage);
-		}
-
 		public EmailsHub(ILogger<EmailsHub> logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		}
+
+		public async Task EmailRecieved(EmailMessage emailMessage)
+		{
+			await Clients.All.SendAsync("EmailRecieved", emailMessage);
 		}
 
 		public override async Task OnConnectedAsync()
@@ -26,6 +26,7 @@ namespace MailjetDebugAPI.Hubs
 			_logger.LogInformation($"Client connected to Email Hub.");
 			await base.OnConnectedAsync();
 		}
+
 		public override async Task OnDisconnectedAsync(Exception ex)
 		{
 			if(ex != null)

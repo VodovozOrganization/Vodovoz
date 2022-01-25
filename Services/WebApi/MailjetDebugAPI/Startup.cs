@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using System.Net.Http;
+using ApiClientProvider;
 
 namespace MailjetDebugAPI
 {
@@ -36,11 +38,14 @@ namespace MailjetDebugAPI
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
+			services.AddHttpClient();
+
 			services.AddTransient<EventsRecieverEndpoint>(sp =>
 			{
 				var configuration = sp.GetRequiredService<IConfiguration>();
 				var recieverSection = configuration.GetSection(_eventCallbackSettingsSection);
-				var apiHelper = new ApiClientProvider.ApiClientProvider(recieverSection);
+				var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
+				var apiHelper = new ApiClientProvider.ApiClientProvider(recieverSection, httpClient);
 				return new EventsRecieverEndpoint(recieverSection, apiHelper);
 			});
 

@@ -21,16 +21,14 @@ namespace Vodovoz.EntityRepositories
 
 		public List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId)
 		{
-			StoredEmail storedEmailAlias = null;
+	
 
-			return uow.Session.QueryOver<StoredEmail>(() => storedEmailAlias)
-					.WithSubquery.WhereExists(
-						QueryOver.Of<OrderDocumentEmail>()
-							.Where(ode => ode.Order.Id == orderId)
-							.And(ode => ode.StoredEmail.Id == storedEmailAlias.Id)
-							.Select(x => x.Id))
-					  .List()
-					  .ToList();
+			return uow.Session.QueryOver<OrderDocumentEmail>()
+					.Where(ode => ode.Order.Id == orderId)
+					.Select(ode => ode.StoredEmail)
+					.List<StoredEmail>().ToList();
+	
+
 		}
 
 		public List<OrderDocumentEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow)
@@ -62,7 +60,7 @@ namespace Vodovoz.EntityRepositories
 			return uow.Session.QueryOver<StoredEmail>().Where(x => x.ExternalId == messageId).SingleOrDefault();
 		}
 
-		public bool HaveSendedEmail(int orderId, OrderDocumentType type)
+		public bool HaveSendedEmailForBill(int orderId)
 		{
 			IList<OrderDocumentEmail> result;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))

@@ -16,6 +16,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using ApiClientProvider;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -590,7 +592,9 @@ public partial class MainWindow : Window
 
 		cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
 
-		var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+		ICustomHttpClientFactory httpClientFactory = new CustomHttpClientFactory();
+
+		var apiHelper = new ApiClientProvider.ApiClientProvider(cs, httpClientFactory);
 		var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
 		var parametersProvider = new ParametersProvider();
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using ApiClientProvider;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
@@ -58,6 +60,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private readonly ICustomHttpClientFactory _httpClientFactory = new CustomHttpClientFactory();
 		
 		private AttachmentsViewModel _attachmentsViewModel;
 
@@ -202,7 +205,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
 
-			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+			var apiHelper = new ApiClientProvider.ApiClientProvider(cs, _httpClientFactory);
 
 			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
 

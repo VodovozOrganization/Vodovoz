@@ -112,7 +112,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-
 			SendDocViewModel = new SendDocumentByEmailViewModel(
 				new EmailRepository(), new EmailParametersProvider(parametersProvider), currentEmployee, commonServices.InteractiveService, UoW);
 

@@ -217,20 +217,36 @@ namespace EmailPrepareWorker
 
 			wasHideSignature = document.HideSignature;
 			document.HideSignature = false;
+
 			ri = document.GetReportInfo();
+			ri.Path = GetReportPath(ri);
+
 			document.HideSignature = wasHideSignature;
 
 			using MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), QSMain.ConnectionString, OutputPresentationType.PDF, true);
 
-			string billDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
+			string documentDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
 
 			return await new ValueTask<EmailAttachment>(
 				new EmailAttachment
 				{
-					Filename = $"Bill_{ document.Order.Id }{ billDate }.pdf",
+					Filename = $"Document_{ document.Order.Id }{ documentDate }.pdf",
 					ContentType = "application/pdf",
 					Base64Content = Convert.ToBase64String(stream.GetBuffer())
 				});
+		}
+
+		private static string GetReportPath(ReportInfo ri)
+		{
+			var splited = ri.Identifier.Split('.').ToList();
+			var reportName = splited.Last();
+			splited.RemoveAt(splited.Count - 1);
+			var parts = new List<string>();
+			parts.Add(AppDomain.CurrentDomain.BaseDirectory);
+			parts.Add("Reports");
+			parts.AddRange(splited);
+			parts.Add(reportName + ".rdl");
+			return System.IO.Path.Combine(parts.ToArray());
 		}
 	}
 }

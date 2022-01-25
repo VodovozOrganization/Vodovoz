@@ -84,8 +84,26 @@ namespace EmailSendWorker
 
 				var message = JsonSerializer.Deserialize<SendEmailMessage>(body.Span);
 
-				_logger.LogInformation($"Recieved message to send to recipients: { string.Join(", ", message.To.Select(recipient => recipient.Email)) }" +
+				string[] recipients = new string[] { };
+				if(message.To != null)
+				{
+					recipients = message.To.Select(recipient => recipient?.Email).ToArray();
+				}
+
+				_logger.LogInformation(
+					$"Recieved message to send to recipients: { string.Join(", ", recipients) }" +
 					$" with subject: \"{ message.Subject }\", with { message.Attachments?.Count ?? 0 } attachments");
+
+
+				int payLoadId = 0;
+				if(message.EventPayload != null)
+				{
+					payLoadId = message.Payload.Id;
+				}
+				else
+				{
+					message.Payload = new EmailPayload();
+				}
 
 				var payload = new SendPayload
 				{
@@ -95,7 +113,7 @@ namespace EmailSendWorker
 
 				for(var i = 0; i < _retriesCount; i++)
 				{
-					_logger.LogInformation($"Sending email { message.Payload.Id } { i + 1 }/{ _retriesCount }");
+					_logger.LogInformation($"Sending email { payLoadId } { i + 1 }/{ _retriesCount }");
 
 					try
 					{
@@ -113,7 +131,7 @@ namespace EmailSendWorker
 							var statusUpdateMessage = new UpdateStoredEmailStatusMessage
 							{
 								ErrorInfo = "SendWorker unable to send message to MailJet",
-								EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true},
+								EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
 								Status = MailEventType.bounce,
 								RecievedAt = DateTime.Now
 							};

@@ -1,4 +1,5 @@
-﻿using ApiClientProvider;
+﻿using System.Net.Http;
+using ApiClientProvider;
 using Mailjet.Api.Abstractions.Endpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,10 +41,13 @@ namespace EmailSendWorker
 						return channel;
 					});
 
+					services.AddHttpClient();
+
 					services.AddTransient((sp) =>
 					{
 						var configuration = sp.GetRequiredService<IConfiguration>();
-						var apiHelper = new ApiBasicAuthClientProvider(configuration.GetSection("Mailjet"));
+						var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
+						var apiHelper = new ApiBasicAuthClientProvider(configuration.GetSection("Mailjet"), httpClient);
 						return new SendEndpoint(apiHelper);
 					});
 

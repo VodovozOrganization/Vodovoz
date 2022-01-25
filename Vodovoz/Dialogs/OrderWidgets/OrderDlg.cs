@@ -168,8 +168,6 @@ namespace Vodovoz
 		private IOrderDailyNumberController _dailyNumberController;
 		private bool _isSaveInterrupted;
 
-		private readonly string _mailPrepareQueueId = "MailPrepareQueue"; // Заменить на что-то другое
-
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		private  INomenclatureRepository nomenclatureRepository;
@@ -3044,7 +3042,7 @@ namespace Vodovoz
 				throw new ArgumentNullException(nameof(emailAddressForBill));
 			}
 
-			if(_emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill))
+			if(_emailRepository.HaveSendedEmailForBill(Entity.Id, OrderDocumentType.Bill))
 			{
 				return;
 			}
@@ -3055,36 +3053,38 @@ namespace Vodovoz
 				return;
 			}
 
-			int storedEmailId;
 
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"Добавление записи о письме со счетом"))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи о письме со счетом"))
 			{
 				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 
-				uow.Root.SendDate = DateTime.Now;
-				uow.Root.StateChangeDate = DateTime.Now;
-				uow.Root.State = StoredEmailStates.PreparingToSend;
-				uow.Root.RecipientAddress = clientEmail.Address;
-				uow.Root.ManualSending = false;
-				uow.Root.Author = _employeeRepository.GetEmployeeForCurrentUser(uow);
-				
+				var storedEmail = new StoredEmail
+				{
+					SendDate = DateTime.Now,
+					StateChangeDate = DateTime.Now,
+					State = StoredEmailStates.PreparingToSend,
+					RecipientAddress = clientEmail.Address,
+					ManualSending = false,
+					Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
+				};
+
 				try
 				{
-					uow.Save();
-					storedEmailId = uow.Root.Id;
+					uow.Save(storedEmail);
 
 					var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
 
 					OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
 					{
-						StoredEmail = uow.Root,
+						StoredEmail = storedEmail,
 						Order = Order,
 						OrderDocument = document
 					};
 
 					uow.Save(orderDocumentEmail);
+
 					uow.Commit();
 				}
 
@@ -3092,30 +3092,6 @@ namespace Vodovoz
 				{
 					logger.Debug($"Ошибка при сохранении. Ошибка: { ex.Message }");
 					throw ex;
-				}
-
-				var prepareMailMessage = new PrepareEmailMessage
-				{
-					StoredEmailId = storedEmailId,
-					SendAttemptsCount = 5
-				};
-
-				try
-				{
-					var serializedMessage = JsonSerializer.Serialize(prepareMailMessage);
-					var preparingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-					var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
-					var connectionFactory = new RabbitMQConnectionFactory(Logger);
-					var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
-					var channel = connection.CreateModel();
-
-					channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, null, preparingBody);
-				}
-				catch(Exception e)
-				{
-					MessageDialogHelper.RunErrorDialog($"Ошибка отправки: { e.Message }");
 				}
 			}
 		}

@@ -50,7 +50,7 @@ namespace MailjetDebugAPI.Controllers
 					$"To: { string.Join(", ", email.To.Select(recipient => $"{ recipient.Email } ({ recipient.Name })")) }, " +
 					$"Text: { email.TextPart }, " +
 					$"HTML: { email.HTMLPart }, " +
-					$"With { email.InlinedAttachments.Count } inlined and { email.Attachments.Count } not inlined attachments, " +
+					$"With { email.InlinedAttachments?.Count ?? 0 } inlined and { email.Attachments?.Count ?? 0 } not inlined attachments, " +
 					$"CustomId: { email.CustomId }, " +
 					$"Payload: { email.EventPayload }");
 

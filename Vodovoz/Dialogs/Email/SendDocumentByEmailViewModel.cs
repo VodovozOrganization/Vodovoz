@@ -303,25 +303,28 @@ namespace Vodovoz.Dialogs.Email
 				return;
 			}
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>("StoredEmail"))
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
 			{
-				unitOfWork.Root.Author = _employee;
-				unitOfWork.Root.ManualSending = true;
-				unitOfWork.Root.SendDate = DateTime.Now;
-				unitOfWork.Root.StateChangeDate = DateTime.Now;
-				unitOfWork.Root.State = StoredEmailStates.PreparingToSend;
-				unitOfWork.Root.RecipientAddress = EmailString;
+				var storedEmail = new StoredEmail
+				{
+					State = StoredEmailStates.PreparingToSend,
+					Author = _employee,
+					ManualSending = true,
+					SendDate = DateTime.Now,
+					StateChangeDate = DateTime.Now,
+					RecipientAddress = EmailString
+				};
 
 				try
 				{
-					unitOfWork.Save();
+					unitOfWork.Save(storedEmail);
 					
 					switch(Document.Type)
 					{
 						case OrderDocumentType.Bill:
 							var orderDocumentEmail = new OrderDocumentEmail
 							{
-								StoredEmail = unitOfWork.Root,
+								StoredEmail = storedEmail,
 								Order = Document.Order,
 								OrderDocument = (OrderDocument) Document
 							};

@@ -22,6 +22,7 @@ namespace Mailjet.Api.Abstractions.Events
 		public string CustomCampaign { get; set; }
 		[JsonPropertyName("CustomID")]
 		public string CustomId { get; set; }
+		[JsonPropertyName("Payload")]
 		public string Payload { get; set; }
 	}
 }
