@@ -4,9 +4,9 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class PaymentsFilterView
 	{
-		private global::Gtk.VBox vbox4;
+		private global::Gtk.VBox vboxMain;
 
-		private global::Gtk.HBox hbox10;
+		private global::Gtk.HBox hboxMain;
 
 		private global::Gtk.Label label28;
 
@@ -16,6 +16,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbtnHideCompleted;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkIsManualCreate;
 		private global::Gamma.GtkWidgets.yHBox hboxCounterparty;
 
 		private global::QS.Views.Control.EntityEntry counterpartyEntry;
@@ -29,53 +30,53 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.PaymentsFilterView";
 			// Container child Vodovoz.Filters.GtkViews.PaymentsFilterView.Gtk.Container+ContainerChild
-			this.vbox4 = new global::Gtk.VBox();
-			this.vbox4.Name = "vbox4";
-			this.vbox4.Spacing = 6;
-			// Container child vbox4.Gtk.Box+BoxChild
-			this.hbox10 = new global::Gtk.HBox();
-			this.hbox10.Name = "hbox10";
-			this.hbox10.Spacing = 6;
-			// Container child hbox10.Gtk.Box+BoxChild
+			this.vboxMain = new global::Gtk.VBox();
+			this.vboxMain.Name = "vboxMain";
+			this.vboxMain.Spacing = 6;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.hboxMain = new global::Gtk.HBox();
+			this.hboxMain.Name = "hboxMain";
+			this.hboxMain.Spacing = 6;
+			// Container child hboxMain.Gtk.Box+BoxChild
 			this.label28 = new global::Gtk.Label();
 			this.label28.Name = "label28";
 			this.label28.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
-			this.hbox10.Add(this.label28);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.label28]));
+			this.hboxMain.Add(this.label28);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.label28]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
-			// Container child hbox10.Gtk.Box+BoxChild
+			// Container child hboxMain.Gtk.Box+BoxChild
 			this.dateRangeFilter = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.dateRangeFilter.Events = ((global::Gdk.EventMask)(256));
 			this.dateRangeFilter.Name = "dateRangeFilter";
 			this.dateRangeFilter.StartDate = new global::System.DateTime(0);
 			this.dateRangeFilter.EndDate = new global::System.DateTime(0);
-			this.hbox10.Add(this.dateRangeFilter);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.dateRangeFilter]));
+			this.hboxMain.Add(this.dateRangeFilter);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.dateRangeFilter]));
 			w2.Position = 1;
 			w2.Expand = false;
-			// Container child hbox10.Gtk.Box+BoxChild
+			// Container child hboxMain.Gtk.Box+BoxChild
 			this.yenumcomboPaymentState = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboPaymentState.Name = "yenumcomboPaymentState";
 			this.yenumcomboPaymentState.ShowSpecialStateAll = true;
 			this.yenumcomboPaymentState.ShowSpecialStateNot = false;
 			this.yenumcomboPaymentState.UseShortTitle = false;
 			this.yenumcomboPaymentState.DefaultFirst = false;
-			this.hbox10.Add(this.yenumcomboPaymentState);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yenumcomboPaymentState]));
+			this.hboxMain.Add(this.yenumcomboPaymentState);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.yenumcomboPaymentState]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
-			// Container child hbox10.Gtk.Box+BoxChild
+			// Container child hboxMain.Gtk.Box+BoxChild
 			this.ycheckbtnHideCompleted = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbtnHideCompleted.CanFocus = true;
 			this.ycheckbtnHideCompleted.Name = "ycheckbtnHideCompleted";
 			this.ycheckbtnHideCompleted.Label = global::Mono.Unix.Catalog.GetString("Скрыть завершенные");
 			this.ycheckbtnHideCompleted.DrawIndicator = true;
 			this.ycheckbtnHideCompleted.UseUnderline = true;
-			this.hbox10.Add(this.ycheckbtnHideCompleted);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ycheckbtnHideCompleted]));
+			this.hboxMain.Add(this.ycheckbtnHideCompleted);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.ycheckbtnHideCompleted]));
 			w4.Position = 3;
 			w4.Expand = false;
 			w4.Fill = false;
