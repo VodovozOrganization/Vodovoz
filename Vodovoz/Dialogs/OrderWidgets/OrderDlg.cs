@@ -2367,6 +2367,11 @@ namespace Vodovoz
 
 			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 
+			if(DeliveryPoint != null)
+			{
+				AddCommentFromDeliveryPoint();
+			}
+
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
