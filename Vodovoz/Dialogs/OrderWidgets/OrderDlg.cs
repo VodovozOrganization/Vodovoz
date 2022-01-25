@@ -326,6 +326,7 @@ namespace Vodovoz
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
+				UpdateOrderComment();
 			}
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -374,6 +375,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
+			UpdateOrderComment();
 		}
 
 		public void ConfigureDlg()
@@ -2213,6 +2215,11 @@ namespace Vodovoz
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 
+			UpdateOrderComment();
+		}
+
+		private void UpdateOrderComment()
+		{
 			if(DeliveryPoint != null)
 			{
 				if(string.IsNullOrWhiteSpace(Entity.Comment))
