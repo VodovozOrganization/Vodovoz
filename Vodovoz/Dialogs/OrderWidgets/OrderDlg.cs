@@ -117,6 +117,7 @@ namespace Vodovoz
 
 		Order templateOrder;
 
+		private int _previousDeliveryPointId;
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private CounterpartyContractFactory counterpartyContractFactory;
@@ -325,6 +326,7 @@ namespace Vodovoz
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
+				AddCommentFromDeliveryPoint();
 			}
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -373,6 +375,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
+			AddCommentFromDeliveryPoint();
 		}
 
 		public void ConfigureDlg()
@@ -2214,6 +2217,28 @@ namespace Vodovoz
 			
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
+
+			AddCommentFromDeliveryPoint();
+		}
+
+		private void AddCommentFromDeliveryPoint()
+		{
+			if(DeliveryPoint != null)
+			{
+				if(string.IsNullOrWhiteSpace(Entity.Comment))
+				{
+					Entity.Comment = DeliveryPoint.Comment;
+				}
+				else
+				{
+					if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
+					{
+						Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
+					}
+				}
+
+				_previousDeliveryPointId = DeliveryPoint.Id;
+			}
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)

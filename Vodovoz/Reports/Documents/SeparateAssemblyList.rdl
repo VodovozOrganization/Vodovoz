@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.official_name AS name,
@@ -35,7 +35,7 @@ WHERE order_items.order_id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
@@ -65,7 +65,7 @@ WHERE order_items.order_id = @order_id
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name AS client,
-	delivery_points.compiled_address AS address,
+	delivery_points.compiled_address_short AS address,
 	orders.id AS order_id,
 	orders.e_shop_order AS eshop_order,
 	orders.comment,
@@ -412,7 +412,7 @@ WHERE orders.id = @order_id
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >="N" + {digits}</Format>
+                        <Format>="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2006,7 +2006,7 @@ WHERE orders.id = @order_id
                         <PaddingBottom>2pt</PaddingBottom>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >="N" + {digits}</Format>
+                        <Format>="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
