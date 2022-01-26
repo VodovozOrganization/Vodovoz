@@ -11,11 +11,11 @@ namespace ApiClientProvider
 		private readonly string _usernameParameter = "Username";
 		private readonly string _passwordParameter = "Password";
 
-		private ApiBasicAuthClientProvider(IConfigurationSection apiConfiguration, ICustomHttpClientFactory customHttpClientFactory) : base(apiConfiguration, customHttpClientFactory)
+		public ApiBasicAuthClientProvider(IConfigurationSection apiConfiguration) : base(apiConfiguration)
 		{
 		}
 
-		public ApiBasicAuthClientProvider(IConfigurationSection apiConfiguration, HttpClient servicetHttpClient) : base(apiConfiguration, servicetHttpClient)
+		public ApiBasicAuthClientProvider(IConfigurationSection apiConfiguration, HttpClient httpClient) : base(apiConfiguration, httpClient)
 		{
 		}
 
@@ -26,7 +26,7 @@ namespace ApiClientProvider
 			var headerValue = Convert.ToBase64String(
 				Encoding.UTF8.GetBytes($"{ apiConfiguration.GetValue<string>(_usernameParameter) }:{ apiConfiguration.GetValue<string>(_passwordParameter) }"));
 
-			Client.DefaultRequestHeaders.Authorization =
+			_client.DefaultRequestHeaders.Authorization =
 				new AuthenticationHeaderValue("Basic", headerValue);
 		}
 	}

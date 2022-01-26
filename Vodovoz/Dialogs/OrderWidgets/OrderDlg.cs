@@ -166,7 +166,8 @@ namespace Vodovoz
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
-		private bool _isSaveInterrupted;
+		private bool isNeedSendBill;
+		private Email emailAddressForBill;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -1261,25 +1262,14 @@ namespace Vodovoz
 				}
 
 				logger.Info("Сохраняем заказ...");
-				
-				if(Entity.NeedSendBill(_emailRepository)) {
-					bool sendEmail = true;
-					var emailAddressForBill = Entity.GetEmailAddressForBill();
-					if(emailAddressForBill == null) {
-						sendEmail = false;
-						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
-							_isSaveInterrupted = true;
-							return false;
-						}
-					}
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
-					if(sendEmail)
-					{
-						SendBillByEmail(emailAddressForBill);
-					}
-				} else {
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+
+				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+
+				if(isNeedSendBill)
+				{
+					SendBillByEmail(emailAddressForBill);
 				}
+
 				logger.Info("Ok.");
 				UpdateUIState();
 				return true;
@@ -1310,7 +1300,7 @@ namespace Vodovoz
 
 		private bool AcceptOrder()
 		{
-			if(!Entity.CanSetOrderAsAccepted && !_isSaveInterrupted)
+			if(!Entity.CanSetOrderAsAccepted)
 			{
 				return false;
 			}
@@ -1339,6 +1329,28 @@ namespace Vodovoz
 				{
 					return false;
 				}
+			}
+
+			if(Entity.NeedSendBill(_emailRepository))
+			{
+				emailAddressForBill = Entity.GetEmailAddressForBill();
+				if(emailAddressForBill == null)
+				{
+					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
+					{
+						return false;
+					}
+
+					isNeedSendBill = false;
+				}
+				else
+				{
+					isNeedSendBill = true;
+				}
+			}
+			else
+			{
+				isNeedSendBill = false;
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
@@ -3042,7 +3054,7 @@ namespace Vodovoz
 				throw new ArgumentNullException(nameof(emailAddressForBill));
 			}
 
-			if(_emailRepository.HaveSendedEmailForBill(Entity.Id, OrderDocumentType.Bill))
+			if(_emailRepository.HaveSendedEmailForBill(Entity.Id))
 			{
 				return;
 			}

@@ -16,6 +16,21 @@ namespace Vodovoz.Domain.StoredEmails
 	{
 		public virtual int Id { get; set; }
 
+		private Order order;
+		[Display(Name = "Заказ")]
+		public virtual Order Order
+		{
+			get { return order; }
+			set { SetField(ref order, value, () => Order); }
+		}
+
+		private OrderDocumentType documentType;
+		[Display(Name = "Тип документа")]
+		public virtual OrderDocumentType DocumentType
+		{
+			get { return documentType; }
+			set { SetField(ref documentType, value, () => DocumentType); }
+		}
 
 		private OrderWithoutShipmentForDebt orderWithoutShipmentForDebt;
 		[Display(Name = "Счет без отгрузки на долг")]

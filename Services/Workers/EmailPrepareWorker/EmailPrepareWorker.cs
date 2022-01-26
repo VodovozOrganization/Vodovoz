@@ -219,7 +219,6 @@ namespace EmailPrepareWorker
 			document.HideSignature = false;
 
 			ri = document.GetReportInfo();
-			ri.Path = GetReportPath(ri);
 
 			document.HideSignature = wasHideSignature;
 
@@ -234,19 +233,6 @@ namespace EmailPrepareWorker
 					ContentType = "application/pdf",
 					Base64Content = Convert.ToBase64String(stream.GetBuffer())
 				});
-		}
-
-		private static string GetReportPath(ReportInfo ri)
-		{
-			var splited = ri.Identifier.Split('.').ToList();
-			var reportName = splited.Last();
-			splited.RemoveAt(splited.Count - 1);
-			var parts = new List<string>();
-			parts.Add(AppDomain.CurrentDomain.BaseDirectory);
-			parts.Add("Reports");
-			parts.AddRange(splited);
-			parts.Add(reportName + ".rdl");
-			return System.IO.Path.Combine(parts.ToArray());
 		}
 	}
 }

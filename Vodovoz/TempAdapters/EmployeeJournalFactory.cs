@@ -5,7 +5,6 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using System.Collections.Generic;
-using ApiClientProvider;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
@@ -53,8 +52,8 @@ namespace Vodovoz.TempAdapters
 
 			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
 
-			var httpClientFactory = new CustomHttpClientFactory();
-			var apiHelper = new ApiClientProvider.ApiClientProvider(cs, httpClientFactory);
+			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+
 			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
 
 			_driverApiUserRegisterEndpoint = driverApiRegisterEndpoint;

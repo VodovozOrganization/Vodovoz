@@ -1491,9 +1491,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill(IEmailRepository emailRepository)
 		{
-			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
+			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
 				&& PaymentType == PaymentType.cashless
-				&& !emailRepository.HaveSendedEmailForBill(Id, OrderDocumentType.Bill)) {
+				&& !emailRepository.HaveSendedEmailForBill(Id)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}

@@ -21,14 +21,10 @@ namespace Vodovoz.EntityRepositories
 
 		public List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId)
 		{
-	
-
 			return uow.Session.QueryOver<OrderDocumentEmail>()
 					.Where(ode => ode.Order.Id == orderId)
 					.Select(ode => ode.StoredEmail)
 					.List<StoredEmail>().ToList();
-	
-
 		}
 
 		public List<OrderDocumentEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow)

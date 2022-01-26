@@ -95,12 +95,7 @@ namespace EmailSendWorker
 					$" with subject: \"{ message.Subject }\", with { message.Attachments?.Count ?? 0 } attachments");
 
 
-				int payLoadId = 0;
-				if(message.EventPayload != null)
-				{
-					payLoadId = message.Payload.Id;
-				}
-				else
+				if(message.EventPayload == null)
 				{
 					message.Payload = new EmailPayload();
 				}
@@ -113,7 +108,7 @@ namespace EmailSendWorker
 
 				for(var i = 0; i < _retriesCount; i++)
 				{
-					_logger.LogInformation($"Sending email { payLoadId } { i + 1 }/{ _retriesCount }");
+					_logger.LogInformation($"Sending email { message.Payload.Id } { i + 1 }/{ _retriesCount }");
 
 					try
 					{
