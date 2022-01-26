@@ -1610,9 +1610,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			foreach(var orderItem in OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water))
+			for(var i = 0; i < OrderItems.Count; i++)
 			{
-				orderItem.RecalculatePrice();
+				if(OrderItems[i].Nomenclature.Category == NomenclatureCategory.water)
+				{
+					OrderItems[i].RecalculatePrice();
+				}
 			}
 		}
 
