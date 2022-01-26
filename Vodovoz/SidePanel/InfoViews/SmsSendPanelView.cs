@@ -42,7 +42,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddTextRenderer(x => x.Number)
 				.Finish();
 
-			if(_orderPermissionResult.CanUpdate)
+			if(_orderPermissionResult.CanRead)
 			{
 				yPhonesListTreeView.Selection.Changed += (sender, args) =>
 				{
@@ -50,7 +50,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					validatedPhoneEntry.Text = _selectedPhone?.Number ?? "";
 				};
 			}
-			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanUpdate;
+			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
 			ySendSmsButton.Pressed += (btn, args) =>
 			{
@@ -98,7 +98,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			ySendSmsButton.Sensitive = _orderPermissionResult.CanUpdate;
+			ySendSmsButton.Sensitive = _orderPermissionResult.CanRead;
 			yPhonesListTreeView.ItemsDataSource = _counterparty.Phones;
 		}
 
