@@ -67,9 +67,6 @@
 		'\n',
 		CONCAT('ИНН:', organizations.INN)
 	) AS org_address,
-	delivery_points.comment AS delivery_point_comment,
-	delivery_points.address_addition AS delivery_point_address_addition,
-
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones 
 	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
@@ -78,7 +75,7 @@
 	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
 
 	districts.district_name AS logistics_area,
-	delivery_points.compiled_address AS del_point_address,
+	delivery_points.compiled_address_short AS del_point_address,
 	orders.daily_number_1c AS daily_number,
 	CONCAT_WS('',
 			CONCAT(employees.last_name, ' '),
@@ -171,10 +168,6 @@ WHERE
           <DataField>org_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="delivery_point_comment">
-          <DataField>delivery_point_comment</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="delivery_point_contact">
           <DataField>delivery_point_contact</DataField>
           <TypeName>System.String</TypeName>
@@ -205,10 +198,6 @@ WHERE
         </Field>
         <Field Name="order_payment_type">
           <DataField>order_payment_type</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="delivery_point_address_addition">
-          <DataField>delivery_point_address_addition</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="order_signature_type">
@@ -481,7 +470,7 @@ WHERE NOT EXISTS (
       </Fields>
     </DataSet>
     <DataSet Name="DepositRefund">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 deposit_sum,
@@ -498,7 +487,7 @@ payment_type='ToClient'</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="deposit_price">
           <DataField>deposit_sum</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -635,7 +624,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="deposits">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -661,7 +650,7 @@ GROUP BY name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1791,12 +1780,7 @@ WHERE stored_resource.id = @id1</CommandText>
             "",
             "["+ {logistics_area} + "]"
         )
-        + {del_point_address}
-        + Iif(
-                {delivery_point_comment} != '',
-                '\n' + {delivery_point_comment},
-                ''
-            ),
+        + {del_point_address},
         'САМОВЫВОЗ'
     )
 + ' ' + {organization}</Value>
@@ -2393,8 +2377,8 @@ WHERE stored_resource.id = @id1</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2408,8 +2392,8 @@ WHERE stored_resource.id = @id1</CommandText>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
