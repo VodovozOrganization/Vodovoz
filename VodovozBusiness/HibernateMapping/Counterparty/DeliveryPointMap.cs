@@ -36,7 +36,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Room)			    	.Column("room");
 			Map(x => x.Letter)					.Column("letter");
 			Map(x => x.Placement)		 		.Column("placement");
-			Map(x => x.АddressAddition)  		.Column("address_addition");
 			Map(x => x.Comment)		  			.Column("comment");
 			Map(x => x.FoundOnOsm)		  		.Column("found_on_osm");
 			Map(x => x.ManualCoordinates)		.Column("manual_coordinates");

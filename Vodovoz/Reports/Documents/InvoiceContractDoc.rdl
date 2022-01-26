@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -35,9 +35,6 @@
 	counterparty.address AS client_address,
 	organizations.full_name AS org_name,
 	organizations.address AS org_address,
-	delivery_points.comment AS delivery_point_comment,
-	delivery_points.address_addition AS delivery_point_address_addition,
-
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones 
 	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
@@ -134,10 +131,6 @@ WHERE
         </Field>
         <Field Name="org_address">
           <DataField>org_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="delivery_point_comment">
-          <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="delivery_point_contact">
@@ -1198,8 +1191,8 @@ WHERE stored_resource.id = @id21</CommandText>
             <Width>308.52pt</Width>
             <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
             <ZIndex>0</ZIndex>
-            <Left>86.0pt</Left>
-            <Top>0.0pt</Top>
+            <Left>86.00pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1927,12 +1920,7 @@ WHERE stored_resource.id = @id21</CommandText>
         "",
         "["+ {logistics_area} + "]"
     )
-    + {del_point_address}
-    + Iif(
-            {delivery_point_comment} != '',
-            '\n' + {delivery_point_comment},
-            ''
-        )</Value>
+    + {del_point_address}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2387,8 +2375,8 @@ WHERE stored_resource.id = @id21</CommandText>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <FontSize >14pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>14pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
