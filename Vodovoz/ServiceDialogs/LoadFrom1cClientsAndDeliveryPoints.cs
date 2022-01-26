@@ -468,7 +468,7 @@ namespace Vodovoz.ServiceDialogs
 
 			var commentAttr = node.Attributes["Комментариий"];
 			if(commentAttr != null) {
-				deliveryPoint.АddressAddition = commentAttr.Value;
+				deliveryPoint.Comment = commentAttr.Value;
 			}
 
 

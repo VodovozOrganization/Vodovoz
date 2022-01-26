@@ -62,7 +62,6 @@ AND (
 	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), o.comment)
 	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), c.full_name)
 	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), dp.address_1c)
-	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), dp.address_addition)
 )
 ;</CommandText>
         <QueryParameters>
