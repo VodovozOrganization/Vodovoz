@@ -140,19 +140,23 @@ public partial class MainWindow : Window
 	Action ActionFinesJournal;
 	Action ActionPremiumJournal;
 	Action ActionCarProxiesJournal;
-	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
 	Action ActionReportDebtorsBottles;
 	Action ActionExportImportNomenclatureCatalog;
+
+	//Бухгалтерия
 	Action ActionTransferBankDocs;
 	Action ActionPaymentFromBank;
-	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
+	Action ActionRevision;
 	Action ActionExportTo1c;
 	Action ActionOldExportTo1c;
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionImportPaymentsByCard;
+	Action ActionFinancialDistrictsSetsJournal;
+	Action ActionUnAllocatedBalancesJournal;
+
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
@@ -236,6 +240,7 @@ public partial class MainWindow : Window
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
+		ActionUnAllocatedBalancesJournal = new Action("ActionUnAllocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -295,18 +300,22 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
-		w1.Add(ActionRevision, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
+
+		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionPaymentFromBank, null);
-		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
+		w1.Add(ActionRevision, null);
 		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionOldExportTo1c, null);
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionImportPaymentsByCard, null);
+		w1.Add(ActionFinancialDistrictsSetsJournal, null);
+		w1.Add(ActionUnAllocatedBalancesJournal, null);
+
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
@@ -374,18 +383,22 @@ public partial class MainWindow : Window
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
-		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
+
+		//Бухгалтерия
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
-		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
+		ActionRevision.Activated += ActionRevision_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
+		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
+		ActionUnAllocatedBalancesJournal.Activated += OnActionUnAllocatedBalancesJournalActivated;
+
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
@@ -680,6 +693,11 @@ public partial class MainWindow : Window
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
+	}
+
+	private void OnActionUnAllocatedBalancesJournalActivated(object sender, EventArgs e)
+	{
+		throw new NotImplementedException();
 	}
 
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
