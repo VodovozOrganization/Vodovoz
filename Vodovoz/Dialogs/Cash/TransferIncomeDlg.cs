@@ -1,10 +1,7 @@
 ﻿using System;
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
-using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 
@@ -13,31 +10,26 @@ namespace Vodovoz.Dialogs.Cash
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TransferIncomeDlg : EntityDialogBase<Income>
 	{
-		private bool canEdit = true;
+		private bool _canEdit = true;
 
 		public TransferIncomeDlg()
 		{
-			this.Build();
+			Build();
 			throw new InvalidOperationException($"Для данного диалога невозможно создание новой сущности");
 		}
 
-		public TransferIncomeDlg(int id, IPermissionService permissionService)
+		public TransferIncomeDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income>(id);
 			if(Entity.TypeDocument != IncomeInvoiceDocumentType.IncomeTransferDocument) {
 				throw new InvalidOperationException($"Диалог доступен только для документа типа {nameof(IncomeInvoiceDocumentType.IncomeTransferDocument)}");
 			}
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			canEdit = userPermission.CanUpdate;
+			
+			_canEdit = permissionResult.CanUpdate;
 			ConfigureDlg();
 		}
-		public TransferIncomeDlg(Income income, IPermissionService permissionService) : this(income.Id,permissionService) { }
+		public TransferIncomeDlg(Income income) : this(income.Id) { }
 
 		private void ConfigureDlg()
 		{
