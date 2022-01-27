@@ -650,7 +650,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 
 			CanEditEmployee = _employeePermissionSet.CanUpdate || (_employeePermissionSet.CanCreate && Entity.Id == 0);
-			CanEditEmployee = _employeePermissionSet.CanRead;
+			CanReadEmployee = _employeePermissionSet.CanRead;
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
