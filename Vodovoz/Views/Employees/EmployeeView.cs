@@ -303,7 +303,7 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Документы
 
-			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanEditEmployee;
+			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanReadEmployee;
 			radioTabEmployeeDocument.Sensitive = haveAccessToDocuments;
 			if(haveAccessToDocuments)
 			{
