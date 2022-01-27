@@ -408,6 +408,7 @@
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
     <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
+    <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
