@@ -468,6 +468,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			return new OrderStatus[] {
 				OrderStatus.UnloadingOnStock,
+				OrderStatus.Shipped,
 				OrderStatus.Closed
 			};
 		}
