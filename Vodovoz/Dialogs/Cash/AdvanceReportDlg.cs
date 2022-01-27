@@ -9,15 +9,12 @@ using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using QS.Services;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
@@ -32,8 +29,8 @@ namespace Vodovoz
 		decimal closingSum = 0;
 
 		List<RecivedAdvance> advanceList;
-		private bool canEdit = true;
-		private readonly bool canCreate;
+		private bool _canEdit = true;
+		private readonly bool _canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly AdvanceCashOrganisationDistributor distributor = new AdvanceCashOrganisationDistributor();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
@@ -61,7 +58,7 @@ namespace Vodovoz
 			}
 		}
 
-		public AdvanceReportDlg(Expense advance, IPermissionService permissionService) : this(advance.Employee, advance.ExpenseCategory, advance.UnclosedMoney, permissionService)
+		public AdvanceReportDlg(Expense advance) : this(advance.Employee, advance.ExpenseCategory, advance.UnclosedMoney)
 		{
 			if(advance.Employee == null) {
 				logger.Error("Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
@@ -71,16 +68,16 @@ namespace Vodovoz
 			advanceList.Find(x => x.Advance.Id == advance.Id).Selected = true;
 		}
 
-		public AdvanceReportDlg(Employee accountable, ExpenseCategory expenseCategory, decimal money, IPermissionService permissionService) : this(permissionService)
+		public AdvanceReportDlg(Employee accountable, ExpenseCategory expenseCategory, decimal money) : this()
 		{
 			Entity.Accountable = accountable;
 			Entity.ExpenseCategory = expenseCategory;
 			Entity.Money = money;
 		}
 
-		public AdvanceReportDlg(IPermissionService permissionService)
+		public AdvanceReportDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<AdvanceReport>();
 			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Casher == null) {
@@ -89,17 +86,15 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission =
-				permissionService.ValidateUserPermission(typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId);
-			canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate) {
+			_canCreate = permissionResult.CanCreate;
+			if(!_canCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
 				return;
 			}
 
-			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(AdvanceReport))) {
-
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(AdvanceReport)))
+			{
 				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
 				FailInitialize = true;
 				return;
@@ -110,9 +105,9 @@ namespace Vodovoz
 			FillDebt();
 		}
 
-		public AdvanceReportDlg(int id, IPermissionService permissionService)
+		public AdvanceReportDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<AdvanceReport>(id);
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
@@ -121,14 +116,8 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			var userPermission =
-				permissionService.ValidateUserPermission(typeof(AdvanceReport), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			canEdit = userPermission.CanUpdate;
+			
+			_canEdit = permissionResult.CanUpdate;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -144,10 +133,10 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public AdvanceReportDlg(AdvanceReport sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
+		public AdvanceReportDlg(AdvanceReport sub) : this(sub.Id) { }
 
-		private bool CanEdit => (UoW.IsNew && canCreate) ||
-		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		private bool CanEdit => (UoW.IsNew && _canCreate) ||
+		                        (_canEdit && Entity.Date.Date == DateTime.Now.Date) ||
 		                        canEditRectroactively;
 		
 		void ConfigureDlg()
