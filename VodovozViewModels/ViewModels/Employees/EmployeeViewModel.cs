@@ -254,6 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanEditWage { get; private set; }
 		public bool CanEditOrganisationForSalary { get; private set; }
 		public bool CanEditEmployee { get; private set; }
+		public bool CanReadEmployee { get; private set; }
 
 		public bool CanRegisterMobileUser
 		{
@@ -648,8 +649,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
 			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 
-			CanEditEmployee = _employeePermissionSet.CanUpdate
-			                  || (_employeePermissionSet.CanCreate && Entity.Id == 0);
+			CanEditEmployee = _employeePermissionSet.CanUpdate || (_employeePermissionSet.CanCreate && Entity.Id == 0);
+			CanReadEmployee = _employeePermissionSet.CanRead;
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
