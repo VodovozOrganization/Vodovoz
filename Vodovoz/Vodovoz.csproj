@@ -1678,6 +1678,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="Views\Payments\PaymentFromBankClientView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentFromBankClientView.cs" />
+    <Compile Include="Views\BulkEmailView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BulkEmailView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

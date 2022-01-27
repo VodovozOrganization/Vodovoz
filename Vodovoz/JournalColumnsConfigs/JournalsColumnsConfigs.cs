@@ -51,6 +51,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -207,7 +208,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 			//DebtorsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
-				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
+				() => FluentColumnsConfig<DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
@@ -219,7 +220,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
 					.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
 					.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
-					.RowCells().AddSetter<CellRendererText>((CellRendererText c, Representations.DebtorJournalNode n) => c.Foreground = n.RowColor)
+					.RowCells().AddSetter<CellRendererText>((CellRendererText c, DebtorJournalNode n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 

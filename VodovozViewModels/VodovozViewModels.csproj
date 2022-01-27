@@ -105,6 +105,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyPatronymicJournalNode.cs" />
@@ -300,6 +301,7 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
+    <Compile Include="ViewModels\BulkEmailViewModel.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />

@@ -27,6 +27,9 @@ using QS.Dialog.Gtk;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.Views;
 
 namespace Vodovoz.Representations
 {
@@ -532,6 +535,8 @@ namespace Vodovoz.Representations
 			}));
 
 			NodeActionsList.Add(NewJournalActionForOpenCounterpartyDlg());
+
+			NodeActionsList.Add(NewJournalActionForOpenBulkEmail());
 		}
 
 		private JournalAction NewJournalActionForOpenCounterpartyDlg()
@@ -545,6 +550,27 @@ namespace Vodovoz.Representations
 				}
 			});
 		}
+
+		private JournalAction NewJournalActionForOpenBulkEmail()
+		{
+			return new JournalAction("Массовая рассылка", x => true, x => true, selectedItems =>
+			{
+				var selectedNode = selectedItems.Cast<DebtorJournalNode>().FirstOrDefault();
+				//if(selectedNode != null)
+				//{
+				
+					var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction);
+					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
+
+					bulkEmailView.Show();
+
+					//bulkEmailView.ShowAll();
+					//bulkEmailView.Run();
+					//bulkEmailView.Destroy();
+				//}
+			});
+		}
+
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
 
 		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction => (node) =>
@@ -621,34 +647,5 @@ namespace Vodovoz.Representations
 			UoW.Commit();
 			return newTaskCount;
 		}
-	}
-
-	public class DebtorJournalNode : JournalEntityNodeBase<Domain.Orders.Order>
-	{
-		public int AddressId { get; set; }
-
-		public string AddressName { get; set; }
-
-		public int ClientId { get; set; }
-
-		public string ClientName { get; set; }
-
-		public PersonType OPF { get; set; }
-
-		public int DebtByAddress { get; set; }
-
-		public int DebtByClient { get; set; }
-
-		public int Reserve { get; set; }
-
-		public string RowColor { get; set; } = "black";
-
-		public DateTime? LastOrderDate { get; set; }
-
-		public int? LastOrderBottles { get; set; }
-
-		public string IsResidueExist { get; set; } = "нет";
-
-		public int CountOfDeliveryPoint { get; set; }
 	}
 }
