@@ -3,10 +3,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Gtk;
 using QS.Banks.Domain;
+using QS.Banks.Repositories;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
-using QSBanks.Repositories;
 using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
+using VodovozInfrastructure;
 
 namespace Vodovoz
 {

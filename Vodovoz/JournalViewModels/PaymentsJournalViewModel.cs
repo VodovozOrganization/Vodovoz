@@ -1,7 +1,6 @@
 ﻿using Vodovoz.Domain.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels;
 using System;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -19,19 +18,22 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class PaymentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<PaymentJournalNode, PaymentsJournalFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly INavigationManager _navigationManager;
 		private readonly ICommonServices _commonServices;
+		private readonly INavigationManager _navigationManager;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private readonly IProfitCategoryProvider _profitCategoryProvider;
 		private readonly IPaymentsRepository _paymentsRepository;
-
+		private readonly IDialogsFactory _dialogsFactory;
+		private readonly bool _canCreateNewManualPayment;
+		
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -40,15 +42,18 @@ namespace Vodovoz.JournalViewModels
 			IOrderRepository orderRepository,
 			IOrganizationParametersProvider organizationParametersProvider,
 			IProfitCategoryProvider profitCategoryProvider,
-			IPaymentsRepository paymentsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IPaymentsRepository paymentsRepository,
+			IDialogsFactory dialogsFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
-			_navigationManager = navigationManager;
+			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
+			_canCreateNewManualPayment =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_new_manual_payment_from_bank_client");
 			
 			TabName = "Журнал платежей из банк-клиента";
 
@@ -68,11 +73,11 @@ namespace Vodovoz.JournalViewModels
 			Payment paymentAlias = null;
 			BaseOrg organizationAlias = null;
 			PaymentItem paymentItemAlias = null;
-			CategoryProfit categoryProfitAlias = null;
+			ProfitCategory profitCategoryAlias = null;
 
 			var paymentQuery = uow.Session.QueryOver(() => paymentAlias)
 				.Left.JoinAlias(() => paymentAlias.Organization, () => organizationAlias)
-				.Left.JoinAlias(() => paymentAlias.ProfitCategory, () => categoryProfitAlias)
+				.Left.JoinAlias(() => paymentAlias.ProfitCategory, () => profitCategoryAlias)
 				.Left.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias);
 
 			#region filter
@@ -81,22 +86,27 @@ namespace Vodovoz.JournalViewModels
 			{
 				if(FilterViewModel.StartDate.HasValue)
 				{
-					paymentQuery.Where(x => x.Date >= FilterViewModel.StartDate);
+					paymentQuery.Where(p => p.Date >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate.HasValue)
 				{
-					paymentQuery.Where(x => x.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddMilliseconds(-1));
+					paymentQuery.Where(p => p.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddMilliseconds(-1));
 				}
 
 				if(FilterViewModel.HideCompleted)
 				{
-					paymentQuery.Where(x => x.Status != PaymentState.completed);
+					paymentQuery.Where(p => p.Status != PaymentState.completed);
 				}
 
 				if(FilterViewModel.PaymentState.HasValue)
 				{
-					paymentQuery.Where(x => x.Status == FilterViewModel.PaymentState);
+					paymentQuery.Where(p => p.Status == FilterViewModel.PaymentState);
+				}
+
+				if(FilterViewModel.IsManuallyCreated)
+				{
+					paymentQuery.Where(p => p.IsManuallyCreated);
 				}
 			}
 
@@ -125,8 +135,9 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => paymentAlias.CounterpartyName).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.Organization)
 				   .Select(() => paymentAlias.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
-				   .Select(() => categoryProfitAlias.Name).WithAlias(() => resultAlias.ProfitCategory)
+				   .Select(() => profitCategoryAlias.Name).WithAlias(() => resultAlias.ProfitCategory)
 				   .Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
+				   .Select(() => paymentAlias.IsManuallyCreated).WithAlias(() => resultAlias.IsManualCreated)
 				)
 				.OrderBy(() => paymentAlias.Status).Asc
 				.OrderBy(() => paymentAlias.CounterpartyName).Asc
@@ -138,9 +149,10 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateAddNewPaymentAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
-
+			
 			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
 			{
 				CreateDefaultDeleteAction();
@@ -155,15 +167,30 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
+		private void CreateAddNewPaymentAction()
+		{
+			NodeActionsList.Add(new JournalAction(
+					"Создать новый платеж", 
+					x => true,
+					x => _canCreateNewManualPayment,
+					selectedItems =>
+					{
+						_navigationManager.OpenViewModel<CreateManualPaymentFromBankClientViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForCreate());
+					}
+				)
+			);
+		}
+
 		private void RegisterPayments()
 		{
 			var complaintConfig = RegisterEntity<Payment>(GetPaymentQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new PaymentLoaderViewModel(
-						_unitOfWorkFactory,
+						UnitOfWorkFactory,
 						_commonServices,
-						_navigationManager,
+						NavigationManager,
 						_organizationParametersProvider,
 						_profitCategoryProvider,
 						_paymentsRepository,
@@ -173,11 +200,12 @@ namespace Vodovoz.JournalViewModels
 					//функция диалога открытия документа
 					(PaymentJournalNode node) => new ManualPaymentMatchingViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
-						_unitOfWorkFactory,
+						UnitOfWorkFactory,
 						_commonServices,
 						_orderRepository,
 						new PaymentItemsRepository(),
-						_paymentsRepository
+						_paymentsRepository,
+						_dialogsFactory
 					),
 					//функция идентификации документа 
 					(PaymentJournalNode node) => node.EntityType == typeof(Payment),

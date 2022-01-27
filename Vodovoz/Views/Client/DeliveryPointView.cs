@@ -194,10 +194,6 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.KPP, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			textAddressAddition.Binding
-				.AddBinding(ViewModel.Entity, e => e.АddressAddition, w => w.Buffer.Text)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
 
 			entryDefaultWater.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory.GetDefaultWaterSelectorFactory());
 			entryDefaultWater.Binding

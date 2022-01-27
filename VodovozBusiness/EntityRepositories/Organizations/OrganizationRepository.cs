@@ -34,6 +34,13 @@ namespace Vodovoz.EntityRepositories.Organizations
 				.Take(1)
 				.SingleOrDefault();
 		}
+
+		public Organization GetOrganizationById(IUnitOfWork uow, int organizationId)
+		{
+			return uow.Session.QueryOver<Organization>()
+				.Where(org => org.Id == organizationId)
+				.SingleOrDefault();
+		}
 	}
 }
 

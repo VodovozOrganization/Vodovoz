@@ -183,6 +183,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
     <Compile Include="TempAdapters\IDeliveryScheduleSelectorFactory.cs" />
+    <Compile Include="TempAdapters\IDialogsFactory.cs" />
     <Compile Include="TempAdapters\IEmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
     <Compile Include="TempAdapters\IOrganizationJournalFactory.cs" />
@@ -266,6 +267,10 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\Payments\AutoPaymentMatching.cs" />
+    <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />
+    <Compile Include="ViewModels\Payments\PaymentLoaderViewModel.cs" />
+    <Compile Include="ViewModels\Payments\TransferDocumentsFromBankParser.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
@@ -402,6 +407,7 @@
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
+    <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -432,6 +438,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewModels\Counterparty\" />
     <Folder Include="ViewModels\Rent\" />
+    <Folder Include="ViewModels\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">

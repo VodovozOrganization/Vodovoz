@@ -1337,22 +1337,16 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
-			}
-			
-			if(CreateDate != null 
-			   && CreateDate <= new DateTime(2020, 12, 16) 
-			   && Contract != null 
-			   && !onPaymentTypeChanged
-			   && Contract.Counterparty == Client) {
+			if(CreateDate != null
+				&& CreateDate <= new DateTime(2020, 12, 16)
+				&& Contract != null
+				&& !onPaymentTypeChanged
+				&& Contract.Counterparty == Client)
+			{
 				return;
 			}
 			
-			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			ForceUpdateContract();
 		}
 		
 		public virtual void ForceUpdateContract()
@@ -1596,6 +1590,13 @@ namespace Vodovoz.Domain.Orders
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
+			else
+			{
+				if(DeliveryDate.HasValue && DeliveryDate.Value < counterpartyContract.IssueDate)
+				{
+					counterpartyContract.IssueDate = DeliveryDate.Value;
+				}
+			}
 
 			Contract = counterpartyContract;
 			
@@ -1609,9 +1610,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			foreach(var orderItem in OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water))
+			for(var i = 0; i < OrderItems.Count; i++)
 			{
-				orderItem.RecalculatePrice();
+				if(OrderItems[i].Nomenclature.Category == NomenclatureCategory.water)
+				{
+					OrderItems[i].RecalculatePrice();
+				}
 			}
 		}
 
@@ -2086,12 +2090,9 @@ namespace Vodovoz.Domain.Orders
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
 		{
-			if(Contract == null) {
-				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
-				UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			if(Contract == null)
+			{
+				ForceUpdateContract();
 			}
 			AddMasterNomenclature(nomenclature, 1, 1);
 			return Contract;
@@ -3507,10 +3508,12 @@ namespace Vodovoz.Domain.Orders
 			IPaymentFromBankClientController paymentFromBankClientController)
 		{
 			SetFirstOrder();
-			if(Contract == null)
+			
+			if(!IsLoadedFrom1C)
 			{
 				UpdateContract();
 			}
+
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 
@@ -13,7 +12,7 @@ namespace Vodovoz.Domain.Goods
     [HistoryTrace]
     public class NomenclatureFixedPrice : PropertyChangedBase, IDomainObject, IValidatableObject
     {
-        public virtual int Id { get; set; }
+		public virtual int Id { get; set; }
 
         private Counterparty counterparty;
         [Display(Name = "Контрагент")]
@@ -42,6 +41,18 @@ namespace Vodovoz.Domain.Goods
             get => price;
             set => SetField(ref price, value);
         }
+
+		public virtual string Title
+		{
+			get
+			{
+				if(Counterparty != null)
+				{
+					return $"Фикса клиента №{Counterparty.Id} {Counterparty.Name}";
+				}
+				return DeliveryPoint != null ? $"Фикса точки доставки №{DeliveryPoint.Id} {DeliveryPoint.CompiledAddress}" : $"Фикса №{Id}";
+			}
+		}
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
