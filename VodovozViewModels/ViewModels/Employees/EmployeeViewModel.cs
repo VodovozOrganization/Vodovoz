@@ -326,17 +326,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				if(SetField(ref _selectedEmployeeDocuments, value))
 				{
-					OnPropertyChanged(nameof(CanEditEmployeeDocument));
+					OnPropertyChanged(nameof(CanReadEmployeeDocument));
 					OnPropertyChanged(nameof(CanRemoveEmployeeDocument));
 				}
 			}
 		}
 
-		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
-												|| _employeeDocumentsPermissionsSet.CanUpdate) 
-											&& SelectedEmployeeDocuments.Any()
-											&& CanEditEmployee;
-		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any() && CanEditEmployee;
+		public bool CanReadEmployeeDocument => CanReadEmployeeDocuments && SelectedEmployeeDocuments.Any() && CanReadEmployee;
+		
+		public bool CanRemoveEmployeeDocument =>
+			_employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any() && CanEditEmployee;
 
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
 		{
