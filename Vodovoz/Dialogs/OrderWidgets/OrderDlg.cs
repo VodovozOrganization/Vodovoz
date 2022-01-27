@@ -167,8 +167,8 @@ namespace Vodovoz
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
-		private bool isNeedSendBill;
-		private Email emailAddressForBill;
+		private bool _isNeedSendBill;
+		private Email _emailAddressForBill;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -1271,9 +1271,9 @@ namespace Vodovoz
 
 				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
-				if(isNeedSendBill)
+				if(_isNeedSendBill)
 				{
-					SendBillByEmail(emailAddressForBill);
+					SendBillByEmail(_emailAddressForBill);
 				}
 
 				logger.Info("Ok.");
@@ -1339,24 +1339,24 @@ namespace Vodovoz
 
 			if(Entity.NeedSendBill(_emailRepository))
 			{
-				emailAddressForBill = Entity.GetEmailAddressForBill();
-				if(emailAddressForBill == null)
+				_emailAddressForBill = Entity.GetEmailAddressForBill();
+				if(_emailAddressForBill == null)
 				{
 					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 					{
 						return false;
 					}
 
-					isNeedSendBill = false;
+					_isNeedSendBill = false;
 				}
 				else
 				{
-					isNeedSendBill = true;
+					_isNeedSendBill = true;
 				}
 			}
 			else
 			{
-				isNeedSendBill = false;
+				_isNeedSendBill = false;
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
