@@ -20,10 +20,11 @@ namespace Vodovoz.EntityRepositories.Payments
 			return paymentItems;
 		}
 		
-		public decimal GetAllocatedSumForOrder(IUnitOfWork uow, int orderId)
+		public decimal GetAllocatedSumForOrderWithoutCurrentPayment(IUnitOfWork uow, int orderId, int paymentId)
 		{
 			return uow.Session.QueryOver<PaymentItem>()
-				.Where(x => x.Order.Id == orderId)
+				.Where(pi => pi.Order.Id == orderId)
+				.And(pi => pi.Payment.Id != paymentId)
 				.Select(Projections.Sum<PaymentItem>(x => x.Sum))
 				.SingleOrDefault<decimal>();
 		}

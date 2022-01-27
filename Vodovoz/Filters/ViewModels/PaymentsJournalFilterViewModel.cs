@@ -12,28 +12,36 @@ namespace Vodovoz.Filters.ViewModels
 			EndDate = null;
 		}
 
-		private DateTime? startDate;
+		private DateTime? _startDate;
+		private DateTime? _endDate;
+		private PaymentState? _paymentState;
+		private bool _hideCompleted;
+		private bool _isManuallyCreated;
+
 		public DateTime? StartDate {
-			get => startDate;
-			set => UpdateFilterField(ref startDate, value);
+			get => _startDate;
+			set => UpdateFilterField(ref _startDate, value);
 		}
 
-		private DateTime? endDate;
 		public DateTime? EndDate {
-			get => endDate;
-			set => UpdateFilterField(ref endDate, value);
+			get => _endDate;
+			set => UpdateFilterField(ref _endDate, value);
 		}
 
-		private PaymentState? paymentState;
 		public PaymentState? PaymentState {
-			get => paymentState;
-			set => UpdateFilterField(ref paymentState, value);
+			get => _paymentState;
+			set => UpdateFilterField(ref _paymentState, value);
 		}
 
-		bool hideCompleted;
 		public bool HideCompleted {
-			get => hideCompleted;
-			set => UpdateFilterField(ref hideCompleted, value);
+			get => _hideCompleted;
+			set => UpdateFilterField(ref _hideCompleted, value);
+		}
+		
+		public bool IsManuallyCreated
+		{
+			get => _isManuallyCreated;
+			set => UpdateFilterField(ref _isManuallyCreated, value);
 		}
 	}
 }

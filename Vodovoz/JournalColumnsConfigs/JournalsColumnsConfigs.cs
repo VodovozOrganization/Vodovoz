@@ -669,6 +669,9 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Категория дохода/расхода")
 						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
+					.AddColumn("Создан вручную?")
+						.AddToggleRenderer(x => x.IsManualCreated)
+						.Editing(false)
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {

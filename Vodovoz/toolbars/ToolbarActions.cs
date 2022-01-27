@@ -65,6 +65,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
@@ -672,11 +673,12 @@ public partial class MainWindow : Window
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			NavigationManagerProvider.NavigationManager,
+			NavigationManager,
 			new OrderRepository(),
 			new OrganizationParametersProvider(parametersProvider),
 			new BaseParametersProvider(parametersProvider),
-			paymentsRepository
+			paymentsRepository,
+			new DialogsFactory()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
