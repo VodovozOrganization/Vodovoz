@@ -2507,6 +2507,14 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
 	}
 
+	protected void OnActionCashlessDebtsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
+			() => new QSReport.ReportViewDlg(autofacScope.Resolve<CounterpartyCashlessDebtsReport>())
+		);
+	}
+
 	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
