@@ -58,7 +58,6 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
 		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
 		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -418,7 +417,6 @@ namespace Vodovoz.Dialogs.Logistic
 					_employeePostsJournalFactory,
 					_cashDistributionCommonOrganisationProvider,
 					_subdivisionService,
-					_emailServiceSettingAdapter,
 					_wageCalculationRepository,
 					_employeeRepository,
 					employeeUow,

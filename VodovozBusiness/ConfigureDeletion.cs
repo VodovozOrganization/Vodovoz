@@ -695,7 +695,7 @@ namespace Vodovoz
 						.AddClearDependence<ServiceClaim>(x => x.FinalOrder)
 						.AddDeleteDependence<UndeliveredOrder>(x => x.OldOrder)
 						.AddClearDependence<UndeliveredOrder>(x => x.NewOrder)
-						.AddDeleteDependence<StoredEmail>(x => x.Order)
+						.AddDeleteDependence<OrderDocumentEmail>(x => x.Order)
 						.AddClearDependence<Income>(x => x.Order)
 						.AddClearDependence<Expense>(x => x.Order)
 						.AddClearDependence<M2ProxyDocument>(x => x.Order)

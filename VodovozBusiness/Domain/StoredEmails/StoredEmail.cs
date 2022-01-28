@@ -18,9 +18,18 @@ namespace Vodovoz.Domain.StoredEmails
 
 		private Order order;
 		[Display(Name = "Заказ")]
-		public virtual Order Order {
+		public virtual Order Order
+		{
 			get { return order; }
 			set { SetField(ref order, value, () => Order); }
+		}
+
+		private OrderDocumentType documentType;
+		[Display(Name = "Тип документа")]
+		public virtual OrderDocumentType DocumentType
+		{
+			get { return documentType; }
+			set { SetField(ref documentType, value, () => DocumentType); }
 		}
 
 		private OrderWithoutShipmentForDebt orderWithoutShipmentForDebt;
@@ -44,12 +53,6 @@ namespace Vodovoz.Domain.StoredEmails
 			set => SetField(ref orderWithoutShipmentForPayment, value);
 		}
 
-		private OrderDocumentType documentType;
-		[Display(Name = "Тип документа")]
-		public virtual OrderDocumentType DocumentType {
-			get { return documentType; }
-			set { SetField(ref documentType, value, () => DocumentType); }
-		}
 
 		public virtual string ExternalId { get; set; }
 
@@ -113,9 +116,11 @@ namespace Vodovoz.Domain.StoredEmails
 
 	public enum StoredEmailStates
 	{
+		[Display(Name = "Подготовка к отправке")]
+		PreparingToSend,
 		[Display(Name = "Ожидание отправки")]
 		WaitingToSend,
-		[Display(Name = "Ошибка")]
+		[Display(Name = "Ошибка отправки")]
 		SendingError,
 		[Display(Name = "Успешно отправлено")]
 		SendingComplete,

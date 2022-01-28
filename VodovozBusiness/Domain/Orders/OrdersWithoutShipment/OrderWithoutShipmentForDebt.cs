@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "счетах без отгрузки на долги")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
+	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
@@ -67,12 +67,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Order Order {
 			get => order;
 			set
-            {
+			{
 				if (value != null)
-                {
+				{
 					SetField(ref order, value);
 				}
-            } 
+			} 
 		}
 
 		#region implemented abstract members of IPrintableRDLDocument
@@ -198,11 +198,5 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(DebtName)}
 				);
 		}
-	}
-
-	public interface IDocument : IDomainObject
-	{
-		Order Order { get; set; }
-		OrderDocumentType Type { get; }
 	}
 }

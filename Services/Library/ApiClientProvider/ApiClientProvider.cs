@@ -5,9 +5,9 @@ using System.Net.Http.Headers;
 
 namespace ApiClientProvider
 {
-	public class ApiClientProvider : IApiClientProvider
+	public class ApiClientProvider : IApiClientProvider, IDisposable
 	{
-		protected HttpClient _сlient;
+		protected HttpClient _client;
 		private readonly string _apiBaseParameter = "BaseUri";
 
 		public ApiClientProvider(IConfigurationSection apiConfiguration)
@@ -15,20 +15,29 @@ namespace ApiClientProvider
 			InitializeClient(apiConfiguration ?? throw new ArgumentNullException(nameof(apiConfiguration)));
 		}
 
-		public HttpClient Client
+		public ApiClientProvider(IConfigurationSection apiConfiguration, HttpClient сlient)
 		{
-			get
-			{
-				return _сlient;
-			}
+			_client = сlient;
+			InitializeClient(apiConfiguration ?? throw new ArgumentNullException(nameof(apiConfiguration)));
 		}
+
+		public HttpClient Client =>_client;
 
 		protected virtual void InitializeClient(IConfigurationSection apiConfiguration)
 		{
-			_сlient = new HttpClient();
-			_сlient.BaseAddress = new Uri(apiConfiguration.GetValue<string>(_apiBaseParameter));
-			_сlient.DefaultRequestHeaders.Accept.Clear();
-			_сlient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			if(_client == null)
+			{
+				_client = new HttpClient();
+			}
+
+			_client.BaseAddress = new Uri(apiConfiguration.GetValue<string>(_apiBaseParameter));
+			_client.DefaultRequestHeaders.Accept.Clear();
+			_client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		}
+
+		public void Dispose()
+		{
+			_client?.Dispose();
 		}
 	}
 }

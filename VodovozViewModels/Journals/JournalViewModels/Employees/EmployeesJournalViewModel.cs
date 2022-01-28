@@ -47,7 +47,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory;
 		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
 		private readonly ISubdivisionService _subdivisionService;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IValidationContextFactory _validationContextFactory;
@@ -71,7 +70,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
 			ISubdivisionService subdivisionService,
-			IEmailServiceSettingAdapter emailServiceSettingAdapter,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			IWarehouseRepository warehouseRepository,
@@ -99,7 +97,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				cashDistributionCommonOrganisationProvider ??
 				throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
 			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
@@ -330,12 +327,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 		private void ResetPasswordForEmployee(Employee employee)
 		{
-			if (string.IsNullOrWhiteSpace(employee.Email))
+			if(string.IsNullOrWhiteSpace(employee.Email))
 			{
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нельзя сбросить пароль.\n У сотрудника не заполнено поле Email");
 				return;
 			}
-			if (_authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email))
+			if(_authorizationService.ResetPasswordToGenerated(employee.User.Login, employee.Email, employee.FullName))
 			{
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Email с паролем отправлена успешно");
 			}
@@ -373,38 +370,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				},
 				x => true, 
 				selectedItems =>
-			{
-				var selectedNodes = selectedItems.Cast<EmployeeJournalNode>();
-				var selectedNode = selectedNodes.FirstOrDefault();
-				if (selectedNode != null)
 				{
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Сброс пароля пользователю"))
+					var selectedNodes = selectedItems.Cast<EmployeeJournalNode>();
+					var selectedNode = selectedNodes.FirstOrDefault();
+					if(selectedNode != null)
 					{
-						var employee = uow.GetById<Employee>(selectedNode.Id);
-
-						if(employee.User == null)
+						using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Сброс пароля пользователю"))
 						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"К сотруднику не привязан пользователь!");
+							var employee = uow.GetById<Employee>(selectedNode.Id);
 
-							return;
-						}
+							if(employee.User == null)
+							{
+								commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+									"К сотруднику не привязан пользователь!");
 
-						if(string.IsNullOrEmpty(employee.User.Login))
-						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-								"У пользователя не заполнен логин!");
+								return;
+							}
 
-							return;
-						}
+							if(string.IsNullOrEmpty(employee.User.Login))
+							{
+								commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+									"У пользователя не заполнен логин!");
 
-						if(commonServices.InteractiveService.Question("Вы уверены?"))
-						{
-							ResetPasswordForEmployee(employee);
+								return;
+							}
+
+							if(commonServices.InteractiveService.Question("Вы уверены?"))
+							{
+								ResetPasswordForEmployee(employee);
+							}
 						}
 					}
-				}
-			});
+				});
 			
 			PopupActionsList.Add(resetPassAction);
 			NodeActionsList.Add(resetPassAction);
@@ -486,7 +483,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_employeePostsJournalFactory,
 			_cashDistributionCommonOrganisationProvider,
 			_subdivisionService,
-			_emailServiceSettingAdapter,
 			_wageCalculationRepository,
 			_employeeRepository,
 			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
@@ -510,7 +506,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
 				_subdivisionService,
-				_emailServiceSettingAdapter,
 				_wageCalculationRepository,
 				_employeeRepository,
 				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),

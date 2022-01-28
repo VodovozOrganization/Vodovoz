@@ -499,7 +499,6 @@
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
-    <Compile Include="TempAdapters\EmailServiceSettingAdapter.cs" />
     <Compile Include="TempAdapters\OrganizationJournalFactory.cs" />
     <Compile Include="TempAdapters\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IncomeCategorySelectorFactory.cs" />
@@ -964,8 +963,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderCommentsView.cs" />
     <Compile Include="ViewWidgets\GuiltyInUndeliveryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GuiltyInUndeliveryView.cs" />
-    <Compile Include="ViewWidgets\SendDocumentByEmailView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SendDocumentByEmailView.cs" />
     <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EmailsPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\IEmailsInfoProvider.cs" />
@@ -1757,6 +1754,18 @@
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
+      <Project>{3577DB0C-38BF-4CC8-80EB-06C767905B4D}</Project>
+      <Name>Mailjet.Api.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+      <Project>{57A169A7-24A1-4FF3-9FD6-F7882F85463E}</Project>
+      <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
+      <Project>{40259BF2-A07C-403F-8513-080F868BE30B}</Project>
+      <Name>RabbitMQ.EmailSending</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
       <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
       <Name>ApiClientProvider</Name>
@@ -1829,6 +1838,10 @@
       <Project>{f07f6926-f868-44f4-a9b9-3a366d41281c}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VodovozReports\VodovozReports.csproj">
+      <Project>{6321194c-7a91-4c91-abae-46941feced3c}</Project>
+      <Name>VodovozReports</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{EF73674E-B8D5-461B-A072-AC73231C82B2}</Project>
       <Name>VodovozViewModels</Name>
@@ -1844,10 +1857,6 @@
     <ProjectReference Include="..\Services\Library\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\Library\EmailService\EmailService.csproj">
-      <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
-      <Name>EmailService</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\Library\Chat\Chat.csproj">
       <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
@@ -2008,250 +2017,7 @@
     <None Include="RdlEngineConfig.Linux.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Bottles\ReturnedTareReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashBook.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashBookOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailAdvanceOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailAdvanceReportOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailExpenseAllOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailExpenseOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailIncomeAllOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailIncomeOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailIncomeReturnOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailUnclosedAdvanceOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowOrganisations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Equipment.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CommonTicket.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\Expense.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\ReturnTicket.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlow.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetail.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailAdvance.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailExpense.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailIncome.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\AccountFlowDetail.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\AccountFlowDetailExpense.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\AccountFlowDetailIncome.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailAdvanceReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailExpenseAll.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailIncomeAll.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\CarsExploitationReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\CarsExploitationReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DeliveryTimeGrouped.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DriversToDistrictsAssignmentReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\NomenclaturePlanReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OrderChangesReport.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Production\ProducedProduction.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\OrderStatisticByWeek.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\CarUnloadDoc.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Cash\CashFlowDetailUnclosedAdvance.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\Invoice.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\InvoiceBarter.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\InvoiceDepositRefundTable.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\Bill.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\CoolerWarranty.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\DoneWorkReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\PumpWarranty.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\UPD.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\EquipmentTransfer.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\DriverTicket.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\ProductionRequestReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\WriteOff.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\InventoryDoc.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\Fines.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\StockShipmentMovements.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\ShetFactura.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\Torg12.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\SummaryBottlesAndDeposits.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\Revision.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\TimeList.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\RouteList\CarLoadDocument.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\SalesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Wages\DriverWage.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\WagesOperations.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\ForwarderWage.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\RouteList\CashierComments.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\DriversWageBalance.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DeliveriesLate.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DeliveryTime.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\ClosedRouteList.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\RouteList.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\FuelReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OnecComments.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OrdersByDistrict.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OrdersByAllDistrict.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\CompanyTrucks.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OrdersByDeliveryPoint.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\OrderOfAddresses.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\DebtorsBottles.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\SanitaryReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="app.config" />
-    <None Include="Reports\Orders\OrdersWithMinPriceLessThan.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/Mono.Posix.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2267,325 +2033,10 @@
     <None Condition=" '$(TargetOS)' == 'Linux' " Include="../lib/Google.OrTools/Linux/libGoogle.OrTools.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\RouteListOnClosing.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\OnLoadTimeAtDay.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\SelfDeliveryReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\AddressesByDailyNumber.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\ShipmentReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\ServiceCenter\MastersVisitReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Payments\PaymentsDelayNetwork.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Contracts\FizIPContract.rdl" />
-    <None Include="Reports\Contracts\JurIPContract.rdl" />
-    <None Include="Reports\Contracts\JurVVContract.rdl" />
-    <None Include="Reports\Logistic\RouteMap.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Additions\Logistic\RouteOptimization\README.md" />
-    <None Include="Reports\Logistic\MileageReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\ServiceCenter\MastersReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\SuburbWaterPrice.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OrdersIncorrectPrices.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\ServiceCenter\EquipmentReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\SalesReportDetail.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\IncomeBalanceByMl.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\StockProductionMovements.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\StockWagonMovements.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\StockWaterMovements.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\BottlesMovementReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\ShortfallBattlesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DrivingCall.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\BottlesMovementSummaryReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\RefundBottleDeposit.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\RefundEquipmentDeposit.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\BottleTransfer.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\RouteList\CarLoadDocSofiyskaya.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\ShiftChangeWarehouse.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\NotDeliveredOrders.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\Premiums.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\SummaryBottlesAndDepositsKungolovo.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\InvoiceContractDoc.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\EquipmentMovement.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\EquipmentMovementRowFields.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\EquipmentMovementRowWorks.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\EquipmentReturn.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\OrderRegistryReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\EquipmentBalance.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\CardPaymentsOrdersReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\EquipmentBalanceRow.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\UndeliveriesWithComments.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\DefectiveItemsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Payments\PaymentsFromTinkoffReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="libs\SharpZipLib_0.86.0.518\ICSharpCode.SharpZipLib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Logistic\OrdersByDistrictsAndDeliverySchedules.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\OrdersByCreationDate.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\Certificate.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\MovementOperationDocucment.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\NomenclatureForShipment.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\OrderCreationDateReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\NotFullyLoadedRouteLists.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\IncomeCashTransfer.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\CommonCashTransfer.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\FirstClients.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\TariffZoneDebts.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\StockMovementsAdvancedReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\RoutesListRegister.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\ClientsByDeliveryPointCategoryAndActivityKindsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\ExtraBottlesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\FirstSecondClients.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\FuelConsumptionReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\FuelConsumptionDetailedReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bookkeeping\CloseCounterpartyDelivery.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\CommonIncomeBalance.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\IncomeBalanceBySelfDelivery.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Bottles\ProfitabilityBottlesByStock.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\FuelTransferDocument.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\FuelWriteoffDocument.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\TransportInvoice.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\Torg2.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Complaints.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\PlanImplementationByEmployeeReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\PlanImplementationFullReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\BottleDebtorsJournal.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\AssemblyList.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\SeparateAssemblyList.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\IncomingInvoice.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\GoodsToShipOnDate.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\ZeroDebtClient.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\SalesByDiscountReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Sales\SetBillsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\OrdersCreationTime.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Client\PotentialFreePromosets.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\WayBillReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Payments\PaymentsFromBankClientAllSubdivisionsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Payments\PaymentsFromBankClientBySubdivisionReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Payments\PaymentsFromBankClientFinDepartmentReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\BillWithoutShipmentForPayment.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\BillWithoutShipmentForAdvancePayment.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\NonClosedRLByPeriodReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DriverRoutesListRegister.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\FuelReportSummaryBasic.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\FuelReportSummaryDetailed.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Store\CarLoadDocument.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\EShopSalesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Retail\QualityReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Retail\CounterpartyReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\DeliveryAnalyticsReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\GeneralSalaryInfoReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Employees\EmployeesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\AddressesOverpaymentsReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\UPD2017Edition.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Documents\ShetFactura2017Edition.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  	<None Include="Reports\Sales\SalaryRatesReport.rdl">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  	</None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
@@ -2603,6 +2054,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration">
       <Version>5.0.0</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
+      <Version>5.0.0</Version>
+    </PackageReference>
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
@@ -2611,7 +2065,13 @@
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="NLog.Extensions.Logging">
+      <Version>1.7.3</Version>
+    </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
+    <PackageReference Include="RabbitMQ.Client">
+      <Version>6.2.2</Version>
+    </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />
@@ -2622,7 +2082,7 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="Autofac" Version="6.2.0" />
     <PackageReference Include="Vodovoz.Fias.Search">
-      <Version>1.0.1</Version>
+      <Version>1.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -2812,16 +2272,6 @@
     <EmbeddedResource Include="icons\map\points\overduetriangle\red_stripes.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\white.png" />
     <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Reports\Cash\DayOfSalaryGiveout.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Reports\Logistic\AnalyticsForUndelivery.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
