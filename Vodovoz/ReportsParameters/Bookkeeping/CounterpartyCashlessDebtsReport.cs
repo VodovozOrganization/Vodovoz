@@ -33,7 +33,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			UoW = unitOfWorkFactory?.CreateWithoutRoot() ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			UoW = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
 			Build();
 			Configure();
 		}
