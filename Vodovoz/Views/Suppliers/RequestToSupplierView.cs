@@ -116,9 +116,13 @@ namespace Vodovoz.Views.Suppliers
 						{
 							c.Editable = false;
 							if(n is SupplierNode)
+							{
 								c.Text = string.Empty;
-							else
+							}
+							else if(ViewModel.CanEdit)
+							{
 								c.Editable = true;
+							}
 						}
 					)
 				.AddColumn("Ед.изм.")
