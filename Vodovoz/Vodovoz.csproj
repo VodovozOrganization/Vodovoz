@@ -1671,6 +1671,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfCounterpartyView.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyNameView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyNameView.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReport.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="Views\Payments\PaymentFromBankClientView.cs" />
