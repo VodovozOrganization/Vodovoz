@@ -778,6 +778,8 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
 			CreateEditAction();
 		}
 
