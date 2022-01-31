@@ -6,7 +6,6 @@ using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -36,7 +35,7 @@ namespace Vodovoz.TempAdapters
 		private ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private IEmployeePostsJournalFactory _employeePostsJournalFactory;
 		private ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
-		private ISubdivisionService _subdivisionService;
+		private ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private IWageCalculationRepository _wageCalculationRepository;
 		private IEmployeeRepository _employeeRepository;
 		private IValidationContextFactory _validationContextFactory;
@@ -73,8 +72,8 @@ namespace Vodovoz.TempAdapters
 		{
 			_cashDistributionCommonOrganisationProvider =
 				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-		
-			_subdivisionService = SubdivisionParametersProvider.Instance;
+
+			_subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 			_wageCalculationRepository = new WageCalculationRepository();
 			_employeeRepository = new EmployeeRepository();
 			_warehouseRepository = new WarehouseRepository();
@@ -93,7 +92,7 @@ namespace Vodovoz.TempAdapters
 				_subdivisionJournalFactory,
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
+				_subdivisionParametersProvider,
 				_wageCalculationRepository,
 				_employeeRepository,
 				_warehouseRepository,
@@ -191,7 +190,7 @@ namespace Vodovoz.TempAdapters
 						_subdivisionJournalFactory,
 						_employeePostsJournalFactory,
 						_cashDistributionCommonOrganisationProvider,
-						_subdivisionService,
+						_subdivisionParametersProvider,
 						_wageCalculationRepository,
 						_employeeRepository,
 						_warehouseRepository,

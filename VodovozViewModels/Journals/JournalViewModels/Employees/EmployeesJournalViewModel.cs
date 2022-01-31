@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory;
 		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
-		private readonly ISubdivisionService _subdivisionService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IValidationContextFactory _validationContextFactory;
@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
-			ISubdivisionService subdivisionService,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			IWarehouseRepository warehouseRepository,
@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_cashDistributionCommonOrganisationProvider =
 				cashDistributionCommonOrganisationProvider ??
 				throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
@@ -482,7 +482,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_subdivisionJournalFactory,
 			_employeePostsJournalFactory,
 			_cashDistributionCommonOrganisationProvider,
-			_subdivisionService,
+			_subdivisionParametersProvider,
 			_wageCalculationRepository,
 			_employeeRepository,
 			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
@@ -505,7 +505,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_subdivisionJournalFactory,
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
+				_subdivisionParametersProvider,
 				_wageCalculationRepository,
 				_employeeRepository,
 				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),

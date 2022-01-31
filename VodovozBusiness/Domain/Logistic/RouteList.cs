@@ -954,7 +954,7 @@ namespace Vodovoz.Domain.Logistic
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || DifferencesConfirmed;
 		}
 
-		public virtual void ChangeStatusAndCreateTask(RouteListStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTask(RouteListStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			if(newStatus == Status)
 				return;
@@ -1233,7 +1233,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private void CloseAddressesAndCreateTask(CallTaskWorker callTaskWorker)
+		private void CloseAddressesAndCreateTask(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.Closed) {
 				return;

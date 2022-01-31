@@ -376,6 +376,8 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
+    <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
+    <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
@@ -853,7 +855,6 @@
     <Compile Include="Domain\Complaints\ComplaintType.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
-    <Compile Include="Services\ISubdivisionService.cs" />
     <Compile Include="EntityRepositories\Employees\EmployeeRepository.cs" />
     <Compile Include="EntityRepositories\Employees\IEmployeeRepository.cs" />
     <Compile Include="Domain\Client\SupplierPriceItem.cs" />
@@ -969,7 +970,6 @@
     <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
     <Compile Include="Services\IEmailServiceSettings.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
-    <Compile Include="Domain\Service\BaseParametersServices\SubdivisionParametersProvider.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetActionBaseMap.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />

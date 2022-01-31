@@ -2503,7 +2503,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
-		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			ChangeStatus(newStatus);
 			callTaskWorker.CreateTasks(this);

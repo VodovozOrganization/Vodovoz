@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -46,7 +47,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IFilePickerService _filePickerService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionService _subdivisionService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -75,7 +76,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionService subdivisionService,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
@@ -100,7 +101,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -124,7 +125,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FinishJournalConfiguration();
 
-			FilterViewModel.SubdivisionService = subdivisionService;
+			FilterViewModel.SubdivisionParametersProvider = subdivisionParametersProvider;
 			FilterViewModel.EmployeeService = employeeService;
 
             var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
@@ -133,7 +134,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
             FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-            if (FilterViewModel.SubdivisionService.GetOkkId() == currentEmployeeSubdivision.Id)
+            if (FilterViewModel.SubdivisionParametersProvider.GetOkkId() == currentEmployeeSubdivision.Id)
             {
                 FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
             }
@@ -213,7 +214,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
                 
-			string okkSubdivision = uow.GetById<Subdivision>(_subdivisionService.GetOkkId()).ShortName ?? "?";
+			string okkSubdivision = uow.GetById<Subdivision>(_subdivisionParametersProvider.GetOkkId()).ShortName ?? "?";
 
 			var workInSubdivisionsProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'Checking',?3, ''))"),

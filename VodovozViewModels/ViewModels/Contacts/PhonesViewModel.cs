@@ -89,7 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			AddItemCommand = new DelegateCommand(
 				() => {
-					var phone = new Phone().Init(ContactParametersProvider.Instance);
+					var phone = new Phone().Init(contactsParameters);
 					phone.DeliveryPoint = DeliveryPoint;
 					phone.Counterparty = Counterparty;
 					if(PhonesList == null)
