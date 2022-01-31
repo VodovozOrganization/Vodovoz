@@ -1164,13 +1164,16 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if((new[] { PaymentType.cash, PaymentType.Terminal }.Contains(PaymentType)
-				|| (PaymentType == PaymentType.ByCard
-					&& PaymentByCardFrom != null
-					&& !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
-						.PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
-				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
+				   || (PaymentType == PaymentType.ByCard
+					   && PaymentByCardFrom != null
+					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
+						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
+			   && Contract?.Organization != null && Contract.Organization.CashBoxId == null)
+			{
 				yield return new ValidationResult(
-					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
+					"Невозможно сохранить заказ.\n" +
+					$"К нашей организации '{Contract.Organization.Name}' не привязан кассовый аппарат.\n" +
+					"Измените в заказе либо форму оплаты, либо нашу организацию",
 					new[] { nameof(Contract.Organization) });
 			}
 
