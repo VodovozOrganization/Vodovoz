@@ -135,6 +135,7 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Parameters;
+using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
@@ -431,6 +432,7 @@ namespace Vodovoz
 
 			builder.RegisterType<ExpenseParametersProvider>().As<IExpenseParametersProvider>();
 			builder.RegisterType<OrganizationParametersProvider>().As<IOrganizationParametersProvider>();
+			builder.RegisterType<DeliveryScheduleParametersProvider>().As<IDeliveryScheduleParametersProvider>();
 
 			#region Vodovoz
 
@@ -494,7 +496,13 @@ namespace Vodovoz
 			builder.RegisterType<MangoManager>().AsSelf();
 			
 			#endregion
-			
+
+			#region Reports
+
+			builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
+
+			#endregion
+
 			#endregion
 
 			#region Навигация

@@ -12,7 +12,6 @@ using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
-using QS.Services;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
@@ -21,7 +20,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.JournalFilters;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz
@@ -33,8 +31,8 @@ namespace Vodovoz
 
 		//Блокируем возможность выбора категории приходаЖ самовывоз - старый
 		private const int excludeIncomeCategoryId = 3;
-		private bool canEdit = true;
-		private readonly bool canCreate;
+		private bool _canEdit = true;
+		private readonly bool _canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly bool canEditDate
 			= ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
@@ -58,9 +56,9 @@ namespace Vodovoz
 		
 		List<Selectable<Expense>> selectableAdvances;
 
-		public CashIncomeDlg (IPermissionService permissionService)
+		public CashIncomeDlg()
 		{
-			this.Build ();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
 			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
@@ -70,9 +68,8 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
-			canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate) 
+			_canCreate = permissionResult.CanCreate;
+			if(!_canCreate) 
 			{
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
@@ -86,13 +83,13 @@ namespace Vodovoz
 			}
 
 			Entity.Date = DateTime.Now;
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public CashIncomeDlg (int id, IPermissionService permissionService)
+		public CashIncomeDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income> (id);
+			Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income>(id);
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
 
@@ -100,30 +97,24 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+			
+			_canEdit = permissionResult.CanUpdate;
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			canEdit = userPermission.CanUpdate;
-
-			var permmissionValidator =
+			var permissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			canEditRectroactively =
-				permmissionValidator.Validate(
+				permissionValidator.Validate(
 					typeof(Income), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public CashIncomeDlg (Expense advance, IPermissionService permissionService) : this (permissionService)
+		public CashIncomeDlg(Expense advance) : this()
 		{
 			if(advance.Employee == null)
 			{
 				logger.Error("Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
-				base.FailInitialize = true;
+				FailInitialize = true;
 				return;
 			}
 
@@ -134,10 +125,10 @@ namespace Vodovoz
 			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
 		}
 
-		public CashIncomeDlg (Income sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
+		public CashIncomeDlg(Income sub) : this(sub.Id) {}
 
-		private bool CanEdit => (UoW.IsNew && canCreate) ||
-		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		private bool CanEdit => (UoW.IsNew && _canCreate) ||
+		                        (_canEdit && Entity.Date.Date == DateTime.Now.Date) ||
 		                        canEditRectroactively;
 		
 		void ConfigureDlg()

@@ -91,7 +91,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
 			ISubdivisionService subdivisionService,
-			IEmailServiceSettingAdapter emailServiceSettingAdapter,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			IUnitOfWorkGeneric<Employee> uowGeneric,
@@ -116,7 +115,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
 			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
@@ -254,6 +252,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanEditWage { get; private set; }
 		public bool CanEditOrganisationForSalary { get; private set; }
 		public bool CanEditEmployee { get; private set; }
+		public bool CanReadEmployee { get; private set; }
 
 		public bool CanRegisterMobileUser
 		{
@@ -325,17 +324,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				if(SetField(ref _selectedEmployeeDocuments, value))
 				{
-					OnPropertyChanged(nameof(CanEditEmployeeDocument));
+					OnPropertyChanged(nameof(CanReadEmployeeDocument));
 					OnPropertyChanged(nameof(CanRemoveEmployeeDocument));
 				}
 			}
 		}
 
-		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
-												|| _employeeDocumentsPermissionsSet.CanUpdate) 
-											&& SelectedEmployeeDocuments.Any()
-											&& CanEditEmployee;
-		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any() && CanEditEmployee;
+		public bool CanReadEmployeeDocument => CanReadEmployeeDocuments && SelectedEmployeeDocuments.Any() && CanReadEmployee;
+		
+		public bool CanRemoveEmployeeDocument =>
+			_employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any() && CanEditEmployee;
 
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
 		{
@@ -648,8 +646,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
 			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
 
-			CanEditEmployee = _employeePermissionSet.CanUpdate
-			                  || (_employeePermissionSet.CanCreate && Entity.Id == 0);
+			CanEditEmployee = _employeePermissionSet.CanUpdate || (_employeePermissionSet.CanCreate && Entity.Id == 0);
+			CanReadEmployee = _employeePermissionSet.CanRead;
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);

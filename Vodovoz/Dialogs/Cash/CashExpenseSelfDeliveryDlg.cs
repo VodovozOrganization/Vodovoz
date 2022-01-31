@@ -8,10 +8,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModel;
-using QS.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -23,8 +20,6 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
@@ -34,8 +29,8 @@ namespace Vodovoz.Dialogs.Cash
 	public partial class CashExpenseSelfDeliveryDlg : EntityDialogBase<Expense>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private bool canEdit = true;
-		private readonly bool canCreate;
+		private bool _canEdit = true;
+		private readonly bool _canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
@@ -62,9 +57,9 @@ namespace Vodovoz.Dialogs.Cash
 			set { callTaskWorker = value; }
 		}
 
-		public CashExpenseSelfDeliveryDlg(IPermissionService permissionService)
+		public CashExpenseSelfDeliveryDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
 			Entity.Casher = _employeeRepository.GetEmployeeForCurrentUser(UoW);
             expenseCategoryList.AddRange(_categoryRepository.ExpenseSelfDeliveryCategories(UoW));
@@ -77,9 +72,8 @@ namespace Vodovoz.Dialogs.Cash
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
-			canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate) {
+			_canCreate = permissionResult.CanCreate;
+			if(!_canCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
 				return;
@@ -97,21 +91,15 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashExpenseSelfDeliveryDlg(Order order, IPermissionService permissionService) : this(permissionService)
+		public CashExpenseSelfDeliveryDlg(Order order) : this()
 		{
 			Entity.Order = UoW.GetById<Order>(order.Id);
 		}
 
-		public CashExpenseSelfDeliveryDlg(int id, IPermissionService permissionService)
+		public CashExpenseSelfDeliveryDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Expense))) {
 
@@ -121,7 +109,7 @@ namespace Vodovoz.Dialogs.Cash
 			}
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
 
-			canEdit = userPermission.CanUpdate;
+			_canEdit = permissionResult.CanUpdate;
 			
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -132,10 +120,10 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashExpenseSelfDeliveryDlg(Expense sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
+		public CashExpenseSelfDeliveryDlg(Expense sub) : this(sub.Id) { }
 
-		private bool CanEdit => (UoW.IsNew && canCreate) ||
-		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		private bool CanEdit => (UoW.IsNew && _canCreate) ||
+		                        (_canEdit && Entity.Date.Date == DateTime.Now.Date) ||
 		                        canEditRectroactively;
 
 		void ConfigureDlg()

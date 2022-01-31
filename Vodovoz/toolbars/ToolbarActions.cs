@@ -405,6 +405,8 @@ public partial class MainWindow : Window
 
 		//Suppliers
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
+		ActionNewRequestToSupplier.Sensitive =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RequestToSupplier)).CanCreate;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 		ActionWarehousesBalanceSummary.Activated += ActionWarehousesBalanceSummary_Activated;
