@@ -471,7 +471,8 @@ namespace Vodovoz.JournalViewModels
 								_deliveryShiftRepository,
 								_undeliveredOrdersRepository
 							),
-							this
+							this,
+							false
 						);
 					}
 				}
