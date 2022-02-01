@@ -170,12 +170,7 @@ namespace SmsPaymentService
                     _logger.Error($"Запрос на изменение статуса пришёл с неверным статусом или внешним Id (status: {status}, externalId: {externalId})");
                     return new StatusCode(HttpStatusCode.UnsupportedMediaType);
                 }
-                if(orderId <= 0)
-                {
-	                _logger.Error($"Запрос на изменение статуса пришёл с неверным Id заказа (orderId: {orderId})");
-	                return new StatusCode(HttpStatusCode.UnsupportedMediaType);
-                }
-                
+
                 using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 
                     SmsPayment payment;
@@ -193,6 +188,13 @@ namespace SmsPaymentService
 	                    _logger.Warn($"Запрос на изменение статуса платежа указывает на несуществующий платеж (externalId: {externalId}).\n" +
 		                    $"Применяю оплату для первого попавшегося неотправленного платёжа для заказа №{orderId}"
 	                    );
+
+	                    if(orderId <= 0)
+	                    {
+		                    _logger.Warn(
+			                    $"Был передан невалидный номер заказа (orderId: {orderId}). Получить неотправленный платёж невозможно");
+		                    return new StatusCode(HttpStatusCode.UnsupportedMediaType);
+	                    }
 
 	                    var unsendedPayment = uow.Session.QueryOver<SmsPayment>()
 		                    .Where(sp => sp.Order.Id == orderId)
@@ -234,6 +236,8 @@ namespace SmsPaymentService
                     try {
                         uow.Save(payment);
                         uow.Commit();
+
+                        orderId = payment.Order.Id;
 
                         _logger.Info($"Статус платежа с externalId: {payment.ExternalId} изменён c {oldStatus} на {status}");
 
