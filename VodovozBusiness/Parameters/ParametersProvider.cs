@@ -166,7 +166,7 @@ namespace Vodovoz.Parameters
 			return value;
 		}
 
-		public T GetValue<T>(string parameterId) where T : struct
+		public T GetValue<T>(string parameterId)
 		{
 			if(!ContainsParameter(parameterId))
 			{

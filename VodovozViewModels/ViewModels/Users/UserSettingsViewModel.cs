@@ -14,6 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -23,7 +24,7 @@ namespace Vodovoz.ViewModels.Users
 	public class UserSettingsViewModel : EntityTabViewModelBase<UserSettings>, ITDICloseControlTab
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly ISubdivisionService _subdivisionService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly INomenclatureFixedPriceRepository _nomenclatureFixedPriceRepository;
 		private DelegateCommand _updateFixedPricesCommand;
@@ -39,7 +40,7 @@ namespace Vodovoz.ViewModels.Users
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			ISubdivisionService subdivisionService,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
@@ -47,7 +48,7 @@ namespace Vodovoz.ViewModels.Users
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
@@ -97,7 +98,7 @@ namespace Vodovoz.ViewModels.Users
 		public IEntityAutocompleteSelectorFactory SubdivisionSelectorDefaultFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
-		public bool IsUserFromOkk => _subdivisionService.GetOkkId()
+		public bool IsUserFromOkk => _subdivisionParametersProvider.GetOkkId()
 		                             == _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
 
 		public bool IsUserFromRetail { get; private set; }

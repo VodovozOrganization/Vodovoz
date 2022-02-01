@@ -499,7 +499,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
+		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, ICallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;

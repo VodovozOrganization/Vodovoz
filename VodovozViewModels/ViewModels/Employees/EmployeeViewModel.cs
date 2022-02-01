@@ -28,6 +28,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -44,7 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IAuthorizationService _authorizationService;
-		private readonly ISubdivisionService _subdivisionService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
@@ -90,7 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
-			ISubdivisionService subdivisionService,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			IUnitOfWorkGeneric<Employee> uowGeneric,
@@ -114,7 +115,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
@@ -683,7 +684,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			
-			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionParametersProvider), _subdivisionParametersProvider);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}

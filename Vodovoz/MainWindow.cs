@@ -43,7 +43,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories;
@@ -905,7 +904,7 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				SubdivisionParametersProvider.Instance,
+				new SubdivisionParametersProvider(new ParametersProvider()),
 				subdivisionJournalFactory,
 				counterpartyJournalFactory,
 				subdivisionRepository,
@@ -980,7 +979,7 @@ public partial class MainWindow : Gtk.Window
 			VodovozGtkServicesConfig.EmployeeService,
 			counterpartySelectorFactory,
 			routeListItemRepository,
-			SubdivisionParametersProvider.Instance,
+			new SubdivisionParametersProvider(new ParametersProvider()),
 			new ComplaintFilterViewModel(
 				ServicesConfig.CommonServices,
 				subdivisionRepository,
@@ -2108,7 +2107,7 @@ public partial class MainWindow : Gtk.Window
 					VodovozGtkServicesConfig.EmployeeService,
 					counterpartySelectorFactory,
 					routeListItemRepository,
-					SubdivisionParametersProvider.Instance,
+					new SubdivisionParametersProvider(new ParametersProvider()),
 					new ComplaintFilterViewModel(
 						ServicesConfig.CommonServices,
 						subdivisionRepository,

@@ -21,6 +21,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly IContactsParameters _contactsParameters;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
@@ -83,6 +85,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
+			IContactsParameters contactsParameters,
 			ICommonServices commonServices,
 			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -93,6 +96,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
+			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 
 			if(uowBuilder.IsNewEntity) {
@@ -123,6 +127,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
 			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory,
+			IContactsParameters contactsParameters,
 			int counterpartyId,
 			int deliveryPointId) 
 			: this(employeeRepository, 
@@ -134,6 +139,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 					organizationProvider,
 					counterpartyContractRepository,
 					counterpartyContractFactory,
+					contactsParameters,
 					commonServices,
 					roboAtsCounterpartyJournalFactory
 					)
@@ -164,7 +170,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			return new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance, _roboAtsCounterpartyJournalFactory, CommonServices) {
+			return new PhonesViewModel(phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
 				ReadOnly = true
 			};
 		}
