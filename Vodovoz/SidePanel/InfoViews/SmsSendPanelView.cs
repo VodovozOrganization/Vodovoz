@@ -75,7 +75,7 @@ namespace Vodovoz.SidePanel.InfoViews
 						MessageDialogHelper.RunInfoDialog("Sms отправлена успешно");
 						break;
 					case PaymentResult.MessageStatus.Error:
-						MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
+						MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Не удалось отправить Sms");
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
