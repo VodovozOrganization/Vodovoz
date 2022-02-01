@@ -508,8 +508,11 @@ public partial class MainWindow : Window
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
+		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
+		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), new DebtorsParameters(new ParametersProvider()));
+			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), 
+			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory);
 
 		tdiMain.AddTab(debtorsJournal);
 	}

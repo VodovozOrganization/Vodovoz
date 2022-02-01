@@ -24,6 +24,7 @@ using System.Threading;
 using FluentNHibernate.Data;
 using FluentNHibernate.Utils;
 using QS.Dialog.Gtk;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -37,9 +38,15 @@ namespace Vodovoz.Representations
 	{
 		private readonly IDebtorsParameters _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
+			IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters, IEmailParametersProvider emailParametersProvider,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
@@ -76,6 +83,7 @@ namespace Vodovoz.Representations
 		}
 
 		private string footerInfo = "Идёт загрузка данных...";
+
 		public override string FooterInfo {
 			get => footerInfo;
 			set => SetField(ref footerInfo, value);
@@ -559,7 +567,8 @@ namespace Vodovoz.Representations
 				//if(selectedNode != null)
 				//{
 				
-					var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction);
+					var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction, _emailParametersProvider,
+						commonServices.InteractiveService, _attachmentsViewModelFactory);
 					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
 
 					bulkEmailView.Show();
