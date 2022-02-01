@@ -5,7 +5,6 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Threading;
-using Android;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -30,8 +29,6 @@ namespace VodovozSmsPaymentService
 		private static string serviceHostName;
 		private static string servicePort;
 		private static string serviceWebPort;
-		private static string driverServiceHostName;
-		private static string driverServicePort;
 
 		//Bitrix
 		private static string baseAddress;
@@ -60,8 +57,6 @@ namespace VodovozSmsPaymentService
 				serviceHostName = serviceSection["service_host_name"];
 				servicePort = serviceSection["service_port"];
 				serviceWebPort = serviceSection["service_web_port"];
-				driverServiceHostName = serviceSection["driver_service_host_name"];
-				driverServicePort = serviceSection["driver_service_port"];
 
 				var bitrixSection = configuration.GetSection("Bitrix");
 				baseAddress = bitrixSection["base_address"];
@@ -108,11 +103,6 @@ namespace VodovozSmsPaymentService
 
 				QS.HistoryLog.HistoryMain.Enable();
 
-				ChannelFactory<IAndroidDriverService> channelFactory = new ChannelFactory<IAndroidDriverService>(
-					new BasicHttpBinding(),
-					$"http://{driverServiceHostName}:{driverServicePort}/AndroidDriverService"
-				);
-				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
 				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
 
@@ -120,7 +110,6 @@ namespace VodovozSmsPaymentService
 
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender,
-					driverPaymentService,
 					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(new ParametersProvider()),
 					smsPaymentFileCache,
