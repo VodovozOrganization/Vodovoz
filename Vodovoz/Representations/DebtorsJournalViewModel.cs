@@ -24,6 +24,7 @@ using System.Threading;
 using FluentNHibernate.Data;
 using FluentNHibernate.Utils;
 using QS.Dialog.Gtk;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -40,6 +41,7 @@ namespace Vodovoz.Representations
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+		private readonly Employee _currentEmployee;
 
 		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
 			IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters, IEmailParametersProvider emailParametersProvider,
@@ -53,6 +55,7 @@ namespace Vodovoz.Representations
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
 			_debtorsParameters = debtorsParameters;
 			_gtkTabsOpener = gtkTabsOpener;
+			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 		}
 
 		IEmployeeRepository employeeRepository { get; set; }
@@ -568,7 +571,7 @@ namespace Vodovoz.Representations
 				//{
 				
 					var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction, _emailParametersProvider,
-						commonServices.InteractiveService, _attachmentsViewModelFactory);
+						commonServices, _attachmentsViewModelFactory, _currentEmployee);
 					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
 
 					bulkEmailView.Show();
@@ -642,7 +645,7 @@ namespace Vodovoz.Representations
 				if(item == null)
 					continue;
 				CallTask task = new CallTask {
-					TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW),
+					TaskCreator = _currentEmployee,
 					DeliveryPoint = UoW.GetById<DeliveryPoint>(item.AddressId),
 					Counterparty = UoW.GetById<Counterparty>(item.ClientId),
 					CreationDate = DateTime.Now,

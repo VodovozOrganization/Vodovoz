@@ -20,35 +20,73 @@ namespace Vodovoz.Views
 		{
 			yentrySubject.Binding.AddBinding(_bulkEmailViewModel, vm => vm.MailSubject, w => w.Text).InitializeFromSource();
 
-			ylabelSubjectInfo.Binding.AddSource(_bulkEmailViewModel)
-				//.AddBinding(vm => vm.MailSubjectInfo, w => w.LabelProp)
-				.AddFuncBinding(vm => vm.MailSubject != null && vm.MailSubject.Length <= 55 && vm.MailSubject.Length > 0
-						? $"<span foreground='green'>{vm.MailSubjectInfo}</span>"
-						: $"<span foreground='red'>{vm.MailSubjectInfo}</span>",
+			ylabelSubjectInfo.Binding
+				.AddFuncBinding(_bulkEmailViewModel, vm => vm.MailSubjectInfoDanger
+						? $"<span foreground='red'>{vm.MailSubjectInfo}</span>"
+						: $"<span foreground='green'>{vm.MailSubjectInfo}</span>",
 					w => w.LabelProp)
 				.InitializeFromSource();
 
-			ytextviewText.Binding.AddBinding(_bulkEmailViewModel, vm => vm.MailTextPart, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewText.Binding
+				.AddBinding(_bulkEmailViewModel, vm => vm.MailTextPart, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			ylabelAttachmentsInfo.Binding
+				.AddFuncBinding(_bulkEmailViewModel, vm => vm.AttachmentsSizeInfoDanger
+						? $"<span foreground='red'>{vm.AttachmentsSizeInfo}</span>"
+						: $"<span foreground='green'>{vm.AttachmentsSizeInfo}</span>",
+					w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelRecepientInfo.Binding.
+				AddFuncBinding(_bulkEmailViewModel,
+					vm => vm.RecepientInfoDanger
+					? $"<span foreground='red'>{vm.RecepientInfo}</span>"
+					: $"<span foreground='green'>{vm.RecepientInfo}</span>",
+					w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelSendingDuration.Binding
+				.AddBinding(_bulkEmailViewModel, vm => vm.SendingDurationInfo, w => w.LabelProp)
+				.InitializeFromSource();
+
+			yprogressbarSending.Binding
+				.AddSource(_bulkEmailViewModel)
+				.AddBinding(vm => vm.IsInSendingProcess, w => w.Visible)
+				.InitializeFromSource();
 
 
 			attachmentsEmailView.ViewModel = _bulkEmailViewModel.AttachmentsEmailViewModel;
 
 			buttonSend.Clicked += (sender, args) => _bulkEmailViewModel.StartEmailSendingCommand.Execute();
 
-			yprogressbarSending.Binding
-				.AddSource(_bulkEmailViewModel)
-				.AddBinding(vm => vm.IsInSendingProcess, w => w.Visible)
-				//.AddBinding(vm => vm.SendingProgressUpper, w => w.Adjustment.Upper)
-				.InitializeFromSource();
+			_bulkEmailViewModel.PropertyChanged += _bulkEmailViewModel_PropertyChanged;
+		}
 
-			_bulkEmailViewModel.SendingProgressBarUpdated += (sender, args) =>
+		private void _bulkEmailViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
 			{
-				yprogressbarSending.Adjustment.Value = _bulkEmailViewModel.SendingProgressValue;
-				yprogressbarSending.Adjustment.Upper = _bulkEmailViewModel.SendingProgressUpper;
-				yprogressbarSending.Text = _bulkEmailViewModel.SendedCountInfo;
-				ytextviewText.Buffer.Text = _bulkEmailViewModel.SendingProgressValue.ToString();
-				GtkHelper.WaitRedraw();
-			};
+				case nameof(_bulkEmailViewModel.SendingProgressUpper):
+				{
+						yprogressbarSending.Adjustment.Upper = _bulkEmailViewModel.SendingProgressUpper;
+						GtkHelper.WaitRedraw();
+						break;
+				}
+				case nameof(_bulkEmailViewModel.SendingProgressValue):
+				{
+						yprogressbarSending.Adjustment.Value = _bulkEmailViewModel.SendingProgressValue;
+						GtkHelper.WaitRedraw();
+						break;
+				}
+
+				case nameof(_bulkEmailViewModel.SendedCountInfo): 
+				{
+						yprogressbarSending.Text = _bulkEmailViewModel.SendedCountInfo;
+						GtkHelper.WaitRedraw();
+						break;
+				}
+			}
 		}
 	}
 }

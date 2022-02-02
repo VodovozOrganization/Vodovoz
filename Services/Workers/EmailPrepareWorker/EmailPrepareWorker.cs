@@ -147,12 +147,12 @@ namespace EmailPrepareWorker
 						{
 							new EmailContact
 							{
-								Name = orderDocumentEmail.Order.Client.FullName,
+								Name = orderDocumentEmail.CounterpartyFullName,
 								Email = orderDocumentEmail.StoredEmail.RecipientAddress
 							}
 						};
 
-						var document = (IEmailableDocument) orderDocumentEmail.OrderDocument;
+						var document = orderDocumentEmail.EmailableDocument;
 
 						var template = document.GetEmailTemplate();
 
@@ -229,7 +229,7 @@ namespace EmailPrepareWorker
 			return await new ValueTask<EmailAttachment>(
 				new EmailAttachment
 				{
-					Filename = $"Document_{ document.Order.Id }{ documentDate }.pdf",
+					Filename = $"Document_{ document.Order?.Id ?? document.Id }{ documentDate }.pdf",
 					ContentType = "application/pdf",
 					Base64Content = Convert.ToBase64String(stream.GetBuffer())
 				});

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using VodovozInfrastructure.Configuration;
 
@@ -30,8 +31,6 @@ namespace Vodovoz.Additions
 			{
 				var configuration = uowLocal.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-				OrderDocumentEmail unsendedEmailAlias = null;
-
 				var dateCriterion = Projections.SqlFunction(
 				   new SQLFunctionTemplate(
 					   NHibernateUtil.Date,
@@ -43,27 +42,121 @@ namespace Vodovoz.Additions
 				ICriterion dateResctict = Restrictions.Eq(dateCriterion, date.Date);
 				ICriterion dateResctictGe = Restrictions.Ge(dateCriterion, date.Date);
 
-				var resendedQuery = QueryOver.Of<OrderDocumentEmail>()
-					.Where(Restrictions.EqProperty(Projections.Property<OrderDocumentEmail>(ode => ode.Order.Id), Projections.Property(() => unsendedEmailAlias.Order.Id)))
+				#region OrderDocument
+
+				OrderDocumentEmail orderDocumentEmailAlias = null;
+				OrderDocumentEmail orderDocumentEmailInnerAlias = null;
+				OrderDocument orderDocumentAlias = null;
+				OrderDocument orderDocumentAliasInner = null;
+
+				var resendedOrderDocumentQuery = QueryOver.Of<OrderDocumentEmail>(() => orderDocumentEmailInnerAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(x => x.State != StoredEmailStates.SendingError)
-					.Where(dateResctictGe)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderDocumentEmailInnerAlias.OrderDocument, () => orderDocumentAliasInner)
+					.Where(() => orderDocumentAliasInner.Order.Id == orderDocumentAlias.Order.Id)
 					.Select(Projections.Count(Projections.Id()));
 
-				errorSendedEmails = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => unsendedEmailAlias)
+				var errorSendedOrderDocument = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
-					.Where(dateResctict)
-					.WithSubquery.WhereValue(0).Eq(resendedQuery)
-					.List();
+					.And(dateResctict)
+					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
+					.WithSubquery.WhereValue(0).Eq(resendedOrderDocumentQuery)
+					.Future();
 
-				foreach(var sendedEmail in errorSendedEmails)
+				#endregion
+
+				#region Order OrderWithoutShipmentForDebt
+
+				OrderWithoutShipmentForDebtEmail orderWithoutShipmentForDebtEmailAlias = null;
+				OrderWithoutShipmentForDebtEmail orderWithoutShipmentForDebtEmailInnerAlias = null;
+				OrderWithoutShipmentForDebt orderWithoutShipmentForDebtAlias = null;
+				OrderWithoutShipmentForDebt orderWithoutShipmentForDebtAliasInner = null;
+
+				var resendedOrderWithoutShipmentForDebtQuery = QueryOver.Of<OrderWithoutShipmentForDebtEmail>(() => orderWithoutShipmentForDebtEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(x => x.State != StoredEmailStates.SendingError)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderWithoutShipmentForDebtEmailInnerAlias.OrderWithoutShipmentForDebt, () => orderWithoutShipmentForDebtAliasInner)
+					.Where(() => orderWithoutShipmentForDebtAliasInner.Id == orderWithoutShipmentForDebtAlias.Id)
+					.Select(Projections.Count(Projections.Id()));
+
+				var errorSendedOrderWithoutShipmentForDebtEmail = uowLocal.Session
+					.QueryOver<OrderWithoutShipmentForDebtEmail>(() => orderWithoutShipmentForDebtEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderWithoutShipmentForDebtEmailAlias.OrderWithoutShipmentForDebt,
+						() => orderWithoutShipmentForDebtAlias)
+					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForDebtQuery)
+					.Future();
+
+				#endregion
+
+				#region Order OrderWithoutShipmentForAdvancePayment
+
+				OrderWithoutShipmentForAdvancePaymentEmail orderWithoutShipmentForAdvancePaymentEmailAlias = null;
+				OrderWithoutShipmentForAdvancePaymentEmail orderWithoutShipmentForAdvancePaymentEmailInnerAlias = null;
+				OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePaymentAlias = null;
+				OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePaymentAliasInner = null;
+
+				var resendedOrderWithoutShipmentForAdvancePaymentQuery = QueryOver.Of<OrderWithoutShipmentForAdvancePaymentEmail>(() => orderWithoutShipmentForAdvancePaymentEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(x => x.State != StoredEmailStates.SendingError)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailInnerAlias.OrderWithoutShipmentForAdvancePayment, () => orderWithoutShipmentForAdvancePaymentAliasInner)
+					.Where(() => orderWithoutShipmentForAdvancePaymentAliasInner.Id == orderWithoutShipmentForAdvancePaymentAlias.Id)
+					.Select(Projections.Count(Projections.Id()));
+
+				var errorSendedOrderWithoutShipmentForAdvancePaymentEmail = uowLocal.Session
+					.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>(() => orderWithoutShipmentForAdvancePaymentEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailAlias.OrderWithoutShipmentForAdvancePayment,
+						() => orderWithoutShipmentForAdvancePaymentAlias)
+					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForAdvancePaymentQuery)
+					.Future();
+
+				#endregion
+
+				#region Order OrderWithoutShipmentForPayment
+
+				OrderWithoutShipmentForPaymentEmail orderWithoutShipmentForPaymentEmailAlias = null;
+				OrderWithoutShipmentForPaymentEmail orderWithoutShipmentForPaymentEmailInnerAlias = null;
+				OrderWithoutShipmentForPayment orderWithoutShipmentForPaymentAlias = null;
+				OrderWithoutShipmentForPayment orderWithoutShipmentForPaymentAliasInner = null;
+
+				var resendedOrderWithoutShipmentForPaymentQuery = QueryOver.Of<OrderWithoutShipmentForPaymentEmail>(() => orderWithoutShipmentForPaymentEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(x => x.State != StoredEmailStates.SendingError)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderWithoutShipmentForPaymentEmailInnerAlias.OrderWithoutShipmentForPayment, () => orderWithoutShipmentForPaymentAliasInner)
+					.Where(() => orderWithoutShipmentForPaymentAliasInner.Id == orderWithoutShipmentForPaymentAlias.Id)
+					.Select(Projections.Count(Projections.Id()));
+
+				var errorSendedOrderWithoutShipmentForPaymentEmail = uowLocal.Session
+					.QueryOver<OrderWithoutShipmentForPaymentEmail>(() => orderWithoutShipmentForPaymentEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderWithoutShipmentForPaymentEmailAlias.OrderWithoutShipmentForPayment,
+						() => orderWithoutShipmentForPaymentAlias)
+					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForPaymentQuery)
+					.Future();
+
+				#endregion
+
+				var errorSendedCounterpartyEmails = errorSendedOrderDocument
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForDebtEmail)
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForAdvancePaymentEmail)
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForPaymentEmail);
+
+				var errorSendedCounterpartyEmailsList = errorSendedCounterpartyEmails.ToList();
+
+				foreach(var sendedEmail in errorSendedCounterpartyEmailsList)
 				{
-					if(!(sendedEmail.Order.OrderDocuments.FirstOrDefault(y => y.Type == OrderDocumentType.Bill) is BillDocument billDocument))
-					{
-						continue;
-					}
-
 					try
 					{
 
@@ -81,14 +174,52 @@ namespace Vodovoz.Additions
 
 							unitOfWork.Save(storedEmail);
 
-							var orderDocumentEmail = new OrderDocumentEmail
+							switch(sendedEmail.Type)
 							{
-								StoredEmail = storedEmail,
-								Order = sendedEmail.Order,
-								OrderDocument = sendedEmail.OrderDocument
-							};
+								case CounterpartyEmailType.OrderDocument:
+									var orderDocumentEmail = new OrderDocumentEmail
+									{
+										StoredEmail = storedEmail,
+										OrderDocument = ((OrderDocumentEmail)sendedEmail).OrderDocument
+									};
 
-							unitOfWork.Save(orderDocumentEmail);
+									unitOfWork.Save(orderDocumentEmail);
+
+									break;
+
+								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+									var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
+									{
+										StoredEmail = storedEmail,
+										OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) sendedEmail.EmailableDocument
+									};
+
+									unitOfWork.Save(orderWithoutShipmentForDebtEmail);
+
+									break;
+
+								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
+									var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
+									{
+										StoredEmail = storedEmail,
+										OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)sendedEmail.EmailableDocument
+									};
+
+									unitOfWork.Save(orderWithoutShipmentForAdvancePaymentEmail);
+
+									break;
+
+								case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+									var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
+									{
+										StoredEmail = storedEmail,
+										OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)sendedEmail.EmailableDocument
+									};
+
+									unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+
+									break;
+							}
 
 							unitOfWork.Commit();
 						}

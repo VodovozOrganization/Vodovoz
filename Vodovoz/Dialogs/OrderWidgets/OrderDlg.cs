@@ -3124,7 +3124,6 @@ namespace Vodovoz
 					OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
 					{
 						StoredEmail = storedEmail,
-						Order = Order,
 						OrderDocument = document
 					};
 

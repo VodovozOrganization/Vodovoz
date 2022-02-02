@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.StoredEmails
 	{
 		public virtual int Id { get; set; }
 
+		//todo art8m УБРАТЬ ПОСЛЕ МЕРЖА!!!
 		private Order order;
 		[Display(Name = "Заказ")]
 		public virtual Order Order
@@ -32,6 +33,7 @@ namespace Vodovoz.Domain.StoredEmails
 			set { SetField(ref documentType, value, () => DocumentType); }
 		}
 
+//todo art8m УБРАТЬ ПОСЛЕ МЕРЖА!!!!
 		private OrderWithoutShipmentForDebt orderWithoutShipmentForDebt;
 		[Display(Name = "Счет без отгрузки на долг")]
 		public virtual OrderWithoutShipmentForDebt OrderWithoutShipmentForDebt {

@@ -186,32 +186,40 @@ namespace Vodovoz.Dialogs.Email
 				{
 					case OrderDocumentType.Bill :
 						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
-							.Where(ode => ode.OrderDocument.Id == Document.Id)
-							.List()
-							.Select(ode=> ode.StoredEmail)
-							.ToList();
+							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
 
 						BtnSendEmailSensitive = Document.Type == OrderDocumentType.Bill
 												&& _emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
 												&& Document.Order.Id > 0;
 						break;
 					case OrderDocumentType.BillWSForDebt:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(se => se.OrderWithoutShipmentForDebt.Id == Document.Id)
-							.List();
+						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForDebtEmail>()
+							.Where(o => o.OrderWithoutShipmentForDebt.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
 
 						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForDebt
-												&& _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						                        && _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForAdvancePayment:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(se => se.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
-							.List();
+						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>()
+							.Where(o => o.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForAdvancePayment
+						                        && _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForPayment:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(se => se.OrderWithoutShipmentForPayment.Id == Document.Id)
-							.List();
+						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
+							.Where(o => o.OrderWithoutShipmentForPayment.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForPayment
+						                        && _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					default:
 						BtnSendEmailSensitive = false;
@@ -325,28 +333,46 @@ namespace Vodovoz.Dialogs.Email
 							var orderDocumentEmail = new OrderDocumentEmail
 							{
 								StoredEmail = storedEmail,
-								Order = Document.Order,
 								OrderDocument = (OrderDocument) Document
 							};
 							unitOfWork.Save(orderDocumentEmail);
-							unitOfWork.Commit();
 							break;
 						case OrderDocumentType.BillWSForDebt:
 							var docForDebt = UoW.GetById<OrderWithoutShipmentForDebt>(Document.Id);
 							docForDebt.IsBillWithoutShipmentSent = true;
 							UoW.Save();
+							var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
+							{
+								StoredEmail = storedEmail,
+								OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) Document
+							};
+							unitOfWork.Save(orderWithoutShipmentForDebtEmail);
 							break;
 						case OrderDocumentType.BillWSForAdvancePayment:
 							var docForAdvancePayment = UoW.GetById<OrderWithoutShipmentForAdvancePayment>(Document.Id);
 							docForAdvancePayment.IsBillWithoutShipmentSent = true;
 							UoW.Save();
+							var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
+							{
+								StoredEmail = storedEmail,
+								OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)Document
+							};
+							unitOfWork.Save(orderWithoutShipmentForAdvancePaymentEmail);
 							break;
 						case OrderDocumentType.BillWSForPayment:
 							var docForPayment = UoW.GetById<OrderWithoutShipmentForPayment>(Document.Id);
 							docForPayment.IsBillWithoutShipmentSent = true;
 							UoW.Save();
+							var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
+							{
+								StoredEmail = storedEmail,
+								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
+							};
+							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
 							break;
 					}
+
+					unitOfWork.Commit();
 				}
 				catch(Exception e)
 				{
