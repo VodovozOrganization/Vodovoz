@@ -6,6 +6,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
@@ -138,6 +139,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
 		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
 		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
+		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
+			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 	}
 
 	public class ClientEquipmentNode

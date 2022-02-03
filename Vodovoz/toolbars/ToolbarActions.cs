@@ -98,6 +98,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
@@ -674,30 +675,14 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
+	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
-		var filter = new PaymentsJournalFilterViewModel();
-		var paymentsRepository = new PaymentsRepository();
-		var parametersProvider = new ParametersProvider();
-
-		var paymentsJournalViewModel = new PaymentsJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			NavigationManager,
-			new OrderRepository(),
-			new OrganizationParametersProvider(parametersProvider),
-			new BaseParametersProvider(parametersProvider),
-			paymentsRepository,
-			new DialogsFactory()
-		);
-
-		tdiMain.AddTab(paymentsJournalViewModel);
+		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
 	}
 
 	private void OnActionUnAllocatedBalancesJournalActivated(object sender, EventArgs e)
 	{
-		throw new NotImplementedException();
+		NavigationManager.OpenViewModel<UnAllocatedBalancesJournalViewModel>(null);
 	}
 
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)

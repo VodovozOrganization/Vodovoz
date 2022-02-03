@@ -16,7 +16,6 @@ using QS.Permissions;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
-using QS.Report;
 using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
@@ -101,7 +100,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
-using Vodovoz.JournalFilters;
+using Vodovoz.Filters.Views;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -138,7 +137,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
-using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
@@ -302,7 +300,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsFilterView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CallTaskFilterViewModel, CallTaskFilterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
@@ -463,6 +461,7 @@ namespace Vodovoz
 			builder.RegisterType<NomenclatureParametersProvider>().As<INomenclatureParametersProvider>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 			builder.RegisterType<GeneralSettingsParametersProvider>().As<IGeneralSettingsParametersProvider>();
+			builder.RegisterType<DeliveryScheduleParametersProvider>().As<IDeliveryScheduleParametersProvider>();
 
 			#endregion
 			
@@ -531,6 +530,12 @@ namespace Vodovoz
 			builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
 			builder.RegisterType<DeletionProcessViewModel>().As<IOnCloseActionViewModel>().AsSelf();
 			builder.RegisterType<RdlViewerViewModel>().AsSelf();
+
+			#endregion
+
+			#region Фильтры
+
+			builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 
 			#endregion
 

@@ -39,7 +39,7 @@ namespace Vodovoz.Views
 
             btnSave.Clicked += (sender, args) => ViewModel.SaveViewModelCommand.Execute();
             btnCancel.Clicked += (sender, args) => ViewModel.CloseViewModelCommand.Execute();
-            buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocation.Execute();
+            buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocationCommand.Execute();
             btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute(ViewModel.Entity);
             ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
             ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();

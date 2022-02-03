@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Proposal;
 using Vodovoz.EntityRepositories.Nodes;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -37,11 +38,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.ViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints.ComplaintResults;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
@@ -49,7 +46,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
+using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -658,20 +657,37 @@ namespace Vodovoz.JournalColumnsConfigs
 			//PaymentJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PaymentsJournalViewModel>(
 				() => FluentColumnsConfig<PaymentJournalNode>.Create()
-					.AddColumn("№").AddTextRenderer(x => x.PaymentNum.ToString())
-					.AddColumn("Дата").AddTextRenderer(x => x.Date.ToShortDateString())
-					.AddColumn("Cумма").AddTextRenderer(x => x.Total.ToString())
-					.AddColumn("Заказы").AddTextRenderer(x => x.Orders)
-					.AddColumn("Плательщик").AddTextRenderer(x => x.Counterparty)
-						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
-					.AddColumn("Получатель").AddTextRenderer(x => x.Organization)
-					.AddColumn("Назначение платежа").AddTextRenderer(x => x.PaymentPurpose)
-						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("№")
+						.AddTextRenderer(x => x.PaymentNum.ToString())
+					.AddColumn("Дата")
+						.AddTextRenderer(x => x.Date.ToShortDateString())
+					.AddColumn("Cумма")
+						.AddTextRenderer(x => x.Total.ToString())
+					.AddColumn("Заказы")
+						.AddTextRenderer(x => x.Orders)
+					.AddColumn("Плательщик")
+						.AddTextRenderer(x => x.PayerName)
+						.WrapWidth(450)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Контрагент")
+						.AddTextRenderer(x => x.CounterpartyName)
+						.WrapWidth(450)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Получатель")
+						.AddTextRenderer(x => x.Organization)
+					.AddColumn("Назначение платежа")
+						.AddTextRenderer(x => x.PaymentPurpose)
+						.WrapWidth(600)
+						.WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Категория дохода/расхода")
-						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
+						.AddTextRenderer(x => x.ProfitCategory)
+						.XAlign(0.5f)
 					.AddColumn("Создан вручную?")
 						.AddToggleRenderer(x => x.IsManualCreated)
 						.Editing(false)
+					.AddColumn("Нераспределенная сумма")
+						.AddNumericRenderer(x => x.UnAllocatedSum)
+						.Digits(2)
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {
@@ -1409,6 +1425,26 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Отчество").AddTextRenderer(node => node.Patronymic)
 					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
+					.Finish()
+			);
+			
+			//PositiveCashlessBalanceJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UnAllocatedBalancesJournalViewModel>(
+				() => FluentColumnsConfig<UnAllocatedBalancesJournalNode>.Create()
+					.AddColumn("Код клиента")
+						.AddNumericRenderer(node => node.CounterpartyId)
+					.AddColumn("ИНН")
+						.AddTextRenderer(node => node.CounterpartyINN)
+					.AddColumn("Наименование")
+						.AddTextRenderer(node => node.CounterpartyName)
+					.AddColumn("Наша организация")
+						.AddTextRenderer(node => node.OrganizationName)
+					.AddColumn("Баланс клиента")
+						.AddNumericRenderer(node => node.CounterpartyBalance)
+						.Digits(2)
+					.AddColumn("Долг клиента")
+						.AddNumericRenderer(node => node.CounterpartyDebt)
+						.Digits(2)
 					.Finish()
 			);
 		}

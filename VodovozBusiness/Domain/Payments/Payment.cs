@@ -279,6 +279,7 @@ namespace Vodovoz.Domain.Payments
 				{
 					Income = Total,
 					Counterparty = Counterparty,
+					Organization = Organization,
 					OperationTime = DateTime.Now
 				};
 				

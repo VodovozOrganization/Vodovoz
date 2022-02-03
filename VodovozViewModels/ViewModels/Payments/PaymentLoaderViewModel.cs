@@ -287,7 +287,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			foreach(PaymentItem item in payment.ObservableItems)
 			{
-				item.CreateExpenseOperation();
+				item.CreateOrUpdateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
 		}

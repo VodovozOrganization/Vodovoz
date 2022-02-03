@@ -339,7 +339,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			CreateOpenOrderCommand();
 			CreateAddCounterpatyCommand();
-			CreateCompleteAllocation();
+			CreateCompleteAllocationCommand();
 			CreateSaveViewModelCommand();
 			CreateCloseViewModelCommand();
 		}
@@ -374,23 +374,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private void CreateSaveViewModelCommand()
 		{
 			SaveViewModelCommand = new DelegateCommand(
-				() =>
-				{
-					if(Entity.Status != PaymentState.undistributed)
-					{
-						ShowWarningMessage("Невозможно распределять платежи не в статусе 'Нераспределен'");
-						return;
-					}
-
-					if(CurrentBalance < 0)
-					{
-						ShowWarningMessage("Остаток не может быть отрицательным!");
-						return;
-					}
-
-					AllocateOrders();
-					SaveAndClose();
-				},
+				CompleteAllocation,
 				() => true
 			);
 		}
@@ -469,63 +453,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			);
 		}
 
-		public DelegateCommand CompleteAllocation { get; private set; }
-		private void CreateCompleteAllocation()
+		public DelegateCommand CompleteAllocationCommand { get; private set; }
+		private void CreateCompleteAllocationCommand()
 		{
-			CompleteAllocation = new DelegateCommand(
-				() =>
-				{
-					var valid = CommonServices.ValidationService.Validate(Entity);
-					if(!valid)
-					{
-						return;
-					}
-
-					if(CurrentBalance < 0)
-					{
-						ShowWarningMessage("Остаток не может быть отрицательным!");
-						return;
-					}
-
-					if(Entity.Status != PaymentState.undistributed)
-					{
-						return;
-					}
-
-					if(CurrentBalance > 0)
-					{
-						if(!AskQuestion("Внимание! Имеется нераспределенный остаток. " +
-							"Оставить его на балансе и завершить распределение?", "Внимание!"))
-						{
-							return;
-						}
-					}
-
-					AllocateOrders();
-					CreateOperations();
-
-					foreach(var item in Entity.PaymentItems)
-					{
-						if(item.Order.OrderPaymentStatus == OrderPaymentStatus.Paid)
-						{
-							continue;
-						}
-
-						var otherPaymentsSum =
-							_paymentItemsRepository.GetAllocatedSumForOrderWithoutCurrentPayment(UoW, item.Order.Id, Entity.Id);
-
-						var totalSum = otherPaymentsSum + item.Sum;
-
-						item.Order.OrderPaymentStatus = item.Order.OrderSum > totalSum
-							? OrderPaymentStatus.PartiallyPaid
-							: OrderPaymentStatus.Paid;
-
-						UoW.Save(item.Order);
-					}
-
-					Entity.Status = PaymentState.completed;
-					SaveAndClose();
-				},
+			CompleteAllocationCommand = new DelegateCommand(
+				CompleteAllocation,
 				() => true
 			);
 		}
@@ -547,6 +479,55 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		#endregion Commands
 
+		private void CompleteAllocation()
+		{
+			var valid = CommonServices.ValidationService.Validate(Entity);
+			if(!valid)
+			{
+				return;
+			}
+
+			if(CurrentBalance < 0)
+			{
+				ShowWarningMessage("Остаток не может быть отрицательным!");
+				return;
+			}
+
+			if(CurrentBalance > 0)
+			{
+				if(!AskQuestion("Внимание! Имеется нераспределенный остаток. " +
+								"Оставить его на балансе и завершить распределение?", "Внимание!"))
+				{
+					return;
+				}
+			}
+
+			AllocateOrders();
+			CreateOperations();
+
+			foreach(var item in Entity.PaymentItems)
+			{
+				if(item.Order.OrderPaymentStatus == OrderPaymentStatus.Paid)
+				{
+					continue;
+				}
+
+				var otherPaymentsSum =
+					_paymentItemsRepository.GetAllocatedSumForOrderWithoutCurrentPayment(UoW, item.Order.Id, Entity.Id);
+
+				var totalSum = otherPaymentsSum + item.Sum;
+
+				item.Order.OrderPaymentStatus = item.Order.OrderSum > totalSum
+					? OrderPaymentStatus.PartiallyPaid
+					: OrderPaymentStatus.Paid;
+
+				//UoW.Save(item.Order);
+			}
+
+			Entity.Status = PaymentState.completed;
+			SaveAndClose();
+		}
+		
 		private Bank FillBank(Payment payment)
 		{
 			var bank = BankRepository.GetBankByBik(UoW, payment.CounterpartyBik);
@@ -584,7 +565,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			foreach(PaymentItem item in Entity.ObservableItems)
 			{
-				item.CreateExpenseOperation();
+				item.CreateOrUpdateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
 		}
