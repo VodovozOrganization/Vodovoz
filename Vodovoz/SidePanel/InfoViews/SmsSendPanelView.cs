@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using Gamma.GtkWidgets;
-using QS.Dialog.GtkUI;
+using QS.Dialog;
 using QS.Services;
+using QS.Utilities.Numeric;
 using SmsPaymentService;
 using Vodovoz.Additions;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -15,21 +19,33 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
+		private readonly ISmsPaymentRepository _smsPaymentRepository;
+		private readonly IPermissionResult _orderPermissionResult;
+		private readonly IInteractiveService _interactiveService;
+		private readonly PhoneFormatter _phoneFormatter;
+		private static readonly SmsPaymentStatus[] _excludeSmsPaymentStatuses =
+			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };
+
+		private readonly bool _canSendSmsForAdditionalOrderStatuses;
 		private Phone _selectedPhone;
 		private Counterparty _counterparty;
 		private Order _order;
-		private readonly IPermissionResult _orderPermissionResult;
-		private readonly bool _canSendSmsForAdditionalOrderStatuses;
 
-		public SmsSendPanelView(ICurrentPermissionService currentPermissionService)
+		public SmsSendPanelView(ICommonServices commonServices, ISmsPaymentRepository smsPaymentRepository)
 		{
-			if(currentPermissionService == null)
+			if(commonServices == null)
 			{
-				throw new ArgumentNullException(nameof(currentPermissionService));
+				throw new ArgumentNullException(nameof(commonServices));
 			}
+			_smsPaymentRepository = smsPaymentRepository ?? throw new ArgumentNullException(nameof(smsPaymentRepository));
+			var currentPermissionService = commonServices.CurrentPermissionService;
+			_interactiveService = commonServices.InteractiveService;
+			_phoneFormatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+
 			Build();
 			_orderPermissionResult = currentPermissionService.ValidateEntityPermission(typeof(Order));
-			_canSendSmsForAdditionalOrderStatuses = currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
+			_canSendSmsForAdditionalOrderStatuses =
+				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			Configure();
 		}
 
@@ -52,35 +68,100 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
-			ySendSmsButton.Pressed += (btn, args) =>
+			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
+		}
+
+		private void OnSendSmsButtonPressed(object btn, EventArgs args)
+		{
+			if(_order.Id == 0)
 			{
-				if(string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Перед отправкой SMS необходимо сохранить заказ",
+					"Не удалось отправить SMS");
+				return;
+			}
+			if(string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Вы забыли выбрать номер.", "Не удалось отправить SMS");
+				return;
+			}
+
+			var alreadySentSms = _smsPaymentRepository.GetSmsPaymentsForOrder(
+				InfoProvider.UoW,
+				_order.Id,
+				_excludeSmsPaymentStatuses
+			);
+
+			var paidSmsPayments = alreadySentSms.Where(x => x.SmsPaymentStatus == SmsPaymentStatus.Paid).ToList();
+			var waitingSmsPayments = alreadySentSms.Where(x =>
+				x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment
+				&& DateTime.Now.Subtract(x.CreationDate).TotalMinutes < 60
+			).ToList();
+
+			if(paidSmsPayments.Any())
+			{
+				var paidStringBuilder = new StringBuilder();
+
+				foreach(var payment in paidSmsPayments)
 				{
-					MessageDialogHelper.RunErrorDialog("Вы забыли выбрать номер.", "Ошибка при отправке Sms");
+					paidStringBuilder.AppendLine($"\tКод платежа:     {payment.Id}");
+					paidStringBuilder.AppendLine($"\tТелефон:            +7 {_phoneFormatter.FormatString(payment.PhoneNumber)}");
+					paidStringBuilder.AppendLine($"\tДата создания:  {payment.CreationDate}");
+					paidStringBuilder.AppendLine($"\tДата оплаты:     {payment.PaidDate}");
+					paidStringBuilder.AppendLine($"\tНомер оплаты:  {payment.ExternalId}");
+					paidStringBuilder.AppendLine();
+				}
+
+				var sendPayment = _interactiveService.Question("Для заказа уже есть ранее оплаченные платежи по SMS:\n\n" +
+					$"{paidStringBuilder}" +
+					"Вы уверены что хотите отправить ещё одну SMS?");
+
+				if(!sendPayment)
+				{
 					return;
 				}
+			}
+			else if(waitingSmsPayments.Any())
+			{
+				var waitingStringBuilder = new StringBuilder();
 
-				ySendSmsButton.Sensitive = false;
-				GLib.Timeout.Add(10000, () =>
+				foreach(var payment in waitingSmsPayments)
 				{
-					ySendSmsButton.Sensitive = true;
-					return false;
-				});
-
-				var smsSender = new SmsPaymentSender();
-				var result = smsSender.SendSmsPaymentToNumber(_order.Id, validatedPhoneEntry.Text);
-				switch(result.Status)
-				{
-					case PaymentResult.MessageStatus.Ok:
-						MessageDialogHelper.RunInfoDialog("Sms отправлена успешно");
-						break;
-					case PaymentResult.MessageStatus.Error:
-						MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Не удалось отправить Sms");
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
+					waitingStringBuilder.AppendLine($"\tКод платежа:     {payment.Id}");
+					waitingStringBuilder.AppendLine($"\tТелефон:            +7 {_phoneFormatter.FormatString(payment.PhoneNumber)}");
+					waitingStringBuilder.AppendLine($"\tДата создания:  {payment.CreationDate}");
+					waitingStringBuilder.AppendLine();
 				}
-			};
+
+				var sendPayment = _interactiveService.Question("Для заказа найдены SMS, ожидающие оплату клиента:\n\n" +
+					$"{waitingStringBuilder}" +
+					"Вы уверены что хотите отправить ещё одну SMS?");
+
+				if(!sendPayment)
+				{
+					return;
+				}
+			}
+
+			ySendSmsButton.Sensitive = false;
+			GLib.Timeout.Add(10000, () =>
+			{
+				ySendSmsButton.Sensitive = true;
+				return false;
+			});
+
+			var smsSender = new SmsPaymentSender();
+			var result = smsSender.SendSmsPaymentToNumber(_order.Id, validatedPhoneEntry.Text);
+			switch(result.Status)
+			{
+				case PaymentResult.MessageStatus.Ok:
+					_interactiveService.ShowMessage(ImportanceLevel.Info, "SMS отправлена успешно");
+					break;
+				case PaymentResult.MessageStatus.Error:
+					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorDescription, "Не удалось отправить SMS");
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 		}
 
 		public IInfoProvider InfoProvider { get; set; }
@@ -109,7 +190,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			get
 			{
 				var isStatusAllowedByDefaultForSendingSms =
-					new OrderStatus[]
+					new[]
 					{
 						OrderStatus.Accepted,
 						OrderStatus.OnTheWay,
@@ -119,7 +200,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					}.Contains(_order.OrderStatus);
 
 				var isAdditionalOrderStatus =
-					new OrderStatus[]
+					new[]
 					{
 						OrderStatus.Closed,
 						OrderStatus.UnloadingOnStock,
