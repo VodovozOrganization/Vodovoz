@@ -2,8 +2,6 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
@@ -15,10 +13,14 @@ using System.Text;
 using Dialogs.Logistic;
 using QS.Deletion;
 using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.Project.Domain;
-using QS.Project.Services;
+using QS.Report;
+using QS.Tdi;
 using Vodovoz.Additions.Store;
+using Vodovoz.Core;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
@@ -30,6 +32,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
@@ -48,8 +51,8 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class RouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<RouteList, TdiTabBase, RouteListJournalNode,
-		RouteListJournalFilterViewModel>
+	public class RouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase
+		<RouteList, ITdiTab, RouteListJournalNode, RouteListJournalFilterViewModel>
 	{
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
@@ -70,10 +73,12 @@ namespace Vodovoz.JournalViewModels
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+		private readonly IStockRepository _stockRepository;
+		private readonly IReportPrinter _reportPrinter;
+		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
-		private IList<Warehouse> _warehousesAvailableForUser;
 
 		public RouteListJournalViewModel(
 			RouteListJournalFilterViewModel filterViewModel,
@@ -97,6 +102,9 @@ namespace Vodovoz.JournalViewModels
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
+			IStockRepository stockRepository,
+			IReportPrinter reportPrinter,
+			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			ICommonServices commonServices)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -105,9 +113,11 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_undeliveredOrdersRepository =
+				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
-			_routeListParametersProvider = routeListParametersProvider ?? throw new ArgumentNullException(nameof(routeListParametersProvider));
+			_routeListParametersProvider =
+				routeListParametersProvider ?? throw new ArgumentNullException(nameof(routeListParametersProvider));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
@@ -116,9 +126,14 @@ namespace Vodovoz.JournalViewModels
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			_deliveryPointJournalFactory =
+				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_undeliveredOrdersJournalOpener =
+				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
+			_terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 
 			TabName = "Журнал МЛ";
 
@@ -290,12 +305,9 @@ namespace Vodovoz.JournalViewModels
 			return result;
 		};
 
-		protected override Func<TdiTabBase> CreateDialogFunction => () => new RouteListCreateDlg();
+		protected override Func<ITdiTab> CreateDialogFunction => () => new RouteListCreateDlg();
 
-		protected override Func<RouteListJournalNode, TdiTabBase> OpenDialogFunction => node => new RouteListCreateDlg(node.Id);
-
-		public IList<Warehouse> GetWarehousesAvailableForUser => _warehousesAvailableForUser
-			?? (_warehousesAvailableForUser = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.WarehouseView));
+		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => new RouteListCreateDlg(node.Id);
 
 		#region PopupActions
 
@@ -309,6 +321,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(CreateOpenTrackAction());
 			PopupActionsList.Add(CreateOpenCreateDialogAction());
 			PopupActionsList.Add(CreateOpenRouteListControlDlg());
+			PopupActionsList.Add(CreateSendRouteListToLoadingAndPrintAction());
 			PopupActionsList.Add(CreateSendRouteListToLoadingAction());
 			PopupActionsList.Add(CreateOpenKeepingDialogAction());
 			PopupActionsList.Add(CreateReturnToEnRouteAction());
@@ -320,54 +333,282 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(CreateTransferTerminalAction());
 		}
 
-		private IJournalAction CreateTransferTerminalAction()
+		private IJournalAction CreateOpenTrackAction()
 		{
 			return new JournalAction(
-				"Перенести терминал на вторую ходку",
-				selectedItems => CanCreateSelfDriverTerminalTransferDocument,
+				"Открыть трек",
+				selectedItems => true,
 				selectedItems => true,
 				selectedItems =>
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
-						routeList?.CreateSelfDriverTerminalTransferDocument();
+						var track = new TrackOnMapWnd(selectedNode.Id);
+						track.Show();
 					}
 				}
 			);
 		}
 
-		private IJournalAction CreateGiveFuelAction()
+		private IJournalAction CreateOpenCreateDialogAction()
 		{
 			return new JournalAction(
-				"Выдать топливо",
-				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _fuelIssuingStatuses.Contains(node.StatusEnum),
+				"Открыть диалог создания",
+				selectedItems => true,
 				selectedItems => true,
 				selectedItems =>
 				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode == null)
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						return;
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+							() => new RouteListCreateDlg(selectedNode.Id)
+						);
 					}
+				}
+			);
+		}
 
-					var routeList = UoW.GetById<RouteList>(selectedNode.Id);
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-						() => new FuelDocumentViewModel(
-							routeList,
-							commonServices,
-							_subdivisionRepository,
-							_employeeRepository,
-							_fuelRepository,
-							NavigationManagerProvider.NavigationManager,
-							_trackRepository,
-							_categoryRepository,
-							_employeeJournalFactory,
-							_carJournalFactory
-						)
-					);
+		private IJournalAction CreateOpenRouteListControlDlg()
+		{
+			return new JournalAction(
+				"Отгрузка со склада",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _controlDlgStatuses.Contains(node.StatusEnum),
+				selectedItems => true,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					{
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+							() => new RouteListControlDlg(selectedNode.Id)
+						);
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateSendRouteListToLoadingAndPrintAction()
+		{
+			var cashSubdivisionIds = _subdivisionRepository.GetCashSubdivisions(UoW).Select(x => x.Id);
+			var cashWarehouseIds = UoW.Session.QueryOver<Warehouse>()
+				.WhereRestrictionOn(x => x.OwningSubdivision.Id).IsInG(cashSubdivisionIds)
+				.Select(x => x.Id)
+				.List<int>();
+
+			var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+
+			if(defaultWarehouse != null
+			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
+			   && CurrentPermissions.Warehouse[WarehousePermissions.CarLoadEdit, defaultWarehouse])
+			{
+				return new JournalAction(
+					$"Отправить МЛ на погрузку со скалада\n'{defaultWarehouse.Name}' и распечатать",
+					selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+						&& node.StatusEnum == RouteListStatus.Confirmed,
+					selectedItems => true,
+					selectedItems =>
+					{
+						if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+						{
+							SendToLoadingAndPrint(selectedNode, defaultWarehouse);
+						}
+					}
+				);
+			}
+
+			var warehousesAvailableForUser = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit)
+				.Where(x => !cashWarehouseIds.Contains(x.Id))
+				.ToList();
+
+			if(!warehousesAvailableForUser.Any())
+			{
+				return new JournalAction(
+					"Отправить МЛ на погрузку и распечатать",
+					selectedItems => false,
+					selectedItems => true,
+					selectedItems => { }
+				);
+			}
+
+			var journalAction = new JournalAction(
+				"Отправить МЛ на погрузку и распечатать",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& node.StatusEnum == RouteListStatus.Confirmed,
+				selectedItems => true,
+				selectedItems => { }
+			);
+			foreach(var warehouse in warehousesAvailableForUser)
+			{
+				journalAction.ChildActionsList.Add(new JournalAction(
+					warehouse.Name,
+					selectedItems => true,
+					selectedItems => true,
+					selectedItems =>
+					{
+						if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+						{
+							SendToLoadingAndPrint(selectedNode, warehouse);
+						}
+					}
+				));
+			}
+			return journalAction;
+		}
+
+		private IJournalAction CreateSendRouteListToLoadingAction()
+		{
+			return new JournalAction(
+				"Отправить МЛ на погрузку",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& node.StatusEnum == RouteListStatus.Confirmed,
+				selectedItems => true,
+				selectedItems =>
+				{
+					var selectedNodes = selectedItems.Cast<RouteListJournalNode>().ToList();
+					if(selectedNodes.Any())
+					{
+						SendRouteListsInLoading(selectedNodes);
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateOpenKeepingDialogAction()
+		{
+			return new JournalAction(
+				"Открыть диалог ведения",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _keepingDlgStatuses.Contains(node.StatusEnum),
+				selectedItems => true,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					{
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+							() => new RouteListKeepingDlg(selectedNode.Id)
+						);
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateReturnToEnRouteAction()
+		{
+			return new JournalAction(
+				"Вернуть в путь",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _canReturnToEnRoute.Contains(node.StatusEnum),
+				selectedItems => true,
+				selectedItems =>
+				{
+					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
+					bool isSlaveTabActive = false;
+
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var routeLists = uowLocal.Session.QueryOver<RouteList>()
+							.Where(x => x.Id.IsIn(routeListIds))
+							.List();
+
+						foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.Delivered))
+						{
+							if(TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+							{
+								commonServices.InteractiveService.ShowMessage(
+									ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
+								isSlaveTabActive = true;
+								continue;
+							}
+							routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, _callTaskWorker);
+							uowLocal.Save(routeList);
+						}
+
+						if(isSlaveTabActive)
+						{
+							return;
+						}
+
+						uowLocal.Commit();
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateOpenClosingDialogAction()
+		{
+			return new JournalAction(
+				"Открыть диалог закрытия",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _closingDlgStatuses.Contains(node.StatusEnum),
+				selectedItems => true,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					{
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+							() => new RouteListClosingDlg(selectedNode.Id)
+						);
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateOpenAnalysisDialogAction()
+		{
+			return new JournalAction(
+				"Открыть диалог разбора",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _analysisViewModelStatuses.Contains(node.StatusEnum),
+				selectedItems => true,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					{
+						TabParent.AddTab(
+							new RouteListAnalysisViewModel(
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								UnitOfWorkFactory,
+								commonServices,
+								_orderSelectorFactory,
+								_employeeJournalFactory,
+								_counterpartyJournalFactory,
+								_deliveryPointJournalFactory,
+								_subdivisionJournalFactory,
+								_gtkTabsOpener,
+								_undeliveredOrdersJournalOpener,
+								_deliveryShiftRepository,
+								_undeliveredOrdersRepository
+							),
+							this,
+							false
+						);
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateOpenMileageCheckDialogAction()
+		{
+			return new JournalAction(
+				"Открыть диалог проверки километража",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _mileageCheckDlgStatuses.Contains(node.StatusEnum)
+					&& node.UsesCompanyCar
+					&& node.CarTypeOfUse != CarTypeOfUse.CompanyTruck,
+				selectedItems => true,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
+					{
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+							() => new RouteListMileageCheckDlg(selectedNode.Id)
+						);
+					}
 				}
 			);
 		}
@@ -381,8 +622,7 @@ namespace Vodovoz.JournalViewModels
 				selectedItems => true,
 				selectedItems =>
 				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode == null)
+					if(!(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode))
 					{
 						return;
 					}
@@ -420,218 +660,52 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-		private IJournalAction CreateOpenMileageCheckDialogAction()
+		private IJournalAction CreateGiveFuelAction()
 		{
 			return new JournalAction(
-				"Открыть диалог проверки километража",
+				"Выдать топливо",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _mileageCheckDlgStatuses.Contains(node.StatusEnum)
-					&& node.UsesCompanyCar
-					&& node.CarTypeOfUse != CarTypeOfUse.CompanyTruck,
+					&& _fuelIssuingStatuses.Contains(node.StatusEnum),
 				selectedItems => true,
 				selectedItems =>
 				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null && _mileageCheckDlgStatuses.Contains(selectedNode.StatusEnum) &&
-					   selectedNode.CarTypeOfUse != CarTypeOfUse.CompanyTruck)
+					if(!(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode))
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListMileageCheckDlg(selectedNode.Id)
-						);
+						return;
 					}
+
+					var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+					TabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+						() => new FuelDocumentViewModel(
+							routeList,
+							commonServices,
+							_subdivisionRepository,
+							_employeeRepository,
+							_fuelRepository,
+							NavigationManagerProvider.NavigationManager,
+							_trackRepository,
+							_categoryRepository,
+							_employeeJournalFactory,
+							_carJournalFactory
+						)
+					);
 				}
 			);
 		}
 
-		private IJournalAction CreateOpenAnalysisDialogAction()
+		private IJournalAction CreateTransferTerminalAction()
 		{
 			return new JournalAction(
-				"Открыть диалог разбора",
-				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _analysisViewModelStatuses.Contains(node.StatusEnum),
+				"Перенести терминал на вторую ходку",
+				selectedItems => CanCreateSelfDriverTerminalTransferDocument,
 				selectedItems => true,
 				selectedItems =>
 				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null && _analysisViewModelStatuses.Contains(selectedNode.StatusEnum))
+					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.AddTab(
-							new RouteListAnalysisViewModel(
-								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								UnitOfWorkFactory,
-								commonServices,
-								_orderSelectorFactory,
-								_employeeJournalFactory,
-								_counterpartyJournalFactory,
-								_deliveryPointJournalFactory,
-								_subdivisionJournalFactory,
-								_gtkTabsOpener,
-								_undeliveredOrdersJournalOpener,
-								_deliveryShiftRepository,
-								_undeliveredOrdersRepository
-							),
-							this,
-							false
-						);
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateOpenClosingDialogAction()
-		{
-			return new JournalAction(
-				"Открыть диалог закрытия",
-				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _closingDlgStatuses.Contains(node.StatusEnum),
-				selectedItems => true,
-				selectedItems =>
-				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null && _closingDlgStatuses.Contains(selectedNode.StatusEnum))
-					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListClosingDlg(selectedNode.Id)
-						);
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateReturnToEnRouteAction()
-		{
-			return new JournalAction(
-				"Вернуть в путь",
-				selectedItems => selectedItems.Any(x => _canReturnToEnRoute.Contains(((RouteListJournalNode)x).StatusEnum)),
-				selectedItems => true,
-				selectedItems =>
-				{
-					var selectedNodes = selectedItems.Cast<RouteListJournalNode>();
-					var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
-					bool isSlaveTabActive = false;
-
-					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
-					{
-						var routeLists = uowLocal.Session.QueryOver<RouteList>()
-							.Where(x => x.Id.IsIn(routeListIds))
-							.List();
-
-						foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.Delivered))
-						{
-							if(TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
-							{
-								commonServices.InteractiveService.ShowMessage(
-									ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
-								isSlaveTabActive = true;
-								continue;
-							}
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, _callTaskWorker);
-							uowLocal.Save(routeList);
-						}
-
-						if(isSlaveTabActive)
-						{
-							return;
-						}
-
-						uowLocal.Commit();
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateOpenKeepingDialogAction()
-		{
-			return new JournalAction(
-				"Открыть диалог ведения",
-				selectedItems => selectedItems.Any(x => _keepingDlgStatuses.Contains(((RouteListJournalNode)x).StatusEnum)),
-				selectedItems => true,
-				(selectedItems) =>
-				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null && _keepingDlgStatuses.Contains(selectedNode.StatusEnum))
-					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListKeepingDlg(selectedNode.Id)
-						);
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateSendRouteListToLoadingAction()
-		{
-			return new JournalAction(
-				"Отправить МЛ на погрузку",
-				selectedItems => selectedItems.Any(x => ((RouteListJournalNode)x).StatusEnum == RouteListStatus.Confirmed),
-				selectedItems => true,
-				selectedItems =>
-				{
-					var selectedNodes = selectedItems.Cast<RouteListJournalNode>().ToList();
-					if(selectedNodes.Any())
-					{
-						SendRouteListsInLoading(selectedNodes);
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateOpenRouteListControlDlg()
-		{
-			return new JournalAction(
-				"Отгрузка со склада",
-				selectedItems => selectedItems.Any(x => _controlDlgStatuses.Contains(((RouteListJournalNode)x).StatusEnum)),
-				selectedItems => true,
-				selectedItems =>
-				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null && _controlDlgStatuses.Contains(selectedNode.StatusEnum))
-					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListControlDlg(selectedNode.Id)
-						);
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateOpenCreateDialogAction()
-		{
-			return new JournalAction(
-				"Открыть диалог создания",
-				selectedItems => true,
-				selectedItems => true,
-				selectedItems =>
-				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null)
-					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListCreateDlg(selectedNode.Id)
-						);
-					}
-				}
-			);
-		}
-
-		private IJournalAction CreateOpenTrackAction()
-		{
-			return new JournalAction(
-				"Открыть трек",
-				selectedItems => true,
-				selectedItems => true,
-				selectedItems =>
-				{
-					var selectedNode = selectedItems.Cast<RouteListJournalNode>().FirstOrDefault();
-					if(selectedNode != null)
-					{
-						var track = new TrackOnMapWnd(selectedNode.Id);
-						track.Show();
+						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+						routeList?.CreateSelfDriverTerminalTransferDocument();
 					}
 				}
 			);
@@ -645,6 +719,82 @@ namespace Vodovoz.JournalViewModels
 			?? (_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser(UoW).IsAdmin).Value;
+
+		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)
+		{
+			void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, RouteList routeList, Employee author)
+			{
+				document.RouteList = routeList;
+				document.Author = author;
+				document.LastEditor = author;
+				document.LastEditedTime = DateTime.Now;
+				document.Warehouse = warehouse;
+
+				document.FillFromRouteList(uow, _routeListRepository, _subdivisionRepository, true);
+				document.UpdateAlreadyLoaded(uow, _routeListRepository);
+				document.UpdateStockAmount(uow, _stockRepository);
+				document.UpdateAmounts();
+			}
+
+			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
+				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(localUow);
+				var carLoadDocument = new CarLoadDocument();
+				FillCarLoadDocument(carLoadDocument, localUow, routeList, currentEmployee);
+
+				var routeListFullyShipped = routeList.ShipIfCan(localUow, _callTaskWorker, out var notLoadedGoods, carLoadDocument);
+
+				//Не погружен остался только терминал
+				var routeListShippedWithoutTerminal = notLoadedGoods.Count == 1
+					&& notLoadedGoods.All(x => x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+
+				var valid = commonServices.ValidationService.Validate(carLoadDocument, showValidationResults: false);
+
+				if((routeListFullyShipped || routeListShippedWithoutTerminal) && valid)
+				{
+					carLoadDocument.ClearItemsFromZero();
+					carLoadDocument.UpdateOperations(localUow);
+					localUow.Save(routeList);
+
+					if(!carLoadDocument.Items.Any())
+					{
+						localUow.Commit();
+						return;
+					}
+
+					localUow.Save(carLoadDocument);
+					localUow.Commit();
+
+					if(routeListShippedWithoutTerminal)
+					{
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+							"Водителю необходимо получить терминал на кассе");
+					}
+
+					var reportInfo = new ReportInfo
+					{
+						Title = carLoadDocument.Title,
+						Identifier = "Store.CarLoadDocument",
+						Parameters = new Dictionary<string, object> { { "id", carLoadDocument.Id } },
+						PrintType = ReportInfo.PrintingType.MultiplePrinters
+					};
+
+					_reportPrinter.Print(reportInfo);
+				}
+				else
+				{
+					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Не удалось автоматически отгрузить Маршрутный лист");
+
+					var dlg = new CarLoadDocumentDlg();
+					FillCarLoadDocument(dlg.Entity, localUow, routeList, currentEmployee);
+					TabParent.OpenTab(() => dlg);
+				}
+			}
+		}
 
 		private bool CanDeleteRouteList(RouteListJournalNode selectedNode)
 		{
@@ -748,7 +898,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
 					{
-						MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
 						isSlaveTabActive = true;
 						continue;
 					}

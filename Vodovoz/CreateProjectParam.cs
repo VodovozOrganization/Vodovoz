@@ -17,6 +17,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Report;
+using QS.Report.Repository;
 using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
@@ -103,9 +104,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Factories;
-using Vodovoz.JournalFilters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -145,7 +144,6 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
-using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
@@ -416,6 +414,12 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Репозитории
+
+			builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
+
+			#endregion
+
 			#region Сервисы
 
 			//GtkUI
@@ -428,6 +432,7 @@ namespace Vodovoz
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
+			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
 			#endregion
 

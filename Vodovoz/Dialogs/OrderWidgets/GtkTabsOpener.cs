@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public void OpenCreateRouteListDlg(ITdiTab tab, int id)
+		public void OpenRouteListCreateDlg(ITdiTab tab, int id)
 		{
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
