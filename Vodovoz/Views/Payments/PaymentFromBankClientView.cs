@@ -8,9 +8,9 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 namespace Vodovoz.Views.Payments
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PaymentFromBankClientView : TabViewBase<CreateManualPaymentFromBankClientViewModel>
+	public partial class CreateManualPaymentFromBankClientView : TabViewBase<CreateManualPaymentFromBankClientViewModel>
 	{
-		public PaymentFromBankClientView(CreateManualPaymentFromBankClientViewModel viewModel) : base(viewModel)
+		public CreateManualPaymentFromBankClientView(CreateManualPaymentFromBankClientViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
