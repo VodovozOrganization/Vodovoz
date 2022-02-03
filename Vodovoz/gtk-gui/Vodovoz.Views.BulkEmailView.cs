@@ -155,6 +155,7 @@ namespace Vodovoz.Views
 			this.ylabelAttachmentsInfo.Name = "ylabelAttachmentsInfo";
 			this.ylabelAttachmentsInfo.Xalign = 0F;
 			this.ylabelAttachmentsInfo.LabelProp = global::Mono.Unix.Catalog.GetString("0/15Мб");
+			this.ylabelAttachmentsInfo.UseMarkup = true;
 			this.table1.Add(this.ylabelAttachmentsInfo);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelAttachmentsInfo]));
 			w11.TopAttach = ((uint)(2));
@@ -169,6 +170,7 @@ namespace Vodovoz.Views
 			this.ylabelRecepientInfo.Xalign = 0F;
 			this.ylabelRecepientInfo.LabelProp = global::Mono.Unix.Catalog.GetString("0/1000 за раз (0 адресатов уже получали письмо массовой рассылки в течение послед" +
 					"них 2 часов) и 0/20000 в месяц писем вида массовой рассылки");
+			this.ylabelRecepientInfo.UseMarkup = true;
 			this.ylabelRecepientInfo.Wrap = true;
 			this.ylabelRecepientInfo.Selectable = true;
 			this.ylabelRecepientInfo.WidthChars = 100;
@@ -198,6 +200,7 @@ namespace Vodovoz.Views
 			this.ylabelSubjectInfo.Name = "ylabelSubjectInfo";
 			this.ylabelSubjectInfo.Xalign = 0F;
 			this.ylabelSubjectInfo.LabelProp = global::Mono.Unix.Catalog.GetString("0/255 символов");
+			this.ylabelSubjectInfo.UseMarkup = true;
 			this.table1.Add(this.ylabelSubjectInfo);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelSubjectInfo]));
 			w14.LeftAttach = ((uint)(2));

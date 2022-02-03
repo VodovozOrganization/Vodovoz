@@ -1387,6 +1387,10 @@ namespace Vodovoz
 
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
+
+		protected void OnRadioEmailsToggled(object sender, EventArgs e)
+		{
+		}
 	}
 
 	public class SalesChannelSelectableNode : PropertyChangedBase
