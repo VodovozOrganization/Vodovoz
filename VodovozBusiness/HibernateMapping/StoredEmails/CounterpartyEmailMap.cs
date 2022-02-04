@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 			Table("counterparty_emails");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			References(x => x.StoredEmail).Column("stored_email_id");
+			References(x => x.Counterparty).Column("counterparty_id");
 			Map(x => x.Type).Column("type").CustomType<CounterpartyEmailStringType>().ReadOnly();
 			DiscriminateSubClassesOnColumn("type");
 		}
@@ -57,7 +58,6 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 			public BulkEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.Bulk));
-				References(x => x.Counterparty).Column("counterparty_id");
 			}
 		}
 	}

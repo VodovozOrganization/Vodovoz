@@ -14,6 +14,8 @@ namespace Vodovoz.Domain.StoredEmails
 	)]
 	public class StoredEmail : BusinessObjectBase<StoredEmail>, IDomainObject
 	{
+		private string _title;
+
 		public virtual int Id { get; set; }
 
 		//todo art8m УБРАТЬ ПОСЛЕ МЕРЖА!!!
@@ -105,6 +107,13 @@ namespace Vodovoz.Domain.StoredEmails
 		public virtual Employee Author {
 			get { return author; }
 			set { SetField(ref author, value, () => Author); }
+		}
+
+		[Display(Name = "Тема")]
+		public virtual string Title
+		{
+			get { return _title; }
+			set { SetField(ref _title, value); }
 		}
 
 		public virtual void AddDescription(string description)

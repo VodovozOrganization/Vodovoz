@@ -3105,6 +3105,8 @@ namespace Vodovoz
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 
+				var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
+
 				var storedEmail = new StoredEmail
 				{
 					SendDate = DateTime.Now,
@@ -3112,6 +3114,7 @@ namespace Vodovoz
 					State = StoredEmailStates.PreparingToSend,
 					RecipientAddress = clientEmail.Address,
 					ManualSending = false,
+					Title = document.Name,
 					Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
 				};
 
@@ -3119,11 +3122,10 @@ namespace Vodovoz
 				{
 					uow.Save(storedEmail);
 
-					var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
-
 					OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
 					{
 						StoredEmail = storedEmail,
+						Counterparty = Counterparty,
 						OrderDocument = document
 					};
 

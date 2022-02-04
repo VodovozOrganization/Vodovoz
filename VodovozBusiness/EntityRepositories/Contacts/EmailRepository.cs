@@ -54,8 +54,8 @@ namespace Vodovoz.EntityRepositories
 					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
 					.Where(() => orderDocumentAlias.Order.Id == orderId)
 					.JoinQueryOver(ode => ode.StoredEmail)
-					.Where(se => se.State != StoredEmailStates.SendingError
-							   && se.State != StoredEmailStates.Undelivered)
+					.Where(se => se.State != StoredEmailStates.SendingError 
+					             && se.State != StoredEmailStates.Undelivered)
 					.WithSubquery.WhereExists(
 						QueryOver.Of<BillDocument>()
 							.Where(bd => bd.Id == orderDocumentEmailAlias.OrderDocument.Id)

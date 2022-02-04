@@ -228,6 +228,7 @@ namespace Vodovoz.Views
 			w17.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonSend = new global::Gtk.Button();
+			this.buttonSend.Sensitive = false;
 			this.buttonSend.CanDefault = true;
 			this.buttonSend.CanFocus = true;
 			this.buttonSend.Name = "buttonSend";

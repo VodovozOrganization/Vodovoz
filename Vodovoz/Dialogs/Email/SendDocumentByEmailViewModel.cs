@@ -304,7 +304,7 @@ namespace Vodovoz.Dialogs.Email
 
 		private void SendDocument()
 		{
-			var client = Document.Order?.Client;
+			var client = Document.Counterparty;
 
 			if(!CanSendDocument(client))
 			{
@@ -320,6 +320,7 @@ namespace Vodovoz.Dialogs.Email
 					ManualSending = true,
 					SendDate = DateTime.Now,
 					StateChangeDate = DateTime.Now,
+					Title = Document.Title,
 					RecipientAddress = EmailString
 				};
 
@@ -333,6 +334,7 @@ namespace Vodovoz.Dialogs.Email
 							var orderDocumentEmail = new OrderDocumentEmail
 							{
 								StoredEmail = storedEmail,
+								Counterparty = client,
 								OrderDocument = (OrderDocument) Document
 							};
 							unitOfWork.Save(orderDocumentEmail);
@@ -344,6 +346,7 @@ namespace Vodovoz.Dialogs.Email
 							var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
 							{
 								StoredEmail = storedEmail,
+								Counterparty = client,
 								OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForDebtEmail);
@@ -355,6 +358,7 @@ namespace Vodovoz.Dialogs.Email
 							var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
 							{
 								StoredEmail = storedEmail,
+								Counterparty = client,
 								OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForAdvancePaymentEmail);
@@ -366,6 +370,7 @@ namespace Vodovoz.Dialogs.Email
 							var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
 							{
 								StoredEmail = storedEmail,
+								Counterparty = client,
 								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);

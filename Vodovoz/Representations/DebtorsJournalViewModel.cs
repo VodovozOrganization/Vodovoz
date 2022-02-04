@@ -42,6 +42,7 @@ namespace Vodovoz.Representations
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly Employee _currentEmployee;
+		private readonly bool _canSendBulkEmails;
 
 		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
 			IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters, IEmailParametersProvider emailParametersProvider,
@@ -56,6 +57,7 @@ namespace Vodovoz.Representations
 			_debtorsParameters = debtorsParameters;
 			_gtkTabsOpener = gtkTabsOpener;
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			_canSendBulkEmails = commonServices.CurrentPermissionService.ValidatePresetPermission("can_send_bulk_emails");
 		}
 
 		IEmployeeRepository employeeRepository { get; set; }
@@ -564,22 +566,14 @@ namespace Vodovoz.Representations
 
 		private JournalAction NewJournalActionForOpenBulkEmail()
 		{
-			return new JournalAction("Массовая рассылка", x => true, x => true, selectedItems =>
+			return new JournalAction("Массовая рассылка", x => true, x => _canSendBulkEmails, selectedItems =>
 			{
 				var selectedNode = selectedItems.Cast<DebtorJournalNode>().FirstOrDefault();
-				//if(selectedNode != null)
-				//{
-				
-					var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction, _emailParametersProvider,
+				var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction, _emailParametersProvider,
 						commonServices, _attachmentsViewModelFactory, _currentEmployee);
-					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
-
-					bulkEmailView.Show();
-
-					//bulkEmailView.ShowAll();
-					//bulkEmailView.Run();
-					//bulkEmailView.Destroy();
-				//}
+				
+				var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
+				bulkEmailView.Show();
 			});
 		}
 

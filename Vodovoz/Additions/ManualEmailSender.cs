@@ -26,7 +26,6 @@ namespace Vodovoz.Additions
 
 		public void ResendEmailWithErrorSendingStatus(DateTime date)
 		{
-			IList<OrderDocumentEmail> errorSendedEmails;
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var configuration = uowLocal.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
@@ -57,7 +56,7 @@ namespace Vodovoz.Additions
 					.Where(() => orderDocumentAliasInner.Order.Id == orderDocumentAlias.Order.Id)
 					.Select(Projections.Count(Projections.Id()));
 
-				var errorSendedOrderDocument = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
+				var errorSendedOrderDocumentQuery = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
@@ -82,13 +81,12 @@ namespace Vodovoz.Additions
 					.Where(() => orderWithoutShipmentForDebtAliasInner.Id == orderWithoutShipmentForDebtAlias.Id)
 					.Select(Projections.Count(Projections.Id()));
 
-				var errorSendedOrderWithoutShipmentForDebtEmail = uowLocal.Session
+				var errorSendedOrderWithoutShipmentForDebtEmailQuery = uowLocal.Session
 					.QueryOver<OrderWithoutShipmentForDebtEmail>(() => orderWithoutShipmentForDebtEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
-					.JoinAlias(() => orderWithoutShipmentForDebtEmailAlias.OrderWithoutShipmentForDebt,
-						() => orderWithoutShipmentForDebtAlias)
+					.JoinAlias(() => orderWithoutShipmentForDebtEmailAlias.OrderWithoutShipmentForDebt, () => orderWithoutShipmentForDebtAlias)
 					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForDebtQuery)
 					.Future();
 
@@ -109,13 +107,12 @@ namespace Vodovoz.Additions
 					.Where(() => orderWithoutShipmentForAdvancePaymentAliasInner.Id == orderWithoutShipmentForAdvancePaymentAlias.Id)
 					.Select(Projections.Count(Projections.Id()));
 
-				var errorSendedOrderWithoutShipmentForAdvancePaymentEmail = uowLocal.Session
+				var errorSendedOrderWithoutShipmentForAdvancePaymentEmailQuery = uowLocal.Session
 					.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>(() => orderWithoutShipmentForAdvancePaymentEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
-					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailAlias.OrderWithoutShipmentForAdvancePayment,
-						() => orderWithoutShipmentForAdvancePaymentAlias)
+					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailAlias.OrderWithoutShipmentForAdvancePayment, () => orderWithoutShipmentForAdvancePaymentAlias)
 					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForAdvancePaymentQuery)
 					.Future();
 
@@ -136,22 +133,21 @@ namespace Vodovoz.Additions
 					.Where(() => orderWithoutShipmentForPaymentAliasInner.Id == orderWithoutShipmentForPaymentAlias.Id)
 					.Select(Projections.Count(Projections.Id()));
 
-				var errorSendedOrderWithoutShipmentForPaymentEmail = uowLocal.Session
+				var errorSendedOrderWithoutShipmentForPaymentEmailQuery = uowLocal.Session
 					.QueryOver<OrderWithoutShipmentForPaymentEmail>(() => orderWithoutShipmentForPaymentEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
-					.JoinAlias(() => orderWithoutShipmentForPaymentEmailAlias.OrderWithoutShipmentForPayment,
-						() => orderWithoutShipmentForPaymentAlias)
+					.JoinAlias(() => orderWithoutShipmentForPaymentEmailAlias.OrderWithoutShipmentForPayment, () => orderWithoutShipmentForPaymentAlias)
 					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForPaymentQuery)
 					.Future();
 
 				#endregion
 
-				var errorSendedCounterpartyEmails = errorSendedOrderDocument
-					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForDebtEmail)
-					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForAdvancePaymentEmail)
-					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForPaymentEmail);
+				var errorSendedCounterpartyEmails = errorSendedOrderDocumentQuery
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForDebtEmailQuery)
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForAdvancePaymentEmailQuery)
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForPaymentEmailQuery);
 
 				var errorSendedCounterpartyEmailsList = errorSendedCounterpartyEmails.ToList();
 
@@ -169,6 +165,7 @@ namespace Vodovoz.Additions
 								ManualSending = true,
 								SendDate = DateTime.Now,
 								StateChangeDate = DateTime.Now,
+								Title = sendedEmail.StoredEmail.Title,
 								RecipientAddress = sendedEmail.StoredEmail.RecipientAddress
 							};
 
@@ -180,6 +177,7 @@ namespace Vodovoz.Additions
 									var orderDocumentEmail = new OrderDocumentEmail
 									{
 										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
 										OrderDocument = ((OrderDocumentEmail)sendedEmail).OrderDocument
 									};
 
@@ -191,6 +189,7 @@ namespace Vodovoz.Additions
 									var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
 									{
 										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
 										OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) sendedEmail.EmailableDocument
 									};
 
@@ -202,6 +201,7 @@ namespace Vodovoz.Additions
 									var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
 									{
 										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
 										OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)sendedEmail.EmailableDocument
 									};
 
@@ -213,6 +213,7 @@ namespace Vodovoz.Additions
 									var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
 									{
 										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
 										OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)sendedEmail.EmailableDocument
 									};
 

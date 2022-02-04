@@ -3,21 +3,17 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.StoredEmails
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Документы заказа для электронной почты",
-		Nominative = "Документ заказа для электронной почты"
-	)]
+		NominativePlural = "письма контрагенту",
+		Nominative = "письмо контрагенту")]
 	public abstract class CounterpartyEmail : PropertyChangedBase, IDomainObject
 	{
-		private Order _order;
 		private StoredEmail _storedEmail;
-		private OrderDocument _orderDocument;
 		private Counterparty _counterparty;
 
 		public virtual int Id { get; set; }
@@ -29,12 +25,16 @@ namespace Vodovoz.Domain.StoredEmails
 			set => SetField(ref _storedEmail, value);
 		}
 
+		[Display(Name = "Контрагент")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
+		}
 
 		[Display(Name = "Тип почтового отправления")]
 		public virtual CounterpartyEmailType Type { get; set; }
 
-		public abstract string CounterpartyFullName { get; }
-		
 		public abstract IEmailableDocument EmailableDocument { get; }
 	}
 

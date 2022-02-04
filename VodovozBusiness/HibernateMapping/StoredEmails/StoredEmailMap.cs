@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 			Map(x => x.Description).Column("description");
 			Map(x => x.RecipientAddress).Column("recipient_address");
 			Map(x => x.ManualSending).Column("manual_sending");
+			Map(x => x.Title).Column("title");
 			References(x => x.Author).Column("author_id");
 			References(x => x.OrderWithoutShipmentForDebt).Column("bill_ws_for_debt_id");
 			References(x => x.OrderWithoutShipmentForPayment).Column("bill_ws_for_payment_id");

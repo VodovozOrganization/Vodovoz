@@ -54,7 +54,6 @@ namespace Vodovoz.ViewModels.ViewModels
 		private int _alreadySentMonthCount;
 		private IList<Domain.Client.Counterparty> _counterpartiesToSent;
 		private readonly IList<DebtorJournalNode> _debtorJournalNodes;
-		private bool _canExecute;
 
 		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
 			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailParametersProvider emailParametersProvider,
@@ -78,6 +77,8 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			var itemsSourceQuery = itemsSourceQueryFunction.Invoke(_uow);
 			_debtorJournalNodes = itemsSourceQuery.List<DebtorJournalNode>();
+
+			MailSubject = string.Empty;
 
 			Init();
 		}
@@ -107,9 +108,6 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			_counterpartiesToSent = _uow.GetById<Domain.Client.Counterparty>(counterpartiesToSentIds);
 
-			CanExecute = AttachmentsSizeInfoDanger || MailSubjectInfoDanger || RecepientInfoDanger;
-
-			SendingProgressUpper = _counterpartiesToSent.Count;
 			SendingProgressValue = 0;
 
 			OnPropertyChanged(nameof(RecepientInfoDanger));
@@ -190,12 +188,10 @@ namespace Vodovoz.ViewModels.ViewModels
 				var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
 				var logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
 				var connectionFactory = new RabbitMQConnectionFactory(logger);
 				var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
 					_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost);
 				var channel = connection.CreateModel();
-
 				var properties = channel.CreateBasicProperties();
 				properties.Persistent = true;
 
@@ -203,7 +199,6 @@ namespace Vodovoz.ViewModels.ViewModels
 			}
 			finally { }
 		}
-
 
 		#region Commands
 
@@ -219,11 +214,13 @@ namespace Vodovoz.ViewModels.ViewModels
 
 				string withoutEmails = string.Empty;
 
+				OnPropertyChanged(nameof(SendingProgressUpper));
+
 				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("BulkEmail"))
 				{
 					try
 					{
-						foreach(var counterparty in _counterpartiesToSent.Take(5))
+						foreach(var counterparty in _counterpartiesToSent)
 						{
 
 							var email = SelectPriorityEmail(counterparty.Emails);
@@ -240,8 +237,8 @@ namespace Vodovoz.ViewModels.ViewModels
 									ManualSending = true,
 									SendDate = DateTime.Now,
 									StateChangeDate = DateTime.Now,
-									RecipientAddress = "TEST@MAIL.TS", //todo email !!!!!
-
+									Title = MailSubject,
+									RecipientAddress = email.Address
 								};
 
 								unitOfWork.Save(storedEmail);
@@ -272,8 +269,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 				if(withoutEmails.Length > 0)
 				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						$"У следующих контрагентов отсутствует email:{withoutEmails}");
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"У следующих контрагентов отсутствует email:{withoutEmails}");
 				}
 
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Завершено");
@@ -281,14 +277,13 @@ namespace Vodovoz.ViewModels.ViewModels
 				Init();
 
 				IsInSendingProcess = false;
-
-			},
+			}, 
 				() => CanExecute)
 			);
 
 		#endregion
 
-		[PropertyChangedAlso(nameof(MailSubjectInfoDanger))]
+		[PropertyChangedAlso(nameof(MailSubjectInfoDanger), nameof(CanExecute))]
 		public string MailSubject
 		{
 			get => _mailSubject;
@@ -296,6 +291,7 @@ namespace Vodovoz.ViewModels.ViewModels
 		}
 
 		public string MailSubjectInfo => $"{MailSubject?.Length ?? 0}/255 символов";
+
 		public bool MailSubjectInfoDanger => MailSubject?.Length == 0 || MailSubject?.Length > 255;
 
 		public string MailTextPart
@@ -305,23 +301,24 @@ namespace Vodovoz.ViewModels.ViewModels
 		}
 
 		public AttachmentsViewModel AttachmentsEmailViewModel { get; }
+
 		public string AttachmentsSizeInfo => $"{_attachmentsSize.ToString("F")} / 15 Мб";
+
+		[PropertyChangedAlso(nameof(CanExecute))]
 		public bool AttachmentsSizeInfoDanger => _attachmentsSize > 15;
+		
 		public GenericObservableList<Attachment> ObservableAttachments =>
 			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(_attachments));
 
 		[PropertyChangedAlso(nameof(SendingDurationInfo), nameof(SendedCountInfo))]
+		
 		public double SendingProgressValue
 		{
 			get => _sendingProgressValue;
 			set => SetField(ref _sendingProgressValue, value);
 		}
 
-		public double SendingProgressUpper
-		{
-			get => _sendingProgressUpper;
-			set => SetField(ref _sendingProgressUpper, value);
-		}
+		public double SendingProgressUpper => _counterpartiesToSent.Count;
 
 		public string SendedCountInfo => $"Обработано {SendingProgressValue} из {SendingProgressUpper} контрагентов";
 
@@ -345,14 +342,11 @@ namespace Vodovoz.ViewModels.ViewModels
 			$"уже получали письмо массовой рассылки в течение последних 2 часов)" +
 			$"{Environment.NewLine}и {_alreadySentMonthCount} / 20000 в месяц писем вида массовой рассылки";
 
+		[PropertyChangedAlso(nameof(CanExecute))]
 		public bool RecepientInfoDanger =>
 			(_counterpartiesToSent.Count - _alreadySentCounterpartyIds.Length) > 1000 || _alreadySentMonthCount > 20000;
 
-		public bool CanExecute
-		{
-			get => _canExecute;
-			set => SetField(ref _canExecute, value);
-		}
+		public bool CanExecute => !AttachmentsSizeInfoDanger && !MailSubjectInfoDanger && !RecepientInfoDanger;
 
 		public EventHandler SendingProgressBarUpdated;
 	}
