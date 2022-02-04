@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Autofac;
 using QS.Commands;
 using QS.ViewModels;
@@ -16,12 +17,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class CreateManualPaymentFromBankClientViewModel : EntityTabViewModelBase<Payment>
 	{
+		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private const int _paymentNumForUpdateBalance = 120820;
-		private const int _defaultPaymentNum = 1;
 		private const string _updateBalanceTag = "Ввод остатков";
-		
+		private int _defaultPaymentNum = 1;
+
 		private bool _isPaymentForUpdateBalance;
 		private DelegateCommand _saveAndOpenManualPaymentMatchingCommand;
 		private DelegateCommand _changePaymentNumAndPaymentPurposeCommand;
@@ -31,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IPaymentsRepository paymentsRepository,
 			IProfitCategoryRepository profitCategoryRepository,
 			IProfitCategoryProvider profitCategoryProvider,
 			IOrganizationRepository organizationRepository,
@@ -46,12 +49,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(profitCategoryProvider));
 			}
 
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationParametersProvider =
 				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			Configure(profitCategoryRepository, profitCategoryProvider);
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public bool IsPaymentForUpdateBalance
@@ -108,6 +113,25 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, profitCategoryProvider.GetDefaultProfitCategory());
 			Entity.Status = PaymentState.undistributed;
 			Entity.IsManuallyCreated = true;
+		}
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Counterparty))
+			{
+				UpdatePaymentNum();
+			}
+		}
+
+		private void UpdatePaymentNum()
+		{
+			if(Entity.Counterparty != null)
+			{
+				Entity.PaymentNum = 
+					_paymentsRepository.GetMaxPaymentNumFromManualPaymentsByCounterpartyAndCurrentYear(UoW, Entity.Counterparty.Id);
+				Entity.PaymentNum++;
+				_defaultPaymentNum = Entity.PaymentNum;
+			}
 		}
 	}
 }
