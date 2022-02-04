@@ -722,30 +722,16 @@ namespace Vodovoz.JournalViewModels
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)
 		{
-			void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, RouteList routeList, Employee author)
-			{
-				document.RouteList = routeList;
-				document.Author = author;
-				document.LastEditor = author;
-				document.LastEditedTime = DateTime.Now;
-				document.Warehouse = warehouse;
-
-				document.FillFromRouteList(uow, _routeListRepository, _subdivisionRepository, true);
-				document.UpdateAlreadyLoaded(uow, _routeListRepository);
-				document.UpdateStockAmount(uow, _stockRepository);
-				document.UpdateAmounts();
-			}
-
 			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
 
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(localUow);
 				var carLoadDocument = new CarLoadDocument();
-				FillCarLoadDocument(carLoadDocument, localUow, routeList, currentEmployee);
+				FillCarLoadDocument(carLoadDocument, localUow, routeList.Id, warehouse.Id);
 
 				var routeListFullyShipped = routeList.ShipIfCan(localUow, _callTaskWorker, out var notLoadedGoods, carLoadDocument);
+				localUow.Save(routeList);
 
 				//Не погружен остался только терминал
 				var routeListShippedWithoutTerminal = notLoadedGoods.Count == 1
@@ -757,7 +743,6 @@ namespace Vodovoz.JournalViewModels
 				{
 					carLoadDocument.ClearItemsFromZero();
 					carLoadDocument.UpdateOperations(localUow);
-					localUow.Save(routeList);
 
 					if(!carLoadDocument.Items.Any())
 					{
@@ -786,14 +771,31 @@ namespace Vodovoz.JournalViewModels
 				}
 				else
 				{
+					localUow.Commit();
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось автоматически отгрузить Маршрутный лист");
 
 					var dlg = new CarLoadDocumentDlg();
-					FillCarLoadDocument(dlg.Entity, localUow, routeList, currentEmployee);
+					FillCarLoadDocument(dlg.Entity, dlg.UoW, routeList.Id, warehouse.Id);
 					TabParent.OpenTab(() => dlg);
 				}
 			}
+		}
+
+		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
+		{
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			document.RouteList = uow.GetById<RouteList>(routeListId);
+			document.Author = currentEmployee;
+			document.LastEditor = currentEmployee;
+			document.LastEditedTime = DateTime.Now;
+			document.Warehouse = uow.GetById<Warehouse>(warehouseId);
+
+			document.FillFromRouteList(uow, _routeListRepository, _subdivisionRepository, true);
+			document.UpdateAlreadyLoaded(uow, _routeListRepository);
+			document.UpdateStockAmount(uow, _stockRepository);
+			document.UpdateAmounts();
 		}
 
 		private bool CanDeleteRouteList(RouteListJournalNode selectedNode)

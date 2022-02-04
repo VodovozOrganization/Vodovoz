@@ -793,7 +793,7 @@ namespace Vodovoz.Domain.Logistic
 
 				if(itemToLoad.NomenclatureId == terminalId
 					&& ((loaded?.Amount ?? 0) + terminalsTransferedToThisRL == itemToLoad.Amount
-					    || _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, Driver, this) != null))
+					    || _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, Driver, this) != null))
 				{
 					continue;
 				}
