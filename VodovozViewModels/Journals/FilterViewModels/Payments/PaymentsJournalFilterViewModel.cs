@@ -18,6 +18,7 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _hideCompleted;
 		private bool _isManuallyCreated;
 		private bool _hidePaymentsWithoutCounterparty;
+		private bool _hideAllocatedPayments;
 		private bool _isSortingDescByUnAllocatedSum;
 		private Counterparty _counterparty;
 		
@@ -78,6 +79,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _hidePaymentsWithoutCounterparty;
 			set => UpdateFilterField(ref _hidePaymentsWithoutCounterparty, value);
+		}
+		
+		public bool HideAllocatedPayments
+		{
+			get => _hideAllocatedPayments;
+			set => UpdateFilterField(ref _hideAllocatedPayments, value);
 		}
 
 		public bool IsSortingDescByUnAllocatedSum

@@ -1,5 +1,4 @@
-﻿using Gtk;
-using QS.Navigation;
+﻿using QS.Navigation;
 using QS.Views.Dialog;
 using Vodovoz.ViewModels.Payments;
 
@@ -28,13 +27,8 @@ namespace Vodovoz.Views.Payments
 			btnCancel.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsAllocationState, w => w.Sensitive)
 				.InitializeFromSource();
-			
-			ViewModel.ProgressBarDisplayable = progresswidget;
-		}
 
-		public override void Destroy()
-		{
-			
+			ViewModel.ProgressBarDisplayable = progresswidget;
 		}
 	}
 }

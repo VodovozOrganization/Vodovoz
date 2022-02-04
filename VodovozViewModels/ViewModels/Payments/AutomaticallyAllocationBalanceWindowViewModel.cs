@@ -6,7 +6,6 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
-using QS.Tdi;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
@@ -14,7 +13,7 @@ using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.ViewModels.Payments
 {
-	public class AutomaticallyAllocationBalanceWindowViewModel : WindowDialogViewModelBase, ITDICloseControlTab
+	public class AutomaticallyAllocationBalanceWindowViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly UnAllocatedBalancesJournalNode _selectedUnAllocatedBalancesNode;
 		private readonly IList<UnAllocatedBalancesJournalNode> _loadedNodes;
@@ -32,7 +31,7 @@ namespace Vodovoz.ViewModels.Payments
 			INavigationManager navigationManager,
 			IPaymentsRepository paymentsRepository,
 			IOrderRepository orderRepository,
-			IUnitOfWork uow,
+			IUnitOfWorkFactory uowFactory,
 			UnAllocatedBalancesJournalNode selectedUnAllocatedBalancesNode,
 			IList<UnAllocatedBalancesJournalNode> loadedNodes,
 			int closingDocumentDeliveryScheduleId) : base(navigationManager)
@@ -45,12 +44,13 @@ namespace Vodovoz.ViewModels.Payments
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_selectedUnAllocatedBalancesNode = selectedUnAllocatedBalancesNode;
+			_uow = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot();
+			_selectedUnAllocatedBalancesNode =
+				selectedUnAllocatedBalancesNode ?? throw new ArgumentNullException(nameof(selectedUnAllocatedBalancesNode));
 			_loadedNodes = loadedNodes ?? throw new ArgumentNullException(nameof(loadedNodes));
 			_closingDocumentDeliveryScheduleId = closingDocumentDeliveryScheduleId;
-			//IsModal = true;
 			Resizable = false;
+			Deletable = false;
 			WindowPosition = WindowGravity.None;
 		}
 
@@ -66,11 +66,22 @@ namespace Vodovoz.ViewModels.Payments
 			_allocateByCurrentCounterpartyCommand ?? (_allocateByCurrentCounterpartyCommand =
 				new DelegateCommand(
 					() =>
-					{			
-						IsAllocationState = true;
-						AllocateByCounterpartyAndOrg(_selectedUnAllocatedBalancesNode);
-						IsAllocationState = false;
-						Close(false, CloseSource.Self);
+					{
+						try
+						{
+							IsAllocationState = true;
+							AllocateByCounterpartyAndOrg(_selectedUnAllocatedBalancesNode);
+							IsAllocationState = false;
+						}
+						catch(Exception e)
+						{
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Error, "Возникла непредвиденная ошибка, перезапустите операцию");
+						}
+						finally
+						{
+							Close(false, CloseSource.Self);
+						}
 					}
 				)
 			);
@@ -80,38 +91,38 @@ namespace Vodovoz.ViewModels.Payments
 				new DelegateCommand(
 					() =>
 					{
-						if(_loadedNodes.Count == 100)
+						try
 						{
 							IsAllocationState = true;
-							ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
+							if(_loadedNodes.Count == 100)
+							{
+								ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
 
-							var allUnAllocatedBalances =
-								_paymentsRepository.GetAllUnAllocatedBalances(_uow, _closingDocumentDeliveryScheduleId)
-									.List<UnAllocatedBalancesJournalNode>();
+								var allUnAllocatedBalances =
+									_paymentsRepository.GetAllUnAllocatedBalances(_uow, _closingDocumentDeliveryScheduleId)
+										.List<UnAllocatedBalancesJournalNode>();
 
-							AllocateLoadedBalances(allUnAllocatedBalances);
+								AllocateLoadedBalances(allUnAllocatedBalances);
+							}
+							else
+							{
+								AllocateLoadedBalances(_loadedNodes);
+							}
+							IsAllocationState = false;
 						}
-						else
+						catch(Exception e)
 						{
-							IsAllocationState = true;
-							AllocateLoadedBalances(_loadedNodes);
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Error, "Возникла непредвиденная ошибка, перезапустите операцию");
 						}
-						
-						Close(false, CloseSource.Self);
+						finally
+						{
+							Close(false, CloseSource.Self);
+						}
 					}
 				)
 			);
 		
-		public bool CanClose()
-		{
-			if(IsAllocationState)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Дождитесь завершения задачи и повторите");
-			}
-
-			return !IsAllocationState;
-		}
-
 		private void AllocateByCounterpartyAndOrg(UnAllocatedBalancesJournalNode node)
 		{
 			var balance = node.CounterpartyBalance;
@@ -124,7 +135,7 @@ namespace Vodovoz.ViewModels.Payments
 					node.CounterpartyId,
 					node.OrganizationId,
 					_closingDocumentDeliveryScheduleId);
-
+			
 			foreach(var paymentNode in paymentNodes)
 			{
 				if(balance == 0)
@@ -214,9 +225,13 @@ namespace Vodovoz.ViewModels.Payments
 				allocated++;
 				ProgressBarDisplayable.Add(1, $"Обработано {allocated} клиентов из {loadedNodes.Count}");
 			}
-
-			IsAllocationState = false;
+			
 			ProgressBarDisplayable.Update("Балансы разнесены успешно");
+		}
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
 		}
 	}
 }

@@ -29,6 +29,9 @@ namespace Vodovoz.Filters.Views
 			ycheckbtnHideCompleted.Binding
 				.AddBinding(ViewModel, vm => vm.HideCompleted, w => w.Active)
 				.InitializeFromSource();
+			chkHideAllocatedPayments.Binding
+				.AddBinding(ViewModel, vm => vm.HideAllocatedPayments, w => w.Active)
+				.InitializeFromSource();
 			chkIsManualCreate.Binding
 				.AddBinding(ViewModel, vm => vm.IsManuallyCreated, w => w.Active)
 				.InitializeFromSource();

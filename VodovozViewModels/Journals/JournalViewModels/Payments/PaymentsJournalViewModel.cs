@@ -9,7 +9,6 @@ using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
@@ -122,13 +121,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				NHibernateUtil.String,
 				Projections.Property(() => paymentItemAlias.Order.Id),
 				Projections.Constant("\n"));
+
+			var ifNullPaymentItemSumProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
+				NHibernateUtil.Decimal,
+				Projections.Property(() => paymentItemAlias.Sum),
+				Projections.Constant(0));
 			
 			var unAllocatedSumProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - ?2"),
 				NHibernateUtil.Decimal,
 				Projections.Property(() => paymentAlias.Total),
-				Projections.Sum(() => paymentItemAlias.Sum),
-				Projections.Constant(0));
+				Projections.Sum(ifNullPaymentItemSumProjection));
 			
 			var counterpartyNameProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "IFNULL(?1, '')"),
@@ -162,6 +166,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				if(_filterViewModel.HidePaymentsWithoutCounterparty)
 				{
 					paymentQuery.Where(p => p.Counterparty != null);
+				}
+				
+				if(_filterViewModel.HideAllocatedPayments)
+				{
+					paymentQuery.Where(
+						Restrictions.GtProperty(
+							Projections.Property<Payment>(p => p.Total),
+							Projections.Sum(ifNullPaymentItemSumProjection)));
 				}
 
 				if(_filterViewModel.PaymentState.HasValue)

@@ -45,18 +45,19 @@ namespace Vodovoz.EntityRepositories.Payments
 			return shops;
 		}
 
-		public bool PaymentFromBankClientExists(
+		public bool NotManuallyPaymentFromBankClientExists(
 			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber)
 		{
 			Organization organizationAlias = null;
 
 			var payment = uow.Session.QueryOver<Payment>()
 				.JoinAlias(x => x.Organization, () => organizationAlias)
-				.Where(p => p.Date == date &&
-						p.PaymentNum == number &&
-						p.CounterpartyInn == counterpartyInn &&
-						p.CounterpartyCurrentAcc == accountNumber)
+				.Where(p => p.Date == date)
+				.And(p => p.PaymentNum == number)
+				.And(p => p.CounterpartyInn == counterpartyInn)
+				.And(p => p.CounterpartyCurrentAcc == accountNumber)
 				.And(() => organizationAlias.INN == organisationInn)
+				.And(p => !p.IsManuallyCreated)
 				.SingleOrDefault<Payment>();
 			
 			return payment != null;
