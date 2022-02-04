@@ -7,8 +7,8 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods
 {
-	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>
+	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>, IAskSaveOnCloseViewModel
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		
@@ -24,18 +24,6 @@ namespace Vodovoz.ViewModels.Goods
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-
-		private Warehouse selectedWarehouse;
-		public Warehouse SelectedWarehouse {
-			get => selectedWarehouse;
-			set => SetField(ref selectedWarehouse, value);
-		}
-		
-		public bool ImageLoaded { get; set; }
-		public NomenclatureImage PopupMenuOn { get; set; }
-
 		public Action PricesViewSaveChanges;
 		
 		public NomenclatureViewModel(
@@ -57,49 +45,32 @@ namespace Vodovoz.ViewModels.Goods
 
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
+			SetPermissions();
 		}
 
-		public bool VisibilityWaterInNotDisposableTareCategoryItems =>
-			Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		
-		public bool VisibilityWaterCategoryItems =>
-			Entity.Category == NomenclatureCategory.water;
-		
-		public bool VisibilityWaterOrBottleCategoryItems =>
-			Entity.Category == NomenclatureCategory.water 
-			|| Entity.Category == NomenclatureCategory.bottle;
-		
-		public bool VisibilitySalesCategoriesItems =>
-			Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category);
-		
-		public bool VisibilityMasterCategoryItems =>
-			Entity.Category == NomenclatureCategory.master;
-		
-		public bool VisibilityDepositCategoryItems =>
-			Entity.Category == NomenclatureCategory.deposit;
-
-		public bool VisibilityFuelCategoryItems =>
-			Entity.Category == NomenclatureCategory.fuel;
-
-		public bool VisibilityBottleCategoryItems =>
-			Entity.Category == NomenclatureCategory.bottle;
-		
-		public bool VisibilityBottleCapColorItems => Entity.TareVolume == TareVolume.Vol19L;
-
-		public bool SensitivityCheckIsArchive => 
-			CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-		
-		public bool SensitivityEquipmentCategoryItems =>
-			Entity.Category == NomenclatureCategory.equipment;
-
-		public bool SensitivityNotServiceOrDepositCategoryItems =>
-			!(Entity.Category == NomenclatureCategory.service || Entity.Category == NomenclatureCategory.deposit);
-		
+		public bool ImageLoaded { get; set; }
+		public NomenclatureImage PopupMenuOn { get; set; }
+		public bool IsWaterCategory => Entity.Category == NomenclatureCategory.water;
+		public bool IsWaterOrBottleCategory => IsWaterCategory || IsBottleCategory;
+		public bool IsWaterInNotDisposableTare => IsWaterCategory && !Entity.IsDisposableTare;
+		public bool IsSaleCategory => Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category);
+		public bool IsMasterCategory => Entity.Category == NomenclatureCategory.master;
+		public bool IsDepositCategory => Entity.Category == NomenclatureCategory.deposit;
+		public bool IsFuelCategory => Entity.Category == NomenclatureCategory.fuel;
+		public bool IsBottleCategory => Entity.Category == NomenclatureCategory.bottle;
+		public bool Is19lTareVolume => Entity.TareVolume == TareVolume.Vol19L;
+		public bool IsEquipmentCategory => Entity.Category == NomenclatureCategory.equipment;
+		public bool IsNotServiceAndDepositCategory => !(Entity.Category == NomenclatureCategory.service || IsDepositCategory);
 		public bool IsEshopNomenclature => Entity?.ProductGroup?.ExportToOnlineStore ?? false;
-
 		public bool IsOnlineStoreNomenclature => Entity?.OnlineStore != null;
-
-		public bool SensitivityRadioPriceButton => Entity.DependsOnNomenclature == null;
+		public bool WithoutDependsOnNomenclature => Entity.DependsOnNomenclature == null;
+		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
+		public bool CanCreateAndArcNomenclatures { get; private set; }
+		public bool AskSaveOnClose => CanEdit;
+		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
 
 		private void ConfigureValidationContext()
 		{
@@ -109,21 +80,21 @@ namespace Vodovoz.ViewModels.Goods
 		private void ConfigureEntityPropertyChanges() {
 			SetPropertyChangeRelation(
 				e => e.Category,
-				() => VisibilityWaterInNotDisposableTareCategoryItems,
-				() => VisibilityWaterOrBottleCategoryItems,
-				() => VisibilityWaterCategoryItems,
-				() => VisibilitySalesCategoriesItems,
-				() => VisibilityMasterCategoryItems,
-				() => VisibilityDepositCategoryItems,
-				() => VisibilityFuelCategoryItems,
-				() => VisibilityBottleCategoryItems,
-				() => SensitivityEquipmentCategoryItems,
-				() => SensitivityNotServiceOrDepositCategoryItems
+				() => IsWaterInNotDisposableTare,
+				() => IsWaterOrBottleCategory,
+				() => IsWaterCategory,
+				() => IsSaleCategory,
+				() => IsMasterCategory,
+				() => IsDepositCategory,
+				() => IsFuelCategory,
+				() => IsBottleCategory,
+				() => IsEquipmentCategory,
+				() => IsNotServiceAndDepositCategory
 			);
 			
 			SetPropertyChangeRelation(
 				e => e.IsDisposableTare,
-				() => VisibilityWaterInNotDisposableTareCategoryItems
+				() => IsWaterInNotDisposableTare
 			);
 			
 			SetPropertyChangeRelation(
@@ -133,12 +104,12 @@ namespace Vodovoz.ViewModels.Goods
 
 			SetPropertyChangeRelation(
 				e => e.DependsOnNomenclature,
-				() => SensitivityRadioPriceButton
+				() => WithoutDependsOnNomenclature
 			);
 			
 			SetPropertyChangeRelation(
 				e => e.TareVolume,
-				() => VisibilityBottleCapColorItems
+				() => Is19lTareVolume
 			);
 		}
 
@@ -168,11 +139,21 @@ namespace Vodovoz.ViewModels.Goods
 		}
 		
 		public void OnEnumKindChangedByUser(object sender, EventArgs e) {
-			if(Entity.Id == 0 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category))
+			if(Entity.Id == 0 && IsSaleCategory)
+			{
 				Entity.SaleCategory = SaleCategory.notForSale;
+			}
 
-			if (Entity.Category != NomenclatureCategory.water && Entity.Category != NomenclatureCategory.bottle)
+			if(!IsWaterCategory && !IsBottleCategory)
+			{
 				Entity.IsDisposableTare = false;
+			}
+		}
+		
+		private void SetPermissions()
+		{
+			CanCreateAndArcNomenclatures =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 		}
 
 		protected override void BeforeValidation() {
@@ -200,7 +181,5 @@ namespace Vodovoz.ViewModels.Goods
 		);
 
 		#endregion
-
-		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; set; }
 	}
 }

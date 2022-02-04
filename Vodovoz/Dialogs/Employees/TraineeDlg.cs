@@ -61,6 +61,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		
 		private AttachmentsViewModel _attachmentsViewModel;
+		private bool canEdit;
 
 		public TraineeDlg()
 		{
@@ -85,6 +86,7 @@ namespace Vodovoz.Dialogs.Employees
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
+			canEdit = permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
 
 			CreateAttachmentsViewModel();
 			ConfigureBindings();
@@ -252,8 +254,8 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, null, ServicesConfig.CommonServices);
-			dlg.Save += (object sender1, EventArgs e1)=>Entity.ObservableDocuments.Add(dlg.Entity);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, null, ServicesConfig.CommonServices, canEdit);
+			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
@@ -267,7 +269,8 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) 
 			{
-				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices);
+				EmployeeDocDlg dlg = new EmployeeDocDlg(
+					((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices, canEdit);
 				TabParent.AddSlaveTab(this, dlg);
 			}
 

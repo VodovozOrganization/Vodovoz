@@ -158,8 +158,10 @@ namespace Vodovoz.JournalViewModels
 			return queryStock;
 		};
 
-		protected override Func<NomenclatureViewModel> CreateDialogFunction => () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
+		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
+			() => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
 
-		protected override Func<NomenclatureStockJournalNode, NomenclatureViewModel> OpenDialogFunction => (node) => throw new InvalidOperationException("Нельзя изменять номенклатуры из данного журнала");
+		protected override Func<NomenclatureStockJournalNode, NomenclatureViewModel> OpenDialogFunction =>
+			(node) => throw new InvalidOperationException("Нельзя изменять номенклатуры из данного журнала");
 	}
 }
