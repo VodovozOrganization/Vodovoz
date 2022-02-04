@@ -1164,13 +1164,16 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if((new[] { PaymentType.cash, PaymentType.Terminal }.Contains(PaymentType)
-				|| (PaymentType == PaymentType.ByCard
-					&& PaymentByCardFrom != null
-					&& !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
-						.PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
-				&& Contract?.Organization != null && Contract.Organization.CashBoxId == null) {
+				   || (PaymentType == PaymentType.ByCard
+					   && PaymentByCardFrom != null
+					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
+						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
+			   && Contract?.Organization != null && Contract.Organization.CashBoxId == null)
+			{
 				yield return new ValidationResult(
-					"Ошибка программы. В заказе автоматически подобрана неверная организация или к организации не привязан кассовый аппарат",
+					"Невозможно сохранить заказ.\n" +
+					$"К нашей организации '{Contract.Organization.Name}' не привязан кассовый аппарат.\n" +
+					"Измените в заказе либо форму оплаты, либо нашу организацию",
 					new[] { nameof(Contract.Organization) });
 			}
 
@@ -1337,22 +1340,16 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
-			}
-			
-			if(CreateDate != null 
-			   && CreateDate <= new DateTime(2020, 12, 16) 
-			   && Contract != null 
-			   && !onPaymentTypeChanged
-			   && Contract.Counterparty == Client) {
+			if(CreateDate != null
+				&& CreateDate <= new DateTime(2020, 12, 16)
+				&& Contract != null
+				&& !onPaymentTypeChanged
+				&& Contract.Counterparty == Client)
+			{
 				return;
 			}
 			
-			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			ForceUpdateContract();
 		}
 		
 		public virtual void ForceUpdateContract()
@@ -1491,9 +1488,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill(IEmailRepository emailRepository)
 		{
-			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
+			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
 				&& PaymentType == PaymentType.cashless
-				&& !emailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
+				&& !emailRepository.HaveSendedEmailForBill(Id)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}
@@ -1596,6 +1593,13 @@ namespace Vodovoz.Domain.Orders
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
 			}
+			else
+			{
+				if(DeliveryDate.HasValue && DeliveryDate.Value < counterpartyContract.IssueDate)
+				{
+					counterpartyContract.IssueDate = DeliveryDate.Value;
+				}
+			}
 
 			Contract = counterpartyContract;
 			
@@ -1609,9 +1613,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculateItemsPrice()
 		{
-			foreach(var orderItem in OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water))
+			for(var i = 0; i < OrderItems.Count; i++)
 			{
-				orderItem.RecalculatePrice();
+				if(OrderItems[i].Nomenclature.Category == NomenclatureCategory.water)
+				{
+					OrderItems[i].RecalculatePrice();
+				}
 			}
 		}
 
@@ -2086,12 +2093,9 @@ namespace Vodovoz.Domain.Orders
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
 		{
-			if(Contract == null) {
-				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
-				var counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
-				UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			if(Contract == null)
+			{
+				ForceUpdateContract();
 			}
 			AddMasterNomenclature(nomenclature, 1, 1);
 			return Contract;
@@ -2499,7 +2503,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
-		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			ChangeStatus(newStatus);
 			callTaskWorker.CreateTasks(this);
@@ -3507,10 +3511,12 @@ namespace Vodovoz.Domain.Orders
 			IPaymentFromBankClientController paymentFromBankClientController)
 		{
 			SetFirstOrder();
-			if(Contract == null)
+			
+			if(!IsLoadedFrom1C)
 			{
 				UpdateContract();
 			}
+
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();

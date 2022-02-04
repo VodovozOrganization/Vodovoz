@@ -467,8 +467,7 @@ namespace Vodovoz.JournalViewModels
 							changesToOrders.Sum(item => item.Value),
 							$"Сдача по МЛ №{routeList.Id}" +
 							$"\n-----" +
-							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")),
-							commonServices.PermissionService);
+							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")));
 					}
 				}
 			));

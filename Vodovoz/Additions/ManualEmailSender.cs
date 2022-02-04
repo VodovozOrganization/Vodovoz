@@ -1,19 +1,19 @@
-﻿using System;
-using System.IO;
-using EmailService;
-using fyiReporting.RDL;
+﻿using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
-using QS.Report;
-using Vodovoz.Parameters;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.StoredEmails;
+using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using fyiReporting.RdlGtkViewer;
-using RdlEngine;
+using System.Text;
+using System.Text.Json;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.StoredEmails;
+using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Additions
 {
@@ -25,16 +25,12 @@ namespace Vodovoz.Additions
 
 		public void ResendEmailWithErrorSendingStatus(DateTime date)
 		{
-			IEmailService service = EmailServiceSetting.GetEmailService();
-			if(service == null) {
-				return;
-			}
+			IList<OrderDocumentEmail> errorSendedEmails;
+			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var configuration = uowLocal.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-			IList<StoredEmail> errorSendedEmails;
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
-
-				StoredEmail unsendedEmailAlias = null;
-				StoredEmail alreadyResendedEmailAlias = null;
+				OrderDocumentEmail unsendedEmailAlias = null;
 
 				var dateCriterion = Projections.SqlFunction(
 				   new SQLFunctionTemplate(
@@ -47,48 +43,60 @@ namespace Vodovoz.Additions
 				ICriterion dateResctict = Restrictions.Eq(dateCriterion, date.Date);
 				ICriterion dateResctictGe = Restrictions.Ge(dateCriterion, date.Date);
 
-				var resendedQuery = QueryOver.Of<StoredEmail>()
-					.Where(Restrictions.EqProperty(Projections.Property<StoredEmail>(x => x.Order.Id), Projections.Property(() => unsendedEmailAlias.Order.Id)))
+				var resendedQuery = QueryOver.Of<OrderDocumentEmail>()
+					.Where(Restrictions.EqProperty(Projections.Property<OrderDocumentEmail>(ode => ode.Order.Id), Projections.Property(() => unsendedEmailAlias.Order.Id)))
+					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(x => x.State != StoredEmailStates.SendingError)
 					.Where(dateResctictGe)
 					.Select(Projections.Count(Projections.Id()));
-				
-				errorSendedEmails = uowLocal.Session.QueryOver<StoredEmail>(() => unsendedEmailAlias)
-					.Where(x => x.State == StoredEmailStates.SendingError)
+
+				errorSendedEmails = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => unsendedEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
 					.Where(dateResctict)
 					.WithSubquery.WhereValue(0).Eq(resendedQuery)
 					.List();
 
-				foreach(var sendedEmail in errorSendedEmails) {
-					var billDocument = sendedEmail.Order.OrderDocuments.FirstOrDefault(y => y.Type == OrderDocumentType.Bill) as BillDocument;
-					if(billDocument == null) {
+				foreach(var sendedEmail in errorSendedEmails)
+				{
+					if(!(sendedEmail.Order.OrderDocuments.FirstOrDefault(y => y.Type == OrderDocumentType.Bill) is BillDocument billDocument))
+					{
 						continue;
 					}
 
-					billDocument.HideSignature = false;
-					ReportInfo ri = billDocument.GetReportInfo();
+					try
+					{
 
-				   var billTemplate = billDocument.GetEmailTemplate();
-					OrderEmail email = new OrderEmail {
-						Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
-						Text = billTemplate.Text,
-						HtmlText = billTemplate.TextHtml,
-						Recipient = new EmailContact("", sendedEmail.RecipientAddress),
-						Sender = new EmailContact("vodovoz-spb.ru", new ParametersProvider().GetParameterValue("email_for_email_delivery")),
-						Order = billDocument.Order.Id,
-						OrderDocumentType = OrderDocumentType.Bill
-					};
-					foreach(var item in billTemplate.Attachments) {
-						email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
+						using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
+						{
+							var storedEmail = new StoredEmail
+							{
+								State = StoredEmailStates.PreparingToSend,
+								Author = sendedEmail.StoredEmail.Author,
+								ManualSending = true,
+								SendDate = DateTime.Now,
+								StateChangeDate = DateTime.Now,
+								RecipientAddress = sendedEmail.StoredEmail.RecipientAddress
+							};
+
+							unitOfWork.Save(storedEmail);
+
+							var orderDocumentEmail = new OrderDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Order = sendedEmail.Order,
+								OrderDocument = sendedEmail.OrderDocument
+							};
+
+							unitOfWork.Save(orderDocumentEmail);
+
+							unitOfWork.Commit();
+						}
 					}
-					using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-						string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-						email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
+					catch(Exception e)
+					{
+						Console.WriteLine($"Ошибка отправки { sendedEmail.Id } : { e.Message }");
 					}
-					email.AuthorId = sendedEmail.Author.Id;
-					email.ManualSending = sendedEmail.ManualSending ?? false;
-				
-					service.SendOrderEmail(email);
 				}
 			}
 		}

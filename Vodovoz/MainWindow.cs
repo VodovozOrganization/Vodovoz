@@ -43,7 +43,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories;
@@ -905,10 +904,11 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				SubdivisionParametersProvider.Instance,
+				new SubdivisionParametersProvider(new ParametersProvider()),
 				subdivisionJournalFactory,
 				counterpartyJournalFactory,
-				subdivisionRepository
+				subdivisionRepository,
+				new NomenclatureFixedPriceRepository()
 			));
 	}
 
@@ -979,7 +979,7 @@ public partial class MainWindow : Gtk.Window
 			VodovozGtkServicesConfig.EmployeeService,
 			counterpartySelectorFactory,
 			routeListItemRepository,
-			SubdivisionParametersProvider.Instance,
+			new SubdivisionParametersProvider(new ParametersProvider()),
 			new ComplaintFilterViewModel(
 				ServicesConfig.CommonServices,
 				subdivisionRepository,
@@ -2107,7 +2107,7 @@ public partial class MainWindow : Gtk.Window
 					VodovozGtkServicesConfig.EmployeeService,
 					counterpartySelectorFactory,
 					routeListItemRepository,
-					SubdivisionParametersProvider.Instance,
+					new SubdivisionParametersProvider(new ParametersProvider()),
 					new ComplaintFilterViewModel(
 						ServicesConfig.CommonServices,
 						subdivisionRepository,
@@ -2504,6 +2504,14 @@ public partial class MainWindow : Gtk.Window
 		var complaintResultsOfEmployeesViewModel =
 			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
+	}
+
+	protected void OnActionCashlessDebtsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
+			() => new QSReport.ReportViewDlg(autofacScope.Resolve<CounterpartyCashlessDebtsReport>())
+		);
 	}
 
 	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)

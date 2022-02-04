@@ -59,7 +59,6 @@
     <Compile Include="SmsPaymentServiceBehavior.cs" />
     <Compile Include="SmsPaymentServiceHost.cs" />
     <Compile Include="SmsPaymentServiceInstanceProvider.cs" />
-    <Compile Include="DriverPaymentService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -70,10 +69,6 @@
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
       <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
       <Name>QS.Attachments</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\Android\Android.csproj">
-      <Project>{AAEC7B35-D03F-4DF6-B5E3-07EAF28AC773}</Project>
-      <Name>Android</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
@@ -90,10 +85,6 @@
     <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VodovozAndroidDriverService\VodovozAndroidDriverService.csproj">
-      <Project>{9444E255-BF6E-443D-9919-4EFCB4FAA58A}</Project>
-      <Name>VodovozAndroidDriverService</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>

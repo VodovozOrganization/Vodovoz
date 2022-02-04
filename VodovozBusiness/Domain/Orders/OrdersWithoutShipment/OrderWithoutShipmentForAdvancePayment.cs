@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "счетах без отгрузки на предоплату")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
+	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		

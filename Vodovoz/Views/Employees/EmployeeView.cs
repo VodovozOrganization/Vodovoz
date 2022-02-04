@@ -303,7 +303,7 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Документы
 
-			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanEditEmployee;
+			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanReadEmployee;
 			radioTabEmployeeDocument.Sensitive = haveAccessToDocuments;
 			if(haveAccessToDocuments)
 			{
@@ -355,7 +355,7 @@ namespace Vodovoz.Views.Employees
 
 			btnAddDocument.Sensitive = ViewModel.CanAddEmployeeDocument && ViewModel.CanEditEmployee;
 			btnEditDocument.Binding
-				.AddBinding(ViewModel, vm => vm.CanEditEmployeeDocument, w => w.Sensitive).InitializeFromSource();
+				.AddBinding(ViewModel, vm => vm.CanReadEmployeeDocument, w => w.Sensitive).InitializeFromSource();
 			btnRemoveDocument.Binding
 				.AddBinding(ViewModel, vm => vm.CanRemoveEmployeeDocument, w => w.Sensitive).InitializeFromSource();
 		}
@@ -382,20 +382,21 @@ namespace Vodovoz.Views.Employees
 			var dlg = new EmployeeDocDlg(
 				ViewModel.UoW,
 				ViewModel.Entity.IsRussianCitizen ? ViewModel.HiddenForRussianDocument : ViewModel.HiddenForForeignCitizen,
-				ServicesConfig.CommonServices);
+				ServicesConfig.CommonServices, ViewModel.CanEditEmployee);
 			dlg.Save += (s, args) => ViewModel.Entity.ObservableDocuments.Add(dlg.Entity);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
 		}
 
 		private void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			var dlg = new EmployeeDocDlg(ViewModel.SelectedEmployeeDocuments.ElementAt(0).Id, ViewModel.UoW, ServicesConfig.CommonServices);
+			var dlg = new EmployeeDocDlg(
+				ViewModel.SelectedEmployeeDocuments.ElementAt(0).Id, ViewModel.UoW, ServicesConfig.CommonServices, ViewModel.CanEditEmployee);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
 		}
 
 		private void OnEmployeeDocumentRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			if(ViewModel.CanEditEmployeeDocument)
+			if(ViewModel.CanReadEmployeeDocument)
 			{
 				btnEditDocument.Click();
 			}

@@ -419,6 +419,8 @@ public partial class MainWindow : Window
 
 		//Suppliers
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
+		ActionNewRequestToSupplier.Sensitive =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RequestToSupplier)).CanCreate;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 		ActionWarehousesBalanceSummary.Activated += ActionWarehousesBalanceSummary_Activated;
@@ -933,15 +935,10 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<RouteListsVM>(),
-			() => {
-				var vm = new RouteListsVM();
-				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				Buttons buttons = Buttons.Add | Buttons.Edit;
-				return new PermissionControlledRepresentationJournal(vm, buttons, true);
-			}
-		);
+		var filter = autofacScope.Resolve<RouteListJournalFilterViewModel>();
+		filter.StartDate = DateTime.Today.AddMonths(-2);
+		filter.EndDate = DateTime.Today;
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)

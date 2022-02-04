@@ -44,7 +44,6 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -83,7 +82,9 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IContactsParameters _contactsParameters = ContactParametersProvider.Instance;
+		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
+			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
@@ -937,7 +938,7 @@ namespace Vodovoz
 				_employeeService,
 				CounterpartySelectorFactory,
 				RouteListItemRepository,
-				SubdivisionParametersProvider.Instance,
+				_subdivisionParametersProvider,
 				filter,
 				FilePickerService,
 				SubdivisionRepository,

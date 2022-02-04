@@ -123,6 +123,7 @@
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
+    <Compile Include="Domain\InstanceMailingConfiguration.cs" />
     <Compile Include="Domain\IOrderDailyNumberController.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\CarEvent.cs" />
@@ -145,6 +146,8 @@
     <Compile Include="Domain\Orders\UndeliveryTransferAbsenceReason.cs" />
     <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\Documents\PrintableOrderDocument.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\IDocument.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\IEmailableDocument.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
@@ -160,6 +163,7 @@
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
     <Compile Include="Domain\Sms\UndeliveryNotApprovedSmsNotification.cs" />
+    <Compile Include="Domain\StoredEmails\OrderDocumentEmail.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -219,6 +223,8 @@
     <Compile Include="EntityRepositories\Flyers\FlyerRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\IFlyerRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
@@ -239,7 +245,9 @@
     <Compile Include="EntityRepositories\Operations\WagesMovementRepository.cs" />
     <Compile Include="EntityRepositories\Orders\Export1cMode.cs" />
     <Compile Include="EntityRepositories\Orders\IPromotionalSetRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\ISmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IPaymentItemsRepository.cs" />
@@ -310,6 +318,7 @@
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
+    <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\CarEventMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
@@ -337,6 +346,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
+    <Compile Include="HibernateMapping\StoredEmails\OrderDocumentEmailMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
@@ -361,11 +371,15 @@
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
+    <Compile Include="Parameters\EmailParametersProvider.cs" />
+    <Compile Include="Parameters\IEmailParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
+    <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
+    <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
@@ -843,7 +857,6 @@
     <Compile Include="Domain\Complaints\ComplaintType.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
-    <Compile Include="Services\ISubdivisionService.cs" />
     <Compile Include="EntityRepositories\Employees\EmployeeRepository.cs" />
     <Compile Include="EntityRepositories\Employees\IEmployeeRepository.cs" />
     <Compile Include="Domain\Client\SupplierPriceItem.cs" />
@@ -959,7 +972,6 @@
     <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
     <Compile Include="Services\IEmailServiceSettings.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
-    <Compile Include="Domain\Service\BaseParametersServices\SubdivisionParametersProvider.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetActionBaseMap.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />

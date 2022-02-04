@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
@@ -16,6 +17,8 @@ using QS.Tdi;
 using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
+using System;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Goods;
@@ -108,10 +111,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
-			
+
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), currentEmployee, commonServices.InteractiveService, parametersProvider, UoW);
-			
+				new EmailRepository(), new EmailParametersProvider(parametersProvider), currentEmployee, commonServices.InteractiveService, UoW);
+
+
 			FillDiscountReasons(discountReasonRepository);
 		}
 
