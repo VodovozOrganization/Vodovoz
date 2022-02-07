@@ -585,7 +585,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					n => _gtkDlgOpener.OpenCreateRouteListDlg(this, GetRouteList(n).Id)
+					n => _gtkDlgOpener.OpenRouteListCreateDlg(this, GetRouteList(n).Id)
 				)
 			);
 

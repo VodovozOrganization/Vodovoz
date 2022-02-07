@@ -164,7 +164,7 @@ namespace Vodovoz
 			if(DocumentUoW.Root.Warehouse != null)
 			{
 				DocumentUoW.Root.UpdateStockAmount(DocumentUoW, _stockRepository);
-				UpdateAmounts();
+				DocumentUoW.Root.UpdateAmounts();
 			}
 		}
 
@@ -202,27 +202,7 @@ namespace Vodovoz
 			if(DocumentUoW.Root.Warehouse != null)
 			{
 				DocumentUoW.Root.UpdateStockAmount(DocumentUoW, _stockRepository);
-				UpdateAmounts();
-			}
-		}
-
-		public void UpdateAmounts()
-		{
-			foreach(var item in DocumentUoW.Root.Items)
-			{
-				item.Amount = item.AmountInRouteList - item.AmountLoaded;
-
-				var alreadyCounted = DocumentUoW.Root.Items
-					.Where(x => x.Nomenclature == item.Nomenclature
-							 && DocumentUoW.Root.Items.IndexOf(x) < DocumentUoW.Root.Items.IndexOf(item))
-					.Sum(x => x.Amount);
-
-				var calculatedAvailableCount = item.AmountInStock - alreadyCounted;
-
-				if(item.Amount > calculatedAvailableCount)
-				{
-					item.Amount = calculatedAvailableCount;
-				}
+				DocumentUoW.Root.UpdateAmounts();
 			}
 		}
 	}
