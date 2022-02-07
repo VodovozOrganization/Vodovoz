@@ -1677,6 +1677,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.CreateManualPaymentFromBankClientView.cs" />
     <Compile Include="Views\Payments\AutomaticallyAllocationBalanceWindowView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.AutomaticallyAllocationBalanceWindowView.cs" />
+    <Compile Include="Filters\Views\UnallocatedBalancesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.UnallocatedBalancesJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

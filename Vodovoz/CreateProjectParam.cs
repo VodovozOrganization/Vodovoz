@@ -577,6 +577,7 @@ namespace Vodovoz
 			#region Фильтры
 
 			builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
+			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 
 			#endregion
 		}

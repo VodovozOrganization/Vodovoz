@@ -413,6 +413,7 @@
     <Compile Include="ViewModels\Counterparty\DeliveryPointViewModel.cs" />
     <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

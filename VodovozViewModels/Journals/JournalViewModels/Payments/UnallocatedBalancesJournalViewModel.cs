@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -12,6 +13,7 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -31,8 +33,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		: EntityJournalViewModelBase<Payment, PaymentsJournalViewModel, UnallocatedBalancesJournalNode>
 	{
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly ILifetimeScope _scope;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private bool _canEdit;
+		private UnallocatedBalancesJournalFilterViewModel _filterViewModel;
 
 		public UnallocatedBalancesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -41,7 +45,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IDeleteEntityService deleteEntityService = null)
+			ILifetimeScope scope,
+			IDeleteEntityService deleteEntityService = null,
+			params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(navigationManager == null)
@@ -58,10 +64,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			TabName = "Журнал нераспределенных балансов";
 
+			CreateFilter(filterParams);
 			CreateAutomaticallyAllocationAction();
+		}
+
+		private void CreateFilter(params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)
+		{
+			Autofac.Core.Parameter[] parameters = {
+				new TypedParameter(typeof(ITdiTab), this),
+				new TypedParameter(typeof(Action<UnallocatedBalancesJournalFilterViewModel>[]), filterParams),
+				new TypedParameter(typeof(string), UoW.GetById<DeliverySchedule>(_closingDocumentDeliveryScheduleId).Name),
+			};
+
+			_filterViewModel = _scope.Resolve<UnallocatedBalancesJournalFilterViewModel>(parameters);
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		private void CreateAutomaticallyAllocationAction()
@@ -192,7 +218,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				() => counterpartyAlias.Name,
 				() => balanceProjection,
 				() => counterpartyDebtProjection));
-			
+
+			#region filter
+
+			if(_filterViewModel.Counterparty != null)
+			{
+				query.Where(() => counterpartyAlias.Id == _filterViewModel.Counterparty.Id);
+			}
+
+			if(_filterViewModel.Organization != null)
+			{
+				query.Where(() => organizationAlias.Id == _filterViewModel.Organization.Id);
+			}
+
+			#endregion
+
 			return query.SelectList(list => list
 				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 				.SelectGroup(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
