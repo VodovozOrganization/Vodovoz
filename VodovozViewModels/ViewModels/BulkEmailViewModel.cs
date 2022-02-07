@@ -353,7 +353,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 		public EventHandler SendingProgressBarUpdated;
 
-		public void Dispose()
+		public void Stop()
 		{
 			_canSend = false;
 		}

@@ -1,6 +1,6 @@
 ﻿using QS.Utilities;
 using System;
-using Gtk;
+using Gdk;
 using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Views
@@ -102,11 +102,10 @@ namespace Vodovoz.Views
 			}
 		}
 
-		protected override void OnUnrealized()
+		protected override bool OnDeleteEvent(Event evnt)
 		{
-			_bulkEmailViewModel.Dispose();
-			base.OnUnrealized();
+			_bulkEmailViewModel.Stop();
+			return base.OnDeleteEvent(evnt);
 		}
-
 	}
 }
