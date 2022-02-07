@@ -28,9 +28,9 @@ namespace Vodovoz.Filters.ViewModels
 			ITdiTab journalTab,
 			params Action<PaymentsJournalFilterViewModel>[] filterParams)
 		{
-			Scope = scope;
-			NavigationManager = navigationManager;
-			JournalTab = journalTab;
+			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
 
 			Refilter(filterParams);
 		}

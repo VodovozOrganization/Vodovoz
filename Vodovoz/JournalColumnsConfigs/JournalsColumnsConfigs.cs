@@ -1460,7 +1460,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
-			//PositiveCashlessBalanceJournalViewModel
+			//UnAllocatedBalancesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<UnAllocatedBalancesJournalViewModel>(
 				() => FluentColumnsConfig<UnAllocatedBalancesJournalNode>.Create()
 					.AddColumn("Код клиента")
