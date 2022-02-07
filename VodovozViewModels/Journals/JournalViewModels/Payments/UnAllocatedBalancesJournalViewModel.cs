@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 						typeof(int),
 						typeof(IList<UnAllocatedBalancesJournalNode>)
 					};
-					var objs = new object[]{
+					var ctorValues = new object[]{
 						UoW,
 						selected.OfType<UnAllocatedBalancesJournalNode>().ToArray()[0],
 						_closingDocumentDeliveryScheduleId,
@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					
 					ShowInfoMessage("Будет произведен разнос всех нераспределенных платежей по неоплаченным заказам, начиная с самого раннего");
 					var page = NavigationManager.OpenViewModelTypedArgs<AutomaticallyAllocationBalanceWindowViewModel>(
-						this, ctorTypes, objs, OpenPageOptions.IgnoreHash);
+						this, ctorTypes, ctorValues, OpenPageOptions.IgnoreHash);
 					page.PageClosed += (sender, args) => Refresh();
 				}
 			);
@@ -143,9 +143,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Expense));
 
 			var balanceProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - ?2"),
-					NHibernateUtil.Decimal, new IProjection[] {
+					NHibernateUtil.Decimal,
 						Projections.SubQuery(income),
-						Projections.SubQuery(expense)});
+						Projections.SubQuery(expense));
 
 			var orderSumProjection = OrderRepository.GetOrderSumProjection(orderItemAlias);
 			
@@ -182,10 +182,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 			
 			var counterpartyDebtProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
-				NHibernateUtil.Decimal, new IProjection[] {
+				NHibernateUtil.Decimal,
 					Projections.SubQuery(totalNotPaidOrders),
 					Projections.SubQuery(totalPayPartiallyPaidOrders),
-					Projections.Constant(0)});
+					Projections.Constant(0));
 			
 			query.Where(GetSearchCriterion(
 				() => counterpartyAlias.Id,
@@ -198,7 +198,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.SelectGroup(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
 				.Select(p => counterpartyAlias.INN).WithAlias(() => resultAlias.CounterpartyINN)
 				.Select(p => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
-				.Select(p =>organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
+				.Select(p => organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 				.Select(balanceProjection).WithAlias(() => resultAlias.CounterpartyBalance)
 				.Select(counterpartyDebtProjection).WithAlias(() => resultAlias.CounterpartyDebt))
 				.Where(Restrictions.Gt(balanceProjection, 0))
@@ -210,7 +210,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		protected override void CreateEntityDialog()
 		{
-			throw new InvalidOperationException("Что-то пошло не так...");
+			throw new InvalidOperationException("Что-то пошло не так... Нельзя открывать диалог создания из этого журнала");
 		}
 
 		protected override void EditEntityDialog(UnAllocatedBalancesJournalNode node)

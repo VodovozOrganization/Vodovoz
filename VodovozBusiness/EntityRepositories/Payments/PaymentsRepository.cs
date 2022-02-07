@@ -121,15 +121,6 @@ namespace Vodovoz.EntityRepositories.Payments
 			var payments = uow.Session.QueryOver<Payment>()
 				.Left.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
-				.SelectList(list =>
-					list.SelectGroup(p => p.Id).WithAlias(() => resultAlias.Id)
-						.Select(Projections.Sum(Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
-							NHibernateUtil.Decimal,
-							Projections.Property(() => cashlessMovementOperationAlias.Expense),
-							Projections.Constant(0))))
-						.WithAlias(() => resultAlias.AllocatedSum)
-						.Select(p => p.Total).WithAlias(() => resultAlias.PaymentSum))
 				.Where(p => p.Counterparty.Id == counterpartyId)
 				.And(p => p.Organization.Id == organizationId)
 				.And(Restrictions.GtProperty(
@@ -139,6 +130,15 @@ namespace Vodovoz.EntityRepositories.Payments
 						NHibernateUtil.Decimal,
 						Projections.Property(() => cashlessMovementOperationAlias.Expense),
 						Projections.Constant(0)))))
+				.SelectList(list =>
+					list.SelectGroup(p => p.Id).WithAlias(() => resultAlias.Id)
+						.Select(Projections.Sum(Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => cashlessMovementOperationAlias.Expense),
+							Projections.Constant(0))))
+						.WithAlias(() => resultAlias.AllocatedSum)
+						.Select(p => p.Total).WithAlias(() => resultAlias.PaymentSum))
 				.TransformUsing(Transformers.AliasToBean<NotFullyAllocatedPaymentNode>())
 				.List<NotFullyAllocatedPaymentNode>();
 
@@ -175,9 +175,9 @@ namespace Vodovoz.EntityRepositories.Payments
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Expense));
 
 			var balanceProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - ?2"),
-					NHibernateUtil.Decimal, new IProjection[] {
+					NHibernateUtil.Decimal,
 						Projections.SubQuery(income),
-						Projections.SubQuery(expense)});
+						Projections.SubQuery(expense));
 
 			var orderSumProjection = OrderRepository.GetOrderSumProjection(orderItemAlias);
 			
@@ -214,10 +214,10 @@ namespace Vodovoz.EntityRepositories.Payments
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 			
 			var counterpartyDebtProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
-				NHibernateUtil.Decimal, new IProjection[] {
+				NHibernateUtil.Decimal,
 					Projections.SubQuery(totalNotPaidOrders),
 					Projections.SubQuery(totalPayPartiallyPaidOrders),
-					Projections.Constant(0)});
+					Projections.Constant(0));
 			
 			return query.SelectList(list => list
 				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)

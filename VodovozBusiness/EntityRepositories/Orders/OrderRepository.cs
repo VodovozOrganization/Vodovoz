@@ -820,13 +820,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			return Projections.Sum(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
-					NHibernateUtil.Decimal, new IProjection[]
-					{
+					NHibernateUtil.Decimal,
 						Projections.Property(() => orderItemAlias.Price),
 						Projections.Property(() => orderItemAlias.ActualCount),
 						Projections.Property(() => orderItemAlias.Count),
-						Projections.Property(() => orderItemAlias.DiscountMoney)
-					}));
+						Projections.Property(() => orderItemAlias.DiscountMoney)));
 		}
 
 		public IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
@@ -846,11 +844,9 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinAlias(pi => pi.CashlessMovementOperation, () => cashlessMovementOperationAlias)
 				.Where(pi => pi.Order.Id == orderAlias.Id)
 				.Select(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
-					NHibernateUtil.Decimal, new IProjection[]
-					{
+					NHibernateUtil.Decimal,
 						Projections.Sum(() => cashlessMovementOperationAlias.Expense),
-						Projections.Constant(0)
-					}));
+						Projections.Constant(0)));
 			
 			return uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
