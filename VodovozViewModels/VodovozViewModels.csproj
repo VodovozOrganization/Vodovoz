@@ -105,6 +105,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyPatronymicJournalNode.cs" />
@@ -300,6 +301,7 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
+    <Compile Include="ViewModels\BulkEmailViewModel.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
@@ -469,6 +471,18 @@
       <Project>{C90274E4-4BDD-41A1-9A9F-576E16A0A236}</Project>
       <Name>Fias.Service</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
+      <Project>{3577DB0C-38BF-4CC8-80EB-06C767905B4D}</Project>
+      <Name>Mailjet.Api.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+      <Project>{57A169A7-24A1-4FF3-9FD6-F7882F85463E}</Project>
+      <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
+      <Project>{40259BF2-A07C-403F-8513-080F868BE30B}</Project>
+      <Name>RabbitMQ.EmailSending</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
@@ -516,6 +530,7 @@
     <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />

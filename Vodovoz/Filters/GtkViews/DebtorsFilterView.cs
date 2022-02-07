@@ -47,6 +47,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(x => x.ShowHideActiveCheck && !x.ShowCancellationCounterparty && !x.ShowSuspendedCounterparty,
 					x => x.Visible).InitializeFromSource();
 			ycheckbuttonHideOneOrder.Binding.AddSource(ViewModel).AddBinding(x => x.HideWithOneOrder, x => x.Active).InitializeFromSource();
+			ycheckbuttonHideWithoutEmail.Binding.AddSource(ViewModel).AddBinding(x => x.HideWithoutEmail, x => x.Active).InitializeFromSource();
 			ycheckbuttonShowSuspended.Binding.AddSource(ViewModel).AddBinding(x => x.ShowSuspendedCounterparty, x => x.Active)
 				.AddFuncBinding(x => !x.ShowCancellationCounterparty && !x.HideActiveCounterparty, x => x.Visible).InitializeFromSource();
 			ycheckbuttonShowCancellation.Binding.AddSource(ViewModel).AddBinding(x => x.ShowCancellationCounterparty, x => x.Active)

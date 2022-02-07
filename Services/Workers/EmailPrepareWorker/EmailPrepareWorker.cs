@@ -139,20 +139,20 @@ namespace EmailPrepareWorker
 						Email = _emailParametersProvider.DocumentEmailSenderAddress
 					};
 
-					foreach(var orderDocumentEmail in emailsToSend)
+					foreach(var counterpartyEmail in emailsToSend)
 					{
-						_logger.LogInformation($"Found message to prepare for stored email: { orderDocumentEmail.StoredEmail.Id }");
+						_logger.LogInformation($"Found message to prepare for stored email: { counterpartyEmail.StoredEmail.Id }");
 
 						sendingMessage.To = new List<EmailContact>
 						{
 							new EmailContact
 							{
-								Name = orderDocumentEmail.Order.Client.FullName,
-								Email = orderDocumentEmail.StoredEmail.RecipientAddress
+								Name = counterpartyEmail.Counterparty.FullName,
+								Email = counterpartyEmail.StoredEmail.RecipientAddress
 							}
 						};
 
-						var document = (IEmailableDocument) orderDocumentEmail.OrderDocument;
+						var document = counterpartyEmail.EmailableDocument;
 
 						var template = document.GetEmailTemplate();
 
@@ -177,14 +177,14 @@ namespace EmailPrepareWorker
 
 						var attachments = new List<EmailAttachment>
 						{
-							await PrepareDocument(document)
+							await PrepareDocument(document, counterpartyEmail.Type)
 						};
 
 						sendingMessage.Attachments = attachments;
 
 						sendingMessage.Payload = new EmailPayload
 						{
-							Id = orderDocumentEmail.StoredEmail.Id,
+							Id = counterpartyEmail.StoredEmail.Id,
 							Trackable = true,
 							InstanceId = _instanceId
 						};
@@ -197,8 +197,8 @@ namespace EmailPrepareWorker
 
 						_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
 
-						orderDocumentEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
-						unitOfWork.Save(orderDocumentEmail.StoredEmail);
+						counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+						unitOfWork.Save(counterpartyEmail.StoredEmail);
 						unitOfWork.Commit();
 					}
 				}
@@ -210,7 +210,7 @@ namespace EmailPrepareWorker
 			}
 		}
 
-		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document)
+		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
 		{
 			bool wasHideSignature;
 			ReportInfo ri;
@@ -226,10 +226,23 @@ namespace EmailPrepareWorker
 
 			string documentDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
 
+			string fileName = counterpartyEmailType.ToString();
+			switch(counterpartyEmailType)
+			{
+				case CounterpartyEmailType.OrderDocument:
+					fileName += $"_{ document.Order.Id }";
+					break;
+				default:
+					fileName += $"_{ document.Id }";
+					break;
+			}
+
+			fileName += $"_{ documentDate }.pdf";
+
 			return await new ValueTask<EmailAttachment>(
 				new EmailAttachment
 				{
-					Filename = $"Document_{ document.Order.Id }{ documentDate }.pdf",
+					Filename = fileName,
 					ContentType = "application/pdf",
 					Base64Content = Convert.ToBase64String(stream.GetBuffer())
 				});

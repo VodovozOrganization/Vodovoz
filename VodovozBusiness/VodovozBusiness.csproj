@@ -163,7 +163,12 @@
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
     <Compile Include="Domain\Sms\UndeliveryNotApprovedSmsNotification.cs" />
+    <Compile Include="Domain\StoredEmails\BulkEmail.cs" />
+    <Compile Include="Domain\StoredEmails\CounterpartyEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderDocumentEmail.cs" />
+    <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
+    <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
+    <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -346,7 +351,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
-    <Compile Include="HibernateMapping\StoredEmails\OrderDocumentEmailMap.cs" />
+    <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />

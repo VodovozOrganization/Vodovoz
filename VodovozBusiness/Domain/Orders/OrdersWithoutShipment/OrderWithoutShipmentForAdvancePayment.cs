@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
@@ -132,6 +133,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.SpecialContractNumber : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
+		public virtual Counterparty Counterparty => Client;
 
 		public virtual PrinterType PrintType => PrinterType.RDL;
 		public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
