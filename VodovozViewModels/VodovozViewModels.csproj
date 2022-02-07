@@ -181,7 +181,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Payments\UnAllocatedBalancesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Cash\DayOfSalaryGiveoutReportViewModel.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />

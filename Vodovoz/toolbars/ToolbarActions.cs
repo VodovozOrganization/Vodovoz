@@ -156,7 +156,7 @@ public partial class MainWindow : Window
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
-	Action ActionUnAllocatedBalancesJournal;
+	Action ActionUnallocatedBalancesJournal;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -241,7 +241,7 @@ public partial class MainWindow : Window
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
-		ActionUnAllocatedBalancesJournal = new Action("ActionUnAllocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
+		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -315,7 +315,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
-		w1.Add(ActionUnAllocatedBalancesJournal, null);
+		w1.Add(ActionUnallocatedBalancesJournal, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -398,7 +398,7 @@ public partial class MainWindow : Window
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
-		ActionUnAllocatedBalancesJournal.Activated += OnActionUnAllocatedBalancesJournalActivated;
+		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -682,9 +682,9 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
 	}
 
-	private void OnActionUnAllocatedBalancesJournalActivated(object sender, EventArgs e)
+	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<UnAllocatedBalancesJournalViewModel>(null);
+		NavigationManager.OpenViewModel<UnallocatedBalancesJournalViewModel>(null);
 	}
 
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)

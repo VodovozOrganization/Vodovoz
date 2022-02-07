@@ -15,8 +15,8 @@ namespace Vodovoz.ViewModels.Payments
 {
 	public class AutomaticallyAllocationBalanceWindowViewModel : WindowDialogViewModelBase, IDisposable
 	{
-		private readonly UnAllocatedBalancesJournalNode _selectedUnAllocatedBalancesNode;
-		private readonly IList<UnAllocatedBalancesJournalNode> _loadedNodes;
+		private readonly UnallocatedBalancesJournalNode _selectedUnallocatedBalancesNode;
+		private readonly IList<UnallocatedBalancesJournalNode> _loadedNodes;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IPaymentsRepository _paymentsRepository;
@@ -32,8 +32,8 @@ namespace Vodovoz.ViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			IOrderRepository orderRepository,
 			IUnitOfWorkFactory uowFactory,
-			UnAllocatedBalancesJournalNode selectedUnAllocatedBalancesNode,
-			IList<UnAllocatedBalancesJournalNode> loadedNodes,
+			UnallocatedBalancesJournalNode selectedUnallocatedBalancesNode,
+			IList<UnallocatedBalancesJournalNode> loadedNodes,
 			int closingDocumentDeliveryScheduleId) : base(navigationManager)
 		{
 			if(navigationManager == null)
@@ -45,8 +45,8 @@ namespace Vodovoz.ViewModels.Payments
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_uow = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot();
-			_selectedUnAllocatedBalancesNode =
-				selectedUnAllocatedBalancesNode ?? throw new ArgumentNullException(nameof(selectedUnAllocatedBalancesNode));
+			_selectedUnallocatedBalancesNode =
+				selectedUnallocatedBalancesNode ?? throw new ArgumentNullException(nameof(selectedUnallocatedBalancesNode));
 			_loadedNodes = loadedNodes ?? throw new ArgumentNullException(nameof(loadedNodes));
 			_closingDocumentDeliveryScheduleId = closingDocumentDeliveryScheduleId;
 			Resizable = false;
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Payments
 						try
 						{
 							IsAllocationState = true;
-							AllocateByCounterpartyAndOrg(_selectedUnAllocatedBalancesNode);
+							AllocateByCounterpartyAndOrg(_selectedUnallocatedBalancesNode);
 							IsAllocationState = false;
 						}
 						catch(Exception e)
@@ -99,8 +99,8 @@ namespace Vodovoz.ViewModels.Payments
 								ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
 
 								var allUnAllocatedBalances =
-									_paymentsRepository.GetAllUnAllocatedBalances(_uow, _closingDocumentDeliveryScheduleId)
-										.List<UnAllocatedBalancesJournalNode>();
+									_paymentsRepository.GetAllUnallocatedBalances(_uow, _closingDocumentDeliveryScheduleId)
+										.List<UnallocatedBalancesJournalNode>();
 
 								AllocateLoadedBalances(allUnAllocatedBalances);
 							}
@@ -123,7 +123,7 @@ namespace Vodovoz.ViewModels.Payments
 				)
 			);
 		
-		private void AllocateByCounterpartyAndOrg(UnAllocatedBalancesJournalNode node)
+		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
 			var balance = node.CounterpartyBalance;
 			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Payments
 			_uow.Commit();
 		}
 
-		private void AllocateLoadedBalances(IList<UnAllocatedBalancesJournalNode> loadedNodes)
+		private void AllocateLoadedBalances(IList<UnallocatedBalancesJournalNode> loadedNodes)
 		{
 			var allocated = 0;
 			ProgressBarDisplayable.Start(loadedNodes.Count, 0,

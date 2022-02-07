@@ -27,14 +27,14 @@ using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 {
-	public class UnAllocatedBalancesJournalViewModel
-		: EntityJournalViewModelBase<Payment, PaymentsJournalViewModel, UnAllocatedBalancesJournalNode>
+	public class UnallocatedBalancesJournalViewModel
+		: EntityJournalViewModelBase<Payment, PaymentsJournalViewModel, UnallocatedBalancesJournalNode>
 	{
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private bool _canEdit;
 
-		public UnAllocatedBalancesJournalViewModel(
+		public UnallocatedBalancesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			IPaymentsRepository paymentsRepository,
@@ -74,13 +74,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					var ctorTypes = new[]
 					{
 						typeof(IUnitOfWork),
-						typeof(UnAllocatedBalancesJournalNode),
+						typeof(UnallocatedBalancesJournalNode),
 						typeof(int),
-						typeof(IList<UnAllocatedBalancesJournalNode>)
+						typeof(IList<UnallocatedBalancesJournalNode>)
 					};
 					var ctorValues = new object[]{
 						UoW,
-						selected.OfType<UnAllocatedBalancesJournalNode>().ToArray()[0],
+						selected.OfType<UnallocatedBalancesJournalNode>().ToArray()[0],
 						_closingDocumentDeliveryScheduleId,
 						Items
 					};
@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			var editAction = new JournalAction("Изменить",
 				(selected) => _canEdit && selected.Any(),
 				(selected) => VisibleEditAction,
-				(selected) => selected.OfType<UnAllocatedBalancesJournalNode>().ToList().ForEach(EditEntityDialog)
+				(selected) => selected.OfType<UnallocatedBalancesJournalNode>().ToList().ForEach(EditEntityDialog)
 			);
 			NodeActionsList.Add(editAction);
 
@@ -115,7 +115,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		protected override IQueryOver<Payment> ItemsQuery(IUnitOfWork uow)
 		{
-			UnAllocatedBalancesJournalNode resultAlias = null;
+			UnallocatedBalancesJournalNode resultAlias = null;
 			VodOrder orderAlias = null;
 			VodOrder orderAlias2 = null;
 			OrderItem orderItemAlias = null;
@@ -204,7 +204,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Where(Restrictions.Gt(balanceProjection, 0))
 				.And(Restrictions.Gt(counterpartyDebtProjection, 0))
 				.OrderBy(balanceProjection).Desc
-				.TransformUsing(Transformers.AliasToBean<UnAllocatedBalancesJournalNode>())
+				.TransformUsing(Transformers.AliasToBean<UnallocatedBalancesJournalNode>())
 				.SetTimeout(120);
 		}
 
@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			throw new InvalidOperationException("Что-то пошло не так... Нельзя открывать диалог создания из этого журнала");
 		}
 
-		protected override void EditEntityDialog(UnAllocatedBalancesJournalNode node)
+		protected override void EditEntityDialog(UnallocatedBalancesJournalNode node)
 		{
 			var filterParams = new Action<PaymentsJournalFilterViewModel>[]
 			{

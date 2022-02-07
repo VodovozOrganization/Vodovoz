@@ -19,6 +19,6 @@ namespace Vodovoz.EntityRepositories.Payments
 		Payment GetRefundPayment(IUnitOfWork uow, int refundedPaymentId);
 		IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId);
-		IQueryOver<Payment, Payment> GetAllUnAllocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
+		IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
 	}
 }

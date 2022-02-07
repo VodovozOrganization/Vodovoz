@@ -1461,8 +1461,8 @@ namespace Vodovoz.JournalColumnsConfigs
 			);
 			
 			//UnAllocatedBalancesJournalViewModel
-			TreeViewColumnsConfigFactory.Register<UnAllocatedBalancesJournalViewModel>(
-				() => FluentColumnsConfig<UnAllocatedBalancesJournalNode>.Create()
+			TreeViewColumnsConfigFactory.Register<UnallocatedBalancesJournalViewModel>(
+				() => FluentColumnsConfig<UnallocatedBalancesJournalNode>.Create()
 					.AddColumn("Код клиента")
 						.AddNumericRenderer(node => node.CounterpartyId)
 					.AddColumn("ИНН")

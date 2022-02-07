@@ -145,9 +145,9 @@ namespace Vodovoz.EntityRepositories.Payments
 			return payments;
 		}
 
-		public IQueryOver<Payment, Payment> GetAllUnAllocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId)
+		public IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId)
 		{
-			UnAllocatedBalancesJournalNode resultAlias = null;
+			UnallocatedBalancesJournalNode resultAlias = null;
 			Order orderAlias = null;
 			Order orderAlias2 = null;
 			OrderItem orderItemAlias = null;
@@ -230,12 +230,12 @@ namespace Vodovoz.EntityRepositories.Payments
 				.Where(Restrictions.Gt(balanceProjection, 0))
 				.And(Restrictions.Gt(counterpartyDebtProjection, 0))
 				.OrderBy(balanceProjection).Desc
-				.TransformUsing(Transformers.AliasToBean<UnAllocatedBalancesJournalNode>())
+				.TransformUsing(Transformers.AliasToBean<UnallocatedBalancesJournalNode>())
 				.SetTimeout(180);
 		}
 	}
 	
-	public class UnAllocatedBalancesJournalNode : JournalNodeBase
+	public class UnallocatedBalancesJournalNode : JournalNodeBase
 	{
 		public int CounterpartyId { get; set; }
 		public int OrganizationId { get; set; }
