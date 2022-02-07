@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.StoredEmails
 
 		public virtual int Id { get; set; }
 
-		[Display(Name = "Электронная почта для отправки")]
+		[Display(Name = "Электронная почта")]
 		public virtual StoredEmail StoredEmail
 		{
 			get => _storedEmail;

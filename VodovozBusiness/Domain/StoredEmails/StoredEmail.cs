@@ -14,49 +14,9 @@ namespace Vodovoz.Domain.StoredEmails
 	)]
 	public class StoredEmail : BusinessObjectBase<StoredEmail>, IDomainObject
 	{
-		private string _title;
+		private string _subject;
 
 		public virtual int Id { get; set; }
-
-		//todo art8m УБРАТЬ ПОСЛЕ МЕРЖА!!!
-		private Order order;
-		[Display(Name = "Заказ")]
-		public virtual Order Order
-		{
-			get { return order; }
-			set { SetField(ref order, value, () => Order); }
-		}
-
-		private OrderDocumentType documentType;
-		[Display(Name = "Тип документа")]
-		public virtual OrderDocumentType DocumentType
-		{
-			get { return documentType; }
-			set { SetField(ref documentType, value, () => DocumentType); }
-		}
-
-//todo art8m УБРАТЬ ПОСЛЕ МЕРЖА!!!!
-		private OrderWithoutShipmentForDebt orderWithoutShipmentForDebt;
-		[Display(Name = "Счет без отгрузки на долг")]
-		public virtual OrderWithoutShipmentForDebt OrderWithoutShipmentForDebt {
-			get => orderWithoutShipmentForDebt;
-			set => SetField(ref orderWithoutShipmentForDebt, value);
-		}
-
-		private OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePayment;
-		[Display(Name = "Счет без отгрузки на предоплату")]
-		public virtual OrderWithoutShipmentForAdvancePayment OrderWithoutShipmentForAdvancePayment {
-			get => orderWithoutShipmentForAdvancePayment;
-			set => SetField(ref orderWithoutShipmentForAdvancePayment, value);
-		}
-
-		private OrderWithoutShipmentForPayment orderWithoutShipmentForPayment;
-		[Display(Name = "Счет без отгрузки на постоплату")]
-		public virtual OrderWithoutShipmentForPayment OrderWithoutShipmentForPayment {
-			get => orderWithoutShipmentForPayment;
-			set => SetField(ref orderWithoutShipmentForPayment, value);
-		}
-
 
 		public virtual string ExternalId { get; set; }
 
@@ -110,10 +70,10 @@ namespace Vodovoz.Domain.StoredEmails
 		}
 
 		[Display(Name = "Тема")]
-		public virtual string Title
+		public virtual string Subject
 		{
-			get { return _title; }
-			set { SetField(ref _title, value); }
+			get { return _subject; }
+			set { SetField(ref _subject, value); }
 		}
 
 		public virtual void AddDescription(string description)

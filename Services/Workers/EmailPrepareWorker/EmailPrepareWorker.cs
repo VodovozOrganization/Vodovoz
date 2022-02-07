@@ -177,7 +177,7 @@ namespace EmailPrepareWorker
 
 						var attachments = new List<EmailAttachment>
 						{
-							await PrepareDocument(document)
+							await PrepareDocument(document, counterpartyEmail.Type)
 						};
 
 						sendingMessage.Attachments = attachments;
@@ -210,7 +210,7 @@ namespace EmailPrepareWorker
 			}
 		}
 
-		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document)
+		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
 		{
 			bool wasHideSignature;
 			ReportInfo ri;
@@ -226,10 +226,23 @@ namespace EmailPrepareWorker
 
 			string documentDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
 
+			string fileName = counterpartyEmailType.ToString();
+			switch(counterpartyEmailType)
+			{
+				case CounterpartyEmailType.OrderDocument:
+					fileName += $"_{ document.Order.Id }";
+					break;
+				default:
+					fileName += $"_{ document.Id }";
+					break;
+			}
+
+			fileName += $"_{ documentDate }.pdf";
+
 			return await new ValueTask<EmailAttachment>(
 				new EmailAttachment
 				{
-					Filename = $"Document_{ document.Order?.Id ?? document.Id }{ documentDate }.pdf",
+					Filename = fileName,
 					ContentType = "application/pdf",
 					Base64Content = Convert.ToBase64String(stream.GetBuffer())
 				});

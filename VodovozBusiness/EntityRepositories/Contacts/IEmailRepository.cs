@@ -13,6 +13,7 @@ namespace Vodovoz.EntityRepositories
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
+		int GetCurrentDatabaseId(IUnitOfWork uow);
 
 		#region EmailType
 

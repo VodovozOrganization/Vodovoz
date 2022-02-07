@@ -3114,7 +3114,7 @@ namespace Vodovoz
 					State = StoredEmailStates.PreparingToSend,
 					RecipientAddress = clientEmail.Address,
 					ManualSending = false,
-					Title = document.Name,
+					Subject = document.Name,
 					Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
 				};
 

@@ -510,9 +510,10 @@ public partial class MainWindow : Window
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
 		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		IEmailRepository emailRepository = new EmailRepository();
 		var debtorsJournal = new DebtorsJournalViewModel(
 			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), 
-			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory);
+			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository);
 
 		tdiMain.AddTab(debtorsJournal);
 	}

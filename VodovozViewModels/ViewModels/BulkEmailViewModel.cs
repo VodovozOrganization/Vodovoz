@@ -24,6 +24,7 @@ using System.Web;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -49,25 +50,23 @@ namespace Vodovoz.ViewModels.ViewModels
 		private string _mailSubject;
 		private string _mailTextPart;
 		private double _sendingProgressValue;
-		private double _sendingProgressUpper;
 		private int[] _alreadySentCounterpartyIds;
 		private int _alreadySentMonthCount;
 		private IList<Domain.Client.Counterparty> _counterpartiesToSent;
 		private readonly IList<DebtorJournalNode> _debtorJournalNodes;
+		private readonly IEmailRepository _emailRepository;
+		private bool _canSend = true;
 
 		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
 			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailParametersProvider emailParametersProvider,
-			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author) : base(navigation)
+			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
 		{
 			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_author = author ?? throw new ArgumentNullException(nameof(author));
-
-			_instanceId = Convert.ToInt32(_uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_instanceId = emailRepository.GetCurrentDatabaseId(_uow);
 
 			_configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
@@ -128,10 +127,11 @@ namespace Vodovoz.ViewModels.ViewModels
 
 		private Email SelectPriorityEmail(IList<Email> counterpartyEmails)
 		{
-			var email = counterpartyEmails.FirstOrDefault(e => e.EmailType?.Name == "Для счетов")
-						?? counterpartyEmails.FirstOrDefault(e => e.EmailType?.Name == "Рабочий")
-						?? counterpartyEmails.FirstOrDefault(e => e.EmailType?.Name == "Личный")
-						?? counterpartyEmails.FirstOrDefault(e => e.EmailType?.Name == "Для чеков");
+			var email = counterpartyEmails.FirstOrDefault(e => e.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+						?? counterpartyEmails.FirstOrDefault(e => e.EmailType?.EmailPurpose == EmailPurpose.Work)
+						?? counterpartyEmails.FirstOrDefault(e => e.EmailType?.EmailPurpose == EmailPurpose.Personal)
+						?? counterpartyEmails.FirstOrDefault(e => e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)
+						?? counterpartyEmails.FirstOrDefault();
 
 			return email;
 		}
@@ -156,7 +156,6 @@ namespace Vodovoz.ViewModels.ViewModels
 				},
 
 				Subject = MailSubject,
-
 				TextPart = MailTextPart,
 				HTMLPart = MailTextPart,
 				Payload = new EmailPayload
@@ -168,7 +167,6 @@ namespace Vodovoz.ViewModels.ViewModels
 			};
 
 			var emailAttachments = new List<EmailAttachment>();
-
 
 			foreach(var attachment in ObservableAttachments)
 			{
@@ -182,22 +180,18 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			sendEmailMessage.Attachments = emailAttachments;
 
-			try
-			{
-				var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
-				var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+			var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
+			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
-				var logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-				var connectionFactory = new RabbitMQConnectionFactory(logger);
-				var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
-					_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost);
-				var channel = connection.CreateModel();
-				var properties = channel.CreateBasicProperties();
-				properties.Persistent = true;
+			var logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
+			var connectionFactory = new RabbitMQConnectionFactory(logger);
+			var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
+				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost);
+			var channel = connection.CreateModel();
+			var properties = channel.CreateBasicProperties();
+			properties.Persistent = true;
 
-				channel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, properties, sendingBody);
-			}
-			finally { }
+			channel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, properties, sendingBody);
 		}
 
 		#region Commands
@@ -213,71 +207,80 @@ namespace Vodovoz.ViewModels.ViewModels
 				IsInSendingProcess = true;
 
 				string withoutEmails = string.Empty;
+				string sendingErrors = string.Empty;
 
 				OnPropertyChanged(nameof(SendingProgressUpper));
 
 				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("BulkEmail"))
 				{
-					try
+					foreach(var counterparty in _counterpartiesToSent)
 					{
-						foreach(var counterparty in _counterpartiesToSent)
+						if(!_canSend)
 						{
-
-							var email = SelectPriorityEmail(counterparty.Emails);
-							if(email == null)
-							{
-								withoutEmails += counterparty.FullName + "; ";
-							}
-							else
-							{
-								var storedEmail = new StoredEmail
-								{
-									State = StoredEmailStates.WaitingToSend,
-									Author = _author,
-									ManualSending = true,
-									SendDate = DateTime.Now,
-									StateChangeDate = DateTime.Now,
-									Title = MailSubject,
-									RecipientAddress = email.Address
-								};
-
-								unitOfWork.Save(storedEmail);
-
-								var bulkEmail = new BulkEmail()
-								{
-									StoredEmail = storedEmail,
-									Counterparty = counterparty
-								};
-
-								unitOfWork.Save(bulkEmail);
-
-								System.Threading.Thread.Sleep(1000);
-
-								SendEmail(email.Address, counterparty.FullName, storedEmail.Id);
-							}
-
-							SendingProgressValue += 1;
-
-							SendingProgressBarUpdated?.Invoke(this, EventArgs.Empty);
+							return;
 						}
-					}
-					finally
-					{
-						unitOfWork.Commit();
+
+						var email = SelectPriorityEmail(counterparty.Emails);
+						if(email == null)
+						{
+							withoutEmails += counterparty.FullName + "; ";
+						}
+						else
+						{
+							var storedEmail = new StoredEmail
+							{
+								State = StoredEmailStates.WaitingToSend,
+								Author = _author,
+								ManualSending = true,
+								SendDate = DateTime.Now,
+								StateChangeDate = DateTime.Now,
+								Subject = MailSubject,
+								RecipientAddress = email.Address
+							};
+
+							unitOfWork.Save(storedEmail);
+
+							var bulkEmail = new BulkEmail()
+							{
+								StoredEmail = storedEmail,
+								Counterparty = counterparty
+							};
+
+							unitOfWork.Save(bulkEmail);
+
+							try
+							{
+								SendEmail(email.Address, counterparty.FullName, storedEmail.Id);
+								unitOfWork.Commit();
+							}
+							catch(Exception e)
+							{
+								sendingErrors += $"{ counterparty.FullName }; ";
+							}
+						}
+
+						SendingProgressValue += 1;
+
+						SendingProgressBarUpdated?.Invoke(this, EventArgs.Empty);
 					}
 				}
 
 				if(withoutEmails.Length > 0)
 				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"У следующих контрагентов отсутствует email:{withoutEmails}");
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"У следующих контрагентов отсутствует email:{ withoutEmails }");
 				}
 
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Завершено");
+				if(sendingErrors.Length > 0)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Возникла ошибка при отправке писем следующим контрагентам: { sendingErrors }");
+				}
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Завершено");
 
 				Init();
 
 				IsInSendingProcess = false;
-			}, 
+			},
 				() => CanExecute)
 			);
 
@@ -306,12 +309,12 @@ namespace Vodovoz.ViewModels.ViewModels
 
 		[PropertyChangedAlso(nameof(CanExecute))]
 		public bool AttachmentsSizeInfoDanger => _attachmentsSize > 15;
-		
+
 		public GenericObservableList<Attachment> ObservableAttachments =>
 			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(_attachments));
 
 		[PropertyChangedAlso(nameof(SendingDurationInfo), nameof(SendedCountInfo))]
-		
+
 		public double SendingProgressValue
 		{
 			get => _sendingProgressValue;
@@ -349,5 +352,10 @@ namespace Vodovoz.ViewModels.ViewModels
 		public bool CanExecute => !AttachmentsSizeInfoDanger && !MailSubjectInfoDanger && !RecepientInfoDanger;
 
 		public EventHandler SendingProgressBarUpdated;
+
+		public void Dispose()
+		{
+			_canSend = false;
+		}
 	}
 }

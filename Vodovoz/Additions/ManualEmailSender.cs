@@ -54,14 +54,14 @@ namespace Vodovoz.Additions
 					.And(dateResctictGe)
 					.JoinAlias(() => orderDocumentEmailInnerAlias.OrderDocument, () => orderDocumentAliasInner)
 					.Where(() => orderDocumentAliasInner.Order.Id == orderDocumentAlias.Order.Id)
-					.Select(Projections.Count(Projections.Id()));
+					.Select(o => o.Id);
 
 				var errorSendedOrderDocumentQuery = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
 					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
-					.WithSubquery.WhereValue(0).Eq(resendedOrderDocumentQuery)
+					.WithSubquery.WhereNotExists(resendedOrderDocumentQuery)
 					.Future();
 
 				#endregion
@@ -79,7 +79,7 @@ namespace Vodovoz.Additions
 					.And(dateResctictGe)
 					.JoinAlias(() => orderWithoutShipmentForDebtEmailInnerAlias.OrderWithoutShipmentForDebt, () => orderWithoutShipmentForDebtAliasInner)
 					.Where(() => orderWithoutShipmentForDebtAliasInner.Id == orderWithoutShipmentForDebtAlias.Id)
-					.Select(Projections.Count(Projections.Id()));
+					.Select(o => o.Id);
 
 				var errorSendedOrderWithoutShipmentForDebtEmailQuery = uowLocal.Session
 					.QueryOver<OrderWithoutShipmentForDebtEmail>(() => orderWithoutShipmentForDebtEmailAlias)
@@ -87,7 +87,7 @@ namespace Vodovoz.Additions
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
 					.JoinAlias(() => orderWithoutShipmentForDebtEmailAlias.OrderWithoutShipmentForDebt, () => orderWithoutShipmentForDebtAlias)
-					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForDebtQuery)
+					.WithSubquery.WhereNotExists(resendedOrderWithoutShipmentForDebtQuery)
 					.Future();
 
 				#endregion
@@ -105,7 +105,7 @@ namespace Vodovoz.Additions
 					.And(dateResctictGe)
 					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailInnerAlias.OrderWithoutShipmentForAdvancePayment, () => orderWithoutShipmentForAdvancePaymentAliasInner)
 					.Where(() => orderWithoutShipmentForAdvancePaymentAliasInner.Id == orderWithoutShipmentForAdvancePaymentAlias.Id)
-					.Select(Projections.Count(Projections.Id()));
+					.Select(o => o.Id);
 
 				var errorSendedOrderWithoutShipmentForAdvancePaymentEmailQuery = uowLocal.Session
 					.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>(() => orderWithoutShipmentForAdvancePaymentEmailAlias)
@@ -113,7 +113,7 @@ namespace Vodovoz.Additions
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
 					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailAlias.OrderWithoutShipmentForAdvancePayment, () => orderWithoutShipmentForAdvancePaymentAlias)
-					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForAdvancePaymentQuery)
+					.WithSubquery.WhereNotExists(resendedOrderWithoutShipmentForAdvancePaymentQuery)
 					.Future();
 
 				#endregion
@@ -131,7 +131,7 @@ namespace Vodovoz.Additions
 					.And(dateResctictGe)
 					.JoinAlias(() => orderWithoutShipmentForPaymentEmailInnerAlias.OrderWithoutShipmentForPayment, () => orderWithoutShipmentForPaymentAliasInner)
 					.Where(() => orderWithoutShipmentForPaymentAliasInner.Id == orderWithoutShipmentForPaymentAlias.Id)
-					.Select(Projections.Count(Projections.Id()));
+					.Select(o => o.Id);
 
 				var errorSendedOrderWithoutShipmentForPaymentEmailQuery = uowLocal.Session
 					.QueryOver<OrderWithoutShipmentForPaymentEmail>(() => orderWithoutShipmentForPaymentEmailAlias)
@@ -139,7 +139,7 @@ namespace Vodovoz.Additions
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
 					.JoinAlias(() => orderWithoutShipmentForPaymentEmailAlias.OrderWithoutShipmentForPayment, () => orderWithoutShipmentForPaymentAlias)
-					.WithSubquery.WhereValue(0).Eq(resendedOrderWithoutShipmentForPaymentQuery)
+					.WithSubquery.WhereNotExists(resendedOrderWithoutShipmentForPaymentQuery)
 					.Future();
 
 				#endregion
@@ -165,7 +165,7 @@ namespace Vodovoz.Additions
 								ManualSending = true,
 								SendDate = DateTime.Now,
 								StateChangeDate = DateTime.Now,
-								Title = sendedEmail.StoredEmail.Title,
+								Subject = sendedEmail.StoredEmail.Subject,
 								RecipientAddress = sendedEmail.StoredEmail.RecipientAddress
 							};
 

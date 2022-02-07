@@ -320,7 +320,7 @@ namespace Vodovoz.Dialogs.Email
 					ManualSending = true,
 					SendDate = DateTime.Now,
 					StateChangeDate = DateTime.Now,
-					Title = Document.Title,
+					Subject = Document.Title,
 					RecipientAddress = EmailString
 				};
 

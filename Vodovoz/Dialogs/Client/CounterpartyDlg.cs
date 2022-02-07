@@ -913,7 +913,7 @@ namespace Vodovoz
 				.SelectList(list => list
 					.Select(()=> storedEmailAlias.SendDate).WithAlias(() => resultAlias.Date)
 					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.Type)
-					.Select(() => storedEmailAlias.Title).WithAlias(() => resultAlias.Subject)
+					.Select(() => storedEmailAlias.Subject).WithAlias(() => resultAlias.Subject)
 					.Select(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
 				)
 				.OrderBy(() => storedEmailAlias.SendDate).Desc

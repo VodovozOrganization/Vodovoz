@@ -10,11 +10,15 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 		public CounterpartyEmailMap()
 		{
 			Table("counterparty_emails");
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+
+			DiscriminateSubClassesOnColumn("type");
+
+			Map(x => x.Type).Column("type").CustomType<CounterpartyEmailStringType>().ReadOnly();
+
 			References(x => x.StoredEmail).Column("stored_email_id");
 			References(x => x.Counterparty).Column("counterparty_id");
-			Map(x => x.Type).Column("type").CustomType<CounterpartyEmailStringType>().ReadOnly();
-			DiscriminateSubClassesOnColumn("type");
 		}
 
 		public class OrderDocumentEmailMap : SubclassMap<OrderDocumentEmail>

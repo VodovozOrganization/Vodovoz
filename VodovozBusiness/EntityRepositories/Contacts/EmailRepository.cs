@@ -142,6 +142,14 @@ namespace Vodovoz.EntityRepositories
 			return true;
 		}
 
+		public int GetCurrentDatabaseId(IUnitOfWork uow)
+		{
+			return Convert.ToInt32(uow.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
+		}
+
 		#region EmailType
 
 		public IList<EmailType> GetEmailTypes(IUnitOfWork uow)

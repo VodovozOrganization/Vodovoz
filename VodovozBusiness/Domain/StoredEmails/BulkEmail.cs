@@ -11,5 +11,6 @@ namespace Vodovoz.Domain.StoredEmails
 	public class BulkEmail : CounterpartyEmail
 	{
 		public override IEmailableDocument EmailableDocument { get; }
+		public override CounterpartyEmailType Type => CounterpartyEmailType.Bulk;
 	}
 }

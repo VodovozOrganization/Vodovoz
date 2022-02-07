@@ -62,23 +62,30 @@ namespace Vodovoz.Views
 
 			buttonSend.Clicked += (sender, args) => _bulkEmailViewModel.StartEmailSendingCommand.Execute();
 
-			_bulkEmailViewModel.PropertyChanged += _bulkEmailViewModel_PropertyChanged;
+			_bulkEmailViewModel.PropertyChanged += BulkEmailViewModel_PropertyChanged;
 		}
 
-		private void _bulkEmailViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void BulkEmailViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
 				case nameof(_bulkEmailViewModel.SendingProgressUpper):
-				{ 
-					yprogressbarSending.Adjustment.Upper = _bulkEmailViewModel.SendingProgressUpper;
-					GtkHelper.WaitRedraw();
+				{
+					if(yprogressbarSending.Adjustment != null)
+					{
+						yprogressbarSending.Adjustment.Upper = _bulkEmailViewModel.SendingProgressUpper;
+						GtkHelper.WaitRedraw();
+					}
+
 					break;
 				}
 				case nameof(_bulkEmailViewModel.SendingProgressValue):
 				{
-					yprogressbarSending.Adjustment.Value = _bulkEmailViewModel.SendingProgressValue;
-					GtkHelper.WaitRedraw();
+					if(yprogressbarSending.Adjustment != null)
+					{
+						yprogressbarSending.Adjustment.Value = _bulkEmailViewModel.SendingProgressValue;
+						GtkHelper.WaitRedraw();
+					}
 					break;
 				}
 				case nameof(_bulkEmailViewModel.SendedCountInfo): 
@@ -94,5 +101,12 @@ namespace Vodovoz.Views
 				}
 			}
 		}
+
+		protected override void OnUnrealized()
+		{
+			_bulkEmailViewModel.Dispose();
+			base.OnUnrealized();
+		}
+
 	}
 }
