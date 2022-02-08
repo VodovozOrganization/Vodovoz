@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 							&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
 							&& order.Client.Id == payment.Counterparty.Id
 							&& order.PaymentType == PaymentType.cashless
+							&& order.OrderPaymentStatus == OrderPaymentStatus.UnPaid
 							&& order.OrderSum > 0));
 
 				if(!orders.Any())
@@ -50,22 +51,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					return false;
 				}
 
-				var ordersSum = orders.Sum(x => x.OrderSum);
+				var paymentSum = payment.Total;
 
-				if(payment.Total < ordersSum)
-				{
-					return false;
-				}
-				
 				foreach(var order in orders)
 				{
-					if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
+					if(paymentSum >= order.OrderSum)
 					{
-						continue;
+						payment.AddPaymentItem(order);
+						sb.AppendLine(order.Id.ToString());
+						paymentSum -= order.OrderSum;
 					}
-					
-					payment.AddPaymentItem(order);
-					sb.AppendLine(order.Id.ToString());
+
+					if(paymentSum == 0)
+					{
+						break;
+					}
 				}
 			}
 
