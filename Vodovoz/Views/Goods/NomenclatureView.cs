@@ -16,7 +16,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs.Database;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz.Views.Goods
 {

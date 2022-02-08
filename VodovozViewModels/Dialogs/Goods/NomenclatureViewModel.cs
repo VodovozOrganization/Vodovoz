@@ -14,7 +14,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
-namespace Vodovoz.ViewModels.Goods
+namespace Vodovoz.ViewModels.Dialogs.Goods
 {
 	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>, IAskSaveOnCloseViewModel
 	{

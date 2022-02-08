@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QS.DomainModel.Entity;
 using System.Linq.Expressions;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.Infrastructure
 {
 	public interface IAdditionalJournalRestriction<T> where T : IDomainObject
 	{
