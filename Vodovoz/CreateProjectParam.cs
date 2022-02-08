@@ -16,6 +16,8 @@ using QS.Permissions;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
+using QS.Report;
+using QS.Report.Repository;
 using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
@@ -413,6 +415,12 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Репозитории
+
+			builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
+
+			#endregion
+
 			#region Сервисы
 
 			//GtkUI
@@ -425,6 +433,7 @@ namespace Vodovoz
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
+			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
 			#endregion
 
