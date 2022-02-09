@@ -298,14 +298,14 @@ namespace Vodovoz.Representations
 			if(order.OrderPositiveSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Income>(orderId),
-					() => new CashIncomeSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
+					() => new CashIncomeSelfDeliveryDlg(order)
 				);
 			}
 
 			if(order.OrderNegativeSum > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
-					() => new CashExpenseSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
+					() => new CashExpenseSelfDeliveryDlg(order)
 				);
 			}
 		}

@@ -756,30 +756,56 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save(this);
 		}
 
-		public virtual bool ShipIfCan(IUnitOfWork uow, CallTaskWorker callTaskWorker)
+		public virtual bool ShipIfCan(
+			IUnitOfWork uow,
+			ICallTaskWorker callTaskWorker,
+			out IList<GoodsInRouteListResult> notLoadedGoods,
+			CarLoadDocument withDocument = null)
 		{
+			notLoadedGoods = new List<GoodsInRouteListResult>();
 			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 
 			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(uow, this);
 
-			var inLoaded = _routeListRepository.AllGoodsLoaded(uow, this);
-			var goods = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
+			var itemsInLoadDocuments = _routeListRepository.AllGoodsLoaded(uow, this);
+
+			if(withDocument != null)
+			{
+				foreach(var item in withDocument.Items)
+				{
+					var found = itemsInLoadDocuments.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+					if(found != null)
+					{
+						found.Amount += item.Amount;
+					}
+					else
+					{
+						itemsInLoadDocuments.Add(new GoodsInRouteListResult { NomenclatureId = item.Nomenclature.Id, Amount = item.Amount });
+					}
+				}
+			}
+
+			var allItemsToLoad = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
-			foreach(var good in goods) {
-				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
+			foreach(var itemToLoad in allItemsToLoad) {
+				var loaded = itemsInLoadDocuments.FirstOrDefault(x => x.NomenclatureId == itemToLoad.NomenclatureId);
 
-				if(good.NomenclatureId == terminalId
-					&& ((loaded?.Amount ?? 0) + terminalsTransferedToThisRL == good.Amount 
-					    || _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, Driver, this) != null))
+				if(itemToLoad.NomenclatureId == terminalId
+					&& ((loaded?.Amount ?? 0) + terminalsTransferedToThisRL == itemToLoad.Amount
+					    || _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, Driver, this) != null))
 				{
 					continue;
 				}
 
-				if(loaded == null || loaded.Amount < good.Amount) {
-					closed = false;
-					break;
+				var notLoadedAmount = itemToLoad.Amount - (loaded?.Amount ?? 0);
+				if(notLoadedAmount == 0)
+				{
+					continue;
 				}
+
+				notLoadedGoods.Add(new GoodsInRouteListResult { NomenclatureId = itemToLoad.NomenclatureId, Amount = notLoadedAmount });
+				closed = false;
 			}
 
 			if(closed) {
@@ -954,7 +980,7 @@ namespace Vodovoz.Domain.Logistic
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || DifferencesConfirmed;
 		}
 
-		public virtual void ChangeStatusAndCreateTask(RouteListStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTask(RouteListStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			if(newStatus == Status)
 				return;
@@ -1233,7 +1259,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private void CloseAddressesAndCreateTask(CallTaskWorker callTaskWorker)
+		private void CloseAddressesAndCreateTask(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.Closed) {
 				return;

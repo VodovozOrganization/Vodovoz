@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Proposal;
 using Vodovoz.EntityRepositories.Nodes;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -37,11 +38,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.ViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints.ComplaintResults;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
@@ -49,8 +46,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
+using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -207,7 +207,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 			//DebtorsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
-				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
+				() => FluentColumnsConfig<DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
@@ -219,7 +219,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
 					.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
 					.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
-					.RowCells().AddSetter<CellRendererText>((CellRendererText c, Representations.DebtorJournalNode n) => c.Foreground = n.RowColor)
+					.RowCells().AddSetter<CellRendererText>((CellRendererText c, DebtorJournalNode n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 
@@ -658,20 +658,37 @@ namespace Vodovoz.JournalColumnsConfigs
 			//PaymentJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PaymentsJournalViewModel>(
 				() => FluentColumnsConfig<PaymentJournalNode>.Create()
-					.AddColumn("№").AddTextRenderer(x => x.PaymentNum.ToString())
-					.AddColumn("Дата").AddTextRenderer(x => x.Date.ToShortDateString())
-					.AddColumn("Cумма").AddTextRenderer(x => x.Total.ToString())
-					.AddColumn("Заказы").AddTextRenderer(x => x.Orders)
-					.AddColumn("Плательщик").AddTextRenderer(x => x.Counterparty)
-						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
-					.AddColumn("Получатель").AddTextRenderer(x => x.Organization)
-					.AddColumn("Назначение платежа").AddTextRenderer(x => x.PaymentPurpose)
-						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("№")
+						.AddTextRenderer(x => x.PaymentNum.ToString())
+					.AddColumn("Дата")
+						.AddTextRenderer(x => x.Date.ToShortDateString())
+					.AddColumn("Cумма")
+						.AddTextRenderer(x => x.Total.ToString())
+					.AddColumn("Заказы")
+						.AddTextRenderer(x => x.Orders)
+					.AddColumn("Плательщик")
+						.AddTextRenderer(x => x.PayerName)
+						.WrapWidth(450)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Контрагент")
+						.AddTextRenderer(x => x.CounterpartyName)
+						.WrapWidth(450)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Получатель")
+						.AddTextRenderer(x => x.Organization)
+					.AddColumn("Назначение платежа")
+						.AddTextRenderer(x => x.PaymentPurpose)
+						.WrapWidth(600)
+						.WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Категория дохода/расхода")
-						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
+						.AddTextRenderer(x => x.ProfitCategory)
+						.XAlign(0.5f)
 					.AddColumn("Создан вручную?")
 						.AddToggleRenderer(x => x.IsManualCreated)
 						.Editing(false)
+					.AddColumn("Нераспределенная сумма")
+						.AddNumericRenderer(x => x.UnAllocatedSum)
+						.Digits(2)
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {
@@ -1041,6 +1058,38 @@ namespace Vodovoz.JournalColumnsConfigs
                     .Finish()
             );
 
+			//RouteListJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RouteListJournalViewModel>(
+				() => FluentColumnsConfig<RouteListJournalNode>.Create()
+					.AddColumn("Номер")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата")
+						.AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Смена")
+						.AddTextRenderer(node => node.ShiftName)
+					.AddColumn("Статус")
+						.AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Водитель и машина")
+						.AddTextRenderer(node => node.DriverAndCar)
+					.AddColumn("Сдается в кассу")
+						.AddTextRenderer(node => node.ClosingSubdivision)
+					.AddColumn("Комментарий ЛО")
+						.AddTextRenderer(node => node.LogisticiansComment)
+						.WrapWidth(300)
+						.WrapMode(WrapMode.WordChar)
+					.AddColumn("Комментарий по закрытию")
+						.AddTextRenderer(node => node.ClosinComments)
+						.WrapWidth(300)
+						.WrapMode(WrapMode.WordChar)
+					.AddColumn("Комментарий по водителю")
+						.AddTextRenderer(node => node.DriverComment)
+						.WrapWidth(300)
+						.WrapMode(WrapMode.WordChar)
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+					.Finish()
+			);
+
 			//RegisteredRMJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RegisteredRMJournalViewModel>(
 				() => FluentColumnsConfig<RegisteredRMJournalNode>.Create()
@@ -1409,6 +1458,26 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Отчество").AddTextRenderer(node => node.Patronymic)
 					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
+					.Finish()
+			);
+			
+			//UnAllocatedBalancesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UnallocatedBalancesJournalViewModel>(
+				() => FluentColumnsConfig<UnallocatedBalancesJournalNode>.Create()
+					.AddColumn("Код клиента")
+						.AddNumericRenderer(node => node.CounterpartyId)
+					.AddColumn("ИНН")
+						.AddTextRenderer(node => node.CounterpartyINN)
+					.AddColumn("Наименование")
+						.AddTextRenderer(node => node.CounterpartyName)
+					.AddColumn("Наша организация")
+						.AddTextRenderer(node => node.OrganizationName)
+					.AddColumn("Баланс клиента")
+						.AddNumericRenderer(node => node.CounterpartyBalance)
+						.Digits(2)
+					.AddColumn("Долг клиента")
+						.AddNumericRenderer(node => node.CounterpartyDebt)
+						.Digits(2)
 					.Finish()
 			);
 		}

@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public void OpenCreateRouteListDlg(ITdiTab tab, int id)
+		public void OpenRouteListCreateDlg(ITdiTab tab, int id)
 		{
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
@@ -59,10 +59,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => new CounterpartyDlg(counterpartyId));
 		}
 
-		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, IPermissionService permissionService,
-			bool canChangeEmployee, ExpenseType expenseType)
+		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
 		{
-			var dlg = new CashExpenseDlg(permissionService);
+			var dlg = new CashExpenseDlg();
 			if(dlg.FailInitialize)
 			{
 				return;
@@ -72,9 +71,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			master.TabParent.AddTab(dlg, master);
 		}
 
-		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description, IPermissionService permissionService)
+		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description)
 		{
-			var dlg = new CashExpenseDlg(permissionService);
+			var dlg = new CashExpenseDlg();
 			if(dlg.FailInitialize)
 			{
 				return;

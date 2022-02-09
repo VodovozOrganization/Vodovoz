@@ -8,10 +8,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModel;
-using QS.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -23,8 +20,6 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
@@ -34,8 +29,8 @@ namespace Vodovoz.Dialogs.Cash
 	public partial class CashIncomeSelfDeliveryDlg : EntityDialogBase<Income>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private bool canEdit = true;
-		private readonly bool canCreate;
+		private bool _canEdit = true;
+		private readonly bool _canCreate;
 		private readonly bool canEditRectroactively;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(new ParametersProvider());
@@ -61,7 +56,7 @@ namespace Vodovoz.Dialogs.Cash
 			set { callTaskWorker = value; }
 		}
 
-		public CashIncomeSelfDeliveryDlg(IPermissionService permissionService)
+		public CashIncomeSelfDeliveryDlg()
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
@@ -76,9 +71,8 @@ namespace Vodovoz.Dialogs.Cash
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
-			canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate) {
+			_canCreate = permissionResult.CanCreate;
+			if(!_canCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
 				return;
@@ -96,14 +90,14 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashIncomeSelfDeliveryDlg(Order forOrder, IPermissionService permissionService) : this(permissionService)
+		public CashIncomeSelfDeliveryDlg(Order forOrder) : this()
 		{
 			Entity.Order = UoW.GetById<Order>(forOrder.Id);
 		}
 
-		public CashIncomeSelfDeliveryDlg(int id, IPermissionService permissionService)
+		public CashIncomeSelfDeliveryDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income>(id);
 
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
@@ -113,14 +107,8 @@ namespace Vodovoz.Dialogs.Cash
 				return;
 			}
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
-
-			var userPermission = permissionService.ValidateUserPermission(typeof(Income), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			canEdit = userPermission.CanUpdate;
+			
+			_canEdit = permissionResult.CanUpdate;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -131,10 +119,10 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashIncomeSelfDeliveryDlg(Income sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
+		public CashIncomeSelfDeliveryDlg(Income sub) : this(sub.Id) { }
 
-		private bool CanEdit => (UoW.IsNew && canCreate) ||
-		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		private bool CanEdit => (UoW.IsNew && _canCreate) ||
+		                        (_canEdit && Entity.Date.Date == DateTime.Now.Date) ||
 		                        canEditRectroactively;
 		
 		void ConfigureDlg()

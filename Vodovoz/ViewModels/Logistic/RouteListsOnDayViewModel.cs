@@ -220,7 +220,7 @@ namespace Vodovoz.ViewModels.Logistic
 							} else
 								return;
 						}
-						gtkTabsOpener.OpenCreateRouteListDlg(this, rl.Id);
+						gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
 					}
 				},
 				i => true

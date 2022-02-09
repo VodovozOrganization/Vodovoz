@@ -13,7 +13,6 @@ using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -49,8 +48,8 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory = new EmployeePostsJournalFactory();
 		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
+			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -216,8 +215,7 @@ namespace Vodovoz.Dialogs.Employees
 				_subdivisionJournalFactory,
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
-				_emailServiceSettingAdapter,
+				_subdivisionParametersProvider,
 				_wageCalculationRepository,
 				_employeeRepository,
 				employeeUow,

@@ -19,7 +19,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 	    public RouteListJournalFilterViewModel()
         {
-            statusNodes.AddRange(Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().Select(x => new RouteListStatusNode(x)));
+			statusNodes.AddRange(Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().Select(x => new RouteListStatusNode(x)
+			{
+				Selected = true
+			}));
 
             foreach (var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
             {

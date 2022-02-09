@@ -19,6 +19,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Employees
@@ -354,16 +355,17 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionService)) is ISubdivisionService subdivisionService))
+			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionParametersProvider)) is ISubdivisionParametersProvider
+				   subdivisionParametersProvider))
 			{
-				throw new ArgumentNullException($"Не найден сервис { nameof(subdivisionService) }");
+				throw new ArgumentNullException($"Не найден сервис { nameof(subdivisionParametersProvider) }");
 			}
-			
+
 			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(userRepository) }");
 			}
-			
+
 			foreach(var item in base.Validate(validationContext)) {
 				yield return item;
 			}
@@ -371,7 +373,7 @@ namespace Vodovoz.Domain.Employees
 			if(!string.IsNullOrEmpty(AndroidLogin))
 			{
 				var exist = employeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
-				
+
 				if(exist != null && exist.Id != Id)
 				{
 					yield return new ValidationResult(
@@ -379,7 +381,7 @@ namespace Vodovoz.Domain.Employees
 						new[] { nameof(AndroidLogin) });
 				}
 			}
-			
+
 			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null) {
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
 					new[] { nameof(LoginForNewUser) });
@@ -453,8 +455,8 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
 					new[] { nameof(DriverOf) });
 			}
-			
-			if(Subdivision == null || Subdivision.Id == subdivisionService.GetParentVodovozSubdivisionId())
+
+			if(Subdivision == null || Subdivision.Id == subdivisionParametersProvider.GetParentVodovozSubdivisionId())
 			{
 				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
 					" общим подразделением 'Веселый Водовоз'");

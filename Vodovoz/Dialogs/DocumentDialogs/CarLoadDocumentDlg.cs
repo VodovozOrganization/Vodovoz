@@ -185,7 +185,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 
 			logger.Info("Меняем статус маршрутного листа...");
-			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker))
+			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
 			UoW.Commit();
@@ -223,7 +223,7 @@ namespace Vodovoz
 		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			Entity.UpdateStockAmount(UoW, _stockRepository);
-			carloaddocumentview1.UpdateAmounts();
+			Entity.UpdateAmounts();
 		}
 
 		protected void OnEnumPrintEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)

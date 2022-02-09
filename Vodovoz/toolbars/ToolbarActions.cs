@@ -92,12 +92,15 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
@@ -140,19 +143,23 @@ public partial class MainWindow : Window
 	Action ActionFinesJournal;
 	Action ActionPremiumJournal;
 	Action ActionCarProxiesJournal;
-	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
 	Action ActionReportDebtorsBottles;
 	Action ActionExportImportNomenclatureCatalog;
+
+	//Бухгалтерия
 	Action ActionTransferBankDocs;
 	Action ActionPaymentFromBank;
-	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
+	Action ActionRevision;
 	Action ActionExportTo1c;
 	Action ActionOldExportTo1c;
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionImportPaymentsByCard;
+	Action ActionFinancialDistrictsSetsJournal;
+	Action ActionUnallocatedBalancesJournal;
+
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
@@ -236,6 +243,7 @@ public partial class MainWindow : Window
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
+		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -295,18 +303,22 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
-		w1.Add(ActionRevision, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
+
+		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionPaymentFromBank, null);
-		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
+		w1.Add(ActionRevision, null);
 		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionOldExportTo1c, null);
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionImportPaymentsByCard, null);
+		w1.Add(ActionFinancialDistrictsSetsJournal, null);
+		w1.Add(ActionUnallocatedBalancesJournal, null);
+
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
@@ -374,18 +386,22 @@ public partial class MainWindow : Window
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
-		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
+
+		//Бухгалтерия
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
-		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
+		ActionRevision.Activated += ActionRevision_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
+		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
+		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
+
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
@@ -508,8 +524,12 @@ public partial class MainWindow : Window
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
+		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
+		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		IEmailRepository emailRepository = new EmailRepository();
 		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), new DebtorsParameters(new ParametersProvider()));
+			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), 
+			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository);
 
 		tdiMain.AddTab(debtorsJournal);
 	}
@@ -663,25 +683,14 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
+	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
-		var filter = new PaymentsJournalFilterViewModel();
-		var paymentsRepository = new PaymentsRepository();
-		var parametersProvider = new ParametersProvider();
+		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+	}
 
-		var paymentsJournalViewModel = new PaymentsJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			NavigationManager,
-			new OrderRepository(),
-			new OrganizationParametersProvider(parametersProvider),
-			new BaseParametersProvider(parametersProvider),
-			paymentsRepository,
-			new DialogsFactory()
-		);
-
-		tdiMain.AddTab(paymentsJournalViewModel);
+	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<UnallocatedBalancesJournalViewModel>(null);
 	}
 
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
@@ -932,15 +941,10 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<RouteListsVM>(),
-			() => {
-				var vm = new RouteListsVM();
-				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				Buttons buttons = Buttons.Add | Buttons.Edit;
-				return new PermissionControlledRepresentationJournal(vm, buttons, true);
-			}
-		);
+		var filter = autofacScope.Resolve<RouteListJournalFilterViewModel>();
+		filter.StartDate = DateTime.Today.AddMonths(-2);
+		filter.EndDate = DateTime.Today;
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)

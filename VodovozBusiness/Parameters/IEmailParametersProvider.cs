@@ -1,0 +1,10 @@
+﻿namespace Vodovoz.Parameters
+{
+	public interface IEmailParametersProvider
+	{
+		string DefaultEmailSenderAddress { get; }
+		string DefaultEmailSenderName { get; }
+		string DocumentEmailSenderAddress { get; }
+		string DocumentEmailSenderName { get; }
+	}
+}
