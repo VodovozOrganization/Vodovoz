@@ -65,6 +65,8 @@ using Vodovoz.ViewWidgets;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using NHibernate;
 using QS.Utilities;
