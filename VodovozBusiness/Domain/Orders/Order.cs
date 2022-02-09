@@ -2540,7 +2540,10 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, Id);
+					if(PaymentType == PaymentType.cashless)
+					{
+						_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, this);
+					}
 					break;
 				default:
 					break;
@@ -3523,6 +3526,7 @@ namespace Vodovoz.Domain.Orders
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
+			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
 			uow.Save();
 		}
 		

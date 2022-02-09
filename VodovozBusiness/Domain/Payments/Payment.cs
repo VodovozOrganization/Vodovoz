@@ -6,9 +6,11 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using QS.Banks.Domain;
 using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -279,7 +281,8 @@ namespace Vodovoz.Domain.Payments
 			return false;
 		}
 		
-		public virtual Payment CreatePaymentForReturnAllocatedSumToClientBalance(decimal paymentSum, int orderId)
+		public virtual Payment CreatePaymentForReturnAllocatedSumToClientBalance(
+			decimal paymentSum, int orderId, RefundPaymentReason refundPaymentReason)
 		{
 			return new Payment
 			{
@@ -287,7 +290,7 @@ namespace Vodovoz.Domain.Payments
 				Date = DateTime.Now,
 				Total = paymentSum,
 				ProfitCategory = ProfitCategory,
-				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента",
+				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента. Причина: {refundPaymentReason.GetEnumTitle()}",
 				Organization = Organization,
 				Counterparty = Counterparty,
 				CounterpartyName = CounterpartyName,

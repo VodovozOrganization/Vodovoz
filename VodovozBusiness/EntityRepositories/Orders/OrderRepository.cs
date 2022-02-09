@@ -873,6 +873,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				.OrderBy(o => o.CreateDate).Asc
 				.List<NotFullyPaidOrderNode>();
 		}
+
+		public PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.Id == orderId)
+				.Select(o => o.PaymentType)
+				.SingleOrDefault<PaymentType>();
+		}
 	}
 
 	public class NotFullyPaidOrderNode

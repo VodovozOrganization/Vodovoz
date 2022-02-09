@@ -777,6 +777,7 @@ namespace Vodovoz
 			foreach(var address in Entity.Addresses)
 			{
 				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
+				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
 			}
 			
 			UoW.Save();
