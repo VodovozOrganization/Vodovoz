@@ -72,6 +72,8 @@ namespace Vodovoz.Domain.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
+
 		#region Платная доставка
 
 		private int paidDeliveryNomenclatureId;
@@ -793,8 +795,22 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
 			get {
 				if(observableOrderDocuments == null)
+				{
 					observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments);
+					observableOrderDocuments.ElementRemoved += ObservableOrderDocumentsElementRemoved;
+				}
+
 				return observableOrderDocuments;
+			}
+		}
+
+		private void ObservableOrderDocumentsElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			var orderDocumentEmails = _emailRepository.GetOrderDocumentEmailsForOrderDocument(UoW, ((OrderDocument) aObject).Id);
+
+			foreach(var orderDocumentEmail in orderDocumentEmails)
+			{
+				orderDocumentEmail.OrderDocument = null;
 			}
 		}
 

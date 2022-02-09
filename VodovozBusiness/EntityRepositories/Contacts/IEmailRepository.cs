@@ -14,6 +14,7 @@ namespace Vodovoz.EntityRepositories
 		bool HaveSendedEmailForBill(int orderId);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
+		IList<OrderDocumentEmail> GetOrderDocumentEmailsForOrderDocument(IUnitOfWork uow, int orderDocumentId);
 
 		#region EmailType
 

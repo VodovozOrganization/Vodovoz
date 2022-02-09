@@ -28,6 +28,13 @@ namespace Vodovoz.EntityRepositories
 					.List<StoredEmail>().ToList();
 		}
 
+		public IList<OrderDocumentEmail> GetOrderDocumentEmailsForOrderDocument(IUnitOfWork uow, int orderDocumentId)
+		{
+			return uow.Session.QueryOver<OrderDocumentEmail>()
+				.Where(ode => ode.OrderDocument.Id == orderDocumentId)
+				.List<OrderDocumentEmail>();
+		}
+
 		public List<CounterpartyEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<CounterpartyEmail>()
