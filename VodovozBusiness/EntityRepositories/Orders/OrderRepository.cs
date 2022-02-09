@@ -7,6 +7,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion.Lambda;
+using NHibernate.Impl;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -14,6 +16,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
@@ -812,5 +815,72 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return deliveryDate;
 		}
-    }
+
+		public static IProjection GetOrderSumProjection(OrderItem orderItemAlias)
+		{
+			return Projections.Sum(
+				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
+					NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)));
+		}
+
+		public IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
+			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			Organization orderOrganizationAlias = null;
+			DeliverySchedule deliveryScheduleAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+			NotFullyPaidOrderNode resultAlias = null;
+			
+			var orderSumProjection = GetOrderSumProjection(orderItemAlias);
+			var allocatedSumProjection = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(pi => pi.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Select(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
+					NHibernateUtil.Decimal,
+						Projections.Sum(() => cashlessMovementOperationAlias.Expense),
+						Projections.Constant(0)));
+			
+			return uow.Session.QueryOver(() => orderAlias)
+				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.Inner.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.Inner.JoinAlias(() => counterpartyContractAlias.Organization, () => orderOrganizationAlias)
+				.Inner.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.And(() => orderOrganizationAlias.Id == organizationId)
+				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
+							|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
+							|| orderAlias.OrderStatus == OrderStatus.Closed)
+				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.And(() => deliveryScheduleAlias.Id != closingDocumentDeliveryScheduleId)
+				.SelectList(list => 
+					list.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
+						.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+						.Select(o => o.CreateDate).WithAlias(() => resultAlias.OrderCreationDate)
+						.Select(orderSumProjection).WithAlias(() => resultAlias.OrderSum)
+						.SelectSubQuery(allocatedSumProjection).WithAlias(() => resultAlias.AllocatedSum))
+				.Where(Restrictions.Gt(orderSumProjection, 0))
+				.TransformUsing(Transformers.AliasToBean<NotFullyPaidOrderNode>())
+				.OrderBy(o => o.DeliveryDate).Asc
+				.OrderBy(o => o.CreateDate).Asc
+				.List<NotFullyPaidOrderNode>();
+		}
+	}
+
+	public class NotFullyPaidOrderNode
+	{
+		public int Id { get; set; }
+		public DateTime? OrderDeliveryDate { get; set; }
+		public DateTime? OrderCreationDate { get; set; }
+		public decimal OrderSum { get; set; }
+		public decimal AllocatedSum { get; set; }
+	}
 }

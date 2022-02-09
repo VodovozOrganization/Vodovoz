@@ -411,6 +411,7 @@
     <Compile Include="Factories\ValidationContextFactory.cs" />
     <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
+    <Compile Include="Filters\Views\PaymentsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestView.cs" />
@@ -1331,13 +1332,9 @@
     <Compile Include="ErrorHandlers.cs" />
     <Compile Include="Views\Payments\PaymentLoaderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
-    <Compile Include="JournalViewModels\PaymentsJournalViewModel.cs" />
-    <Compile Include="JournalNodes\PaymentJournalNode.cs" />
     <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
-    <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
-    <Compile Include="Filters\GtkViews\PaymentsFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PaymentsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.PaymentsJournalFilterView.cs" />
     <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
     <Compile Include="Views\Comments\DocumentCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
@@ -1672,10 +1669,14 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReport.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
-    <Compile Include="Views\Payments\PaymentFromBankClientView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentFromBankClientView.cs" />
     <Compile Include="Views\BulkEmailView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BulkEmailView.cs" />
+    <Compile Include="Views\Payments\CreateManualPaymentFromBankClientView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.CreateManualPaymentFromBankClientView.cs" />
+    <Compile Include="Views\Payments\AutomaticallyAllocationBalanceWindowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.AutomaticallyAllocationBalanceWindowView.cs" />
+    <Compile Include="Filters\Views\UnallocatedBalancesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.UnallocatedBalancesJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

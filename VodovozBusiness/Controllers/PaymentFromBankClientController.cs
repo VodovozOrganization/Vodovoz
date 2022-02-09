@@ -60,7 +60,7 @@ namespace Vodovoz.Controllers
 					}
 					if(paymentItem.Sum <= diff)
 					{
-						paymentItem.Payment.UpdateAllocatedSum(uow, order.Id, 0);
+						paymentItem.Payment.RemovePaymentItem(paymentItem.Id);
 						uow.Save(paymentItem.Payment);
 						diff -= paymentItem.Sum;
 					}
