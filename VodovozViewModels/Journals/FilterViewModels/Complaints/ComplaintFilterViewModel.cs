@@ -11,6 +11,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
@@ -24,7 +25,7 @@ namespace Vodovoz.FilterViewModels
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		
-		public ISubdivisionService SubdivisionService { get; set; }
+		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
 		
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -165,7 +166,7 @@ namespace Vodovoz.FilterViewModels
 		public virtual Subdivision Subdivision {
 			get => subdivision;
 			set {
-				if(value?.Id == SubdivisionService?.GetOkkId())
+				if(value?.Id == SubdivisionParametersProvider?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
 
 				SetField(ref subdivision, value);

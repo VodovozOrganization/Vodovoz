@@ -39,12 +39,14 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -61,8 +63,13 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using NHibernate;
+using QS.Utilities;
 
 namespace Vodovoz
 {
@@ -83,7 +90,9 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IContactsParameters _contactsParameters = ContactParametersProvider.Instance;
+		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
+			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
@@ -96,10 +105,13 @@ namespace Vodovoz
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
 		private PhonesViewModel _phonesViewModel;
+		private double _emailLastScrollPosition;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+
+		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
 		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
 			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
@@ -843,6 +855,76 @@ namespace Vodovoz
 			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
 		}
 
+		private void ConfigureTabEmails()
+		{
+			if(EmailDataLoader != null)
+			{
+				return;
+			}
+
+			_emailLastScrollPosition = 0;
+			EmailDataLoader = new ThreadDataLoader<EmailRow>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = 50 };
+			EmailDataLoader.AddQuery(EmailItemsSourceQueryFunction);
+
+			ytreeviewEmails.ColumnsConfig = FluentColumnsConfig<EmailRow>.Create()
+				.AddColumn("Дата отправки").AddTextRenderer(x => x.Date.ToString())
+				.AddColumn("Тип письма").AddTextRenderer(x => x.Type.GetEnumTitle())
+				.AddColumn("Статус").AddTextRenderer(x => x.State.GetEnumTitle())
+				.AddColumn("Тема письма").AddTextRenderer(x => x.Subject)
+				.Finish();
+
+			EmailDataLoader.ItemsListUpdated += (sender, args) =>
+			{
+				Application.Invoke((s, arg) =>
+				{
+					ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
+					GtkHelper.WaitRedraw();
+					ytreeviewEmails.Vadjustment.Value = _emailLastScrollPosition;
+				});
+			};
+
+			ytreeviewEmails.Vadjustment.ValueChanged += (sender, args) =>
+			{
+				if(ytreeviewEmails.Vadjustment.Value + ytreeviewEmails.Vadjustment.PageSize < ytreeviewEmails.Vadjustment.Upper)
+				{
+					return;
+				}
+
+				if(EmailDataLoader.HasUnloadedItems)
+				{
+					_emailLastScrollPosition = ytreeviewEmails.Vadjustment.Value;
+					EmailDataLoader.LoadData(true);
+				}
+			};
+
+			ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
+
+			EmailDataLoader.LoadData(false);
+		}
+
+		private Func<IUnitOfWork, IQueryOver<CounterpartyEmail>> EmailItemsSourceQueryFunction => (uow) =>
+		{
+			CounterpartyEmail counterpartyEmailAlias = null;
+			StoredEmail storedEmailAlias = null;
+			EmailRow resultAlias = null;
+
+			var itemsQuery = uow.Session.QueryOver(() => counterpartyEmailAlias)
+				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => counterpartyEmailAlias.Counterparty.Id == Entity.Id);
+
+			itemsQuery
+				.SelectList(list => list
+					.Select(()=> storedEmailAlias.SendDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.Type)
+					.Select(() => storedEmailAlias.Subject).WithAlias(() => resultAlias.Subject)
+					.Select(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
+				)
+				.OrderBy(() => storedEmailAlias.SendDate).Desc
+				.TransformUsing(Transformers.AliasToBean<EmailRow>());
+
+			return itemsQuery;
+		};
+
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
 			if(Entity.IsChainStore)
@@ -937,7 +1019,7 @@ namespace Vodovoz
 				_employeeService,
 				CounterpartySelectorFactory,
 				RouteListItemRepository,
-				SubdivisionParametersProvider.Instance,
+				_subdivisionParametersProvider,
 				filter,
 				FilePickerService,
 				SubdivisionRepository,
@@ -1114,6 +1196,15 @@ namespace Vodovoz
 		public void OpenFixedPrices()
 		{
 			notebook1.CurrentPage = 10;
+		}
+
+		protected void OnRadioEmailsToggled(object sender, EventArgs e)
+		{
+			if(rbnEmails.Active)
+			{
+				notebook1.CurrentPage = 11;
+				ConfigureTabEmails();
+			}
 		}
 
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
@@ -1426,5 +1517,13 @@ namespace Vodovoz
 			Id = salesChannel.Id;
 			Name = salesChannel.Name;
 		}
+	}
+
+	public class EmailRow
+	{
+		public DateTime Date { get; set; }
+		public CounterpartyEmailType Type { get; set; }
+		public string Subject { get; set; }
+		public StoredEmailStates State { get; set; }
 	}
 }

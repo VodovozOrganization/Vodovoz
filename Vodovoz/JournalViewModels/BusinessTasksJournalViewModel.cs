@@ -25,6 +25,7 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -45,6 +46,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly IContactsParameters _contactsParameters;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
@@ -60,7 +62,8 @@ namespace Vodovoz.JournalViewModels
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory
+			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory,
+			IContactsParameters contactsParameters
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
@@ -74,6 +77,7 @@ namespace Vodovoz.JournalViewModels
 			this.footerViewModel = footerViewModel;
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
+			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 
 			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
@@ -316,6 +320,7 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
+						_contactsParameters,
 						commonServices,
 						_roboAtsCounterpartyJournalFactory
 					),
@@ -330,6 +335,7 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
+						_contactsParameters,
 						commonServices,
 						_roboAtsCounterpartyJournalFactory
 					),

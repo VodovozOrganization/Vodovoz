@@ -251,24 +251,14 @@ namespace Vodovoz.Domain.Payments
 				item.Sum += sum;
 		}
 
-		public virtual void UpdateAllocatedSum(IUnitOfWork uow, int orderId, decimal sum) {
-			var item = ObservableItems.SingleOrDefault(x => x.Order.Id == orderId);
-
-			if (sum != 0) {
-				item?.UpdateSum(sum);
+		public virtual void RemovePaymentItem(int paymentItemId)
+		{
+			var paymentItem = ObservableItems.SingleOrDefault(pi => pi.Id == paymentItemId);
+			
+			if(paymentItem != null)
+			{
+				ObservableItems.Remove(paymentItem);
 			}
-			else {
-				RemovePaymentItem(uow, item);
-			}
-		}
-
-		private void RemovePaymentItem(IUnitOfWork uow, PaymentItem item) {
-			if (item.CashlessMovementOperation != null) {
-				uow.Delete(item.CashlessMovementOperation);
-				item.CashlessMovementOperation = null;
-			}
-
-			ObservableItems.Remove(item);
 		}
 
 		public virtual bool CreateIncomeOperation()
@@ -279,6 +269,7 @@ namespace Vodovoz.Domain.Payments
 				{
 					Income = Total,
 					Counterparty = Counterparty,
+					Organization = Organization,
 					OperationTime = DateTime.Now
 				};
 				

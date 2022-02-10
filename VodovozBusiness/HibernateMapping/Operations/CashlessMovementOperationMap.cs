@@ -1,5 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Operations;
+
 namespace Vodovoz.HibernateMapping.Operations
 {
 	public class CashlessMovementOperationMap : ClassMap<CashlessMovementOperation>
@@ -14,6 +15,7 @@ namespace Vodovoz.HibernateMapping.Operations
 			Map(x => x.Expense).Column("expense");
 
 			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.Organization).Column("organization_id");
 		}
 	}
 }

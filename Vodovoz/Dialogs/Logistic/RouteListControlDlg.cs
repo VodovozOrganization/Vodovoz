@@ -104,7 +104,7 @@ namespace Vodovoz.Dialogs.Logistic
 			#region костыль
 			//FIXME пока не можем найти причину бага с несменой статуса на в пути при полной отгрузке, позволяем логистам отправлять МЛ в путь из этого диалога
 			bool fullyLoaded = false;
-			if(Entity.ShipIfCan(UoW, CallTaskWorker)) {
+			if(Entity.ShipIfCan(UoW, CallTaskWorker, out _)) {
 				fullyLoaded = true;
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			}

@@ -1,13 +1,7 @@
-﻿using NHibernate.Criterion;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
+﻿using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Services;
 using QS.Validation;
 using QSOrmProject;
 using System;
@@ -21,14 +15,9 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz
 {
@@ -43,9 +32,7 @@ namespace Vodovoz
 		private readonly bool _canEditRectroactively;
 		private readonly bool _canEditDate =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cash_income_expense_date");
-
-		private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
+		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IWagesMovementRepository _wagesMovementRepository = new WagesMovementRepository();
@@ -66,7 +53,7 @@ namespace Vodovoz
 				new CashDistributionCommonOrganisationProvider(
 					new OrganizationParametersProvider(_parametersProvider)));
 
-		public CashExpenseDlg(IPermissionService permissionService)
+		public CashExpenseDlg()
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
@@ -78,10 +65,9 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
-			_canCreate = userPermission.CanCreate;
-			if(!userPermission.CanCreate)
+			
+			_canCreate = permissionResult.CanCreate;
+			if(!_canCreate)
 			{
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание расходного ордера");
 				FailInitialize = true;
@@ -99,7 +85,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public CashExpenseDlg(int id, IPermissionService permissionService)
+		public CashExpenseDlg(int id)
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
@@ -111,15 +97,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead)
-			{
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр расходного ордера");
-				FailInitialize = true;
-				return;
-			}
-
-			_canEdit = userPermission.CanUpdate;
+			_canEdit = permissionResult.CanUpdate;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);

@@ -18,7 +18,6 @@ namespace Vodovoz.Core.DataService
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
-		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
@@ -401,48 +400,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IEmailServiceSettings implementation
-
-		#region IContactsParameters
-
-		public int MinSavePhoneLength
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("MinSavePhoneLength"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение минимальной длины телефонного номера (MinSavePhoneLength)");
-				}
-				string value = _parametersProvider.GetParameterValue("MinSavePhoneLength");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение минимальной длины телефонного номера (MinSavePhoneLength)");
-				}
-
-				return result;
-			}
-	 	}
-		public string DefaultCityCode
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("default_city_code"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение стандартного кода города (default_city_code)");
-				}
-
-				string value = _parametersProvider.GetParameterValue("default_city_code");
-
-				if(string.IsNullOrWhiteSpace(value))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение стандартного кода города (default_city_code)");
-				}
-
-				return value;
-			}
-		}
-
-		#endregion
 
 		#region IDriverServiceParametersProvider
 

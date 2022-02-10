@@ -13,6 +13,8 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -29,6 +31,7 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _lastOrderBottlesTo;
 		private int? _lastOrderBottlesFrom;
 		private bool _hideActiveCounterparty;
+		private bool _hideWithoutEmail;
 		private bool _showSuspendedCounterparty;
 		private bool _showCancellationCounterparty;
 		private DiscountReason _discountReason;
@@ -106,6 +109,12 @@ namespace Vodovoz.Filters.ViewModels
 		public bool HideWithOneOrder {
 			get => _hideWithOneOrder;
 			set => UpdateFilterField(ref _hideWithOneOrder, value);
+		}
+
+		public bool HideWithoutEmail
+		{
+			get => _hideWithoutEmail;
+			set => UpdateFilterField(ref _hideWithoutEmail, value);
 		}
 
 		public int? DebtBottlesFrom {

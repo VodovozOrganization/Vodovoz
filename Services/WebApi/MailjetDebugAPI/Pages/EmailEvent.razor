@@ -1,0 +1,201 @@
+﻿@page "/emailevent"
+
+@using Endpoints;
+@using System.Reflection; 
+@using Mailjet.Api.Abstractions.Events;
+@using Data;
+
+@inject EventsRecieverEndpoint _eventsRecieverEndpoint;
+
+@code {
+	private Assembly _eventsAssembly = Assembly.GetAssembly(typeof(Mailjet.Api.Abstractions.Events.MailEvent));
+
+	private Type[] _eventsTypes;
+
+	private Type _selectedType;
+
+	private MailEvent _event;
+
+	private string _eventResult = "";
+}
+
+<h1>Email Event Sending</h1>
+
+<h2>Event parameters:</h2>
+
+<select class="form-control" @bind="TypeName">
+	<option value="Select" selected disabled="disabled">(Choose event type)</option>
+	@foreach(var type in _eventsTypes)
+	{
+		<option value="@type.Name">@type.Name</option>
+	}
+</select>
+
+@if(_event != null)
+{
+	<h3>Common parameters:</h3>
+	<label class="control-label">Time</label>
+	<input class="form-control" type="number" @bind="_event.Time"/><br />
+	<label class="control-label">Mailjet Message Id</label>
+	<input class="form-control" type="number" @bind="_event.MessageId"/><br />
+	<label class="control-label">Mailjet Message Guid</label>
+	<input class="form-control" type="text" @bind="_event.MessageGuid"/><br />
+	<label class="control-label">Email</label>
+	<input class="form-control" type="text" @bind="_event.EmailAddress"/><br />
+	<label class="control-label">Mailjet Campaign Id</label>
+	<input class="form-control" type="number" @bind="_event.MailjetCampaignId"/><br />
+	<label class="control-label">Mailjet Contact Id</label>
+	<input class="form-control" type="number" @bind="_event.MailjetContactId"/><br />
+	<label class="control-label">Custom Campaign</label>
+	<input class="form-control" type="text" @bind="_event.CustomCampaign"/>
+
+	@if(_event is MailBlockedEvent)
+	{
+		<h3>Blocked Event parameters:</h3>
+		<label class="control-label">Error Related To</label>
+		<input class="form-control" type="text" @bind="((MailBlockedEvent)_event).ErrorRelatedTo"/><br />
+		<label class="control-label">Error</label>
+		<input class="form-control" type="text" @bind="((MailBlockedEvent)_event).Error"/>
+	}
+
+	@if(_event is MailBounceEvent)
+	{
+		<h3>Bounce Event parameters:</h3>
+		<div class="checkbox">
+			<label>
+				<input type="checkbox" @bind="((MailBounceEvent)_event).Blocked" /> Email is blocked
+			</label>
+		</div>
+		<div class="checkbox">
+			<label>
+				<input type="checkbox" @bind="((MailBounceEvent)_event).HardBounce"/> Email is hardbounced
+			</label>
+		</div>
+		<label class="control-label">Error Related To</label>
+		<input class="form-control" type="text" @bind="((MailBounceEvent)_event).ErrorRelatedTo"/><br />
+		<label class="control-label">Error</label>
+		<input class="form-control" type="text" @bind="((MailBounceEvent)_event).Error"/><br />
+		<label class="control-label">Comment</label>
+		<input class="form-control" type="text" @bind="((MailBounceEvent)_event).Comment"/>
+	}
+
+	@if(_event is MailClickEvent)
+	{
+		<h3>Click Event parameters:</h3>
+		<label class="control-label">Url</label>
+		<input class="form-control" type="text" @bind="((MailClickEvent)_event).Url"/><br />
+		<label class="control-label">Ip Address</label>
+		<input class="form-control" type="text" @bind="((MailClickEvent)_event).IpAddress"/><br />
+		<label class="control-label">Geo</label>
+		<input class="form-control" type="text" @bind="((MailClickEvent)_event).Geo"/><br />
+		<label class="control-label">Agent</label>
+		<input class="form-control" type="text" @bind="((MailClickEvent)_event).Agent"/>
+	}
+
+	@if(_event is MailOpenEvent)
+	{
+		<h3>Open Event parameters:</h3>
+		<label class="control-label">Ip Address</label>
+		<input class="form-control" type="text" @bind="((MailOpenEvent)_event).IpAddress"/><br />
+		<label class="control-label">Geo</label>
+		<input class="form-control" type="text" @bind="((MailOpenEvent)_event).Geo"/><br />
+		<label class="control-label">Agent</label>
+		<input class="form-control" type="text" @bind="((MailOpenEvent)_event).Agent"/>
+	}
+
+	@if(_event is MailSentEvent)
+	{
+		<h3>Sent Event parameters:</h3>
+		<label class="control-label">Mailjet Message Id (string)</label>
+		<input class="form-control" type="text" @bind="((MailSentEvent)_event).MailjetMessageId"/><br />
+		<label class="control-label">Smtp-server Reply</label>
+		<input class="form-control" type="text" @bind="((MailSentEvent)_event).SmtpReply"/>
+	}
+
+	@if(_event is MailSpamEvent)
+	{
+		<h3>Spam Event parameters:</h3>
+		<label class="control-label">Source</label>
+		<input class="form-control" type="text" @bind="((MailSpamEvent)_event).Source"/>
+	}
+
+	@if(_event is MailUnsubscribeEvent)
+	{
+		<h3>Spam Event parameters:</h3>
+		<label class="control-label">Mailjet List Id</label>
+		<input class="form-control" type="number" @bind="((MailUnsubscribeEvent)_event).MailjetListId"/><br />
+		<label class="control-label">Ip Address</label>
+		<input class="form-control" type="text" @bind="((MailUnsubscribeEvent)_event).IpAddress"/><br />
+		<label class="control-label">Address</label>
+		<input class="form-control" type="text" @bind="((MailUnsubscribeEvent)_event).Geo"/><br />
+		<label class="control-label">Agent</label>
+		<input class="form-control" type="text" @bind="((MailUnsubscribeEvent)_event).Agent"/>
+	}
+
+	<h3>Email tags:</h3>
+	<label class="control-label">Custom Id</label>
+	<input class="form-control" type="text" @bind="_event.CustomId"/><br />
+	<label class="control-label">Payload</label>
+	<textarea rows="5" class="form-control" @bind="_event.Payload"></textarea><br />
+	<button @onclick="async () => { _eventResult = await _eventsRecieverEndpoint.SendEvent(_event); }">Send</button>
+	<label class="control-label">@_eventResult</label>
+}
+<br />
+<br />
+<p>For more information you can read <a href="https://dev.mailjet.com/email/guides/webhooks/">Mailjet documentation</a></p>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		_eventsTypes = _eventsAssembly.GetTypes()
+			.Where(t => t.IsAssignableTo(typeof(Mailjet.Api.Abstractions.Events.MailEvent))
+					 && t != typeof(Mailjet.Api.Abstractions.Events.MailEvent))
+			.ToArray();
+		await base.OnInitializedAsync();
+	}
+
+	public string TypeName
+	{
+		get => _selectedType?.Name;
+		set
+		{
+			_selectedType = _eventsTypes.Where(t => t.Name == value).FirstOrDefault();
+
+			OnEventTypeChanged(_selectedType);
+		}
+	}
+
+	public void OnEventTypeChanged(Type eventArgs)
+	{
+		if(eventArgs == typeof(MailBlockedEvent))
+		{
+			_event = MailEventsTemplatesData.BlockedTemplate;
+		}
+		if (eventArgs == typeof(MailBounceEvent))
+		{
+			_event = MailEventsTemplatesData.BounceTemplate;
+		}
+		if (eventArgs == typeof(MailClickEvent))
+		{
+			_event = MailEventsTemplatesData.ClickTemplate;
+		}
+		if (eventArgs == typeof(MailOpenEvent))
+		{
+			_event = MailEventsTemplatesData.OpenTemplate;
+		}
+		if (eventArgs == typeof(MailSentEvent))
+		{
+			_event = MailEventsTemplatesData.SentTemplate;
+		}
+		if (eventArgs == typeof(MailSpamEvent))
+		{
+			_event = MailEventsTemplatesData.SpamTemplate;
+		}
+		if (eventArgs == typeof(MailUnsubscribeEvent))
+		{
+			_event = MailEventsTemplatesData.UnsubscribeTemplate;
+		}
+
+		StateHasChanged();
+	}
+}
