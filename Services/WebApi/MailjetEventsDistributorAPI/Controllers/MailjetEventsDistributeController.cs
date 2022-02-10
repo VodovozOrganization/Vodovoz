@@ -43,43 +43,43 @@ namespace MailjetEventsDistributorAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/EventCallback")]
-		public async Task<IActionResult> EventCallback([FromBody] MailEvent mailSentEvent)
+		public IActionResult EventCallback([FromBody] MailEvent mailEvent)
 		{
-			_logger.LogInformation($"Recieved Event { mailSentEvent.EventType }");
+			_logger.LogInformation($"Recieved Event { mailEvent.EventType }");
 
-			if(mailSentEvent.EventType == MailEventType.sent)
+			if(mailEvent.EventType == MailEventType.sent)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(SentEventCallback)));
+				return SentEventCallback(mailEvent);
 			}
 
-			if(mailSentEvent.EventType == MailEventType.open)
+			if(mailEvent.EventType == MailEventType.open)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(OpenEventCallback)));
+				return OpenEventCallback(mailEvent);
 			}
 
-			if(mailSentEvent.EventType == MailEventType.click)
+			if(mailEvent.EventType == MailEventType.click)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(ClickEventCallback)));
+				return ClickEventCallback(mailEvent);
 			}
 
-			if(mailSentEvent.EventType == MailEventType.bounce)
+			if(mailEvent.EventType == MailEventType.bounce)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(BounceEventCallback)));
+				return BounceEventCallback(mailEvent);
 			}
 
-			if(mailSentEvent.EventType == MailEventType.blocked)
+			if(mailEvent.EventType == MailEventType.blocked)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(BlockedEventCallback)));
+				return BlockedEventCallback(mailEvent);
 			}
 
-			if(mailSentEvent.EventType == MailEventType.spam)
+			if(mailEvent.EventType == MailEventType.spam)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(SpamEventCallback)));
+				return SpamEventCallback(mailEvent);
 			}
 
-			if(mailSentEvent.EventType == MailEventType.unsub)
+			if(mailEvent.EventType == MailEventType.unsub)
 			{
-				return await new ValueTask<IActionResult>(RedirectToActionPreserveMethod(nameof(UnsubscribeEventCallback)));
+				return UnsubscribeEventCallback(mailEvent);
 			}
 
 			return BadRequest("Something goes wrong 0_o");
@@ -88,73 +88,77 @@ namespace MailjetEventsDistributorAPI.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/SentEventCallback")]
-		public async Task SentEventCallback([FromBody] MailSentEvent mailSentEvent)
+		public IActionResult SentEventCallback([FromBody] MailEvent mailSentEvent)
 		{
 			_logger.LogInformation($"Recieved Sent Event for: { mailSentEvent.MessageGuid }");
-			await SendMessageToBrocker(mailSentEvent);
+			return SendMessageToBrocker(mailSentEvent);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/OpenEventCallback")]
-		public async Task OpenEventCallback([FromBody] MailOpenEvent mailOpenEvent)
+		public IActionResult OpenEventCallback([FromBody] MailEvent mailOpenEvent)
 		{
 			_logger.LogInformation($"Recieved Open Event for: { mailOpenEvent.MessageGuid }");
-			await SendMessageToBrocker(mailOpenEvent);
+			return SendMessageToBrocker(mailOpenEvent);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/ClickEventCallback")]
-		public async Task ClickEventCallback([FromBody] MailClickEvent mailClickEvent)
+		public IActionResult ClickEventCallback([FromBody] MailEvent mailClickEvent)
 		{
 			_logger.LogInformation($"Recieved Click Event for: { mailClickEvent.MessageGuid }");
-			await SendMessageToBrocker(mailClickEvent);
+			return SendMessageToBrocker(mailClickEvent);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/BounceEventCallback")]
-		public async Task BounceEventCallback([FromBody] MailBounceEvent mailBounceEvent)
+		public IActionResult BounceEventCallback([FromBody] MailEvent mailBounceEvent)
 		{
 			_logger.LogInformation($"Recieved Bounce Event for: { mailBounceEvent.MessageGuid }");
-			await SendMessageToBrocker(mailBounceEvent);
+			return SendMessageToBrocker(mailBounceEvent);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/BlockedEventCallback")]
-		public async Task BlockedEventCallback([FromBody] MailBlockedEvent mailBlockedEvent)
+		public IActionResult BlockedEventCallback([FromBody] MailEvent mailBlockedEvent)
 		{
 			_logger.LogInformation($"Recieved Blocked Event for: { mailBlockedEvent.MessageGuid }");
-			await SendMessageToBrocker(mailBlockedEvent);
+			return SendMessageToBrocker(mailBlockedEvent);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/SpamEventCallback")]
-		public async Task SpamEventCallback([FromBody] MailSpamEvent mailSpamEvent)
+		public IActionResult SpamEventCallback([FromBody] MailEvent mailSpamEvent)
 		{
 			_logger.LogInformation($"Recieved Spam Event for: { mailSpamEvent.MessageGuid }");
-			await SendMessageToBrocker(mailSpamEvent);
+			return SendMessageToBrocker(mailSpamEvent);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/UnsubscribeEventCallback")]
-		public async Task UnsubscribeEventCallback([FromBody] MailUnsubscribeEvent mailUnsubscribeEvent)
+		public IActionResult UnsubscribeEventCallback([FromBody] MailEvent mailUnsubscribeEvent)
 		{
 			_logger.LogInformation($"Recieved Unsubscribe Event for: { mailUnsubscribeEvent.MessageGuid }");
-			await SendMessageToBrocker(mailUnsubscribeEvent);
+			return SendMessageToBrocker(mailUnsubscribeEvent);
 		}
 
-		private async Task SendMessageToBrocker<TMailjetEvent>(TMailjetEvent mailjetEvent) where TMailjetEvent : MailEvent
+		private IActionResult SendMessageToBrocker<TMailjetEvent>(TMailjetEvent mailjetEvent) where TMailjetEvent : MailEvent
 		{
-			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+			EmailPayload payload = null;
 
-			var payload = JsonSerializer.Deserialize<EmailPayload>(mailjetEvent.Payload, jsonOptions);
+			if(!string.IsNullOrWhiteSpace(mailjetEvent.Payload))
+			{
+				var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+				payload = JsonSerializer.Deserialize<EmailPayload>(mailjetEvent.Payload, jsonOptions);
+			}
 
-			if(payload.Trackable)
+			if(payload is { Trackable: true })
 			{
 				var instance = _instanceData.GetInstanceByDatabaseId(payload.InstanceId);
 				var messageBrockerSection = _configuration.GetSection(_messageBrockerConfigurationSection);
@@ -196,6 +200,8 @@ namespace MailjetEventsDistributorAPI.Controllers
 
 				channel.BasicPublish(_mailEventExchange, _mailEventKey, false, properties, body);
 			}
+
+			return new OkResult();
 		}
 	}
 }
