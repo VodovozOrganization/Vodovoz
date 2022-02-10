@@ -341,7 +341,7 @@ namespace Vodovoz.ViewModels.ViewModels
 		}
 
 		public string RecepientInfo =>
-			$"{_counterpartiesToSent.Count - _alreadySentCounterpartyIds.Length} / 1000 за раз ({_alreadySentCounterpartyIds.Length} " +
+			$"{_counterpartiesToSent.Count} / 1000 за раз ({_alreadySentCounterpartyIds.Length} " +
 			$"уже получали письмо массовой рассылки в течение последних 2 часов)" +
 			$"{Environment.NewLine}и {_alreadySentMonthCount} / 20000 в месяц писем вида массовой рассылки";
 
