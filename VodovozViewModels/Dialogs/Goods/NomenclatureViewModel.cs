@@ -41,8 +41,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			CounterpartySelectorFactory = counterpartySelectorFactory?.CreateCounterpartyAutocompleteSelectorFactory()
-				?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			CounterpartySelectorFactory =
+				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory();
 			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices);
 
 			ConfigureEntityPropertyChanges();
