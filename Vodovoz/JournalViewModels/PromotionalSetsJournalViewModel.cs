@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
@@ -22,14 +23,14 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		
 		public PromotionalSetsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,

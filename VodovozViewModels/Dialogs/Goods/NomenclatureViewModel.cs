@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
@@ -32,7 +33,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices) {
 
@@ -40,7 +41,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			CounterpartySelectorFactory = counterpartySelectorFactory?.CreateCounterpartyAutocompleteSelectorFactory()
+				?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices);
 
 			ConfigureEntityPropertyChanges();

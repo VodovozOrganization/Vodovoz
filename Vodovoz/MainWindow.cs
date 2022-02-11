@@ -589,14 +589,11 @@ public partial class MainWindow : Gtk.Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
@@ -605,7 +602,7 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				nomenclatureSelectorFactory,
-				counterpartySelectorFactory,
+				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
 			));
@@ -998,7 +995,7 @@ public partial class MainWindow : Gtk.Window
 			userRepository,
 			new OrderSelectorFactory(),
 			employeeJournalFactory,
-			new CounterpartyJournalFactory(),
+			counterpartySelectorFactory,
 			new DeliveryPointJournalFactory(),
 			subdivisionJournalFactory,
 			new SalesPlanJournalFactory(),
@@ -1139,13 +1136,9 @@ public partial class MainWindow : Gtk.Window
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(), nomenclatureRepository, userRepository);
 
 		#endregion
 
@@ -1642,20 +1635,18 @@ public partial class MainWindow : Gtk.Window
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				counterpartySelectorFactory,
+				counterpartyJournalFactory,
 				nomenclatureSelectorFactory,
 				nomenclatureRepository,
 				userRepository
@@ -2124,7 +2115,7 @@ public partial class MainWindow : Gtk.Window
 					userRepository,
 					new OrderSelectorFactory(),
 					employeeJournalFactory,
-					new CounterpartyJournalFactory(),
+					counterpartySelectorFactory,
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new SalesPlanJournalFactory(),
