@@ -184,18 +184,10 @@ namespace Vodovoz
 			}
 		}
 		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-			get {
-				if(counterpartySelectorFactory == null) {
-					counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-				};
-				return counterpartySelectorFactory;
-			}
-		}
-		
+		private ICounterpartyJournalFactory counterpartySelectorFactory;
+		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
+
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
 			get {

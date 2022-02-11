@@ -16,6 +16,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -27,7 +28,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		
 		public PromotionalSetViewModel(
@@ -35,7 +36,7 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
