@@ -56,12 +56,13 @@ namespace Vodovoz.JournalColumnsConfigs
 {
     public static class JournalsColumnsConfigs
 	{
-		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
-		static Gdk.Color colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
-		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
-		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-		static Gdk.Color colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
-		static Gdk.Color colorLightGreen = new Color(0xc0, 0xff, 0xc0);
+		private readonly static Gdk.Color _colorBlack = new Gdk.Color(0, 0, 0);
+		private readonly static Gdk.Color _colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
+		private readonly static Gdk.Color _colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
+		private readonly static Gdk.Color _colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+		private readonly static Gdk.Color _colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
+		private readonly static Gdk.Color _colorLightGrey = new Gdk.Color(0xcc, 0xcc, 0xcc);
+		private readonly static Gdk.Color _colorLightGreen = new Gdk.Color(0xc0, 0xff, 0xc0);
 
 		public static void RegisterColumns()
 		{
@@ -116,7 +117,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дата закрытия").AddTextRenderer(node => node.DateClosed != null ? node.DateClosed.Value.Date.ToString("d") : "-").XAlign(0.5f)
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapMode(WrapMode.WordChar).WrapWidth(500).XAlign(0.5f)
 					.AddColumn("")
-					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 			
@@ -343,9 +344,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = colorWhite;
+							var color = _colorWhite;
 							if(node.Status != Domain.Complaints.ComplaintStatuses.Closed && node.LastPlannedCompletionDate.Date < DateTime.Today)
-								color = colorPink;
+								color = _colorPink;
 							cell.CellBackgroundGdk = color;
 						}
 					)
@@ -395,7 +396,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.ReservedText)
 					.AddColumn("Доступно")
 						.AddTextRenderer(node => node.AvailableText)
-						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? _colorBlack : _colorRed)
 					.AddColumn("Код в ИМ")
 						.AddTextRenderer(node => node.OnlineStoreExternalId)
 					.Finish()
@@ -562,7 +563,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddSetter((c, n) => c.Text = n.IsArchive? "Да" : String.Empty)
 					.AddColumn("")
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 
@@ -574,7 +575,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 
@@ -692,13 +693,22 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {
-							var color = colorWhite;
+							var color = _colorWhite;
 
 							if(n.Status == PaymentState.undistributed)
-								color = colorPink;
+							{
+								color = _colorPink;
+							}
 
 							if(n.Status == PaymentState.distributed)
-								color = colorLightGreen;
+							{
+								color = _colorLightGreen;
+							}
+							
+							if(n.Status == PaymentState.Cancelled)
+							{
+								color = _colorLightGrey;
+							}
 
 							c.CellBackgroundGdk = color;
 						})
@@ -757,7 +767,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.XAlign(0.5f)
 					.AddColumn("")
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 			
@@ -799,7 +809,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.XAlign(0.5f)
 					.AddColumn("")
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 						// .AddSetter<CellRendererText>((c, n) => c. = !n.isFiltered )
 					.Finish()
 			);
@@ -842,7 +852,7 @@ namespace Vodovoz.JournalColumnsConfigs
                         .XAlign(0.5f)
                     .AddColumn("")
 					.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 			
@@ -908,7 +918,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.XAlign(0.5f)
 					.AddColumn("")
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 			
@@ -957,7 +967,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => 
-							c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
+							c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 
@@ -974,7 +984,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) =>
-							c.ForegroundGdk = n.Deactivated ? colorDarkGrey : colorBlack)
+							c.ForegroundGdk = n.Deactivated ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 
@@ -1022,7 +1032,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => 
-							c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? colorRed : colorBlack)
+							c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? _colorRed : _colorBlack)
 					.Finish()
 			);
 
@@ -1306,7 +1316,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Сопряженные виды").AddTextRenderer(node => node.ComplaintKinds).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
-					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 
@@ -1318,7 +1328,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Объект рекламаций").AddTextRenderer(node => node.ComplaintObject).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Подключаемые отделы").AddTextRenderer(node => node.Subdivisions).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
-					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 			
@@ -1406,7 +1416,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer (node => node.ReservedText)
 					.AddColumn("Доступно")
 						.AddTextRenderer (node => node.AvailableText)
-						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? _colorBlack : _colorRed)
 					.AddColumn("")
 					.Finish()
 			);

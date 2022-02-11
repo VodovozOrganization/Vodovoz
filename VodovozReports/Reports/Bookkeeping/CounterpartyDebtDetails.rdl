@@ -559,6 +559,7 @@ INNER JOIN payment_items pi ON o.id = pi.order_id
 INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
 WHERE
       c.id = @counterparty_id
+  AND pi.payment_item_status != 'Cancelled'
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
 UNION ALL
@@ -573,6 +574,7 @@ FROM cashless_movement_operations cmo
 INNER JOIN payments_from_bank_client p ON cmo.id = p.cashless_movement_operation_id
 WHERE
       p.counterparty_id = @counterparty_id
+  AND cmo.cashless_movement_operation_status != 'Cancelled'
   AND (@start_date = '' OR cmo.operation_time &gt;= @start_date)
   AND (@end_date = '' OR cmo.operation_time &lt;= @end_date)
 ORDER BY date

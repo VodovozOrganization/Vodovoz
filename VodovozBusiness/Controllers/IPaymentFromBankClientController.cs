@@ -9,5 +9,6 @@ namespace Vodovoz.Controllers
 		void ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(IUnitOfWork uow, Order order);
 		void ReturnAllocatedSumToClientBalance(
 			IUnitOfWork uow, Order order, RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation);
+		void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus);
 	}
 }

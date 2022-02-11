@@ -62,12 +62,11 @@ namespace Vodovoz.Domain.Orders
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IOrderRepository _orderRepository = new OrderRepository();
 		private static readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+		private static readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
-		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
-		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController =
-			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
+			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -2555,8 +2554,8 @@ namespace Vodovoz.Domain.Orders
 			   || initialStatus == newStatus)
 				return;
 
-			DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
-
+			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
+			
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = string.Format(
@@ -2570,69 +2569,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		/// <summary>
-		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
-		/// </summary>
-		/// <param name="previousStatus"></param>
-		private void DeleteRefundWhenOrderRestoredToDeliver(OrderStatus previousStatus)
+		public virtual void UpdateOrderPaymentStatus()
 		{
-			if((previousStatus == OrderStatus.DeliveryCanceled
-			    || previousStatus == OrderStatus.NotDelivered
-			    || previousStatus == OrderStatus.Canceled)
-			   && PaymentType == PaymentType.cashless)
-			{
-				var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id);
-				var payment = paymentItems.FirstOrDefault()?.Payment;
-				if(payment == null)
-				{
-					return;
-				}
-
-				var refundToDelete = _paymentsRepository.GetRefundPayment(UoW, payment.Id);
-				if(refundToDelete == null)
-				{
-					return;
-				}
-
-				var itemsToUpdate = refundToDelete.PaymentItems;
-
-				foreach(var pItem in itemsToUpdate)
-				{
-					var order = pItem.Order;
-					order.UpdateOrderPaymentStatus(pItem);
-					UoW.Save(order);
-				}
-
-				UoW.Delete(refundToDelete);
-				var totalPayed = paymentItems.Sum(pi => pi.Sum);
-
-				OrderPaymentStatus = OrderSum > totalPayed
-					? OrderPaymentStatus.PartiallyPaid
-					: OrderPaymentStatus.Paid;
-			}
-		}
-
-		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
-		{
-			var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id)
-				.Where(pi => pi != ignoredItem).ToList();
-			if(!paymentItems.Any())
-			{
-				if(PaymentType == PaymentType.cashless)
-				{
-					OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-				}
-
-				return;
-			}
-
-			var totalPayed = paymentItems.Sum(pi => pi.Sum);
-
-			OrderPaymentStatus = totalPayed == 0
-				? OrderPaymentStatus.UnPaid
-				: OrderSum > totalPayed
-					? OrderPaymentStatus.PartiallyPaid
-					: OrderPaymentStatus.Paid;
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
+			
+			OrderPaymentStatus =
+				allocatedSum >= OrderSum
+					? OrderPaymentStatus.Paid
+					: allocatedSum == 0
+						? OrderPaymentStatus.UnPaid
+						: OrderPaymentStatus.PartiallyPaid;
 		}
 
 		/// <summary>

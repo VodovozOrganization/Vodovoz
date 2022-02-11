@@ -126,7 +126,7 @@ namespace Vodovoz.ViewModels.Payments
 		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
 			var balance = node.CounterpartyBalance;
-			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
+			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedCompletedPaymentsByClientAndOrg(
 				_uow, node.CounterpartyId, node.OrganizationId);
 
 			var orderNodes =
@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.Payments
 					break;
 				}
 
-				var unAllocatedSum = paymentNode.PaymentSum - paymentNode.AllocatedSum;
+				var unallocatedSum = paymentNode.UnallocatedSum;
 				var payment = _uow.GetById<Payment>(paymentNode.Id);
 				
 				while(orderNodes.Count > 0)
@@ -151,26 +151,26 @@ namespace Vodovoz.ViewModels.Payments
 					var order = _uow.GetById<Order>(orderNodes[0].Id);
 					var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
 					
-					if(balance >= unAllocatedSum)
+					if(balance >= unallocatedSum)
 					{
-						if(sumToAllocate <= unAllocatedSum)
+						if(sumToAllocate <= unallocatedSum)
 						{
 							payment.AddPaymentItem(order, sumToAllocate);
-							unAllocatedSum -= sumToAllocate;
+							unallocatedSum -= sumToAllocate;
 							balance -= sumToAllocate;
 							orderNodes.RemoveAt(0);
 							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
 						}
 						else
 						{
-							payment.AddPaymentItem(order, unAllocatedSum);
-							orderNodes[0].AllocatedSum += unAllocatedSum;
-							balance -= unAllocatedSum;
+							payment.AddPaymentItem(order, unallocatedSum);
+							orderNodes[0].AllocatedSum += unallocatedSum;
+							balance -= unallocatedSum;
 							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
 							break;
 						}
 
-						if(unAllocatedSum == 0)
+						if(unallocatedSum == 0)
 						{
 							break;
 						}

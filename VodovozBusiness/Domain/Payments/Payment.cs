@@ -8,7 +8,6 @@ using QS.Banks.Domain;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Operations;
@@ -30,6 +29,7 @@ namespace Vodovoz.Domain.Payments
 		private const int _commentLimit = 300;
 		private const int _paymentPurposeLimit = 300;
 		private int _paymentNum;
+		private int? _refundPaymentFromOrderId;
 		private DateTime _date;
 		private decimal _total;
 		private string _paymentPurpose;
@@ -186,6 +186,13 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref _refundedPayment, value);
 		}
 		
+		[Display(Name = "Возврат платежа по заказу №")]
+		public virtual int? RefundPaymentFromOrderId
+		{
+			get => _refundPaymentFromOrderId;
+			set => SetField(ref _refundPaymentFromOrderId, value);
+		}
+		
 		[Display(Name = "Платеж создан вручную?")]
 		public virtual bool IsManuallyCreated
 		{
@@ -194,6 +201,8 @@ namespace Vodovoz.Domain.Payments
 		}
 
 		public virtual string NumOrders { get; set; }
+
+		public virtual bool IsRefundPayment => RefundedPayment != null;
 
 		public Payment() { }
 
@@ -229,7 +238,8 @@ namespace Vodovoz.Domain.Payments
 			{
 				Order = order,
 				Payment = this,
-				Sum = order.OrderSum
+				Sum = order.OrderSum,
+				PaymentItemStatus = AllocationStatus.Accepted
 			};
 
 			ObservableItems.Add(paymentItem);
@@ -239,12 +249,14 @@ namespace Vodovoz.Domain.Payments
 		{
 			var item = ObservableItems.SingleOrDefault(x => x.Order.Id == order.Id);
 
-			if(item == null) {
-
-				var paymentItem = new PaymentItem {
+			if(item == null)
+			{
+				var paymentItem = new PaymentItem
+				{
 					Order = order,
 					Payment = this,
-					Sum = sum
+					Sum = sum,
+					PaymentItemStatus = AllocationStatus.Accepted
 				};
 
 				ObservableItems.Add(paymentItem);
@@ -265,14 +277,15 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual bool CreateIncomeOperation()
 		{
-			if(CashlessMovementOperation == null)
+			if(CashlessMovementOperation == null && !IsRefundPayment)
 			{
 				CashlessMovementOperation = new CashlessMovementOperation
 				{
 					Income = Total,
 					Counterparty = Counterparty,
 					Organization = Organization,
-					OperationTime = DateTime.Now
+					OperationTime = DateTime.Now,
+					CashlessMovementOperationStatus = AllocationStatus.Accepted
 				};
 				
 				return true;
@@ -295,7 +308,8 @@ namespace Vodovoz.Domain.Payments
 				Counterparty = Counterparty,
 				CounterpartyName = CounterpartyName,
 				Status = PaymentState.undistributed,
-				RefundedPayment = this
+				RefundedPayment = this,
+				RefundPaymentFromOrderId = orderId
 			};
 		}
 		
@@ -304,6 +318,25 @@ namespace Vodovoz.Domain.Payments
 			CounterpartyInn = Counterparty.INN;
 			CounterpartyKpp = Counterparty.KPP;
 			CounterpartyName = Counterparty.Name;
+		}
+
+		public virtual void CancelAllocation(string cancellationReason, bool needUpdateOrderPaymentStatus = false)
+		{
+			if(IsRefundPayment)
+			{
+				Status = PaymentState.Cancelled;
+				Comment += string.IsNullOrWhiteSpace(Comment) ? $"{cancellationReason}" : $"\n{cancellationReason}";
+
+				if(Comment.Length > _commentLimit)
+				{
+					Comment = Comment.Remove(_commentLimit);
+				}
+			}
+
+			foreach(var paymentItem in PaymentItems)
+			{
+				paymentItem.CancelAllocation(needUpdateOrderPaymentStatus);
+			}
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -339,7 +372,9 @@ namespace Vodovoz.Domain.Payments
 		[Display(Name = "Распределен")]
 		distributed,
 		[Display(Name = "Завершен")]
-		completed
+		completed,
+		[Display(Name = "Отменен")]
+		Cancelled
 	}
 
 	public class PaymentStateStringType : NHibernate.Type.EnumStringType

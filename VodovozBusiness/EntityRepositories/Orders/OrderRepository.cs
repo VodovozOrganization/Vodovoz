@@ -564,6 +564,17 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderStatus.Canceled
 				};
 		}
+		
+		public static OrderStatus[] GetUndeliveryAndNewStatuses()
+		{
+			return new []
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+		}
 
 		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
 			IUnitOfWork uow,
@@ -667,37 +678,23 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
-				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NotDelivered)
+				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Select(
-					Projections.Sum(
-						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
-							NHibernateUtil.Decimal, new IProjection[] {
-								Projections.Property(() => orderItemAlias.Price),
-								Projections.Property(() => orderItemAlias.ActualCount),
-								Projections.Property(() => orderItemAlias.Count),
-								Projections.Property(() => orderItemAlias.DiscountMoney)})
-					)
-				).SingleOrDefault<decimal>();
+				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.SingleOrDefault<decimal>();
 			
 			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
-				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NotDelivered)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
-				.Select(
-					Projections.Sum(() => cashlessMovOperationAlias.Expense)
-				).SingleOrDefault<decimal>();
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessMovOperationAlias.Expense))
+				.SingleOrDefault<decimal>();
 
 			return total - totalPayPartiallyPaidOrders;
 		}
@@ -843,6 +840,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var allocatedSumProjection = QueryOver.Of(() => paymentItemAlias)
 				.JoinAlias(pi => pi.CashlessMovementOperation, () => cashlessMovementOperationAlias)
 				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
 					NHibernateUtil.Decimal,
 						Projections.Sum(() => cashlessMovementOperationAlias.Expense),

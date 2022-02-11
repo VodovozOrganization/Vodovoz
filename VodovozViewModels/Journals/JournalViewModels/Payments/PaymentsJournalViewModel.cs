@@ -107,6 +107,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			Payment paymentAlias = null;
 			BaseOrg organizationAlias = null;
 			PaymentItem paymentItemAlias = null;
+			PaymentItem paymentItemAlias2 = null;
 			ProfitCategory profitCategoryAlias = null;
 			Counterparty counterpartyAlias = null;
 
@@ -122,17 +123,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				Projections.Property(() => paymentItemAlias.Order.Id),
 				Projections.Constant("\n"));
 
-			var ifNullPaymentItemSumProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
-				NHibernateUtil.Decimal,
-				Projections.Property(() => paymentItemAlias.Sum),
-				Projections.Constant(0));
+			var unAllocatedSumProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.Property(() => paymentAlias.Status), PaymentState.Cancelled),
+				Projections.Constant(0m),
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => paymentAlias.Total),
+					Projections.Sum(() => paymentItemAlias2.Sum),
+					Projections.Constant(0)));
 			
-			var unAllocatedSumProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - ?2"),
-				NHibernateUtil.Decimal,
-				Projections.Property(() => paymentAlias.Total),
-				Projections.Sum(ifNullPaymentItemSumProjection));
+			var unAllocatedSum = QueryOver.Of(() => paymentItemAlias2)
+				.Where(pi => pi.Payment.Id == paymentAlias.Id)
+				.And(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(unAllocatedSumProjection);
 			
 			var counterpartyNameProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "IFNULL(?1, '')"),
@@ -170,10 +174,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				
 				if(_filterViewModel.HideAllocatedPayments)
 				{
-					paymentQuery.Where(
-						Restrictions.GtProperty(
-							Projections.Property<Payment>(p => p.Total),
-							Projections.Sum(ifNullPaymentItemSumProjection)));
+					paymentQuery.Where(Restrictions.Gt(Projections.SubQuery(unAllocatedSum), 0));
 				}
 
 				if(_filterViewModel.PaymentState.HasValue)
@@ -188,7 +189,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				
 				if(_filterViewModel.IsSortingDescByUnAllocatedSum)
 				{
-					paymentQuery = paymentQuery.OrderBy(unAllocatedSumProjection).Desc;
+					paymentQuery = paymentQuery.OrderBy(Projections.SubQuery(unAllocatedSum)).Desc;
 				}
 			}
 
@@ -215,7 +216,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					.Select(() => profitCategoryAlias.Name).WithAlias(() => resultAlias.ProfitCategory)
 					.Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
 					.Select(() => paymentAlias.IsManuallyCreated).WithAlias(() => resultAlias.IsManualCreated)
-					.Select(unAllocatedSumProjection).WithAlias(() => resultAlias.UnAllocatedSum))
+					.SelectSubQuery(unAllocatedSum).WithAlias(() => resultAlias.UnAllocatedSum))
 				.OrderBy(() => paymentAlias.Status).Asc
 				.OrderBy(() => paymentAlias.CounterpartyName).Asc
 				.OrderBy(() => paymentAlias.Total).Asc

@@ -161,11 +161,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			var income = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Income));
 			
 			var expense = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Expense));
 
 			var balanceProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - ?2"),
@@ -199,6 +201,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Inner.JoinAlias(() => orderAlias2.DeliverySchedule, () => deliveryScheduleAlias2)
 				.Where(() => orderAlias2.Client.Id == counterpartyAlias.Id)
 				.And(() => orderOrganizationAlias.Id == organizationAlias.Id)
+				.And(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.And(() => orderAlias2.OrderStatus == OrderStatus.Shipped
 					|| orderAlias2.OrderStatus == OrderStatus.UnloadingOnStock
 					|| orderAlias2.OrderStatus == OrderStatus.Closed)
