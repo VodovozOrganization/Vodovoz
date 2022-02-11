@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Payments
 		private DelegateCommand _allocateByCurrentCounterpartyCommand;
 		private DelegateCommand _allocateByAllCounterpartiesWithPositiveBalanceCommand;
 		private bool _isAllocationState;
+		private bool _allocateCompletedPayments = true;
 		
 		public AutomaticallyAllocationBalanceWindowViewModel(
 			IInteractiveService interactiveService,
@@ -58,6 +59,12 @@ namespace Vodovoz.ViewModels.Payments
 		{
 			get => _isAllocationState;
 			set => SetField(ref _isAllocationState, value);
+		}
+
+		public bool AllocateCompletedPayments
+		{
+			get => _allocateCompletedPayments;
+			set => SetField(ref _allocateCompletedPayments, value);
 		}
 
 		public IProgressBarDisplayable ProgressBarDisplayable { get; set; }
@@ -126,8 +133,8 @@ namespace Vodovoz.ViewModels.Payments
 		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
 			var balance = node.CounterpartyBalance;
-			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedCompletedPaymentsByClientAndOrg(
-				_uow, node.CounterpartyId, node.OrganizationId);
+			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
+				_uow, node.CounterpartyId, node.OrganizationId, AllocateCompletedPayments);
 
 			var orderNodes =
 				_orderRepository.GetAllNotFullyPaidOrdersByClientAndOrg(
@@ -205,6 +212,12 @@ namespace Vodovoz.ViewModels.Payments
 				foreach(var paymentItem in allocatedPaymentItems)
 				{
 					paymentItem.CreateOrUpdateExpenseOperation();
+				}
+
+				if(payment.Status != PaymentState.completed)
+				{
+					payment.CreateIncomeOperation();
+					payment.Status = PaymentState.completed;
 				}
 
 				_uow.Save(payment);

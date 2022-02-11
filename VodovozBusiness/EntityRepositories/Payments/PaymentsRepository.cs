@@ -112,8 +112,8 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SingleOrDefault();
 		}
 		
-		public IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedCompletedPaymentsByClientAndOrg(
-			IUnitOfWork uow, int counterpartyId, int organizationId)
+		public IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
+			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments)
 		{
 			Payment paymentAlias = null;
 			PaymentItem paymentItemAlias = null;
@@ -121,9 +121,17 @@ namespace Vodovoz.EntityRepositories.Payments
 
 			var query = uow.Session.QueryOver(() => paymentAlias)
 				.Where(p => p.Counterparty.Id == counterpartyId)
-				.And(p => p.Organization.Id == organizationId)
-				.And(p => p.Status == PaymentState.completed);
-			
+				.And(p => p.Organization.Id == organizationId);
+
+			if(allocateCompletedPayments)
+			{ 
+				query.And(p => p.Status == PaymentState.completed);
+			}
+			else
+			{
+				query.And(p => p.Status != PaymentState.Cancelled);
+			}
+
 			var unAllocatedSumProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
 				NHibernateUtil.Decimal,

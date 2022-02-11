@@ -17,8 +17,8 @@ namespace Vodovoz.EntityRepositories.Payments
 		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider);
 		IList<Payment> GetAllDistributedPayments(IUnitOfWork uow);
 		Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId);
-		IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedCompletedPaymentsByClientAndOrg(
-			IUnitOfWork uow, int counterpartyId, int organizationId);
+		IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
+			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments);
 		IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
 	}
 }
