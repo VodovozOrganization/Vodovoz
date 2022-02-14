@@ -1346,7 +1346,6 @@ namespace Vodovoz
 				return false;
 			}
 
-
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			}
@@ -2501,7 +2500,7 @@ namespace Vodovoz
 
 			PrepareSendBillInformation();
 
-			if(_emailAddressForBill == null && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
+			if(_emailAddressForBill == null && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить смену статуса заказа без дальнейшей отправки почты?"))
 			{
 				return;
 			}
