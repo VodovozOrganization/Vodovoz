@@ -86,7 +86,7 @@ ORDER BY category , nomenclature;</CommandText>
             IF(forwaders.patronymic = '',
                 '',
                 CONCAT(LEFT(forwaders.patronymic, 1), '.'))) AS forwader,
-    cars.model,
+    cm.name as model,
     cars.reg_number
 FROM
     route_lists
@@ -96,6 +96,8 @@ FROM
     employees AS forwaders ON forwaders.id = route_lists.forwarder_id
         LEFT JOIN
     cars ON cars.id = route_lists.car_id
+        LEFT JOIN
+    car_models cm ON cars.model_id = cm.id
 WHERE
     route_lists.id = @id;</CommandText>
         <QueryParameters>

@@ -32,16 +32,15 @@ namespace Vodovoz.Tools
 		/// <param name="applicationInfo">Информация о приложении</param>
 		/// <param name="logService">Сервис получения лога</param>
 		/// <param name="databaseName">Имя текущей базы данных</param>
-		/// <param name="canSendAutomatically">Если<c>false</c> и передаваемый в SendErrorReport() <see cref="ErrorReportType"/>, = <see cref="ErrorReportType.Automatic"/> то не отправляет сообщение об ошибке</param>
-		/// <param name="autoSendLogRowCount">Если передаваемый в SendErrorReport() <see cref="ErrorReportType"/>, = <see cref="ErrorReportType.Automatic"/>, то отправляет на сервер такое количество лога по умолчанию</param>
+		/// <param name="canSendAutomatically">Если <c>false</c> и передаваемый в SendErrorReport() <see cref="ErrorReportType"/> = <see cref="ErrorReportType.Automatic"/>, то не отправляет сообщение об ошибке</param>
+		/// <param name="autoSendLogRowCount">Если передаваемый в SendErrorReport() <see cref="ErrorReportType"/> = <see cref="ErrorReportType.Automatic"/>, то отправляет на сервер такое количество лога по умолчанию</param>
 		public static void Initialize(
 			IErrorReportSender sendService,
 			IApplicationInfo applicationInfo,
 			ILogService logService = null,
 			string databaseName = null,
 			bool canSendAutomatically = false,
-			int? autoSendLogRowCount = null
-		)
+			int? autoSendLogRowCount = null)
 		{
 			instance = new SingletonErrorReporter {
 				sendService = sendService ?? throw new ArgumentNullException(nameof(sendService))

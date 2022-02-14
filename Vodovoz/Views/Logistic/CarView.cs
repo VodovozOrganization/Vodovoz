@@ -16,7 +16,6 @@ namespace Vodovoz.Views.Logistic
 		public CarView(CarViewModel viewModel) : base(viewModel)
 		{
 			Build();
-
 			ConfigureDlg();
 		}
 
@@ -25,15 +24,15 @@ namespace Vodovoz.Views.Logistic
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
 
-			dataentryModel.Binding.AddBinding(ViewModel.Entity, e => e.Model, w => w.Text).InitializeFromSource();
-			dataentryRegNumber.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
+			vehicleNumberEntry.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number).InitializeFromSource();
 
-			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
-			comboTypeOfUse.Binding.AddBinding(ViewModel.Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
-
-			comboDriverCarKind.ItemsList = ViewModel.DriverCarKinds;
-			comboDriverCarKind.Binding.AddBinding(ViewModel.Entity, e => e.DriverCarKind, w => w.SelectedItem).InitializeFromSource();
-			comboDriverCarKind.Binding.AddBinding(ViewModel, vm => vm.CanChangeDriverCarKind, w => w.Sensitive).InitializeFromSource();
+			entryCarModel.CanEditReference = ViewModel.CanEditCarModel;
+			entryCarModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory
+				.CreateCarModelAutocompleteSelectorFactory());
+			entryCarModel.Binding
+				.AddBinding(ViewModel.Entity, e => e.CarModel, w => w.Subject)
+				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.Sensitive)
+				.InitializeFromSource();
 
 			orderNumberSpin.Binding.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
 
@@ -58,7 +57,6 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
-			entryDriver.Changed += ViewModel.OnEntryDriverChanged;
 
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
@@ -67,8 +65,6 @@ namespace Vodovoz.Views.Logistic
 			radiobuttonMain.Active = true;
 
 			dataspinbutton1.Binding.AddBinding(ViewModel.Entity, e => e.FuelConsumption, w => w.Value).InitializeFromSource();
-			maxWeightSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxWeight, w => w.ValueAsInt).InitializeFromSource();
-			maxVolumeSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxVolume, w => w.Value).InitializeFromSource();
 			minBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
 			maxBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxBottles, w => w.ValueAsInt).InitializeFromSource();
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
@@ -78,29 +74,9 @@ namespace Vodovoz.Views.Logistic
 
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
-			checkIsRaskat.Binding.AddBinding(ViewModel.Entity, e => e.IsRaskat, w => w.Active).InitializeFromSource();
-				
-			checkIsRaskat.Toggled += ViewModel.OnIsRaskatToggled;
-
-			labelRaskatType.Binding.AddBinding(ViewModel.Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
-
-			enumRaskatType.ItemsEnum = typeof(RaskatType);
-			enumRaskatType.ShowSpecialStateNot = true;
-			enumRaskatType.Binding.AddBinding(ViewModel.Entity, e => e.IsRaskat, w => w.Visible).InitializeFromSource();
-			enumRaskatType.Binding.AddBinding(ViewModel.Entity, e => e.RaskatType, w => w.SelectedItemOrNull).InitializeFromSource();
-			enumRaskatType.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id == 0, w => w.Sensitive).InitializeFromSource();
-
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
-			ViewModel.OnEntryDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
-
-			dataspinbutton1.Binding.AddBinding(ViewModel, vm => vm.CanChangeVolumeWeightConsumption, w => w.Sensitive).InitializeFromSource();
-			maxVolumeSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeVolumeWeightConsumption, w => w.Sensitive).InitializeFromSource();
-			maxWeightSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeVolumeWeightConsumption, w => w.Sensitive).InitializeFromSource();
-
-			checkIsRaskat.Binding.AddBinding(ViewModel, vm => vm.CanChangeIsRaskat, w => w.Sensitive).InitializeFromSource();
-			comboTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.CanChangeCarType, w => w.Sensitive).InitializeFromSource();
 
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
 			maxBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
@@ -111,10 +87,11 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
+			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
+
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
 			radiobuttonFiles.Toggled += OnRadiobuttonFilesToggled;
-			comboTypeOfUse.ChangedByUser += ViewModel.OnTypeOfUseChangedByUser;
 			btnAddGeographicGroup.Clicked += OnBtnAddGeographicGroupClicked;
 			btnRemoveGeographicGroup.Clicked += OnBtnRemoveGeographicGroupClicked;
 

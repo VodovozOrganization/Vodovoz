@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -203,20 +204,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		WageDistrictLevelRate GetCurrentWageDistrictLevelRate(IRouteListItemWageCalculationSource src)
 		{
-			if(src.WageCalculationMethodic != null)
-			{
-				return src.WageCalculationMethodic;
-			}
-
-			if(src.CarTypeOfUse == CarTypeOfUse.DriverCar)
-			{
-				return wageParameterItem.WageDistrictLevelRates.LevelRates
-					.FirstOrDefault(r =>
-						r.WageDistrict == src.WageDistrictOfAddress && r.CarTypeOfUse == CarTypeOfUse.CompanyLargus);
-			}
-
-			return wageParameterItem.WageDistrictLevelRates.LevelRates
-				.FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress && r.CarTypeOfUse == src.CarTypeOfUse);
+			return src.WageCalculationMethodic
+				?? wageParameterItem.WageDistrictLevelRates.LevelRates
+					.FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress && r.CarTypeOfUse == src.CarTypeOfUse);
 		}
 
 		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)

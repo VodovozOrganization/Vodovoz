@@ -11,72 +11,78 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>360</Timeout>
         <CommandText>SELECT
-	CASE cars.type_of_use
-		WHEN 'CompanyLargus' THEN 'Ларгусы'
-		WHEN 'CompanyGAZelle' THEN 'ГАЗели'
-		ELSE 'Раскат'
-	END AS type_of_use,
-	cars.is_raskat,
-	route_lists.id AS id,
-	route_lists.date AS route_list_date,
-	route_lists.driver_id,
-	CASE route_lists.status
-		WHEN 'New' THEN 'Новый'
+    CASE
+        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+    END AS type_of_use,
+    route_lists.id AS id,
+    route_lists.date AS route_list_date,
+    route_lists.driver_id,
+    CASE route_lists.status
+        WHEN 'New' THEN 'Новый'
         WHEN 'Confirmed' THEN 'Подтверждён'
-		WHEN 'InLoading' THEN 'На погрузке'
-		WHEN 'EnRoute' THEN 'В пути'
-		WHEN 'Delivered' THEN 'Доставлен'
-		WHEN 'OnClosing' THEN 'Сдаётся'
-		WHEN 'NotDelivered' THEN 'Не сдан'
-		WHEN 'MileageCheck' THEN 'Проверка километража'
-		WHEN 'Closed' THEN 'Закрыт'
-	END AS status,
-	reg_number,
-	CONCAT_WS(' ',
-		employees.last_name,
-		IF(employees.name = '',
-			NULL,
-			employees.name),
-		IF(employees.patronymic = '',
-			NULL,
-			employees.patronymic)) AS driver_name,
-	COALESCE((SELECT GROUP_CONCAT(d2.district_name ORDER BY d2.id SEPARATOR ', ')
-	 FROM districts d2 
-	 LEFT JOIN driver_district_priorities ddp ON ddp.district_id = d2.id
-	 LEFT JOIN driver_district_priority_sets ddps ON ddps.id = ddp.driver_district_priority_set_id
-	 WHERE ddps.driver_id = route_lists.driver_id
-	   AND ddps.date_activated &lt;= route_lists.date
-	   AND IF(ddps.date_deactivated IS NULL, TRUE, DATE_ADD(ddps.date_deactivated, INTERVAL 1 DAY ) &gt; route_lists.date)
-	),'') AS planned_district,
-	(SELECT GROUP_CONCAT(DISTINCT d.district_name ORDER BY d.id SEPARATOR ', ')
-	 FROM districts d
-	 LEFT JOIN delivery_points dp ON dp.district_id = d.id
-	 LEFT JOIN orders o ON o.delivery_point_id = dp.id
-	 LEFT JOIN route_list_addresses rla2 ON rla2.order_id = o.id
-	 WHERE rla2.route_list_id = route_lists.id
-	) AS actual_district
+        WHEN 'InLoading' THEN 'На погрузке'
+        WHEN 'EnRoute' THEN 'В пути'
+        WHEN 'Delivered' THEN 'Доставлен'
+        WHEN 'OnClosing' THEN 'Сдаётся'
+        WHEN 'NotDelivered' THEN 'Не сдан'
+        WHEN 'MileageCheck' THEN 'Проверка километража'
+        WHEN 'Closed' THEN 'Закрыт'
+    END AS status,
+    reg_number,
+    CONCAT_WS(' ',
+              employees.last_name,
+              IF(employees.name = '',
+                 NULL,
+                 employees.name),
+              IF(employees.patronymic = '',
+                 NULL,
+                 employees.patronymic)) AS driver_name,
+    COALESCE((SELECT GROUP_CONCAT(d2.district_name ORDER BY d2.id SEPARATOR ', ')
+    FROM districts d2
+    LEFT JOIN driver_district_priorities ddp ON ddp.district_id = d2.id
+    LEFT JOIN driver_district_priority_sets ddps ON ddps.id = ddp.driver_district_priority_set_id
+    WHERE ddps.driver_id = route_lists.driver_id
+      AND ddps.date_activated &lt;= route_lists.date
+      AND IF(ddps.date_deactivated IS NULL, TRUE, DATE_ADD(ddps.date_deactivated, INTERVAL 1 DAY ) &gt; route_lists.date)
+             ),'') AS planned_district,
+    (SELECT GROUP_CONCAT(DISTINCT d.district_name ORDER BY d.id SEPARATOR ', ')
+    FROM districts d
+    LEFT JOIN delivery_points dp ON dp.district_id = d.id
+    LEFT JOIN orders o ON o.delivery_point_id = dp.id
+    LEFT JOIN route_list_addresses rla2 ON rla2.order_id = o.id
+    WHERE rla2.route_list_id = route_lists.id
+    ) AS actual_district
 FROM
-	route_lists
-		LEFT JOIN
-	employees ON employees.id = route_lists.driver_id
-		LEFT JOIN
-	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-	orders ON route_list_addresses.order_id = orders.id
-		LEFT JOIN
-	delivery_points ON orders.delivery_point_id = delivery_points.id
-		LEFT JOIN
-	cars ON route_lists.car_id = cars.id
+    route_lists
+    LEFT JOIN
+        employees ON employees.id = route_lists.driver_id
+    LEFT JOIN
+        route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+    LEFT JOIN
+        orders ON route_list_addresses.order_id = orders.id
+    LEFT JOIN
+        delivery_points ON orders.delivery_point_id = delivery_points.id
+    LEFT JOIN
+        cars ON route_lists.car_id = cars.id
+    INNER JOIN car_models cm ON cars.model_id = cm.id
+    INNER JOIN
+        car_versions cv ON cars.id = cv.car_id
+            AND cv.start_date &lt;= route_lists.date
+            AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
-	(route_lists.date BETWEEN @start_date AND @end_date)
-		AND ((cars.type_of_use = 'CompanyLargus' OR cars.type_of_use = 'CompanyGAZelle') OR cars.is_raskat = 1)
+      (route_lists.date BETWEEN @start_date AND @end_date)
+  AND (cv.car_own_type = 'Raskat' OR (cv.car_own_type = 'Company' AND cm.car_type_of_use IN ('Largus', 'GAZelle')))
 GROUP BY route_lists.id
 HAVING NOT @only_different_districts OR actual_district &lt;&gt; planned_district
-ORDER BY driver_name</CommandText>
+ORDER BY driver_name
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -89,7 +95,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -168,7 +174,7 @@ ORDER BY driver_name</CommandText>
             <Width>34.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.7pt</Width>
+            <Width>77.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.3pt</Width>
@@ -177,7 +183,7 @@ ORDER BY driver_name</CommandText>
             <Width>67.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.9pt</Width>
+            <Width>107.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>95.3pt</Width>
@@ -359,7 +365,7 @@ ORDER BY driver_name</CommandText>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -471,14 +477,14 @@ ORDER BY driver_name</CommandText>
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression>={type_of_use}</GroupExpression>
+                <GroupExpression >={type_of_use}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
-                  <Height>.2in</Height>
+                  <Height>18.5pt</Height>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
@@ -492,6 +498,7 @@ ORDER BY driver_name</CommandText>
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <FontSize >12pt</FontSize>
                           </Style>
                           <Value>={type_of_use} </Value>
                         </Textbox>
@@ -502,13 +509,19 @@ ORDER BY driver_name</CommandText>
                 </TableRow>
               </TableRows>
             </Header>
+            <Sorting >
+              <SortBy>
+                <SortExpression>={type_of_use} = 'ТС в раскате'</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+            </Sorting>
           </TableGroup>
         </TableGroups>
         <Left>0.0pt</Left>
         <Top>1.6pt</Top>
       </Table>
     </ReportItems>
-    <Height>61.4pt</Height>
+    <Height>70.8pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

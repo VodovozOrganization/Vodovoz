@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
@@ -41,8 +39,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -136,12 +134,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>=IIF(Fields!car_type.Value='CompanyLargus', 'Ларгусы:',
-IIF(Fields!car_type.Value='CompanyTruck','Фуры:',
-IIF(Fields!car_type.Value='CompanyGAZelle','Газели:', 
-IIF(Fields!car_type.Value='DriverCar','Наемные машины:', 
-IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '' 
-)))))</Value>
+                      <Value>={car_type}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -175,7 +168,7 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -189,7 +182,7 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -198,9 +191,9 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
             </TableRow>
           </TableRows>
         </Details>
-        <Left>37.8pt</Left>
+        <Left>37.0pt</Left>
         <Top>109.9pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>13.7pt</Height>
@@ -264,13 +257,13 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -293,14 +286,14 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <TextAlign >Right</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -313,14 +306,14 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
-                        <TextAlign >Left</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -363,33 +356,50 @@ IIF(Fields!car_type.Value='Employee','Сотрудники компании:', '
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	cars.type_of_use AS car_type,
-	SUM(IFNULL(fuel_documents.fuel_coupons,0)) AS liters_gived,
-   	SUM(IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0)) AS payed_for_fuel,
-	SUM(IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0)) AS cashless_payed_for_fuel
+    CASE
+        WHEN cv.car_own_type = 'Driver' THEN 'ТС водителей'
+        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck' THEN 'Фуры компании'
+        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+    END as car_type,
+    SUM(IFNULL(fuel_documents.fuel_coupons,0)) AS liters_gived,
+    SUM(IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0)) AS payed_for_fuel,
+    SUM(IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0)) AS cashless_payed_for_fuel
 FROM fuel_documents
 LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
 LEFT JOIN cars ON fuel_documents.car_id = cars.id
+INNER JOIN car_models cm ON cars.model_id = cm.id
+INNER JOIN
+    car_versions cv ON cars.id = cv.car_id
+        AND cv.start_date &lt;= fuel_documents.date
+        AND (cv.end_date IS NULL OR cv.end_date &gt;= fuel_documents.date)
 WHERE
-	fuel_documents.date &gt;= @start_date
-	AND fuel_documents.date &lt; @end_date
-GROUP BY cars.type_of_use
+    fuel_documents.date &gt;= @start_date
+  AND fuel_documents.date &lt; @end_date
+GROUP BY
+    cv.car_own_type,
+    (cm.car_type_of_use = 'GAZelle' AND cv.car_own_type = 'Company'),
+    (cm.car_type_of_use = 'Largus' AND cv.car_own_type = 'Company'),
+    (cm.car_type_of_use = 'Truck' AND cv.car_own_type = 'Company')
 UNION
 SELECT
-	'Employee' AS car_type,
-	SUM(IFNULL(fwdi.liters, 0)) AS liters_given,
-	0 AS payed_for_fuel,
-	0 AS cashless_payed_for_fuel
+    'Сотрудники компании' AS car_type,
+    SUM(IFNULL(fwdi.liters, 0)) AS liters_given,
+    0 AS payed_for_fuel,
+    0 AS cashless_payed_for_fuel
 FROM
-	fuel_writeoff_documents fwd
-LEFT JOIN
-	fuel_writeoff_document_items fwdi ON fwdi.fuel_writeoff_document_id = fwd.id
+    fuel_writeoff_documents fwd
+    LEFT JOIN
+        fuel_writeoff_document_items fwdi ON fwdi.fuel_writeoff_document_id = fwd.id
 WHERE
-	fwd.date &gt;= @start_date
-	AND fwd.date &lt; @end_date</CommandText>
+    fwd.date &gt;= @start_date
+  AND fwd.date &lt; @end_date
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -399,7 +409,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="car_type">
           <DataField>car_type</DataField>
           <TypeName>System.String</TypeName>
@@ -449,8 +459,7 @@ FROM fuel_types ft </CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -462,8 +471,7 @@ FROM fuel_types ft </CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="author">
       <DataType>Integer</DataType>
@@ -475,8 +483,7 @@ FROM fuel_types ft </CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>
