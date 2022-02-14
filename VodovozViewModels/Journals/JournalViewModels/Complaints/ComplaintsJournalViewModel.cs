@@ -11,6 +11,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -44,7 +45,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly IFilePickerService _filePickerService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
@@ -78,7 +79,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
 			IGtkTabsOpener gtkDialogsOpener,
@@ -98,7 +99,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -213,7 +214,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
-                
+
 			string okkSubdivision = uow.GetById<Subdivision>(_subdivisionParametersProvider.GetOkkId()).ShortName ?? "?";
 
 			var workInSubdivisionsProjection = Projections.SqlFunction(
@@ -347,7 +348,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
 				}
 
-				if (FilterViewModel.CurrentUserSubdivision != null 
+				if (FilterViewModel.CurrentUserSubdivision != null
 					&& FilterViewModel.ComplaintDiscussionStatus != null)
                 {
 					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
@@ -439,7 +440,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_commonServices,
 						_nomenclatureRepository,
 						_userRepository,
-                        _filePickerService,
+                        _fileDialogService,
 						_orderSelectorFactory,
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
@@ -458,7 +459,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
 						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-						_filePickerService,
+						_fileDialogService,
 						_subdivisionRepository,
 						_nomenclatureRepository,
 						_userRepository,
@@ -474,7 +475,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersRepository,
 						new ComplaintResultsRepository()
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
@@ -490,7 +491,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        _filePickerService,
+                        _fileDialogService,
 						new UserRepository()
 					),
 					//функция диалога открытия документа
@@ -501,7 +502,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
 						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-						_filePickerService,
+						_fileDialogService,
 						_subdivisionRepository,
 						_nomenclatureRepository,
 						_userRepository,
@@ -517,7 +518,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersRepository,
 						new ComplaintResultsRepository()
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
@@ -614,7 +615,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
 								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-								_filePickerService,
+								_fileDialogService,
 								_subdivisionRepository,
 								_nomenclatureRepository,
 								_userRepository,
@@ -652,7 +653,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
 								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-								_filePickerService,
+								_fileDialogService,
 								_subdivisionRepository,
 								_nomenclatureRepository,
 								_userRepository,
