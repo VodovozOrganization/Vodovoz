@@ -1339,27 +1339,13 @@ namespace Vodovoz
 				}
 			}
 
-			if(Entity.NeedSendBill(_emailRepository))
-			{
-				_emailAddressForBill = Entity.GetEmailAddressForBill();
-				if(_emailAddressForBill == null)
-				{
-					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
-					{
-						return false;
-					}
+			PrepareSendBillInformation();
 
-					_isNeedSendBill = false;
-				}
-				else
-				{
-					_isNeedSendBill = true;
-				}
-			}
-			else
+			if(_emailAddressForBill == null && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				_isNeedSendBill = false;
+				return false;
 			}
+
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
@@ -1376,6 +1362,20 @@ namespace Vodovoz
 			UpdateUIState();
 
 			return true;
+		}
+
+		private void PrepareSendBillInformation()
+		{
+			_emailAddressForBill = Entity.GetEmailAddressForBill();
+
+			if(_emailAddressForBill != null && Entity.NeedSendBill(_emailRepository))
+			{
+				_isNeedSendBill = true;
+			}
+			else
+			{
+				_isNeedSendBill = false;
+			}
 		}
 
 		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
@@ -2497,6 +2497,13 @@ namespace Vodovoz
 			if(!Validate(validationContext))
 			{
 				return ;
+			}
+
+			PrepareSendBillInformation();
+
+			if(_emailAddressForBill == null && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
+			{
+				return;
 			}
 
 			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
