@@ -88,32 +88,33 @@ FROM
             AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
       route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
-      # скрыть сегодняшние МЛ
-  AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
-      # скрыть МЛ с фурами
-  AND ((@RemTruckRLs = 1 AND cm.car_type_of_use != 'Truck') OR @RemTruckRLs = 0)
-      # скрыть МЛ с выездными мастерами
-  AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
-      # скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
-  AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR (cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck'))) OR @RemMercRLs = 0)
+  AND (@show_today_route_lists OR route_lists.date &lt; CURDATE())
+  AND (
+      CASE @include_visiting_masters
+          WHEN 'True' THEN employees.visiting_master = 1
+          WHEN 'False' THEN employees.visiting_master = 0
+          ELSE TRUE
+      END)
+  AND cm.car_type_of_use IN (@car_types_of_use)
+  AND cv.car_own_type IN (@car_own_types)
 GROUP BY routeListId
 ORDER BY routeListDate, routeListId
 ;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="@todayRloff">
-            <Value>={?todayRloff}</Value>
-          </QueryParameter>
-          <QueryParameter Name="@RemTruckRLs">
-            <Value>={?RemTruckRLs}</Value>
-          </QueryParameter>
-          <QueryParameter Name="@RemServiceRLs">
-            <Value>={?RemServiceRLs}</Value>
-          </QueryParameter>
-          <QueryParameter Name="@RemMercRLs">
-            <Value>={?RemMercRLs}</Value>
-          </QueryParameter>
           <QueryParameter Name="@geographic_group_id">
             <Value>={?geographic_group_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_types_of_use">
+            <Value>={?car_types_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_own_types">
+            <Value>={?car_own_types}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@show_today_route_lists">
+            <Value>={?show_today_route_lists}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@include_visiting_masters">
+            <Value>={?include_visiting_masters}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -441,7 +442,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -460,7 +461,7 @@ ORDER BY routeListDate, routeListId
                         <Format>dd.MM.yy</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -478,7 +479,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -496,7 +497,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -515,8 +516,8 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >2pt</PaddingRight>
-                        <FontSize >8pt</FontSize>
+                        <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -534,7 +535,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -551,7 +552,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -568,7 +569,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -587,9 +588,9 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>=Len({closing_comment}) / 25 + "pt"</PaddingTop>
                         <PaddingBottom>=Len({closing_comment}) / 25 + "pt"</PaddingBottom>
-                        <FontSize >8pt</FontSize>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -608,11 +609,11 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                        <PaddingTop >=Len({logisticians_comment}) / 25 + "pt"</PaddingTop>
-                        <PaddingBottom >=Len({logisticians_comment}) / 25 + "pt"</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop>=Len({logisticians_comment}) / 25 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({logisticians_comment}) / 25 + "pt"</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -662,8 +663,8 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >2pt</PaddingRight>
-                        <FontSize >8pt</FontSize>
+                        <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <Value>=Sum({nal})</Value>
                     </Textbox>
@@ -682,7 +683,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -699,7 +700,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -716,7 +717,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -732,7 +733,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <Value></Value>
                     </Textbox>
@@ -750,7 +751,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -793,7 +794,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -810,7 +811,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -827,7 +828,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -844,7 +845,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -861,7 +862,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -878,7 +879,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -924,59 +925,39 @@ ORDER BY routeListDate, routeListId
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
-    <ReportParameter Name="todayRloff">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="RemTruckRLs">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="RemServiceRLs">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="RemMercRLs">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
+  <ReportParameters >
     <ReportParameter Name="geographic_group_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="car_types_of_use">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="car_own_types">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_today_route_lists">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="include_visiting_masters">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
