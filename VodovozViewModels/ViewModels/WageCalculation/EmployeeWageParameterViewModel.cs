@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		private readonly EmployeeWageParameter entity;
 		public event EventHandler<EmployeeWageParameter> OnWageParameterCreated;
 		private readonly bool isNewEntity;
+		private WidgetViewModelBase _raskatCarWageParameterItemViewModel;
 
 		public EmployeeWageParameterViewModel(
 			IUnitOfWork uow,
@@ -88,6 +89,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 			set => SetField(ref driverWithCompanyCarWageParameterItemViewModel, value);
 		}
 
+		public virtual WidgetViewModelBase RaskatCarWageParameterItemViewModel
+		{
+			get => _raskatCarWageParameterItemViewModel;
+			set => SetField(ref _raskatCarWageParameterItemViewModel, value);
+		}
+
 		private DelegateCommand openWageParameterItemViewModelCommand;
 
 		public DelegateCommand OpenWageParameterItemViewModelCommand {
@@ -111,6 +118,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 			WageParameterItemType = entity.WageParameterItem.WageParameterItemType;
 			DriverWithCompanyCarWageParameterItemViewModel =
 				GetWageParameterItemViewModel(entity.WageParameterItemForOurCars);
+			RaskatCarWageParameterItemViewModel =
+				GetWageParameterItemViewModel(entity.WageParameterItemForRaskatCars);
 		}
 
 

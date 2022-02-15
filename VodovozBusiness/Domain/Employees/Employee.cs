@@ -543,13 +543,20 @@ namespace Vodovoz.Domain.Employees
 
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
 			if(defaultLevel == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
 			if(defaultLevelForOurCar == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
+				return;
+			}
+
+			var defaultLevelForRaskatCar = wageRepository.DefaultLevelForNewEmployeesOnRaskatCars(UoW);
+			if(defaultLevelForRaskatCar == null)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
@@ -560,7 +567,8 @@ namespace Vodovoz.Domain.Employees
 				case EmployeeCategory.driver:
 					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter {
 						WageParameterItem = new ManualWageParameterItem(),
-						WageParameterItemForOurCars = new ManualWageParameterItem()
+						WageParameterItemForOurCars = new ManualWageParameterItem(),
+						WageParameterItemForRaskatCars = new ManualWageParameterItem()
 					};
 					if(VisitingMaster && !IsDriverForOneDay) {
 						parameterForDriver = new EmployeeWageParameter {
@@ -568,6 +576,10 @@ namespace Vodovoz.Domain.Employees
 								PercentWageType = PercentWageTypes.Service
 							},
 							WageParameterItemForOurCars = new PercentWageParameterItem {
+								PercentWageType = PercentWageTypes.Service
+							},
+							WageParameterItemForRaskatCars = new PercentWageParameterItem
+							{
 								PercentWageType = PercentWageTypes.Service
 							}
 						};
@@ -579,6 +591,10 @@ namespace Vodovoz.Domain.Employees
 							},
 							WageParameterItemForOurCars = new RatesLevelWageParameterItem {
 								WageDistrictLevelRates = defaultLevelForOurCar
+							},
+							WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
+							{
+								WageDistrictLevelRates = defaultLevelForRaskatCar
 							}
 						};
 					}
@@ -593,6 +609,10 @@ namespace Vodovoz.Domain.Employees
 						WageParameterItemForOurCars = new RatesLevelWageParameterItem
 						{
 							WageDistrictLevelRates = defaultLevelForOurCar
+						},
+						WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
+						{
+							WageDistrictLevelRates = defaultLevelForRaskatCar
 						}
 					};
 					ChangeWageParameter(parameterForForwarder, DateTime.Today);

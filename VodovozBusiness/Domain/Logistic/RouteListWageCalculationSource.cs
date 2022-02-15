@@ -41,6 +41,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool DriverOfOurCar => rl.Car.IsCompanyCar;
 
+		public bool IsRaskatCar => rl.Car.IsRaskat;
+
 		public CarTypeOfUse CarTypeOfUse => rl.Car.TypeOfUse
 			?? throw new InvalidOperationException("Поле CarTypeOfUse в автомобиле МЛ не может быть null");
 

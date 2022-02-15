@@ -38,6 +38,10 @@ namespace Vodovoz.Views.WageCalculation
 				if(e.PropertyName == nameof(ViewModel.DriverWithCompanyCarWageParameterItemViewModel)) {
 					UpdateWageParameterView();
 				}
+				if(e.PropertyName == nameof(ViewModel.RaskatCarWageParameterItemViewModel))
+				{
+					UpdateWageParameterView();
+				}
 			};
 
 			UpdateWageParameterView();
@@ -53,11 +57,15 @@ namespace Vodovoz.Views.WageCalculation
 			notebook?.Destroy();
 			notebook = new Notebook();
 
-
 			notebook.InsertPage(GetWidget(ViewModel.WageParameterItemViewModel), new Label(ViewModel.WageParameterItemType.GetEnumTitle()), 0);
 			var ourCarWidget = GetWidget(ViewModel.DriverWithCompanyCarWageParameterItemViewModel);
 			if(ourCarWidget != null) {
 				notebook.InsertPage(ourCarWidget, new Label(ViewModel.WageParameterItemType.GetEnumTitle() + "(Для авто компании)"), 1);
+			}
+			var raskatCarWidget = GetWidget(ViewModel.RaskatCarWageParameterItemViewModel);
+			if(raskatCarWidget != null)
+			{
+				notebook.InsertPage(raskatCarWidget, new Label(ViewModel.WageParameterItemType.GetEnumTitle() + "(Для авто в раскате)"), 2);
 			}
 
 			vboxDialog.Add(notebook);

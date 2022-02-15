@@ -44,6 +44,14 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 			return query.Take(1).SingleOrDefault();
 		}
 
+		public WageDistrictLevelRates DefaultLevelForNewEmployeesOnRaskatCars(IUnitOfWork uow)
+		{
+			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
+				.Where(x => x.IsDefaultLevelForRaskatCars);
+
+			return query.Take(1).SingleOrDefault();
+		}
+
 		public IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee)
 		{
 			if(uow == null) {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModels.WageCalculation
@@ -18,13 +19,32 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			get
 			{
-				if(EmployeeWageParameter.WageParameterItem is RatesLevelWageParameterItem driverCarParameter &&
-				   EmployeeWageParameter.WageParameterItemForOurCars is RatesLevelWageParameterItem companyCarParameter)
+				if(EmployeeWageParameter.WageParameterItem is RatesLevelWageParameterItem
+				   || EmployeeWageParameter.WageParameterItemForOurCars is RatesLevelWageParameterItem 
+				   || EmployeeWageParameter.WageParameterItemForRaskatCars is RatesLevelWageParameterItem)
 				{
-					return "Уровень ставок:\n" +
-						$"\tДля а/м компании: ({driverCarParameter.WageDistrictLevelRates.Id}) {driverCarParameter.WageDistrictLevelRates.Name}\n" +
-						$"\tДля а/м водителя: ({companyCarParameter.WageDistrictLevelRates.Id}) {companyCarParameter.WageDistrictLevelRates.Name}";
+					var driverCarParameter = EmployeeWageParameter.WageParameterItem as RatesLevelWageParameterItem;
+					var companyCarParameter = EmployeeWageParameter.WageParameterItemForOurCars as RatesLevelWageParameterItem;
+					var raskatCarParameter = EmployeeWageParameter.WageParameterItemForRaskatCars as RatesLevelWageParameterItem;
+
+					StringBuilder sb = new StringBuilder();
+					sb.AppendLine("Уровень ставок:");
+					if(driverCarParameter != null)
+					{
+						sb.AppendLine($"\tДля а/м компании: ({driverCarParameter.WageDistrictLevelRates?.Id}) {driverCarParameter.WageDistrictLevelRates?.Name}");
+					}
+					if(companyCarParameter != null)
+					{
+						sb.AppendLine($"\tДля а/м водителя: ({companyCarParameter.WageDistrictLevelRates?.Id}) {companyCarParameter.WageDistrictLevelRates?.Name}");
+					}
+					if(raskatCarParameter != null)
+					{
+						sb.AppendLine($"\tДля раскатных авто: ({raskatCarParameter.WageDistrictLevelRates?.Id}) {raskatCarParameter.WageDistrictLevelRates?.Name}");
+					}
+
+					return sb.ToString();
 				}
+
 				return EmployeeWageParameter.Title;
 			}
 		}

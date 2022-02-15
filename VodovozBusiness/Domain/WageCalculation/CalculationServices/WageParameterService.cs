@@ -61,6 +61,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				WageParameterItemForOurCars = new RatesLevelWageParameterItem {
 					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployeesOnOurCars(uow)
 				}
+				,
+				WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
+				{
+					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployeesOnRaskatCars(uow)
+				}
 			};
 			
 			employee.ChangeWageParameter(

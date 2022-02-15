@@ -31,6 +31,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		bool DriverOfOurCar { get; }
 
+		/// <summary>
+		/// Раскатный автомобиль
+		/// </summary>
+		bool IsRaskatCar { get; }
+
 		CarTypeOfUse CarTypeOfUse { get; }
 
 		/// <summary>
