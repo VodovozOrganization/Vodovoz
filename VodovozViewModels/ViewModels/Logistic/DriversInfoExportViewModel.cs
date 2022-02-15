@@ -16,14 +16,15 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
-using QS.Services;
 using QS.Tdi;
+using QS.Utilities.Enums;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -34,21 +35,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public sealed class DriversInfoExportViewModel : DialogTabViewModelBase, ITDICloseControlTab
 	{
-		private readonly IInteractiveService interactiveService;
-		private readonly WageParameterService wageParameterService;
+		private readonly IInteractiveService _interactiveService;
+		private readonly WageParameterService _wageParameterService;
 
-		private CarTypeOfUse? carTypeOfUse;
-		private EmployeeStatus? employeeStatus;
-		private DateTime? endDate;
-		private DateTime? startDate;
-		private bool? isRaskat;
+		private EmployeeStatus? _employeeStatus;
+		private DateTime? _endDate;
+		private DateTime? _startDate;
+		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
+		private IList<CarOwnType> _restrictedCarOwnTypes;
 
-		private string statusMessage;
-		private string exportPath;
-		private bool dataIsLoading;
-		private GenericObservableList<DriverInfoNode> items;
-		private DelegateCommand exportCommand;
-		private DelegateCommand helpCommand;
+		private string _statusMessage;
+		private string _exportPath;
+		private bool _dataIsLoading;
+		private GenericObservableList<DriverInfoNode> _items;
+		private DelegateCommand _exportCommand;
+		private DelegateCommand _helpCommand;
 
 		public DriversInfoExportViewModel(
 			WageParameterService wageParameterService,
@@ -57,19 +58,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			INavigationManager navigation)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			this.wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
+			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
+			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
+			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Truck);
+
 			TabName = "Выгрузка по водителям";
 			Items = new GenericObservableList<DriverInfoNode>();
+
 			DataIsLoading = false;
 		}
 
 		public GenericObservableList<DriverInfoNode> Items
 		{
-			get => items;
+			get => _items;
 			set
 			{
-				if(SetField(ref items, value) && value != null)
+				if(SetField(ref _items, value) && value != null)
 				{
 					SubscribeOnItemsListChanges();
 					OnPropertyChanged(nameof(CanExport));
@@ -79,37 +86,38 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanExport => !DataIsLoading && Items.Any();
 		public bool CanForm => !DataIsLoading;
-		public bool? IsRaskat
+
+		public IList<CarTypeOfUse> RestrictedCarTypesOfUse
 		{
-			get => isRaskat;
-			set => SetField(ref isRaskat, value);
+			get => _restrictedCarTypesOfUse;
+			set => SetField(ref _restrictedCarTypesOfUse, value);
 		}
-		public CarTypeOfUse? CarTypeOfUse
+		public IList<CarOwnType> RestrictedCarOwnTypes
 		{
-			get => carTypeOfUse;
-			set => SetField(ref carTypeOfUse, value);
+			get => _restrictedCarOwnTypes;
+			set => SetField(ref _restrictedCarOwnTypes, value);
 		}
 		public DateTime? StartDate
 		{
-			get => startDate;
-			set => SetField(ref startDate, value);
+			get => _startDate;
+			set => SetField(ref _startDate, value);
 		}
 		public DateTime? EndDate
 		{
-			get => endDate;
-			set => SetField(ref endDate, value);
+			get => _endDate;
+			set => SetField(ref _endDate, value);
 		}
 		public EmployeeStatus? EmployeeStatus
 		{
-			get => employeeStatus;
-			set => SetField(ref employeeStatus, value);
+			get => _employeeStatus;
+			set => SetField(ref _employeeStatus, value);
 		}
 		public bool DataIsLoading
 		{
-			get => dataIsLoading;
+			get => _dataIsLoading;
 			set
 			{
-				if(SetField(ref dataIsLoading, value))
+				if(SetField(ref _dataIsLoading, value))
 				{
 					OnPropertyChanged(nameof(CanExport));
 					OnPropertyChanged(nameof(CanForm));
@@ -118,13 +126,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 		public string StatusMessage
 		{
-			get => statusMessage;
-			set => SetField(ref statusMessage, value);
+			get => _statusMessage;
+			set => SetField(ref _statusMessage, value);
 		}
 		public string ExportPath
 		{
-			get => exportPath;
-			set => SetField(ref exportPath, value);
+			get => _exportPath;
+			set => SetField(ref _exportPath, value);
 		}
 
 		public DriversInfoExportType DriversInfoExportType { get; set; }
@@ -137,14 +145,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool IsFact => DriversInfoExportPlanFactType == DriversInfoExportPlanFactType.Fact
 		                      || DriversInfoExportPlanFactType == DriversInfoExportPlanFactType.PlanFact;
 
-		public DelegateCommand HelpCommand => helpCommand ?? (helpCommand = new DelegateCommand(
+		public DelegateCommand HelpCommand => _helpCommand ?? (_helpCommand = new DelegateCommand(
 			() =>
 			{
-				interactiveService.ShowMessage(
+				_interactiveService.ShowMessage(
 					ImportanceLevel.Info,
-					"В отчёт попадают все МЛ, кроме тех, у которых:\n" +
-					$" - Тип автомобиля '{Domain.Logistic.CarTypeOfUse.CompanyTruck.GetEnumTitle()}'\n" +
-					" - Водитель является выездным мастером\n\n" +
+					"В отчёт попадают все МЛ, кроме тех, у которых\n" +
+					"водитель является выездным мастером\n\n" +
 					"Планирумая ЗП водителя считается только для незакрытых МЛ\n" +
 					"Фактическая - только для закрытых\n" +
 					"ЗП за период - Сумма фактической ЗП за период",
@@ -153,7 +160,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			},
 			() => true
 		));
-		public DelegateCommand ExportCommand => exportCommand ?? (exportCommand = new DelegateCommand(
+		public DelegateCommand ExportCommand => _exportCommand ?? (_exportCommand = new DelegateCommand(
 				() =>
 				{
 					if(string.IsNullOrWhiteSpace(ExportPath))
@@ -167,7 +174,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					}
 					catch(IOException)
 					{
-						interactiveService.ShowMessage(ImportanceLevel.Error,
+						_interactiveService.ShowMessage(ImportanceLevel.Error,
 							"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
 					}
 				},
@@ -180,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				return true;
 			}
-			interactiveService.ShowMessage(ImportanceLevel.Info, "Дождитесь окончания загрузки данных");
+			_interactiveService.ShowMessage(ImportanceLevel.Info, "Дождитесь окончания загрузки данных");
 			return false;
 		}
 
@@ -189,16 +196,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var nodes = LoadNotGroupedDriverInfoNodes(uow, StartDate, EndDate?.Date.AddDays(1).AddSeconds(-1),
-					EmployeeStatus, CarTypeOfUse, IsRaskat);
+					EmployeeStatus, RestrictedCarTypesOfUse, RestrictedCarOwnTypes);
 
 				return DriversInfoExportType == DriversInfoExportType.RouteListGrouping
-						? GroupAndGetAdditionalDataForDriverInfoNodes(uow, nodes, wageParameterService)
-						: GroupByDriverCarAndGetAdditionalDataForDriverInfoNodes(uow, StartDate, EndDate?.Date, nodes, wageParameterService);
+						? GroupAndGetAdditionalDataForDriverInfoNodes(uow, nodes, _wageParameterService)
+						: GroupByDriverCarAndGetAdditionalDataForDriverInfoNodes(uow, StartDate, EndDate?.Date, nodes, _wageParameterService);
 			}
 		}
 
 		private static IList<DriverInfoNode> LoadNotGroupedDriverInfoNodes(IUnitOfWork uow, DateTime? startDate,
-			DateTime? endDate, EmployeeStatus? employeeStatus, CarTypeOfUse? carTypeOfUse, bool? isRaskat)
+			DateTime? endDate, EmployeeStatus? employeeStatus, IList<CarTypeOfUse> carTypesOfUse, IList<CarOwnType> carOwnTypes)
 		{
 			#region Aliases
 
@@ -215,7 +222,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			District districtAlias = null;
 			RouteList routeListAlias2 = null;
 			WagesMovementOperations driverWageOperationAlias2 = null;
-
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
+			
 			#endregion
 
 			#region Joins & Filters
@@ -223,6 +232,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Inner.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.JoinEntityAlias(() => carVersionAlias,
+					() => carVersionAlias.Car.Id == carAlias.Id
+						&& carVersionAlias.StartDate <= routeListAlias.Date &&
+						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
 				.JoinEntityAlias(
 					() => driverWageOperationAlias,
 					() => routeListAlias.Status == RouteListStatus.Closed
@@ -247,16 +261,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				query.Where(() => driverAlias.Status == employeeStatus);
 			}
-			if(carTypeOfUse != null)
-			{
-				query.Where(() => carAlias.TypeOfUse == carTypeOfUse);
-			}
-			if(isRaskat != null)
-			{
-				query.Where(() => carAlias.IsRaskat == isRaskat);
-			}
 
-			query.Where(() => carAlias.TypeOfUse != Domain.Logistic.CarTypeOfUse.CompanyTruck);
+			query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsInG(carTypesOfUse);
+			query.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsInG(carOwnTypes);
 			query.Where(() => !driverAlias.VisitingMaster);
 
 			#endregion
@@ -300,9 +307,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 				.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
 				.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-				.Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.CarIsRaskat)
+				.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
 				.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegNumber)
-				.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.OrderItemsCount)
 				.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultAlias.OrderItemsActualCount)
 				.Select(() => nomenclatureAlias.TareVolume).WithAlias(() => resultAlias.NomecnaltureTareVolume)
@@ -361,7 +368,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					DriverFullName = PersonHelper.PersonNameWithInitials(
 						firstNode.DriverLastName, firstNode.DriverName, firstNode.DriverPatronymic),
 					CarRegNumber = firstNode.CarRegNumber,
-					CarIsRaskat = firstNode.CarIsRaskat,
+					CarOwnType = firstNode.CarOwnType,
 					CarTypeOfUse = firstNode.CarTypeOfUse,
 					DriverFirstRouteListDateString = firstNode.DriverFirstRouteListDate.ToString("d"),
 					DriverLastRouteListDateString = firstNode.DriverLastRouteListDate.ToString("d")
@@ -604,7 +611,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				var firstNode = groupNode.First();
 
-				var groupedByRouteListId = groupNode.GroupBy(x => x.RouteListId);
+				var groupedByRouteListId = groupNode.GroupBy(x => x.RouteListId).ToList();
 
 				var node = new DriverInfoNode
 				{
@@ -617,7 +624,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					DriverPeriodWage = firstNode.DriverPeriodWage,
 					DriverFullName = PersonHelper.PersonNameWithInitials(firstNode.DriverLastName, firstNode.DriverName, firstNode.DriverPatronymic),
 					CarRegNumber = firstNode.CarRegNumber,
-					CarIsRaskat = firstNode.CarIsRaskat,
+					CarOwnType = firstNode.CarOwnType,
 					CarTypeOfUse = firstNode.CarTypeOfUse,
 					DriverFirstRouteListDateString = firstNode.DriverFirstRouteListDate.ToString("d"),
 					DriverLastRouteListDateString = firstNode.DriverLastRouteListDate.ToString("d")
@@ -859,7 +866,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var sb = new StringBuilder();
 			sb.Append("Код МЛ;Дата МЛ;Статус МЛ;Код водителя;Водитель;Статус водителя;Планируемое расстояние;Рассчитанное расстояние;" +
-				"Подтвержденное расстояние;ЗП водителя за МЛ (план+факт);ЗП водителя за период;Гос. номер авто;Раскат;Принадлежность авто;" +
+				"Подтвержденное расстояние;ЗП водителя за МЛ (план+факт);ЗП водителя за период;Гос. номер авто;Принадлежность авто;Тип авто;" +
 				"Кол-во отраб. дней за период;");
 
 			if(isPlan)
@@ -936,8 +943,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					item.DriverFullName, item.DriverStatus.GetEnumTitle(),
 					item.RouteListPlanedDistance.HasValue ? $"{item.RouteListPlanedDistance:N2}" : $"{default(decimal)}",
 					item.RouteListRecalculatedDistance.HasValue ? $"{item.RouteListRecalculatedDistance:N2}" : $"{default(decimal)}",
-					item.RouteListConfirmedDistance.ToString(), item.DriverRouteListWageForRouteListGroupingString,
-					item.DriverPeriodWageString, item.CarRegNumber, item.CarIsRaskat ? "Да" : "Нет",
+					item.RouteListConfirmedDistance.ToString("N2"), item.DriverRouteListWageForRouteListGroupingString,
+					item.DriverPeriodWageString, item.CarRegNumber, item.CarOwnType.GetEnumTitle(),
 					item.CarTypeOfUse.GetEnumTitle(), item.DriverDaysWorkedCount.ToString()
 				};
 
@@ -1023,7 +1030,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private static string GetDriverCarGroupingCsvString(IList<DriverInfoNode> exportData, bool isPlan, bool isFact)
 		{
 			var sb = new StringBuilder();
-			sb.Append("Дата МЛ;Принадлежность авто;Раскат;Гос. номер авто;Водитель;");
+			sb.Append("Дата МЛ;Принадлежность авто;Тип авто;Гос. номер авто;Водитель;");
 
 			if(isPlan)
 			{
@@ -1096,8 +1103,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var lines = new List<string>
 				{
 					item.RouteListDateString,
+					item.CarOwnType.GetEnumTitle(),
 					item.CarTypeOfUse.GetEnumTitle(),
-					item.CarIsRaskat ? "Да" : "Нет",
 					item.CarRegNumber,
 					item.DriverFullName
 				};
@@ -1271,7 +1278,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Car
 
 		public string CarRegNumber { get; set; }
-		public bool CarIsRaskat { get; set; }
+
+		public CarOwnType CarOwnType { get; set; }
+
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 
 		#endregion

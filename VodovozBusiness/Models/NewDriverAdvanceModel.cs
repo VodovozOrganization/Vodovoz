@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Parameters;
@@ -31,16 +32,17 @@ namespace Vodovoz.Models
 				return false;
 			}
 
-			DateTime? lastRouteListDate = _routeListRepository.GetLastRouteListDateByDriver(uow, _routeList.Driver.Id, CarTypeOfUse.DriverCar);
+			DateTime? lastRouteListDate =
+				_routeListRepository.GetLastRouteListDateByDriver(uow, _routeList.Driver.Id, null, CarOwnType.Driver);
 
 			DateTime? firstAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
-				_newDriverAdvanceParametersProvider.NewDriverAdvanceFirstDay, CarTypeOfUse.DriverCar);
+				_newDriverAdvanceParametersProvider.NewDriverAdvanceFirstDay, null, CarOwnType.Driver);
 
 			DateTime? lastAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
-				_newDriverAdvanceParametersProvider.NewDriverAdvanceLastDay, CarTypeOfUse.DriverCar);
+				_newDriverAdvanceParametersProvider.NewDriverAdvanceLastDay, null, CarOwnType.Driver);
 
-			bool needNewDriverAdvance = (firstAdvanceDate <= _routeList.Date)
-										&& (_routeList.Date <= (lastAdvanceDate ?? lastRouteListDate));
+			bool needNewDriverAdvance = firstAdvanceDate <= _routeList.Date
+				&& _routeList.Date <= (lastAdvanceDate ?? lastRouteListDate);
 
 			return needNewDriverAdvance;
 		}

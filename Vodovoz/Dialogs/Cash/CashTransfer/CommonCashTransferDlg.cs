@@ -5,11 +5,6 @@ using QS.Tdi;
 using Gamma.Utilities;
 using Vodovoz.ViewModelBased;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Services;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.TempAdapters;
@@ -49,8 +44,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			evmeDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 

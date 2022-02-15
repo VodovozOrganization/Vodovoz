@@ -14,6 +14,7 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
@@ -188,13 +189,20 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref largusDriver, value, () => LargusDriver); }
 		}
 
-		private CarTypeOfUse? driverOf;
+		private CarTypeOfUse? _driverOfCarTypeOfUse;
 		[Display(Name = "Водитель автомобиля типа")]
-		public virtual CarTypeOfUse? DriverOf {
-			get { return driverOf; }
-			set { SetField(ref driverOf, value, () => DriverOf); }
+		public virtual CarTypeOfUse? DriverOfCarTypeOfUse {
+			get => _driverOfCarTypeOfUse;
+			set => SetField(ref _driverOfCarTypeOfUse, value);
 		}
-		
+
+		private CarOwnType? _driverOfCarOwnType;
+		[Display(Name = "Водитель автомобиля принадлежности")]
+		public virtual CarOwnType? DriverOfCarOwnType {
+			get => _driverOfCarOwnType;
+			set => SetField(ref _driverOfCarOwnType, value);
+		}
+
 		private Gender? gender;
 		[Display(Name = "Пол сотрудника")]
 		public virtual Gender? Gender {
@@ -451,9 +459,13 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if (Category == EmployeeCategory.driver && DriverOf == null) {
-				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
-					new[] { nameof(DriverOf) });
+			if(Category == EmployeeCategory.driver)
+			{
+				if(DriverOfCarTypeOfUse == null || DriverOfCarOwnType == null)
+				{
+					yield return new ValidationResult(@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
+						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
+				}
 			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionParametersProvider.GetParentVodovozSubdivisionId())

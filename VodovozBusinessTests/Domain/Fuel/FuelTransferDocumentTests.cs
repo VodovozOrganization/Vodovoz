@@ -6,6 +6,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Fuel;
 
 namespace VodovozBusinessTests.Domain.Fuel
@@ -619,7 +620,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			document.Status = FuelTransferDocumentStatuses.Received;
 
 			// act, assert
-			var exception = Assert.Throws<InvalidOperationException>(() => document.Receive(receiver));
+			Assert.Throws<InvalidOperationException>(() => document.Receive(receiver));
 		}
 
 		[Test(Description = "Если при получении уже была создана операция прихода топлива, то должно выбрасыватся исключение InvalidOperationException")]
