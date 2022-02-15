@@ -97,7 +97,7 @@ namespace Vodovoz.JournalViewModels
 			query.Where(GetSearchCriterion(
 				() => carAlias.Id,
 				() => carManufacturerAlias.Name,
-				() => carAlias.CarModel,
+				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber,
 				() => driverAlias.Name,
 				() => driverAlias.LastName,

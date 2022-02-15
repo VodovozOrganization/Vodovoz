@@ -12,7 +12,8 @@ namespace Vodovoz.Domain.Logistic
 	public class AtWorkDriver : AtWorkBase
 	{
 		private Car _car;
-		
+		private CarVersion _carVersion;
+
 		public enum DriverStatus
 		{
 			[Display(Name = "Работает")]
@@ -120,7 +121,6 @@ namespace Vodovoz.Domain.Logistic
 			get => commentLastEditedAuthor;
 			set => SetField(ref commentLastEditedAuthor, value, () => Employee);
 		}
-		
 
 		GeographicGroup geographicGroup;
 		[Display(Name = "База")]
@@ -150,7 +150,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		protected AtWorkDriver() { }
+		public virtual CarVersion CarVersion => _carVersion ?? (_carVersion = Car.GetActiveCarVersionOnDate(Date));
+
+		protected AtWorkDriver()
+		{ }
 
 		public AtWorkDriver(Employee driver, DateTime date, Car car, DeliveryDaySchedule daySchedule = null)
 		{

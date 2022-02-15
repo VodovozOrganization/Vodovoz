@@ -84,6 +84,7 @@ namespace Vodovoz
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		private bool _canEdit;
+		private bool? _canEditFuelCardNumber;
 
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
@@ -449,13 +450,17 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
 				  .AddColumn("№ ТК")
 					.AddTextRenderer(n => n.FuelCardNumber)
-					.Editable(Entity.Car.CanEditFuelCardNumber)
+					.Editable(CanEditFuelCardNumber)
 				  .AddColumn("")
 					.AddTextRenderer()
 				  .RowCells();
 
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
+
+		protected virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
+			?? (_canEditFuelCardNumber =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
 		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 

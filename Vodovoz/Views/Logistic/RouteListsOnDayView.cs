@@ -126,7 +126,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>
 				.Create()
 					.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
-					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersionOnDate(x.Date).IsCompanyCar ? vodovozCarIcon : null)
+					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.CarVersion.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
 						.FillItems(ViewModel.GeographicGroupsExceptEast)

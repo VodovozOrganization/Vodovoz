@@ -76,7 +76,7 @@ namespace Vodovoz.Domain.WageCalculation
 		{
 			if(WageRates.Count < Enum.GetValues(typeof(WageRateTypes)).Length)
 				yield return new ValidationResult(
-					string.Format("Не заполнены ставки для зарплатной группы \"{0}\"", WageDistrict.Name),
+					$"Не заполнены ставки для зарплатной группы '{CarTypeOfUse.GetEnumTitle()} {WageDistrict.Name}'",
 					new[] { this.GetPropertyName(o => o.WageRates) }
 				);
 			foreach(var wageRate in WageRates) {

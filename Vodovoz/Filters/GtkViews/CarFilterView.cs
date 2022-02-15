@@ -31,13 +31,13 @@ namespace Vodovoz.Filters.GtkViews
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeRestrictedCarTypesOfUse, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList, new EnumsListConverter<CarTypeOfUse>())
+				.AddBinding(vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList, new EnumsListConverter<CarTypeOfUse>())
 				.InitializeFromSource();
 
 			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
 			enumcheckCarOwnType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeRestrictedCarOwnTypes, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.RestrictedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
+				.AddBinding(vm => vm.RestrictedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
 				.InitializeFromSource();
 
 			entryModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory.CreateCarModelAutocompleteSelectorFactory());

@@ -435,8 +435,7 @@ public partial class MainWindow : Window
 
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
-		var subdivisionRepository = autofacScope.Resolve<ISubdivisionRepository>();
-		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
+		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
 
 		var page = NavigationManager.OpenViewModel<SalaryByEmployeeJournalViewModel, SalaryByEmployeeJournalFilterViewModel>(null, filter);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -780,7 +779,7 @@ public partial class MainWindow : Window
 		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ICarJournalFactory carJournalFactory = autofacScope.Resolve<ICarJournalFactory>();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 
 		var expenseCategoryFactory = new ExpenseCategorySelectorFactory();
 
@@ -936,7 +935,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		var filter = autofacScope.Resolve<RouteListJournalFilterViewModel>();
+		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
 		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
@@ -1147,7 +1146,7 @@ public partial class MainWindow : Window
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = autofacScope.Resolve<ICarJournalFactory>();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 

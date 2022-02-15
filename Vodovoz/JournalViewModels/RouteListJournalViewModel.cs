@@ -273,7 +273,7 @@ namespace Vodovoz.JournalViewModels
 				() => driverAlias.LastName,
 				() => driverAlias.Patronymic,
 				() => driverProjection,
-				() => carAlias.CarModel,
+				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber
 			));
 

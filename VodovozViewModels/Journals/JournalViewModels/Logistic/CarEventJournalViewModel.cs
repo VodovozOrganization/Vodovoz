@@ -131,7 +131,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.Car != null)
 			{
-				itemsQuery.Where(() => carAlias == FilterViewModel.Car);
+				itemsQuery.Where(() => carAlias.Id == FilterViewModel.Car.Id);
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -144,7 +144,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => carEventAlias.Comment,
 				() => carEventTypeAlias.Name,
 				() => carEventTypeAlias.ShortName,
-				() => carAlias.CarModel,
+				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber,
 				() => driverProjection)
 			);

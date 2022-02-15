@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public bool DriverOfOurCar =>  rl.GetCarVersion.CarOwnType == CarOwnType.Company;
+		public bool DriverOfOurCar => rl.GetCarVersion.CarOwnType == CarOwnType.Company;
 
 		public CarTypeOfUse CarTypeOfUse => rl.Car?.CarModel?.CarTypeOfUse
 			?? throw new InvalidOperationException("Модель автомобиля в МЛ должна быть заполнена");

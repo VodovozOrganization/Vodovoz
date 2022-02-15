@@ -55,8 +55,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _registrationNumber = String.Empty;
 		private string _vIn;
 
-		private bool? _canEditFuelCardNumber;
-
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Модель")]
@@ -278,9 +276,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
 
 		public virtual string Title => $"{CarModel?.Name} ({RegistrationNumber})";
-		public virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
-			?? (_canEditFuelCardNumber =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
 		/// <param name="dateTime">Если равно null, возвращает активную версию на текущее время</param>
 		public virtual CarVersion GetActiveCarVersionOnDate(DateTime? dateTime = null)

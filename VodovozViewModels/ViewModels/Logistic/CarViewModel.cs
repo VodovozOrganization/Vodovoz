@@ -67,7 +67,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			CanEditCarModel = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
 			CanChangeCarModel = Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_model");
-			ValidationContext.ServiceContainer.AddService(typeof(ICommonServices), CommonServices);
+			CanEditFuelCardNumber = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
+			ValidationContext.ServiceContainer.AddService(typeof(ICommonServices), commonServices);
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
@@ -100,6 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public int EastGeographicGroupId { get; }
 		public bool CanEditCarModel { get; }
 		public bool CanChangeCarModel { get; }
+		public bool CanEditFuelCardNumber { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }

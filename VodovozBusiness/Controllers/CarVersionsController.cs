@@ -68,7 +68,7 @@ namespace Vodovoz.Controllers
 			}
 			if(startDate.Date != startDate)
 			{
-				throw new ArgumentException(@"Время даты начала действия новой версии не равно 00:00:00", nameof(startDate));
+				throw new ArgumentException("Время даты начала действия новой версии не равно 00:00:00", nameof(startDate));
 			}
 			if(newCarVersion.Car == null || newCarVersion.Car.Id != Car.Id)
 			{
@@ -81,7 +81,7 @@ namespace Vodovoz.Controllers
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{
 					throw new ArgumentException(
-						@"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
+						"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
 						nameof(startDate));
 				}
 				currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
