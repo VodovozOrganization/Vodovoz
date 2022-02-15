@@ -1333,7 +1333,9 @@ namespace Vodovoz
 
 			PrepareSendBillInformation();
 
-			if(_emailAddressForBill == null && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
+			if(_emailAddressForBill == null 
+			   && Entity.NeedSendBill(_emailRepository)
+			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
 				return false;
 			}
@@ -2492,7 +2494,9 @@ namespace Vodovoz
 
 			PrepareSendBillInformation();
 
-			if(_emailAddressForBill == null && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить смену статуса заказа без дальнейшей отправки почты?"))
+			if(_emailAddressForBill == null 
+			   && Entity.NeedSendBill(_emailRepository)
+			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить смену статуса заказа без дальнейшей отправки почты?"))
 			{
 				return;
 			}
