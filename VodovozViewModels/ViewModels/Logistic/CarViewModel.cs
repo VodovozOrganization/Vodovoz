@@ -68,7 +68,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanEditCarModel = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
 			CanChangeCarModel = Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_model");
 			CanEditFuelCardNumber = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
-			ValidationContext.ServiceContainer.AddService(typeof(ICommonServices), commonServices);
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
