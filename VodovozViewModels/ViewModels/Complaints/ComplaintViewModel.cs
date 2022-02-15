@@ -11,6 +11,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -37,7 +38,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly IFilePickerService _filePickerService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
-		
+
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -61,12 +62,12 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory driverJournalFactory, 
+			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
@@ -77,7 +78,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IComplaintResultsRepository complaintResultsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
-			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
@@ -219,7 +220,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Entity,
 						this,
 						UoW,
-						_filePickerService,
+						_fileDialogService,
 						EmployeeService,
 						CommonServices,
 						_employeeSelectorFactory,
@@ -255,7 +256,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(filesViewModel == null)
 				{
-					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _filePickerService, CommonServices, UserRepository);
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, UserRepository);
 				}
 				return filesViewModel;
 			}
@@ -436,7 +437,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion AddFineCommand
 
 		#region ChangeDeliveryPointCommand
-		
+
 		public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
 			new DelegateCommand(() =>
 				{
@@ -447,7 +448,7 @@ namespace Vodovoz.ViewModels.Complaints
 				},
 				() => true
 			));
-			
+
 		#endregion ChangeDeliveryPointCommand
 
 		#endregion Commands
@@ -484,7 +485,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				return;
 			}
-			
+
 			base.Close(askSave, source);
 		}
 
@@ -495,7 +496,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				return false;
 			}
-			
+
 			return base.Save(close);
 		}
 
