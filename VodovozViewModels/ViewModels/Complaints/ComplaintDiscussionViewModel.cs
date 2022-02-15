@@ -11,13 +11,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 using QS.Dialog;
 using Vodovoz.EntityRepositories;
-using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionViewModel : EntityWidgetViewModelBase<ComplaintDiscussion>
 	{
-		private readonly IFileDialogService _fileDialogService;
+		private readonly IFilePickerService _filePickerService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly bool _canCompleteComplaintDiscussionPermission;
@@ -25,14 +24,14 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
-			IFileDialogService fileDialogService,
+			IFilePickerService filePickerService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
 			IUserRepository userRepository
 			) : base(complaintDiscussion, commonServices)
 		{
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
@@ -64,7 +63,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public FilesViewModel FilesViewModel {
 			get {
 				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(_fileDialogService, CommonServices.InteractiveService, UoW, _userRepository);
+					filesViewModel = new FilesViewModel(_filePickerService, CommonServices.InteractiveService, UoW, _userRepository);
 					filesViewModel.FilesList = NewCommentFiles;
 				}
 

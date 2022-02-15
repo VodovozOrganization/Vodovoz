@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Store;
 using Vodovoz.Services;
-using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.ViewModels.Reports
 {
@@ -29,7 +28,7 @@ namespace Vodovoz.ViewModels.Reports
 		private DelegateCommand _runReportCommand = null;
 		private DelegateCommand _exportCommand = null;
 		private DelegateCommand _helpCommand = null;
-		private readonly IFileDialogService _fileDialogService;
+		private readonly IFilePickerService _filePicker;
 		private readonly IProductionWarehouseMovementReportProvider _productionWarehouseMovementReportProvider;
 		private bool _isDetailedForExport;
 		private DateTime? _filterStartDate;
@@ -38,12 +37,12 @@ namespace Vodovoz.ViewModels.Reports
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			IFileDialogService fileDialogService,
+			IFilePickerService filePicker,
 			IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider)
 			: base(unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)), interactiveService, navigationManager)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 			_productionWarehouseMovementReportProvider = productionWarehouseMovementReportProvider ?? throw new ArgumentNullException(nameof(productionWarehouseMovementReportProvider));
 
 			Title = "Отчет по перемещениям с производств";
@@ -81,7 +80,7 @@ namespace Vodovoz.ViewModels.Reports
 			{
 				try
 				{
-					Report?.Export(_fileDialogService, TabName, _isDetailedForExport);
+					Report?.Export(_filePicker, TabName, _isDetailedForExport);
 				}
 				catch(Exception e)
 				{

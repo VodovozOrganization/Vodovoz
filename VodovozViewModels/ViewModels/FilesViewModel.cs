@@ -9,7 +9,6 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.EntityRepositories;
-using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.ViewModels
 {
@@ -17,7 +16,7 @@ namespace Vodovoz.ViewModels
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUserRepository _userRepository;
-		private readonly IFileDialogService _fileDialogService;
+		private readonly IFilePickerService _filePicker;
 		private bool _readOnly;
 		private GenericObservableList<ComplaintFile> _filesList;
 
@@ -26,7 +25,7 @@ namespace Vodovoz.ViewModels
 			get => _filesList;
 			set => SetField(ref _filesList, value, () => FilesList);
 		}
-
+		
 		public virtual bool ReadOnly
 		{
 			get => _readOnly;
@@ -41,14 +40,14 @@ namespace Vodovoz.ViewModels
 		public DelegateCommand<ComplaintFile> LoadItemCommand { get; private set; }
 
 		public FilesViewModel(
-			IFileDialogService fileDialogService,
+			IFilePickerService filePicker,
 			IInteractiveService interactiveService,
 			IUnitOfWork uow,
 			IUserRepository userRepository)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 		}
@@ -58,13 +57,12 @@ namespace Vodovoz.ViewModels
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					var result = _fileDialogService.RunOpenFileDialog();
-					if(!result.Successful)
+					if(!_filePicker.OpenSelectFilePicker(out string[] filePaths))
 					{
 						return;
 					}
 
-					foreach(var filePath in result.Paths)
+					foreach(var filePath in filePaths)
 					{
 						var complaintFile = new ComplaintFile
 						{
@@ -121,14 +119,9 @@ namespace Vodovoz.ViewModels
 			LoadItemCommand = new DelegateCommand<ComplaintFile>(
 				file =>
 				{
-					var dialogSettings = new DialogSettings();
-					dialogSettings.Title = "Сохранить";
-					dialogSettings.FileName = file.FileStorageId;
-
-					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-					if(result.Successful)
+					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
 					{
-						File.WriteAllBytes(result.Path, file.ByteFile);
+						File.WriteAllBytes(filePath, file.ByteFile);
 					}
 				},
 				file => !ReadOnly);

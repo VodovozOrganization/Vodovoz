@@ -1,20 +1,21 @@
-﻿using QS.Commands;
-using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.Project.Services.FileDialog;
-using QS.Services;
-using QS.ViewModels;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
+using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
+using QS.ViewModels;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
 	public class CashlessRequestFilesViewModel : EntityWidgetViewModelBase<CashlessRequest>
 	{
-		private readonly IFileDialogService _fileDialogService;
+		private readonly IFilePickerService _filePicker;
 		private readonly IUserRepository _userRepository;
 		private bool _readOnly;
 
@@ -27,11 +28,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public CashlessRequestFilesViewModel(
 			CashlessRequest entity,
 			IUnitOfWork uow,
-			IFileDialogService fileDialogService,
+			IFilePickerService filePicker,
 			ICommonServices commonServices,
 			IUserRepository userRepository) : base(entity, commonServices)
 		{
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			UoW = uow;
 			CreateCommands();
@@ -56,13 +57,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					var result = _fileDialogService.RunOpenFileDialog();
-					if(!result.Successful)
+					if(!_filePicker.OpenSelectFilePicker(out string[] filePaths))
 					{
 						return;
 					}
 
-					foreach(var filePath in result.Paths)
+					foreach(var filePath in filePaths)
 					{
 						var cashlessRequestFile = new CashlessRequestFile
 						{
@@ -142,13 +142,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			LoadItemCommand = new DelegateCommand<CashlessRequestFile>(
 				(file) =>
 				{
-					var dialogSettings = new DialogSettings();
-					dialogSettings.Title = "Сохранить";
-					dialogSettings.FileName = file.FileStorageId;
-					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-					if(result.Successful)
+					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
 					{
-						File.WriteAllBytes(result.Path, file.ByteFile);
+						File.WriteAllBytes(filePath, file.ByteFile);
 					}
 				},
 				(file) => !ReadOnly);

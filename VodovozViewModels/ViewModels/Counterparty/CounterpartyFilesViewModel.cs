@@ -4,7 +4,6 @@ using System.IO;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
@@ -14,7 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
 	public class CounterpartyFilesViewModel : EntityWidgetViewModelBase<Domain.Client.Counterparty>
 	{
-		private readonly IFileDialogService _fileDialogService;
+		private readonly IFilePickerService _filePicker;
 		private readonly IUserRepository _userRepository;
 		private bool _readOnly;
 
@@ -27,12 +26,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public CounterpartyFilesViewModel(
 			Domain.Client.Counterparty entity,
 			IUnitOfWork uow,
-			IFileDialogService fileDialogService,
+			IFilePickerService filePicker,
 			ICommonServices commonServices,
 			IUserRepository userRepository)
 			: base(entity, commonServices)
 		{
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			UoW = uow;
 			CreateCommands();
@@ -57,18 +56,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					var dialogSettings = new DialogSettings();
-					dialogSettings.SelectMultiple = false;
-					dialogSettings.Title = "Открыть";
-					dialogSettings.FileFilters.Add(new DialogFileFilter("Все файлы (*.*)", "*.*"));
-
-					var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
-					if(result.Successful)
+					if(_filePicker.OpenSelectFilePicker(out string filePath))
 					{
 						var counterpartyFile = new CounterpartyFile
 						{
-							FileStorageId = Path.GetFileName(result.Path),
-							ByteFile = File.ReadAllBytes(result.Path)
+							FileStorageId = Path.GetFileName(filePath),
+							ByteFile = File.ReadAllBytes(filePath)
 						};
 						Entity.AddFile(counterpartyFile);
 					}
@@ -132,14 +125,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			LoadItemCommand = new DelegateCommand<CounterpartyFile>(
 				(file) =>
 				{
-					var dialogSettings = new DialogSettings();
-					dialogSettings.Title = "Сохранить";
-					dialogSettings.FileName = file.FileStorageId;
-
-					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-					if(result.Successful)
+					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out var filePath))
 					{
-						File.WriteAllBytes(result.Path, file.ByteFile);
+						File.WriteAllBytes(filePath, file.ByteFile);
 					}
 				},
 				(file) => !ReadOnly);
