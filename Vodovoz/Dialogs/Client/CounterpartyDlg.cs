@@ -70,8 +70,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using NHibernate;
 using QS.Utilities;
-using QS.Project.Services.FileDialog;
-using QS.Dialog.GtkUI.FileDialog;
 
 namespace Vodovoz
 {
@@ -100,7 +98,7 @@ namespace Vodovoz
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
-		private IFileDialogService _fileDialogService;
+		private IFilePickerService _filePickerService;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -124,8 +122,8 @@ namespace Vodovoz
 		public virtual IRouteListItemRepository RouteListItemRepository =>
 			_routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
 
-		public virtual IFileDialogService FilePickerService =>
-			_fileDialogService ?? (_fileDialogService = new FileDialogService());
+		public virtual IFilePickerService FilePickerService =>
+			_filePickerService ?? (_filePickerService = new GtkFilePicker());
 
 		public virtual INomenclatureRepository NomenclatureRepository =>
 			_nomenclatureRepository ?? (_nomenclatureRepository =
@@ -213,7 +211,7 @@ namespace Vodovoz
 			}
 			set => base.HasChanges = value;
 		}
-
+		
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
@@ -270,7 +268,7 @@ namespace Vodovoz
 			_currentUserCanEditCounterpartyDetails =
 				UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_edit_counterparty_details", _currentUserId);
-
+			
 			if(UoWGeneric.Root.CounterpartyContracts == null)
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
@@ -477,7 +475,7 @@ namespace Vodovoz
 			// Прикрепляемые документы
 
 			var filesViewModel =
-				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
+				new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository)
 				{
 					ReadOnly = !CanEdit
 				};
@@ -558,7 +556,7 @@ namespace Vodovoz
 			_phonesViewModel =
 				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
-				PhonesList = Entity.ObservablePhones,
+				PhonesList = Entity.ObservablePhones, 
 				Counterparty = Entity,
 				ShowRoboAtsCounterpartyNameAndPatronymic = true,
 				ReadOnly = !CanEdit

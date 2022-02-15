@@ -158,8 +158,6 @@ using Vodovoz.Views.Settings;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Views.Payments;
-using QS.Dialog.GtkUI.FileDialog;
-using QS.Project.Services.FileDialog;
 
 namespace Vodovoz
 {
@@ -515,7 +513,7 @@ namespace Vodovoz
 			#region Services
 
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
-			builder.RegisterType<FileDialogService>().As<IFileDialogService>();
+			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
 			builder.Register(c => PermissionExtensionSingletonStore.GetInstance()).As<IPermissionExtensionStore>();
 			builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();

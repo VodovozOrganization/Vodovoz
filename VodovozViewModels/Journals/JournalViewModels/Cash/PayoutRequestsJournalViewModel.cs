@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -10,7 +10,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -38,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
-		private readonly IFileDialogService _fileDialogService;
+		private readonly IFilePickerService _filePickerService;
 
 		private bool _isAdmin;
 		private bool _cashRequestFinancier;
@@ -59,7 +58,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
-			IFileDialogService fileDialogService
+			IFilePickerService filePickerService
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -71,7 +70,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_expenseCategorySelectorFactory = expenseCategorySelectorFactory
 			                                  ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 
 			TabName = "Журнал заявок ДС";
 
@@ -366,7 +365,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new CashlessRequestViewModel(
-						_fileDialogService,
+						_filePickerService,
 						_expenseCategorySelectorFactory,
 						new UserRepository(),
 						_counterpartyJournalFactory,
@@ -377,7 +376,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					),
 					//функция диалога открытия документа
 					node => new CashlessRequestViewModel(
-						_fileDialogService,
+						_filePickerService,
 						_expenseCategorySelectorFactory,
 						new UserRepository(),
 						_counterpartyJournalFactory,
