@@ -124,16 +124,13 @@ namespace Vodovoz
 			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
 			var nomenclatureRepository = 
 				new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
-			
 			var nomenclatureAutoCompleteSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices,
 					nomenclatureFilter,
-					counterpartySelectorFactory,
+					counterpartyJournalFactory,
 					nomenclatureRepository,
 					_userRepository
 				);

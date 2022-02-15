@@ -19,7 +19,9 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		public IEnumerable<WageDistrictLevelRates> AllLevelRates(IUnitOfWork uow, bool hideArchive = true)
 		{
 			var baseQuery = uow.Session.QueryOver<WageDistrictLevelRates>();
-			return hideArchive ? baseQuery.Where(d => !d.IsArchive).OrderBy(r => r.Name).Asc.List() : baseQuery.OrderBy(r => r.Name).Asc.List();
+			return hideArchive
+				? baseQuery.Where(d => !d.IsArchive).OrderBy(r => r.Name).Asc.List()
+				: baseQuery.OrderBy(r => r.Name).Asc.List();
 		}
 
 		public IEnumerable<SalesPlan> AllSalesPlans(IUnitOfWork uow, bool hideArchive = true)

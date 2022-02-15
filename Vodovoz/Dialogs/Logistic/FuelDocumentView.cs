@@ -1,15 +1,8 @@
 ﻿using System;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.ViewModels.FuelDocuments;
 using QS.Views.GtkUI;
 using QS.Permissions;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Services;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

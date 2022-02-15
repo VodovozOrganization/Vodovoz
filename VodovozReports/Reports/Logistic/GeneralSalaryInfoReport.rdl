@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
@@ -13,109 +11,139 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
-          master.emplID as empl_id,
-          master.frlDate as first_rl,
-          master.emplName as empl_name,
-          master.emplCategory as category,
-          master.emplDriverOf as driver_of,
-          master.works_withName as works_with_name,
-          -- Рабочие дни и адреса
-          servant.countWD as days_worked,
-          servant.addrCount as addresses_total,
-          ROUND(servant.addrCount / servant.countWD, 0) as addresses_avg,
-          -- Полные бутыли
-          IFNULL(servant.delCount, 0) as filled_bottles,
-          ROUND(IFNULL(servant.delCount, 0) / servant.countWD, 0) as filled_avg,
-          -- Пустые бутыли
-          IFNULL(servant.retCount, 0) as empty_bottles,
-          ROUND(IFNULL(servant.retCount, 0) / servant.countWD, 0) as empty_avg,
-          -- Расчет зп
-          ROUND(master.moneySum, 0) as salary_fact,
-          ROUND(master.moneySum / servant.countWD, 0) as salary_fact_avg,
-          ROUND(master.moneySum / servant.countWD, 0) * 22 as estimated_salary
+    master.emplID as empl_id,
+    master.frlDate as first_rl,
+    master.emplName as empl_name,
+    master.emplCategory as category,
+    master.emplDriverOf as driver_of,
+    master.works_withName as works_with_name,
+    -- Рабочие дни и адреса
+    servant.countWD as days_worked,
+    servant.addrCount as addresses_total,
+    ROUND(servant.addrCount / servant.countWD, 0) as addresses_avg,
+    -- Полные бутыли
+    IFNULL(servant.delCount, 0) as filled_bottles,
+    ROUND(IFNULL(servant.delCount, 0) / servant.countWD, 0) as filled_avg,
+    -- Пустые бутыли
+    IFNULL(servant.retCount, 0) as empty_bottles,
+    ROUND(IFNULL(servant.retCount, 0) / servant.countWD, 0) as empty_avg,
+    -- Расчет зп
+    ROUND(master.moneySum, 0) as salary_fact,
+    ROUND(master.moneySum / servant.countWD, 0) as salary_fact_avg,
+    ROUND(master.moneySum / servant.countWD, 0) * 22 as estimated_salary
 
-          FROM
-          (
-              SELECT
-                  empl.id as emplID,
-          		  frl.date as frlDate,
-                  CONCAT_WS('', CONCAT(empl.last_name, ' '), if(empl.name = '', '', CONCAT(LEFT(empl.name, 1),'.')), if(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1),'.'))
-                  ) as emplName,
-                  (CASE empl.category
-                      WHEN 'driver' THEN 'Вод.'
-                      WHEN 'forwarder' THEN 'Эксп.'
-                  END) as emplCategory,
-                  (CASE
-                      WHEN c.type_of_use='CompanyLargus' THEN IF(c.is_raskat=0, 'КЛ', 'КЛР')
-                      WHEN c.type_of_use='CompanyGAZelle' THEN IF(c.is_raskat=0, 'КГ', 'КГР')
-                      WHEN c.type_of_use='DriverCar' AND empl.category='driver' THEN IF(c.is_raskat=0, 'Н', 'НР')
-                      WHEN c.id IS NULL THEN
-                      	(CASE
-          					WHEN empl.driver_of ='CompanyLargus' THEN 'КЛ'
-          					WHEN empl.driver_of ='CompanyGAZelle' THEN 'КГ'
-          					WHEN empl.driver_of ='DriverCar' AND empl.category='driver' THEN 'Н'
-          					WHEN empl.driver_of ='DriverCar' AND empl.category='forwarder' THEN ''
-          				END)
-                  END) as emplDriverOf,
-                  CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
-                  ) as works_withName,
-                  SUM(IF(rl.`status` = 'Closed', wmo.money, IF(empl.category='driver', plan.planDriverSum, plan.planForwarderSum))) AS moneySum
-              FROM employees empl
-              LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
-                                             OR (works_with.default_forwarder_id = empl.id AND empl.category ='forwarder')
-              INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-                                       AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
-                                        OR (empl.category='driver' AND rl.driver_id = empl.id))
-              LEFT JOIN 
-				  		(
-						  SELECT rla.route_list_id,
-								SUM(rla.driver_wage + rla.driver_wage_surcharge) AS planDriverSum,
-								SUM(rla.forwarder_wage) AS planForwarderSum
-								FROM route_list_addresses rla
-								WHERE rla.status IN ('Completed', 'EnRoute')
-								GROUP BY rla.route_list_id
-						) plan ON plan.route_list_id = rl.id
-              LEFT JOIN route_lists frl ON frl.id = (SELECT rl1.id FROM route_lists AS rl1 WHERE empl.id = rl1.driver_id ORDER BY rl1.date limit 1)
-          	  LEFT JOIN wages_movement_operations wmo ON wmo.id = IF(empl.category='driver', rl.driver_wages_movement_operations_id, rl.forwarder_wages_movement_operations_id)
-              LEFT JOIN cars c ON c.driver_id = empl.id
-              WHERE
-                  (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
+FROM
+    (
+        SELECT
+            empl.id as emplID,
+            frl.date as frlDate,
+            CONCAT_WS('', CONCAT(empl.last_name, ' '), if(empl.name = '', '', CONCAT(LEFT(empl.name, 1),'.')), if(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1),'.'))
+                ) as emplName,
+            (CASE empl.category
+                 WHEN 'driver' THEN 'Вод.'
+                 WHEN 'forwarder' THEN 'Эксп.'
+             END) as emplCategory,
+            IF(cm.id IS NOT NULL AND cv.id IS NOT NULL,
+               CONCAT(
+                   CASE cm.car_type_of_use
+                       WHEN 'Largus' THEN 'Л'
+                       WHEN 'Truck' THEN 'Ф'
+                       WHEN 'GAZelle' THEN 'Г'
+                       ELSE 'Неизв.'
+                   END,
+                   CASE cv.car_own_type
+                       WHEN 'Company' THEN 'К'
+                       WHEN 'Raskat' THEN 'Р'
+                       WHEN 'Driver' THEN 'В'
+                       ELSE 'Неизв.'
+                   END
+                   ),
+               CONCAT(
+                   CASE empl.driver_of_car_type_of_use
+                       WHEN 'Largus' THEN 'Л'
+                       WHEN 'Truck' THEN 'Ф'
+                       WHEN 'GAZelle' THEN 'Г'
+                       WHEN NULL THEN '-'
+                       ELSE 'Неизв.'
+                   END,
+                   CASE empl.driver_of_car_own_type
+                       WHEN 'Company' THEN 'К'
+                       WHEN 'Raskat' THEN 'Р'
+                       WHEN 'Driver' THEN 'В'
+                       WHEN NULL THEN '-'
+                       ELSE 'Неизв.'
+                   END
+                   )
+                ) AS emplDriverOf,
+            CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
+                ) as works_withName,
+            SUM(IF(rl.`status` = 'Closed', wmo.money, IF(empl.category='driver', plan.planDriverSum, plan.planForwarderSum))) AS moneySum
+        FROM employees empl
+        LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
+                OR (works_with.default_forwarder_id = empl.id AND empl.category ='forwarder')
+        INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
+                AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
+                    OR (empl.category='driver' AND rl.driver_id = empl.id))
+        LEFT JOIN
+            (
+                SELECT rla.route_list_id,
+                       SUM(rla.driver_wage + rla.driver_wage_surcharge) AS planDriverSum,
+                       SUM(rla.forwarder_wage) AS planForwarderSum
+                FROM route_list_addresses rla
+                WHERE rla.status IN ('Completed', 'EnRoute')
+                GROUP BY rla.route_list_id
+            ) plan ON plan.route_list_id = rl.id
+        LEFT JOIN route_lists frl ON frl.id = (SELECT rl1.id FROM route_lists AS rl1 WHERE empl.id = rl1.driver_id ORDER BY rl1.date limit 1)
+        LEFT JOIN wages_movement_operations wmo ON wmo.id = IF(empl.category='driver', rl.driver_wages_movement_operations_id, rl.forwarder_wages_movement_operations_id)
+        LEFT JOIN cars c ON c.driver_id = empl.id
+        LEFT JOIN car_models cm ON c.model_id = cm.id
+        LEFT JOIN car_versions cv ON
+                c.id = cv.car_id
+                    AND cv.start_date &lt;= CURRENT_TIMESTAMP()
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= CURRENT_TIMESTAMP())
+        WHERE
+            (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
+          AND (@employee_category = '' AND (empl.category='driver' OR empl.category='forwarder') OR empl.category=@employee_category)
+          AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
+          AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
+            OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+        GROUP BY empl.id
+        ORDER BY empl.last_name
+    ) as master
+    INNER JOIN
+        (
+            SELECT
+                empl.id as emplID,
+                COUNT(rla.id) as addrCount,
+                SUM(IF(rl.status = 'Closed', bmo.delivered, orderBottles.count)) AS delCount,
+                SUM(IF(rl.status = 'Closed', bmo.returned, o.bottles_return)) AS retCount,
+                COUNT(DISTINCT(DAY(rl.date))) as countWD
+            FROM employees empl
+            INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
+                    AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
+                        OR (empl.category='driver' AND rl.driver_id = empl.id))
+            INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
+            LEFT JOIN bottles_movement_operations bmo ON bmo.order_id = rla.order_id
+            LEFT JOIN orders o ON o.id = rla.order_id
+            LEFT JOIN (SELECT oi.order_id, SUM(oi.count) AS count
+                FROM order_items oi INNER JOIN nomenclature n ON n.id = oi.nomenclature_id
+                WHERE n.category = 'water' AND n.is_disposable_tare = FALSE
+                GROUP BY oi.order_id
+                ) AS orderBottles ON orderBottles.order_id = o.id
+            WHERE
+                (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
               AND (@employee_category = '' AND (empl.category='driver' OR empl.category='forwarder') OR empl.category=@employee_category)
-              AND (@driver_of = '' AND empl.driver_of !='CompanyTruck' OR empl.driver_of = @driver_of)
-              GROUP BY empl.id
-              ORDER BY empl.last_name
-          ) as master
-          INNER JOIN
-          (
-              SELECT
-                  empl.id as emplID,
-                  COUNT(rla.id) as addrCount,
-                  SUM(IF(rl.status = 'Closed', bmo.delivered, orderBottles.count)) AS delCount,
-                  SUM(IF(rl.status = 'Closed', bmo.returned, o.bottles_return)) AS retCount,
-                  COUNT(DISTINCT(DAY(rl.date))) as countWD
-              FROM employees empl
-              INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
-                                      AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
-                                       OR (empl.category='driver' AND rl.driver_id = empl.id))
-              INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
-              LEFT JOIN bottles_movement_operations bmo ON bmo.order_id = rla.order_id
-              LEFT JOIN orders o ON o.id = rla.order_id
-              LEFT JOIN (SELECT oi.order_id, SUM(oi.count) AS count
-                  FROM order_items oi INNER JOIN nomenclature n ON n.id = oi.nomenclature_id
-                  WHERE n.category = 'water' AND n.is_disposable_tare = FALSE
-                  GROUP BY oi.order_id
-              ) AS orderBottles ON orderBottles.order_id = o.id
-              WHERE
-                  (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
-              AND (@employee_category = '' AND (empl.category='driver' OR empl.category='forwarder') OR empl.category=@employee_category)
-              AND (@driver_of = '' AND empl.driver_of !='CompanyTruck' OR empl.driver_of = @driver_of)
-              GROUP BY empl.id
-              ORDER BY empl.last_name
-          ) as servant on servant.emplID = master.emplID</CommandText>
+              AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
+              AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
+                OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+            GROUP BY empl.id
+            ORDER BY empl.last_name
+        ) as servant on servant.emplID = master.emplID
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="@start_date">
             <Value>={?start_date}</Value>
@@ -123,8 +151,8 @@
           <QueryParameter Name="@end_date">
             <Value>={?end_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="@driver_of">
-            <Value>={?driver_of}</Value>
+          <QueryParameter Name="@driver_of_car_own_type">
+            <Value>={?driver_of_car_own_type}</Value>
           </QueryParameter>
           <QueryParameter Name="@employee_category">
             <Value>={?employee_category}</Value>
@@ -135,9 +163,12 @@
           <QueryParameter Name="@employee_id">
             <Value>={?employee_id}</Value>
           </QueryParameter>
+          <QueryParameter Name="@driver_of_car_type_of_use">
+            <Value>={?driver_of_car_type_of_use}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="empl_id">
           <DataField>empl_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -235,12 +266,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox3">
-        <Height>16.55pt</Height>
-        <Width>814.43pt</Width>
+        <Height>13.57pt</Height>
+        <Width>419.31pt</Width>
         <Value>="Сформирован " + Format( {?creation_date}, "dd-MM-yyyy в HH:mm")</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>40pt</Top>
+        <Left>395.12pt</Left>
+        <Top>40.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -248,6 +279,7 @@
           <FontSize>11pt</FontSize>
           <TextAlign>Right</TextAlign>
         </Style>
+        <CanGrow >false</CanGrow>
       </Textbox>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
@@ -319,9 +351,8 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox36" >
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox36">
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -443,8 +474,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -483,8 +513,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1015,7 +1044,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1136,15 +1165,15 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>60.0pt</Top>
+        <Top>63.2pt</Top>
       </Table>
       <Textbox Name="Textbox52">
-        <Height>16.55pt</Height>
-        <Width>502.80pt</Width>
+        <Height>14.30pt</Height>
+        <Width>453.14pt</Width>
         <Value>=(Parameters!filters)</Value>
         <ZIndex>1</ZIndex>
-        <Left>0pt</Left>
-        <Top>40pt</Top>
+        <Left>0.00pt</Left>
+        <Top>40.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1152,6 +1181,7 @@
           <FontSize>11pt</FontSize>
           <TextAlign>Left</TextAlign>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
     </ReportItems>
   </Body>
@@ -1182,68 +1212,67 @@
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="employee_id">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="driver_of">
+    <ReportParameter Name="driver_of_car_own_type">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="driver_of_car_type_of_use">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
     <ReportParameter Name="employee_category">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="filters">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

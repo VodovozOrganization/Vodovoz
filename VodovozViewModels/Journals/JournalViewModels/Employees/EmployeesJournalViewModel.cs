@@ -164,9 +164,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				query.Where(e => e.Subdivision.Id == FilterViewModel.Subdivision.Id);
 			}
 
-			if(FilterViewModel?.DriverOf != null)
+			if(FilterViewModel?.DriverOfCarTypeOfUse != null)
 			{
-				query.Where(e => e.DriverOf == FilterViewModel.DriverOf);
+				query.Where(e => e.DriverOfCarTypeOfUse == FilterViewModel.DriverOfCarTypeOfUse);
+			}
+
+			if(FilterViewModel?.DriverOfCarOwnType != null)
+			{
+				query.Where(e => e.DriverOfCarOwnType == FilterViewModel.DriverOfCarOwnType);
 			}
 
 			if(FilterViewModel?.RegistrationType != null)

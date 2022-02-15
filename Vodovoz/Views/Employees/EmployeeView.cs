@@ -18,6 +18,7 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
@@ -95,13 +96,21 @@ namespace Vodovoz.Views.Employees
 			comboSkillLevel.SelectedItem = ViewModel.Entity.SkillLevel;
 			
 			ConfigureCategory();
-			
-			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
-			cmbDriverOf.Binding
-				.AddBinding(ViewModel.Entity, e => e.DriverOf, w => w.SelectedItemOrNull)
+
+			comboDriverOfCarOwnType.ShowSpecialStateNot = true;
+			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
+			comboDriverOfCarOwnType.Binding
+				.AddBinding(ViewModel.Entity, e => e.DriverOfCarOwnType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
+			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
+			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.Binding
+				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
+				.InitializeFromSource();
+
 			checkVisitingMaster.Binding
 				.AddBinding(ViewModel.Entity, e => e.VisitingMaster, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -167,11 +176,11 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			textViewComment.Binding
+			textComment.Binding
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Editable)
 				.InitializeFromSource();
-			
+
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.DrivingLicense, w => w.Text)
@@ -644,7 +653,8 @@ namespace Vodovoz.Views.Employees
 			{
 				if(ViewModel.Entity.Category != EmployeeCategory.driver)
 				{
-					cmbDriverOf.SelectedItemOrNull = null;
+					comboDriverOfCarOwnType.SelectedItemOrNull = null;
+					comboDriverOfCarTypeOfUse.SelectedItemOrNull = null;
 				}
 			};
 		}
@@ -761,7 +771,7 @@ namespace Vodovoz.Views.Employees
 		{
 			radioTabLogistic.Visible
 				= lblDriverOf.Visible
-				= hboxDriversParameters.Visible
+				= hboxDriverCheckParameters.Visible
 				= (EmployeeCategory)e.SelectedItem == EmployeeCategory.driver;
 
 			wageParametersView.Sensitive = ViewModel.CanEditWage && ViewModel.CanEditEmployee;

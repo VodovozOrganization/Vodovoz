@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>296.926mm</PageHeight>
   <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
@@ -46,8 +44,8 @@
 - имеют расхождение км &gt; или = указанной
 - принадлежат компании (стоит галочка)"</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.8pt</Left>
-        <Top>34.9pt</Top>
+        <Left>0.80pt</Left>
+        <Top>34.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -73,31 +71,31 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>17.2pt</Width>
+            <Width>24.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.0pt</Width>
+            <Width>49.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>53.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70.0pt</Width>
+            <Width>51.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.2pt</Width>
+            <Width>43.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.7pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.1pt</Width>
+            <Width>44.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>160.1pt</Width>
+            <Width>185.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>56.4pt</Width>
             <Visibility>
               <Hidden>=Iif({?any_status}, false, true)</Hidden>
             </Visibility>
@@ -106,7 +104,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>42.7pt</Height>
+              <Height>45.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -162,7 +160,10 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>Пересчи- танный кило- метраж</Value>
+                      <Value>Пересчи-
+танный
+кило-
+метраж</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -180,7 +181,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>Кило- метраж по треку</Value>
+                      <Value>Кило-
+метраж
+по треку</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -198,7 +201,10 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>Подтверж- дённый кило- метраж</Value>
+                      <Value>Подтверж-
+дённый
+кило-
+метраж</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -216,7 +222,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>Разница километ- ража</Value>
+                      <Value>Разница
+километ-
+ража</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -289,6 +297,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -306,6 +315,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -324,6 +334,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>dd.MM.yy</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -337,10 +348,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -354,10 +366,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -371,10 +384,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -387,11 +401,12 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
                         <Format>0.00</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -410,6 +425,7 @@
                         <PaddingBottom>=Len({mileage_comment}) / 6 + "pt"</PaddingBottom>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -429,7 +445,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >7pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -440,11 +456,11 @@
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>0.0pt</Top>
+        <Top>7.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>.2in</Height>
+              <Height>11.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -459,9 +475,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -478,9 +494,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -497,9 +513,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -516,8 +532,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>="Итого: " + Sum({recalculated_distance})</Value>
+                      <Value>="Итого:\n" + Sum({recalculated_distance})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -534,8 +553,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>="Итого: " + Sum({tracked_distance})</Value>
+                      <Value>="Итого:\n" + Sum({tracked_distance})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -552,8 +574,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>="Итого: " + Sum({confirmed_distance})</Value>
+                      <Value>="Итого:\n" + Sum({confirmed_distance})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -570,8 +595,11 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Right</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>="Итого: " + Sum({confirmed_distance} - {recalculated_distance})</Value>
+                      <Value>="Итого:\n" + Sum({confirmed_distance} - {recalculated_distance})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -588,17 +616,16 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -609,6 +636,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -642,7 +670,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -667,23 +695,28 @@
     END AS status
 FROM
     route_lists
-        LEFT JOIN
-    employees AS closed_by ON closed_by.id = route_lists.closed_by_employee_id
-        LEFT JOIN
-    employees AS drivers ON drivers.id = route_lists.driver_id
-        LEFT JOIN
-    tracks ON tracks.route_list_id = route_lists.id
-        LEFT JOIN
-    cars ON cars.id = route_lists.car_id
+    LEFT JOIN
+        employees AS closed_by ON closed_by.id = route_lists.closed_by_employee_id
+    LEFT JOIN
+        employees AS drivers ON drivers.id = route_lists.driver_id
+    LEFT JOIN
+        tracks ON tracks.route_list_id = route_lists.id
+    LEFT JOIN
+        cars ON cars.id = route_lists.car_id
+    INNER JOIN car_models cm ON cars.model_id = cm.id
+    INNER JOIN
+        car_versions cv ON cars.id = cv.car_id
+            AND cv.start_date &lt;= route_lists.date
+            AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
-      (@any_status = 0 AND route_lists.status = 'Closed' OR @any_status = 1 AND route_lists.status != 'New')
-  AND (cars.type_of_use IS NULL OR cars.type_of_use &lt;&gt; 'CompanyTruck')
+    (@any_status = 0 AND route_lists.status = 'Closed' OR @any_status = 1 AND route_lists.status != 'New')
+  AND !(cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck')
   AND drivers.visiting_master = FALSE
   AND (@start_date = - 1 OR route_lists.`date` &gt;= @start_date)
   AND (@end_date = - 1 OR route_lists.`date` &lt; DATE_ADD(@end_date, INTERVAL 1 DAY))
   AND (@car_id = 0 OR cars.id = @car_id)
   AND (@employee_id = 0 OR drivers.id = @employee_id)
-  AND (@our_cars_only = 0 OR cars.type_of_use in ('CompanyLargus', 'CompanyTruck', 'CompanyGAZelle'))
+  AND (@our_cars_only = 0 OR cv.car_own_type = 'Company')
   AND (@difference_km = '' OR confirmed_distance - recalculated_distance &gt;= @difference_km )
 ORDER BY route_lists.id
 ;</CommandText>
@@ -711,7 +744,7 @@ ORDER BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -759,8 +792,7 @@ ORDER BY route_lists.id
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -776,8 +808,7 @@ ORDER BY route_lists.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -789,8 +820,7 @@ ORDER BY route_lists.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="our_cars_only">
       <DataType>Boolean</DataType>
@@ -802,8 +832,7 @@ ORDER BY route_lists.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="car_id">
       <DataType>String</DataType>
@@ -815,8 +844,7 @@ ORDER BY route_lists.id
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="employee_id">
       <DataType>Integer</DataType>
@@ -828,16 +856,14 @@ ORDER BY route_lists.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="difference_km">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="any_status">
       <DataType>Boolean</DataType>
@@ -849,8 +875,7 @@ ORDER BY route_lists.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

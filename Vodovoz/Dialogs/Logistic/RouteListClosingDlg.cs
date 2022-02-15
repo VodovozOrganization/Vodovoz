@@ -34,6 +34,7 @@ using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -83,6 +84,7 @@ namespace Vodovoz
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		private bool _canEdit;
+		private bool? _canEditFuelCardNumber;
 
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
@@ -185,8 +187,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -429,11 +430,13 @@ namespace Vodovoz
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(Entity.NormalWage))
-				Entity.RecalculateAllWages(wageParameterService);
-
-			if(e.PropertyName == nameof(Entity.Car)) {
-				Entity.RecalculateAllWages(wageParameterService);
+			switch(e.PropertyName)
+			{
+				case nameof(Entity.NormalWage):
+				case nameof(Entity.Driver) when Entity.Car != null && Entity.Driver != null:
+				case nameof(Entity.Car) when Entity.Car != null && Entity.Driver != null:
+					Entity.RecalculateAllWages(wageParameterService);
+					break;
 			}
 		}
 
@@ -448,13 +451,17 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
 				  .AddColumn("№ ТК")
 					.AddTextRenderer(n => n.FuelCardNumber)
-					.Editable(Entity.Car.CanEditFuelCardNumber)
+					.Editable(CanEditFuelCardNumber)
 				  .AddColumn("")
 					.AddTextRenderer()
 				  .RowCells();
 
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
+
+		protected virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
+			?? (_canEditFuelCardNumber =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
 		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
 
@@ -771,8 +778,14 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+			if(Entity.Status == RouteListStatus.Delivered)
+			{
+				Entity.ChangeStatusAndCreateTask(
+					Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
+						? RouteListStatus.MileageCheck
+						: RouteListStatus.OnClosing,
+					CallTaskWorker
+				);
 			}
 
 			foreach(var address in Entity.Addresses)
@@ -889,7 +902,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(Entity.Car.IsRaskat)
+			if(Entity.GetCarVersion.CarOwnType == CarOwnType.Raskat)
 			{
 				Entity.RecountMileage();
 			}
@@ -909,7 +922,7 @@ namespace Vodovoz
 				&& !Entity.DifferencesConfirmed) {
 					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
 				} else {
-					if(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck) {
+					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck) {
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
 					} else {
 						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);
@@ -1062,13 +1075,17 @@ namespace Vodovoz
 				exclude = null;
 
 			if(Entity.Car.FuelType != null) {
-				Car car = Entity.Car;
 				Employee driver = Entity.Driver;
+				var car = Entity.Car;
 
-				if(car.IsCompanyCar)
+				if(car.GetActiveCarVersionOnDate(Entity.Date).IsCompanyCar)
+				{
 					driver = null;
+				}
 				else
+				{
 					car = null;
+				}
 
 				balanceBeforeOp = _fuelRepository.GetFuelBalance(
 					UoW, driver, car, Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
@@ -1314,7 +1331,7 @@ namespace Vodovoz
 					  _trackRepository,
 					  _categoryRepository,
 					  new EmployeeJournalFactory(),
-					  new CarJournalFactory()
+					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
   			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1332,7 +1349,7 @@ namespace Vodovoz
 				  _trackRepository,
 				  _categoryRepository,
 				  new EmployeeJournalFactory(),
-				  new CarJournalFactory()
+				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
 		  	);
 			TabParent.AddSlaveTab(this, tab);
 		}

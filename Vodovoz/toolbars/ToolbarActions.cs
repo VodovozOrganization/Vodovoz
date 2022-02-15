@@ -435,8 +435,7 @@ public partial class MainWindow : Window
 
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
-		var subdivisionRepository = autofacScope.Resolve<ISubdivisionRepository>();
-		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
+		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
 
 		var page = NavigationManager.OpenViewModel<SalaryByEmployeeJournalViewModel, SalaryByEmployeeJournalFilterViewModel>(null, filter);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -450,14 +449,11 @@ public partial class MainWindow : Window
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
@@ -467,7 +463,7 @@ public partial class MainWindow : Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository(),
-				counterpartySelectorFactory,
+				counterpartyJournalFactory,
 				nomenclatureSelectorFactory,
 				nomenclatureRepository,
 				userRepository
@@ -478,14 +474,11 @@ public partial class MainWindow : Window
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e) {
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
@@ -495,7 +488,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository(),
-			counterpartySelectorFactory,
+			counterpartyJournalFactory,
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
 			userRepository
@@ -654,6 +647,7 @@ public partial class MainWindow : Window
 					new EmployeeJournalFactory(),
 					new GeographicGroupRepository(),
 					new ScheduleRestrictionRepository(),
+					new CarModelJournalFactory(),
 					new GeographicGroupParametersProvider(parametersProvider)
 				)
 			);
@@ -785,7 +779,7 @@ public partial class MainWindow : Window
 		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 
 		var expenseCategoryFactory = new ExpenseCategorySelectorFactory();
 
@@ -941,7 +935,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		var filter = autofacScope.Resolve<RouteListJournalFilterViewModel>();
+		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
 		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
@@ -949,8 +943,9 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
-    }
+		var page = NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
+		page.ViewModel.NavigationManager = NavigationManager;
+	}
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
@@ -1149,9 +1144,9 @@ public partial class MainWindow : Window
 			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
 	}
 
-	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
+	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 

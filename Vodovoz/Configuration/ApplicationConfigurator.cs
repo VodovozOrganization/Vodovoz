@@ -47,7 +47,6 @@ using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;

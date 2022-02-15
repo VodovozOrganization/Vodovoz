@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
