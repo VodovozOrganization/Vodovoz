@@ -1570,15 +1570,24 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
-driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.number AS DriverPhone, 
-cars.model AS CarModel, cars.reg_number AS CarRegNumber, cars.fuel_consumption AS FuelConsumption, fuel_types.name AS FuelType, 
-forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
-logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
+driver.name AS DriverName,
+driver.last_name AS DriverLastname,
+driver_phone.number AS DriverPhone,
+cm.name AS CarModel,
+cars.reg_number AS CarRegNumber,
+cars.fuel_consumption AS FuelConsumption,
+fuel_types.name AS FuelType,
+forwarder.name AS ForwarderName,
+forwarder.last_name AS ForwarderLastname,
+forwarder_phone.number AS ForwarderPhone,
+logistican.name AS LogisticanName,
+logistican.last_name AS LogisticanLastname,
 route_lists.date as Date
 FROM route_lists
 LEFT JOIN employees driver ON route_lists.driver_id = driver.id
 LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id
 LEFT JOIN cars ON cars.id = route_lists.car_id
+LEFT JOIN car_models cm ON cars.model_id = cm.id
 LEFT JOIN fuel_types ON fuel_types.id = cars.fuel_type_id
 LEFT JOIN employees forwarder ON route_lists.forwarder_id = forwarder.id
 LEFT JOIN employees logistican ON route_lists.logistican_id = logistican.id

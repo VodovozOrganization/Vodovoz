@@ -48,8 +48,7 @@ namespace Vodovoz
 
 			Build();
 			TabName = "Мониторинг";
-			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM(uow);
-			yTreeViewDrivers.RepresentationModel.UpdateNodes();
+			yTreeViewDrivers.RepresentationModel = new WorkingDriversVM(uow);
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Visible = buttonSendMessage.Visible = false;

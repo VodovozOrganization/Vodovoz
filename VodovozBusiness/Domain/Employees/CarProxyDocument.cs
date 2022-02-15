@@ -6,7 +6,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Employees

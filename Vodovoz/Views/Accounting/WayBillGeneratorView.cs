@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Accounting
                     .AddTextRenderer(n => (n.Document as WayBillDocument).DriverFIO)
                 .AddColumn("Модель машины")
                     .HeaderAlignment(0.5f)
-                    .AddTextRenderer(n => (n.Document as WayBillDocument).CarModel)
+                    .AddTextRenderer(n => (n.Document as WayBillDocument).CarModelName)
                 .AddColumn("Расстояние")
                     .HeaderAlignment(0.5f)
                     .AddTextRenderer(n => (n.Document as WayBillDocument).PlanedDistance.ToString())

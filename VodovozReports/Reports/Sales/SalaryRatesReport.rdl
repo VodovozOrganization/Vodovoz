@@ -47,10 +47,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>59.3pt</Width>
+            <Width>73.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.0pt</Width>
+            <Width>39.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>25.0pt</Width>
@@ -234,7 +234,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>Название ставки</Value>
+                      <Value>Название
+ставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -254,7 +255,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Водитель/
+                      <Value>Води-
+тель
+/
 экспе-
 дитор</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -893,7 +896,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>={name} + '\n(' + {car_type_of_use} + ')'</Value>
+                      <Value>={name} + '\n' + {car_type_of_use}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -923,7 +926,7 @@
                         <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
@@ -1585,14 +1588,14 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
 (SELECT
         wdlrs.name AS name,
         CASE wdlr.car_type_of_use
-            WHEN 'CompanyLargus' THEN 'Ларгус'
-            WHEN 'CompanyGAZelle' THEN 'Газель'
+            WHEN 'Largus' THEN 'Фургон (Ларгус)'
+            WHEN 'GAZelle' THEN 'Грузовой (Газель)'
             ELSE wdlr.car_type_of_use
         END as car_type_of_use,
        'С экспедитором' as with_out_forwarder,
@@ -1634,8 +1637,8 @@ union
 select
         wdlrs.name AS name,
         CASE wdlr.car_type_of_use
-            WHEN 'CompanyLargus' THEN 'Ларгус'
-            WHEN 'CompanyGAZelle' THEN 'Газель'
+            WHEN 'Largus' THEN 'Фургон (Ларгус)'
+            WHEN 'GAZelle' THEN 'Грузовой (Газель)'
             ELSE wdlr.car_type_of_use
         END as car_type_of_use,
        'Без экспедитора' as with_out_forwarder,
@@ -1677,8 +1680,8 @@ union
 SELECT
        wdlrs.name AS name,
        CASE wdlr.car_type_of_use
-           WHEN 'CompanyLargus' THEN 'Ларгус'
-           WHEN 'CompanyGAZelle' THEN 'Газель'
+           WHEN 'Largus' THEN 'Фургон (Ларгус)'
+           WHEN 'GAZelle' THEN 'Грузовой (Газель)'
            ELSE wdlr.car_type_of_use
        END as car_type_of_use,
        'Для экспедитора' as with_out_forwarder,
@@ -1718,7 +1721,7 @@ where wdlrs.id in (@wageIds)
 group by wdlrs.id, name, car_type_of_use) AS T
 ORDER BY
     T.name,
-    T.car_type_of_use = 'Ларгус' DESC,
+    T.car_type_of_use = 'Фургон (Ларгус)' DESC,
     T.with_out_forwarder = 'С экспедитором' DESC,
     T.with_out_forwarder = 'Без экспедитора' DESC
 ;</CommandText>
@@ -1734,7 +1737,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

@@ -13,12 +13,13 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Services;
 using QS.Tdi;
-using QSOrmProject;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -32,6 +33,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -85,9 +87,9 @@ namespace Vodovoz.Dialogs.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_geographicGroupParametersProvider = geographicGroupParametersProvider ?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
-			this.Build();
+			Build();
 
-			var gegraphicGroups =
+			var geographicGroups =
 				_geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, _geographicGroupParametersProvider);
 			var colorWhite = new Color(0xff, 0xff, 0xff);
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
@@ -115,12 +117,12 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddComboRenderer(x => x.WithForwarder)
 					.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
+					.AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersionOnDate(x.Date).CarOwnType == CarOwnType.Company ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(gegraphicGroups)
+					.FillItems(geographicGroups)
 					.AddSetter(
 						(c, n) => {
 							c.Editable = true;
@@ -130,7 +132,7 @@ namespace Vodovoz.Dialogs.Logistic
 						}
 					)
 				.AddColumn("Грузоп.")
-					.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
+					.AddTextRenderer(x => x.Car != null ? x.Car.CarModel.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
 					.AddTextRenderer(x => string.Join(", ", x.DistrictsPriorities.Select(d => d.District.DistrictName)))
 				.AddColumn("")
@@ -214,7 +216,6 @@ namespace Vodovoz.Dialogs.Logistic
 		}
 
 		#endregion
-		
 
 		#region Events
 
@@ -311,10 +312,11 @@ namespace Vodovoz.Dialogs.Logistic
 				return;
 			}
 			
-			var filter = new CarJournalFilterViewModel();
+			var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
 			filter.SetAndRefilterAtOnce(
-				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
-				x => x.IncludeArchive = false);
+				x => x.Archive = false,
+				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
+			);
 			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>
@@ -344,7 +346,12 @@ namespace Vodovoz.Dialogs.Logistic
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {
-				var driversToAdd = DriversAtDay.Where(x => x.WithForwarder == null && x.Car != null && x.Car.TypeOfUse != CarTypeOfUse.CompanyLargus).ToList();
+				var driversToAdd = DriversAtDay.Where(x =>
+					x.WithForwarder == null
+					&& x.Car != null
+					&& !(x.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+						&& x.Car.GetActiveCarVersionOnDate(x.Date).CarOwnType == CarOwnType.Company)
+				).ToList();
 
 				if(driversToAdd.Count == 0) {
 					logger.Warn("Не осталось водителей для добавленя экспедиторов.");
@@ -354,8 +361,9 @@ namespace Vodovoz.Dialogs.Logistic
 				int ManOnDistrict(int districtId) => driversAtDay
 					.Where(dr =>
 						dr.Car != null
-						&& dr.Car.TypeOfUse != CarTypeOfUse.CompanyLargus
 						&& dr.DistrictsPriorities.Any(dd2 => dd2.District.Id == districtId)
+						&& !(dr.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+							&& dr.Car.GetActiveCarVersionOnDate(dr.Date).CarOwnType == CarOwnType.Company)
 					)
 					.Sum(dr => dr.WithForwarder == null ? 1 : 2);
 
@@ -390,8 +398,12 @@ namespace Vodovoz.Dialogs.Logistic
 					ServicesConfig.CommonServices,
 					_employeeJournalFactory,
 					_attachmentsViewModelFactory,
-					_carRepository,
-					_geographicGroupParametersProvider
+					new CarModelJournalFactory(),
+					new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
+					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
+						new BaseParametersProvider(new ParametersProvider()))),
+					_geographicGroupParametersProvider,
+					MainClass.MainWin.NavigationManager
 				)
 			);
 		}

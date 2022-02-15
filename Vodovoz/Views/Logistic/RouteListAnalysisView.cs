@@ -6,19 +6,15 @@ using Gamma.GtkWidgets;
 using Gdk;
 using Gtk;
 using QS.Navigation;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Validation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListAnalysisView : TabViewBase<RouteListAnalysisViewModel>
 	{
 		private Dictionary<RouteListItemStatus, Pixbuf> statusIcons = new Dictionary<RouteListItemStatus, Pixbuf>();
@@ -38,8 +34,7 @@ namespace Vodovoz.Views.Logistic
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
-			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityVMEntryCar.CompletionPopupSetWidth(false);
 

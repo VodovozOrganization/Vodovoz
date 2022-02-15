@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -10,13 +11,13 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModel
 {
 	public class WorkingDriversVM : RepresentationModelEntityBase<RouteList, WorkingDriverVMNode>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModel
 			Employee driverAlias = null;
 			RouteList routeListAlias = null;
 			Car carAlias = null;
+			CarVersion carVersionAlias = null;
 
 			Domain.Orders.Order orderAlias = null;
 			OrderItem ordItemsAlias = null;
@@ -48,22 +50,27 @@ namespace Vodovoz.ViewModel
 			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
-			var isCompanyHavingProjection = Projections.Conditional(Restrictions.In(Projections.Property(() => carAlias.TypeOfUse), Car.GetCompanyHavingsTypes()), Projections.Constant(true), Projections.Constant(false));
-
 			var trackSubquery = QueryOver.Of<Track>()
 				.Where(x => x.RouteList.Id == routeListAlias.Id)
 				.Select(x => x.Id);
+
+			var isCompanyHavingProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.Property(() => carVersionAlias.CarOwnType), CarOwnType.Company),
+				Projections.Constant(true),
+				Projections.Constant(false));
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
 			var result = query
 				.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.JoinAlias(rl => rl.Car, () => carAlias)
-
+				.JoinEntityAlias(() => carVersionAlias,
+					() => carVersionAlias.Car.Id == carAlias.Id
+						&& carVersionAlias.StartDate <= routeListAlias.Date &&
+						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
 				.Where(rl => rl.Status == RouteListStatus.EnRoute)
 				.Where(rl => rl.Driver != null)
 				.Where(rl => rl.Car != null)
-
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.Name)

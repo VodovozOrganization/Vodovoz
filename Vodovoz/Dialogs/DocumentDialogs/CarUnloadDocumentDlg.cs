@@ -236,7 +236,7 @@ namespace Vodovoz
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,
-					Entity.RouteList.Car.Model,
+					Entity.RouteList.Car.CarModel.Name,
 					Entity.RouteList.Car.RegistrationNumber,
 					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)"
 				);

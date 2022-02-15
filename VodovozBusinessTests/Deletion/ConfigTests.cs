@@ -14,7 +14,7 @@ namespace VodovozBusinessTests.Deletion
 		static ConfigTests()
 		{
 			ConfigureOneTime.ConfigureNh();
-			ConfigureOneTime.ConfogureDeletion();
+			ConfigureOneTime.ConfigureDeletion();
 
 			AddIgnoredClass(typeof(QS.Project.Domain.UserBase), "Этот класс в общей библиотеке и пока никак не используется для удаления.");
 			AddIgnoredClass(typeof(Vodovoz.Domain.Logistic.TrackPoint), "Удалятся вместе треком засчет конфигурации базы. Показывать пользователю все удаляемые точки смысла нет.");
