@@ -211,9 +211,10 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)
 		{
-			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
+			var levelRate = GetCurrentWageDistrictLevelRate(src);
+			var addressWageDetails = new RouteListItemWageCalculationDetails
 			{
-				RouteListItemWageCalculationName = $"{wageParameterItem.WageParameterItemType.GetEnumTitle()}, {wageParameterItem.WageDistrictLevelRates.Name} №{wageParameterItem.WageDistrictLevelRates.Id}. ",
+				RouteListItemWageCalculationName = $"{WageParameterItemTypes.RatesLevel.GetEnumTitle()}, {levelRate.WageDistrictLevelRates.Name} №{levelRate.WageDistrictLevelRates.Id}. ",
 				WageCalculationEmployeeCategory = src.EmployeeCategory
 			};
 
