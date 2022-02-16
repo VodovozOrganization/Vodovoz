@@ -215,7 +215,7 @@ namespace EmailPrepareWorker
 						}
 						catch(Exception ex)
 						{
-							_logger.LogError(ex.Message);
+							_logger.LogError($"Failed to process counterparty email { counterpartyEmail.Id }: { ex.Message }");
 						}
 					}
 				}
