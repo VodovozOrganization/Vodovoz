@@ -13,12 +13,15 @@ namespace Vodovoz.Infrastructure.Converters
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			if(String.IsNullOrWhiteSpace(value as String))
+			if(string.IsNullOrWhiteSpace(value as string))
+			{
 				return null;
+			}
 
-			int number = 0;
-			if(targetType == typeof(int?) && Int32.TryParse(value.ToString(), out number))
+			if(targetType == typeof(int) && int.TryParse(value.ToString(), out int number))
+			{
 				return number;
+			}
 
 			return null;
 		}

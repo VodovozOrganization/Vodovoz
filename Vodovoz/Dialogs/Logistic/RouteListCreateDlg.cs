@@ -25,6 +25,7 @@ using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
@@ -102,7 +103,7 @@ namespace Vodovoz
 
 		private bool ConfigSubdivisionCombo()
 		{
-			var subdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var subdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) }).ToList();
 			if(!subdivisions.Any())
 			{
 				MessageDialogHelper.RunErrorDialog(
@@ -132,22 +133,24 @@ namespace Vodovoz
 			_previousSelectedDate = Entity.Date;
 			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.ChangedByUser += (sender, e) =>
 			{
-				if(Entity.Car == null)
+				if(Entity.Car == null || Entity.Date == default)
 				{
 					evmeForwarder.IsEditable = true;
 					return;
 				}
+				var isCompanyCar = Entity.GetCarVersion.IsCompanyCar;
 
-				Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.Car.Driver : null;
-				evmeDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
+				Entity.Driver = Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired
+					? Entity.Car.Driver
+					: null;
+				evmeDriver.Sensitive = Entity.Driver == null || isCompanyCar;
 
-				if(!Entity.Car.IsCompanyCar || Entity.Car.TypeOfUse == CarTypeOfUse.CompanyLargus && Entity.CanAddForwarder)
+				if(!isCompanyCar || Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus && Entity.CanAddForwarder)
 				{
 					Entity.Forwarder = Entity.Forwarder;
 					evmeForwarder.IsEditable = true;
@@ -546,7 +549,7 @@ namespace Vodovoz
 
 					Save();
 
-					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck && !Entity.NeedToLoad)
+					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !Entity.NeedToLoad)
 					{
 						if(MessageDialogHelper.RunQuestionDialog(
 							"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",

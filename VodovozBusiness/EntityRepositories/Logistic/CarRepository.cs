@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -27,7 +28,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public QueryOver<Car> ActiveCarsQuery()
 		{
 			return QueryOver.Of<Car>()
-							.Where(x => !x.IsArchive);
+				.Where(x => !x.IsArchive);
 		}
 
 		public bool IsInAnyRouteList(IUnitOfWork uow, Car car)

@@ -25,7 +25,7 @@
     CONCAT_WS('', CONCAT(receivers.last_name, ' '), if(receivers.name = '', '', CONCAT(LEFT(receivers.name, 1),'.')), if(receivers.patronymic = '', '', CONCAT(LEFT(receivers.patronymic, 1),'.'))) as receiver_fio,
     subdivisions_from.name as subdivision_from,
     subdivisions_to.name as subdivision_to,
-    CONCAT(cars.model, ' (', cars.reg_number, ')') as car_title
+    CONCAT(cm.name, ' (', cars.reg_number, ')') as car_title
 FROM
 	cash_transfer_documents
 		LEFT JOIN
@@ -42,6 +42,8 @@ FROM
 	subdivisions as subdivisions_to ON subdivisions_to.id = cash_transfer_documents.cash_subdivision_to_id
     	LEFT JOIN
 	cars ON cars.id = cash_transfer_documents.car_id
+	    LEFT JOIN
+    car_models cm ON cars.model_id = cm.id
 WHERE
 	cash_transfer_documents.id = @transfer_document_id
 GROUP BY cash_transfer_documents.id</CommandText>

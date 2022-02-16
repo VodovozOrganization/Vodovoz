@@ -8,14 +8,17 @@ using QS.Services;
 using System;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
@@ -60,6 +63,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Car carAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 			CarEventJournalNode resultAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -87,7 +92,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			itemsQuery.Left.JoinAlias(x => x.Author, () => authorAlias);
 			itemsQuery.Left.JoinAlias(x => x.Driver, () => driverAlias);
 			itemsQuery.Left.JoinAlias(x => x.Car, () => carAlias);
+			itemsQuery.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 			itemsQuery.Left.JoinAlias(() => carAlias.GeographicGroups, () => geographicGroupAlias);
+			itemsQuery.JoinEntityAlias(
+				() => carVersionAlias,
+				() => carVersionAlias.Car.Id == carAlias.Id
+					&& carVersionAlias.StartDate <= carEventAlias.StartDate
+					&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= carEventAlias.StartDate),
+				JoinType.LeftOuterJoin);
 
 			if(FilterViewModel.CarEventType != null)
 			{
@@ -119,7 +131,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.Car != null)
 			{
-				itemsQuery.Where(x => x.Car == FilterViewModel.Car);
+				itemsQuery.Where(() => carAlias.Id == FilterViewModel.Car.Id);
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -132,7 +144,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => carEventAlias.Comment,
 				() => carEventTypeAlias.Name,
 				() => carEventTypeAlias.ShortName,
-				() => carAlias.Model,
+				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber,
 				() => driverProjection)
 			);
@@ -147,9 +159,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)
 					.Select(() => carAlias.OrderNumber).WithAlias(() => resultAlias.CarOrderNumber)
-					.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-					.Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
-					.Select(() => carAlias.RaskatType).WithAlias(() => resultAlias.CarRaskatType)
+					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
 					.Select(authorProjection).WithAlias(() => resultAlias.AuthorFullName)
 					.Select(driverProjection).WithAlias(() => resultAlias.DriverFullName)
 					.Select(geographicGroupsProjection).WithAlias(() => resultAlias.GeographicGroups)
