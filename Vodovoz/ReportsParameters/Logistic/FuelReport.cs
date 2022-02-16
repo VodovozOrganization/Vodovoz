@@ -6,11 +6,7 @@ using QS.Report;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -29,8 +25,7 @@ namespace Vodovoz.Reports
 			);
 			var driverFactory = new EmployeeJournalFactory(filterDriver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			var officeFilter = new EmployeeFilterViewModel();
@@ -70,8 +65,6 @@ namespace Vodovoz.Reports
 			}
 
 			if(radioSumm.Active) {
-				parameters.Add("car_id", -1);
-				parameters.Add("driver_id", -1);
 				parameters.Add("author", (evmeAuthor.Subject as Employee)?.Id ?? -1);
 
 				return new ReportInfo {

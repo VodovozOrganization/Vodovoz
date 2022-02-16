@@ -26,7 +26,7 @@
     subdivisions_from.name as subdivision_from,
     subdivisions_to.name as subdivision_to,
     fuel_types.name as fuel_name,
-    CONCAT(cars.model, ' (', cars.reg_number, ')') as car_title
+    CONCAT(cm.name, ' (', cars.reg_number, ')') as car_title
 FROM
 	fuel_transfer_documents
 		LEFT JOIN
@@ -45,6 +45,8 @@ FROM
 	fuel_types ON fuel_types.id = fuel_transfer_documents.fuel_type_id
     	LEFT JOIN
 	cars ON cars.id = fuel_transfer_documents.car_id
+        LEFT JOIN
+    car_models cm ON cars.model_id = cm.id
 WHERE
 	fuel_transfer_documents.id = @transfer_document_id
 GROUP BY fuel_transfer_documents.id</CommandText>

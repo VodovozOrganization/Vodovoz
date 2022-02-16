@@ -16,6 +16,7 @@ using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -909,7 +910,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.And(x => x.TypeOperation == ExpenseType.EmployeeAdvance)
 				.RowCount() > 0;
 
-		public DateTime? GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarTypeOfUse? carTypeOfUse = null)
+		public DateTime? GetDateByDriverWorkingDayNumber(IUnitOfWork uow, int driverId, int dayNumber, CarTypeOfUse? driverOfCarTypeOfUse = null,
+			CarOwnType? driverOfCarOwnType = null)
 		{
 			Employee employeeAlias = null;
 
@@ -917,9 +919,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(x => x.Driver, () => employeeAlias)
 				.Where(x => x.Driver.Id == driverId);
 
-			if(carTypeOfUse != null)
+			if(driverOfCarTypeOfUse != null)
 			{
-				query.Where(() => employeeAlias.DriverOf == carTypeOfUse);
+				query.Where(() => employeeAlias.DriverOfCarTypeOfUse == driverOfCarTypeOfUse.Value);
+			}
+
+			if(driverOfCarOwnType != null)
+			{
+				query.Where(() => employeeAlias.DriverOfCarOwnType == driverOfCarOwnType.Value);
 			}
 
 			return query
@@ -931,7 +938,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.SingleOrDefault<DateTime?>();
 		}
 
-		public DateTime? GetLastRouteListDateByDriver(IUnitOfWork uow, int driverId, CarTypeOfUse? carTypeOfUse = null)
+		public DateTime? GetLastRouteListDateByDriver(IUnitOfWork uow, int driverId, CarTypeOfUse? driverOfCarTypeOfUse = null,
+			CarOwnType? driverOfCarOwnType = null)
 		{
 			Employee employeeAlias = null;
 
@@ -939,9 +947,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(x => x.Driver, () => employeeAlias)
 				.Where(x => x.Driver.Id == driverId);
 
-			if(carTypeOfUse != null)
+			if(driverOfCarTypeOfUse != null)
 			{
-				query.Where(() => employeeAlias.DriverOf == carTypeOfUse);
+				query.Where(() => employeeAlias.DriverOfCarTypeOfUse == driverOfCarTypeOfUse.Value);
+			}
+
+			if(driverOfCarOwnType != null)
+			{
+				query.Where(() => employeeAlias.DriverOfCarOwnType == driverOfCarOwnType.Value);
 			}
 
 			return query
@@ -950,6 +963,34 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.OrderBy(x => x.Date).Desc
 				.Take(1)
 				.SingleOrDefault<DateTime?>();
+		}
+
+		public IList<RouteList> GetRouteListsForCarInPeriods(IUnitOfWork uow, int carId,
+			IList<(DateTime startDate, DateTime? endDate)> periods)
+		{
+			RouteList routeListAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+				.Where(x => x.Car.Id == carId);
+
+			Disjunction periodsDisjunction = new Disjunction();
+			foreach(var (startDate, endDate) in periods)
+			{
+				var conjunction = new Conjunction();
+				conjunction.Add(() => routeListAlias.Date >= startDate);
+				if(endDate != null)
+				{
+					conjunction.Add(() => routeListAlias.Date <= endDate.Value);
+				}
+				periodsDisjunction.Add(conjunction);
+			}
+
+			if(periods.Any())
+			{
+				query.Where(periodsDisjunction);
+			}
+
+			return query.List<RouteList>();
 		}
 	}
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Logistic
 {

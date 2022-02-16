@@ -4,6 +4,7 @@ using System.Linq;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -15,181 +16,219 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 	{
 		#region Подготовка ставок
 
-		Dictionary<WageDistrict, WageDistrictLevelRate> ConfigureLevelRates(WageDistrict district1, WageDistrict district2)
+		Dictionary<(WageDistrict wageDistrict, CarTypeOfUse carTypeOfUse), WageDistrictLevelRate> ConfigureLevelRates(
+			WageDistrict district1, WageDistrict district2)
 		{
-			WageDistrictLevelRate rate1 = Substitute.For<WageDistrictLevelRate>();
-			rate1.WageDistrict.Returns(district1);
-			rate1.WageRates.Returns(
-				new List<WageRate> {
-					new WageRate {
-						WageRateType = WageRateTypes.Address,
-						ForDriverWithoutForwarder = 01,
-						ForDriverWithForwarder = 02,
-						ForForwarder = 03
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle19L,
-						ForDriverWithoutForwarder = 04,
-						ForDriverWithForwarder = 05,
-						ForForwarder = 06
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle19LInBigOrder,
-						ForDriverWithoutForwarder = 07,
-						ForDriverWithForwarder = 08,
-						ForForwarder = 09
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle6L,
-						ForDriverWithoutForwarder = 10,
-						ForDriverWithForwarder = 11,
-						ForForwarder = 12
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.ContractCancelation,
-						ForDriverWithoutForwarder = 13,
-						ForDriverWithForwarder = 14,
-						ForForwarder = 15
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.EmptyBottle19L,
-						ForDriverWithoutForwarder = 16,
-						ForDriverWithForwarder = 17,
-						ForForwarder = 18
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
-						ForDriverWithoutForwarder = 19,
-						ForDriverWithForwarder = 20,
-						ForForwarder = 21
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Equipment,
-						ForDriverWithoutForwarder = 22,
-						ForDriverWithForwarder = 23,
-						ForForwarder = 24
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
-						ForDriverWithoutForwarder = 60,
-						ForDriverWithForwarder = 65,
-						ForForwarder = 70
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.PackOfBottles600ml,
-						ForDriverWithoutForwarder = 28,
-						ForDriverWithForwarder = 29,
-						ForForwarder = 30
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.PhoneCompensation,
-						ForDriverWithoutForwarder = 31,
-						ForDriverWithForwarder = 32,
-						ForForwarder = 33
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle1500ml,
-						ForDriverWithoutForwarder = 34,
-						ForDriverWithForwarder = 35,
-						ForForwarder = 36
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle500ml,
-						ForDriverWithoutForwarder = 37,
-						ForDriverWithForwarder = 38,
-						ForForwarder = 39
-					}
-				}
-			);
+			var result = new Dictionary<(WageDistrict wageDistrict, CarTypeOfUse carTypeOfUse), WageDistrictLevelRate>();
 
-			WageDistrictLevelRate rate2 = Substitute.For<WageDistrictLevelRate>();
-			rate2.WageDistrict.Returns(district2);
-			rate2.WageRates.Returns(
-				new List<WageRate> {
-					new WageRate {
-						WageRateType = WageRateTypes.Address,
-						ForDriverWithoutForwarder = 101,
-						ForDriverWithForwarder = 102,
-						ForForwarder = 103
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle19L,
-						ForDriverWithoutForwarder = 104,
-						ForDriverWithForwarder = 105,
-						ForForwarder = 106
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle19LInBigOrder,
-						ForDriverWithoutForwarder = 107,
-						ForDriverWithForwarder = 108,
-						ForForwarder = 109
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle6L,
-						ForDriverWithoutForwarder = 110,
-						ForDriverWithForwarder = 111,
-						ForForwarder = 112
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.ContractCancelation,
-						ForDriverWithoutForwarder = 113,
-						ForDriverWithForwarder = 114,
-						ForForwarder = 115
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.EmptyBottle19L,
-						ForDriverWithoutForwarder = 116,
-						ForDriverWithForwarder = 117,
-						ForForwarder = 118
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
-						ForDriverWithoutForwarder = 119,
-						ForDriverWithForwarder = 120,
-						ForForwarder = 121
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Equipment,
-						ForDriverWithoutForwarder = 122,
-						ForDriverWithForwarder = 123,
-						ForForwarder = 124
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
-						ForDriverWithoutForwarder = 100,
-						ForDriverWithForwarder = 110,
-						ForForwarder = 120
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.PackOfBottles600ml,
-						ForDriverWithoutForwarder = 128,
-						ForDriverWithForwarder = 129,
-						ForForwarder = 130
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.PhoneCompensation,
-						ForDriverWithoutForwarder = 131,
-						ForDriverWithForwarder = 132,
-						ForForwarder = 133
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle1500ml,
-						ForDriverWithoutForwarder = 134,
-						ForDriverWithForwarder = 135,
-						ForForwarder = 136
-					},
-					new WageRate {
-						WageRateType = WageRateTypes.Bottle500ml,
-						ForDriverWithoutForwarder = 137,
-						ForDriverWithForwarder = 138,
-						ForForwarder = 139
+			foreach(var carTypeOfUse in Car.GetCarTypesOfUseForRatesLevelWageCalculation())
+			{
+				WageDistrictLevelRate rate1 = Substitute.For<WageDistrictLevelRate>();
+				rate1.WageDistrict.Returns(district1);
+				rate1.CarTypeOfUse = carTypeOfUse;
+
+				rate1.WageRates.Returns(
+					new List<WageRate>
+					{
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Address,
+							ForDriverWithoutForwarder = 01,
+							ForDriverWithForwarder = 02,
+							ForForwarder = 03
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle19L,
+							ForDriverWithoutForwarder = 04,
+							ForDriverWithForwarder = 05,
+							ForForwarder = 06
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle19LInBigOrder,
+							ForDriverWithoutForwarder = 07,
+							ForDriverWithForwarder = 08,
+							ForForwarder = 09
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle6L,
+							ForDriverWithoutForwarder = 10,
+							ForDriverWithForwarder = 11,
+							ForForwarder = 12
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.ContractCancelation,
+							ForDriverWithoutForwarder = 13,
+							ForDriverWithForwarder = 14,
+							ForForwarder = 15
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.EmptyBottle19L,
+							ForDriverWithoutForwarder = 16,
+							ForDriverWithForwarder = 17,
+							ForForwarder = 18
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
+							ForDriverWithoutForwarder = 19,
+							ForDriverWithForwarder = 20,
+							ForForwarder = 21
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Equipment,
+							ForDriverWithoutForwarder = 22,
+							ForDriverWithForwarder = 23,
+							ForForwarder = 24
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
+							ForDriverWithoutForwarder = 60,
+							ForDriverWithForwarder = 65,
+							ForForwarder = 70
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.PackOfBottles600ml,
+							ForDriverWithoutForwarder = 28,
+							ForDriverWithForwarder = 29,
+							ForForwarder = 30
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.PhoneCompensation,
+							ForDriverWithoutForwarder = 31,
+							ForDriverWithForwarder = 32,
+							ForForwarder = 33
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle1500ml,
+							ForDriverWithoutForwarder = 34,
+							ForDriverWithForwarder = 35,
+							ForForwarder = 36
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle500ml,
+							ForDriverWithoutForwarder = 37,
+							ForDriverWithForwarder = 38,
+							ForForwarder = 39
+						}
 					}
-				}
-			);
-			return new Dictionary<WageDistrict, WageDistrictLevelRate> {
-				{ district1, rate1 },
-				{ district2, rate2 }
-			};
+				);
+
+				WageDistrictLevelRate rate2 = Substitute.For<WageDistrictLevelRate>();
+				rate2.WageDistrict.Returns(district2);
+				rate2.CarTypeOfUse = carTypeOfUse;
+
+				rate2.WageRates.Returns(
+					new List<WageRate>
+					{
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Address,
+							ForDriverWithoutForwarder = 101,
+							ForDriverWithForwarder = 102,
+							ForForwarder = 103
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle19L,
+							ForDriverWithoutForwarder = 104,
+							ForDriverWithForwarder = 105,
+							ForForwarder = 106
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle19LInBigOrder,
+							ForDriverWithoutForwarder = 107,
+							ForDriverWithForwarder = 108,
+							ForForwarder = 109
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle6L,
+							ForDriverWithoutForwarder = 110,
+							ForDriverWithForwarder = 111,
+							ForForwarder = 112
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.ContractCancelation,
+							ForDriverWithoutForwarder = 113,
+							ForDriverWithForwarder = 114,
+							ForForwarder = 115
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.EmptyBottle19L,
+							ForDriverWithoutForwarder = 116,
+							ForDriverWithForwarder = 117,
+							ForForwarder = 118
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
+							ForDriverWithoutForwarder = 119,
+							ForDriverWithForwarder = 120,
+							ForForwarder = 121
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Equipment,
+							ForDriverWithoutForwarder = 122,
+							ForDriverWithForwarder = 123,
+							ForForwarder = 124
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
+							ForDriverWithoutForwarder = 100,
+							ForDriverWithForwarder = 110,
+							ForForwarder = 120
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.PackOfBottles600ml,
+							ForDriverWithoutForwarder = 128,
+							ForDriverWithForwarder = 129,
+							ForForwarder = 130
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.PhoneCompensation,
+							ForDriverWithoutForwarder = 131,
+							ForDriverWithForwarder = 132,
+							ForForwarder = 133
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle1500ml,
+							ForDriverWithoutForwarder = 134,
+							ForDriverWithForwarder = 135,
+							ForForwarder = 136
+						},
+						new WageRate
+						{
+							WageRateType = WageRateTypes.Bottle500ml,
+							ForDriverWithoutForwarder = 137,
+							ForDriverWithForwarder = 138,
+							ForForwarder = 139
+						}
+					}
+				);
+
+				result.Add((district1, carTypeOfUse), rate1);
+				result.Add((district2, carTypeOfUse), rate2);
+			}
+			return result;
 		}
 
 		#endregion Подготовка ставок
@@ -228,6 +267,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
 			routeListItemWageCalculationSource1.ContractCancelation.Returns(true);
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
@@ -243,9 +284,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource2.WasVisitedByForwarder.Returns(false);
 			routeListItemWageCalculationSource2.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource2.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource2.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource2.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource2.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource3 = Substitute.For<IRouteListItemWageCalculationSource>();
+			routeListItemWageCalculationSource3.IsValidForWageCalculation.Returns(false);
 			routeListItemWageCalculationSource3.IsDelivered.Returns(false);
 
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
@@ -261,6 +305,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource4.WasVisitedByForwarder.Returns(false);
 			routeListItemWageCalculationSource4.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource4.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource4.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource4.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource4.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
@@ -319,6 +365,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
@@ -334,9 +382,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource2.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource2.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource2.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource2.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource2.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource2.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource3 = Substitute.For<IRouteListItemWageCalculationSource>();
+			routeListItemWageCalculationSource3.IsValidForWageCalculation.Returns(false);
 			routeListItemWageCalculationSource3.IsDelivered.Returns(false);
 
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
@@ -352,6 +403,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource4.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource4.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource4.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource4.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource4.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource4.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
@@ -383,12 +436,13 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForDriverAsForwarderBySeveralAddresses()
 		{
 			// arrange
-			WageDistrict district1 = Substitute.For<WageDistrict>();
-			district1.Id.Returns(1);
-			WageDistrict district2 = Substitute.For<WageDistrict>();
-			district2.Id.Returns(2);
+			WageDistrict districtMock1 = Substitute.For<WageDistrict>();
+			districtMock1.Id.Returns(1);
 
-			var rates = ConfigureLevelRates(district1, district2);
+			WageDistrict districtMock2 = Substitute.For<WageDistrict>();
+			districtMock2.Id.Returns(2);
+
+			var rates = ConfigureLevelRates(districtMock1, districtMock2);
 
 			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
@@ -398,7 +452,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			};
 
 			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(districtMock1);
 			routeListItemWageCalculationSource1.Bottle600mlCount.Returns(100);
 			routeListItemWageCalculationSource1.Bottle500mlCount.Returns(10);
 			routeListItemWageCalculationSource1.Bottle1500mlCount.Returns(33);
@@ -410,10 +464,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(district2);
+			routeListItemWageCalculationSource2.WageDistrictOfAddress.Returns(districtMock2);
 			routeListItemWageCalculationSource2.Bottle600mlCount.Returns(60);
 			routeListItemWageCalculationSource2.Bottle500mlCount.Returns(55);
 			routeListItemWageCalculationSource2.Bottle1500mlCount.Returns(20);
@@ -425,13 +481,16 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource2.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource2.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource2.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource2.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource2.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource2.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource3 = Substitute.For<IRouteListItemWageCalculationSource>();
+			routeListItemWageCalculationSource3.IsValidForWageCalculation.Returns(false);
 			routeListItemWageCalculationSource3.IsDelivered.Returns(false);
 
 			var routeListItemWageCalculationSource4 = Substitute.For<IRouteListItemWageCalculationSource>();
-			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(district1);
+			routeListItemWageCalculationSource4.WageDistrictOfAddress.Returns(districtMock1);
 			routeListItemWageCalculationSource4.Bottle600mlCount.Returns(601);
 			routeListItemWageCalculationSource4.Bottle500mlCount.Returns(25);
 			routeListItemWageCalculationSource4.Bottle1500mlCount.Returns(1);
@@ -443,6 +502,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource4.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource4.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource4.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource4.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource4.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource4.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
@@ -500,7 +561,9 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.HasFirstOrderForDeliveryPoint.Returns(true);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.NeedTakeOrDeliverEquipment.Returns(false);
-			routeListItemWageCalculationSource1.WageCalculationMethodic.Returns(rates[district1]);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.WageCalculationMethodic.Returns(rates[(district1, CarTypeOfUse.Largus)]);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
@@ -653,6 +716,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.HasFirstOrderForDeliveryPoint.Returns(true);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(false);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
@@ -796,6 +861,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(0, 0, 0), new TimeSpan(12, 0, 0)));
 
@@ -980,6 +1047,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(3, 0, 0), new TimeSpan(4, 0, 0)));
 
@@ -1164,6 +1233,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(50);
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.CarTypeOfUse.Returns(CarTypeOfUse.Largus);
+			routeListItemWageCalculationSource1.IsValidForWageCalculation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(3, 0, 0), new TimeSpan(4, 0, 0)));
 

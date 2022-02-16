@@ -7,15 +7,8 @@ using QS.Validation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.JournalFilters;
-using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -69,8 +62,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();

@@ -1231,8 +1231,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual int TotalWeight => 
 			(int)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Weight);
 
-		public virtual double TotalVolume => 
-			(double)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
+		public virtual decimal TotalVolume =>
+			OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
 
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
@@ -3920,7 +3920,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Объём</returns>
 		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
-		public virtual double FullVolume(bool includeGoods = true, bool includeEquipment = true)
+		public virtual decimal FullVolume(bool includeGoods = true, bool includeEquipment = true)
 		{
 			double volume = 0;
 			if(includeGoods)
@@ -3928,7 +3928,7 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Volume * x.Count);
-			return volume;
+			return (decimal)volume;
 		}
 
 		#endregion

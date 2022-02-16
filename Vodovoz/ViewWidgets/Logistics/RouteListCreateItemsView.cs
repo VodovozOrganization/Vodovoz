@@ -348,8 +348,8 @@ namespace Vodovoz
 		public virtual void UpdateWeightInfo()
 		{
 			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
-				string maxWeight = RouteListUoW.Root.Car.MaxWeight > 0
-								   ? RouteListUoW.Root.Car.MaxWeight.ToString()
+				string maxWeight = RouteListUoW.Root.Car.CarModel.MaxWeight > 0
+								   ? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
 								   : " ?";
 				string weight = RouteListUoW.Root.HasOverweight()
 											? $"<span foreground = \"red\">Перегруз на {RouteListUoW.Root.Overweight()} кг.</span>"
@@ -361,8 +361,8 @@ namespace Vodovoz
 		public virtual void UpdateVolumeInfo()
 		{
 			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
-				string maxVolume = RouteListUoW.Root.Car.MaxVolume > 0
-								   ? RouteListUoW.Root.Car.MaxVolume.ToString()
+				string maxVolume = RouteListUoW.Root.Car.CarModel.MaxVolume > 0
+								   ? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString()
 								   : " ?";
 				string volume = RouteListUoW.Root.HasVolumeExecess()
 											? string.Format("<span foreground = \"red\">Объём груза превышен на {0} м<sup>3</sup>.</span>", RouteListUoW.Root.VolumeExecess())

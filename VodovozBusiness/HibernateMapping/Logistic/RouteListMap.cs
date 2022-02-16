@@ -17,7 +17,7 @@ namespace Vodovoz.HibernateMapping
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
 			Map(x => x.ConfirmedDistance).Column("confirmed_distance");
-			Map(x => x.Date).Column ("date");
+			Map(x => x.Date).Column("date").Access.CamelCaseField(Prefix.Underscore);
 			Map(x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
 			Map(x => x.ClosingDate).Column("closing_date");
 			Map(x => x.FirstClosingDate).Column("first_closing_date");
@@ -44,11 +44,11 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
 			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 
-			References(x => x.Car).Column ("car_id");
-			References(x => x.Shift).Column ("delivery_shift_id");
-			References(x => x.Driver).Column ("driver_id");
-			References(x => x.Forwarder).Column ("forwarder_id");
-			References(x => x.Logistician).Column ("logistican_id");
+			References(x => x.Car).Column("car_id").Access.CamelCaseField(Prefix.Underscore);
+			References(x => x.Shift).Column("delivery_shift_id");
+			References(x => x.Driver).Column("driver_id");
+			References(x => x.Forwarder).Column("forwarder_id");
+			References(x => x.Logistician).Column("logistican_id");
 			References(x => x.BottleFine).Column("bottles_fine_id");
 			References(x => x.Cashier).Column("cashier_id");
 			References(x => x.FuelOutlayedOperation).Column("fuel_outlayed_operation_id").Cascade.All();
