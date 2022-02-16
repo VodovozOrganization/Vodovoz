@@ -6,6 +6,9 @@
 
   <ItemGroup>
     <None Remove="Reports\Logistic\AnalyticsForUndelivery.rdl" />
+    <None Update="Reports\Bookkeeping\CounterpartyDebtDetailsWithoutOrderByDate.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

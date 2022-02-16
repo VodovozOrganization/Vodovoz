@@ -15,7 +15,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>136.8pt</Height>
+    <Height>121.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
@@ -43,13 +43,16 @@
           <TableColumn>
             <Width>112.4pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>100.8pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>409.5pt</Width>
+            <Width>310.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>31.8pt</Height>
               <TableCells>
                 <TableCell>
@@ -60,24 +63,24 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >18pt</FontSize>
+                        <FontSize>18pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>7</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>15.0pt</Height>
               <TableCells>
                 <TableCell>
@@ -88,10 +91,10 @@
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
@@ -101,7 +104,7 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -111,16 +114,16 @@
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -216,6 +219,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>Статус заказа/платежа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
@@ -235,7 +255,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>15pt</Height>
               <TableCells>
                 <TableCell>
@@ -250,12 +270,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Bottom >1pt</Bottom>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >1pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <PaddingRight>1pt</PaddingRight>
+                        <FontSize>10pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -272,12 +292,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Bottom >1pt</Bottom>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >1pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <PaddingRight>1pt</PaddingRight>
+                        <FontSize>10pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -294,7 +314,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Bottom >1pt</Bottom>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
@@ -313,12 +333,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Bottom >1pt</Bottom>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >1pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <PaddingRight>1pt</PaddingRight>
+                        <FontSize>10pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -331,8 +351,28 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -350,8 +390,8 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
+                          <Left>None</Left>
+                          <Right>None</Right>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -388,7 +428,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -412,7 +452,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -420,8 +460,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>={payment_number}</Value>
+                    <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>=Iif({expense} &gt; 0, '', {payment_number})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -466,8 +506,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>={date}</Value>
+                    <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>=Iif({income} &gt; 0, {date}, Format({date}, "dd.MM.yyyy"))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -484,6 +524,28 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                       </Style>
                       <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>={doc_status}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
+                        <FontSize>10pt</FontSize>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -504,7 +566,7 @@
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -514,8 +576,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>12.9pt</Top>
+        <Left>0.0pt</Left>
+        <Top>0.0pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
       </Table>
     </ReportItems>
@@ -548,35 +610,60 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     0 AS income,
-    pi.sum AS expense,
-    p.payment_num AS payment_number,
+    round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2) AS expense,
+    0 AS payment_number,
     o.id AS order_id,
-    DATE_FORMAT(o.delivery_date, '%d.%m.%Y') AS date,
+    o.delivery_date AS date,
+    CASE o.order_status
+        WHEN 'NewOrder' THEN 'Новый'
+        WHEN 'Canceled' THEN 'Отменён'
+        WHEN 'WaitForPayment' THEN 'Ожидание оплаты'
+        WHEN 'Accepted' THEN 'Принят'
+        WHEN 'InTravelList' THEN 'В маршрутном листе'
+        WHEN 'OnLoading' THEN 'На погрузке'
+        WHEN 'OnTheWay' THEN 'В пути'
+        WHEN 'DeliveryCanceled' THEN 'Доставка отменена'
+        WHEN 'Shipped' THEN 'Доставлен'
+        WHEN 'UnloadingOnStock' THEN 'Выгрузка на складе'
+        WHEN 'NotDelivered' THEN 'Недовоз'
+        WHEN 'Closed' THEN 'Закрыт'
+        ELSE o.order_status
+    END AS doc_status,
     '' AS payment_description
-FROM counterparty c
-INNER JOIN orders o ON c.id = o.client_id
-INNER JOIN payment_items pi ON o.id = pi.order_id
-INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+FROM orders o
+    INNER JOIN order_items oi on o.id = oi.order_id
 WHERE
-      c.id = @counterparty_id
+    o.client_id = @counterparty_id
+  AND o.order_status IN (@order_statuses)
+  AND o.payment_type = 'cashless'
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
+  AND (@exclude_closing_documents = FALSE OR o.delivery_schedule_id != @closing_document_delivery_schedule_id)
+GROUP BY o.id
+having expense &gt; 0
 UNION ALL
 SELECT
-    cmo.income AS income,
+    IFNULL(cmo.income, p.total_sum) AS income,
     0 AS expense,
     p.payment_num AS payment_number,
     '' AS order_id,
-    DATE_FORMAT(cmo.operation_time, '%d.%m.%Y %T') AS date,
+    IFNULL(cmo.operation_time, p.payment_date) AS date,
+    CASE p.status
+        WHEN 'undistributed' THEN 'Нераспределен'
+        WHEN 'distributed' THEN 'Распределен'
+        WHEN 'completed' THEN 'Завершен'
+        WHEN 'Cancelled' THEN 'Отменен'
+        ELSE p.status
+    END AS doc_status,
     p.payment_purpose AS payment_description
-FROM cashless_movement_operations cmo
-INNER JOIN payments_from_bank_client p ON cmo.id = p.cashless_movement_operation_id
+FROM payments_from_bank_client p
+    LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
 WHERE
-      p.counterparty_id = @counterparty_id
-  AND (@start_date = '' OR cmo.operation_time &gt;= @start_date)
-  AND (@end_date = '' OR cmo.operation_time &lt;= @end_date)
-ORDER BY date
-;</CommandText>
+    p.counterparty_id = @counterparty_id
+  AND p.status != 'Cancelled'
+  AND (@start_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &gt;= @start_date)
+  AND (@end_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &lt;= @end_date)
+ORDER BY date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -586,6 +673,15 @@ ORDER BY date
           </QueryParameter>
           <QueryParameter Name="counterparty_id">
             <Value>={?counterparty_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_statuses">
+            <Value>={?order_statuses}</Value>
+          </QueryParameter>
+          <QueryParameter Name="closing_document_delivery_schedule_id">
+            <Value>={?closing_document_delivery_schedule_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_closing_documents">
+            <Value>={?exclude_closing_documents}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -608,10 +704,14 @@ ORDER BY date
         </Field>
         <Field Name="date">
           <DataField>date</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="payment_description">
           <DataField>payment_description</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="doc_status">
+          <DataField>doc_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -638,7 +738,17 @@ WHERE c.id = @counterparty_id</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -674,14 +784,26 @@ WHERE c.id = @counterparty_id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="order_statuses">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="closing_document_delivery_schedule_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="exclude_closing_documents">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt/>
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

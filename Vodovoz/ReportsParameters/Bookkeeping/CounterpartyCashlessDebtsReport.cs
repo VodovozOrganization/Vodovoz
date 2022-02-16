@@ -90,16 +90,21 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 		private ReportInfo GetReportInfo(Button button)
 		{
+			var orderStatuses = enumcheckOrderStatuses.SelectedValuesList.Any() ? enumcheckOrderStatuses.SelectedValuesList : (object)0;
 			var reportInfo = new ReportInfo
 			{
 				Title = button.Label,
+				
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", periodPicker.StartDateOrNull },
 					{ "end_date", periodPicker.EndDateOrNull },
 					{ "counterparty_id", entryCounterparty.Subject?.GetIdOrNull() ?? 0 },
 					{ "filters_text", GetFiltersText(button.Name) },
-					{ "creation_date", DateTime.Now }
+					{ "creation_date", DateTime.Now },
+					{ "order_statuses", orderStatuses },
+					{ "exclude_closing_documents", ycheckExcludeClosingDocuments.Active },
+					{ "closing_document_delivery_schedule_id",_deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId }
 				}
 			};
 
@@ -110,21 +115,15 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 					break;
 				case nameof(ybuttonNotPaidOrders):
 					reportInfo.Identifier = "Bookkeeping.NotPaidOrders";
+					reportInfo.Parameters.Add("order_by_date", chkOrderByDate.Active);
 					break;
 				case nameof(ybuttonCounterpartyDebtDetails):
-					reportInfo.Identifier = "Bookkeeping.CounterpartyDebtDetails";
+					reportInfo.Identifier = !chkOrderByDate.Active
+						? "Bookkeeping.CounterpartyDebtDetailsWithoutOrderByDate"
+						: "Bookkeeping.CounterpartyDebtDetails";
 					break;
 				default:
 					throw new NotSupportedException($"'{button.Name}' button name is not supported");
-			}
-
-			if(button.Name == nameof(ybuttonCounterpartyDebtBalance) || button.Name == nameof(ybuttonNotPaidOrders))
-			{
-				var orderStatuses = enumcheckOrderStatuses.SelectedValuesList.Any() ? enumcheckOrderStatuses.SelectedValuesList : (object)0;
-				reportInfo.Parameters.Add("order_statuses", orderStatuses);
-				reportInfo.Parameters.Add("exclude_closing_documents", ycheckExcludeClosingDocuments.Active);
-				reportInfo.Parameters.Add("closing_document_delivery_schedule_id",
-					_deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId);
 			}
 
 			return reportInfo;
@@ -198,8 +197,19 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				$"<b>{ybuttonCounterpartyDebtBalance.Label}</b>:\n" +
 				"Доступен только если не выбран контрагент \n\n" +
 				$"<b>{ybuttonCounterpartyDebtDetails.Label}</b>:\n" +
-				"Доступен только если выбран контрагент\n" +
-				"Применяются только фильтры по дате и контрагенту"
+				"Доступен только если выбран контрагент\n\n" +
+				$"Если <b>{chkOrderByDate.Label}</b> не активна:\n" +
+				$"- <b>{ybuttonCounterpartyDebtBalance.Label}</b> сортируется по последнему столбцу\n" +
+				$"- <b>{ybuttonNotPaidOrders.Label}</b> сортируются по по последнему столбцу\n" +
+				$"- <b>{ybuttonCounterpartyDebtDetails.Label}</b> сортировка была по дате платежа по убыванию,\n" +
+				"а внутри блока платежа закрытые суммы заказов данным платежом.\n" +
+				"Выше до всех платежей идут незакрытые суммы неоплаченных/частично оплаченных заказов.\n" +
+				"Заказы внутри блока также сортируются по дате доставки по убыванию\n\n" +
+				$"Если <b>{chkOrderByDate.Label}</b> активна:\n" +
+				$"- <b>{ybuttonCounterpartyDebtBalance.Label}</b> сортируется по последнему столбцу\n" +
+				$"- <b>{ybuttonNotPaidOrders.Label}</b> сортируются по столбцу \"Дата доставки\"\n" +
+				$"- <b>{ybuttonCounterpartyDebtDetails.Label}</b> сортируется по столбцу \"Дата доставки заказа. Время операции\" по убыванию.\n" +
+				"При этом заказы не привязаны к платежу и не разбиваются по закрытым/незакрытым суммам"
 			);
 		}
 	}
