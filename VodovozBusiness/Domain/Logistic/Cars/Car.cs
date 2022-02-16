@@ -8,9 +8,6 @@ using QS.Attachments.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using QS.Project.Services;
-using QS.Services;
-using QS.Validation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -327,18 +324,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(!CarVersions.Any())
 			{
 				yield return new ValidationResult("Должна быть создана хотя бы одна версия", new[] { nameof(CarVersions) });
-			}
-
-			var newCarVersions = CarVersions.Where(x => x.Id == 0);
-			if(newCarVersions.Any(x => x.IsRaskat))
-			{
-				var commonServices = validationContext.GetService<ICommonServices>();
-				var canChangeRaskat = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_is_raskat");
-				if(!canChangeRaskat)
-				{
-					yield return new ValidationResult("Недостаточно прав для установки принадлежности 'Раскат'",
-						new[] { nameof(CarVersions) });
-				}
 			}
 
 			if(Driver != null)
