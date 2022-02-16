@@ -3,311 +3,260 @@ using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.Utilities.Enums;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
-    public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>
-    {
-	    private bool _showDriversWithTerminal;
-	    private bool _hasAccessToDriverTerminal;
+	public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>
+	{
+		private bool _showDriversWithTerminal;
+		private bool _hasAccessToDriverTerminal;
+		private DeliveryShift _deliveryShift;
+		private DateTime? _startDate;
+		private DateTime? _endDate;
+		private GeographicGroup _geographicGroup;
+		private List<AddressTypeNode> _addressTypeNodes = new List<AddressTypeNode>();
+		private List<RouteListStatusNode> _statusNodes;
+		private IList<CarOwnType> _restrictedCarOwnTypes;
+		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
 
-	    public RouteListJournalFilterViewModel()
-        {
-			statusNodes.AddRange(Enum.GetValues(typeof(RouteListStatus)).Cast<RouteListStatus>().Select(x => new RouteListStatusNode(x)
+		public RouteListJournalFilterViewModel()
+		{
+			_statusNodes = EnumHelper.GetValuesList<RouteListStatus>().Select(x => new RouteListStatusNode(x) { Selected = true }).ToList();
+
+			foreach(var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
 			{
-				Selected = true
-			}));
+				var newAddressTypeNode = new AddressTypeNode(addressType);
+				newAddressTypeNode.PropertyChanged += OnStatusCheckChanged;
+				_addressTypeNodes.Add(newAddressTypeNode);
+			}
 
-            foreach (var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
-            {
-                addressTypeNodes.Add(new AddressTypeNode(addressType));
-                addressTypeNodes.Last().PropertyChanged += OnStatusCheckChanged;
-            }
+			GeographicGroups = UoW.GetAll<GeographicGroup>().ToList();
 
-            GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>();
+			var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
 
-            var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+			foreach(var addressTypeNode in AddressTypeNodes)
+			{
+				switch(addressTypeNode.AddressType)
+				{
+					case AddressType.Delivery:
+						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+						break;
+					case AddressType.Service:
+						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+						break;
+					case AddressType.ChainStore:
+						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+						break;
+				}
+			}
 
-            foreach (var addressTypeNode in AddressTypeNodes)
-            {
-                switch (addressTypeNode.AddressType)
-                {
-                    case AddressType.Delivery:
-                        addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
-                        break;
-                    case AddressType.Service:
-                        addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
-                        break;
-                    case AddressType.ChainStore:
-                        addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
-                        break;
-                }
-            }
+			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
+			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 
-            var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
-            var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-            HasAccessToDriverTerminal = cashier || logistician;
+			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			HasAccessToDriverTerminal = cashier || logistician;
 
-            SubscribeOnCheckChanged();
-        }
+			SubscribeOnCheckChanged();
+		}
 
-	    public bool ShowDriversWithTerminal
-	    {
-		    get => _showDriversWithTerminal;
-		    set => UpdateFilterField(ref _showDriversWithTerminal, value);
-	    }
+		public IList<GeographicGroup> GeographicGroups { get; }
 
-	    public bool HasAccessToDriverTerminal
-	    {
-		    get => _hasAccessToDriverTerminal;
-		    set => UpdateFilterField(ref _hasAccessToDriverTerminal, value);
-	    }
+		public bool ShowDriversWithTerminal
+		{
+			get => _showDriversWithTerminal;
+			set => UpdateFilterField(ref _showDriversWithTerminal, value);
+		}
 
-        private DeliveryShift deliveryShift;
-        /// <summary>
-        /// Смена доставки
-        /// </summary>
-        public DeliveryShift DeliveryShift
-        {
-            get { return deliveryShift; }
-            set
-            {
-                UpdateFilterField(ref deliveryShift, value);
-            }
-        }
+		public bool HasAccessToDriverTerminal
+		{
+			get => _hasAccessToDriverTerminal;
+			set => UpdateFilterField(ref _hasAccessToDriverTerminal, value);
+		}
 
-        private DateTime? startDate;
-        /// <summary>
-        /// Дата начала среза выборки по дате
-        /// </summary>
-        public DateTime? StartDate
-        {
-            get { return startDate; }
-            set
-            {
-                UpdateFilterField(ref startDate, value);
-            }
-        }
+		public DeliveryShift DeliveryShift
+		{
+			get => _deliveryShift;
+			set => UpdateFilterField(ref _deliveryShift, value);
+		}
 
-        private DateTime? endDate;
-        /// <summary>
-        /// Дата окончания среза выборки по дате
-        /// </summary>
-        public DateTime? EndDate
-        {
-            get { return endDate; }
-            set
-            {
-                UpdateFilterField(ref endDate, value);
-            }
-        }
+		public DateTime? StartDate
+		{
+			get => _startDate;
+			set => UpdateFilterField(ref _startDate, value);
+		}
+
+		public DateTime? EndDate
+		{
+			get => _endDate;
+			set => UpdateFilterField(ref _endDate, value);
+		}
+
+		public IList<CarTypeOfUse> RestrictedCarTypesOfUse
+		{
+			get => _restrictedCarTypesOfUse;
+			set => UpdateFilterField(ref _restrictedCarTypesOfUse, value);
+		}
+
+		public IList<CarOwnType> RestrictedCarOwnTypes
+		{
+			get => _restrictedCarOwnTypes;
+			set => UpdateFilterField(ref _restrictedCarOwnTypes, value);
+		}
+
+		public GeographicGroup GeographicGroup
+		{
+			get => _geographicGroup;
+			set => UpdateFilterField(ref _geographicGroup, value);
+		}
+
+		#region RouteListStatus
+
+		public RouteListStatus[] DisplayableStatuses
+		{
+			get => StatusNodes.Select(rn => rn.RouteListStatus).ToArray();
+			set
+			{
+				foreach(var status in value)
+				{
+					if(_statusNodes.All(sn => sn.RouteListStatus != status))
+					{
+						_statusNodes.Add(new RouteListStatusNode(status));
+					}
+				}
+
+				_statusNodes.RemoveAll(rn => !value.Contains(rn.RouteListStatus));
+
+				FirePropertyChanged();
+			}
+		}
 
 		/// <summary>
-        /// Части города для отображения в фильтре
-        /// </summary>
-        public IList<GeographicGroup> GeographicGroups { get; }
+		/// Статусы в фильтре предустановлены и не могут изменяться, если в поле есть хотя бы 1 статус
+		/// </summary>
+		public RouteListStatus[] RestrictedByStatuses
+		{
+			get
+			{
+				if(CanSelectStatuses)
+				{
+					return new RouteListStatus[] { };
+				}
+				else
+				{
+					return SelectedStatuses;
+				}
+			}
+			set
+			{
+				if(value.Any())
+				{
+					DisplayableStatuses = value;
+					SelectedStatuses = value;
+					CanSelectStatuses = false;
+				}
+				else
+				{
+					CanSelectStatuses = true;
+				}
+			}
+		}
 
+		/// <summary>
+		/// Статусы в фильтре предустановлены и не могут изменяться, если в поле есть хотя бы 1 статус
+		/// </summary>
+		public RouteListStatus[] SelectedStatuses
+		{
+			get
+			{
+				return StatusNodes.Where(rn => rn.Selected)
+					.Select(rn => rn.RouteListStatus).ToArray();
+			}
+			set
+			{
+				foreach(var status in _statusNodes.Where(rn => value.Contains(rn.RouteListStatus)))
+				{
+					status.Selected = true;
+				}
+				FirePropertyChanged();
+			}
+		}
 
-		private GeographicGroup geographicGroup;
-        /// <summary>
-        /// Часть города
-        /// </summary>
-        public GeographicGroup GeographicGroup
-        {
-            get { return geographicGroup; }
-            set
-            {
-                UpdateFilterField(ref geographicGroup, value);
-            }
-        }
+		public List<RouteListStatusNode> StatusNodes
+		{
+			get => _statusNodes;
+			private set
+			{
+				UnsubscribeOnCheckChanged();
+				UpdateFilterField(ref _statusNodes, value);
+				SubscribeOnCheckChanged();
+			}
+		}
 
-        #region RouteListStatus
-        /// <summary>
-        /// Отображаемые в фильтре статусы
-        /// </summary>
-        public RouteListStatus[] DisplayableStatuses
-        {
-            get { return StatusNodes.Select(rn => rn.RouteListStatus).ToArray(); }
-            set
-            {
-                foreach(var status in value)
-                {
-                    if (!statusNodes.Any(sn => sn.RouteListStatus == status))
-                    {
-                        statusNodes.Add(new RouteListStatusNode(status));
-                    }
-                }
+		#endregion
 
-                statusNodes.RemoveAll(rn => !value.Contains(rn.RouteListStatus));
+		/// <summary>
+		/// Типы выездов
+		/// </summary>
+		public List<AddressTypeNode> AddressTypeNodes
+		{
+			get => _addressTypeNodes;
+			set => _addressTypeNodes = value;
+		}
 
-                FirePropertyChanged();
-            }
-        }
+		public bool WithDeliveryAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.Delivery && an.Selected);
 
-        /// <summary>
-        /// Статусы в фильтре предустановлены и не могут изменяться, если в поле есть хотя бы 1 статус
-        /// </summary>
-        public RouteListStatus[] RestrictedByStatuses
-        {
-            get
-            {
-                if (CanSelectStatuses)
-                {
-                    return new RouteListStatus[] { };
-                } else
-                {
-                    return SelectedStatuses;
-                }
-            }
-            set
-            {
-                if (value.Any())
-                {
-                    DisplayableStatuses = value;
-                    SelectedStatuses = value;
-                    CanSelectStatuses = false;
-                } else
-                {
-                    CanSelectStatuses = true;
-                }
-            }
-        }
+		public bool WithServiceAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.Service && an.Selected);
 
-        /// <summary>
-        /// Статусы в фильтре предустановлены и не могут изменяться, если в поле есть хотя бы 1 статус
-        /// </summary>
-        public RouteListStatus[] SelectedStatuses
-        {
-            get
-            {
-                return StatusNodes.Where(rn => rn.Selected)
-                    .Select(rn => rn.RouteListStatus).ToArray();
-            }
-            set
-            {
-                foreach (var status in statusNodes.Where(rn => value.Contains(rn.RouteListStatus)))
-                {
-                    status.Selected = true;
-                }
-                FirePropertyChanged();
-            }
-        }
+		public bool WithChainStoreAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.ChainStore && an.Selected);
 
-        List<RouteListStatusNode> statusNodes = new List<RouteListStatusNode>();
-        /// <summary>
-        /// Строки статусов таблице с чекбоксами
-        /// </summary>
-        public List<RouteListStatusNode> StatusNodes {
-            get { return statusNodes; } 
-            private set
-            {
-                UnsubscribeOnCheckChanged();
-                UpdateFilterField(ref statusNodes, value);
-                SubscribeOnCheckChanged();
-            }
-        }
-        #endregion
+		public bool CanSelectStatuses { get; private set; } = true;
 
-        private List<AddressTypeNode> addressTypeNodes = new List<AddressTypeNode>();
-        /// <summary>
-        /// Типы выездов
-        /// </summary>
-        public List<AddressTypeNode> AddressTypeNodes 
-        {
-            get => addressTypeNodes; 
-            set => addressTypeNodes = value; 
-        }
+		public void SelectAllRouteListStatuses()
+		{
+			_statusNodes.ForEach(x => x.Selected = true);
+			Update();
+		}
 
-        private RLFilterTransport? transportType;
-        /// <summary>
-        /// Тип транспорта для доставки
-        /// </summary>
-        public RLFilterTransport? TransportType
-        {
-            get { return transportType; }
-            set
-            {
-                UpdateFilterField(ref transportType, value);
-            }
-        }
+		public void DeselectAllRouteListStatuses()
+		{
+			_statusNodes.ForEach(x => x.Selected = false);
+			Update();
+		}
 
-        public bool WithDeliveryAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.Delivery && an.Selected);
+		private void SubscribeOnCheckChanged()
+		{
+			foreach(var statusNode in StatusNodes)
+			{
+				statusNode.PropertyChanged += OnStatusCheckChanged;
+			}
+		}
 
-        public bool WithServiceAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.Service && an.Selected);
+		private void UnsubscribeOnCheckChanged()
+		{
+			foreach(var statusNode in StatusNodes)
+			{
+				statusNode.PropertyChanged -= OnStatusCheckChanged;
+			}
+		}
 
-        public bool WithChainStoreAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.ChainStore && an.Selected);
+		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Update();
+		}
 
-        public bool CanSelectStatuses { get; private set; } = true;
-
-        /// <summary>
-        /// Установка всех статусов МЛ в фильтре отмеченными
-        /// </summary>
-        public void SelectAllRouteListStatuses()
-        {
-            statusNodes.ForEach(x => x.Selected = true);
-            Update();
-        }
-
-        /// <summary>
-        /// Установка всех статусов МЛ в фильтре не отмеченными
-        /// </summary>
-        public void DeselectAllRouteListStatuses()
-        {
-            statusNodes.ForEach(x => x.Selected = false);
-            Update();
-        }
-
-        private void SubscribeOnCheckChanged()
-        {
-            foreach(var statusNode in StatusNodes)
-            {
-                statusNode.PropertyChanged += OnStatusCheckChanged;
-            }
-        }
-
-        private void UnsubscribeOnCheckChanged()
-        {
-            foreach (var statusNode in StatusNodes)
-            {
-                statusNode.PropertyChanged -= OnStatusCheckChanged;
-            }
-        }
-
-        private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
-        {
-            Update();
-        }
-
-        public new void Dispose()
-        {
-            UnsubscribeOnCheckChanged();
-            addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
-            base.Dispose();
-        }
-    }
-
-    /// <summary>
-    /// Типы транспорта для доставки
-    /// </summary>
-    public enum RLFilterTransport
-    {
-        [Display(Name = "Наёмники")]
-        Mercenaries,
-        [Display(Name = "Раскат")]
-        Raskat,
-        [Display(Name = "Ларгус")]
-        Largus,
-        [Display(Name = "ГАЗель")]
-        GAZelle,
-        [Display(Name = "Фура")]
-        Waggon,
-        [Display(Name = "Прочее")]
-        Others
-    }
+		public override void Dispose()
+		{
+			UnsubscribeOnCheckChanged();
+			_addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
+			base.Dispose();
+		}
+	}
 }

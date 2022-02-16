@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
-		
+
 		public MileageReport(
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarJournalFactory carJournalFactory)
@@ -32,7 +31,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private void Configure()
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			
+
 			ConfigureEntries();
 
 			ycheckbutton1.Toggled += (sender, args) =>
@@ -50,7 +49,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
-			
+
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
 
@@ -58,58 +57,45 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по километражу";
-			}
-		}
+		public string Title => "Отчет по километражу";
+
+		#endregion
 
 		private ReportInfo GetReportInfo()
 		{
-			var parameters = new Dictionary<string, object>();
-
-			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
-			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
-			parameters.Add("our_cars_only", ycheckbutton1.Active);
-            parameters.Add("any_status", checkAnyStatus.Active);
-			parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0);
-			parameters.Add("employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0);
-			
-			int temp = 0;
-			if (!String.IsNullOrEmpty(validatedentryDifference.Text) && validatedentryDifference.Text.All(char.IsDigit))
+			var parameters = new Dictionary<string, object>
 			{
-				temp = int.Parse(validatedentryDifference.Text);
-			}
-			parameters.Add("difference_km", validatedentryDifference.Text);
-			
-			return new ReportInfo {
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "our_cars_only", ycheckbutton1.Active },
+				{ "any_status", checkAnyStatus.Active },
+				{ "car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0 },
+				{ "employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0 },
+				{ "difference_km", validatedentryDifference.Text }
+			};
+
+			return new ReportInfo
+			{
 				Identifier = "Logistic.MileageReport",
 				UseUserVariables = true,
 				Parameters = parameters
 			};
 		}
 
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
+		private void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			OnUpdate(true);
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
 
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		void CanRun()
+		private void UpdateCanRun()
 		{
 			buttonCreateReport.Sensitive =
 				(dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null);
 		}
 
-		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
+		private void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
 		{
-			CanRun();
+			UpdateCanRun();
 		}
-
-		#endregion
 	}
 }

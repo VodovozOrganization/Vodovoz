@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Cash
 			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,
 				e => e.OnlineOrder,
 				w => w.Text,
-				new IntToStringConverter()).InitializeFromSource();
+				new NullableIntToStringConverter()).InitializeFromSource();
 			
 			comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
 

@@ -18,6 +18,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -29,7 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
 
@@ -39,7 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices) 

@@ -54,7 +54,7 @@ namespace Vodovoz.Views.WageCalculation
 				Label tabLabel = new Label
 				{
 					UseMarkup = true,
-					Markup = $"{vm.Entity.CarTypeOfUse.GetEnumShortTitle()} {vm.Entity.WageDistrict.Name}"
+					Markup = $"{vm.Entity.CarTypeOfUse.GetEnumTitle()} {vm.Entity.WageDistrict.Name}"
 				};
 
 				_notebookDistricts.AppendPage(scrolledWindow, tabLabel);

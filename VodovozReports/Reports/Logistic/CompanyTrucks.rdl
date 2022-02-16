@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>297mm</Width>
@@ -13,123 +11,133 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	CASE cars.type_of_use
-		WHEN 'CompanyLargus' THEN 'Ларгусы'
-		WHEN 'CompanyGAZelle' THEN 'ГАЗели'
-		ELSE 'Раскат'
-	END AS type_of_use,
-	cars.is_raskat,
-	route_lists.id,
-	route_lists.driver_id,
-	CASE route_lists.status
-		WHEN 'New' THEN 'Новый'
+    CASE
+        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+    END AS type_of_use,
+    route_lists.id,
+    route_lists.driver_id,
+    CASE route_lists.status
+        WHEN 'New' THEN 'Новый'
         WHEN 'Confirmed' THEN 'Подтверждён'
-		WHEN 'InLoading' THEN 'На погрузке'
-		WHEN 'EnRoute' THEN 'В пути'
-		WHEN 'OnClosing' THEN 'Сдаётся'
-		WHEN 'NotDelivered' THEN 'Не сдан'
-		WHEN 'MileageCheck' THEN 'Проверка километража'
-		WHEN 'Closed' THEN 'Закрыт'
-	END AS status,
-	reg_number,
-	CONCAT_WS(' ',
-			employees.last_name,
-			IF(employees.name = '',
-				NULL,
-				employees.name),
-			IF(employees.patronymic = '',
-				NULL,
-				employees.patronymic)) AS driver_name,
-                
-	(SELECT 
-		SUM(IF(ods.order_status NOT IN ('NotDelivered','DeliveryCanceled'), items.price
-		* IFNULL(items.actual_count, items.count) - items.discount_money, 0))
-		FROM
-			order_items as items
-		LEFT JOIN
-			orders as ods ON items.order_id = ods.id
-		WHERE EXISTS
-			(SELECT * FROM route_lists rl
-			LEFT JOIN route_list_addresses as rla ON rla.route_list_id = rl.id
-			LEFT JOIN cars as crs ON rl.car_id = crs.id
-			WHERE
-				(rl.id = route_lists.id)
-                AND
-				(rl.date BETWEEN @start_date AND @end_date)
-				AND rla.order_id = ods.id
-				AND ((crs.type_of_use = 'CompanyLargus' OR crs.type_of_use = 'CompanyGAZelle') OR crs.is_raskat = 1)
-		)) AS route_list_sum,
-				
-	COUNT(route_list_addresses.id) AS address_count,
-	(SELECT 
-			COUNT(route_list_addresses.id)
-		FROM
-			route_list_addresses
-		WHERE
-			route_list_addresses.route_list_id = route_lists.id
-				AND (route_list_addresses.status = 'Canceled'
-				OR route_list_addresses.status = 'Transfered')) AS not_delivered,
-	IFNULL(SUM((SELECT 
-					SUM(order_items.count)
-				FROM
-					order_items
-						LEFT JOIN
-					nomenclature ON nomenclature.id = order_items.nomenclature_id
-				WHERE
-					order_items.order_id = route_list_addresses.order_id
-						AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L')),
-			0) AS water19_amount,
-	IFNULL(SUM((SELECT 
-					SUM(order_items.count)
-				FROM
-					order_items
-						LEFT JOIN
-					nomenclature ON nomenclature.id = order_items.nomenclature_id
-				WHERE
-					order_items.order_id = route_list_addresses.order_id
-						AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')
-					),
-			0) AS water6_amount,
-	SUM(IF((SELECT 
-				SUM(order_items.count)
-			FROM
-				order_items
-					LEFT JOIN
-				nomenclature ON nomenclature.id = order_items.nomenclature_id
-			WHERE
-				order_items.order_id = route_list_addresses.order_id
-					AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L') IS NULL,
-		2,
-		0)) AS water19_absent,
-	IFNULL((SELECT 
-					wages_movement_operations.money
-				FROM
-					wages_movement_operations
-				WHERE
-					route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
-						AND (route_lists.status = 'OnClosing'
-						OR route_lists.status = 'MileageCheck'
-						OR route_lists.status = 'Closed')),
-			0) AS wages
+        WHEN 'InLoading' THEN 'На погрузке'
+        WHEN 'EnRoute' THEN 'В пути'
+        WHEN 'OnClosing' THEN 'Сдаётся'
+        WHEN 'NotDelivered' THEN 'Не сдан'
+        WHEN 'MileageCheck' THEN 'Проверка километража'
+        WHEN 'Closed' THEN 'Закрыт'
+    END AS status,
+    reg_number,
+    CONCAT_WS(' ',
+              employees.last_name,
+              IF(employees.name = '',
+                 NULL,
+                 employees.name),
+              IF(employees.patronymic = '',
+                 NULL,
+                 employees.patronymic)) AS driver_name,
+
+    (SELECT
+        SUM(IF(ods.order_status NOT IN ('NotDelivered','DeliveryCanceled'), items.price
+            * IFNULL(items.actual_count, items.count) - items.discount_money, 0))
+    FROM
+        order_items as items
+        LEFT JOIN
+            orders as ods ON items.order_id = ods.id
+    WHERE EXISTS
+              (SELECT * FROM route_lists rl
+        LEFT JOIN route_list_addresses as rla ON rla.route_list_id = rl.id
+        LEFT JOIN cars as crs ON rl.car_id = crs.id
+        INNER JOIN car_models cm_sub ON crs.model_id = cm_sub.id
+        INNER JOIN
+            car_versions cv_sub ON crs.id = cv_sub.car_id
+                AND cv_sub.start_date &lt;= rl.date
+                AND (cv_sub.end_date IS NULL OR cv_sub.end_date &gt;= rl.date)
+        WHERE
+              rl.id = route_lists.id
+          AND (rl.date BETWEEN @start_date AND @end_date)
+          AND rla.order_id = ods.id
+          AND (cv_sub.car_own_type = 'Raskat' OR (cv_sub.car_own_type = 'Company' AND cm_sub.car_type_of_use IN ('Largus', 'GAZelle')))
+              )) AS route_list_sum,
+
+    COUNT(route_list_addresses.id) AS address_count,
+    (SELECT
+        COUNT(route_list_addresses.id)
+    FROM
+        route_list_addresses
+    WHERE
+          route_list_addresses.route_list_id = route_lists.id
+      AND (route_list_addresses.status = 'Canceled'
+        OR route_list_addresses.status = 'Transfered')) AS not_delivered,
+    IFNULL(SUM((SELECT
+        SUM(order_items.count)
+    FROM
+        order_items
+        LEFT JOIN
+            nomenclature ON nomenclature.id = order_items.nomenclature_id
+    WHERE
+          order_items.order_id = route_list_addresses.order_id
+      AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L')),
+           0) AS water19_amount,
+    IFNULL(SUM((SELECT
+        SUM(order_items.count)
+    FROM
+        order_items
+        LEFT JOIN
+            nomenclature ON nomenclature.id = order_items.nomenclature_id
+    WHERE
+          order_items.order_id = route_list_addresses.order_id
+      AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')
+               ),
+           0) AS water6_amount,
+    SUM(IF((SELECT
+        SUM(order_items.count)
+    FROM
+        order_items
+        LEFT JOIN
+            nomenclature ON nomenclature.id = order_items.nomenclature_id
+    WHERE
+          order_items.order_id = route_list_addresses.order_id
+      AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L') IS NULL,
+           2,
+           0)) AS water19_absent,
+    IFNULL((SELECT
+        wages_movement_operations.money
+    FROM
+        wages_movement_operations
+    WHERE
+          route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
+      AND (route_lists.status = 'OnClosing'
+        OR route_lists.status = 'MileageCheck'
+        OR route_lists.status = 'Closed')),
+           0) AS wages
 FROM
-	route_lists
-		LEFT JOIN
-	employees ON employees.id = route_lists.driver_id
-		LEFT JOIN
-	route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-	orders ON route_list_addresses.order_id = orders.id
-		LEFT JOIN
-	delivery_points ON orders.delivery_point_id = delivery_points.id
-		LEFT JOIN
-	cars ON route_lists.car_id = cars.id
+    route_lists
+    LEFT JOIN
+        employees ON employees.id = route_lists.driver_id
+    LEFT JOIN
+        route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+    LEFT JOIN
+        orders ON route_list_addresses.order_id = orders.id
+    LEFT JOIN
+        delivery_points ON orders.delivery_point_id = delivery_points.id
+    LEFT JOIN
+        cars ON route_lists.car_id = cars.id
+    INNER JOIN car_models cm ON cars.model_id = cm.id
+    INNER JOIN
+        car_versions cv ON cars.id = cv.car_id
+            AND cv.start_date &lt;= route_lists.date
+            AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-      		AND ((cars.type_of_use = 'CompanyLargus' OR cars.type_of_use = 'CompanyGAZelle') OR cars.is_raskat = 1)
+  AND (cv.car_own_type = 'Raskat' OR (cv.car_own_type = 'Company' AND cm.car_type_of_use IN ('Largus', 'GAZelle')))
 GROUP BY route_lists.id
-ORDER BY driver_name</CommandText>
+ORDER BY driver_name
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -139,7 +147,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -197,54 +205,77 @@ ORDER BY driver_name</CommandText>
     <DataSet Name="Counting">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>
-	(SELECT	COUNT(route_list_addresses.id) as counting,
-			CASE cars.type_of_use
-				WHEN 'CompanyLargus' THEN 'Ларгусы'
-				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
-				ELSE 'Раскат'
-			END AS type_of_use
-	FROM route_lists
-		LEFT JOIN
-			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-			cars ON route_lists.car_id = cars.id
-	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-		AND (route_list_addresses.route_list_id = route_lists.id)
-		AND (route_list_addresses.status = 'Completed')
-		AND (cars.type_of_use = 'CompanyLargus'))
-UNION ALL 
-	(SELECT	COUNT(route_list_addresses.id),
-			CASE cars.type_of_use
-				WHEN 'CompanyLargus' THEN 'Ларгусы'
-				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
-				ELSE 'Раскат'
-			END AS type_of_use
-	FROM route_lists
-		LEFT JOIN
-			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-			cars ON route_lists.car_id = cars.id
-	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-		AND (route_list_addresses.route_list_id = route_lists.id)
-		AND (route_list_addresses.status = 'Completed')
-		AND (cars.type_of_use = 'CompanyGAZelle'))
-UNION ALL 
-	(SELECT COUNT(route_list_addresses.id),
-			CASE cars.type_of_use
-				WHEN 'CompanyLargus' THEN 'Ларгусы'
-				WHEN 'CompanyGAZelle' THEN 'ГАЗели'
-				ELSE 'Раскат'
-			END AS type_of_use
-	FROM route_lists
-		LEFT JOIN
-			route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-			cars ON route_lists.car_id = cars.id
-	WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-		AND (route_list_addresses.route_list_id = route_lists.id)
-		AND (route_list_addresses.status = 'Completed')
-		AND (cars.type_of_use NOT IN ('CompanyLargus','CompanyGAZelle')) AND cars.is_raskat)</CommandText>
+        <CommandText>(SELECT
+    COUNT(route_list_addresses.id) AS counting,
+    CASE
+        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+    END AS type_of_use
+FROM route_lists
+LEFT JOIN
+    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+LEFT JOIN
+    cars ON route_lists.car_id = cars.id
+INNER JOIN car_models cm ON cars.model_id = cm.id
+INNER JOIN
+    car_versions cv ON cars.id = cv.car_id
+        AND cv.start_date &lt;= route_lists.date
+        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+  AND (route_list_addresses.route_list_id = route_lists.id)
+  AND (route_list_addresses.status = 'Completed')
+  AND cm.car_type_of_use = 'Largus'
+  AND cv.car_own_type = 'Company')
+UNION ALL
+(SELECT	
+    COUNT(route_list_addresses.id),
+    CASE
+        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+    END AS type_of_use
+FROM route_lists
+LEFT JOIN
+    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+LEFT JOIN
+    cars ON route_lists.car_id = cars.id
+INNER JOIN car_models cm ON cars.model_id = cm.id
+INNER JOIN
+    car_versions cv ON cars.id = cv.car_id
+        AND cv.start_date &lt;= route_lists.date
+        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+  AND (route_list_addresses.route_list_id = route_lists.id)
+  AND (route_list_addresses.status = 'Completed')
+  AND cm.car_type_of_use = 'GAZelle'
+  AND cv.car_own_type = 'Company')
+UNION ALL
+(SELECT 
+    COUNT(route_list_addresses.id),
+    CASE
+        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+    END AS type_of_use
+FROM route_lists
+LEFT JOIN
+    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+LEFT JOIN
+    cars ON route_lists.car_id = cars.id
+INNER JOIN car_models cm ON cars.model_id = cm.id
+INNER JOIN
+    car_versions cv ON cars.id = cv.car_id
+        AND cv.start_date &lt;= route_lists.date
+        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+  AND (route_list_addresses.route_list_id = route_lists.id)
+  AND (route_list_addresses.status = 'Completed')
+  AND cv.car_own_type = 'Raskat')
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -302,28 +333,28 @@ UNION ALL
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>39.6pt</Width>
+            <Width>36.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.5pt</Width>
+            <Width>74.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>123.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.7pt</Width>
+            <Width>32.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.8pt</Width>
+            <Width>36.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>34.0pt</Width>
+            <Width>31.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.2pt</Width>
+            <Width>33.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.3pt</Width>
@@ -332,7 +363,7 @@ UNION ALL
             <Width>34.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.2pt</Width>
+            <Width>61.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -451,13 +482,12 @@ UNION ALL
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>23.9pt</Height>
+              <Height>35.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -475,8 +505,7 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -494,8 +523,7 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -513,8 +541,7 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -532,7 +559,8 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Кол-во адр.</Value>
+                      <Value>Кол-во
+адр.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -568,7 +596,8 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>Кол-во 19 л.</Value>
+                      <Value>Кол-во
+19 л.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -586,7 +615,8 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Кол-во 6 л.</Value>
+                      <Value>Кол-во
+6 л.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -639,8 +669,7 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -673,7 +702,7 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -691,7 +720,7 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -709,7 +738,7 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -726,7 +755,7 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -746,11 +775,12 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight >0pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -763,11 +793,12 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -781,12 +812,13 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
+                        <PaddingLeft >0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -799,12 +831,13 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
+                        <PaddingLeft >0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -818,12 +851,13 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
+                        <PaddingLeft >0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -836,12 +870,13 @@ UNION ALL
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
+                        <PaddingLeft >0pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -850,13 +885,13 @@ UNION ALL
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="formula">
-                      <Value>={route_list_sum}</Value>
+                      <Value>=Iif(Fields!route_list_sum.IsMissing, 0,  {route_list_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -878,14 +913,14 @@ UNION ALL
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression>={type_of_use}</GroupExpression>
+                <GroupExpression >={type_of_use}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
-                  <Height>.2in</Height>
+                  <Height>17.6pt</Height>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
@@ -899,6 +934,7 @@ UNION ALL
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <FontSize >12pt</FontSize>
                           </Style>
                           <Value>={type_of_use} </Value>
                         </Textbox>
@@ -909,6 +945,12 @@ UNION ALL
                 </TableRow>
               </TableRows>
             </Header>
+            <Sorting >
+              <SortBy>
+                <SortExpression>={type_of_use} = 'ТС в раскате'</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+            </Sorting>
           </TableGroup>
           <TableGroup>
             <Grouping Name="Driver_group">
@@ -940,8 +982,7 @@ UNION ALL
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                       <ColSpan>3</ColSpan>
@@ -977,6 +1018,9 @@ UNION ALL
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <PaddingLeft >0pt</PaddingLeft>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingRight >0pt</PaddingRight>
                           </Style>
                           <Value>=Sum(Fields!address_count.Value)</Value>
                         </Textbox>
@@ -994,6 +1038,9 @@ UNION ALL
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
+                            <PaddingLeft >0pt</PaddingLeft>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingRight >0pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1010,6 +1057,9 @@ UNION ALL
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
+                            <PaddingLeft >0pt</PaddingLeft>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingRight >0pt</PaddingRight>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
                         </Textbox>
@@ -1028,6 +1078,9 @@ UNION ALL
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
+                            <PaddingLeft >0pt</PaddingLeft>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingRight >0pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1044,6 +1097,9 @@ UNION ALL
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
+                            <PaddingLeft >0pt</PaddingLeft>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingRight >0pt</PaddingRight>
                           </Style>
                           <Value>=Sum(Fields!water19_absent.Value)</Value>
                         </Textbox>
@@ -1062,6 +1118,9 @@ UNION ALL
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
+                            <PaddingLeft >0pt</PaddingLeft>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <PaddingRight >0pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1077,8 +1136,9 @@ UNION ALL
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>=Iif ( Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)) &lt; 1625,  'Bold', 'Normal')</FontWeight>
-                            <TextAlign>Center</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <Format>#,##0.00</Format>
+                            <PaddingRight >2pt</PaddingRight>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -1096,8 +1156,8 @@ UNION ALL
             </Sorting>
           </TableGroup>
         </TableGroups>
-        <Left>0.0pt</Left>
-        <Top>1.6pt</Top>
+        <Left>0.8pt</Left>
+        <Top>0.8pt</Top>
       </Table>
       <Table Name="Table2">
         <DataSetName>Counting</DataSetName>
@@ -1111,7 +1171,7 @@ UNION ALL
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>90.1pt</Width>
+            <Width>239.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
@@ -1120,7 +1180,7 @@ UNION ALL
         <Header>
           <TableRows>
             <TableRow>
-              <Height>25.9pt</Height>
+              <Height>13.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1142,7 +1202,7 @@ UNION ALL
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>25.9pt</Height>
+              <Height>13.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1221,8 +1281,8 @@ UNION ALL
             </TableRow>
           </TableRows>
         </Details>
-        <Left>42.4pt</Left>
-        <Top>110.8pt</Top>
+        <Left>19.5pt</Left>
+        <Top>125.8pt</Top>
       </Table>
     </ReportItems>
     <Height>202.7pt</Height>
@@ -1271,8 +1331,7 @@ UNION ALL
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -1284,8 +1343,7 @@ UNION ALL
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

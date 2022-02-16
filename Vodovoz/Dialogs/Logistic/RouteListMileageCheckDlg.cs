@@ -20,8 +20,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -68,7 +68,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
-			_canEdit &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
+			_canEdit &= canConfirmMileage || !(Entity.GetCarVersion.IsCompanyCar && new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
 
 			ConfigureDlg();
 		}
@@ -87,8 +87,7 @@ namespace Vodovoz
 			
 			buttonAcceptFine.Clicked += ButtonAcceptFineOnClicked;	
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -194,9 +193,10 @@ namespace Vodovoz
 				}
 				Entity.UpdateFuelOperation();
 			}
-			
-			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+
+			if(Entity.Status == RouteListStatus.Delivered)
+			{
+				ChangeStatusAndCreateTaskFromDelivered();
 			}
 			Entity.CalculateWages(_wageParameterService);
 
@@ -204,6 +204,17 @@ namespace Vodovoz
 
 			return true;
 		}
+
+		private void ChangeStatusAndCreateTaskFromDelivered()
+		{
+			Entity.ChangeStatusAndCreateTask(
+				Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
+					? RouteListStatus.MileageCheck
+					: RouteListStatus.OnClosing,
+				CallTaskWorker
+			);
+		}
+
 		#endregion
 
 		#region Обработка нажатий кнопок
@@ -223,9 +234,10 @@ namespace Vodovoz
 			{
 				return;
 			}
-			
-			if(Entity.Status == RouteListStatus.Delivered) {
-				Entity.ChangeStatusAndCreateTask(Entity.Car.IsCompanyCar && Entity.Car.TypeOfUse != CarTypeOfUse.CompanyTruck ? RouteListStatus.MileageCheck : RouteListStatus.OnClosing, CallTaskWorker);
+
+			if(Entity.Status == RouteListStatus.Delivered)
+			{
+				ChangeStatusAndCreateTaskFromDelivered();
 			}
 			Entity.AcceptMileage(CallTaskWorker);
 

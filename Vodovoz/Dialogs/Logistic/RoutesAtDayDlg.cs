@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
@@ -228,7 +229,7 @@ namespace Vodovoz
 																		  .AddColumn("Водитель")
 																		 	.AddTextRenderer(x => x.Employee.ShortName)
 																		  .AddColumn("Автомобиль")
-																			.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
+																			.AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersionOnDate(x.Date).IsCompanyCar ? vodovozCarIcon : null)
 																			.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 																		  .AddColumn("База")
 																			.AddComboRenderer(x => x.GeographicGroup)
@@ -575,7 +576,7 @@ namespace Vodovoz
 		{
 			if(row is RouteList rl) {
 				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
-				return FormatOccupancy(weight, null, rl.Car.MaxWeight);
+				return FormatOccupancy(weight, null, rl.Car.CarModel.MaxWeight);
 			}
 
 			if(row is RouteListItem rli)
@@ -1001,7 +1002,7 @@ namespace Vodovoz
 					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
 				carrierInfo = string.Concat(
 					carrierInfo,
-					string.Format("; {0} кг; {1} куб.м.", route.Car?.MaxWeight, route.Car?.MaxVolume)
+					string.Format("; {0} кг; {1} куб.м.", route.Car?.CarModel?.MaxWeight, route.Car?.CarModel?.MaxVolume)
 				);
 				var item = new MenuItemId<RouteList>(carrierInfo) {
 					ID = route
@@ -1394,10 +1395,11 @@ namespace Vodovoz
 				return;
 			}
 			
-			var filter = new CarJournalFilterViewModel();
+			var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
 			filter.SetAndRefilterAtOnce(
-				x => x.RestrictedCarTypesOfUse = Car.GetCompanyHavingsTypes(),
-				x => x.IncludeArchive = false);
+				x => x.Archive = false,
+				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
+			);
 			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>

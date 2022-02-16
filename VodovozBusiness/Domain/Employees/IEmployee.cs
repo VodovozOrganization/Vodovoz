@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -18,7 +19,8 @@ namespace Vodovoz.Domain.Employees
 		DateTime? FirstWorkDay { get; set; }
 		Employee DefaultForwarder { get; set; }
 		bool LargusDriver { get; set; }
-		CarTypeOfUse? DriverOf { get; set; }
+		CarTypeOfUse? DriverOfCarTypeOfUse { get; set; }
+		CarOwnType? DriverOfCarOwnType { get; set; }
 		float DriverSpeed { get; set; }
 		short TripPriority { get; set; }
 		IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets { get; set; }

@@ -136,7 +136,7 @@ namespace Vodovoz
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory,
 					NomenclatureRepository, _userRepository));
 
 		#region Список каналов сбыта
@@ -825,7 +825,7 @@ namespace Vodovoz
 					this,
 					ServicesConfig.CommonServices,
 					_employeeService,
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory,
 					NomenclatureSelectorFactory,
 					NomenclatureRepository,
 					_userRepository);

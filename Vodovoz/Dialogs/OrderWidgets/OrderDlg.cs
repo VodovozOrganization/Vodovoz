@@ -184,18 +184,10 @@ namespace Vodovoz
 			}
 		}
 		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-			get {
-				if(counterpartySelectorFactory == null) {
-					counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-				};
-				return counterpartySelectorFactory;
-			}
-		}
-		
+		private ICounterpartyJournalFactory counterpartySelectorFactory;
+		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
+
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
 			get {
@@ -497,12 +489,12 @@ namespace Vodovoz
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : string.Empty, w => w.Text).InitializeFromSource();
 			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
-			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 			entryBottlesToReturn.Changed += OnEntryBottlesToReturnChanged;
 
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
-			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringValuableConverter()).InitializeFromSource();
+			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
@@ -511,14 +503,14 @@ namespace Vodovoz
 			}
 
 			entryTrifle.ValidationMode = ValidationType.numeric;
-			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null && e.Contract.Organization != null ? e.Contract.Title + " (" + e.Contract.Organization.FullName + ")" : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
-			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			var excludedPaymentFromId = new OrderParametersProvider(_parametersProvider).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
@@ -660,7 +652,7 @@ namespace Vodovoz
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
-			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 			
@@ -1339,26 +1331,13 @@ namespace Vodovoz
 				}
 			}
 
-			if(Entity.NeedSendBill(_emailRepository))
-			{
-				_emailAddressForBill = Entity.GetEmailAddressForBill();
-				if(_emailAddressForBill == null)
-				{
-					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
-					{
-						return false;
-					}
+			PrepareSendBillInformation();
 
-					_isNeedSendBill = false;
-				}
-				else
-				{
-					_isNeedSendBill = true;
-				}
-			}
-			else
+			if(_emailAddressForBill == null 
+			   && Entity.NeedSendBill(_emailRepository)
+			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				_isNeedSendBill = false;
+				return false;
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
@@ -1376,6 +1355,20 @@ namespace Vodovoz
 			UpdateUIState();
 
 			return true;
+		}
+
+		private void PrepareSendBillInformation()
+		{
+			_emailAddressForBill = Entity.GetEmailAddressForBill();
+
+			if(_emailAddressForBill != null && Entity.NeedSendBill(_emailRepository))
+			{
+				_isNeedSendBill = true;
+			}
+			else
+			{
+				_isNeedSendBill = false;
+			}
 		}
 
 		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
@@ -2497,6 +2490,15 @@ namespace Vodovoz
 			if(!Validate(validationContext))
 			{
 				return ;
+			}
+
+			PrepareSendBillInformation();
+
+			if(_emailAddressForBill == null 
+			   && Entity.NeedSendBill(_emailRepository)
+			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить смену статуса заказа без дальнейшей отправки почты?"))
+			{
+				return;
 			}
 
 			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);

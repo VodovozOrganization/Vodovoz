@@ -10,6 +10,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {

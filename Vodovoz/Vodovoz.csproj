@@ -421,14 +421,16 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePriceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
+    <Compile Include="JournalNodes\CarModelJournalNode.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
     <Compile Include="JournalNodes\WaterJournalNode.cs" />
+    <Compile Include="JournalViewModels\CarModelJournalViewModel.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
-    <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
+    <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
     <Compile Include="JournalNodes\ReturnTareReasonCategoriesJournalNode.cs" />
     <Compile Include="JournalViewModels\RetailOrderJournalViewModel.cs" />
@@ -498,6 +500,8 @@
     <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
+    <Compile Include="TempAdapters\CarManufacturerJournalFactory.cs" />
+    <Compile Include="TempAdapters\CarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
@@ -1399,7 +1403,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
-    <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Infrastructure\Converters\NullableIntToStringConverter.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtView.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentView.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentView.cs" />
@@ -1533,12 +1537,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.EShopSalesReport.cs" />
     <Compile Include="JournalViewers\RouteListJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RouteListJournalFilterView.cs" />
-    <Compile Include="ReportsParameters\Logistic\CarsExploitationReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarsExploitationReport.cs" />
-    <Compile Include="Views\Logistic\DriverCarKindView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverCarKindView.cs" />
-    <Compile Include="Filters\GtkViews\DriverCarKindJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DriverCarKindJournalFilterView.cs" />
     <Compile Include="JournalViewers\RegisteredRMJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.RegisteredRMJournalFilterView.cs" />
     <Compile Include="Views\Security\RegisteredRMView.cs" />
@@ -1646,6 +1644,14 @@
     <Compile Include="Views\Cash\CashlessRequestFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestFilesView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
+    <Compile Include="Views\Logistic\CarModelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarModelView.cs" />
+    <Compile Include="Views\Logistic\CarManufacturerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarManufacturerView.cs" />
+    <Compile Include="Filters\GtkViews\CarModelFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarModelFilterView.cs" />
+    <Compile Include="Views\Logistic\CarVersionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PayoutRequestJournalFilterView.cs" />
     <Compile Include="Views\ReportsParameters\Cash\DayOfSalaryGiveoutReportView.cs" />
@@ -1703,6 +1709,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">
+      <Project>{5ef2a7da-3886-4809-95df-880bd783a211}</Project>
+      <Name>QS.Project.Desktop</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Report.Gtk\QS.Report.Gtk.csproj">
       <Project>{42708cee-08d8-43d5-afe0-9992eb46e9f9}</Project>
@@ -1809,7 +1819,7 @@
       <Name>QSExtraGammaWidgets</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
+      <Project>{54871F7B-7DF2-43BD-9ACD-72F650BA35A1}</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

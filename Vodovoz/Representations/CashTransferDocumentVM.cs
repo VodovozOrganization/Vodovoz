@@ -160,7 +160,7 @@ namespace Vodovoz.Representations
 						new EmployeeRepository(),
 						new SubdivisionRepository(_parametersProvider),
 						new EmployeeJournalFactory(),
-						new CarJournalFactory());
+						new CarJournalFactory(MainClass.MainWin.NavigationManager));
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -172,7 +172,7 @@ namespace Vodovoz.Representations
 						new EmployeeRepository(),
 						new SubdivisionRepository(_parametersProvider),
 						new EmployeeJournalFactory(),
-						new CarJournalFactory());
+						new CarJournalFactory(MainClass.MainWin.NavigationManager));
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);

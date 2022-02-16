@@ -48,7 +48,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
@@ -655,7 +654,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		private bool TrySaveNewUser()
 		{
-			if(!string.IsNullOrEmpty(Entity.LoginForNewUser) && _emailServiceSettingAdapter.SendingAllowed)
+			if(!string.IsNullOrEmpty(Entity.LoginForNewUser))
 			{
 				if(!_authorizationService.TryToSaveUser(Entity, UoWGeneric))
 				{

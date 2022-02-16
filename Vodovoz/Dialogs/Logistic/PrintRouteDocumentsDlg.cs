@@ -60,19 +60,26 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Driver.ShortName)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyCar ? _vodovozCarIcon : null)
-					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
+					.AddPixbufRenderer(x =>
+						(x.Document as RouteListPrintableDocs).routeList.Car != null
+						&& (x.Document as RouteListPrintableDocs).routeList.GetCarVersion.IsCompanyCar
+							? _vodovozCarIcon
+							: null)
+					.AddTextRenderer(x =>
+						(x.Document as RouteListPrintableDocs).routeList.Car != null
+							? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber
+							: "нет")
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
 				.AddColumn("Время печати")
-					.AddTextRenderer(x => 
+					.AddTextRenderer(x =>
 					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory != null &&
 					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.Any() ?
 						(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.LastOrDefault().PrintingTime.ToString()
 						: "МЛ не распечатан")
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => 
+					.AddSetter<CellRendererText>((c, n) =>
 					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? "grey" : "black")
 				.Finish();
 
