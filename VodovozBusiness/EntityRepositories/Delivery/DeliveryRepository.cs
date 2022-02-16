@@ -121,7 +121,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public bool OneHourDeliveryAvailable(IUnitOfWork uow, double latitude, double longitude,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes)
 		{
-			return GetRouteListIdForOneHourDelivery(uow, latitude, longitude, deliveryRulesParametersProvider, nomenclatureNodes) != null;
+			var routeList = GetRouteListIdForOneHourDelivery(uow, latitude, longitude, deliveryRulesParametersProvider, nomenclatureNodes);
+			return routeList != null;
 		}
 
 		public int? GetRouteListIdForOneHourDelivery(IUnitOfWork uow, double latitude, double longitude,
