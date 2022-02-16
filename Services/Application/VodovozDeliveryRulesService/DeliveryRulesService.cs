@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using NLog;
@@ -7,70 +8,78 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
 
 namespace VodovozDeliveryRulesService
 {
 	public class DeliveryRulesService : IDeliveryRulesService
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IBackupDistrictService _backupDistrictService;
+
+		private readonly DeliverySchedule _oneHourDeliverySchedule;
 
 		public DeliveryRulesService(
 			IDeliveryRepository deliveryRepository,
 			IBackupDistrictService backupDistrictService,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
 		{
-			this.deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			this.backupDistrictService = backupDistrictService ?? throw new ArgumentNullException(nameof(backupDistrictService));
-			_deliveryRulesParametersProvider = 
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_backupDistrictService = backupDistrictService ?? throw new ArgumentNullException(nameof(backupDistrictService));
+			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение графика доставки за час"))
+			{
+				_oneHourDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesParametersProvider.OneHourDeliveryScheduleId);
+			}
 		}
-		
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IDeliveryRepository deliveryRepository;
-		private readonly IBackupDistrictService backupDistrictService;
 
 		public DeliveryRulesDTO GetRulesByDistrict(decimal latitude, decimal longitude)
 		{
-			try 
+			try
 			{
 				var date = DateTime.Now;
-				logger.Info("Поступил запрос на получение правил доставки");
-				
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
+				_logger.Info("Поступил запрос на получение правил доставки");
+
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					District district;
 
-					try 
+					try
 					{
-						district = deliveryRepository.GetDistrict(uow, latitude, longitude);
+						district = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 					}
-					catch (Exception e) 
+					catch (Exception e)
 					{
-						logger.Error(e, "Ошибка при подборе района по координатам");
-						logger.Info("Пробую подобрать район из бэкапа...");
-						district = backupDistrictService
+						_logger.Error(e, "Ошибка при подборе района по координатам");
+						_logger.Info("Пробую подобрать район из бэкапа...");
+						district = _backupDistrictService
 							.Districts
 							.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 					}
-					
-					if(district != null) 
+
+					if(district != null)
 					{
-						logger.Info($"Район получен {district.DistrictName}");
-						
-						var response = new DeliveryRulesDTO 
+						_logger.Info($"Район получен {district.DistrictName}");
+
+						var response = new DeliveryRulesDTO
 						{
 							WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
 						};
-						
+
 						var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
-						
-						foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) 
+
+						foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 						{
 							//Берём все правила дня недели
-							var rulesToAdd = 
+							var rulesToAdd =
 								district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).Select(x => x.Title).ToList();
-							
+
 							//Если правил дня недели нет берем общие правила района
 							if(!rulesToAdd.Any())
 							{
@@ -93,7 +102,7 @@ namespace VodovozDeliveryRulesService
 					}
 
 					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
-					logger.Debug(message);
+					_logger.Debug(message);
 					return new DeliveryRulesDTO {
 						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
 						WeekDayDeliveryRules = null,
@@ -102,8 +111,8 @@ namespace VodovozDeliveryRulesService
 				}
 			}
 			catch (Exception ex) {
-				logger.Error(ex);
-				return new DeliveryRulesDTO 
+				_logger.Error(ex);
+				return new DeliveryRulesDTO
 				{
 					StatusEnum = DeliveryRulesResponseStatus.Error,
 					WeekDayDeliveryRules = null,
@@ -111,39 +120,65 @@ namespace VodovozDeliveryRulesService
 				};
 			}
 		}
-		
+
+		public DeliveryRulesDTO GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request)
+		{
+			var deliveryInfo = GetRulesByDistrict(request.Latitude, request.Longitude);
+
+			//Убрать после запуска доставки за час
+			return deliveryInfo;
+
+			if(deliveryInfo.StatusEnum != DeliveryRulesResponseStatus.Ok)
+			{
+				return deliveryInfo;
+			}
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка на доставку за час"))
+			{
+				var allowed =
+					!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday
+					&& CheckIfOneHourDeliveryAllowed(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+
+				if(allowed)
+				{
+					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
+					todayInfo.ScheduleRestrictions.Insert(0, _oneHourDeliverySchedule.Name);
+				}
+			}
+			return deliveryInfo;
+		}
+
 		public DeliveryInfoDTO GetDeliveryInfo(decimal latitude, decimal longitude)
 		{
-			try 
+			try
 			{
-				logger.Info("Поступил запрос на получение правил доставки");
-				
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
+				_logger.Info("Поступил запрос на получение правил доставки");
+
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					District district;
-					
-					try 
+
+					try
 					{
-						district = deliveryRepository.GetDistrict(uow, latitude, longitude);
+						district = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 					}
-					catch (Exception e) 
+					catch (Exception e)
 					{
-						logger.Error(e, "Ошибка при подборе района по координатам.");
-						logger.Info("Пробую подобрать район из бэкапа...");
-						district = backupDistrictService
+						_logger.Error(e, "Ошибка при подборе района по координатам.");
+						_logger.Info("Пробую подобрать район из бэкапа...");
+						district = _backupDistrictService
 							.Districts
 							.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 					}
-					
-					if(district != null) 
+
+					if(district != null)
 					{
-						logger.Info($"Район получен {district.DistrictName}");
+						_logger.Info($"Район получен {district.DistrictName}");
 
 						return FillDeliveryInfoDTO(district);
 					}
-					
+
 					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
-					logger.Debug(message);
+					_logger.Debug(message);
 					return new DeliveryInfoDTO {
 						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
 						WeekDayDeliveryInfos = null,
@@ -153,7 +188,7 @@ namespace VodovozDeliveryRulesService
 				}
 			}
 			catch (Exception ex) {
-				logger.Error(ex);
+				_logger.Error(ex);
 				return new DeliveryInfoDTO {
 					StatusEnum = DeliveryRulesResponseStatus.Error,
 					WeekDayDeliveryInfos = null,
@@ -167,9 +202,7 @@ namespace VodovozDeliveryRulesService
 		{
 			var response = GetDeliveryInfo(59.886134m, 30.394007m);
 			var response2 = GetRulesByDistrict(59.886134m, 30.394007m);
-			if(response.StatusEnum == DeliveryRulesResponseStatus.Error || response2.StatusEnum == DeliveryRulesResponseStatus.Error)
-				return false;
-			return true;
+			return response.StatusEnum != DeliveryRulesResponseStatus.Error && response2.StatusEnum != DeliveryRulesResponseStatus.Error;
 		}
 
 		private DeliveryInfoDTO FillDeliveryInfoDTO(District district)
@@ -179,10 +212,10 @@ namespace VodovozDeliveryRulesService
 			{
 				WeekDayDeliveryInfos = new List<WeekDayDeliveryInfoDTO>(),
 			};
-			
+
 			var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
-			
-			foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) 
+
+			foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 			{
 				var rules = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).ToList();
 
@@ -196,7 +229,7 @@ namespace VodovozDeliveryRulesService
 					WeekDayEnum = weekDay,
 					ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 				};
-				
+
 				info.WeekDayDeliveryInfos.Add(item);
 			}
 
@@ -255,7 +288,7 @@ namespace VodovozDeliveryRulesService
 					? new List<DeliverySchedule>()
 					: GetScheduleRestrictionsForWeekDay(district, weekDay);
 			}
-			
+
 			return GetScheduleRestrictionsByDate(district, weekDay, currentDate);
 		}
 
@@ -266,7 +299,7 @@ namespace VodovozDeliveryRulesService
 				.Select(x => x.DeliverySchedule)
 				.ToList();
 		}
-		
+
 		/// <summary>
 		/// Формирует список доступных интервалов доставки на день недели
 		/// Если день недели - следующий день после времени запроса, то выбираем только те интервалы у которых
@@ -285,7 +318,7 @@ namespace VodovozDeliveryRulesService
 		private IList<DeliverySchedule> GetScheduleRestrictionsByDate(District district, WeekDayName weekDay, DateTime currentDate)
 		{
 			var dayOfWeek = District.ConvertDayOfWeekToWeekDayName(currentDate.DayOfWeek);
-			
+
 			if((weekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && weekDay - dayOfWeek == 6))
 			{
 				return district
@@ -294,8 +327,37 @@ namespace VodovozDeliveryRulesService
 					.Select(x => x.DeliverySchedule)
 					.ToList();
 			}
-			
+
 			return GetScheduleRestrictionsForWeekDay(district, weekDay);
+		}
+
+		private bool CheckIfOneHourDeliveryAllowed(IUnitOfWork uow, decimal latitude, decimal longitude,
+			SiteNomenclatureNode[] siteNomenclatures)
+		{
+			if(siteNomenclatures == null || siteNomenclatures.Any(x => x.ERPId == null || x.ERPId < 1))
+			{
+				return false;
+			}
+
+			var nomenclatureNodes = siteNomenclatures
+				.Select(x =>
+				{
+					Debug.Assert(x.ERPId != null, "x.ERPId != null");
+					return new NomenclatureAmountNode
+					{
+						NomenclatureId = x.ERPId.Value,
+						Amount = x.Amount
+					};
+				})
+				.ToList();
+
+			return _deliveryRepository.OneHourDeliveryAvailable(
+				uow,
+				(double)latitude,
+				(double)longitude,
+				_deliveryRulesParametersProvider,
+				nomenclatureNodes
+			);
 		}
 	}
 }
