@@ -2,6 +2,8 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Delivery
 {
@@ -17,5 +19,11 @@ namespace Vodovoz.EntityRepositories.Delivery
 		/// Возвращает список районов в границы которых входят указанные координаты
 		/// </summary>
 		IEnumerable<District> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude, DistrictsSet districtsSet = null);
+
+		bool OneHourDeliveryAvailable(IUnitOfWork uow, double latitude, double longitude,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes);
+
+		int? GetRouteListIdForOneHourDelivery(IUnitOfWork uow, double latitude, double longitude,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes);
 	}
 }
