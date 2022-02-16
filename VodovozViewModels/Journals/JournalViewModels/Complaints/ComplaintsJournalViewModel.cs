@@ -417,10 +417,9 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
 			);
 
-			var result = query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
+			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
 				 .OrderBy(n => n.Id)
-				 .Desc().List<ComplaintJournalNode>()
-				 ;
+				 .Desc();
 
 			return query;
 		}
