@@ -200,7 +200,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				"Доступен только если выбран контрагент\n\n" +
 				$"Если <b>{chkOrderByDate.Label}</b> не активна:\n" +
 				$"- <b>{ybuttonCounterpartyDebtBalance.Label}</b> сортируется по последнему столбцу\n" +
-				$"- <b>{ybuttonNotPaidOrders.Label}</b> сортируются по по последнему столбцу\n" +
+				$"- <b>{ybuttonNotPaidOrders.Label}</b> сортируются по последнему столбцу\n" +
 				$"- <b>{ybuttonCounterpartyDebtDetails.Label}</b> сортировка была по дате платежа по убыванию,\n" +
 				"а внутри блока платежа закрытые суммы заказов данным платежом.\n" +
 				"Выше до всех платежей идут незакрытые суммы неоплаченных/частично оплаченных заказов.\n" +
