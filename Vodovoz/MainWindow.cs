@@ -2521,4 +2521,9 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices)
 		);
 	}
+
+	protected void OnActionCarModelsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CarModelJournalViewModel>(null);
+	}
 }
