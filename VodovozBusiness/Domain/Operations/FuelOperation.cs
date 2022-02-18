@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
@@ -29,12 +30,12 @@ namespace Vodovoz
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
-		private Car car;
+		private Car _car;
 
 		[Display(Name = "Транспортное средство")]
 		public virtual Car Car {
-			get { return car; }
-			set { SetField(ref car, value, () => Car); }
+			get { return _car; }
+			set { SetField(ref _car, value, () => Car); }
 		}
 
 		private decimal litersGived;

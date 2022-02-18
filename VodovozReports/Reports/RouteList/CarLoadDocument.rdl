@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.name AS nomenclature,
@@ -48,7 +46,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -76,39 +74,41 @@ ORDER BY clmn_for_sorting;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	route_lists.id AS route_list_id,
-	route_lists.date AS route_list_date,
-	CONCAT_WS('',
-			CONCAT(drivers.last_name, ' '),
-			IF(drivers.name = '',
-				'',
-				CONCAT(LEFT(drivers.name, 1), '.')),
-			IF(drivers.patronymic = '',
-				'',
-				CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
-	CONCAT_WS('',
-			CONCAT(forwaders.last_name, ' '),
-			IF(forwaders.name = '',
-				'',
-				CONCAT(LEFT(forwaders.name, 1), '.')),
-			IF(forwaders.patronymic = '',
-				'',
-				CONCAT(LEFT(forwaders.patronymic, 1), '.'))) AS forwader,
-	cars.model AS model,
-	cars.reg_number AS reg_number
+        <CommandText>SELECT
+    route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
+    CONCAT_WS('',
+              CONCAT(drivers.last_name, ' '),
+              IF(drivers.name = '',
+                 '',
+                 CONCAT(LEFT(drivers.name, 1), '.')),
+              IF(drivers.patronymic = '',
+                 '',
+                 CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    CONCAT_WS('',
+              CONCAT(forwaders.last_name, ' '),
+              IF(forwaders.name = '',
+                 '',
+                 CONCAT(LEFT(forwaders.name, 1), '.')),
+              IF(forwaders.patronymic = '',
+                 '',
+                 CONCAT(LEFT(forwaders.patronymic, 1), '.'))) AS forwader,
+    cm.name AS model,
+    cars.reg_number AS reg_number
 FROM
-	route_lists
-		LEFT JOIN
-	employees AS drivers ON drivers.id = route_lists.driver_id
-		LEFT JOIN
-	employees AS forwaders ON forwaders.id = route_lists.forwarder_id
-		LEFT JOIN
-	cars ON cars.id = route_lists.car_id
+    route_lists
+    LEFT JOIN
+        employees AS drivers ON drivers.id = route_lists.driver_id
+    LEFT JOIN
+        employees AS forwaders ON forwaders.id = route_lists.forwarder_id
+    LEFT JOIN
+        cars ON cars.id = route_lists.car_id
+    LEFT JOIN 
+        car_models cm ON cars.model_id = cm.id
 WHERE
-	route_lists.id = @id
+    route_lists.id = @id
 GROUP BY route_lists.id
 LIMIT 1
 ;</CommandText>
@@ -118,7 +118,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -322,8 +322,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -344,8 +343,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -366,8 +364,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -388,8 +385,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox83">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -410,8 +406,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -724,7 +719,7 @@ GROUP BY order_id</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >N0</Format>
+                        <Format>N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -744,8 +739,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -763,8 +757,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -782,8 +775,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -801,8 +793,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1309,7 +1300,7 @@ GROUP BY order_id</CommandText>
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >N0</Format>
+                        <Format>N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -1329,8 +1320,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1348,8 +1338,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1367,8 +1356,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1386,8 +1374,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1727,7 +1714,7 @@ GROUP BY order_id</CommandText>
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >N0</Format>
+                        <Format>N0</Format>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -1747,8 +1734,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1766,8 +1752,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1785,8 +1770,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1804,8 +1788,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2956,8 +2939,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataElementName>Report</DataElementName>

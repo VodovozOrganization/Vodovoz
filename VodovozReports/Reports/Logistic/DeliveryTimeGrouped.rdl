@@ -34,34 +34,39 @@
     delivery_points.compiled_address_short,
     GROUP_CONCAT(gg.name SEPARATOR ', ')
 FROM route_lists
-    LEFT JOIN
-route_list_addresses ON route_lists.id = route_list_addresses.route_list_id
-    INNER JOIN
-employees ON route_lists.driver_id = employees.id
-    INNER JOIN
-cars c ON route_lists.car_id = c.id
-    LEFT JOIN
-orders ON route_list_addresses.order_id = orders.id
-    LEFT JOIN
-delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-    LEFT JOIN
-counterparty ON orders.client_id = counterparty.id
-    LEFT JOIN
-delivery_points ON delivery_points.id = orders.delivery_point_id
-    LEFT JOIN
-geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
-    LEFT JOIN
-geographic_groups gg ON gge.geographic_group_id = gg.id
+LEFT JOIN
+    route_list_addresses ON route_lists.id = route_list_addresses.route_list_id
+INNER JOIN
+    employees ON route_lists.driver_id = employees.id
+INNER JOIN
+    cars c ON route_lists.car_id = c.id
+LEFT JOIN
+    orders ON route_list_addresses.order_id = orders.id
+LEFT JOIN
+    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+LEFT JOIN
+    delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN
+    geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
+LEFT JOIN
+    geographic_groups gg ON gge.geographic_group_id = gg.id
+INNER JOIN car_models cm ON c.model_id = cm.id
+INNER JOIN
+    car_versions cv ON c.id = cv.car_id
+        AND cv.start_date &lt;= route_lists.date
+        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
-    route_lists.date = CURDATE()
-    AND route_list_addresses.status = 'EnRoute'
-    AND delivery_schedule.to_time &lt;= @beforeTime
-    AND (gg.id IN (@geographic_groups))
-    AND (
-        IF('Logistics' IN (@rl_type_of_use), !employees.visiting_master AND c.type_of_use != 'CompanyTruck', false)
-            OR IF('CompanyTrucks' IN (@rl_type_of_use), c.type_of_use = 'CompanyTruck', false)
-            OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
-        )
+      route_lists.date = CURDATE()
+  AND route_list_addresses.status = 'EnRoute'
+  AND delivery_schedule.to_time &lt;= @beforeTime
+  AND (gg.id IN (@geographic_groups))
+  AND (
+          IF('Logistics' IN (@rl_type_of_use), !employees.visiting_master AND !(cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck'), false)
+              OR IF('CompanyTrucks' IN (@rl_type_of_use), cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck', false)
+              OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
+          )
 GROUP BY route_list_addresses.id
 ORDER BY driver_name, max_time
 ;</CommandText>
@@ -121,7 +126,7 @@ ORDER BY driver_name, max_time
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <TextAlign >Center</TextAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -247,7 +252,7 @@ ORDER BY driver_name, max_time
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -295,7 +300,7 @@ ORDER BY driver_name, max_time
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -351,8 +356,8 @@ ORDER BY driver_name, max_time
             </TableRow>
           </TableRows>
         </Details>
-        <Left >0.8pt</Left>
-        <Top >21.5pt</Top>
+        <Left>0.8pt</Left>
+        <Top>21.5pt</Top>
       </Table>
       <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>11.40pt</Height>
@@ -411,7 +416,7 @@ ORDER BY driver_name, max_time
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="beforeTime">
       <DataType>String</DataType>
       <DefaultValue>

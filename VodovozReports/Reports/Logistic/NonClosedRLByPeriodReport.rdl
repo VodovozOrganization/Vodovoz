@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>8.5in</PageHeight>
   <PageWidth>11in</PageWidth>
   <Width>7.5in</Width>
@@ -95,13 +93,13 @@
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.4pt</Width>
+            <Width>78.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.0pt</Width>
+            <Width>50.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>118.9pt</Width>
+            <Width>150.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>126.9pt</Width>
@@ -113,7 +111,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>39.0pt</Height>
+              <Height>50.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -127,6 +125,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -143,6 +142,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -159,6 +159,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -175,6 +176,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -182,7 +184,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Дата закрытия</Value>
+                      <Value>Дата закрытия или статус</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -191,6 +193,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -198,7 +201,10 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Количество просроченных дней</Value>
+                      <Value>Кол-во
+просро-
+ченных
+дней</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -207,6 +213,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,6 +230,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -239,6 +247,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -255,6 +264,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,6 +291,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -300,6 +311,7 @@
                         <BorderWidth />
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -317,6 +329,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -335,6 +348,7 @@
                         <Format>dd.MM.yyyy</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -352,6 +366,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -369,6 +384,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -387,8 +403,9 @@
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -406,6 +423,7 @@
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -423,6 +441,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -451,9 +470,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -470,9 +489,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -489,9 +508,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -508,9 +527,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -527,9 +546,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -546,9 +565,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -565,9 +584,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -583,6 +602,7 @@
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <Value>="К кол-ву МЛ за период"</Value>
                     </Textbox>
@@ -600,6 +620,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <Format>N2</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <Value>=Format(Count({id}, "data") / First({rls}, "route_lists") * 100, "N2") + "%"</Value>
                     </Textbox>
@@ -661,13 +682,13 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     rl.id,
     rl.date,
-    rl.closing_date as closing_date, 
-    (    
+    rl.closing_date as closing_date,
+    (
         CASE rl.status
             WHEN 'New' THEN 'Новый'
             WHEN 'Confirmed' THEN 'Подтвержден'
@@ -693,22 +714,28 @@
     rl.logisticians_comment
 FROM
     route_lists rl
-LEFT JOIN
-    employees AS comment_author ON comment_author.id = rl.logisticians_comment_author_id
-LEFT JOIN
-    employees AS drivers ON drivers.id = rl.driver_id
-LEFT JOIN
-    cars ON cars.id = rl.car_id
+    LEFT JOIN
+        employees AS comment_author ON comment_author.id = rl.logisticians_comment_author_id
+    LEFT JOIN
+        employees AS drivers ON drivers.id = rl.driver_id
+    LEFT JOIN
+        cars ON cars.id = rl.car_id
+    INNER JOIN car_models cm ON cars.model_id = cm.id
+    INNER JOIN
+        car_versions cv ON cars.id = cv.car_id
+            AND cv.start_date &lt;= rl.date
+            AND (cv.end_date IS NULL OR cv.end_date &gt;= rl.date)
 WHERE
     ((rl.status != 'Closed'
-    AND DATE_ADD(rl.date, INTERVAL @delay DAY) &lt; date(@end_date))
-    OR (rl.closing_date BETWEEN @start_date AND @end_date
-        AND rl.status = 'Closed'
-        AND date(rl.closing_date) &gt; DATE_ADD(rl.date, INTERVAL @delay DAY)))
-    AND !drivers.visiting_master
-    AND cars.type_of_use != 'CompanyTruck'
+        AND DATE_ADD(rl.date, INTERVAL @delay DAY) &lt; date(@end_date))
+        OR (rl.closing_date BETWEEN @start_date AND @end_date
+            AND rl.status = 'Closed'
+            AND date(rl.closing_date) &gt; DATE_ADD(rl.date, INTERVAL @delay DAY)))
+  AND !drivers.visiting_master
+  AND !(cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck')
 GROUP BY rl.id
-ORDER BY rl.id;</CommandText>
+ORDER BY rl.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -724,7 +751,7 @@ ORDER BY rl.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -794,8 +821,7 @@ WHERE rl.closing_date BETWEEN @start_date AND @end_date;</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -811,8 +837,7 @@ WHERE rl.closing_date BETWEEN @start_date AND @end_date;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -824,24 +849,21 @@ WHERE rl.closing_date BETWEEN @start_date AND @end_date;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="create_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="delay">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

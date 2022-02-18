@@ -8330,13 +8330,15 @@ Month(CDate({?date})) = 12, 'декабря'
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	IFNULL(car.model, ' ') as car_model,
+	IFNULL(cm.name, ' ') as car_model,
 	IFNULL(car.reg_number, ' ') as reg_number,
 	IFNULL(ft.name, ' ') as fuel_type
 FROM
 	cars car
 LEFT JOIN
 	fuel_types ft ON ft.id = car.fuel_type_id
+LEFT JOIN
+    car_models cm ON car.model_id = cm.id
 WHERE
 	car.id = @car_id</CommandText>
         <QueryParameters>
@@ -8391,9 +8393,9 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	car.model as car_model
+	cm.name as car_model
 FROM
-	cars car
+	car_models cm
 LIMIT 1;</CommandText>
       </Query>
       <Fields>

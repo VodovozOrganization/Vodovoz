@@ -192,8 +192,8 @@
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
                         <Color>Black</Color>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >6pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -311,7 +311,7 @@
       </Table>
       <Table Name="Table2">
         <DataSetName>LargusDriverBalance</DataSetName>
-        <NoRows>Водители ларгусов: Нет записей</NoRows>
+        <NoRows>Водители ларгусов компании: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -358,7 +358,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Водители ларгусов</Value>
+                      <Value>Водители ларгусов компании</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -461,8 +461,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >6pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -731,8 +731,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >6pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1165,8 +1165,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >6pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1281,7 +1281,7 @@
       </Table>
       <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>GAZelleDriverBalance</DataSetName>
-        <NoRows>Водители ГАЗелей: Нет записей</NoRows>
+        <NoRows>Водители ГАЗелей компании: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1328,7 +1328,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Водители ГАЗелей</Value>
+                      <Value>Водители ГАЗелей компании</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1431,8 +1431,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >6pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1547,7 +1547,7 @@
       </Table>
       <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>TruckBalance</DataSetName>
-        <NoRows>Водители фур: Нет записей</NoRows>
+        <NoRows>Водители фур компании: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1594,7 +1594,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>Водители фур</Value>
+                      <Value>Водители фур компании</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1700,8 +1700,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >6pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1840,7 +1840,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1849,20 +1849,19 @@
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-         LEFT JOIN cars ON employees.id = cars.driver_id
-         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN cars ON employees.id = cars.driver_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE
-        wages_movement_operations.operation_time &lt;= @date
+    wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
-  AND (employees.driver_of = 'DriverCar' OR driver_of IS NULL)
-  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
-  AND (cars.is_archive = false OR cars.is_archive IS NULL)
+  AND (employees.driver_of_car_own_type = 'Driver' OR employees.driver_of_car_own_type IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver;</CommandText>
+ORDER BY driver;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1872,7 +1871,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1947,7 +1946,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1956,18 +1955,18 @@ ORDER BY driver;</CommandText>
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-         LEFT JOIN cars ON employees.id = cars.driver_id
-         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
-  AND employees.driver_of = 'CompanyLargus'
-  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND employees.driver_of_car_type_of_use = 'Largus'
+  AND employees.driver_of_car_own_type = 'Company'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver;</CommandText>
+ORDER BY driver;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1977,7 +1976,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2001,7 +2000,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2010,18 +2009,18 @@ ORDER BY driver;</CommandText>
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-         LEFT JOIN cars ON employees.id = cars.driver_id
-         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
-  AND employees.driver_of = 'CompanyGAZelle'
-  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND employees.driver_of_car_type_of_use = 'GAZelle'
+  AND employees.driver_of_car_own_type = 'Company'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver;</CommandText>
+ORDER BY driver;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -2031,7 +2030,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2090,7 +2089,7 @@ HAVING balance &lt;&gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2099,17 +2098,17 @@ HAVING balance &lt;&gt; 0
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-         LEFT JOIN cars ON employees.id = cars.driver_id
-         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
-  AND cars.is_raskat = true
+  AND employees.driver_of_car_own_type = 'Raskat'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver;</CommandText>
+ORDER BY driver;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="drivers">
             <Value>=Parameters!drivers</Value>
@@ -2119,7 +2118,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2143,7 +2142,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="TruckBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2152,18 +2151,18 @@ ORDER BY driver;</CommandText>
     employees.category,
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
-         LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-         LEFT JOIN cars ON employees.id = cars.driver_id
-         LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
-         LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
-  AND employees.driver_of = 'CompanyTruck'
-  AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+  AND employees.driver_of_car_type_of_use = 'Truck'
+  AND employees.driver_of_car_own_type = 'Company'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver;</CommandText>
+ORDER BY driver;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
@@ -2173,7 +2172,7 @@ ORDER BY driver;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
