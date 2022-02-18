@@ -211,7 +211,7 @@ namespace Vodovoz
 			}
 			set => base.HasChanges = value;
 		}
-		
+
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
@@ -268,7 +268,7 @@ namespace Vodovoz
 			_currentUserCanEditCounterpartyDetails =
 				UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_edit_counterparty_details", _currentUserId);
-			
+
 			if(UoWGeneric.Root.CounterpartyContracts == null)
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
@@ -556,7 +556,7 @@ namespace Vodovoz
 			_phonesViewModel =
 				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
-				PhonesList = Entity.ObservablePhones, 
+				PhonesList = Entity.ObservablePhones,
 				Counterparty = Entity,
 				ShowRoboAtsCounterpartyNameAndPatronymic = true,
 				ReadOnly = !CanEdit
@@ -668,7 +668,7 @@ namespace Vodovoz
 			yentrySignBaseOf.IsEditable = CanEdit;
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
-			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
+			accountsView.SetAccountOwner(UoW, Entity);
 		}
 
 		private void ConfigureTabProxies()
