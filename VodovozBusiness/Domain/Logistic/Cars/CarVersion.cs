@@ -10,7 +10,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		Nominative = "версия автомобиля",
 		NominativePlural = "версии автомобиля")]
 	[HistoryTrace]
-	[EntityPermission]
 	public class CarVersion : PropertyChangedBase, IDomainObject
 	{
 		private Car _car;
