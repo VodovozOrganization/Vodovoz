@@ -6,6 +6,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
@@ -27,7 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private IEntityAutocompleteSelectorFactory _expenseCategoryAutocompleteSelectorFactory;
 
 		public CashlessRequestViewModel(
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			IExpenseCategorySelectorFactory expenseCategoryJournalFactory,
 			IUserRepository userRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -61,7 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UserRole = UserRoles.First();
 
 			OurOrganisations = UoW.Session.QueryOver<Organization>().List();
-			var filesViewModel = new CashlessRequestFilesViewModel(Entity, UoW, filePickerService, CommonServices, userRepository)
+			var filesViewModel = new CashlessRequestFilesViewModel(Entity, UoW, fileDialogService, CommonServices, userRepository)
 			{
 				ReadOnly = !IsNotClosed || IsSecurityServiceRole
 			};
@@ -271,7 +272,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			{
 				roles.Add(PayoutRequestUserRole.Accountant);
 			}
-			
+
 			if(CheckRole("role_security_service_cash_request", userId))
 			{
 				roles.Add(PayoutRequestUserRole.SecurityService);
