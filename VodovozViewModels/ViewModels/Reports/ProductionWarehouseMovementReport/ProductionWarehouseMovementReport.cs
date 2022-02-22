@@ -2,6 +2,7 @@
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -337,18 +338,25 @@ namespace Vodovoz.ViewModels.Reports
 			}
 		}
 
-		public void Export(IFilePickerService filePicker, string fileName, bool isDetailed, Encoding encoding = null)
+		public void Export(IFileDialogService fileDialogService, string fileName, bool isDetailed, Encoding encoding = null)
 		{
-			var extension = ".csv";
+			if(fileDialogService is null)
+			{
+				throw new ArgumentNullException(nameof(fileDialogService));
+			}
 
-			if(!filePicker.OpenSaveFilePicker($"{fileName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}", out string filePath))
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".csv";
+			dialogSettings.FileName = $"{fileName} {DateTime.Now:yyyy-MM-dd-HH-mm}.csv";
+
+			var result = fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!result.Successful)
 			{
 				return;
 			}
 
-			var filePathWithExtension = filePath.Contains(extension) ? filePath : filePath += extension;
-
-			var writer = new StreamWriter($"{filePathWithExtension}", false, encoding ?? Encoding.GetEncoding(1251));
+			var writer = new StreamWriter(result.Path, false, encoding ?? Encoding.GetEncoding(1251));
 
 			var csv = new CsvWriter(writer, CultureInfo.CurrentCulture);
 

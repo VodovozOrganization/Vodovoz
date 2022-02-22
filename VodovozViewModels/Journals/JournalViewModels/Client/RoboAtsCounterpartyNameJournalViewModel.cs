@@ -39,6 +39,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 					.Select(() => roboAtsCounterpartyNameAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => roboAtsCounterpartyNameAlias.Accent).WithAlias(() => resultAlias.Accent)
 				)
+				.OrderBy(() => roboAtsCounterpartyNameAlias.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<RoboAtsCounterpartyNameJournalNode>());
 
 			return itemsQuery;
