@@ -115,10 +115,17 @@ namespace Vodovoz.ViewModels.WageCalculation
 			}
 			WageParameterItemViewModel = GetWageParameterItemViewModel(entity.WageParameterItem);
 			WageParameterItemType = entity.WageParameterItem.WageParameterItemType;
-			DriverWithCompanyCarWageParameterItemViewModel =
-				GetWageParameterItemViewModel(entity.WageParameterItemForOurCars);
-			RaskatCarWageParameterItemViewModel =
-				GetWageParameterItemViewModel(entity.WageParameterItemForRaskatCars);
+			if(WageParameterItemType == WageParameterItemTypes.RatesLevel)
+			{
+				DriverWithCompanyCarWageParameterItemViewModel =
+					GetWageParameterItemViewModel(entity.WageParameterItemForOurCars);
+				RaskatCarWageParameterItemViewModel =
+					GetWageParameterItemViewModel(entity.WageParameterItemForRaskatCars);
+			}
+			else
+			{
+				DriverWithCompanyCarWageParameterItemViewModel = RaskatCarWageParameterItemViewModel = null;
+			}
 		}
 
 

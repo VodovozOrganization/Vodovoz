@@ -31,11 +31,11 @@ namespace Vodovoz.ViewModels.WageCalculation
 					sb.AppendLine("Уровень ставок:");
 					if(driverCarParameter != null)
 					{
-						sb.AppendLine($"\tДля а/м компании: ({driverCarParameter.WageDistrictLevelRates?.Id}) {driverCarParameter.WageDistrictLevelRates?.Name}");
+						sb.AppendLine($"\tДля а/м водителя: ({driverCarParameter.WageDistrictLevelRates?.Id}) {driverCarParameter.WageDistrictLevelRates?.Name}");
 					}
 					if(companyCarParameter != null)
 					{
-						sb.AppendLine($"\tДля а/м водителя: ({companyCarParameter.WageDistrictLevelRates?.Id}) {companyCarParameter.WageDistrictLevelRates?.Name}");
+						sb.AppendLine($"\tДля а/м компании: ({companyCarParameter.WageDistrictLevelRates?.Id}) {companyCarParameter.WageDistrictLevelRates?.Name}");
 					}
 					if(raskatCarParameter != null)
 					{

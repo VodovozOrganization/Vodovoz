@@ -125,7 +125,7 @@ namespace Vodovoz.Views.WageCalculation
 				case WageParameterItemTypes.RatesLevel:
 					return new Label($"Уровень ставок { label }");
 				default:
-					return new Label($"{ wageParameterItemType.GetEnumTitle() } ({ label })" );
+					return new Label($"{ wageParameterItemType.GetEnumTitle() }" );
 			}
 		}
 	}

@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.WageCalculation
 			get {
 				if(observableWageRates == null)
 				{
-					observableWageRates = new GenericObservableList<WageRate>(WageRates.OrderBy(wr => wr.Name).ToArray());
+					observableWageRates = new GenericObservableList<WageRate>(WageRates);
 				}
 
 				return observableWageRates;
