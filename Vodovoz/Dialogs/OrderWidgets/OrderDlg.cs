@@ -154,6 +154,7 @@ namespace Vodovoz
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private readonly bool _canSetOurOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
@@ -184,18 +185,10 @@ namespace Vodovoz
 			}
 		}
 		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-			get {
-				if(counterpartySelectorFactory == null) {
-					counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-				};
-				return counterpartySelectorFactory;
-			}
-		}
-		
+		private ICounterpartyJournalFactory counterpartySelectorFactory;
+		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
+
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
 			get {
@@ -402,7 +395,8 @@ namespace Vodovoz
 				new NomenclatureFixedPriceController(
 					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
-			_paymentFromBankClientController = new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
+			_paymentFromBankClientController =
+				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -548,6 +542,7 @@ namespace Vodovoz
 			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			evmeAuthor.Sensitive = false;
 
+			evmeDeliveryPoint.SetObjectDisplayFunc<DeliveryPoint>(dp => dp.ShortAddress);
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
 
@@ -607,10 +602,6 @@ namespace Vodovoz
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
-			dataSumDifferenceReason.Completion = new EntryCompletion {
-				Model = GetListStoreSumDifferenceReasons(UoWGeneric),
-				TextColumn = 0
-			};
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -869,21 +860,6 @@ namespace Vodovoz
 			}
 			
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
-		}
-
-		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
-		{
-			Order order = null;
-
-			var reasons = uow.Session.QueryOver(() => order)
-				.Select(NHibernate.Criterion.Projections.Distinct(NHibernate.Criterion.Projections.Property(() => order.SumDifferenceReason)))
-				.List<string>();
-
-			var store = new ListStore(typeof(string));
-			foreach(string s in reasons) {
-				store.AppendValues(s);
-			}
-			return store;
 		}
 
 		void ControlsActionBottleAccessibility()

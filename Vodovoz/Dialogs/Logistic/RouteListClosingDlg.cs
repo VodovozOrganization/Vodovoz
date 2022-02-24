@@ -166,7 +166,8 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{
 			_canEdit = _isRoleCashier && permissionResult.CanUpdate;
-			_paymentFromBankClientController = new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository());
+			_paymentFromBankClientController =
+				new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository(), new PaymentsRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
 				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
 			}
@@ -790,6 +791,7 @@ namespace Vodovoz
 			foreach(var address in Entity.Addresses)
 			{
 				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
+				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
 			}
 			
 			UoW.Save();

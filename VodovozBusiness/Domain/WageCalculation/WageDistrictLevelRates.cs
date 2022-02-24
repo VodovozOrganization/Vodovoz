@@ -23,6 +23,8 @@ namespace Vodovoz.Domain.WageCalculation
 	{
 		#region Свойства
 
+		bool _isDefaultLevelForRaskatCars;
+
 		public virtual int Id { get; set; }
 
 		string name;
@@ -57,7 +59,7 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		bool isDefaultLevel;
-		[Display(Name = "По умолчанию для новых сотрудников")]
+		[Display(Name = "По умолчанию для новых сотрудников (Найм)")]
 		public virtual bool IsDefaultLevel {
 			get => isDefaultLevel;
 			set => SetField(ref isDefaultLevel, value);
@@ -68,6 +70,13 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual bool IsDefaultLevelForOurCars {
 			get => isDefaultLevelForOurCars;
 			set => SetField(ref isDefaultLevelForOurCars, value);
+		}
+
+		[Display(Name = "По умолчанию для новых сотрудников для авто в раскате")]
+		public virtual bool IsDefaultLevelForRaskatCars
+		{
+			get => _isDefaultLevelForRaskatCars;
+			set => SetField(ref _isDefaultLevelForRaskatCars, value);
 		}
 
 		#endregion Свойства

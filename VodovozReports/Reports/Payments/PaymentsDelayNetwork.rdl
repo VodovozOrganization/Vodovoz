@@ -1056,7 +1056,7 @@
                       FROM orders o
                                LEFT JOIN payment_items pi ON o.id = pi.order_id
                                LEFT JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
-                      WHERE o.id = orders.id
+                      WHERE o.id = orders.id and cmo.cashless_movement_operation_status != 'Cancelled'
                       GROUP BY o.id),
                      0)
         AS DECIMAL (12 , 2 )) AS debt,

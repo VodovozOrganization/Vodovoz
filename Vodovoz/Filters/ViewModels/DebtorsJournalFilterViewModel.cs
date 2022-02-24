@@ -163,7 +163,7 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
+					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(),
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
 	}
 }

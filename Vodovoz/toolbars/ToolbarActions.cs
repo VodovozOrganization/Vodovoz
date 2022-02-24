@@ -449,14 +449,11 @@ public partial class MainWindow : Window
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e) {
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
@@ -466,7 +463,7 @@ public partial class MainWindow : Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository(),
-				counterpartySelectorFactory,
+				counterpartyJournalFactory,
 				nomenclatureSelectorFactory,
 				nomenclatureRepository,
 				userRepository
@@ -477,14 +474,11 @@ public partial class MainWindow : Window
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e) {
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature,NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
@@ -494,7 +488,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository(),
-			counterpartySelectorFactory,
+			counterpartyJournalFactory,
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
 			userRepository

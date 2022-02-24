@@ -61,6 +61,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		private static readonly Color _colorRed = new Color(0xfe, 0x5c, 0x5c);
 		private static readonly Color _colorPink = new Color(0xff, 0xc0, 0xc0);
 		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
+		private static readonly Color _colorLightGrey = new Color(0xcc, 0xcc, 0xcc);
 		private static readonly Color _colorDarkGrey = new Color(0x80, 0x80, 0x80);
 		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 
@@ -503,12 +504,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Name)
-					.AddColumn("По умолчанию для новых сотрудников")
+					.AddColumn("По умолчанию для новых сотрудников (Найм)")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.IsDefaultLevelString)
 					.AddColumn("По умолчанию для новых сотрудников (Наши авто)")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.IsDefaultLevelOurCarsString)
+					.AddColumn("По умолчанию для новых сотрудников (Для авто в раскате)")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsDefaultLevelRaskatCarsString)
 					.AddColumn("В архиве?")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.IsArchiveString)
@@ -720,6 +724,11 @@ namespace Vodovoz.JournalColumnsConfigs
 							{
 								color = _colorLightGreen;
 							}
+							if(n.Status == PaymentState.Cancelled)
+							{
+								color = _colorLightGrey;
+							}
+
 							c.CellBackgroundGdk = color;
 						})
 					.Finish()

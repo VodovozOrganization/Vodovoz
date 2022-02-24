@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Suppliers;
 
 namespace Vodovoz.JournalViewModels.Suppliers
@@ -30,7 +31,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
 		public RequestsToSuppliersJournalViewModel(
@@ -39,7 +40,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository

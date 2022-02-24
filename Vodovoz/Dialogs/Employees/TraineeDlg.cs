@@ -58,7 +58,7 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-		
+
 		private AttachmentsViewModel _attachmentsViewModel;
 		private bool canEdit;
 
@@ -123,15 +123,15 @@ namespace Vodovoz.Dialogs.Employees
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
 			//Реквизиты
-			accountsView.ParentReference = new ParentReferenceGeneric<Trainee, Account>(UoWGeneric, o => o.Accounts);
+			accountsView.SetAccountOwner(UoW, Entity);
 			accountsView.SetTitle("Банковские счета стажера");
 
 			//Файлы
 			attachmentsView.ViewModel = _attachmentsViewModel;
-			
+
 			logger.Info("Ok");
 		}
-		
+
 		private void CreateAttachmentsViewModel()
 		{
 			_attachmentsViewModel = _attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
@@ -230,7 +230,7 @@ namespace Vodovoz.Dialogs.Employees
 				_baseParametersProvider,
 				_attachmentsViewModelFactory,
 				true);
-			
+
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
 							  () => employeeViewModel);
 			OnCloseTab(false);
@@ -265,7 +265,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) 
+			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null)
 			{
 				EmployeeDocDlg dlg = new EmployeeDocDlg(
 					((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices, canEdit);
@@ -279,7 +279,7 @@ namespace Vodovoz.Dialogs.Employees
 			buttonDocumentEdit.Click();
 		}
 		#endregion
-		
+
 		public override void Destroy()
 		{
 			attachmentsView.Destroy();
