@@ -21,10 +21,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		{
 			_carVersionsController = carVersionsController ?? throw new ArgumentNullException(nameof(carVersionsController));
 
-			var versionPermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarVersion));
-			CanRead = versionPermissions.CanRead;
-			CanCreate = versionPermissions.CanCreate;
-			CanEdit = versionPermissions.CanUpdate;
+			CanRead = PermissionResult.CanRead;
+			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
+				|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version");
+			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version_date");
 		}
 
 		public virtual DateTime? SelectedDate
