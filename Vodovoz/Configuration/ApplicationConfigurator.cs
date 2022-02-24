@@ -103,7 +103,7 @@ namespace Vodovoz.Configuration
                     );
                 }
             );
-            
+
             logger.Debug("OK");
         }
 
@@ -112,7 +112,7 @@ namespace Vodovoz.Configuration
             logger.Debug("Конфигурация маппингов диалогов, HistoryTrace, принтеров и ParentReference...");
 
             #region Dialogs mapping
-            
+
             OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
                 //Простые справочники
                 OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
@@ -336,7 +336,7 @@ namespace Vodovoz.Configuration
                 .End();
 
             #endregion
-            
+
             OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 
             #endregion
@@ -345,20 +345,6 @@ namespace Vodovoz.Configuration
             TemplatePrinter.InitPrinter();
             ImagePrinter.InitPrinter();
 
-            //Настройка ParentReference
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, Account> {
-                AddNewChild = (o, a) => o.AddAccount(a)
-            });
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, Account> {
-                AddNewChild = (c, a) => c.AddAccount(a)
-            });
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, Account> {
-                AddNewChild = (c, a) => c.AddAccount(a)
-            });
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account> {
-                AddNewChild = (c, a) => c.AddAccount(a)
-            });
-            
             logger.Debug("OK");
         }
     }
