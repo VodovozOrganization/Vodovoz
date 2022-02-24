@@ -13,12 +13,12 @@ namespace Vodovoz.EntityRepositories.Payments
 		IEnumerable<string> GetAllShopsFromTinkoff(IUnitOfWork uow);
 		bool NotManuallyPaymentFromBankClientExists(
 			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber);
-		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId);
+		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId);
 		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider);
 		IList<Payment> GetAllDistributedPayments(IUnitOfWork uow);
-		Payment GetRefundPayment(IUnitOfWork uow, int refundedPaymentId);
+		Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId);
 		IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-			IUnitOfWork uow, int counterpartyId, int organizationId);
+			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments);
 		IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
 	}
 }

@@ -842,7 +842,7 @@
         WHEN 'UnPaid' THEN 'Не оплачен'
     END AS order_payment_status,
     IFNULL(
-        (SELECT SUM(pi.sum) FROM payment_items pi WHERE order_id = o.id),
+        (SELECT SUM(pi.sum) FROM payment_items pi WHERE order_id = o.id AND pi.payment_item_status != 'Cancelled'),
         0
     ) AS partial_order_sum
 FROM orders o

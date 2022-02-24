@@ -148,6 +148,9 @@ namespace Vodovoz.Views
 				.AddColumn("Статус оплаты")
                     .AddEnumRenderer(node => node.OrderPaymentStatus)
                     .XAlign(0.5f)
+				.AddColumn("Статус распределения")
+					.AddEnumRenderer(node => node.PaymentItemStatus)
+					.XAlign(0.5f)
                 .AddColumn("")
                 .Finish();
 

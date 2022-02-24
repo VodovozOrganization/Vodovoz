@@ -14,6 +14,8 @@ namespace Vodovoz.Views.Payments
 
 		private global::Gamma.GtkWidgets.yButton btnCancel;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkAllocateCompletedPayments;
+
 		private global::QS.Widgets.ProgressWidget progresswidget;
 
 		protected virtual void Build()
@@ -69,13 +71,25 @@ namespace Vodovoz.Views.Payments
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.progresswidget = new global::QS.Widgets.ProgressWidget();
-			this.progresswidget.Name = "progresswidget";
-			this.vboxMain.Add(this.progresswidget);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.progresswidget]));
+			this.chkAllocateCompletedPayments = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkAllocateCompletedPayments.CanFocus = true;
+			this.chkAllocateCompletedPayments.Name = "chkAllocateCompletedPayments";
+			this.chkAllocateCompletedPayments.Label = global::Mono.Unix.Catalog.GetString("Использовать только завершенные платежи");
+			this.chkAllocateCompletedPayments.DrawIndicator = true;
+			this.chkAllocateCompletedPayments.UseUnderline = true;
+			this.vboxMain.Add(this.chkAllocateCompletedPayments);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.chkAllocateCompletedPayments]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.progresswidget = new global::QS.Widgets.ProgressWidget();
+			this.progresswidget.Name = "progresswidget";
+			this.vboxMain.Add(this.progresswidget);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.progresswidget]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
