@@ -154,6 +154,7 @@ namespace Vodovoz
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private readonly bool _canSetOurOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
@@ -394,7 +395,8 @@ namespace Vodovoz
 				new NomenclatureFixedPriceController(
 					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
-			_paymentFromBankClientController = new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
+			_paymentFromBankClientController =
+				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 

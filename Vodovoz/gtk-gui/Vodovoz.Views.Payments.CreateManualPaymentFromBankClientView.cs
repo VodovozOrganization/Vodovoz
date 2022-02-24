@@ -57,10 +57,10 @@ namespace Vodovoz.Views.Payments
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Views.Payments.PaymentFromBankClientView
+			// Widget Vodovoz.Views.Payments.CreateManualPaymentFromBankClientView
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Payments.CreateManualPaymentFromBankClientView";
-			// Container child Vodovoz.Views.Payments.PaymentFromBankClientView.Gtk.Container+ContainerChild
+			// Container child Vodovoz.Views.Payments.CreateManualPaymentFromBankClientView.Gtk.Container+ContainerChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
