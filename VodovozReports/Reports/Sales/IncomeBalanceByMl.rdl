@@ -2531,7 +2531,7 @@ FROM
             FROM
             (SELECT
                 route_list_addresses.route_list_id,
-                ROUND(SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)), 2) as order_sum
+                SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)) as order_sum
             FROM
                 route_list_addresses
                     JOIN orders AS ord ON ord.id = route_list_addresses.order_id
