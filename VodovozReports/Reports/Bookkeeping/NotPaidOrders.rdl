@@ -859,7 +859,8 @@ WHERE
   AND (@counterparty_id = '' OR o.client_id = @counterparty_id)
   AND (@exclude_closing_documents = FALSE OR o.delivery_schedule_id != @closing_document_delivery_schedule_id)
   AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
-ORDER BY (order_sum - partial_order_sum) DESC
+ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
+         IF(!@order_by_date, order_sum - partial_order_sum, false) DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -879,6 +880,9 @@ ORDER BY (order_sum - partial_order_sum) DESC
           </QueryParameter>
           <QueryParameter Name="order_statuses">
             <Value>={?order_statuses}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_by_date">
+            <Value>={?order_by_date}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -924,6 +928,16 @@ ORDER BY (order_sum - partial_order_sum) DESC
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
@@ -965,30 +979,31 @@ ORDER BY (order_sum - partial_order_sum) DESC
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="filters_text">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_by_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
