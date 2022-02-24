@@ -1,9 +1,11 @@
 ﻿using System.Linq;
 using System;
+using System.Text;
 using Gamma.Utilities;
 using Gtk;
 using QS.ViewModels;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation;
 
@@ -44,6 +46,10 @@ namespace Vodovoz.Views.WageCalculation
 				{
 					UpdateWageParameterView();
 				}
+				if(e.PropertyName == nameof(ViewModel.RaskatCarWageParameterItemViewModel))
+				{
+					UpdateWageParameterView();
+				}
 			};
 
 			UpdateWageParameterView();
@@ -60,13 +66,18 @@ namespace Vodovoz.Views.WageCalculation
 			var defaultRatesWidget = GetWidget(ViewModel.WageParameterItemViewModel);
 			if(defaultRatesWidget != null)
 			{
-				_notebook.InsertPage(defaultRatesWidget, GetNotebookHeaderLabel(ViewModel.WageParameterItemType), 0);
+				_notebook.InsertPage(defaultRatesWidget, GetNotebookHeaderLabel(ViewModel.WageParameterItemType, CarOwnType.Driver), 0);
 			}
 
 			var compayCarWidget = GetWidget(ViewModel.DriverWithCompanyCarWageParameterItemViewModel);
 			if(compayCarWidget != null)
 			{
-				_notebook.InsertPage(compayCarWidget, GetNotebookHeaderLabel(ViewModel.WageParameterItemType, true), 1);
+				_notebook.InsertPage(compayCarWidget, GetNotebookHeaderLabel(ViewModel.WageParameterItemType, CarOwnType.Company), 1);
+			}
+			var raskatCarWidget = GetWidget(ViewModel.RaskatCarWageParameterItemViewModel);
+			if(raskatCarWidget != null)
+			{
+				_notebook.InsertPage(raskatCarWidget, GetNotebookHeaderLabel(ViewModel.WageParameterItemType, CarOwnType.Raskat), 2);
 			}
 
 			vboxDialog.Add(_notebook);
@@ -92,17 +103,29 @@ namespace Vodovoz.Views.WageCalculation
 			}
 		}
 
-		private Label GetNotebookHeaderLabel(WageParameterItemTypes type, bool isDriverWithCompanyCar = false)
+		private Label GetNotebookHeaderLabel(WageParameterItemTypes wageParameterItemType, CarOwnType carOwnType = CarOwnType.Driver)
 		{
-			switch(type)
+			string label = string.Empty;
+
+			switch(carOwnType)
+			{
+				case CarOwnType.Driver:
+					label = "для ТС водителей";
+					break;
+				case CarOwnType.Company:
+					label = "для ТС компании";
+					break;
+				case CarOwnType.Raskat:
+					label = "для ТС в раскате";
+					break;
+			}
+
+			switch(wageParameterItemType)
 			{
 				case WageParameterItemTypes.RatesLevel:
-					return new Label(isDriverWithCompanyCar
-						? "Уровень ставок для ТС компании"
-						: "Уровень ставок для ТС водителей или в раскате"
-					);
+					return new Label($"Уровень ставок { label }");
 				default:
-					return new Label(type.GetEnumTitle() + (isDriverWithCompanyCar ? " (Для ТС компании)" : ""));
+					return new Label($"{ wageParameterItemType.GetEnumTitle() }" );
 			}
 		}
 	}

@@ -44,6 +44,8 @@ namespace Vodovoz.Views.Logistic
 
 			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeVersionDate, w => w.Sensitive).InitializeFromSource();
 			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeVersionStartDate();
+
+			Visible = ViewModel.CanRead;
 		}
 	}
 }

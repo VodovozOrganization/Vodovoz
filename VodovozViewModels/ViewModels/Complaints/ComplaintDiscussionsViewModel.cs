@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -24,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
 		private readonly ITdiTab _dialogTab;
-		private readonly IFilePickerService _filePickerService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
@@ -32,10 +33,10 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUserRepository _userRepository;
 
 		public ComplaintDiscussionsViewModel(
-			Complaint entity, 
+			Complaint entity,
 			ITdiTab dialogTab,
 			IUnitOfWork uow,
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Complaints
 		) : base(entity, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
@@ -91,16 +92,16 @@ namespace Vodovoz.ViewModels.Complaints
 		private ComplaintDiscussionViewModel GetDiscussionViewModel(ComplaintDiscussion complaintDiscussion)
 		{
 			int subdivisionId = complaintDiscussion.Subdivision.Id;
-			
+
 			if(viewModelsCache.ContainsKey(subdivisionId))
 			{
 				return viewModelsCache[subdivisionId];
 			}
-			
+
 			var viewModel =
 				new ComplaintDiscussionViewModel(
-					complaintDiscussion, _filePickerService, _employeeService, CommonServices, UoW, _userRepository);
-			
+					complaintDiscussion, _fileDialogService, _employeeService, CommonServices, UoW, _userRepository);
+
 			viewModelsCache.Add(subdivisionId, viewModel);
 			return viewModel;
 		}

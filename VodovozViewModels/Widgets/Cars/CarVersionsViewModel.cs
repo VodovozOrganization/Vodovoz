@@ -20,6 +20,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			: base(entity, commonServices)
 		{
 			_carVersionsController = carVersionsController ?? throw new ArgumentNullException(nameof(carVersionsController));
+
+			CanRead = PermissionResult.CanRead;
+			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
+				|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version");
+			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version_date");
 		}
 
 		public virtual DateTime? SelectedDate
@@ -47,14 +52,20 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			}
 		}
 
-		public virtual bool CanAddNewVersion =>
-			SelectedDate.HasValue
+		public virtual bool CanRead { get; }
+		public virtual bool CanCreate { get; }
+		public virtual bool CanEdit { get; }
+
+		public bool CanAddNewVersion =>
+			CanCreate
+			&& SelectedDate.HasValue
 			&& Entity.CarVersions.All(x => x.Id != 0)
 			&& _carVersionsController.IsValidDateForNewCarVersion(SelectedDate.Value);
 
-		public virtual bool CanChangeVersionDate =>
+		public bool CanChangeVersionDate =>
 			SelectedDate.HasValue
 			&& SelectedCarVersion != null
+			&& (CanEdit || SelectedCarVersion.Id == 0)
 			&& _carVersionsController.IsValidDateForVersionStartDateChange(SelectedCarVersion, SelectedDate.Value);
 
 		public void AddNewCarVersion()

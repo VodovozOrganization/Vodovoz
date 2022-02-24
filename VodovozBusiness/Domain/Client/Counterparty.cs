@@ -1090,6 +1090,28 @@ namespace Vodovoz.Domain.Client
 
 			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
+
+			StringBuilder phonesValidationStringBuilder = new StringBuilder();
+
+			foreach(var phone in Phones)
+			{
+				if(phone.RoboAtsCounterpartyName == null)
+				{
+					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+				}
+
+				if(phone.RoboAtsCounterpartyPatronymic == null)
+				{
+					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+				}
+			}
+
+			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
+
+			if(!string.IsNullOrEmpty(phonesValidationMessage))
+			{
+				yield return new ValidationResult(phonesValidationMessage);
+			}
 		}
 
 		#endregion

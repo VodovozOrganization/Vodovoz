@@ -601,10 +601,6 @@ namespace Vodovoz
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
-			dataSumDifferenceReason.Completion = new EntryCompletion {
-				Model = GetListStoreSumDifferenceReasons(UoWGeneric),
-				TextColumn = 0
-			};
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -863,21 +859,6 @@ namespace Vodovoz
 			}
 			
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
-		}
-
-		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
-		{
-			Order order = null;
-
-			var reasons = uow.Session.QueryOver(() => order)
-				.Select(NHibernate.Criterion.Projections.Distinct(NHibernate.Criterion.Projections.Property(() => order.SumDifferenceReason)))
-				.List<string>();
-
-			var store = new ListStore(typeof(string));
-			foreach(string s in reasons) {
-				store.AppendValues(s);
-			}
-			return store;
 		}
 
 		void ControlsActionBottleAccessibility()

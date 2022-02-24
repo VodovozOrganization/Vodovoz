@@ -69,7 +69,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			if(source.DriverOfOurCar) {
 				return wageParameterItem.GetRateForOurs(source.RouteListDate, wageRateType);
-			} else {
+			}
+			else if(source.IsRaskatCar)
+			{
+				return wageParameterItem.GetRateForRaskat(source.RouteListDate, wageRateType);
+			}
+			else {
 				return wageParameterItem.GetRateForMercenaries(source.RouteListDate, wageRateType);
 			}
 		}
