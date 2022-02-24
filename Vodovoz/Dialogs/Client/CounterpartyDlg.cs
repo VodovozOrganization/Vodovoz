@@ -670,7 +670,7 @@ namespace Vodovoz
 			yentrySignBaseOf.IsEditable = CanEdit;
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
-			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
+			accountsView.SetAccountOwner(UoW, Entity);
 		}
 
 		private void ConfigureTabProxies()
