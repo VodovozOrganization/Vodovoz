@@ -9,15 +9,9 @@
     <None Update="Reports\Bookkeeping\CounterpartyDebtDetailsWithoutOrderByDate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Reports\Logistic\AnalyticsForUndelivery.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Reports\Bookkeeping\CloseCounterpartyDelivery.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
