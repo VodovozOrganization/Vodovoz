@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
@@ -20,6 +20,8 @@ namespace Vodovoz.Domain.WageCalculation
 	[EntityPermission]
 	public class EmployeeWageParameter : WageParameter
 	{
+		private WageParameterItem _wageParameterItemForRaskatCars;
+
 		public override string Title => WageParameterItem.Title;
 		
 		private Employee employee;
@@ -40,7 +42,13 @@ namespace Vodovoz.Domain.WageCalculation
 			get => wageParameterItemForOurCars;
 			set => SetField(ref wageParameterItemForOurCars, value);
 		}
-		
+
+		public virtual WageParameterItem WageParameterItemForRaskatCars
+		{
+			get => _wageParameterItemForRaskatCars;
+			set => SetField(ref _wageParameterItemForRaskatCars, value);
+		}
+
 		public virtual void CreateWageParameterItems(WageParameterItemTypes wageParameterItemType)
 		{
 			WageParameterItem = CreateWageParameterItem(wageParameterItemType);
@@ -48,6 +56,12 @@ namespace Vodovoz.Domain.WageCalculation
 			var typesWithoutOurCarsItems = new WageParameterItemTypes[] { WageParameterItemTypes.Manual, WageParameterItemTypes.OldRates, WageParameterItemTypes.SalesPlan };
 			if(!typesWithoutOurCarsItems.Contains(wageParameterItemType)) {
 				WageParameterItemForOurCars = CreateWageParameterItem(wageParameterItemType);
+			}
+
+			var typesWithoutRaskatCarsItems = new WageParameterItemTypes[] { WageParameterItemTypes.Manual, WageParameterItemTypes.OldRates, WageParameterItemTypes.SalesPlan };
+			if(!typesWithoutRaskatCarsItems.Contains(wageParameterItemType))
+			{
+				WageParameterItemForRaskatCars = CreateWageParameterItem(wageParameterItemType);
 			}
 		}
 

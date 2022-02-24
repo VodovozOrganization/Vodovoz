@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
@@ -26,7 +27,7 @@ namespace Vodovoz.ViewModels.Complaints
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-        private readonly IFilePickerService _filePickerService;
+        private readonly IFileDialogService _fileDialogService;
         private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
         private readonly IList<ComplaintKind> _complaintKinds;
@@ -47,7 +48,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-            IFilePickerService filePickerService,
+            IFileDialogService fileDialogService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -60,7 +61,7 @@ namespace Vodovoz.ViewModels.Complaints
 			string phone = null
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-            _filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+            _fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
             EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -103,7 +104,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-            IFilePickerService filePickerService,
+            IFileDialogService filePickerService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -133,7 +134,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-            IFilePickerService filePickerService,
+            IFileDialogService filePickerService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -171,7 +172,7 @@ namespace Vodovoz.ViewModels.Complaints
             {
                 if (filesViewModel == null)
                 {
-                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _filePickerService, CommonServices, UserRepository);
+                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, UserRepository);
                 }
                 return filesViewModel;
             }

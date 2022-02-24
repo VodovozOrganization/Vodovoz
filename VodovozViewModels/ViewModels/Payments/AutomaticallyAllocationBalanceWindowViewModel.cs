@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Payments
 		private DelegateCommand _allocateByCurrentCounterpartyCommand;
 		private DelegateCommand _allocateByAllCounterpartiesWithPositiveBalanceCommand;
 		private bool _isAllocationState;
+		private bool _allocateCompletedPayments = true;
 		
 		public AutomaticallyAllocationBalanceWindowViewModel(
 			IInteractiveService interactiveService,
@@ -58,6 +59,12 @@ namespace Vodovoz.ViewModels.Payments
 		{
 			get => _isAllocationState;
 			set => SetField(ref _isAllocationState, value);
+		}
+
+		public bool AllocateCompletedPayments
+		{
+			get => _allocateCompletedPayments;
+			set => SetField(ref _allocateCompletedPayments, value);
 		}
 
 		public IProgressBarDisplayable ProgressBarDisplayable { get; set; }
@@ -127,7 +134,7 @@ namespace Vodovoz.ViewModels.Payments
 		{
 			var balance = node.CounterpartyBalance;
 			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-				_uow, node.CounterpartyId, node.OrganizationId);
+				_uow, node.CounterpartyId, node.OrganizationId, AllocateCompletedPayments);
 
 			var orderNodes =
 				_orderRepository.GetAllNotFullyPaidOrdersByClientAndOrg(
@@ -143,7 +150,7 @@ namespace Vodovoz.ViewModels.Payments
 					break;
 				}
 
-				var unAllocatedSum = paymentNode.PaymentSum - paymentNode.AllocatedSum;
+				var unallocatedSum = paymentNode.UnallocatedSum;
 				var payment = _uow.GetById<Payment>(paymentNode.Id);
 				
 				while(orderNodes.Count > 0)
@@ -151,26 +158,26 @@ namespace Vodovoz.ViewModels.Payments
 					var order = _uow.GetById<Order>(orderNodes[0].Id);
 					var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
 					
-					if(balance >= unAllocatedSum)
+					if(balance >= unallocatedSum)
 					{
-						if(sumToAllocate <= unAllocatedSum)
+						if(sumToAllocate <= unallocatedSum)
 						{
 							payment.AddPaymentItem(order, sumToAllocate);
-							unAllocatedSum -= sumToAllocate;
+							unallocatedSum -= sumToAllocate;
 							balance -= sumToAllocate;
 							orderNodes.RemoveAt(0);
 							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
 						}
 						else
 						{
-							payment.AddPaymentItem(order, unAllocatedSum);
-							orderNodes[0].AllocatedSum += unAllocatedSum;
-							balance -= unAllocatedSum;
+							payment.AddPaymentItem(order, unallocatedSum);
+							orderNodes[0].AllocatedSum += unallocatedSum;
+							balance -= unallocatedSum;
 							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
 							break;
 						}
 
-						if(unAllocatedSum == 0)
+						if(unallocatedSum == 0)
 						{
 							break;
 						}
@@ -205,6 +212,12 @@ namespace Vodovoz.ViewModels.Payments
 				foreach(var paymentItem in allocatedPaymentItems)
 				{
 					paymentItem.CreateOrUpdateExpenseOperation();
+				}
+
+				if(payment.Status != PaymentState.completed)
+				{
+					payment.CreateIncomeOperation();
+					payment.Status = PaymentState.completed;
 				}
 
 				_uow.Save(payment);

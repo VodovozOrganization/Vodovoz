@@ -17,6 +17,10 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			if(source.DriverOfOurCar && wageParameter.WageParameterItemForOurCars != null) {
 				SetWageCalculationService(wageParameter.WageParameterItemForOurCars);
 			}
+			else if(source.IsRaskatCar && wageParameter.WageParameterItemForRaskatCars != null)
+			{
+				SetWageCalculationService(wageParameter.WageParameterItemForRaskatCars);
+			}
 			else {
 				SetWageCalculationService(wageParameter.WageParameterItem);
 			}

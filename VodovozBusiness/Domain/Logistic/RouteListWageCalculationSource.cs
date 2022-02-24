@@ -42,6 +42,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool DriverOfOurCar => rl.GetCarVersion.CarOwnType == CarOwnType.Company;
 
+		public bool IsRaskatCar => rl.GetCarVersion.IsRaskat;
+
 		public CarTypeOfUse CarTypeOfUse => rl.Car?.CarModel?.CarTypeOfUse
 			?? throw new InvalidOperationException("Модель автомобиля в МЛ должна быть заполнена");
 

@@ -61,7 +61,10 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual GenericObservableList<WageRate> ObservableWageRates {
 			get {
 				if(observableWageRates == null)
+				{
 					observableWageRates = new GenericObservableList<WageRate>(WageRates);
+				}
+
 				return observableWageRates;
 			}
 		}

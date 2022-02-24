@@ -6,6 +6,9 @@ namespace Vodovoz.Controllers
 	public interface IPaymentFromBankClientController
 	{
 		void UpdateAllocatedSum(IUnitOfWork uow, Order order);
-		void ReturnAllocatedSumToClientBalance(IUnitOfWork uow, int orderId);
+		void ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(IUnitOfWork uow, Order order);
+		void ReturnAllocatedSumToClientBalance(
+			IUnitOfWork uow, Order order, RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation);
+		void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus);
 	}
 }

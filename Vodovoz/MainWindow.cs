@@ -142,6 +142,8 @@ using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using QS.Project.Services.FileDialog;
+using QS.Dialog.GtkUI.FileDialog;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -580,14 +582,11 @@ public partial class MainWindow : Gtk.Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
@@ -596,7 +595,7 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				nomenclatureSelectorFactory,
-				counterpartySelectorFactory,
+				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
 			));
@@ -962,7 +961,7 @@ public partial class MainWindow : Gtk.Window
 
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFilePickerService filePickerService = new GtkFilePicker();
+		IFileDialogService fileDialogService = new FileDialogService();
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -981,7 +980,7 @@ public partial class MainWindow : Gtk.Window
 			{
 				HidenByDefault = true
 			},
-			filePickerService,
+			fileDialogService,
 			subdivisionRepository,
 			new GtkReportViewOpener(),
 			new GtkTabsOpener(),
@@ -989,7 +988,7 @@ public partial class MainWindow : Gtk.Window
 			userRepository,
 			new OrderSelectorFactory(),
 			employeeJournalFactory,
-			new CounterpartyJournalFactory(),
+			counterpartySelectorFactory,
 			new DeliveryPointJournalFactory(),
 			subdivisionJournalFactory,
 			new SalesPlanJournalFactory(),
@@ -1130,13 +1129,9 @@ public partial class MainWindow : Gtk.Window
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(), nomenclatureRepository, userRepository);
 
 		#endregion
 
@@ -1635,20 +1630,18 @@ public partial class MainWindow : Gtk.Window
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				counterpartySelectorFactory,
+				counterpartyJournalFactory,
 				nomenclatureSelectorFactory,
 				nomenclatureRepository,
 				userRepository
@@ -2092,7 +2085,7 @@ public partial class MainWindow : Gtk.Window
 
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFilePickerService filePickerService = new GtkFilePicker();
+		IFileDialogService fileDialogService = new FileDialogService();
 
 		tdiMain.OpenTab(
 			() =>
@@ -2112,7 +2105,7 @@ public partial class MainWindow : Gtk.Window
 						counterpartySelectorFactory
 					)
 					{ IsForRetail = true },
-					filePickerService,
+					fileDialogService,
 					subdivisionRepository,
 					new GtkReportViewOpener(),
 					new GtkTabsOpener(),
@@ -2120,7 +2113,7 @@ public partial class MainWindow : Gtk.Window
 					userRepository,
 					new OrderSelectorFactory(),
 					employeeJournalFactory,
-					new CounterpartyJournalFactory(),
+					counterpartySelectorFactory,
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new SalesPlanJournalFactory(),
@@ -2306,11 +2299,11 @@ public partial class MainWindow : Gtk.Window
 		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
 		IParametersProvider parametersProvider = new ParametersProvider();
 		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
-		IFilePickerService filePickerService = new GtkFilePicker();
+		IFileDialogService fileDialogService = new FileDialogService();
 
 		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
-			filePickerService);
+			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
@@ -2445,12 +2438,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
 	{
-		IFilePickerService filePickerService = new GtkFilePicker();
+		IFileDialogService fileDialogService = new FileDialogService();
 		IParametersProvider parametersProvider = new ParametersProvider();
 		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
 
 		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, filePickerService, productionWarehouseMovementReportProvider);
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, productionWarehouseMovementReportProvider);
 
 		tdiMain.AddTab(viewModel);
 	}

@@ -141,6 +141,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
+		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode

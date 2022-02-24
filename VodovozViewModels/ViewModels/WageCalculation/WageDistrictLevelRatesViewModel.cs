@@ -120,6 +120,19 @@ namespace Vodovoz.ViewModels.WageCalculation
 				}
 			}
 
+			if(Entity.IsDefaultLevelForRaskatCars)
+			{
+				var defaultLevels = UoW.Session.QueryOver<WageDistrictLevelRates>()
+					.Where(r => r.IsDefaultLevelForRaskatCars)
+					.And(r => r.Id != Entity.Id)
+					.List();
+				foreach(var level in defaultLevels)
+				{
+					level.IsDefaultLevelForRaskatCars = false;
+					UoW.Save(level);
+				}
+			}
+
 			return base.Save(close);
 		}
 	}
