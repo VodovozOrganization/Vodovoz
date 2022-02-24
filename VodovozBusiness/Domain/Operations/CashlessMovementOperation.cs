@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Domain.Operations
 {
@@ -10,10 +11,11 @@ namespace Vodovoz.Domain.Operations
 		Nominative = "передвижение безнала")]
 	public class CashlessMovementOperation : OperationBase
 	{
-		decimal _income;
-		decimal _expense;
-		Counterparty _counterparty;
-		Organization _organization;
+		private decimal _income;
+		private decimal _expense;
+		private AllocationStatus _cashlessMovementOperationStatus;
+		private Counterparty _counterparty;
+		private Organization _organization;
 
 		[Display(Name = "Приход")]
 		public virtual decimal Income
@@ -41,6 +43,12 @@ namespace Vodovoz.Domain.Operations
 		{
 			get => _organization;
 			set => SetField(ref _organization, value);
+		}
+		
+		public virtual AllocationStatus CashlessMovementOperationStatus
+		{
+			get => _cashlessMovementOperationStatus;
+			set => SetField(ref _cashlessMovementOperationStatus, value);
 		}
 	}
 }

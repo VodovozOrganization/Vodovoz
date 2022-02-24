@@ -28,6 +28,12 @@ namespace Vodovoz.Views.Payments
 				.AddFuncBinding(ViewModel, vm => !vm.IsAllocationState, w => w.Sensitive)
 				.InitializeFromSource();
 
+			chkAllocateCompletedPayments.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsAllocationState, w => w.Sensitive)
+				.AddBinding(vm => vm.AllocateCompletedPayments, w => w.Active)
+				.InitializeFromSource();
+
 			ViewModel.ProgressBarDisplayable = progresswidget;
 		}
 	}

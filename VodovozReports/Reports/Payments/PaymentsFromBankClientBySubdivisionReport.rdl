@@ -606,6 +606,7 @@ LEFT JOIN order_items o_items ON o_items.order_id = orders.id
 LEFT JOIN (
 	SELECT SUM(payment_items.sum) as total, order_id, payment_id
     FROM payment_items
+    WHERE payment_items.payment_item_status != 'Cancelled'
     GROUP BY order_id
 ) p_items ON p_items.order_id = orders.id
 LEFT JOIN payments_from_bank_client payments ON payments.id = p_items.payment_id
