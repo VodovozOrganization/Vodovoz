@@ -2391,9 +2391,33 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RemoveEquipment(OrderEquipment item)
 		{
-			ObservableOrderEquipments.Remove(item);
+			var rentDepositOrderItem = item.OrderRentDepositItem;
+			var rentServiceOrderItem = item.OrderRentServiceItem;
+			var totalEquipmentCountForDeposit = 0;
+			var totalEquipmentCountForService = 0;
+			
+			if(rentDepositOrderItem != null)
+			{
+				totalEquipmentCountForDeposit = GetRentEquipmentTotalCountForDepositItem(rentDepositOrderItem);
+			}
+			if(rentServiceOrderItem != null)
+			{
+				totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(rentServiceOrderItem);
+			}
+
+			if(totalEquipmentCountForDeposit > item.Count || totalEquipmentCountForService > item.Count)
+			{
+				ObservableOrderEquipments.Remove(item);
+				UpdateRentsCount();
+			}
+			else if(totalEquipmentCountForDeposit == item.Count || totalEquipmentCountForService == item.Count)
+			{
+				ObservableOrderEquipments.Remove(item);
+				RemoveOrderItem(rentDepositOrderItem);
+				RemoveOrderItem(rentServiceOrderItem);
+			}
+			
 			UpdateDocuments();
-			UpdateRentsCount();
 		}
 
 		/// <summary>

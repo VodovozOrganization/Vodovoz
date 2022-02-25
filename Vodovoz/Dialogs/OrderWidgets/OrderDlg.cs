@@ -2030,6 +2030,21 @@ namespace Vodovoz
 
 		private void RemoveOrderItem(OrderItem item)
 		{
+			var orderEquipment = Entity.OrderEquipments.FirstOrDefault(x => x.OrderRentDepositItem == item || x.OrderRentServiceItem == item);
+
+			if(orderEquipment != null)
+			{
+				var existingRentDepositItem = orderEquipment.OrderRentDepositItem;
+				var existingNonFreeRentServiceItem = orderEquipment.OrderRentServiceItem;
+			
+				if(existingRentDepositItem != null || existingNonFreeRentServiceItem != null)
+				{
+					MessageDialogHelper.RunWarningDialog(
+						$"Нельзя удалить строку заказа. Сначала удалите связанную с ней строку оборудования {orderEquipment.FullNameString}");
+					return;
+				}
+			}
+
 			Entity.RemoveItem(item);
 		}
 
