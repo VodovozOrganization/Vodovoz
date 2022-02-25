@@ -2405,16 +2405,16 @@ namespace Vodovoz.Domain.Orders
 				totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(rentServiceOrderItem);
 			}
 
-			if(totalEquipmentCountForDeposit > item.Count || totalEquipmentCountForService > item.Count)
-			{
-				ObservableOrderEquipments.Remove(item);
-				UpdateRentsCount();
-			}
-			else if(totalEquipmentCountForDeposit == item.Count || totalEquipmentCountForService == item.Count)
+			if(totalEquipmentCountForDeposit == item.Count || totalEquipmentCountForService == item.Count)
 			{
 				ObservableOrderEquipments.Remove(item);
 				RemoveOrderItem(rentDepositOrderItem);
 				RemoveOrderItem(rentServiceOrderItem);
+			}
+			else
+			{
+				ObservableOrderEquipments.Remove(item);
+				UpdateRentsCount();
 			}
 			
 			UpdateDocuments();
