@@ -94,8 +94,8 @@ namespace Vodovoz.Views.Complaints
 			labelOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			yentryPhone.Binding.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text).InitializeFromSource();
-			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			arrangementTextView.Binding
@@ -175,6 +175,14 @@ namespace Vodovoz.Views.Complaints
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel); };
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+
+			ViewModel.Entity.PropertyChanged += (o, e) =>
+			{
+				if(e.PropertyName == nameof(ViewModel.Entity.Phone))
+				{
+					handsetPhone.SetPhone(ViewModel.Entity.Phone);
+				}
+			};
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
