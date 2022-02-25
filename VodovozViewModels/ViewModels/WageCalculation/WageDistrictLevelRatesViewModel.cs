@@ -7,7 +7,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Infrastructure;
@@ -33,23 +33,21 @@ namespace Vodovoz.ViewModels.WageCalculation
 			Configure();
 		}
 
-		GenericObservableList<WageDistrictLevelRateViewModel> observableWageDistrictLevelRateViewModels =
+		GenericObservableList<WageDistrictLevelRateViewModel> _observableWageDistrictLevelRateViewModels =
 			new GenericObservableList<WageDistrictLevelRateViewModel>();
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WageDistrictLevelRateViewModel> ObservableWageDistrictLevelRateViewModels
 		{
-			get => observableWageDistrictLevelRateViewModels;
-			set => SetField(ref observableWageDistrictLevelRateViewModels, value, () => ObservableWageDistrictLevelRateViewModels);
+			get => _observableWageDistrictLevelRateViewModels;
+			set => SetField(ref _observableWageDistrictLevelRateViewModels, value);
 		}
-
-		public WageDistrictLevelRateViewModel WageDistrictLevelRateVM { get; set; }
 
 		void Configure()
 		{
 			var allWageDistricts = _wageCalculationRepository.AllWageDistricts(UoW).ToList();
 
-			foreach(var carTypeOfUse in new[] { CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle })
+			foreach(var carTypeOfUse in Car.GetCarTypesOfUseForRatesLevelWageCalculation())
 			{
 				foreach(var district in allWageDistricts)
 				{
@@ -76,7 +74,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			foreach(WageDistrictLevelRate distr in Entity.ObservableLevelRates)
 			{
-				WageDistrictLevelRateViewModel viewModel = null;
+				WageDistrictLevelRateViewModel viewModel;
 				if(!_viewModelsCache.ContainsKey((distr.WageDistrict.Id, distr.CarTypeOfUse)))
 				{
 					viewModel = new WageDistrictLevelRateViewModel(distr, CommonServices, UoW, this, new AdvancedWageWidgetFactory());
@@ -88,7 +86,9 @@ namespace Vodovoz.ViewModels.WageCalculation
 				}
 
 				if(!ObservableWageDistrictLevelRateViewModels.Contains(viewModel))
+				{
 					ObservableWageDistrictLevelRateViewModels.Add(viewModel);
+				}
 			}
 		}
 
@@ -116,6 +116,19 @@ namespace Vodovoz.ViewModels.WageCalculation
 				foreach(var level in defaultLevels)
 				{
 					level.IsDefaultLevelForOurCars = false;
+					UoW.Save(level);
+				}
+			}
+
+			if(Entity.IsDefaultLevelForRaskatCars)
+			{
+				var defaultLevels = UoW.Session.QueryOver<WageDistrictLevelRates>()
+					.Where(r => r.IsDefaultLevelForRaskatCars)
+					.And(r => r.Id != Entity.Id)
+					.List();
+				foreach(var level in defaultLevels)
+				{
+					level.IsDefaultLevelForRaskatCars = false;
 					UoW.Save(level);
 				}
 			}

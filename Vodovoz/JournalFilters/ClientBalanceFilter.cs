@@ -14,6 +14,8 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -27,7 +29,7 @@ namespace Vodovoz
 		{
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(),
+					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(),
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
 			
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;

@@ -174,7 +174,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					&& x.CounterpartyInn == doc.PayerInn
 					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
 
-				if(_paymentsRepository.PaymentFromBankClientExists(
+				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 					UoW,
 					doc.Date,
 					int.Parse(doc.DocNum),
@@ -191,14 +191,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
 				var curPayment = new Payment(doc, org, counterparty);
 
-				if(!autoPaymentMatching.IncomePaymentMatch(curPayment))
-				{
-					curPayment.Status = PaymentState.undistributed;
-				}
-				else
-				{
-					curPayment.Status = PaymentState.distributed;
-				}
+				curPayment.Status =
+					!autoPaymentMatching.IncomePaymentMatch(curPayment)
+						? PaymentState.undistributed
+						: PaymentState.distributed;
 
 				count++;
 				curPayment.ProfitCategory = defaultProfitCategory;
@@ -287,7 +283,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			foreach(PaymentItem item in payment.ObservableItems)
 			{
-				item.CreateExpenseOperation();
+				item.CreateOrUpdateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
 		}

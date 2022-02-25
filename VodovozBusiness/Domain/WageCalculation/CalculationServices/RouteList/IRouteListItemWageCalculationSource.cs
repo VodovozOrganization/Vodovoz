@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList

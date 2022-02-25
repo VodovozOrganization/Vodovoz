@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
@@ -24,52 +25,51 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public bool IncomePaymentMatch(Payment payment)
 		{
-			StringBuilder sb = new StringBuilder();
-			List<Order> orders = new List<Order>();
+			var sb = new StringBuilder();
+			var orders = new List<Order>();
 
 			if(payment.Counterparty == null)
 			{
 				return false;
 			}
 
-			var orderNumbers = ParsePaymentPurpose(payment);
+			var uniqueOrderNumbers = ParsePaymentPurpose(payment.PaymentPurpose);
 
-			if(orderNumbers.Any())
+			if(uniqueOrderNumbers.Any())
 			{
-				foreach(string numberString in orderNumbers)
-				{
-					var order = _uow.GetById<Order>(int.Parse(numberString));
+				orders.AddRange(
+					uniqueOrderNumbers.Select(orderNumber => _uow.GetById<Order>(orderNumber))
+						.Where(order => order != null
+							&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
+							&& order.Client.Id == payment.Counterparty.Id
+							&& order.PaymentType == PaymentType.cashless
+							&& order.OrderPaymentStatus == OrderPaymentStatus.UnPaid
+							&& order.OrderSum > 0));
 
-					if(order == null || _orderUndeliveredStatuses.Contains(order.OrderStatus))
-					{
-						return false;
-					}
-
-					orders.Add(order);
-				}
-
-				var result = orders.Sum(x => x.OrderSum);
-
-				if(payment.Total != result)
+				if(!orders.Any())
 				{
 					return false;
 				}
 
-				if(payment.Total == result)
+				var paymentSum = payment.Total;
+
+				foreach(var order in orders)
 				{
-					foreach(var order in orders)
+					if(paymentSum >= order.OrderSum)
 					{
-						if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
-						{
-							return false;
-						}
-						
 						payment.AddPaymentItem(order);
 						sb.AppendLine(order.Id.ToString());
+						paymentSum -= order.OrderSum;
+					}
+
+					if(paymentSum == 0)
+					{
+						break;
 					}
 				}
 			}
-			else
+
+			if(!payment.PaymentItems.Any())
 			{
 				return false;
 			}
@@ -78,18 +78,19 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return true;
 		}
 
-		private string[] ParsePaymentPurpose(Payment payment)
+		private ISet<int> ParsePaymentPurpose(string paymentPurpose)
 		{
 			string pattern = @"([0-9]{6,7})";
 
-			var matches = Regex.Matches(payment.PaymentPurpose, pattern);
-			string[] str = new string[matches.Count];
+			HashSet<int> uniqueOrderNumbers = new HashSet<int>();
+			var matches = Regex.Matches(paymentPurpose, pattern);
 
-			for(int i = 0; i < matches.Count; i++) {
-				str[i] = matches[i].Groups[1].Value;
+			for(int i = 0; i < matches.Count; i++)
+			{
+				uniqueOrderNumbers.Add(int.Parse(matches[i].Groups[1].Value));
 			}
 
-			return str;
+			return uniqueOrderNumbers;
 		}
 	}
 }

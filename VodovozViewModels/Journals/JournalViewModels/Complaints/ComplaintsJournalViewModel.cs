@@ -11,6 +11,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -25,6 +26,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -43,10 +45,10 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly IFilePickerService _filePickerService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionService _subdivisionService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -75,9 +77,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionService subdivisionService,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
 			IGtkTabsOpener gtkDialogsOpener,
@@ -97,10 +99,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -124,7 +126,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FinishJournalConfiguration();
 
-			FilterViewModel.SubdivisionService = subdivisionService;
+			FilterViewModel.SubdivisionParametersProvider = subdivisionParametersProvider;
 			FilterViewModel.EmployeeService = employeeService;
 
             var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
@@ -133,7 +135,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
             FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-            if (FilterViewModel.SubdivisionService.GetOkkId() == currentEmployeeSubdivision.Id)
+            if (FilterViewModel.SubdivisionParametersProvider.GetOkkId() == currentEmployeeSubdivision.Id)
             {
                 FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
             }
@@ -212,8 +214,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
-                
-			string okkSubdivision = uow.GetById<Subdivision>(_subdivisionService.GetOkkId()).ShortName ?? "?";
+
+			string okkSubdivision = uow.GetById<Subdivision>(_subdivisionParametersProvider.GetOkkId()).ShortName ?? "?";
 
 			var workInSubdivisionsProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'Checking',?3, ''))"),
@@ -346,7 +348,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
 				}
 
-				if (FilterViewModel.CurrentUserSubdivision != null 
+				if (FilterViewModel.CurrentUserSubdivision != null
 					&& FilterViewModel.ComplaintDiscussionStatus != null)
                 {
 					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
@@ -416,10 +418,9 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
 			);
 
-			var result = query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
+			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
 				 .OrderBy(n => n.Id)
-				 .Desc().List<ComplaintJournalNode>()
-				 ;
+				 .Desc();
 
 			return query;
 		}
@@ -438,7 +439,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_commonServices,
 						_nomenclatureRepository,
 						_userRepository,
-                        _filePickerService,
+                        _fileDialogService,
 						_orderSelectorFactory,
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
@@ -457,7 +458,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
 						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-						_filePickerService,
+						_fileDialogService,
 						_subdivisionRepository,
 						_nomenclatureRepository,
 						_userRepository,
@@ -473,7 +474,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersRepository,
 						new ComplaintResultsRepository()
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
@@ -489,7 +490,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        _filePickerService,
+                        _fileDialogService,
 						new UserRepository()
 					),
 					//функция диалога открытия документа
@@ -500,7 +501,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
 						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-						_filePickerService,
+						_fileDialogService,
 						_subdivisionRepository,
 						_nomenclatureRepository,
 						_userRepository,
@@ -516,7 +517,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_undeliveredOrdersRepository,
 						new ComplaintResultsRepository()
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
@@ -584,7 +585,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					n => _gtkDlgOpener.OpenCreateRouteListDlg(this, GetRouteList(n).Id)
+					n => _gtkDlgOpener.OpenRouteListCreateDlg(this, GetRouteList(n).Id)
 				)
 			);
 
@@ -613,7 +614,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
 								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-								_filePickerService,
+								_fileDialogService,
 								_subdivisionRepository,
 								_nomenclatureRepository,
 								_userRepository,
@@ -651,7 +652,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
 								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-								_filePickerService,
+								_fileDialogService,
 								_subdivisionRepository,
 								_nomenclatureRepository,
 								_userRepository,

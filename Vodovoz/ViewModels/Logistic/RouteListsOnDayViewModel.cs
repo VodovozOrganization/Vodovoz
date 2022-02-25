@@ -32,10 +32,12 @@ using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -67,6 +69,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			ICarModelJournalFactory carModelJournalFactory,
 			IGeographicGroupParametersProvider geographicGroupParametersProvider) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
@@ -87,6 +90,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			ScheduleRestrictionRepository =
 				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			CarModelJournalFactory = carModelJournalFactory;
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -143,6 +147,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public ICarRepository CarRepository { get; }
 		public IList<GeographicGroup> GeographicGroupsExceptEast { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
+		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public IOrderRepository OrderRepository { get; }
 
 		void CreateCommands()
@@ -220,7 +225,7 @@ namespace Vodovoz.ViewModels.Logistic
 							} else
 								return;
 						}
-						gtkTabsOpener.OpenCreateRouteListDlg(this, rl.Id);
+						gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
 					}
 				},
 				i => true
@@ -734,7 +739,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
-				return FormatOccupancy(weight, null, rl.Car.MaxWeight);
+				return FormatOccupancy(weight, null, rl.Car.CarModel.MaxWeight);
 			}
 
 			if(row is RouteListItem rli)
@@ -746,7 +751,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var volume = rl.Addresses.Sum(x => x.Order.TotalVolume);
-				return FormatOccupancy(volume, null, rl.Car.MaxVolume);
+				return FormatOccupancy(volume, null, rl.Car.CarModel.MaxVolume);
 			}
 
 			if(row is RouteListItem rli)
@@ -813,7 +818,7 @@ namespace Vodovoz.ViewModels.Logistic
 			return string.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
 		}
 
-		string FormatOccupancy(double val, double? min, double? max)
+		string FormatOccupancy(decimal val, decimal? min, decimal? max)
 		{
 			string color = "green";
 			if(val > max)

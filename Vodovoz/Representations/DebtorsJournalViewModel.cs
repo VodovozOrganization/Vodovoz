@@ -24,9 +24,16 @@ using System.Threading;
 using FluentNHibernate.Data;
 using FluentNHibernate.Utils;
 using QS.Dialog.Gtk;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.Views;
 
 namespace Vodovoz.Representations
 {
@@ -34,15 +41,27 @@ namespace Vodovoz.Representations
 	{
 		private readonly IDebtorsParameters _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+		private readonly IEmailRepository _emailRepository;
+		private readonly Employee _currentEmployee;
+		private readonly bool _canSendBulkEmails;
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
+			IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters, IEmailParametersProvider emailParametersProvider,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory, IEmailRepository emailRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
 			_debtorsParameters = debtorsParameters;
 			_gtkTabsOpener = gtkTabsOpener;
+			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			_canSendBulkEmails = commonServices.CurrentPermissionService.ValidatePresetPermission("can_send_bulk_emails");
 		}
 
 		IEmployeeRepository employeeRepository { get; set; }
@@ -73,6 +92,7 @@ namespace Vodovoz.Representations
 		}
 
 		private string footerInfo = "Идёт загрузка данных...";
+
 		public override string FooterInfo {
 			get => footerInfo;
 			set => SetField(ref footerInfo, value);
@@ -95,6 +115,7 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
+			Email emailAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
@@ -144,6 +165,10 @@ namespace Vodovoz.Representations
 			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
 				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.Count(Projections.Id()));
+
+			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Property(() => emailAlias.Id));
 
 			#region LastOrder
 
@@ -271,6 +296,10 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
 				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
+				if(FilterViewModel.HideWithoutEmail)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
+				}
 			}
 
 			#endregion Filter
@@ -319,6 +348,7 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
+			Email emailAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
@@ -351,6 +381,10 @@ namespace Vodovoz.Representations
 					Projections.Property<Order>(o => o.Client.Id))
 				)
 				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
+
+			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Property(() => emailAlias.Id));
 
 			#region LastOrder
 
@@ -460,6 +494,10 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
 				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
+				if(FilterViewModel.HideWithoutEmail)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
+				}
 			}
 
 
@@ -532,6 +570,8 @@ namespace Vodovoz.Representations
 			}));
 
 			NodeActionsList.Add(NewJournalActionForOpenCounterpartyDlg());
+
+			NodeActionsList.Add(NewJournalActionForOpenBulkEmail());
 		}
 
 		private JournalAction NewJournalActionForOpenCounterpartyDlg()
@@ -545,6 +585,19 @@ namespace Vodovoz.Representations
 				}
 			});
 		}
+
+		private JournalAction NewJournalActionForOpenBulkEmail()
+		{
+			return new JournalAction("Массовая рассылка", x => true, x => _canSendBulkEmails, selectedItems =>
+			{
+				var bulkEmailViewModel = new BulkEmailViewModel(null, UnitOfWorkFactory, ItemsSourceQueryFunction, _emailParametersProvider,
+						commonServices, _attachmentsViewModelFactory, _currentEmployee, _emailRepository);
+				
+				var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
+				bulkEmailView.Show();
+			});
+		}
+
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
 
 		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction => (node) =>
@@ -607,7 +660,7 @@ namespace Vodovoz.Representations
 				if(item == null)
 					continue;
 				CallTask task = new CallTask {
-					TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW),
+					TaskCreator = _currentEmployee,
 					DeliveryPoint = UoW.GetById<DeliveryPoint>(item.AddressId),
 					Counterparty = UoW.GetById<Counterparty>(item.ClientId),
 					CreationDate = DateTime.Now,
@@ -621,34 +674,5 @@ namespace Vodovoz.Representations
 			UoW.Commit();
 			return newTaskCount;
 		}
-	}
-
-	public class DebtorJournalNode : JournalEntityNodeBase<Domain.Orders.Order>
-	{
-		public int AddressId { get; set; }
-
-		public string AddressName { get; set; }
-
-		public int ClientId { get; set; }
-
-		public string ClientName { get; set; }
-
-		public PersonType OPF { get; set; }
-
-		public int DebtByAddress { get; set; }
-
-		public int DebtByClient { get; set; }
-
-		public int Reserve { get; set; }
-
-		public string RowColor { get; set; } = "black";
-
-		public DateTime? LastOrderDate { get; set; }
-
-		public int? LastOrderBottles { get; set; }
-
-		public string IsResidueExist { get; set; } = "нет";
-
-		public int CountOfDeliveryPoint { get; set; }
 	}
 }

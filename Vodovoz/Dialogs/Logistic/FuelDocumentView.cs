@@ -1,15 +1,8 @@
 ﻿using System;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.ViewModels.FuelDocuments;
 using QS.Views.GtkUI;
 using QS.Permissions;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Services;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -83,7 +76,7 @@ namespace Vodovoz
 		protected void OnButtonOpenExpenseClicked(object sender, EventArgs e)
 		{
 			if(ViewModel.FuelDocument.FuelCashExpense?.Id > 0) 
-				Tab.TabParent.AddSlaveTab(Tab, new CashExpenseDlg(ViewModel.FuelDocument.FuelCashExpense.Id, PermissionsSettings.PermissionService));
+				Tab.TabParent.AddSlaveTab(Tab, new CashExpenseDlg(ViewModel.FuelDocument.FuelCashExpense.Id));
 		}
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e) => ViewModel.SaveCommand.Execute();

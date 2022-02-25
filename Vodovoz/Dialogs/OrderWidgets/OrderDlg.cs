@@ -1,12 +1,12 @@
 ﻿using Autofac;
-using EmailService;
-using fyiReporting.RDL;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using NLog;
+using NLog.Extensions.Logging;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -26,13 +26,18 @@ using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using RdlEngine;
+using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.ServiceModel.Configuration;
+using FluentNHibernate.Utils;
+using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.ViewModels.Extension;
 using Vodovoz.Additions.Printing;
@@ -50,6 +55,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
@@ -88,12 +94,15 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozInfrastructure.Configuration;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Vodovoz.Models.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -145,6 +154,7 @@ namespace Vodovoz
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
 		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 		private readonly bool _canSetOurOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
@@ -160,6 +170,8 @@ namespace Vodovoz
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
+		private bool _isNeedSendBill;
+		private Email _emailAddressForBill;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -173,18 +185,10 @@ namespace Vodovoz
 			}
 		}
 		
-		private IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory {
-			get {
-				if(counterpartySelectorFactory == null) {
-					counterpartySelectorFactory =
-						new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-							CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-				};
-				return counterpartySelectorFactory;
-			}
-		}
-		
+		private ICounterpartyJournalFactory counterpartySelectorFactory;
+		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
+
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory {
 			get {
@@ -391,7 +395,8 @@ namespace Vodovoz
 				new NomenclatureFixedPriceController(
 					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
-			_paymentFromBankClientController = new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
+			_paymentFromBankClientController =
+				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -486,12 +491,12 @@ namespace Vodovoz
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : string.Empty, w => w.Text).InitializeFromSource();
 			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
-			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 			entryBottlesToReturn.Changed += OnEntryBottlesToReturnChanged;
 
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
-			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringValuableConverter()).InitializeFromSource();
+			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
@@ -500,14 +505,14 @@ namespace Vodovoz
 			}
 
 			entryTrifle.ValidationMode = ValidationType.numeric;
-			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			ylabelContract.Binding.AddFuncBinding(Entity, e => e.Contract != null && e.Contract.Organization != null ? e.Contract.Title + " (" + e.Contract.Organization.FullName + ")" : string.Empty, w => w.Text).InitializeFromSource();
 
 			OldFieldsConfigure();
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
-			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			var excludedPaymentFromId = new OrderParametersProvider(_parametersProvider).PaymentByCardFromSmsId;
 			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
@@ -537,6 +542,7 @@ namespace Vodovoz
 			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			evmeAuthor.Sensitive = false;
 
+			evmeDeliveryPoint.SetObjectDisplayFunc<DeliveryPoint>(dp => dp.ShortAddress);
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
 
@@ -596,10 +602,6 @@ namespace Vodovoz
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
-			dataSumDifferenceReason.Completion = new EntryCompletion {
-				Model = GetListStoreSumDifferenceReasons(UoWGeneric),
-				TextColumn = 0
-			};
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -649,7 +651,7 @@ namespace Vodovoz
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
-			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 			
@@ -858,21 +860,6 @@ namespace Vodovoz
 			}
 			
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
-		}
-
-		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
-		{
-			Order order = null;
-
-			var reasons = uow.Session.QueryOver(() => order)
-				.Select(NHibernate.Criterion.Projections.Distinct(NHibernate.Criterion.Projections.Property(() => order.SumDifferenceReason)))
-				.List<string>();
-
-			var store = new ListStore(typeof(string));
-			foreach(string s in reasons) {
-				store.AppendValues(s);
-			}
-			return store;
 		}
 
 		void ControlsActionBottleAccessibility()
@@ -1147,8 +1134,8 @@ namespace Vodovoz
 		
 		private void ConfigureSendDocumentByEmailWidget()
 		{
-			SendDocumentByEmailViewModel = 
-				new SendDocumentByEmailViewModel(_emailRepository, _currentEmployee, ServicesConfig.InteractiveService, _parametersProvider);
+			SendDocumentByEmailViewModel =
+				new SendDocumentByEmailViewModel(_emailRepository,  new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox19.Add(sendEmailView);
 			sendEmailView.Show();
@@ -1244,7 +1231,9 @@ namespace Vodovoz
 
 				if(Entity.OrderStatus == OrderStatus.NewOrder) {
 					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+					{
 						return false;
+					}
 				}
 				
 				if (Entity.Id == 0 && 
@@ -1257,22 +1246,14 @@ namespace Vodovoz
 				}
 
 				logger.Info("Сохраняем заказ...");
-				
-				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(_emailRepository)) {
-					bool sendEmail = true;
-					var emailAddressForBill = Entity.GetEmailAddressForBill();
-					if(emailAddressForBill == null) {
-						sendEmail = false;
-						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
-							return false;
-						}
-					}
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
-					if(sendEmail)
-						SendBillByEmail(emailAddressForBill);
-				} else {
-					Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+
+				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+
+				if(_isNeedSendBill)
+				{
+					SendBillByEmail(_emailAddressForBill);
 				}
+
 				logger.Info("Ok.");
 				UpdateUIState();
 				return true;
@@ -1334,6 +1315,15 @@ namespace Vodovoz
 				}
 			}
 
+			PrepareSendBillInformation();
+
+			if(_emailAddressForBill == null 
+			   && Entity.NeedSendBill(_emailRepository)
+			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
+			{
+				return false;
+			}
+
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			}
@@ -1349,6 +1339,20 @@ namespace Vodovoz
 			UpdateUIState();
 
 			return true;
+		}
+
+		private void PrepareSendBillInformation()
+		{
+			_emailAddressForBill = Entity.GetEmailAddressForBill();
+
+			if(_emailAddressForBill != null && Entity.NeedSendBill(_emailRepository))
+			{
+				_isNeedSendBill = true;
+			}
+			else
+			{
+				_isNeedSendBill = false;
+			}
 		}
 
 		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
@@ -2472,6 +2476,15 @@ namespace Vodovoz
 				return ;
 			}
 
+			PrepareSendBillInformation();
+
+			if(_emailAddressForBill == null 
+			   && Entity.NeedSendBill(_emailRepository)
+			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить смену статуса заказа без дальнейшей отправки почты?"))
+			{
+				return;
+			}
+
 			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
 		}
@@ -3051,63 +3064,70 @@ namespace Vodovoz
 
 		private bool HaveEmailForBill()
 		{
-			Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+			Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
-		private void SendBillByEmail(Vodovoz.Domain.Contacts.Email emailAddressForBill)
+		private void SendBillByEmail(Email emailAddressForBill)
 		{
-			if(emailAddressForBill == null) {
+			if(emailAddressForBill == null)
+			{
 				throw new ArgumentNullException(nameof(emailAddressForBill));
 			}
 
-			if(!EmailServiceSetting.SendingAllowed || _emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
+			if(_emailRepository.HaveSendedEmailForBill(Entity.Id))
+			{
 				return;
 			}
 
-			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument)) {
+			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument))
+			{
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-			
-			var wasHideSignature = billDocument.HideSignature;
-			billDocument.HideSignature = false;
-			ReportInfo ri = billDocument.GetReportInfo();
-			billDocument.HideSignature = wasHideSignature;
 
-			var billTemplate = billDocument.GetEmailTemplate();
-			EmailService.OrderEmail email = new EmailService.OrderEmail {
-				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
-				Text = billTemplate.Text,
-				HtmlText = billTemplate.TextHtml,
-				Recipient = new EmailContact("", emailAddressForBill.Address),
-				Sender = new EmailContact("vodovoz-spb.ru", _parametersProvider.GetParameterValue("email_for_email_delivery")),
-				Order = Entity.Id,
-				OrderDocumentType = OrderDocumentType.Bill
-			};
-			foreach(var item in billTemplate.Attachments) {
-				email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
-			}
-			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-				string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-				email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
-			}
-			
-			email.AuthorId = _currentEmployee?.Id ?? 0;
-			email.ManualSending = false;
-			
-			IEmailService service = EmailServiceSetting.GetEmailService();
-			if(service == null) {
-				return;
-			}
-			var result = service.SendOrderEmail(email);
 
-			//Если произошла ошибка и письмо не отправлено
-			string resultMessage = "";
-			if(!result.Item1) {
-				resultMessage = "Письмо не было отправлено! Причина:\n";
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи о письме со счетом"))
+			{
+				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
+
+				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+
+				var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
+
+				var storedEmail = new StoredEmail
+				{
+					SendDate = DateTime.Now,
+					StateChangeDate = DateTime.Now,
+					State = StoredEmailStates.PreparingToSend,
+					RecipientAddress = clientEmail.Address,
+					ManualSending = false,
+					Subject = document.Name,
+					Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
+				};
+
+				try
+				{
+					uow.Save(storedEmail);
+
+					OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
+					{
+						StoredEmail = storedEmail,
+						Counterparty = Counterparty,
+						OrderDocument = document
+					};
+
+					uow.Save(orderDocumentEmail);
+
+					uow.Commit();
+				}
+
+				catch(Exception ex)
+				{
+					logger.Debug($"Ошибка при сохранении. Ошибка: { ex.Message }");
+					throw ex;
+				}
 			}
-			MessageDialogHelper.RunInfoDialog(resultMessage + result.Item2);
 		}
 
 		void Selection_Changed(object sender, EventArgs e)
@@ -3122,13 +3142,14 @@ namespace Vodovoz
 			if(!Entity.Client.Emails.Any()) {
 				email = "";
 			} else {
-				Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 				if(clientEmail == null) {
 					clientEmail = Entity.Client.Emails.FirstOrDefault();
 				}
 				email = clientEmail.Address;
 			}
-			SendDocumentByEmailViewModel.Update(selectedDoc, email);
+
+			SendDocumentByEmailViewModel.Update(selectedDoc as IEmailableDocument, email);
 		}
 
 		protected void OnCheckSelfDeliveryToggled(object sender, EventArgs e)

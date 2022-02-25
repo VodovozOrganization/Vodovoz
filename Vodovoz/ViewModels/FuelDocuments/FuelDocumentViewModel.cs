@@ -16,11 +16,13 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModel;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -290,7 +292,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private bool CarHasFuelType()
 		{
 			if(RouteList.Car.FuelType == null) {
-				ShowWarningMessage($"У машины {RouteList.Car.Model} {RouteList.Car.Title} отсутствует тип топлива");
+				ShowWarningMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
 				return false;
 			}
 
@@ -422,13 +424,18 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				if(exclude.Count == 0) 
 					exclude = null;
 
-				Car car = RouteList.Car;
-				Employee driver = RouteList.Driver;
+				var car = RouteList.Car;
+				var carVersion = car.GetActiveCarVersionOnDate(RouteList.Date);
+				var driver = RouteList.Driver;
 
-				if(car.IsCompanyCar) 
+				if(carVersion.IsCompanyCar)
+				{
 					driver = null;
-				else 
+				}
+				else
+				{
 					car = null;
+				}
 
 				fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
 

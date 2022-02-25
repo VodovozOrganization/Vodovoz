@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using EmailService;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.StoredEmails;
@@ -43,8 +42,6 @@ namespace Vodovoz.Dialogs.Email
 
 			ytreeviewStoredEmails.ItemsDataSource = ViewModel.StoredEmails;
 			ytreeviewStoredEmails.Selection.Changed += OnYtreeviewStoredEmailsSelectionChanged;
-
-			Sensitive = EmailServiceSetting.SendingAllowed;
 		}
 
 		private void YvalidatedentryEmailOnChanged(object sender, EventArgs e)

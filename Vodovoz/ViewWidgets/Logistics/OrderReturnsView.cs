@@ -44,6 +44,8 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -209,7 +211,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				new NomenclatureSelectorFactory().GetDefaultNomenclatureSelectorFactory(),
-				new CounterpartyJournalFactory().CreateCounterpartyAutocompleteSelectorFactory(),
+				new CounterpartyJournalFactory(),
 				_nomenclatureRepository,
 				new UserRepository()
 			) {
@@ -366,7 +368,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter())
+			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			_routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => { UpdateItemsList(); };

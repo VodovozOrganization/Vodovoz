@@ -62,12 +62,11 @@ namespace Vodovoz.Domain.Orders
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IOrderRepository _orderRepository = new OrderRepository();
 		private static readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+		private static readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
-		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
-		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController =
-			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository);
+			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -1231,8 +1230,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual int TotalWeight => 
 			(int)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Weight);
 
-		public virtual double TotalVolume => 
-			(double)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
+		public virtual decimal TotalVolume =>
+			OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
 
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
@@ -1488,9 +1487,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill(IEmailRepository emailRepository)
 		{
-			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
+			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
 				&& PaymentType == PaymentType.cashless
-				&& !emailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
+				&& !emailRepository.HaveSendedEmailForBill(Id)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}
@@ -2503,7 +2502,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
-		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			ChangeStatus(newStatus);
 			callTaskWorker.CreateTasks(this);
@@ -2540,7 +2539,10 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, Id);
+					if(PaymentType == PaymentType.cashless)
+					{
+						_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, this);
+					}
 					break;
 				default:
 					break;
@@ -2552,8 +2554,8 @@ namespace Vodovoz.Domain.Orders
 			   || initialStatus == newStatus)
 				return;
 
-			DeleteRefundWhenOrderRestoredToDeliver(initialStatus);
-
+			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
+			
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = string.Format(
@@ -2567,69 +2569,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		/// <summary>
-		/// Удаляет возврат платежа при возврате безналичного заказа в работу после отмены. Также меняет статус оплаты заказов
-		/// </summary>
-		/// <param name="previousStatus"></param>
-		private void DeleteRefundWhenOrderRestoredToDeliver(OrderStatus previousStatus)
+		public virtual void UpdateOrderPaymentStatus()
 		{
-			if((previousStatus == OrderStatus.DeliveryCanceled
-			    || previousStatus == OrderStatus.NotDelivered
-			    || previousStatus == OrderStatus.Canceled)
-			   && PaymentType == PaymentType.cashless)
-			{
-				var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id);
-				var payment = paymentItems.FirstOrDefault()?.Payment;
-				if(payment == null)
-				{
-					return;
-				}
-
-				var refundToDelete = _paymentsRepository.GetRefundPayment(UoW, payment.Id);
-				if(refundToDelete == null)
-				{
-					return;
-				}
-
-				var itemsToUpdate = refundToDelete.PaymentItems;
-
-				foreach(var pItem in itemsToUpdate)
-				{
-					var order = pItem.Order;
-					order.UpdateOrderPaymentStatus(pItem);
-					UoW.Save(order);
-				}
-
-				UoW.Delete(refundToDelete);
-				var totalPayed = paymentItems.Sum(pi => pi.Sum);
-
-				OrderPaymentStatus = OrderSum > totalPayed
-					? OrderPaymentStatus.PartiallyPaid
-					: OrderPaymentStatus.Paid;
-			}
-		}
-
-		private void UpdateOrderPaymentStatus(PaymentItem ignoredItem = null)
-		{
-			var paymentItems = _paymentItemsRepository.GetAllocatedPaymentItemsForOrder(UoW, Id)
-				.Where(pi => pi != ignoredItem).ToList();
-			if(!paymentItems.Any())
-			{
-				if(PaymentType == PaymentType.cashless)
-				{
-					OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-				}
-
-				return;
-			}
-
-			var totalPayed = paymentItems.Sum(pi => pi.Sum);
-
-			OrderPaymentStatus = totalPayed == 0
-				? OrderPaymentStatus.UnPaid
-				: OrderSum > totalPayed
-					? OrderPaymentStatus.PartiallyPaid
-					: OrderPaymentStatus.Paid;
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
+			
+			OrderPaymentStatus =
+				allocatedSum >= OrderSum
+					? OrderPaymentStatus.Paid
+					: allocatedSum == 0
+						? OrderPaymentStatus.UnPaid
+						: OrderPaymentStatus.PartiallyPaid;
 		}
 
 		/// <summary>
@@ -3523,6 +3472,7 @@ namespace Vodovoz.Domain.Orders
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
+			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
 			uow.Save();
 		}
 		
@@ -3920,7 +3870,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Объём</returns>
 		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
-		public virtual double FullVolume(bool includeGoods = true, bool includeEquipment = true)
+		public virtual decimal FullVolume(bool includeGoods = true, bool includeEquipment = true)
 		{
 			double volume = 0;
 			if(includeGoods)
@@ -3928,7 +3878,7 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Volume * x.Count);
-			return volume;
+			return (decimal)volume;
 		}
 
 		#endregion

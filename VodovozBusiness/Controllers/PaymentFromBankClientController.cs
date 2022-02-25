@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -14,11 +16,16 @@ namespace Vodovoz.Controllers
 	{
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IPaymentsRepository _paymentsRepository;
 
-		public PaymentFromBankClientController(IPaymentItemsRepository paymentItemsRepository, IOrderRepository orderRepository)
+		public PaymentFromBankClientController(
+			IPaymentItemsRepository paymentItemsRepository,
+			IOrderRepository orderRepository,
+			IPaymentsRepository paymentsRepository)
 		{
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 		}
 		
 		/// <summary>
@@ -60,7 +67,7 @@ namespace Vodovoz.Controllers
 					}
 					if(paymentItem.Sum <= diff)
 					{
-						paymentItem.Payment.UpdateAllocatedSum(uow, order.Id, 0);
+						paymentItem.Payment.RemovePaymentItem(paymentItem.Id);
 						uow.Save(paymentItem.Payment);
 						diff -= paymentItem.Sum;
 					}
@@ -77,6 +84,72 @@ namespace Vodovoz.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Возвращаем распределенную сумму на заказ, если менялся тип оплаты с безнала на любой другой
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="order">Заказ</param>
+		public void ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(IUnitOfWork uow, Order order)
+		{
+			if(_orderRepository.GetCurrentOrderPaymentTypeInDB(uow, order.Id) == PaymentType.cashless
+				&& order.PaymentType != PaymentType.cashless)
+			{
+				ReturnAllocatedSumToClientBalance(uow, order, RefundPaymentReason.ChangeOrderPaymentType);
+			}
+		}
+		
+		/// <summary>
+		/// Возврат распределенной суммы на баланс клиента
+		/// Если есть распределение на этот заказ, то создаем новый платеж с распределенной суммой
+		/// для ее возврата на баланс клиента и последующего перераспределения
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="order">Заказ</param>
+		/// <param name="refundPaymentReason">Причина возврата суммы на баланс</param>
+		public void ReturnAllocatedSumToClientBalance(
+			IUnitOfWork uow, Order order, RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation)
+		{
+			if(!HasAllocatedSum(uow, order.Id, out var paymentItems, out var allocatedSum))
+			{
+				return;
+			}
+			
+			CreateNewPaymentForReturnAllocatedSumToClientBalance(uow, order, allocatedSum, paymentItems, refundPaymentReason);
+		}
+
+		/// <summary>
+		/// Отмена возврата суммы на баланс клиента со всеми распределениями, если они есть,
+		/// при возвращении заказа по безналу в работу
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="order">Заказ</param>
+		/// <param name="previousOrderStatus">Предыдущий статус заказа</param>
+		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus)
+		{
+			if(HasOrderUndeliveredStatus(previousOrderStatus)
+				&& order.PaymentType == PaymentType.cashless
+				&& HasNotCancelledRefundedPayment(uow, order.Id, out var refundedPayment))
+			{
+				refundedPayment.CancelAllocation(
+					$"Причина отмены: заказ №{order.Id} вернули в статус" +
+					$" {order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}",
+					true);
+				uow.Save(refundedPayment);
+
+				var cancelledPaymentItems =
+					_paymentItemsRepository.GetCancelledPaymentItemsForOrderFromNotCancelledPayments(uow, order.Id);
+
+				foreach(var paymentItem in cancelledPaymentItems)
+				{
+					paymentItem.ReturnFromCancelled();
+					uow.Save(paymentItem);
+				}
+
+				var allocatedSum = cancelledPaymentItems.Sum(pi => pi.Sum);
+				order.OrderPaymentStatus = allocatedSum >= order.OrderSum ? OrderPaymentStatus.Paid : OrderPaymentStatus.PartiallyPaid;
+			}
+		}
+
 		private bool HasOrderUndeliveredStatus(OrderStatus orderStatus)
 		{
 			return _orderRepository.GetUndeliveryStatuses().Contains(orderStatus);
@@ -90,36 +163,49 @@ namespace Vodovoz.Controllers
 			return paymentItems.Any();
 		}
 		
-		/// <summary>
-		/// Возврат суммы на баланс клиента при отмене заказа с распределением
-		/// Если есть распределение на этот заказ, то создаем новый платеж с распределенной суммой
-		/// для ее возврата на баланс клиента и последующего перераспределения
-		/// </summary>
-		/// <param name="uow">Unit of work</param>
-		/// <param name="orderId">Id заказа</param>
-		public void ReturnAllocatedSumToClientBalance(IUnitOfWork uow, int orderId)
+		private bool HasNotCancelledRefundedPayment(IUnitOfWork uow, int orderId, out Payment refundedPayment)
 		{
-			if(!HasAllocatedSum(uow, orderId, out var paymentItems, out var allocatedSum))
-			{
-				return;
-			}
+			refundedPayment = _paymentsRepository.GetNotCancelledRefundedPayment(uow, orderId);
 			
-			CreateNewPaymentForReturnAllocatedSumToClientBalance(uow, orderId, allocatedSum, paymentItems);
+			return refundedPayment != null;
 		}
 
 		private void CreateNewPaymentForReturnAllocatedSumToClientBalance(
-			IUnitOfWork uow, int orderId, decimal allocatedSum, IList<PaymentItem> paymentItems)
+			IUnitOfWork uow, Order order, decimal allocatedSum, IList<PaymentItem> paymentItems, RefundPaymentReason refundPaymentReason)
 		{
-			var payment = paymentItems.Select(x => x.Payment).FirstOrDefault();
-
-			if(payment == null)
+			foreach(var paymentItem in paymentItems)
 			{
-				return;
+				paymentItem.CancelAllocation();
+				uow.Save(paymentItem);
 			}
 
-			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(allocatedSum, orderId);
+			var payment = paymentItems.Select(x => x.Payment).First();
+			
+			var newPayment =
+				payment.CreatePaymentForReturnAllocatedSumToClientBalance(
+					allocatedSum <= order.OrderSum
+						? allocatedSum
+						: order.OrderSum,
+					order.Id,
+					refundPaymentReason);
+
+			if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
+			{
+				order.OrderPaymentStatus =
+					order.PaymentType == PaymentType.cashless
+						? OrderPaymentStatus.UnPaid
+						: OrderPaymentStatus.None;
+			}
 			
 			uow.Save(newPayment);
 		}
+	}
+
+	public enum RefundPaymentReason
+	{
+		[Display(Name = "Отмена доставки/заказа")]
+		OrderCancellation,
+		[Display(Name = "Смена типа оплаты заказа")]
+		ChangeOrderPaymentType
 	}
 }

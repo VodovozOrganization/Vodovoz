@@ -20,6 +20,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -695,7 +696,6 @@ namespace Vodovoz
 						.AddClearDependence<ServiceClaim>(x => x.FinalOrder)
 						.AddDeleteDependence<UndeliveredOrder>(x => x.OldOrder)
 						.AddClearDependence<UndeliveredOrder>(x => x.NewOrder)
-						.AddDeleteDependence<StoredEmail>(x => x.Order)
 						.AddClearDependence<Income>(x => x.Order)
 						.AddClearDependence<Expense>(x => x.Order)
 						.AddClearDependence<M2ProxyDocument>(x => x.Order)

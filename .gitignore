@@ -30,3 +30,6 @@ WinInstall/*
 
 #Production Environment Settings
 *appsettings.Production.json
+
+#Docker Volumes
+Services/Docker/db-data/*

@@ -26,6 +26,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.WageParameterItem).Column("wage_parameter_item_id").Cascade.All();
 			References(x => x.WageParameterItemForOurCars).Column("driver_with_our_cars_wage_parameter_item_id").Cascade.All();
+			References(x => x.WageParameterItemForRaskatCars).Column("raskat_cars_wage_parameter_item_id").Cascade.All();
 		}
 	}
 }

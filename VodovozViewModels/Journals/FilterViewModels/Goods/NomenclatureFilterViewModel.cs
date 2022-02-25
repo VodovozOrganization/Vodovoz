@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
-using QS.Project.Filter;
-using QS.Services;
-using Vodovoz.Domain.Goods;
-using QS.DomainModel.Entity;
 using System.Collections.Generic;
+using System.Linq;
+using QS.DomainModel.Entity;
+using QS.Project.Filter;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.FilterViewModels.Goods
+namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
 	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>
 	{

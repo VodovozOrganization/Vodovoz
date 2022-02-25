@@ -75,7 +75,7 @@ namespace Vodovoz
 		{
 			var expense = UoW.GetById<Expense>(representationUnclosed.GetSelectedId());
 
-			var dlg = new CashIncomeDlg(expense, PermissionsSettings.PermissionService);
+			var dlg = new CashIncomeDlg(expense);
 			OpenNewTab(dlg);
 		}
 
@@ -83,7 +83,7 @@ namespace Vodovoz
 		{
 			var expense = UoW.GetById<Expense>(representationUnclosed.GetSelectedId());
 
-			var dlg = new AdvanceReportDlg(expense, PermissionsSettings.PermissionService);
+			var dlg = new AdvanceReportDlg(expense);
 			OpenNewTab(dlg);
 		}
 

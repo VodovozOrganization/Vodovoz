@@ -9,6 +9,7 @@ using QS.Report;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
@@ -20,7 +21,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "счетах без отгрузки на долги")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
+	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
@@ -67,12 +68,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Order Order {
 			get => order;
 			set
-            {
+			{
 				if (value != null)
-                {
+				{
 					SetField(ref order, value);
 				}
-            } 
+			} 
 		}
 
 		#region implemented abstract members of IPrintableRDLDocument
@@ -100,6 +101,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.SpecialContractNumber : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
+		public virtual Counterparty Counterparty => Client;
 
 		public virtual PrinterType PrintType => PrinterType.RDL;
 		public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
@@ -198,11 +200,5 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(DebtName)}
 				);
 		}
-	}
-
-	public interface IDocument : IDomainObject
-	{
-		Order Order { get; set; }
-		OrderDocumentType Type { get; }
 	}
 }
