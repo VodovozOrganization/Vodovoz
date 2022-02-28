@@ -309,26 +309,26 @@ namespace VodovozDeliveryRulesService
 		/// Т.е. если запрос поступил в понедельник в 17:30, то на вторник мы отправляем интервалы у которых не заполнено время приема
 		/// и где время больше 17:30
 		/// Показатель следующего дня вычисляется через разность дня недели на который надо отправить интервалы и текущего дня
-		/// разница между ними всегда будет равна 1, кроме случая когда текущий день - воскресение. В этом случае разница равна 6
+		/// разница между ними всегда будет равна 1, кроме случая когда текущий день - воскресение.
 		/// </summary>
 		/// <param name="district">Район</param>
-		/// <param name="weekDay">День недели, на который нужно отправить доступные интервалы доставки</param>
+		/// <param name="deliveryWeekDay">День недели, на который нужно отправить доступные интервалы доставки</param>
 		/// <param name="currentDate">Текущее время(когда пришел запрос)</param>
 		/// <returns>Список доступных интервалов доставки на день недели</returns>
-		private IList<DeliverySchedule> GetScheduleRestrictionsByDate(District district, WeekDayName weekDay, DateTime currentDate)
+		private IList<DeliverySchedule> GetScheduleRestrictionsByDate(District district, WeekDayName deliveryWeekDay, DateTime currentDate)
 		{
 			var dayOfWeek = District.ConvertDayOfWeekToWeekDayName(currentDate.DayOfWeek);
 
-			if((weekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && weekDay - dayOfWeek == 6))
+			if((deliveryWeekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && deliveryWeekDay == WeekDayName.Monday))
 			{
 				return district
-					.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+					.GetScheduleRestrictionCollectionByWeekDayName(deliveryWeekDay)
 					.Where(x => x.AcceptBefore == null || x.AcceptBefore.Time > currentDate.TimeOfDay)
 					.Select(x => x.DeliverySchedule)
 					.ToList();
 			}
 
-			return GetScheduleRestrictionsForWeekDay(district, weekDay);
+			return GetScheduleRestrictionsForWeekDay(district, deliveryWeekDay);
 		}
 
 		private bool CheckIfOneHourDeliveryAllowed(IUnitOfWork uow, decimal latitude, decimal longitude,
