@@ -319,7 +319,7 @@ namespace VodovozDeliveryRulesService
 		{
 			var dayOfWeek = District.ConvertDayOfWeekToWeekDayName(currentDate.DayOfWeek);
 
-			if((weekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && weekDay - dayOfWeek == 6))
+			if((weekDay - dayOfWeek == 1) || (dayOfWeek == WeekDayName.Sunday && weekDay == WeekDayName.Monday))
 			{
 				return district
 					.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
