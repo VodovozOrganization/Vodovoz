@@ -40,7 +40,6 @@ namespace Vodovoz.Dialogs
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
-		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private IParametersProvider _parametersProvider;
 		private IContactsParameters _contactsParameters;
@@ -54,7 +53,6 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
-			_roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
 			_commonServices = ServicesConfig.CommonServices;
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
@@ -84,7 +82,6 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
-			_roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
 			_commonServices = ServicesConfig.CommonServices;
 			TabName = Entity.Counterparty?.Name;
 			labelCreator.Text = $"Создатель : {Entity.TaskCreator?.ShortName}";
@@ -134,10 +131,10 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices);
+			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters,  _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)
