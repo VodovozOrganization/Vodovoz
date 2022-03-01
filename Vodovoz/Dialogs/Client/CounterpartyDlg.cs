@@ -560,7 +560,6 @@ namespace Vodovoz
 			{
 				PhonesList = Entity.ObservablePhones,
 				Counterparty = Entity,
-				ShowRoboAtsCounterpartyNameAndPatronymic = true,
 				ReadOnly = !CanEdit
 			};
 			phonesView.ViewModel = _phonesViewModel;
