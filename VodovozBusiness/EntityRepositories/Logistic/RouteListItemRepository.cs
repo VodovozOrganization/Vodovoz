@@ -106,9 +106,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return currentRouteListOrderDuplicate != null;
 		}
 
-        public RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId)
-        {
+		public RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId)
+		{
 			return uow.GetById<RouteListItem>(routeListAddressId);
-        }
+		}
 	}
 }
