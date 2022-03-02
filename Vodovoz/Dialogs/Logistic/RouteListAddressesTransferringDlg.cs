@@ -405,8 +405,10 @@ namespace Vodovoz
 				if(transferredAddressFromRouteListTo != null)
 				{
 					newItem = transferredAddressFromRouteListTo;
+					item.WasTransfered = false;
 					routeListTo.RevertTransferAddress(_wageParameterService, newItem, item);
 					routeListFrom.TransferAddressTo(item, newItem);
+					newItem.WasTransfered = true;
 				}
 				else
 				{
@@ -517,6 +519,7 @@ namespace Vodovoz
 					pastPlace.RecalculateTotalCash();
 					UoW.Save(pastPlace);
 					address.RouteList.TransferAddressTo(address, pastPlace);
+					address.WasTransfered = false;
 				}
 
 				address.RouteList.CalculateWages(_wageParameterService);
