@@ -533,6 +533,7 @@ public partial class MainWindow : Window
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
+		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
 
 		tdiMain.OpenTab(
@@ -541,6 +542,7 @@ public partial class MainWindow : Window
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
 				routeListRepository,
+				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
 				new CategoryRepository(parametersProvider)

@@ -73,6 +73,7 @@ namespace Vodovoz
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IFuelRepository _fuelRepository = new FuelRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -532,6 +533,7 @@ namespace Vodovoz
 							employeeNomenclatureMovementRepository,
 							_baseParametersProvider,
 							_routeListRepository,
+							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
 							_categoryRepository
@@ -553,6 +555,7 @@ namespace Vodovoz
 							employeeNomenclatureMovementRepository,
 							_baseParametersProvider,
 							_routeListRepository,
+							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
 							_categoryRepository
@@ -761,7 +764,7 @@ namespace Vodovoz
 			var valid = new QSValidator<RouteList>(Entity,
 				new Dictionary<object, object>
 				{
-					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
 				});
 			
@@ -845,7 +848,7 @@ namespace Vodovoz
 				new Dictionary<object, object> {
 					{"NewStatus", RouteListStatus.MileageCheck},
 					{"cash_order_close", true},
-					{nameof(IRouteListItemRepository), new RouteListItemRepository()},
+					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
 				});
 			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),

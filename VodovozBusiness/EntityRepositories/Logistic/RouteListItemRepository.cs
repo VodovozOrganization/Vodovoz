@@ -19,6 +19,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .SingleOrDefault();
 		}
 
+		public RouteListItem GetTransferredRouteListItemFromRouteListForOrder(IUnitOfWork uow, int routeListId, int orderId)
+		{
+			return uow.Session.QueryOver<RouteListItem>()
+				.Where(rla => rla.Status == RouteListItemStatus.Transfered)
+				.And(rla => rla.RouteList.Id == routeListId)
+				.And(rla => rla.Order.Id == orderId)
+				.SingleOrDefault();
+		}
+
 		public bool HasRouteListItemsForOrder(IUnitOfWork uow, Domain.Orders.Order order)
 		{
 			return uow.Session.QueryOver<RouteListItem>()
