@@ -1259,15 +1259,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void TransferAddressTo(int id, RouteListItem targetAddress)
+		public virtual void TransferAddressTo(RouteListItem transferringAddress, RouteListItem targetAddress)
 		{
-			Addresses.First(a => a.Id == id).TransferTo(targetAddress);
+			transferringAddress.TransferTo(targetAddress);
 			UpdateStatus();
 		}
 
 		public virtual void RevertTransferAddress(
-			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress) =>
-				targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
+		{
+			targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+			UpdateStatus();
+		}
 
 		private void UpdateClosedInformation()
 		{
