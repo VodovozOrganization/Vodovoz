@@ -368,7 +368,8 @@ namespace Vodovoz
 				.CopyFields(
 					x => x.Client,
 					x => x.DeliveryPoint,
-					x => x.OrderAddressType
+					x => x.OrderAddressType,
+					x => x.PaymentType
 					)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
