@@ -779,7 +779,7 @@ FROM
                (
 	               select h.new_value
 	               from history_changed_entities sub_hce
-	               join history_changes h on sub_hce.id = h.chaged_entity_id
+	               join history_changes h on sub_hce.id = h.changed_entity_id
 	               and h.field_name = 'PaymentBySms'
 	               and h.type in ('Added', 'Changed')
                    where sub_hce.entity_id = o.id
@@ -796,7 +796,7 @@ FROM
                 AND hce.operation = 'Change'
                 INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id
                 AND cc.organization_id = @organization_id
-                INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce.id
+                INNER JOIN history_changes hc_pay_type ON hc_pay_type.changed_entity_id = hce.id
                 AND hc_pay_type.type = 'Changed'
                 AND hc_pay_type.field_name = 'PaymentType'
                 AND
@@ -838,7 +838,7 @@ FROM
                               AND hc_pay_type.new_value = 'ByCard'
                           )
                   )
-                LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
+                LEFT JOIN history_changes hc ON hc.changed_entity_id = hce.id
         WHERE
                 hce.datetime &gt; o.time_delivered
           AND hc.type = 'Changed'
@@ -894,7 +894,7 @@ FROM
                (
                    select h.new_value
                    from history_changed_entities sub_hce
-                   join history_changes h on sub_hce.id = h.chaged_entity_id
+                   join history_changes h on sub_hce.id = h.changed_entity_id
                        and h.field_name = 'PaymentBySms'
                        and h.type in ('Added', 'Changed')
                    where sub_hce.entity_id = o.id
@@ -920,7 +920,7 @@ FROM
                          INNER JOIN orders o_pay_type ON o_pay_type.id = hce_pay_type.entity_id
                     AND hce_pay_type.entity_class = 'Order'
                     AND hce_pay_type.operation IN ('Create', 'Change')
-                         INNER JOIN history_changes hc_pay_type ON hc_pay_type.chaged_entity_id = hce_pay_type.id
+                         INNER JOIN history_changes hc_pay_type ON hc_pay_type.changed_entity_id = hce_pay_type.id
                     AND hc_pay_type.type IN ('Added', 'Changed')
                     AND hc_pay_type.field_name = 'PaymentType'
                     AND
@@ -967,7 +967,7 @@ FROM
                        )
                 GROUP BY hce_pay_type.entity_id
             ) payment_type_changes ON payment_type_changes.order_id = o.id
-                LEFT JOIN history_changes hc ON hc.chaged_entity_id = hce.id
+                LEFT JOIN history_changes hc ON hc.changed_entity_id = hce.id
         WHERE
                 hce.datetime &gt; o.time_delivered
           AND (
