@@ -28,10 +28,8 @@ namespace Vodovoz.Dialogs.Employees
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
-		
-		private List<OrderEquipment> equipmentList;
-		public IUnitOfWork UoWOrder { get; private set; }
 
+		private List<OrderEquipment> equipmentList;
 		public bool IsEditable { get; set; } = true;
 
 		public M2ProxyDlg()
@@ -52,12 +50,12 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public M2ProxyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
+		public M2ProxyDlg(Order order)
 		{
 			this.Build();
-			UoWGeneric = uowBuilder.CreateUoW<M2ProxyDocument>(unitOfWorkFactory);
-			UoWOrder = uowBuilder.RootUoW;
-			Entity.Order = UoWOrder.RootObject as Order;
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			TabName = "Новая доверенность М-2";
+			Entity.Order = order;
 
 			ConfigureDlg();
 		}
@@ -176,7 +174,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
-			if(UoWOrder == null)
+			if(Entity.Order == null)
 				return true;
 
 			var valid = new QSValidator<M2ProxyDocument>(Entity);
@@ -191,7 +189,7 @@ namespace Vodovoz.Dialogs.Employees
 						Order = Entity.Order
 					}
 				};
-				(UoWOrder.RootObject as Order).AddAdditionalDocuments(list);
+				Entity.Order.AddAdditionalDocuments(list);
 			}
 
 			return true;

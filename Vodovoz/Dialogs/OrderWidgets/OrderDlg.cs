@@ -1495,7 +1495,7 @@ namespace Vodovoz
 			{
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
-					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory)
+					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), Entity)
 				);
 			}
 		}

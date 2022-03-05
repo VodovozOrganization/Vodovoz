@@ -16,7 +16,6 @@ namespace Vodovoz.Factories
 			return dlg;
 		}
 
-		public ITdiDialog CreateCounterpartyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory uowFactory) =>
-			new CounterpartyDlg(uowBuilder, uowFactory);
+		public ITdiDialog CreateCounterpartyDlg(NewCounterpartyParameters parameters) => new CounterpartyDlg(parameters);
 	}
 }
