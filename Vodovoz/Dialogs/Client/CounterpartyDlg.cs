@@ -72,6 +72,7 @@ using NHibernate;
 using QS.Utilities;
 using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -236,6 +237,23 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id)
 		{
+		}
+
+		public CounterpartyDlg(NewCounterpartyParameters parameters)
+		{
+			Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+
+			Entity.Name = parameters.Name;
+			Entity.FullName = parameters.FullName;
+			Entity.INN = parameters.INN;
+			Entity.KPP = parameters.KPP;
+			Entity.PaymentMethod = parameters.PaymentMethod;
+			Entity.TypeOfOwnership = parameters.TypeOfOwnership;
+			Entity.PersonType = parameters.PersonType;
+			Entity.AddAccount(parameters.Account);
+
+			ConfigureDlg();
 		}
 
 		public CounterpartyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)

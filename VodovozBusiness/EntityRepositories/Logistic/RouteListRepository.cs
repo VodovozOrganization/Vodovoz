@@ -198,23 +198,23 @@ namespace Vodovoz.EntityRepositories.Logistic
 			GoodsInRouteListResult resultAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null;
+			Nomenclature orderItemNomenclatureAlias = null;
 
 			var ordersQuery = QueryOver.Of(() => orderAlias);
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
 			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
+				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
 
 			return orderitemsQuery.SelectList(list => list
-				.SelectGroup(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+				.SelectGroup(() => orderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
@@ -226,22 +226,22 @@ namespace Vodovoz.EntityRepositories.Logistic
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			Counterparty counterpartyAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null;
+			Nomenclature orderItemNomenclatureAlias = null;
 
 			var ordersQuery = QueryOver.Of(() => orderAlias);
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
 			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
+				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
 
 			return orderitemsQuery.SelectList(list => list
 				.Select(
@@ -249,15 +249,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 						Projections.Conditional(
 							Restrictions.And(
 								Restrictions.Where(() => counterpartyAlias.SpecialExpireDatePercentCheck),
-								Restrictions.Where(() => OrderItemNomenclatureAlias.Category == NomenclatureCategory.water)
+								Restrictions.Where(() => orderItemNomenclatureAlias.Category == NomenclatureCategory.water)
 							),
 							Projections.SqlFunction( 
 								new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' >', ?2, '% срока годности')"),
 								NHibernateUtil.String,
-								Projections.Property(() => OrderItemNomenclatureAlias.Name),
+								Projections.Property(() => orderItemNomenclatureAlias.Name),
 								Projections.Cast(NHibernateUtil.String, Projections.Property(() => counterpartyAlias.SpecialExpireDatePercent))
 							), 
-							Projections.Property(() => OrderItemNomenclatureAlias.Name)
+							Projections.Property(() => orderItemNomenclatureAlias.Name)
 						)
 					)
 				).WithAlias(() => resultAlias.NomenclatureName)
@@ -265,13 +265,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 					Projections.Conditional(
 						Restrictions.And(
 							Restrictions.Where(() => counterpartyAlias.SpecialExpireDatePercentCheck),
-							Restrictions.Where(() => OrderItemNomenclatureAlias.Category == NomenclatureCategory.water)
+							Restrictions.Where(() => orderItemNomenclatureAlias.Category == NomenclatureCategory.water)
 						),
 						Projections.Property(() => counterpartyAlias.SpecialExpireDatePercent),
 						Projections.Constant(null, NHibernateUtil.Decimal)
 					)
 				).WithAlias(() => resultAlias.ExpireDatePercent)
-				.Select(() => OrderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+				.Select(() => orderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
@@ -282,29 +282,29 @@ namespace Vodovoz.EntityRepositories.Logistic
 			GoodsInRouteListResultWithSpecialRequirements resultAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature OrderEquipmentNomenclatureAlias = null;
+			Nomenclature orderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
 			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias);
 
 			return orderEquipmentsQuery
 				.SelectList(list => list
-					.SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.SelectGroup(() => orderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.SelectGroup(() => orderEquipmentAlias.OwnType).WithAlias(() => resultAlias.OwnType)
 					.Select(Projections.Sum(
 						Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count))
 					)).WithAlias(() => resultAlias.Amount)
-					.Select(() => OrderEquipmentNomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => orderEquipmentNomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => orderEquipmentAlias.OwnType).WithAlias(() => resultAlias.OwnType)
 				)
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
@@ -316,24 +316,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 			GoodsInRouteListResult resultAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature OrderEquipmentNomenclatureAlias = null;
+			Nomenclature orderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
 			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias);
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias);
 				
 			return orderEquipmentsQuery
 				.SelectList(list => list
-				   .SelectGroup(() => OrderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+				   .SelectGroup(() => orderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 							.Select(Projections.Sum(
 					   Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => resultAlias.Amount)
 				)

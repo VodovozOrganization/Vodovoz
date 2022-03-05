@@ -368,7 +368,8 @@ namespace Vodovoz
 				.CopyFields(
 					x => x.Client,
 					x => x.DeliveryPoint,
-					x => x.OrderAddressType
+					x => x.OrderAddressType,
+					x => x.PaymentType
 					)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
@@ -1494,7 +1495,7 @@ namespace Vodovoz
 			{
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
-					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory)
+					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), Entity)
 				);
 			}
 		}

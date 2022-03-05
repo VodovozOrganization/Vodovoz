@@ -45,6 +45,7 @@ namespace Vodovoz
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly ICategoryRepository _categoryRepository;
@@ -65,6 +66,7 @@ namespace Vodovoz
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			ICategoryRepository categoryRepository)
@@ -75,6 +77,7 @@ namespace Vodovoz
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
 				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
@@ -89,6 +92,7 @@ namespace Vodovoz
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			ICategoryRepository categoryRepository)
@@ -96,6 +100,7 @@ namespace Vodovoz
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
 				routeListRepository,
+				routeListItemRepository,
 				employeeService,
 				commonServices,
 				categoryRepository)
@@ -392,16 +397,31 @@ namespace Vodovoz
 					continue;
 				}
 
-				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status)
+				var transferredAddressFromRouteListTo =
+					_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(UoW, routeListTo.Id, item.Order.Id);
+
+				RouteListItem newItem = null;
+
+				if(transferredAddressFromRouteListTo != null)
 				{
-					WasTransfered = true,
-					NeedToReload = row.LeftNeedToReload,
-					WithForwarder = routeListTo.Forwarder != null
-				};
+					newItem = transferredAddressFromRouteListTo;
+					item.WasTransfered = false;
+					routeListTo.RevertTransferAddress(_wageParameterService, newItem, item);
+					routeListFrom.TransferAddressTo(item, newItem);
+					newItem.WasTransfered = true;
+				}
+				else
+				{
+					newItem = new RouteListItem(routeListTo, item.Order, item.Status)
+					{
+						WasTransfered = true,
+						NeedToReload = row.LeftNeedToReload,
+						WithForwarder = routeListTo.Forwarder != null
+					};
 
-				routeListTo.ObservableAddresses.Add(newItem);
-
-				routeListFrom.TransferAddressTo(item.Id, newItem);
+					routeListTo.ObservableAddresses.Add(newItem);
+					routeListFrom.TransferAddressTo(item, newItem);
+				}
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
@@ -486,19 +506,25 @@ namespace Vodovoz
 					(yentryreferenceRLFrom.Subject as RouteList)
 						?.Addresses
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
-					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
+					?? _routeListItemRepository.GetTransferedFrom(UoW, address);
 
 				var previousRouteList = pastPlace?.RouteList;
 
 				if(pastPlace != null)
 				{
 					previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
+					pastPlace.NeedToReload = address.NeedToReload;
+					pastPlace.WasTransfered = true;
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					pastPlace.RecalculateTotalCash();
 					UoW.Save(pastPlace);
+					address.RouteList.TransferAddressTo(address, pastPlace);
+					address.WasTransfered = false;
 				}
 
-				address.RouteList.ObservableAddresses.Remove(address);
+				address.RouteList.CalculateWages(_wageParameterService);
+				address.RecalculateTotalCash();
+
 				UoW.Save(address.RouteList);
 			}
 			
