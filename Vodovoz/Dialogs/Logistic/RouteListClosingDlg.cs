@@ -30,6 +30,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
+using QS.Utilities.Extensions;
 using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
@@ -53,6 +54,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -63,6 +65,8 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static readonly OrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
+		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(_parametersProvider);
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
@@ -192,6 +196,11 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
+			additionalloadingtextview.Binding
+				.AddBinding(Entity, e => e.AdditionalLoadingDocument, w => w.AdditionalLoadingDocument)
+				.InitializeFromSource();
+			additionalloadingtextview.Visible = Entity.AdditionalLoadingDocument != null;
+
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
@@ -277,7 +286,7 @@ namespace Vodovoz
 			routelistdiscrepancyview.RouteList = Entity;
 			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures(false,
 				_baseParametersProvider.GetNomenclatureIdForTerminal);
-			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
@@ -590,7 +599,7 @@ namespace Vodovoz
 				foreach(var itm in item.Order.OrderItems)
 					itm.ActualCount = 0m;
 
-			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
 
@@ -616,7 +625,7 @@ namespace Vodovoz
 				Entity.RecalculateWagesForRouteListItem(rli, wageParameterService);
 				rli.RecalculateTotalCash();
 			}
-			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
 
@@ -652,7 +661,7 @@ namespace Vodovoz
 
 		void CalculateTotal()
 		{
-			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
+			var items = routeListAddressesView.Items.Where(item => item.IsDelivered()).ToList();
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned + item.Order.BottlesByStockActualCount);
 			int fullBottlesTotal = (int)items.SelectMany(item => item.Order.OrderItems)
 										.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
@@ -807,11 +816,11 @@ namespace Vodovoz
 			bool isOrdersValid = true;
 			string orderIds = "";
 			byte ordersCounter = 0;
-			OrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
 			ValidationContext validationContext;
 			foreach(var item in Entity.Addresses) {
 				validationContext = new ValidationContext(item.Order);
-				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+				validationContext.ServiceContainer.AddService(_orderParametersProvider);
+				validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
 				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))
 				{
 					if(string.IsNullOrWhiteSpace(orderIds)) {
@@ -851,8 +860,8 @@ namespace Vodovoz
 					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
 				});
-			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),
-				new OrderParametersProvider(_parametersProvider));
+			validationContext.ServiceContainer.AddService(_orderParametersProvider);
+			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
 
 			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
 			{
@@ -1193,7 +1202,7 @@ namespace Vodovoz
 		private void ReloadDiscrepancies()
 		{
 			ReloadReturnedToWarehouse();
-			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
 			CalculateTotal();
 		}
 

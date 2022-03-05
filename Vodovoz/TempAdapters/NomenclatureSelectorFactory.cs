@@ -3,13 +3,10 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
@@ -39,7 +36,7 @@ namespace Vodovoz.TempAdapters
 			return vm;
 		}
 
-		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel()
+		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(bool multiselect = false)
 		{
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
 
@@ -63,7 +60,7 @@ namespace Vodovoz.TempAdapters
 				userRepository
 			);
 
-			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
 
 			return vm;
 		}

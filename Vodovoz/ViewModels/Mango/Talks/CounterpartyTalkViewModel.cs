@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IParametersProvider _parametersProvider;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 
@@ -57,6 +58,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			INomenclatureRepository nomenclatureRepository,
 			IOrderRepository orderRepository,
 			IParametersProvider parametersProvider,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(navigation, manager)
 		{
 			NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
@@ -70,6 +72,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 			_deliveryPointJournalFactory =
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
@@ -77,12 +80,13 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
-				
+
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
 						client, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
-						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository, _parametersProvider);
+						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository, _parametersProvider,
+						_deliveryRulesParametersProvider);
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -136,7 +140,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_nomenclatureRepository,
-						_parametersProvider);
+						_parametersProvider,
+						_deliveryRulesParametersProvider);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -161,7 +166,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					new CounterpartyOrderViewModel(
 						client, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository, MangoManager,
 						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository,
-						_parametersProvider);
+						_parametersProvider, _deliveryRulesParametersProvider);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;

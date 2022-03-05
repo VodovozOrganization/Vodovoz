@@ -143,14 +143,18 @@ namespace Vodovoz
 			goodsColumnsCount = goodsColumns.Length;
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-			    .AddColumn("Еж.\n №").HeaderAlignment(0.5f)
-											 .AddTextRenderer(node => node.Order.DailyNumber.ToString())
+				.AddColumn("Еж.\n №").HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.Order.DailyNumber.ToString())
 				.AddColumn("Заказ").HeaderAlignment(0.5f)
-			                                 .AddTextRenderer(node => node.Order.Id.ToString())
-			                                 .AddPixbufRenderer(x => GetRowIcon(x))
-				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.DeliveryPoint == null ? String.Empty : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
-			
+					.AddTextRenderer(node => node.Order.Id.ToString())
+					.AddPixbufRenderer(x => GetRowIcon(x))
+				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
+					node.Order.DeliveryPoint == null
+						? String.Empty
+						: $"{node.Order.DeliveryPoint.Street} д.{node.Order.DeliveryPoint.Building}")
+				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle())
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false);
 			if (columnsInfo != null)
 			{
 				foreach (var column in columnsInfo)
@@ -163,8 +167,6 @@ namespace Vodovoz
 							.AddSetter((cell,node)=>cell.Markup = WaterToClientString(node,id));
 				}
 			}
-			var colorBlack = new Gdk.Color (0, 0, 0);
-			var colorBlue = new Gdk.Color (0, 0, 0xff);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorDarkRed = new Gdk.Color(0xee, 0, 0);

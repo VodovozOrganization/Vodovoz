@@ -204,7 +204,10 @@ namespace Vodovoz
 				.AddColumn("Дата").AddTextRenderer(node => node.Date)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
-				.AddColumn("Статус").AddEnumRenderer(node => node.Status);
+				.AddColumn("Статус").AddEnumRenderer(node => node.Status)
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.IsFastDelivery).Editing(false)
+					.AddSetter((c, n) => c.Visible = n.IsFastDelivery);
 
 			if(isRightPanel)
 			{
@@ -705,7 +708,8 @@ namespace Vodovoz
 		public RouteListItemStatus Status => RouteListItem.Status;
 
 		public bool NeedToReload => RouteListItem.NeedToReload;
-		
+		public bool IsFastDelivery => RouteListItem.Order.IsFastDelivery;
+
 		bool _leftNeedToReload;
 		public bool LeftNeedToReload
 		{

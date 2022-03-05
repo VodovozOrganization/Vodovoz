@@ -421,6 +421,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePriceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
+    <Compile Include="Infrastructure\Converters\DecimalToDoubleConverter.cs" />
     <Compile Include="JournalNodes\CarModelJournalNode.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
@@ -1675,6 +1676,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReport.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
+    <Compile Include="Views\Goods\AdditionalLoadingSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.AdditionalLoadingSettingsView.cs" />
     <Compile Include="Views\BulkEmailView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BulkEmailView.cs" />
     <Compile Include="Views\Payments\CreateManualPaymentFromBankClientView.cs" />
@@ -1683,6 +1686,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.AutomaticallyAllocationBalanceWindowView.cs" />
     <Compile Include="Filters\Views\UnallocatedBalancesJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.UnallocatedBalancesJournalFilterView.cs" />
+    <Compile Include="ViewWidgets\Logistics\AdditionalLoadingTextView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.AdditionalLoadingTextView.cs" />
+    <Compile Include="ViewWidgets\Logistics\AdditionalLoadingItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.AdditionalLoadingItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

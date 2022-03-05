@@ -6,12 +6,12 @@ using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Tdi;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using QS.Navigation;
@@ -29,13 +29,13 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -44,14 +44,17 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
-		private static Logger _logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static readonly IAdditionalLoadingModel _additionalLoadingModel = new AdditionalLoadingModel(new EmployeeRepository(),
+			new FlyerRepository(), new DeliveryRulesParametersProvider(_parametersProvider), new StockRepository());
 
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
 			new EntityDocumentsPrinterFactory();
@@ -66,6 +69,7 @@ namespace Vodovoz
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
+		private bool _isLogistican;
 
 		public RouteListCreateDlg()
 		{
@@ -128,7 +132,9 @@ namespace Vodovoz
 		{
 			btnCancel.Clicked += OnCancelClicked;
 			printTimeButton.Clicked += OnPrintTimeButtonClicked;
-			
+			ybuttonAddAdditionalLoad.Clicked += OnButtonAddAdditionalLoadClicked;
+			ybuttonRemoveAdditionalLoad.Clicked += OnButtonRemoveAdditionalLoadClicked;
+
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 			_previousSelectedDate = Entity.Date;
 			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
@@ -141,8 +147,11 @@ namespace Vodovoz
 				if(Entity.Car == null || Entity.Date == default)
 				{
 					evmeForwarder.IsEditable = true;
+					ybuttonAddAdditionalLoad.Sensitive = false;
 					return;
 				}
+
+				ybuttonAddAdditionalLoad.Sensitive = true;
 				var isCompanyCar = Entity.GetCarVersion.IsCompanyCar;
 
 				Entity.Driver = Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired
@@ -218,11 +227,18 @@ namespace Vodovoz
 								.List();
 			}
 
-			var isLogistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			_isLogistican = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
-			createroutelistitemsview1.SetPermissionParameters(permissionResult, isLogistician);
+			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
-			buttonAccept.Visible = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed;
+			additionalloadingitemsview.ViewModel =
+				new AdditionalLoadingItemsViewModel(UoW, this, new NomenclatureSelectorFactory(), ServicesConfig.InteractiveService);
+			additionalloadingitemsview.ViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
+			additionalloadingitemsview.ViewModel.CanEdit = Entity.Status == RouteListStatus.New;
+
+			buttonAccept.Visible = ybuttonAddAdditionalLoad.Visible = ybuttonRemoveAdditionalLoad.Visible =
+				NotLoadedRouteListStatuses.Contains(Entity.Status);
+
 			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)
 			{
 				var icon = new Image
@@ -253,7 +269,7 @@ namespace Vodovoz
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			var hasAccessToDriverTerminal = isLogistician ||
+			var hasAccessToDriverTerminal = _isLogistican ||
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
@@ -265,7 +281,71 @@ namespace Vodovoz
 			}
 
 			_oldDriver = Entity.Driver;
-			UpdateDlg(isLogistician);
+			UpdateDlg(_isLogistican);
+
+			Entity.PropertyChanged += OnRouteListPropertyChanged;
+		}
+
+		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.AdditionalLoadingDocument))
+			{
+				UpdateAdditionalLoadingWidgets();
+			}
+			if(e.PropertyName == nameof(Entity.Status))
+			{
+				additionalloadingitemsview.ViewModel.CanEdit = Entity.Status == RouteListStatus.New;
+			}
+		}
+
+		private void UpdateAdditionalLoadingWidgets()
+		{
+			if(Entity.AdditionalLoadingDocument == null)
+			{
+				if(NotLoadedRouteListStatuses.Contains(Entity.Status))
+				{
+					ybuttonAddAdditionalLoad.Visible = true;
+					ybuttonRemoveAdditionalLoad.Visible = false;
+				}
+				else
+				{
+					ybuttonAddAdditionalLoad.Visible = false;
+					ybuttonRemoveAdditionalLoad.Visible = false;
+				}
+
+				additionalloadingitemsview.Visible = false;
+			}
+			else
+			{
+				if(NotLoadedRouteListStatuses.Contains(Entity.Status))
+				{
+					ybuttonAddAdditionalLoad.Visible = false;
+					ybuttonRemoveAdditionalLoad.Visible = true;
+				}
+				else
+				{
+					ybuttonAddAdditionalLoad.Visible = false;
+					ybuttonRemoveAdditionalLoad.Visible = false;
+				}
+				additionalloadingitemsview.Visible = true;
+			}
+		}
+
+		private void OnButtonAddAdditionalLoadClicked(object sender, EventArgs args)
+		{
+			var document = _additionalLoadingModel.CreateAdditionLoadingDocument(UoW, Entity);
+			if(document != null)
+			{
+				Entity.AdditionalLoadingDocument = document;
+				createroutelistitemsview1.UpdateInfo();
+			}
+		}
+
+		private void OnButtonRemoveAdditionalLoadClicked(object sender, EventArgs e)
+		{
+			UoW.Delete(Entity.AdditionalLoadingDocument);
+			Entity.AdditionalLoadingDocument = null;
+			createroutelistitemsview1.UpdateInfo();
 		}
 
 		private void OnDatepickerDateDateChangedByUser(object sender, EventArgs e)
@@ -302,6 +382,7 @@ namespace Vodovoz
 				UpdateElements(false, canOpenOrder);
 				buttonAccept.Sensitive = buttonSave.Sensitive = false;
 			}
+			UpdateAdditionalLoadingWidgets();
 		}
 
 		private void UpdateElements(bool isEditable, bool canOpenOrder = true)
@@ -310,6 +391,8 @@ namespace Vodovoz
 			ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive =
 				yspeccomboboxCashSubdivision.Sensitive = isEditable;
 			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
+			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
+			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
 		}
 
 		private void OnYSpecCmbCashSubdivisionItemSelected(object sender, ItemSelectedEventArgs e)
@@ -348,6 +431,12 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 			{
 				return false;
+			}
+
+			if(Entity.AdditionalLoadingDocument != null && !Entity.AdditionalLoadingDocument.Items.Any())
+			{
+				UoW.Delete(Entity.AdditionalLoadingDocument);
+				Entity.AdditionalLoadingDocument = null;
 			}
 
 			Entity.CalculateWages(_wageParameterService);
@@ -611,28 +700,10 @@ namespace Vodovoz
 			{
 				SetSensetivity(true);
 			}
+			UpdateDlg(_isLogistican);
 		}
 
-		protected void OnReferenceCarChanged(object sender, EventArgs e)
-		{
-			createroutelistitemsview1.UpdateWeightInfo();
-			createroutelistitemsview1.UpdateVolumeInfo();
-		}
-
-		protected void OnReferenceCarChangedByUser(object sender, EventArgs e)
-		{
-			while(Entity.ObservableGeographicGroups.Any())
-			{
-				Entity.ObservableGeographicGroups.Remove(Entity.ObservableGeographicGroups.FirstOrDefault());
-			}
-
-			if(Entity.Car != null)
-			{
-				foreach(var group in Entity.Car.GeographicGroups)
-				{
-					Entity.ObservableGeographicGroups.Add(group);
-				}
-			}
-		}
+		protected static readonly RouteListStatus[] NotLoadedRouteListStatuses =
+			{ RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 	}
 }

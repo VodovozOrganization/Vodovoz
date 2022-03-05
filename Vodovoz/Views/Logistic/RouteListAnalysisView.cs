@@ -86,6 +86,9 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
 					.AddEnumRenderer(n => n.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false)
+					.AddSetter((c, n) => c.Visible = n.Order.IsFastDelivery)
 				.AddColumn("Статус изменен")
 					.AddTextRenderer(n => 
 						n.StatusLastUpdate.HasValue ? 
