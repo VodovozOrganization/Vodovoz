@@ -613,11 +613,11 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={sorting_rank_by_entities}</GroupExpression>
+                <GroupExpression>={sorting_rank_by_entities}</GroupExpression>
               </GroupExpressions>
             </Grouping>
           </TableGroup>
-          <TableGroup >
+          <TableGroup>
             <Grouping Name="GroupByPaymentNumber">
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
@@ -659,7 +659,7 @@
               </SortBy>
             </Sorting>
           </TableGroup>
-          <TableGroup >
+          <TableGroup>
             <Grouping Name="GroupBySortingRankByPaymentDocs">
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
@@ -807,6 +807,7 @@ WHERE
   AND (@exclude_closing_documents = FALSE OR o.delivery_schedule_id != @closing_document_delivery_schedule_id)
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
+HAVING expense &gt; 0
 
 UNION ALL
 
