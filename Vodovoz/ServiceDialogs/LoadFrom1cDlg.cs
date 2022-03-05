@@ -692,7 +692,7 @@ namespace Vodovoz
 			};
 
 			//Перевод кубических метров в сантиметры
-			nomenclature.Length = nomenclature.Weight = nomenclature.Height =
+			nomenclature.Length = nomenclature.Width = nomenclature.Height =
 				Double.TryParse(volumeNode?.InnerText, out number) ? (decimal)Math.Ceiling(Math.Pow(number * 1000000, (double)1 / 3)) : 0;
 
 			nomenclature.Category = servicelNode?.InnerText == "true"

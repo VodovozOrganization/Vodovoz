@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Logistic
 		public decimal FromWarehouse { get; set; }
 
 		/// <summary>
-		/// Остаток запаса
+		/// Запас
 		/// </summary>
 		public decimal AdditionaLoading { get; set; }
 

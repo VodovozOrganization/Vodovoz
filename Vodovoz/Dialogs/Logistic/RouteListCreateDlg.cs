@@ -292,10 +292,6 @@ namespace Vodovoz
 			{
 				UpdateAdditionalLoadingWidgets();
 			}
-			if(e.PropertyName == nameof(Entity.Status))
-			{
-				additionalloadingitemsview.ViewModel.CanEdit = Entity.Status == RouteListStatus.New;
-			}
 		}
 
 		private void UpdateAdditionalLoadingWidgets()
@@ -393,6 +389,7 @@ namespace Vodovoz
 			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
 			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
 			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
+			additionalloadingitemsview.Sensitive = isEditable;
 		}
 
 		private void OnYSpecCmbCashSubdivisionItemSelected(object sender, ItemSelectedEventArgs e)

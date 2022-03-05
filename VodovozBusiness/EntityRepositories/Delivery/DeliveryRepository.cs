@@ -245,7 +245,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 			routeListNodes = routeListNodes.Where(x => routeListsWithoutTooMuchFastOrders.Contains(x.RouteList.Id)).ToList();
 
-			//Время доставки следующего заказа позволяет взять выструю доставку
+			//Время доставки следующего (текущего) заказа позволяет взять быструю доставку
 			foreach(var routeListNode in routeListNodes.ToList())
 			{
 				RouteListItem latestAddress = null;

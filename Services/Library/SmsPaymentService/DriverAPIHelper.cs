@@ -18,7 +18,6 @@ namespace SmsPaymentService
 
 		private void InitializeClient(DriverApiHelperConfiguration configuration)
 		{
-
 			_apiClient = new HttpClient();
 			_apiClient.BaseAddress = configuration.ApiBase;
 			_apiClient.DefaultRequestHeaders.Accept.Clear();

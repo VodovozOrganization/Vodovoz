@@ -102,12 +102,7 @@ namespace Vodovoz.ViewModels.Goods
 				{
 					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntityAutocompleteSelectorFactory>(
 						this,
-						_nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(
-							new NomenclatureFilterViewModel
-							{
-								AvailableCategories = Nomenclature.CategoriesWithWeightAndVolume,
-								RestrictArchive = false
-							}),
+						_nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(),
 						OpenPageOptions.AsSlave
 					);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
@@ -215,7 +210,8 @@ namespace Vodovoz.ViewModels.Goods
 			if(BottlesCount < 1)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning,
-					"Кол-во 19л бут. для расчёта добавления листовок не может бать меньше 1");
+					"Кол-во 19л бут. для расчёта добавления листовок не может быть меньше 1");
+				return false;
 			}
 
 			return base.Validate();
@@ -237,6 +233,7 @@ namespace Vodovoz.ViewModels.Goods
 			ObservableNomenclatureDistributions.ElementAdded -= OnElementAdded;
 			ObservableNomenclatureDistributions.ElementRemoved -= OnElementRemoved;
 			ObservableNomenclatureDistributions.ElementChanged -= OnElementChanged;
+			base.Dispose();
 		}
 	}
 }

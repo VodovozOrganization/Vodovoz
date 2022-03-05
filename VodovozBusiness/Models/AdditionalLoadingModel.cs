@@ -75,7 +75,7 @@ namespace Vodovoz.Models
 			//Сначала расчитывам по грузоподъёмности
 			foreach(var distribution in distributions)
 			{
-				if(distribution.Nomenclature.Weight <= 0)
+				if(distribution.Nomenclature.Weight <= 0 || distribution.Nomenclature.Volume <= 0)
 				{
 					continue;
 				}
@@ -99,17 +99,19 @@ namespace Vodovoz.Models
 			}
 
 			//Если расчитали по грузоподъёмности, но не хватило места по объёму, то расчитываем по объёму
-			foreach(var item in items.ToList())
+			items.Clear();
+			foreach(var distribution in distributions)
 			{
-				var distribution = distributions.First(x => x.Nomenclature.Id == item.Nomenclature.Id);
-
-				if(distribution.Nomenclature.Volume <= 0)
+				if(distribution.Nomenclature.Weight <= 0 || distribution.Nomenclature.Volume <= 0)
 				{
-					items.Remove(item);
 					continue;
 				}
-
-				item.Amount = Math.Floor(availableVolume * distribution.Percent / 100 / distribution.Nomenclature.Volume);
+				var item = new AdditionalLoadingDocumentItem
+				{
+					Nomenclature = distribution.Nomenclature,
+					Amount = Math.Floor(availableVolume * distribution.Percent / 100 / distribution.Nomenclature.Volume)
+				};
+				items.Add(item);
 			}
 
 			RemoveZeroAmountItemsIfNeededByVolume(items, availableVolume);

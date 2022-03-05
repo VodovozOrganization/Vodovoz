@@ -64,7 +64,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _maxVolume, value);
 		}
 
-		public override string ToString() => $"{CarManufacturer.Name} {Name}";
+		public virtual string Title => $"{CarManufacturer.Name} {Name}";
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

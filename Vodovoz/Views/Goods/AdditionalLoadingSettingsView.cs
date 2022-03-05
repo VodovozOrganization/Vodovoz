@@ -78,12 +78,12 @@ namespace Vodovoz.Views.Goods
 			}
 		}
 
+		public bool AskSaveOnClose => ViewModel.CanEdit;
+
 		protected override void OnDestroyed()
 		{
 			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 			base.OnDestroyed();
 		}
-
-		public bool AskSaveOnClose => ViewModel.CanEdit;
 	}
 }

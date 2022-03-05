@@ -65,7 +65,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
-		private static readonly OrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
+		private static readonly IOrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(_parametersProvider);
 		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
