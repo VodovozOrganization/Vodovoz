@@ -45,6 +45,7 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz
 {
@@ -65,6 +66,8 @@ namespace Vodovoz
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
+
+		private AdditionalLoadingItemsView _additionalLoadingItemsView;
 
 		private bool _canClose = true;
 		private Employee _oldDriver;
@@ -231,10 +234,14 @@ namespace Vodovoz
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
-			additionalloadingitemsview.ViewModel =
+			var additionalLoadingItemsViewModel =
 				new AdditionalLoadingItemsViewModel(UoW, this, new NomenclatureSelectorFactory(), ServicesConfig.InteractiveService);
-			additionalloadingitemsview.ViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
-			additionalloadingitemsview.ViewModel.CanEdit = Entity.Status == RouteListStatus.New;
+			additionalLoadingItemsViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
+			additionalLoadingItemsViewModel.CanEdit = Entity.Status == RouteListStatus.New;
+			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);
+			_additionalLoadingItemsView.WidthRequest = 300;
+			_additionalLoadingItemsView.ShowAll();
+			hboxAdditionalLoading.PackStart(_additionalLoadingItemsView, false, false, 0);
 
 			buttonAccept.Visible = ybuttonAddAdditionalLoad.Visible = ybuttonRemoveAdditionalLoad.Visible =
 				NotLoadedRouteListStatuses.Contains(Entity.Status);
@@ -309,7 +316,7 @@ namespace Vodovoz
 					ybuttonRemoveAdditionalLoad.Visible = false;
 				}
 
-				additionalloadingitemsview.Visible = false;
+				_additionalLoadingItemsView.Visible = false;
 			}
 			else
 			{
@@ -323,7 +330,7 @@ namespace Vodovoz
 					ybuttonAddAdditionalLoad.Visible = false;
 					ybuttonRemoveAdditionalLoad.Visible = false;
 				}
-				additionalloadingitemsview.Visible = true;
+				_additionalLoadingItemsView.Visible = true;
 			}
 		}
 
@@ -389,7 +396,7 @@ namespace Vodovoz
 			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
 			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
 			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
-			additionalloadingitemsview.Sensitive = isEditable;
+			_additionalLoadingItemsView.ViewModel.CanEdit = isEditable;
 		}
 
 		private void OnYSpecCmbCashSubdivisionItemSelected(object sender, ItemSelectedEventArgs e)

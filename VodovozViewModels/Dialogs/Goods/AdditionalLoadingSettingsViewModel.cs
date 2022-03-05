@@ -12,15 +12,15 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods
 {
-	public class AdditionalLoadingSettingsViewModel : UowDialogViewModelBase
+	public class AdditionalLoadingSettingsViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IInteractiveService _interactiveService;
@@ -235,5 +235,7 @@ namespace Vodovoz.ViewModels.Goods
 			ObservableNomenclatureDistributions.ElementChanged -= OnElementChanged;
 			base.Dispose();
 		}
+
+		public bool AskSaveOnClose => CanEdit;
 	}
 }

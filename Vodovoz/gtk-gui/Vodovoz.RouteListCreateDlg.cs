@@ -82,7 +82,7 @@ namespace Vodovoz
 
 		private global::Gtk.VSeparator vseparator2;
 
-		private global::Vodovoz.ViewWidgets.Logistics.AdditionalLoadingItemsView additionalloadingitemsview;
+		private global::Gtk.HBox hboxAdditionalLoading;
 
 		private global::Gtk.HBox hbox11;
 
@@ -539,12 +539,11 @@ namespace Vodovoz
 			w39.Expand = false;
 			w39.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.additionalloadingitemsview = new global::Vodovoz.ViewWidgets.Logistics.AdditionalLoadingItemsView();
-			this.additionalloadingitemsview.WidthRequest = 300;
-			this.additionalloadingitemsview.Events = ((global::Gdk.EventMask)(256));
-			this.additionalloadingitemsview.Name = "additionalloadingitemsview";
-			this.hbox8.Add(this.additionalloadingitemsview);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.additionalloadingitemsview]));
+			this.hboxAdditionalLoading = new global::Gtk.HBox();
+			this.hboxAdditionalLoading.Name = "hboxAdditionalLoading";
+			this.hboxAdditionalLoading.Spacing = 6;
+			this.hbox8.Add(this.hboxAdditionalLoading);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.hboxAdditionalLoading]));
 			w40.Position = 2;
 			w40.Expand = false;
 			w40.Fill = false;

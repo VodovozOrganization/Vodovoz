@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.Linq;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
@@ -9,41 +7,11 @@ using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {
-	[ToolboxItem(true)]
 	public partial class AdditionalLoadingItemsView : WidgetViewBase<AdditionalLoadingItemsViewModel>
 	{
-		public AdditionalLoadingItemsView()
+		public AdditionalLoadingItemsView(AdditionalLoadingItemsViewModel viewModel) : base(viewModel)
 		{
 			Build();
-		}
-
-		public override AdditionalLoadingItemsViewModel ViewModel
-		{
-			get => base.ViewModel;
-			set
-			{
-				if(base.ViewModel == value)
-				{
-					return;
-				}
-				base.ViewModel = value;
-				OnViewModelChanged();
-			}
-		}
-
-		private void OnViewModelChanged()
-		{
-			if(ViewModel == null)
-			{
-				return;
-			}
-			ViewModel.PropertyChanged += (sender, args) =>
-			{
-				if(args.PropertyName == nameof(ViewModel.AdditionalLoadingDocument))
-				{
-					UpdateTreeView();
-				}
-			};
 			Configure();
 		}
 
@@ -62,36 +30,24 @@ namespace Vodovoz.ViewWidgets.Logistics
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Nomenclature.Name)
 				.Finish();
+			ytreeNomenclatures.Selection.Changed += (sender, args) =>
+				ybuttonRemove.Sensitive = ytreeNomenclatures.GetSelectedObjects<AdditionalLoadingDocumentItem>().Any() && ViewModel.CanEdit;
 
-			ytreeNomenclatures.Selection.Changed -= OnSelectionChanged;
-			ytreeNomenclatures.Selection.Changed += OnSelectionChanged;
-
-			ybuttonRemove.Binding.CleanSources();
+			ybuttonRemove.Clicked += (sender, args) =>
+				ViewModel.RemoveItems(ytreeNomenclatures.GetSelectedObjects<AdditionalLoadingDocumentItem>());
 			ybuttonRemove.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			ybuttonRemove.Clicked -= OnButtonRemoveClicked;
-			ybuttonRemove.Clicked += OnButtonRemoveClicked;
 
-			ybuttonAdd.Binding.CleanSources();
+			ybuttonAdd.Clicked += (sender, args) => ViewModel.AddItem();
 			ybuttonAdd.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			ybuttonAdd.Clicked -= OnButtonAddClicked;
-			ybuttonAdd.Clicked += OnButtonAddClicked;
 
+			ViewModel.PropertyChanged += (sender, args) =>
+			{
+				if(args.PropertyName == nameof(ViewModel.AdditionalLoadingDocument))
+				{
+					UpdateTreeView();
+				}
+			};
 			UpdateTreeView();
-		}
-
-		private void OnButtonAddClicked(object sender, EventArgs args)
-		{
-			ViewModel.AddItem();
-		}
-
-		private void OnButtonRemoveClicked(object sender, EventArgs args)
-		{
-			ViewModel.RemoveItems(ytreeNomenclatures.GetSelectedObjects<AdditionalLoadingDocumentItem>());
-		}
-
-		private void OnSelectionChanged(object sender, EventArgs args)
-		{
-			ybuttonRemove.Sensitive = ytreeNomenclatures.GetSelectedObjects<AdditionalLoadingDocumentItem>().Any() && ViewModel.CanEdit;
 		}
 
 		private void UpdateTreeView()

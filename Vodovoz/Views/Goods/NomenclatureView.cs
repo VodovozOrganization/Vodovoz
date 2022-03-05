@@ -169,22 +169,22 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			spinWeight.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Weight, w => w.Value, new DecimalToDoubleConverter())
+				.AddBinding(ViewModel.Entity, e => e.Weight, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
 			spinLength.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Length, w => w.Value, new DecimalToDoubleConverter())
+				.AddBinding(ViewModel.Entity, e => e.Length, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
 			spinWidth.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Width, w => w.Value, new DecimalToDoubleConverter())
+				.AddBinding(ViewModel.Entity, e => e.Width, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
 			spinHeight.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Height, w => w.Value, new DecimalToDoubleConverter())
+				.AddBinding(ViewModel.Entity, e => e.Height, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
 			ylabelVolume.Binding

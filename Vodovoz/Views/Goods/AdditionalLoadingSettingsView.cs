@@ -2,7 +2,6 @@
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Navigation;
-using QS.ViewModels.Extension;
 using QS.Views.Dialog;
 using QS.Widgets;
 using Vodovoz.Domain.Goods;
@@ -11,7 +10,7 @@ using Vodovoz.ViewModels.Goods;
 
 namespace Vodovoz.Views.Goods
 {
-	public partial class AdditionalLoadingSettingsView : DialogViewBase<AdditionalLoadingSettingsViewModel>, IAskSaveOnCloseViewModel
+	public partial class AdditionalLoadingSettingsView : DialogViewBase<AdditionalLoadingSettingsViewModel>
 	{
 		public AdditionalLoadingSettingsView(AdditionalLoadingSettingsViewModel viewModel) : base(viewModel)
 		{
@@ -77,8 +76,6 @@ namespace Vodovoz.Views.Goods
 					(ViewModel.PercentSum == 100m ? "100" : $"<span foreground = \"red\">{ViewModel.PercentSum}</span>");
 			}
 		}
-
-		public bool AskSaveOnClose => ViewModel.CanEdit;
 
 		protected override void OnDestroyed()
 		{
