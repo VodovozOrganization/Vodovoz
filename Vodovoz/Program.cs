@@ -33,6 +33,7 @@ using QS.Project.Versioning;
 using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Configuration;
+using Vodovoz.Services;
 using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
@@ -286,6 +287,7 @@ namespace Vodovoz
 					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));
 				}
 			}
+			DriverApiParametersProvider.InitializeNotifications(parametersProvider, loginDialogName);
 
 			CreateTempDir();
 

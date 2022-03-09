@@ -64,6 +64,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _maxVolume, value);
 		}
 
+		public virtual string Title => $"{CarManufacturer.Name} {Name}";
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Name))

@@ -5,7 +5,7 @@ namespace Vodovoz.JournalNodes
 {
 	public class CarModelJournalNode : JournalEntityNodeBase<CarModel>
 	{
-		public override string Title => Name;
+		public override string Title => $"{ManufactererName} {Name}";
 		public string Name { get; set; }
 		public CarTypeOfUse TypeOfUse { get; set; }
 		public string ManufactererName { get; set; }

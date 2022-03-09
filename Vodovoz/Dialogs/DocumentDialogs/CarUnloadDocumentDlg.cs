@@ -46,7 +46,6 @@ namespace Vodovoz
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly IRouteListRepository
 			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 		IList<Equipment> alreadyUnloadedEquipment;
 		private WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);

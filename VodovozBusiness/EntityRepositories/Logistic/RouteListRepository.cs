@@ -127,9 +127,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 				terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList);
 			}
 
-			if (terminal != null)
+			if(terminal != null)
 			{
 				result.Add(terminal);
+			}
+
+			if(routeList.AdditionalLoadingDocument != null)
+			{
+				result.AddRange(
+					routeList.AdditionalLoadingDocument.Items.Select(x => new GoodsInRouteListResultWithSpecialRequirements
+					{
+						NomenclatureId = x.Nomenclature.Id,
+						NomenclatureName = x.Nomenclature.Name,
+						Amount = x.Amount
+					})
+				);
 			}
 
 			return result
@@ -141,7 +153,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					}
 				).Select(list => new GoodsInRouteListResultWithSpecialRequirements()
 					{
-						NomenclatureName = list.FirstOrDefault().NomenclatureName,
+						NomenclatureName = list.First().NomenclatureName,
 						NomenclatureId = list.Key.NomenclatureId,
 						OwnType = list.Key.OwnType,
 						ExpireDatePercent = list.Key.ExpireDatePercent,
@@ -181,6 +193,17 @@ namespace Vodovoz.EntityRepositories.Logistic
 				var terminal = GetTerminalInRL(uow, routeList);
 				if(terminal != null)
 					result.Add(terminal);
+			}
+
+			if(routeList.AdditionalLoadingDocument != null)
+			{
+				result.AddRange(
+					routeList.AdditionalLoadingDocument.Items.Select(x => new GoodsInRouteListResult
+					{
+						NomenclatureId = x.Nomenclature.Id,
+						Amount = x.Amount
+					})
+				);
 			}
 
 			return result
@@ -369,7 +392,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-				if(_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any()) {
+				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, warehouse.Id).Any()) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount
@@ -449,8 +472,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 						Amount = amount
 					};
 				}
-				
-				if (_stockRepository.NomenclatureInStock(uow, warehouse.Id, new int[] { terminal.Id }).Any())
+
+				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, warehouse.Id).Any())
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{

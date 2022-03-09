@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DriverAPI.Library.DTOs
 {
@@ -15,6 +16,8 @@ namespace DriverAPI.Library.DTOs
 		public AddressDto Address { get; set; }
 		public string OrderComment { get; set; }
 		public decimal OrderSum { get; set; }
+		public bool IsFastDelivery { get; set; }
+		public string AddedToRouteListTime { get; set; }
 		public IEnumerable<OrderSaleItemDto> OrderSaleItems { get; set; }
 		public IEnumerable<OrderDeliveryItemDto> OrderDeliveryItems { get; set; }
 		public IEnumerable<OrderReceptionItemDto> OrderReceptionItems { get; set; }

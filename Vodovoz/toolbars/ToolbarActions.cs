@@ -748,7 +748,8 @@ public partial class MainWindow : Window
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance),
             new OrderPaymentSettings(parametersProvider),
-			new OrderParametersProvider(new ParametersProvider()),
+			new OrderParametersProvider(parametersProvider),
+			new DeliveryRulesParametersProvider(parametersProvider),
 			VodovozGtkServicesConfig.EmployeeService
 		);
 

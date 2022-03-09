@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic;
 using QS.Project.Services;
 using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
+using QS.Utilities.Extensions;
 using QS.ViewModels.Extension;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Logistic;
@@ -122,6 +123,9 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
 					.AddEnumRenderer(node => node.Status).Editing(false)
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.RouteListItem.Order.IsFastDelivery).Editing(false)
+					.AddSetter((c, n) => c.Visible = n.RouteListItem.Order.IsFastDelivery)
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
 				.RowCells()
@@ -227,8 +231,8 @@ namespace Vodovoz
 					{ "NewStatus", RouteListStatus.Closed },
 					{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
 				});
-			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider),
-				new OrderParametersProvider(_parametersProvider));
+			validationContext.ServiceContainer.AddService(new OrderParametersProvider(_parametersProvider));
+			validationContext.ServiceContainer.AddService(new DeliveryRulesParametersProvider(_parametersProvider));
 
 			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
 			{

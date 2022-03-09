@@ -245,6 +245,24 @@ namespace Vodovoz.Domain.Documents
 					new[] { nameof(Items) }
 				);
 			}
+
+			var needWeightOrVolume = Items
+				.Select(item => item.WarehouseMovementOperation.Nomenclature)
+				.Where(nomenclature =>
+					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
+					&& (nomenclature.Weight == default
+						|| nomenclature.Length == default
+						|| nomenclature.Width == default
+						|| nomenclature.Height == default))
+				.ToList();
+			if(needWeightOrVolume.Any())
+			{
+				yield return new ValidationResult(
+					"Для всех добавленных на возврат номенклатур должны быть заполнены вес и объём.\n" +
+					"Список номенклатур, в которых не заполнен вес или объём:\n" +
+					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
+					new[] { nameof(Items) });
+			}
 		}
 
 		#endregion

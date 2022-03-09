@@ -104,7 +104,17 @@ namespace VodovozSmsPaymentService
 
 				QS.HistoryLog.HistoryMain.Enable();
 
-				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
+				var driverApiSection = configuration.GetSection("DriverAPI");
+
+				var driverApiHelperConfiguration = new DriverApiHelperConfiguration
+				{
+					ApiBase = new Uri(driverApiSection["ApiBase"]),
+					NotifyOfSmsPaymentStatusChangedURI = driverApiSection["NotifyOfSmsPaymentStatusChangedURI"],
+					NotifyOfFastDeliveryOrderAddedURI = driverApiSection["NotifyOfFastDeliveryOrderAddedURI"]
+				};
+
+				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever =
+					new DriverAPIHelper(driverApiHelperConfiguration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
 
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
