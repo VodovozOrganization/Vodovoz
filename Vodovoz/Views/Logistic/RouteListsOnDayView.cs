@@ -859,7 +859,7 @@ namespace Vodovoz.Views.Logistic
 		bool creatingInProgress;
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
-			if(ViewModel.DateForRouting < DateTime.Today.AddDays(-1))
+			if(ViewModel.DateForRouting < DateTime.Today.AddDays(-1) && !ViewModel.CanСreateRoutelistInPastPeriod)
 			{
 				ViewModel.CommonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
