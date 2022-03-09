@@ -103,7 +103,7 @@ namespace Vodovoz.Views.Logistic
 					.Digits(2)
 					.WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.Editing(ViewModel.CanEditDistrict)
+					.Editing(ViewModel.CanEditDeliveryRules)
 					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? colorRed : colorWhite)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
@@ -123,7 +123,7 @@ namespace Vodovoz.Views.Logistic
 					.Digits(2)
 					.WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.Editing(ViewModel.CanEditDistrict)
+					.Editing(ViewModel.CanEditDeliveryRules)
 					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? colorRed : colorWhite)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Правило")
@@ -166,7 +166,7 @@ namespace Vodovoz.Views.Logistic
 			ytextComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextComment.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
-			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEditDistrict, w => w.Sensitive).InitializeFromSource();
+			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEditDeliveryRules, w => w.Sensitive).InitializeFromSource();
 			btnAddCommonRule.Clicked += (sender, args) =>
 			{
 				var selectRules = new OrmReference(ViewModel.UoW, ViewModel.DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules())
@@ -180,7 +180,7 @@ namespace Vodovoz.Views.Logistic
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
-			btnRemoveCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedCommonDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedCommonDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveCommonRule.Clicked += (sender, args) => ViewModel.RemoveCommonDistrictRuleItemCommand.Execute();
 
 			btnToday.TooltipText = "День в день.\nГрафик доставки при создании заказа сегодня и на сегодняшнюю дату доставки.";
@@ -247,7 +247,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 			btnRemoveAcceptBefore.Clicked += (sender, args) => ViewModel.RemoveAcceptBeforeCommand.Execute();
 			
-			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
+			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
 			btnAddWeekDayRule.Clicked += (sender, args) =>
 			{
 				var selectRules = new OrmReference(ViewModel.UoW, ViewModel.DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules())
@@ -261,7 +261,7 @@ namespace Vodovoz.Views.Logistic
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
-			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveWeekDayRule.Clicked += (sender, args) => ViewModel.RemoveWeekDayDistrictRuleItemCommand.Execute();
 
 			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeographicGroup>().ToList();
