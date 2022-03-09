@@ -227,7 +227,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -255,7 +255,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -311,7 +311,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -345,7 +345,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => r.Status != RouteListItemStatus.Transfered || (r.WasTransfered && r.NeedToReload))
+				.Where(r => !r.WasTransfered || (r.WasTransfered && r.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
