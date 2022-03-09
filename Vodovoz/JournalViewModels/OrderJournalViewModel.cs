@@ -41,6 +41,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.EntityRepositories.Subdivisions;
+using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -62,6 +65,10 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IFileDialogService _fileDialogService;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -78,8 +85,11 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionRepository subdivisionRepository,
+			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -96,9 +106,11 @@ namespace Vodovoz.JournalViewModels
 				?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -927,6 +939,22 @@ namespace Vodovoz.JournalViewModels
 				return IsOrder(selectedNode) && EntityConfigs[selectedNode.EntityType].PermissionResult.CanCreate;
 			}
 
+			bool CanCreateComplaint(object[] selectedItems)
+			{
+				var selectedNode = GetSelectedNode(selectedItems);
+				switch(selectedNode.StatusEnum) 
+				{
+					case OrderStatus.Shipped:
+					case OrderStatus.OnTheWay:
+					case OrderStatus.Closed:
+					case OrderStatus.UnloadingOnStock:
+					case OrderStatus.WaitForPayment:
+						return true;
+					default: 
+						return false;
+				}
+			}
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
@@ -1098,6 +1126,45 @@ namespace Vodovoz.JournalViewModels
 							DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(65656),
 							() => dlg
 						);
+					}
+				)
+			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Создать рекламацию",
+					selectedItems => CanCreateComplaint(selectedItems),
+					selectedItems => true,
+					selectedItems => {
+						var selectedNodes = selectedItems.OfType<OrderJournalNode>().ToList();
+						if(selectedNodes.Count != 1)
+							return;
+						var selectedOrder = selectedNodes.First();
+
+						var order = UoW.GetById<Domain.Orders.Order>(selectedOrder.Id);
+						var dlg = new CreateComplaintViewModel(
+							EntityUoWBuilder.ForCreate(),
+							_unitOfWorkFactory,
+							_employeeService,
+							_subdivisionRepository,
+							_commonServices,
+							_nomenclatureRepository,
+							_userRepository,
+							_fileDialogService,
+							_orderSelectorFactory,
+							_employeeJournalFactory,
+							_counterpartyJournalFactory,
+							_deliveryPointJournalFactory,
+							_subdivisionJournalFactory,
+							_gtkDialogsOpener,
+							_undeliveredOrdersJournalOpener,
+							_nomenclatureSelector,
+							_undeliveredOrdersRepository
+						);
+						dlg.Entity.Counterparty = order.Client;
+						dlg.Entity.Order = order;
+						dlg.Entity.DeliveryPoint = order.DeliveryPoint;
+						TabParent.OpenTab(() => dlg, this);
 					}
 				)
 			);

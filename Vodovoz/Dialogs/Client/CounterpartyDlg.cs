@@ -1017,7 +1017,9 @@ namespace Vodovoz
 				new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(),
 				new NomenclatureSelectorFactory(),
-				new UndeliveredOrdersRepository()
+				new UndeliveredOrdersRepository(),
+				_subdivisionRepository,
+				_fileDialogService
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);
