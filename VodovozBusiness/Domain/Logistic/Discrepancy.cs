@@ -31,13 +31,18 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public decimal FromWarehouse { get; set; }
 
+		/// <summary>
+		/// Запас
+		/// </summary>
+		public decimal AdditionaLoading { get; set; }
+
 		public bool Trackable { get; set; }
 		public bool UseFine { get; set; }
 
 		/// <summary>
 		/// Остаток
 		/// </summary>
-		public decimal Remainder => FromWarehouse + ToWarehouse - ClientRejected - PickedUpFromClient;
+		public decimal Remainder => FromWarehouse + ToWarehouse - ClientRejected - PickedUpFromClient - AdditionaLoading;
 
 		/// <summary>
 		/// Недовоз

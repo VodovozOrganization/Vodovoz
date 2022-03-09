@@ -26,6 +26,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -38,6 +39,7 @@ namespace Vodovoz.Representations
         private readonly Employee _currentEmployee;
         private readonly OrderPaymentSettings _orderPaymentSettings;
         private readonly OrderParametersProvider _orderParametersProvider;
+        private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
         private readonly bool _userCanChangePayTypeToByCard;
 
         public SelfDeliveriesJournalViewModel(
@@ -47,12 +49,14 @@ namespace Vodovoz.Representations
             CallTaskWorker callTaskWorker,
             OrderPaymentSettings orderPaymentSettings,
 			OrderParametersProvider orderParametersProvider,
+	        IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 	        IEmployeeService employeeService) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
             _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             _orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
             _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            _deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
             _currentEmployee =
 	            (employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
 		            UoW,
@@ -274,6 +278,7 @@ namespace Vodovoz.Representations
                                     _callTaskWorker,
                                     _orderPaymentSettings,
 									_orderParametersProvider,
+									_deliveryRulesParametersProvider,
 									_currentEmployee), 
 								this
 							);

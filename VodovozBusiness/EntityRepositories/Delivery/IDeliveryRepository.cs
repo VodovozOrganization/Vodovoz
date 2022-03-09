@@ -20,10 +20,14 @@ namespace Vodovoz.EntityRepositories.Delivery
 		/// </summary>
 		IEnumerable<District> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude, DistrictsSet districtsSet = null);
 
-		bool OneHourDeliveryAvailable(IUnitOfWork uow, double latitude, double longitude,
+		#region MyRegion
+
+		bool FastDeliveryAvailable(IUnitOfWork uow, double latitude, double longitude,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes);
 
-		int? GetRouteListIdForOneHourDelivery(IUnitOfWork uow, double latitude, double longitude,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes);
+		RouteList GetRouteListForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool getClosestByRoute,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes);
+
+		#endregion
 	}
 }

@@ -28,6 +28,10 @@ namespace Vodovoz.Domain.Goods
 		IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 
+		private decimal _length;
+		private decimal _width;
+		private decimal _height;
+
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -115,23 +119,66 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref model, value, () => Model);
 		}
 
-		private double weight;
+		private decimal weight;
 
 		[Display(Name = "Вес")]
-		public virtual double Weight {
+		public virtual decimal Weight {
 			get => weight;
 			set => SetField(ref weight, value, () => Weight);
 		}
 
-		private double volume;
-
 		/// <summary>
-		/// Объем измеряемый в квадратных метрах
+		/// Объем номенклатуры, измеряемый в квадратных метрах
 		/// </summary>
 		[Display(Name = "Объём")]
-		public virtual double Volume {
-			get => volume;
-			set => SetField(ref volume, value, () => Volume);
+		public virtual decimal Volume => Length * Width * Height / 1000000;    // 1 000 000
+
+		/// <summary>
+		/// Длина номенклатуры, измеряемая в сантиметрах
+		/// </summary>
+		[Display(Name = "Длина")]
+		public virtual decimal Length
+		{
+			get => _length;
+			set
+			{
+				if(SetField(ref _length, value))
+				{
+					OnPropertyChanged(nameof(Volume));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Ширина номенклатуры, измеряемая в сантиметрах
+		/// </summary>
+		[Display(Name = "Ширина")]
+		public virtual decimal Width
+		{
+			get => _width;
+			set
+			{
+				if(SetField(ref _width, value))
+				{
+					OnPropertyChanged(nameof(Volume));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Высота номенклатуры, измеряемая в сантиметрах
+		/// </summary>
+		[Display(Name = "Высота")]
+		public virtual decimal Height
+		{
+			get => _height;
+			set
+			{
+				if(SetField(ref _height, value))
+				{
+					OnPropertyChanged(nameof(Volume));
+				}
+			}
 		}
 
 		private VAT vAT = VAT.Vat18;
@@ -750,6 +797,18 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult(
 					"Превышено максимальное количество символов в официальном названии (220).", new[] { this.GetPropertyName(o => o.OfficialName) });
 
+			if(CategoriesWithWeightAndVolume.Contains(Category) && (Length == 0 || Width == 0 || Height == 0 || Weight == 0))
+			{
+				yield return new ValidationResult("Длина, ширина, высота и вес номенклатуры обязательны для заполнения",
+					new[] { nameof(Length), nameof(Width), nameof(Height), nameof(Weight) });
+			}
+
+			if(Length < 0 || Width < 0 || Height < 0 || Weight < 0)
+			{
+				yield return new ValidationResult("Длина, ширина, высота и вес номенклатуры должны быть положительными",
+					new[] { nameof(Length), nameof(Width), nameof(Height), nameof(Weight) });
+			}
+
 			if(Folder1C == null)
 				yield return new ValidationResult(
 					"Папка 1С обязательна для заполнения", new[] { this.GetPropertyName(o => o.Folder1C) });
@@ -995,6 +1054,17 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.master 
 			};
 		}
+
+		/// <summary>
+		/// Категории, для которых обазательно должны быть заполнены вес и объём
+		/// </summary>
+		public static readonly NomenclatureCategory[] CategoriesWithWeightAndVolume =
+		{
+			NomenclatureCategory.water,
+			NomenclatureCategory.equipment,
+			NomenclatureCategory.additional,
+			NomenclatureCategory.bottle
+		};
 
 		#endregion
 	}

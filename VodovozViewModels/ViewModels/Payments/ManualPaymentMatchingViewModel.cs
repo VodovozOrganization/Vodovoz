@@ -379,7 +379,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			AddCounterpatyCommand = new DelegateCommand(
 				() =>
 				{
-					var client = new Domain.Client.Counterparty
+					var parameters = new NewCounterpartyParameters
 					{
 						Name = Entity.CounterpartyName,
 						FullName = Entity.CounterpartyName,
@@ -389,34 +389,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						TypeOfOwnership = TryGetOrganizationType(Entity.CounterpartyName)
 					};
 
-					if(client.TypeOfOwnership != null)
+					if(parameters.TypeOfOwnership != null)
 					{
-						client.PersonType = PersonType.legal;
+						parameters.PersonType = PersonType.legal;
 					}
 					else
 					{
-						if(AskQuestion($"Не удалось определить тип контрагента. Контрагент \"{Entity.CounterpartyName}\" является юридическим лицом?"))
-						{
-							client.PersonType = PersonType.legal;
-						}
-						else
-						{
-							client.PersonType = PersonType.natural;
-						}
+						parameters.PersonType =
+							AskQuestion(
+								$"Не удалось определить тип контрагента. Контрагент \"{Entity.CounterpartyName}\" является юридическим лицом?")
+								? PersonType.legal
+								: PersonType.natural;
 					}
 
-					Bank bank = FillBank(Entity);
+					var bank = FillBank(Entity);
+					parameters.Account = new Account { Number = Entity.CounterpartyCurrentAcc, InBank = bank };
 
-					client.AddAccount(new Account
-					{
-						Number = Entity.CounterpartyCurrentAcc,
-						InBank = bank
-					});
+					var dlg = _dialogsFactory.CreateCounterpartyDlg(parameters);
 
-					UoW.Save(client);
-
-					var dlg =
-						_dialogsFactory.CreateCounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(client.Id, UoW), UnitOfWorkFactory);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.EntitySaved += NewCounterpartySaved;
 				}

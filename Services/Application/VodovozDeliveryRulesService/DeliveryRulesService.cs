@@ -21,7 +21,7 @@ namespace VodovozDeliveryRulesService
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IBackupDistrictService _backupDistrictService;
 
-		private readonly DeliverySchedule _oneHourDeliverySchedule;
+		private readonly DeliverySchedule _fastDeliverySchedule;
 
 		public DeliveryRulesService(
 			IDeliveryRepository deliveryRepository,
@@ -33,9 +33,9 @@ namespace VodovozDeliveryRulesService
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение графика доставки за час"))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{
-				_oneHourDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesParametersProvider.OneHourDeliveryScheduleId);
+				_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesParametersProvider.FastDeliveryScheduleId);
 			}
 		}
 
@@ -125,9 +125,6 @@ namespace VodovozDeliveryRulesService
 		{
 			var deliveryInfo = GetRulesByDistrict(request.Latitude, request.Longitude);
 
-			//Убрать после запуска доставки за час
-			return deliveryInfo;
-
 			if(deliveryInfo.StatusEnum != DeliveryRulesResponseStatus.Ok)
 			{
 				return deliveryInfo;
@@ -136,12 +133,12 @@ namespace VodovozDeliveryRulesService
 			{
 				var allowed =
 					!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday
-					&& CheckIfOneHourDeliveryAllowed(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+					&& CheckIfFastDeliveryAllowed(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 
 				if(allowed)
 				{
 					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
-					todayInfo.ScheduleRestrictions.Insert(0, _oneHourDeliverySchedule.Name);
+					todayInfo.ScheduleRestrictions.Insert(0, _fastDeliverySchedule.Name);
 				}
 			}
 			return deliveryInfo;
@@ -331,7 +328,7 @@ namespace VodovozDeliveryRulesService
 			return GetScheduleRestrictionsForWeekDay(district, deliveryWeekDay);
 		}
 
-		private bool CheckIfOneHourDeliveryAllowed(IUnitOfWork uow, decimal latitude, decimal longitude,
+		private bool CheckIfFastDeliveryAllowed(IUnitOfWork uow, decimal latitude, decimal longitude,
 			SiteNomenclatureNode[] siteNomenclatures)
 		{
 			if(siteNomenclatures == null || siteNomenclatures.Any(x => x.ERPId == null || x.ERPId < 1))
@@ -351,7 +348,7 @@ namespace VodovozDeliveryRulesService
 				})
 				.ToList();
 
-			return _deliveryRepository.OneHourDeliveryAvailable(
+			return _deliveryRepository.FastDeliveryAvailable(
 				uow,
 				(double)latitude,
 				(double)longitude,
