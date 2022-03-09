@@ -1700,6 +1700,10 @@
       <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
       <Name>QS.Attachments</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj">
+      <Project>{a869ec36-67d2-4a36-95e9-0b1e7350928f}</Project>
+      <Name>QS.BaseParameters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
