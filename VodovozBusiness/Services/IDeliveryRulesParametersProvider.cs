@@ -1,5 +1,4 @@
 ﻿using System;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Services
 {
@@ -7,8 +6,25 @@ namespace Vodovoz.Services
 	{
 		bool IsStoppedOnlineDeliveriesToday { get; }
 		void UpdateOnlineDeliveriesTodayParameter(string value);
-		TimeSpan MaxTrackPointTimeOffsetForOneHourDelivery { get; }
-		double MaxDistanceToLatestTrackPointForOneHourDeliveryKm { get; }
-		int OneHourDeliveryScheduleId { get; }
+
+		int BottlesCountForFlyer { get; }
+		void UpdateBottlesCountForFlyerParameter(string value);
+
+		bool AdditionalLoadingFlyerAdditionEnabled { get; }
+		void UpdateAdditionalLoadingFlyerAdditionEnabledParameter(string value);
+
+		#region FastDelivery
+
+		int FastDeliveryScheduleId { get; }
+		TimeSpan MaxTimeOffsetForLatestTrackPoint { get; }
+		TimeSpan MaxTimeForFastDelivery { get; }
+		TimeSpan MinTimeForNewFastDeliveryOrder { get; }
+		TimeSpan DriverUnloadTime { get; }
+		int DriverGoodWeightLiftPerHandInKg { get; }
+		int MaxFastOrdersPerSpecificTime { get; }
+		TimeSpan SpecificTimeForMaxFastOrdersCount { get; }
+		double MaxDistanceToLatestTrackPointKm { get; }
+
+		#endregion
 	}
 }

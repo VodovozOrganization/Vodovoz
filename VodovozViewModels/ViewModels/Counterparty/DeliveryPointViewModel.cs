@@ -100,7 +100,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			{
 				PhonesList = Entity.ObservablePhones, 
 				DeliveryPoint = Entity,
-				ShowRoboAtsCounterpartyNameAndPatronymic = true,
 				ReadOnly = !CanEdit
 			};
 

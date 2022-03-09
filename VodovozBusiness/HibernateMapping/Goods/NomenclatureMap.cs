@@ -19,7 +19,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OfficialName).Column("official_name");
 			Map(x => x.Model).Column("model");
 			Map(x => x.Weight).Column("weight");
-			Map(x => x.Volume).Column("volume");
+			Map(x => x.Length).Column("length");
+			Map(x => x.Width).Column("width");
+			Map(x => x.Height).Column("height");
 			Map(x => x.VAT).Column("vat").CustomType<VATStringType>();
 			Map(x => x.DoNotReserve).Column("reserve");
 			Map(x => x.RentPriority).Column("rent_priority");

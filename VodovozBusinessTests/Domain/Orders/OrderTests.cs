@@ -887,10 +887,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderItem.Volume.Returns(.35d);
+			nomenclatureMockOrderItem.Volume.Returns(.35m);
 
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderEquipment.Volume.Returns(.40d);
+			nomenclatureMockOrderEquipment.Volume.Returns(.40m);
 
 			OrderItem orderItem = new OrderItem {
 				Nomenclature = nomenclatureMockOrderItem,
@@ -928,10 +928,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderItem.Weight.Returns(.3d);
+			nomenclatureMockOrderItem.Weight.Returns(.3m);
 
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderEquipment.Weight.Returns(1.6d);
+			nomenclatureMockOrderEquipment.Weight.Returns(1.6m);
 
 			OrderItem orderItem = new OrderItem {
 				Nomenclature = nomenclatureMockOrderItem,

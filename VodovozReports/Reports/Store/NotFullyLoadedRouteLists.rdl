@@ -365,7 +365,7 @@ FROM route_lists rl
              1 AS count,
              rl.id AS rl_id
          FROM route_list_addresses rla
-         LEFT JOIN route_lists rl ON rla.route_list_id
+         LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
          LEFT JOIN orders o ON rla.order_id = o.id
          WHERE rl.not_fully_loaded
            AND rl.date BETWEEN @start_date AND @end_date 

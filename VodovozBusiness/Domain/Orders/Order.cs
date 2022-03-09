@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
+using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -31,7 +32,6 @@ using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -88,8 +88,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
-		
-		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
 
 		#region Cвойства
 
@@ -116,6 +114,14 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsFirstOrder {
 			get => isFirstOrder;
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
+		}
+
+		private bool _isFastDelivery;
+		[Display(Name = "Доставка за час")]
+		public virtual bool IsFastDelivery
+		{
+			get => _isFastDelivery;
+			set => SetField(ref _isFastDelivery, value);
 		}
 
 		OrderStatus orderStatus;
@@ -254,12 +260,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref billDate, value, () => BillDate);
 		}
 
-		DeliverySchedule deliverySchedule;
+		private DeliverySchedule _deliverySchedule;
 
 		[Display(Name = "Время доставки")]
-		public virtual DeliverySchedule DeliverySchedule {
-			get => deliverySchedule;
-			set => SetField(ref deliverySchedule, value, () => DeliverySchedule);
+		public virtual DeliverySchedule DeliverySchedule
+		{
+			get => _deliverySchedule;
+			set => SetField(ref _deliverySchedule, value);
 		}
 
 		private string deliverySchedule1c;
@@ -1089,9 +1096,10 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
-			if(DeliveryPoint != null && (!DeliveryPoint.Latitude.HasValue || !DeliveryPoint.Longitude.HasValue)) {
-				yield return new ValidationResult("В точке доставки необходимо указать координаты.",
-				new[] { this.GetPropertyName(o => o.DeliveryPoint) });
+			if(DeliveryPoint != null && (!DeliveryPoint.Latitude.HasValue || !DeliveryPoint.Longitude.HasValue))
+			{
+				yield return new ValidationResult($"В точке доставки №{DeliveryPoint.Id} {DeliveryPoint.ShortAddress} необходимо указать координаты.",
+				new[] { nameof(DeliveryPoint) });
 			}
 
             if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
@@ -1147,9 +1155,29 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
-			
+
+			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
+			{
+				yield return new ValidationResult(
+					$"Доставку за час можно выбрать только для заказа с формой оплаты из списка: {string.Join(", ", PaymentTypesFastDeliveryAvailableFor)}",
+					new[] { nameof(PaymentType) });
+			}
+
+			var deliveryParameters = validationContext.GetService<IDeliveryRulesParametersProvider>();
+			var isFastDeliverySchedule = DeliverySchedule?.Id == deliveryParameters.FastDeliveryScheduleId;
+			if(IsFastDelivery != isFastDeliverySchedule)
+			{
+				yield return new ValidationResult(
+					"Свойство заказа 'Доставка за час' должно совпадать с графиком доставки заказа 'Доставка за час'",
+					new[] { nameof(PaymentType) });
+			}
+			if(IsFastDelivery && (DeliveryPoint == null || SelfDelivery))
+			{
+				yield return new ValidationResult("Нельзя выбрать доставку за час для заказа-самовывоза", new[] { nameof(DeliveryPoint) });
+			}
+
 			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
-			
+
 			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
 			{
 				if(orderParametersProvider == null)
@@ -2391,9 +2419,33 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RemoveEquipment(OrderEquipment item)
 		{
-			ObservableOrderEquipments.Remove(item);
+			var rentDepositOrderItem = item.OrderRentDepositItem;
+			var rentServiceOrderItem = item.OrderRentServiceItem;
+			var totalEquipmentCountForDeposit = 0;
+			var totalEquipmentCountForService = 0;
+			
+			if(rentDepositOrderItem != null)
+			{
+				totalEquipmentCountForDeposit = GetRentEquipmentTotalCountForDepositItem(rentDepositOrderItem);
+			}
+			if(rentServiceOrderItem != null)
+			{
+				totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(rentServiceOrderItem);
+			}
+
+			if(totalEquipmentCountForDeposit == item.Count || totalEquipmentCountForService == item.Count)
+			{
+				ObservableOrderEquipments.Remove(item);
+				RemoveOrderItem(rentDepositOrderItem);
+				RemoveOrderItem(rentServiceOrderItem);
+			}
+			else
+			{
+				ObservableOrderEquipments.Remove(item);
+				UpdateRentsCount();
+			}
+			
 			UpdateDocuments();
-			UpdateRentsCount();
 		}
 
 		/// <summary>
@@ -3508,7 +3560,54 @@ namespace Vodovoz.Domain.Orders
 				deposit.ActualCount = 0;
 			}
 		}
-		
+
+		/// <summary>
+		/// Возвращает список со всеми товарами, которые нужно доставить клиенту
+		/// </summary>
+		/// <returns></returns>
+		public virtual IList<NomenclatureAmountNode> GetAllGoodsToDeliver()
+		{
+			var result = new List<NomenclatureAmountNode>();
+
+			foreach(var orderItem in OrderItems.Where(x => Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
+			{
+				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
+				if(found != null)
+				{
+					found.Amount += orderItem.Count;
+				}
+				else
+				{
+					result.Add(new NomenclatureAmountNode
+					{
+						NomenclatureId = orderItem.Nomenclature.Id,
+						Nomenclature = orderItem.Nomenclature,
+						Amount = orderItem.Count
+					});
+				}
+			}
+
+			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
+				        && Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
+			{
+				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
+				if(found != null)
+				{
+					found.Amount += equipment.Count;
+				}
+				else
+				{
+					result.Add(new NomenclatureAmountNode
+					{
+						NomenclatureId = equipment.Nomenclature.Id,
+						Nomenclature = equipment.Nomenclature,
+						Amount = equipment.Count
+					});
+				}
+			}
+			return result;
+		}
+
 		#endregion
 
 		#region Аренда
@@ -3853,11 +3952,11 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Вес</returns>
 		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
-		public virtual double FullWeight(bool includeGoods = true, bool includeEquipment = true)
+		public virtual decimal FullWeight(bool includeGoods = true, bool includeEquipment = true)
 		{
-			double weight = 0;
+			decimal weight = 0;
 			if(includeGoods)
-				weight += OrderItems.Sum(x => x.Nomenclature.Weight * (double) x.Count);
+				weight += OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);
 			if(includeEquipment)
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
@@ -3872,13 +3971,13 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
 		public virtual decimal FullVolume(bool includeGoods = true, bool includeEquipment = true)
 		{
-			double volume = 0;
+			decimal volume = 0;
 			if(includeGoods)
-				volume += OrderItems.Sum(x => x.Nomenclature.Volume * (double) x.Count);
+				volume += OrderItems.Sum(x => x.Nomenclature.Volume * x.Count);
 			if(includeEquipment)
 				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Volume * x.Count);
-			return (decimal)volume;
+			return volume;
 		}
 
 		#endregion
@@ -3893,6 +3992,13 @@ namespace Vodovoz.Domain.Orders
 			OrderStatus.OnTheWay,
 			OrderStatus.Shipped,
 			OrderStatus.UnloadingOnStock
+		};
+
+		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]
+		{
+			PaymentType.cash,
+			PaymentType.ByCard,
+			PaymentType.Terminal
 		};
 
 		#endregion

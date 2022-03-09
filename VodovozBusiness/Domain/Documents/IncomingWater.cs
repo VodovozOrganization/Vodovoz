@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using DataAnnotationsExtensions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
@@ -145,6 +146,14 @@ namespace Vodovoz.Domain.Documents
 				if(item.Amount <= 0)
 					yield return new ValidationResult(String.Format("Для сырья <{0}> не указано количество.", item.Nomenclature.Name),
 						new[] { this.GetPropertyName(o => o.Materials) });
+			}
+
+			if(Nomenclature.CategoriesWithWeightAndVolume.Contains(Product.Category)
+			   && (Product.Weight == default || Product.Length == default || Product.Width == default || Product.Height == default))
+			{
+				yield return new ValidationResult(
+					"В продукте обязательно должны быть заполнены вес и объём",
+					new[] { nameof(Product) });
 			}
 		}
 	}

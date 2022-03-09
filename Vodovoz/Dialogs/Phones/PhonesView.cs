@@ -104,7 +104,7 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(entryComment);
 			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
 
-			if(ViewModel.ShowRoboAtsCounterpartyNameAndPatronymic)
+			if(ViewModel.RoboAtsCounterpartyNameSelectorFactory != null)
 			{
 				var labelName = new Label("имя:");
 				hBox.PackStart(labelName, false, false, 0);
@@ -118,7 +118,11 @@ namespace Vodovoz.Dialogs.Phones
 					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
 				entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
 				entityviewmodelentryName.WidthRequest = 170;
-				hBox.PackStart(entityviewmodelentryName,true,true,0);
+				hBox.PackStart(entityviewmodelentryName, true, true, 0);
+			}
+
+			if(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory != null)
+			{
 
 				var labelPatronymic = new Label("отч.:");
 				hBox.PackStart(labelPatronymic,false,false,0);

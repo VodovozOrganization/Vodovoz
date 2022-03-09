@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -68,21 +69,67 @@ namespace Vodovoz
 
 				ytreeviewItems.ItemsDataSource = items;
 				ytreeviewItems.Reorderable = true;
-				CalculateTotal();
+				UpdateInfo();
 			}
 		}
 
 		public void SubscribeOnChanges()
-        {
-            RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
-            RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
-            RouteListUoW.Root.ObservableAddresses.ElementAdded += Items_ElementAdded;
+		{
+			RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
+			RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
+			RouteListUoW.Root.ObservableAddresses.ElementAdded += Items_ElementAdded;
+			RouteListUoW.Root.PropertyChanged += RouteListOnPropertyChanged;
+			if(RouteListUoW.Root.AdditionalLoadingDocument != null)
+			{
+				SubscribeToAdditionalLoadingDocumentItemsUpdates();
+			}
 
-            items = RouteListUoW.Root.ObservableAddresses;
+			items = RouteListUoW.Root.ObservableAddresses;
             ytreeviewItems.ItemsDataSource = items;
             ytreeviewItems.Reorderable = true;
             ytreeviewItems?.YTreeModel?.EmitModelChanged();
         }
+
+		private void RouteListOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(RouteList.Car))
+			{
+				UpdateInfo();
+			}
+			if(e.PropertyName == nameof(RouteList.AdditionalLoadingDocument))
+			{
+				SubscribeToAdditionalLoadingDocumentItemsUpdates();
+			}
+		}
+
+		private void SubscribeToAdditionalLoadingDocumentItemsUpdates()
+		{
+			var additionalLoadingItems = RouteListUoW?.Root?.AdditionalLoadingDocument?.ObservableItems;
+			if(additionalLoadingItems != null)
+			{
+				additionalLoadingItems.ElementAdded -= AdditionalLoadItemsOnElementAdded;
+				additionalLoadingItems.ElementAdded += AdditionalLoadItemsOnElementAdded;
+				additionalLoadingItems.ElementRemoved -= AdditionalLoadItemsOnElementRemoved;
+				additionalLoadingItems.ElementRemoved += AdditionalLoadItemsOnElementRemoved;
+				additionalLoadingItems.ElementChanged -= AdditionalLoadItemsOnElementChanged;
+				additionalLoadingItems.ElementChanged += AdditionalLoadItemsOnElementChanged;
+			}
+		}
+
+		private void AdditionalLoadItemsOnElementChanged(object alist, int[] aidx)
+		{
+			UpdateInfo();
+		}
+
+		private void AdditionalLoadItemsOnElementRemoved(object alist, int[] aidx, object aobject)
+		{
+			UpdateInfo();
+		}
+
+		private void AdditionalLoadItemsOnElementAdded(object alist, int[] aidx)
+		{
+			UpdateInfo();
+		}
 
 		private bool CanEditRows => _isLogistician
 										&& (_permissionResult.CanCreate && RouteListUoW.Root.Id == 0 || _permissionResult.CanUpdate)
@@ -106,7 +153,7 @@ namespace Vodovoz
 		void Items_ElementAdded(object aList, int[] aIdx)
 		{
 			UpdateColumns();
-			CalculateTotal();
+			UpdateInfo();
         }
 
         void Items_ListChanged(object aList)
@@ -151,7 +198,11 @@ namespace Vodovoz
 				.AddColumn("К клиенту")
 				.AddTextRenderer(x => x.EquipmentsToClientText, expand: false)
 				.AddColumn("От клиента")
-				.AddTextRenderer(x => x.EquipmentsFromClientText, expand: false);
+				.AddTextRenderer(x => x.EquipmentsFromClientText, expand: false)
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false)
+					.AddSetter((c, n) => c.Visible = n.Order.IsFastDelivery)
+				.AddColumn("");
 			ytreeviewItems.ColumnsConfig =
 				config.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish();
@@ -188,7 +239,7 @@ namespace Vodovoz
 		void Items_ElementChanged(object aList, int[] aIdx)
 		{
 			UpdateColumns();
-			CalculateTotal();
+			UpdateInfo();
 		}
 
 		public RouteListCreateItemsView()
@@ -226,7 +277,7 @@ namespace Vodovoz
 					message,
 					ButtonsType.Ok
 				);
-			CalculateTotal();
+			UpdateInfo();
 		}
 
 		protected void OnEnumbuttonAddOrderEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
@@ -334,11 +385,15 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, journalViewModel);
 		}
 
-		void CalculateTotal()
+		public void UpdateInfo()
 		{
-			var total = routeListUoW.Root.Addresses.SelectMany(a => a.Order.OrderItems)
-				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
-				.Sum(i => i.Count);
+			var total =
+				routeListUoW.Root.Addresses.SelectMany(a => a.Order.OrderItems)
+					.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
+					.Sum(i => i.Count)
+				+ (routeListUoW.Root.AdditionalLoadingDocument?.Items
+					.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
+					.Sum(x => x.Amount) ?? 0);
 
 			labelSum.LabelProp = $"Всего бутылей: {total:N0}";
 			UpdateWeightInfo();
@@ -347,27 +402,37 @@ namespace Vodovoz
 
 		public virtual void UpdateWeightInfo()
 		{
-			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
-				string maxWeight = RouteListUoW.Root.Car.CarModel.MaxWeight > 0
-								   ? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
-								   : " ?";
-				string weight = RouteListUoW.Root.HasOverweight()
-											? $"<span foreground = \"red\">Перегруз на {RouteListUoW.Root.Overweight()} кг.</span>"
-											: $"<span foreground = \"green\">Вес груза: {RouteListUoW.Root.GetTotalWeight()}/{maxWeight} кг.</span>";
+			if(RouteListUoW?.Root.Car != null)
+			{
+				var maxWeight = RouteListUoW.Root.Car.CarModel.MaxWeight > 0
+					? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
+					: " ?";
+				var weight = RouteListUoW.Root.HasOverweight()
+					? $"<span foreground = \"red\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
+					: $"<span foreground = \"green\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
 				lblWeight.LabelProp = weight;
+			}
+			if(RouteListUoW?.Root?.Car == null)
+			{
+				lblWeight.LabelProp = "";
 			}
 		}
 
 		public virtual void UpdateVolumeInfo()
 		{
-			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
-				string maxVolume = RouteListUoW.Root.Car.CarModel.MaxVolume > 0
-								   ? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString()
-								   : " ?";
-				string volume = RouteListUoW.Root.HasVolumeExecess()
-											? string.Format("<span foreground = \"red\">Объём груза превышен на {0} м<sup>3</sup>.</span>", RouteListUoW.Root.VolumeExecess())
-											: string.Format("<span foreground = \"green\">Объём груза: {0}/{1} м<sup>3</sup>.</span>", RouteListUoW.Root.GetTotalVolume(), maxVolume);
+			if(RouteListUoW?.Root.Car != null)
+			{
+				var maxVolume = RouteListUoW.Root.Car.CarModel.MaxVolume > 0
+					? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString("0.###")
+					: " ?";
+				var volume = RouteListUoW.Root.HasVolumeExecess()
+					? $"<span foreground = \"red\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"green\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				lblVolume.LabelProp = volume;
+			}
+			if(RouteListUoW?.Root?.Car == null)
+			{
+				lblVolume.LabelProp = "";
 			}
 		}
 

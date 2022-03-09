@@ -80,6 +80,7 @@ namespace VodovozDeliveryRulesService
 						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
 
