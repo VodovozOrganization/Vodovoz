@@ -10,7 +10,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
@@ -38,8 +37,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly IFileDialogService _fileDialogService;
-		private readonly ISubdivisionRepository _subdivisionRepository;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
@@ -54,6 +51,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
+		public IFileDialogService FileDialogService { get; }
+		public ISubdivisionRepository SubdivisionRepository { get; }
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -61,7 +60,6 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclatureRepository nomenclatureRepository,
@@ -78,9 +76,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IComplaintResultsRepository complaintResultsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			FileDialogService  = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -95,6 +92,7 @@ namespace Vodovoz.ViewModels.Complaints
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -220,7 +218,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Entity,
 						this,
 						UoW,
-						_fileDialogService,
+						FileDialogService ,
 						EmployeeService,
 						CommonServices,
 						_employeeSelectorFactory,
@@ -241,7 +239,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory);
 				}
 
 				return guiltyItemsViewModel;
@@ -256,7 +254,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(filesViewModel == null)
 				{
-					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, UserRepository);
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, FileDialogService , CommonServices, UserRepository);
 				}
 				return filesViewModel;
 			}
