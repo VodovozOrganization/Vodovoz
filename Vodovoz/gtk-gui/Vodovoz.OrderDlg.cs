@@ -148,7 +148,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckContactlessDelivery;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckPaymentBySms;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckPaymentByQR;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox1;
 
@@ -1287,14 +1287,14 @@ namespace Vodovoz
 			w69.XOptions = ((global::Gtk.AttachOptions)(4));
 			w69.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ycheckPaymentBySms = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckPaymentBySms.CanFocus = true;
-			this.ycheckPaymentBySms.Name = "ycheckPaymentBySms";
-			this.ycheckPaymentBySms.Label = global::Mono.Unix.Catalog.GetString("Оплата по SMS");
-			this.ycheckPaymentBySms.DrawIndicator = true;
-			this.ycheckPaymentBySms.UseUnderline = true;
-			this.table1.Add(this.ycheckPaymentBySms);
-			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckPaymentBySms]));
+			this.ycheckPaymentByQR = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckPaymentByQR.CanFocus = true;
+			this.ycheckPaymentByQR.Name = "ycheckPaymentByQR";
+			this.ycheckPaymentByQR.Label = global::Mono.Unix.Catalog.GetString("Оплата по QR");
+			this.ycheckPaymentByQR.DrawIndicator = true;
+			this.ycheckPaymentByQR.UseUnderline = true;
+			this.table1.Add(this.ycheckPaymentByQR);
+			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckPaymentByQR]));
 			w70.TopAttach = ((uint)(13));
 			w70.BottomAttach = ((uint)(14));
 			w70.LeftAttach = ((uint)(3));
