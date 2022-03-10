@@ -8,7 +8,7 @@ namespace SmsPaymentService
         
         public static bool SendingAllowed => settingInstance != null;
 
-        public static ISmsPaymentService GetSmsmPaymentServite()
+        public static ISmsPaymentService GetSmsPaymentService()
         {
             if (!SendingAllowed)
             {
