@@ -219,13 +219,18 @@ namespace Vodovoz.ViewModels.Goods
 
 		public override bool Save()
 		{
+			if(!Validate())
+			{
+				return false;
+			}
 			foreach(var priority in ObservableNomenclatureDistributions)
 			{
 				UoW.Save(priority);
 			}
 			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
 			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
-			return base.Save();
+			UoW.Commit();
+			return true;
 		}
 
 		public override void Dispose()

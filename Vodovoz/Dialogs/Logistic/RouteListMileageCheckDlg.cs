@@ -125,7 +125,6 @@ namespace Vodovoz
 					.AddEnumRenderer(node => node.Status).Editing(false)
 				.AddColumn("Доставка за час")
 					.AddToggleRenderer(x => x.RouteListItem.Order.IsFastDelivery).Editing(false)
-					.AddSetter((c, n) => c.Visible = n.RouteListItem.Order.IsFastDelivery)
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
 				.RowCells()

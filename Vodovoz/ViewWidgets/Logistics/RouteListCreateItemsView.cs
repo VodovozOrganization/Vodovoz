@@ -201,7 +201,6 @@ namespace Vodovoz
 				.AddTextRenderer(x => x.EquipmentsFromClientText, expand: false)
 				.AddColumn("Доставка за час")
 					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false)
-					.AddSetter((c, n) => c.Visible = n.Order.IsFastDelivery)
 				.AddColumn("");
 			ytreeviewItems.ColumnsConfig =
 				config.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Order.RowColor)
