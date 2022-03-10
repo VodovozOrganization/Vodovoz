@@ -140,8 +140,8 @@ namespace Vodovoz.Domain.Documents
 				return;
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
-				Warehouse.Id,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),
+				Warehouse.Id,
 				TimeStamp
 			);
 
@@ -172,6 +172,26 @@ namespace Vodovoz.Domain.Documents
 				if(found != null)
 				{
 					item.AmountLoaded = found.Amount;
+				}
+			}
+		}
+
+		public virtual void UpdateAmounts()
+		{
+			foreach(var item in Items)
+			{
+				item.Amount = item.AmountInRouteList - item.AmountLoaded;
+
+				var alreadyCounted = Items
+					.Where(x => x.Nomenclature == item.Nomenclature
+						&& Items.IndexOf(x) < Items.IndexOf(item))
+					.Sum(x => x.Amount);
+
+				var calculatedAvailableCount = item.AmountInStock - alreadyCounted;
+
+				if(item.Amount > calculatedAvailableCount)
+				{
+					item.Amount = calculatedAvailableCount;
 				}
 			}
 		}

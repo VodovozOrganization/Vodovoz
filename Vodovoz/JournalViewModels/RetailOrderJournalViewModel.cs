@@ -48,7 +48,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -91,7 +91,7 @@ namespace Vodovoz.JournalViewModels
 
 			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
 			                                   ?? throw new ArgumentNullException(nameof(_nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			_counterpartySelectorFactory = counterpartyJournalFactory;
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =

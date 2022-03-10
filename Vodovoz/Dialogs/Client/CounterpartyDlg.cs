@@ -39,8 +39,11 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate.Transform;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -60,8 +63,16 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using NHibernate;
+using QS.Utilities;
+using QS.Project.Services.FileDialog;
+using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -90,17 +101,20 @@ namespace Vodovoz
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
-		private IFilePickerService _filePickerService;
+		private IFileDialogService _fileDialogService;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private INomenclatureRepository _nomenclatureRepository;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
 		private PhonesViewModel _phonesViewModel;
+		private double _emailLastScrollPosition;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+
+		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
 		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
 			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
@@ -111,8 +125,8 @@ namespace Vodovoz
 		public virtual IRouteListItemRepository RouteListItemRepository =>
 			_routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
 
-		public virtual IFilePickerService FilePickerService =>
-			_filePickerService ?? (_filePickerService = new GtkFilePicker());
+		public virtual IFileDialogService FilePickerService =>
+			_fileDialogService ?? (_fileDialogService = new FileDialogService());
 
 		public virtual INomenclatureRepository NomenclatureRepository =>
 			_nomenclatureRepository ?? (_nomenclatureRepository =
@@ -125,7 +139,7 @@ namespace Vodovoz
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory,
 					NomenclatureRepository, _userRepository));
 
 		#region Список каналов сбыта
@@ -200,7 +214,7 @@ namespace Vodovoz
 			}
 			set => base.HasChanges = value;
 		}
-		
+
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
@@ -223,6 +237,23 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id)
 		{
+		}
+
+		public CounterpartyDlg(NewCounterpartyParameters parameters)
+		{
+			Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+
+			Entity.Name = parameters.Name;
+			Entity.FullName = parameters.FullName;
+			Entity.INN = parameters.INN;
+			Entity.KPP = parameters.KPP;
+			Entity.PaymentMethod = parameters.PaymentMethod;
+			Entity.TypeOfOwnership = parameters.TypeOfOwnership;
+			Entity.PersonType = parameters.PersonType;
+			Entity.AddAccount(parameters.Account);
+
+			ConfigureDlg();
 		}
 
 		public CounterpartyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
@@ -257,7 +288,7 @@ namespace Vodovoz
 			_currentUserCanEditCounterpartyDetails =
 				UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_edit_counterparty_details", _currentUserId);
-			
+
 			if(UoWGeneric.Root.CounterpartyContracts == null)
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
@@ -464,7 +495,7 @@ namespace Vodovoz
 			// Прикрепляемые документы
 
 			var filesViewModel =
-				new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository)
+				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
 				{
 					ReadOnly = !CanEdit
 				};
@@ -545,9 +576,8 @@ namespace Vodovoz
 			_phonesViewModel =
 				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
-				PhonesList = Entity.ObservablePhones, 
+				PhonesList = Entity.ObservablePhones,
 				Counterparty = Entity,
-				ShowRoboAtsCounterpartyNameAndPatronymic = true,
 				ReadOnly = !CanEdit
 			};
 			phonesView.ViewModel = _phonesViewModel;
@@ -657,7 +687,7 @@ namespace Vodovoz
 			yentrySignBaseOf.IsEditable = CanEdit;
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
-			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
+			accountsView.SetAccountOwner(UoW, Entity);
 		}
 
 		private void ConfigureTabProxies()
@@ -814,7 +844,7 @@ namespace Vodovoz
 					this,
 					ServicesConfig.CommonServices,
 					_employeeService,
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory,
 					NomenclatureSelectorFactory,
 					NomenclatureRepository,
 					_userRepository);
@@ -843,6 +873,76 @@ namespace Vodovoz
 			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
 		}
+
+		private void ConfigureTabEmails()
+		{
+			if(EmailDataLoader != null)
+			{
+				return;
+			}
+
+			_emailLastScrollPosition = 0;
+			EmailDataLoader = new ThreadDataLoader<EmailRow>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = 50 };
+			EmailDataLoader.AddQuery(EmailItemsSourceQueryFunction);
+
+			ytreeviewEmails.ColumnsConfig = FluentColumnsConfig<EmailRow>.Create()
+				.AddColumn("Дата отправки").AddTextRenderer(x => x.Date.ToString())
+				.AddColumn("Тип письма").AddTextRenderer(x => x.Type.GetEnumTitle())
+				.AddColumn("Статус").AddTextRenderer(x => x.State.GetEnumTitle())
+				.AddColumn("Тема письма").AddTextRenderer(x => x.Subject)
+				.Finish();
+
+			EmailDataLoader.ItemsListUpdated += (sender, args) =>
+			{
+				Application.Invoke((s, arg) =>
+				{
+					ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
+					GtkHelper.WaitRedraw();
+					ytreeviewEmails.Vadjustment.Value = _emailLastScrollPosition;
+				});
+			};
+
+			ytreeviewEmails.Vadjustment.ValueChanged += (sender, args) =>
+			{
+				if(ytreeviewEmails.Vadjustment.Value + ytreeviewEmails.Vadjustment.PageSize < ytreeviewEmails.Vadjustment.Upper)
+				{
+					return;
+				}
+
+				if(EmailDataLoader.HasUnloadedItems)
+				{
+					_emailLastScrollPosition = ytreeviewEmails.Vadjustment.Value;
+					EmailDataLoader.LoadData(true);
+				}
+			};
+
+			ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
+
+			EmailDataLoader.LoadData(false);
+		}
+
+		private Func<IUnitOfWork, IQueryOver<CounterpartyEmail>> EmailItemsSourceQueryFunction => (uow) =>
+		{
+			CounterpartyEmail counterpartyEmailAlias = null;
+			StoredEmail storedEmailAlias = null;
+			EmailRow resultAlias = null;
+
+			var itemsQuery = uow.Session.QueryOver(() => counterpartyEmailAlias)
+				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => counterpartyEmailAlias.Counterparty.Id == Entity.Id);
+
+			itemsQuery
+				.SelectList(list => list
+					.Select(()=> storedEmailAlias.SendDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.Type)
+					.Select(() => storedEmailAlias.Subject).WithAlias(() => resultAlias.Subject)
+					.Select(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
+				)
+				.OrderBy(() => storedEmailAlias.SendDate).Desc
+				.TransformUsing(Transformers.AliasToBean<EmailRow>());
+
+			return itemsQuery;
+		};
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
@@ -1115,6 +1215,15 @@ namespace Vodovoz
 		public void OpenFixedPrices()
 		{
 			notebook1.CurrentPage = 10;
+		}
+
+		protected void OnRadioEmailsToggled(object sender, EventArgs e)
+		{
+			if(rbnEmails.Active)
+			{
+				notebook1.CurrentPage = 11;
+				ConfigureTabEmails();
+			}
 		}
 
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
@@ -1427,5 +1536,13 @@ namespace Vodovoz
 			Id = salesChannel.Id;
 			Name = salesChannel.Name;
 		}
+	}
+
+	public class EmailRow
+	{
+		public DateTime Date { get; set; }
+		public CounterpartyEmailType Type { get; set; }
+		public string Subject { get; set; }
+		public StoredEmailStates State { get; set; }
 	}
 }

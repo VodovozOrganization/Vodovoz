@@ -6,6 +6,8 @@ using QS.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.JournalSelector
 {
@@ -14,7 +16,7 @@ namespace Vodovoz.JournalSelector
 	{
 		public NomenclatureSelectorFactory(ICommonServices commonServices, 
 		                                   NomenclatureFilterViewModel filterViewModel,
-		                                   IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+		                                   ICounterpartyJournalFactory counterpartySelectorFactory,
 		                                   INomenclatureRepository nomenclatureRepository,
 		                                   IUserRepository userRepository)
 		{
@@ -29,7 +31,7 @@ namespace Vodovoz.JournalSelector
 		protected readonly INomenclatureRepository nomenclatureRepository;
 		protected readonly IUserRepository userRepository;
 		protected readonly NomenclatureFilterViewModel filter;
-		protected readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
+		protected readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 
 		public Type EntityType => typeof(Nomenclature);
 

@@ -10,6 +10,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		IList<RouteListItem> GetRouteListItemAtDay(IUnitOfWork uow, DateTime date, RouteListItemStatus? status);
 		RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Order order);
+		RouteListItem GetTransferredRouteListItemFromRouteListForOrder(IUnitOfWork uow, int routeListId, int orderId);
 		RouteListItem GetTransferedFrom(IUnitOfWork uow, RouteListItem item);
 		bool HasRouteListItemsForOrder(IUnitOfWork uow, Order order);
 		bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order);

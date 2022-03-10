@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		public OrganizationDlg (Organization sub) : this (sub.Id)
 		{
-			
+
 		}
 
 		private void ConfigureDlg ()
@@ -65,7 +65,7 @@ namespace Vodovoz
 
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
-			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);
+			accountsview1.SetAccountOwner(UoW, Entity);
 
 			var employeeFactory = new EmployeeJournalFactory();
 			evmeAccountant.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());

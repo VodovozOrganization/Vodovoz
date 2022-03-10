@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.Converters
 {
@@ -25,11 +26,11 @@ namespace DriverAPI.Library.Converters
 			this._paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 		}
 
-		public OrderDto convertToAPIOrder(Vodovoz.Domain.Orders.Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus)
+		public OrderDto ConvertToApiOrder(Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus, DateTime addedToRouteListTime)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
-			var apiOrder = new OrderDto()
+			var apiOrder = new OrderDto
 			{
 				OrderId = vodovozOrder.Id,
 				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
@@ -44,7 +45,9 @@ namespace DriverAPI.Library.Converters
 				OrderSum = vodovozOrder.OrderSum,
 				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
-				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems
+				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
+				IsFastDelivery = vodovozOrder.IsFastDelivery,
+				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss")
 			};
 
 			return apiOrder;

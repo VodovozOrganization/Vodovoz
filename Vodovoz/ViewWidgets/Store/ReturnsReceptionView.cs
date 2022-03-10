@@ -168,6 +168,7 @@ namespace Vodovoz
 					.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 					.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
 					.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
+					.And(() => nomenclatureAlias.Category != NomenclatureCategory.service)
 					.SelectList(list => list
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)

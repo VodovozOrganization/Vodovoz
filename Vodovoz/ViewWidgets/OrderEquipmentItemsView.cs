@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets
 {

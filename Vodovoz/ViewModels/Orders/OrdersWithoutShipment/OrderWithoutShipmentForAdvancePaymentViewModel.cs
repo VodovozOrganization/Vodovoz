@@ -32,6 +32,9 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -39,7 +42,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly IEmployeeService _employeeService;
 		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 
@@ -62,7 +65,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IDiscountReasonRepository discountReasonRepository,

@@ -1,5 +1,6 @@
 ﻿using QS.Report;
 using System;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 
@@ -9,6 +10,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 	{
 		string Title { get; }
 		DateTime? DocumentDate { get; }
+		Counterparty Counterparty { get; }
 		EmailTemplate GetEmailTemplate();
 		ReportInfo GetReportInfo();
 	}

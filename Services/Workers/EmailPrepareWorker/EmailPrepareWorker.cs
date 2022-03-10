@@ -86,6 +86,7 @@ namespace EmailPrepareWorker
 					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap))
 			});
@@ -139,78 +140,94 @@ namespace EmailPrepareWorker
 						Email = _emailParametersProvider.DocumentEmailSenderAddress
 					};
 
-					foreach(var orderDocumentEmail in emailsToSend)
+					foreach(var counterpartyEmail in emailsToSend)
 					{
-						_logger.LogInformation($"Found message to prepare for stored email: { orderDocumentEmail.StoredEmail.Id }");
-
-						sendingMessage.To = new List<EmailContact>
+						try
 						{
-							new EmailContact
+							_logger.LogInformation($"Found message to prepare for stored email: { counterpartyEmail.StoredEmail.Id }");
+
+							sendingMessage.To = new List<EmailContact>
 							{
-								Name = orderDocumentEmail.Order.Client.FullName,
-								Email = orderDocumentEmail.StoredEmail.RecipientAddress
+								new EmailContact
+								{
+									Name = counterpartyEmail.Counterparty.FullName,
+									Email = counterpartyEmail.StoredEmail.RecipientAddress
+								}
+							};
+
+							var document = counterpartyEmail.EmailableDocument;
+
+							if(document == null)
+							{
+								counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
+								counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
+								unitOfWork.Save(counterpartyEmail.StoredEmail);
+								unitOfWork.Commit();
+								
+								continue;
 							}
-						};
 
-						var document = (IEmailableDocument) orderDocumentEmail.OrderDocument;
+							var template = document.GetEmailTemplate();
 
-						var template = document.GetEmailTemplate();
+							sendingMessage.Subject = $"{ template.Title } { document.Title }";
+							sendingMessage.TextPart = template.Text;
+							sendingMessage.HTMLPart = template.TextHtml;
 
-						sendingMessage.Subject = $"{ template.Title } { document.Title }";
-						sendingMessage.TextPart = template.Text;
-						sendingMessage.HTMLPart = template.TextHtml;
+							var inlinedAttachments = new List<InlinedEmailAttachment>();
 
-						var inlinedAttachments = new List<InlinedEmailAttachment>();
-
-						foreach(var item in template.Attachments)
-						{
-							inlinedAttachments.Add(new InlinedEmailAttachment
+							foreach(var item in template.Attachments)
 							{
-								ContentID = item.Key,
-								ContentType = item.Value.MIMEType,
-								Filename = item.Value.FileName,
-								Base64Content = item.Value.Base64Content
-							});
+								inlinedAttachments.Add(new InlinedEmailAttachment
+								{
+									ContentID = item.Key,
+									ContentType = item.Value.MIMEType,
+									Filename = item.Value.FileName,
+									Base64Content = item.Value.Base64Content
+								});
+							}
+
+							sendingMessage.InlinedAttachments = inlinedAttachments;
+
+							var attachments = new List<EmailAttachment>
+							{
+								await PrepareDocument(document, counterpartyEmail.Type)
+							};
+
+							sendingMessage.Attachments = attachments;
+
+							sendingMessage.Payload = new EmailPayload
+							{
+								Id = counterpartyEmail.StoredEmail.Id,
+								Trackable = true,
+								InstanceId = _instanceId
+							};
+
+							var serializedMessage = JsonSerializer.Serialize(sendingMessage);
+							var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+
+							var properties = _channel.CreateBasicProperties();
+							properties.Persistent = true;
+
+							_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+
+							counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+							unitOfWork.Save(counterpartyEmail.StoredEmail);
+							unitOfWork.Commit();
 						}
-
-						sendingMessage.InlinedAttachments = inlinedAttachments;
-
-						var attachments = new List<EmailAttachment>
+						catch(Exception ex)
 						{
-							await PrepareDocument(document)
-						};
-
-						sendingMessage.Attachments = attachments;
-
-						sendingMessage.Payload = new EmailPayload
-						{
-							Id = orderDocumentEmail.StoredEmail.Id,
-							Trackable = true,
-							InstanceId = _instanceId
-						};
-
-						var serializedMessage = JsonSerializer.Serialize(sendingMessage);
-						var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-						var properties = _channel.CreateBasicProperties();
-						properties.Persistent = true;
-
-						_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
-
-						orderDocumentEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
-						unitOfWork.Save(orderDocumentEmail.StoredEmail);
-						unitOfWork.Commit();
+							_logger.LogError($"Failed to process counterparty email { counterpartyEmail.Id }: { ex.Message }");
+						}
 					}
 				}
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message);
-				throw;
 			}
 		}
 
-		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document)
+		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
 		{
 			bool wasHideSignature;
 			ReportInfo ri;
@@ -226,10 +243,23 @@ namespace EmailPrepareWorker
 
 			string documentDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
 
+			string fileName = counterpartyEmailType.ToString();
+			switch(counterpartyEmailType)
+			{
+				case CounterpartyEmailType.OrderDocument:
+					fileName += $"_{ document.Order.Id }";
+					break;
+				default:
+					fileName += $"_{ document.Id }";
+					break;
+			}
+
+			fileName += $"_{ documentDate }.pdf";
+
 			return await new ValueTask<EmailAttachment>(
 				new EmailAttachment
 				{
-					Filename = $"Document_{ document.Order.Id }{ documentDate }.pdf",
+					Filename = fileName,
 					ContentType = "application/pdf",
 					Base64Content = Convert.ToBase64String(stream.GetBuffer())
 				});

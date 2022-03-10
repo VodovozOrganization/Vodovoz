@@ -4,7 +4,6 @@ using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
@@ -33,7 +32,6 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
-		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -185,7 +183,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 
 			logger.Info("Меняем статус маршрутного листа...");
-			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker))
+			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
 			UoW.Commit();
@@ -207,7 +205,7 @@ namespace Vodovoz
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,
-					Entity.RouteList.Car.Model,
+					Entity.RouteList.Car.CarModel.Name,
 					Entity.RouteList.Car.RegistrationNumber,
 					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)"
 				);
@@ -223,7 +221,7 @@ namespace Vodovoz
 		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			Entity.UpdateStockAmount(UoW, _stockRepository);
-			carloaddocumentview1.UpdateAmounts();
+			Entity.UpdateAmounts();
 		}
 
 		protected void OnEnumPrintEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)

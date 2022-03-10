@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -9,32 +7,16 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 namespace Vodovoz.Domain.StoredEmails
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Документы заказа для электронной почты",
-		Nominative = "Документ заказа для электронной почты"
-	)]
-	public class OrderDocumentEmail : PropertyChangedBase, IDomainObject
+		NominativePlural = "документы заказа",
+		Nominative = "документ заказа")]
+	public class OrderDocumentEmail : CounterpartyEmail
 	{
-		private Order _order;
-		private StoredEmail _storedEmail;
 		private OrderDocument _orderDocument;
 
-		public virtual int Id { get; set; }
+		public override IEmailableDocument EmailableDocument => (IEmailableDocument) OrderDocument;
+		public override CounterpartyEmailType Type => CounterpartyEmailType.OrderDocument;
 
-		[Display(Name = "Заказ")]
-		public virtual Order Order
-		{
-			get => _order;
-			set => SetField(ref _order, value);
-		}
-
-		[Display(Name = "Электронная почта для отправки")]
-		public virtual StoredEmail StoredEmail
-		{
-			get => _storedEmail;
-			set => SetField(ref _storedEmail, value);
-		}
-
-		[Display(Name = "Документ заказа для отправки")]
+		[Display(Name = "Документ заказа")]
 		public virtual OrderDocument OrderDocument
 		{
 			get => _orderDocument;

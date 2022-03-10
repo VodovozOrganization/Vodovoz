@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.UI.WebControls;
 using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
 using QS.Deletion.Configuration;
+using QS.DomainModel.Entity;
 using QS.HistoryLog.Domain;
+using QS.Project.DB;
 using QS.Project.Domain;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
@@ -20,6 +23,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -695,7 +699,6 @@ namespace Vodovoz
 						.AddClearDependence<ServiceClaim>(x => x.FinalOrder)
 						.AddDeleteDependence<UndeliveredOrder>(x => x.OldOrder)
 						.AddClearDependence<UndeliveredOrder>(x => x.NewOrder)
-						.AddDeleteDependence<OrderDocumentEmail>(x => x.Order)
 						.AddClearDependence<Income>(x => x.Order)
 						.AddClearDependence<Expense>(x => x.Order)
 						.AddClearDependence<M2ProxyDocument>(x => x.Order)
@@ -1254,6 +1257,38 @@ namespace Vodovoz
 			#endregion
 
 			logger.Info("Ок");
+		}
+
+		/// <summary>
+		/// Метод автоматически заполняет поля ObjectsName и ObjectName из атрибута AppellativeAttribute
+		/// в классе. И заполняет TableName из настроек NhiberNate.
+		/// </summary>
+		/// <returns>The from meta info.</returns>
+		public static DeleteInfo FillFromMetaInfo(this DeleteInfo deleteInfo)
+		{
+			if(deleteInfo.ObjectClass == null)
+			{
+				throw new NullReferenceException("ObjectClass должен быть заполнен.");
+			}
+			var attArray = deleteInfo.ObjectClass.GetCustomAttributes(typeof(AppellativeAttribute), false);
+			if(attArray.Length > 0)
+			{
+				if(String.IsNullOrEmpty(deleteInfo.ObjectsName))
+				{
+					deleteInfo.ObjectsName = (attArray[0] as AppellativeAttribute).NominativePlural;
+				}
+			}
+
+			if(String.IsNullOrEmpty(deleteInfo.TableName))
+			{
+				var maping = OrmConfig.NhConfig.GetClassMapping(deleteInfo.ObjectClass);
+				if(maping != null)
+				{
+					deleteInfo.TableName = maping.Table.Name;
+				}
+			}
+
+			return deleteInfo;
 		}
 	}
 }

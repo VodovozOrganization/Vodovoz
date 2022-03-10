@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
@@ -16,7 +17,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs.Database;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz.Views.Goods
 {
@@ -168,12 +169,28 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			spinWeight.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Weight, w => w.Value)
+				.AddBinding(ViewModel.Entity, e => e.Weight, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			spinVolume.Binding
+
+			spinLength.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Volume, w => w.Value)
+				.AddBinding(ViewModel.Entity, e => e.Length, w => w.ValueAsDecimal)
 				.InitializeFromSource();
+
+			spinWidth.Binding
+				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.Width, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			spinHeight.Binding
+				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.Height, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			ylabelVolume.Binding
+				.AddBinding(ViewModel.Entity, e => e.Volume, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+
 			spinPercentForMaster.Binding
 				.AddBinding(ViewModel.Entity, e => e.PercentForMaster, w => w.Value)
 				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)

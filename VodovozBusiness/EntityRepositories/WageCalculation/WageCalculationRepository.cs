@@ -19,7 +19,9 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		public IEnumerable<WageDistrictLevelRates> AllLevelRates(IUnitOfWork uow, bool hideArchive = true)
 		{
 			var baseQuery = uow.Session.QueryOver<WageDistrictLevelRates>();
-			return hideArchive ? baseQuery.Where(d => !d.IsArchive).OrderBy(r => r.Name).Asc.List() : baseQuery.OrderBy(r => r.Name).Asc.List();
+			return hideArchive
+				? baseQuery.Where(d => !d.IsArchive).OrderBy(r => r.Name).Asc.List()
+				: baseQuery.OrderBy(r => r.Name).Asc.List();
 		}
 
 		public IEnumerable<SalesPlan> AllSalesPlans(IUnitOfWork uow, bool hideArchive = true)
@@ -41,6 +43,14 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
 				.Where(x => x.IsDefaultLevelForOurCars);
 			
+			return query.Take(1).SingleOrDefault();
+		}
+
+		public WageDistrictLevelRates DefaultLevelForNewEmployeesOnRaskatCars(IUnitOfWork uow)
+		{
+			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
+				.Where(x => x.IsDefaultLevelForRaskatCars);
+
 			return query.Take(1).SingleOrDefault();
 		}
 

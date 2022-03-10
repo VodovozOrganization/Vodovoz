@@ -69,6 +69,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref statusLastUpdate, value);
 		}
 
+		private DateTime _creationDate;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime CreationDate => _creationDate == default
+			? DateTime.Now
+			: _creationDate;
+
 		private RouteListItem transferedTo;
 		[Display(Name = "Перенесен в другой маршрутный лист")]
 		public virtual RouteListItem TransferedTo {

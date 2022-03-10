@@ -8,7 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities.Text;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.Domain.WageCalculation
@@ -61,7 +61,10 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual GenericObservableList<WageRate> ObservableWageRates {
 			get {
 				if(observableWageRates == null)
+				{
 					observableWageRates = new GenericObservableList<WageRate>(WageRates);
+				}
+
 				return observableWageRates;
 			}
 		}
@@ -76,7 +79,7 @@ namespace Vodovoz.Domain.WageCalculation
 		{
 			if(WageRates.Count < Enum.GetValues(typeof(WageRateTypes)).Length)
 				yield return new ValidationResult(
-					string.Format("Не заполнены ставки для зарплатной группы \"{0}\"", WageDistrict.Name),
+					$"Не заполнены ставки для зарплатной группы '{CarTypeOfUse.GetEnumTitle()} {WageDistrict.Name}'",
 					new[] { this.GetPropertyName(o => o.WageRates) }
 				);
 			foreach(var wageRate in WageRates) {

@@ -9,6 +9,7 @@ using QS.Deletion.Views;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -17,6 +18,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Report;
+using QS.Report.Repository;
 using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
@@ -91,7 +93,6 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.Views.Goods;
@@ -103,9 +104,8 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Factories;
-using Vodovoz.JournalFilters;
+using Vodovoz.Filters.Views;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.ViewModels;
@@ -143,9 +143,11 @@ using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
-using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Flyers;
@@ -159,6 +161,8 @@ using Vodovoz.Views.Settings;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Views.Payments;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Project.Services.FileDialog;
 
 namespace Vodovoz
 {
@@ -228,7 +232,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentLoaderViewModel, PaymentLoaderView>()
 				.RegisterWidgetForTabViewModel<ManualPaymentMatchingViewModel, ManualPaymentMatchingView>()
 				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
-				.RegisterWidgetForTabViewModel<DriverCarKindViewModel, DriverCarKindView>()
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				.RegisterWidgetForTabViewModel<DistrictsSetViewModel, DistrictsSetView>()
 				.RegisterWidgetForTabViewModel<AcceptBeforeViewModel, AcceptBeforeView>()
@@ -266,12 +269,14 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DriverAttachedTerminalViewModel, DriverAttachedTerminalView>()
 				.RegisterWidgetForTabViewModel<DeliveryPointViewModel, DeliveryPointView>()
 				.RegisterWidgetForTabViewModel<DocumentsPrinterViewModel, DocumentsPrinterView>()
+				.RegisterWidgetForTabViewModel<CarModelViewModel, CarModelView>()
 				.RegisterWidgetForTabViewModel<EquipmentKindViewModel, EquipmentKindView>()
 				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
+				.RegisterWidgetForTabViewModel<CarManufacturerViewModel, CarManufacturerView>()
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
 				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
-				.RegisterWidgetForTabViewModel<CreateManualPaymentFromBankClientViewModel, PaymentFromBankClientView>()
+				.RegisterWidgetForTabViewModel<CreateManualPaymentFromBankClientViewModel, CreateManualPaymentFromBankClientView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
 				.RegisterWidgetForTabViewModel<PaidRentPackageViewModel, PaidRentPackageView>()
 				.RegisterWidgetForTabViewModel<GeneralSettingsViewModel, GeneralSettingsView>()
@@ -301,7 +306,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
 				.RegisterWidgetForWidgetViewModel<OrderForMovDocJournalFilterViewModel, OrderForMovDocFilterView>()
-				.RegisterWidgetForWidgetViewModel<DriverCarKindJournalFilterViewModel, DriverCarKindJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CarModelJournalFilterViewModel, CarModelFilterView>()
 				.RegisterWidgetForWidgetViewModel<BottlesCountAdvancedWageParameterViewModel, BottlesCountAdvancedWageParameterWidget>()
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
@@ -309,7 +314,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsFilterView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CallTaskFilterViewModel, CallTaskFilterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
@@ -331,6 +336,7 @@ namespace Vodovoz
                 .RegisterWidgetForWidgetViewModel<OrganizationCashTransferDocumentFilterViewModel, OrganizationCashTransferDocumentFilterView>()
 				.RegisterWidgetForWidgetViewModel<PremiumJournalFilterViewModel, PremiumJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryAnalyticsViewModel, DeliveryAnalyticsReportView>()
+				.RegisterWidgetForWidgetViewModel<AdditionalLoadingSettingsViewModel, AdditionalLoadingSettingsView>()
 				.RegisterWidgetForWidgetViewModel<CarEventFilterViewModel, CarEventFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersFilterViewModel, UndeliveredOrdersFilterView>()
 				.RegisterWidgetForWidgetViewModel<DriverComplaintReasonJournalFilterViewModel, DriverComplaintReasonJournalFilterView>()
@@ -416,6 +422,12 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Репозитории
+
+			builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
+
+			#endregion
+
 			#region Сервисы
 
 			//GtkUI
@@ -428,6 +440,7 @@ namespace Vodovoz
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
+			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
 			#endregion
 
@@ -465,6 +478,7 @@ namespace Vodovoz
 			builder.RegisterType<DeletionProcessViewModel>().As<IOnCloseActionViewModel>().AsSelf();
 			builder.RegisterType<DeletionViewModel>().AsSelf();
 			builder.RegisterType<RdlViewerViewModel>().AsSelf();
+			builder.RegisterType<ProgressWindowViewModel>().AsSelf();
 
 			#endregion
 
@@ -476,7 +490,6 @@ namespace Vodovoz
 		static void RegisterVodovozClassConfig(ContainerBuilder builder)
 		{
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
-			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 
 			#region Adapters & Factories
 
@@ -493,7 +506,12 @@ namespace Vodovoz
 			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
 			builder.RegisterType<ExpenseCategorySelectorFactory>().As<IExpenseCategorySelectorFactory>();
 			builder.RegisterType<CarJournalFactory>().As<ICarJournalFactory>();
+			builder.RegisterType<CarModelJournalFactory>().As<ICarModelJournalFactory>();
+			builder.RegisterType<CarManufacturerJournalFactory>().As<ICarManufacturerJournalFactory>();
 			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
+
+			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
+			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
 
 			#endregion
 
@@ -507,7 +525,7 @@ namespace Vodovoz
 			#region Services
 
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
-			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
+			builder.RegisterType<FileDialogService>().As<IFileDialogService>();
 			builder.Register(c => PermissionExtensionSingletonStore.GetInstance()).As<IPermissionExtensionStore>();
 			builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
@@ -572,6 +590,15 @@ namespace Vodovoz
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsImplementedInterfaces()
 				.SingleInstance();
+
+			builder.RegisterType<RdlViewerViewModel>().AsSelf();
+
+			#endregion
+
+			#region Фильтры
+
+			builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
+			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 
 			#endregion
 		}

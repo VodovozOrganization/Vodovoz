@@ -18,6 +18,7 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
@@ -29,7 +30,7 @@ namespace Vodovoz.Views.Employees
 			Build();
 			ConfigureDlg();
 		}
-		
+
 		public IUnitOfWork UoW => ViewModel.UoW;
 		public object EntityObject => ViewModel.UoWGeneric.RootObject;
 
@@ -42,7 +43,7 @@ namespace Vodovoz.Views.Employees
 			buttonSave.Sensitive = ViewModel.CanEditEmployee;
 
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			
+
 			ConfigureRadioButtons();
 
 			#region Вкладка Информация
@@ -52,7 +53,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			dataentryLastName.Binding
 				.AddBinding(ViewModel.Entity, e => e.LastName, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -67,14 +68,14 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.Patronymic, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			photoviewEmployee.Binding
 				.AddBinding(ViewModel.Entity, e => e.Photo, w => w.ImageFile)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
 			photoviewEmployee.GetSaveFileName = () => ViewModel.Entity.FullName;
-			
+
 			entryEmployeePost.Binding
 				.AddBinding(ViewModel.Entity, e => e.Post, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -93,15 +94,23 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 			comboSkillLevel.SelectedItem = ViewModel.Entity.SkillLevel;
-			
+
 			ConfigureCategory();
-			
-			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
-			cmbDriverOf.Binding
-				.AddBinding(ViewModel.Entity, e => e.DriverOf, w => w.SelectedItemOrNull)
+
+			comboDriverOfCarOwnType.ShowSpecialStateNot = true;
+			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
+			comboDriverOfCarOwnType.Binding
+				.AddBinding(ViewModel.Entity, e => e.DriverOfCarOwnType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
+			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
+			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.Binding
+				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
+				.InitializeFromSource();
+
 			checkVisitingMaster.Binding
 				.AddBinding(ViewModel.Entity, e => e.VisitingMaster, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -114,37 +123,37 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.IsChainStoreDriver, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding
 				.AddBinding(ViewModel.Entity, e => e.Nationality, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			GenderComboBox.ItemsEnum = typeof(Gender);
 			GenderComboBox.Binding
 				.AddBinding(ViewModel.Entity, e => e.Gender, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			ConfigureSubdivision();
-			
+
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(ViewModel.Entity, e => e.User, w => w.Subject).InitializeFromSource();
 			referenceUser.Sensitive = ViewModel.CanManageUsers && ViewModel.CanEditEmployee;
-			
+
 			ylblUserLogin.TooltipText =
 				"При сохранении сотрудника создаёт нового пользователя с введённым логином " +
 				"и отправляет сотруднику SMS с сгенерированным паролем";
 			yentryUserLogin.Binding.AddBinding(ViewModel.Entity, e => e.LoginForNewUser, w => w.Text);
 			yentryUserLogin.Sensitive = ViewModel.CanCreateNewUser && ViewModel.CanEditEmployee;
-			
+
 			birthdatePicker.Binding
 				.AddBinding(ViewModel.Entity, e => e.BirthdayDate, w => w.DateOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			dataentryInnerPhone.Binding
 				.AddBinding(
 					ViewModel.Entity,
@@ -154,36 +163,36 @@ namespace Vodovoz.Views.Employees
 				)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			checkbuttonRussianCitizen.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsRussianCitizen, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 			OnRussianCitizenToggled(null, EventArgs.Empty);
-			
+
 			referenceCitizenship.SubjectType = typeof(Citizenship);
 			referenceCitizenship.Binding
 				.AddBinding(ViewModel.Entity, e => e.Citizenship, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			textViewComment.Binding
+			textComment.Binding
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Editable)
 				.InitializeFromSource();
-			
+
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.DrivingLicense, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);
 			registrationTypeCmb.Binding
 				.AddBinding(ViewModel.Entity, e => e.Registration, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			phonesView.ViewModel = ViewModel.PhonesViewModel;
 			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
 			phonesView.Sensitive = ViewModel.CanEditEmployee;
@@ -251,7 +260,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			yspinTripsPriority.Binding
 				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -260,7 +269,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter())
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			minAddressesSpin.Binding
 				.AddBinding(ViewModel.Entity, e => e.MinRouteAddresses, w => w.ValueAsInt)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -269,13 +278,13 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.MaxRouteAddresses, w => w.ValueAsInt)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			comboDriverType.ItemsEnum = typeof(DriverType);
 			comboDriverType.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();
 
@@ -288,7 +297,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account>(ViewModel.UoWGeneric, o => o.Accounts);
+			accountsView.SetAccountOwner(UoW, ViewModel.Entity);
 			accountsView.SetTitle("Банковские счета сотрудника");
 			accountsView.Sensitive = ViewModel.CanEditEmployee;
 
@@ -314,10 +323,10 @@ namespace Vodovoz.Views.Employees
 			#endregion
 
 			#region Вкладка Договора
-			
+
 			ConfigureContractsTabButtons();
 			ConfigureTreeEmployeeContracts();
-			
+
 			#endregion
 
 			#region Вкладка Зарплата
@@ -328,7 +337,7 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 			specialListCmbOrganisation.Sensitive = ViewModel.CanEditOrganisationForSalary && ViewModel.CanEditEmployee;
 
-			wageParametersView.ViewModel = 
+			wageParametersView.ViewModel =
 				ViewModel.EmployeeWageParametersFactory.CreateEmployeeWageParametersViewModel(ViewModel.Entity, ViewModel, ViewModel.UoW);
 
 			#endregion
@@ -359,14 +368,14 @@ namespace Vodovoz.Views.Employees
 			btnRemoveDocument.Binding
 				.AddBinding(ViewModel, vm => vm.CanRemoveEmployeeDocument, w => w.Sensitive).InitializeFromSource();
 		}
-		
+
 		private void ConfigureTreeEmployeeDocuments()
 		{
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
 				.AddColumn("Доп. название").AddTextRenderer(x => x.Name)
 				.Finish();
-			
+
 			ytreeviewEmployeeDocument.SetItemsSource(ViewModel.Entity.ObservableDocuments);
 			ytreeviewEmployeeDocument.Selection.Changed += TreeEmployeeDocumentsSelectionOnChanged;
 			ytreeviewEmployeeDocument.RowActivated += OnEmployeeDocumentRowActivated;
@@ -376,7 +385,7 @@ namespace Vodovoz.Views.Employees
 		{
 			ViewModel.SelectedEmployeeDocuments = ytreeviewEmployeeDocument.GetSelectedObjects<EmployeeDocument>();
 		}
-		
+
 		private void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
 			var dlg = new EmployeeDocDlg(
@@ -405,13 +414,13 @@ namespace Vodovoz.Views.Employees
 		#endregion
 
 		#region Вкладка Договора
-		
+
 		private void ConfigureContractsTabButtons()
 		{
 			btnAddContract.Clicked += OnAddContractButtonClicked;
 			btnEditContract.Clicked += OnButtonEditContractClicked;
 			btnRemoveContract.Clicked += (s, e) => ViewModel.RemoveEmployeeContractsCommand.Execute();
-			
+
 			btnEditContract.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditEmployeeContract, w => w.Sensitive).InitializeFromSource();
 			btnRemoveContract.Binding
@@ -419,7 +428,7 @@ namespace Vodovoz.Views.Employees
 
 			btnAddContract.Sensitive = ViewModel.CanEditEmployee;
 		}
-		
+
 		private void ConfigureTreeEmployeeContracts()
 		{
 			ytreeviewEmployeeContract.ColumnsConfig = FluentColumnsConfig<EmployeeContract>.Create()
@@ -428,7 +437,7 @@ namespace Vodovoz.Views.Employees
 				.AddColumn("Дата начала").AddTextRenderer(x => x.FirstDay.ToString("dd/MM/yyyy"))
 				.AddColumn("Дата конца").AddTextRenderer(x => x.LastDay.ToString("dd/MM/yyyy"))
 				.Finish();
-			
+
 			ytreeviewEmployeeContract.SetItemsSource(ViewModel.Entity.ObservableContracts);
 			ytreeviewEmployeeContract.Selection.Changed += TreeEmployeeContractsSelectionOnChanged;
 			ytreeviewEmployeeContract.RowActivated += OnEmployeeContractRowActivated;
@@ -443,19 +452,19 @@ namespace Vodovoz.Views.Employees
 		private void OnAddContractButtonClicked(object sender, EventArgs e)
 		{
 			List<EmployeeDocument> doc = ViewModel.Entity.GetMainDocuments();
-			
+
 			if(!doc.Any())
 			{
 				MessageDialogHelper.RunInfoDialog("Отсутствует главный документ");
 				return;
 			}
-			
+
 			if(ViewModel.Entity.Registration != RegistrationType.Contract)
 			{
 				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");
 				return;
 			}
-			
+
 			var dlg = new EmployeeContractDlg(doc[0], ViewModel.Entity, ViewModel.UoW);
 			dlg.Save += (s, args) => ViewModel.Entity.ObservableContracts.Add(dlg.Entity);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, dlg);
@@ -476,9 +485,9 @@ namespace Vodovoz.Views.Employees
 		}
 
 		#endregion
-		
+
 		#region Вкладка Логистика
-		
+
 		#region DriverDistrictPriorities
 
 		private void ConfigureDistrictPriorities()
@@ -522,7 +531,7 @@ namespace Vodovoz.Views.Employees
 				.AddColumn("")
 				.Finish();
 
-			ytreeDistrictPrioritySets.RowActivated += (o, args) => 
+			ytreeDistrictPrioritySets.RowActivated += (o, args) =>
 			{
 				if(ViewModel.CanEditDistrictPrioritySet)
 				{
@@ -536,11 +545,11 @@ namespace Vodovoz.Views.Employees
 			ybuttonCopyDistrictPrioritySet.Clicked += (sender, args) => ViewModel.CopyDistrictPrioritySetCommand.Execute();
 			ybuttonCopyDistrictPrioritySet.Binding
 				.AddBinding(ViewModel, vm => vm.CanCopyDistrictPrioritySet, w => w.Sensitive).InitializeFromSource();
-			
+
 			ybuttonEditDistrictPrioritySet.Clicked += (sender, args) => ViewModel.OpenDistrictPrioritySetEditWindowCommand.Execute();
 			ybuttonEditDistrictPrioritySet.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditDistrictPrioritySet, w => w.Sensitive).InitializeFromSource();
-			
+
 			ybuttonActivateDistrictPrioritySet.Clicked += (sender, args) => ViewModel.ActivateDistrictPrioritySetCommand.Execute();
 			ybuttonActivateDistrictPrioritySet.Binding
 				.AddBinding(ViewModel, x => x.CanActivateDistrictPrioritySet, w => w.Sensitive).InitializeFromSource();
@@ -593,7 +602,7 @@ namespace Vodovoz.Views.Employees
 				.AddColumn("")
 				.Finish();
 
-			ytreeDriverScheduleSets.RowActivated += (o, args) => 
+			ytreeDriverScheduleSets.RowActivated += (o, args) =>
 			{
 				if(ViewModel.CanEditDriverScheduleSet)
 				{
@@ -619,7 +628,7 @@ namespace Vodovoz.Views.Employees
 		{
 			ViewModel.SelectedDriverScheduleSet = ytreeDriverScheduleSets.GetSelectedObject<DriverWorkScheduleSet>();
 		}
-		
+
 		#endregion
 
 		#endregion
@@ -639,12 +648,13 @@ namespace Vodovoz.Views.Employees
 			{
 				comboCategory.AddEnumToHideList(ViewModel.HiddenCategories.OfType<object>().ToArray());
 			}
-			
-			comboCategory.ChangedByUser += (sender, e) => 
+
+			comboCategory.ChangedByUser += (sender, e) =>
 			{
 				if(ViewModel.Entity.Category != EmployeeCategory.driver)
 				{
-					cmbDriverOf.SelectedItemOrNull = null;
+					comboDriverOfCarOwnType.SelectedItemOrNull = null;
+					comboDriverOfCarTypeOfUse.SelectedItemOrNull = null;
 				}
 			};
 		}
@@ -697,7 +707,7 @@ namespace Vodovoz.Views.Employees
 		}
 
 		#region RadioTabToggled
-		
+
 		private void OnRadioTabInfoToggled(object sender, EventArgs e)
 		{
 			if(radioTabInfo.Active)
@@ -752,16 +762,16 @@ namespace Vodovoz.Views.Employees
 				notebookMain.CurrentPage = 4;
 			}
 		}
-		
+
 		#endregion
-		
+
 		#region Driver & forwarder
 
 		private void OnComboCategoryEnumItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			radioTabLogistic.Visible
 				= lblDriverOf.Visible
-				= hboxDriversParameters.Visible
+				= hboxDriverCheckParameters.Visible
 				= (EmployeeCategory)e.SelectedItem == EmployeeCategory.driver;
 
 			wageParametersView.Sensitive = ViewModel.CanEditWage && ViewModel.CanEditEmployee;
@@ -779,7 +789,7 @@ namespace Vodovoz.Views.Employees
 
 		public override void Destroy()
 		{
-			attachmentsView?.Destroy();			
+			attachmentsView?.Destroy();
 			base.Destroy();
 		}
 

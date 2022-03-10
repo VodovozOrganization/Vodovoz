@@ -13,6 +13,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -40,7 +41,7 @@ namespace Vodovoz.ViewModel
 
 		public ReadyForShipmentFilter Filter {
 			get => RepresentationFilter as ReadyForShipmentFilter;
-			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
+			set => RepresentationFilter = value;
 		}
 
 		#region implemented abstract members of RepresentationModelBase

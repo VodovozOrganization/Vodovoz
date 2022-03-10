@@ -25,34 +25,28 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public DeliveryPoint DeliveryPoint { get; set; }
 		public Domain.Client.Counterparty Counterparty { get; set; }
 
-		private GenericObservableList<Phone> phonesList ;
-		public virtual GenericObservableList<Phone> PhonesList {
+		private GenericObservableList<Phone> phonesList;
+		public virtual GenericObservableList<Phone> PhonesList
+		{
 			get => phonesList;
-			set {
+			set
+			{
 				SetField(ref phonesList, value, () => PhonesList);
 				PhonesListReplaced?.Invoke();
-			} 
+			}
 		}
 
 		private bool readOnly = false;
-		public virtual bool ReadOnly {
+		public virtual bool ReadOnly
+		{
 			get => readOnly;
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory, ICommonServices commonServices)
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters, ICommonServices commonServices)
 		{
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
-			
-			if(roboAtsCounterpartyJournalFactory == null)
-			{
-				throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
-			}
-
-			RoboAtsCounterpartyNameSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyNameAutocompleteSelectorFactory();
-			RoboAtsCounterpartyPatronymicSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyPatronymicAutocompleteSelectorFactory();
 
 			var roboAtsCounterpartyNamePermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
 			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
@@ -66,6 +60,18 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			CreateCommands();
 		}
 
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters, IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory, 
+			ICommonServices commonServices) : this(phoneRepository, uow, contactsParameters, commonServices)
+		{
+			if(roboAtsCounterpartyJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
+			}
+
+			RoboAtsCounterpartyNameSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyNameAutocompleteSelectorFactory();
+			RoboAtsCounterpartyPatronymicSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyPatronymicAutocompleteSelectorFactory();
+		}
+
 		IContactsParameters contactsParameters;
 
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyNameSelectorFactory { get; }
@@ -74,7 +80,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public bool CanEditCounterpartyName { get; }
 		public bool CanReadCounterpartyPatronymic { get; }
 		public bool CanEditCounterpartyPatronymic { get; }
-		public bool ShowRoboAtsCounterpartyNameAndPatronymic { get; set; }
 
 		IPhoneRepository phoneRepository;
 
@@ -88,7 +93,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private void CreateCommands()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var phone = new Phone().Init(contactsParameters);
 					phone.DeliveryPoint = DeliveryPoint;
 					phone.Counterparty = Counterparty;
@@ -100,10 +106,11 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			);
 
 			DeleteItemCommand = new DelegateCommand<Phone>(
-				(phone) => {
+				(phone) =>
+				{
 					PhonesList.Remove(phone);
 				},
-				(phone) => { return !ReadOnly;}
+				(phone) => { return !ReadOnly; }
 			);
 		}
 
