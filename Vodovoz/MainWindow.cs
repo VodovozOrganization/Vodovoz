@@ -125,6 +125,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
@@ -350,6 +351,9 @@ public partial class MainWindow : Gtk.Window
 		ActionRetail.Sensitive = userHaveAccessToRetail;
 
 		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
+
+		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
+			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 	}
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -2520,6 +2524,11 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
 			() => new QSReport.ReportViewDlg(autofacScope.Resolve<CounterpartyCashlessDebtsReport>())
 		);
+	}
+
+	protected void OnActionAdditionalLoadSettingsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<AdditionalLoadingSettingsViewModel>(null);
 	}
 
 	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)

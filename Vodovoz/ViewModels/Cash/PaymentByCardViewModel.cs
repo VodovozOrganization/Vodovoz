@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
+using QS.Utilities.Extensions;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModels.Cash
             CallTaskWorker callTaskWorker,
             IOrderPaymentSettings orderPaymentSettings,
             IOrderParametersProvider orderParametersProvider,
+            IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
             Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
 	        if(orderPaymentSettings == null)
@@ -36,8 +38,12 @@ namespace Vodovoz.ViewModels.Cash
 	        {
 		        throw new ArgumentNullException(nameof(orderParametersProvider));
 	        }
-	        
-            _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+	        if(deliveryRulesParametersProvider == null)
+	        {
+		        throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+	        }
+
+	        _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             _currentEmployee = currentEmployee;
 
             TabName = "Оплата по карте";
@@ -51,7 +57,8 @@ namespace Vodovoz.ViewModels.Cash
 
             Entity.PropertyChanged += Entity_PropertyChanged;
             
-            ValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+            ValidationContext.ServiceContainer.AddService(orderParametersProvider);
+            ValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
         }
 
         void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

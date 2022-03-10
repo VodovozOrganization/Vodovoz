@@ -24,6 +24,7 @@ namespace DriverAPI.Library.Models
 		private readonly ILogger<OrderModel> _logger;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly OrderConverter _orderConverter;
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 		private readonly IComplaintsRepository _complaintsRepository;
@@ -32,11 +33,12 @@ namespace DriverAPI.Library.Models
 		private readonly IUnitOfWork _unitOfWork;
 
 		private readonly int _maxClosingRating = 5;
-		private readonly PaymentType[] _smsNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly PaymentType[] _smsNotPayable = new[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
 		public OrderModel(ILogger<OrderModel> logger,
 			IOrderRepository orderRepository,
 			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository,
 			OrderConverter orderConverter,
 			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
@@ -48,6 +50,7 @@ namespace DriverAPI.Library.Models
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
@@ -65,8 +68,10 @@ namespace DriverAPI.Library.Models
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+			var paymentStatus = _aPISmsPaymentModel.GetOrderPaymentStatus(orderId);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
 
-			var order = _orderConverter.convertToAPIOrder(vodovozOrder, _aPISmsPaymentModel.GetOrderPaymentStatus(orderId));
+			var order = _orderConverter.ConvertToApiOrder(vodovozOrder, paymentStatus, routeListItem.CreationDate);
 			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 
 			return order;
@@ -85,7 +90,9 @@ namespace DriverAPI.Library.Models
 			foreach(var vodovozOrder in vodovozOrders)
 			{
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderPaymentStatus(vodovozOrder.Id);
-				var order = _orderConverter.convertToAPIOrder(vodovozOrder, smsPaymentStatus);
+				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
+
+				var order = _orderConverter.ConvertToApiOrder(vodovozOrder, smsPaymentStatus, routeListItem.CreationDate);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
 			}

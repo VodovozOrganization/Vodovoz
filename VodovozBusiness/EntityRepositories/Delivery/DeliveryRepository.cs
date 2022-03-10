@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreLinq;
 using NetTopologySuite.Geometries;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Osm;
+using QS.Osm.Osrm;
 using QS.Utilities.Spatial;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Delivery
 {
@@ -97,7 +104,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 		{
 			double earth = 6378.137; //radius of the earth in kilometer
 			double pi = Math.PI;
-			double m = 1 / (2 * pi / 360 * earth) / 1000;  //1 meter in degree
+			double m = 1 / (2 * pi / 360 * earth) / 1000; //1 meter in degree
 
 			double newLatitude = lat + (metersToAdd * m);
 
@@ -106,9 +113,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		private double GetNewLongitude(double lon, double metersToAdd)
 		{
-			double earth = 6378.137;  //radius of the earth in kilometer
+			double earth = 6378.137; //radius of the earth in kilometer
 			double pi = Math.PI;
-			double m = 1 / (2 * pi / 360 * earth) / 1000;  //1 meter in degree
+			double m = 1 / (2 * pi / 360 * earth) / 1000; //1 meter in degree
 
 			double newLongitude = lon + metersToAdd * m / Math.Cos(lon * (pi / 180));
 			return newLongitude;
@@ -116,48 +123,38 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		#endregion Получение районов по координатам
 
-		#region Доставка за час
+		#region Fast Delivery
 
-		public bool OneHourDeliveryAvailable(IUnitOfWork uow, double latitude, double longitude,
+		public bool FastDeliveryAvailable(IUnitOfWork uow, double latitude, double longitude,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes)
 		{
-			var routeList = GetRouteListIdForOneHourDelivery(uow, latitude, longitude, deliveryRulesParametersProvider, nomenclatureNodes);
+			var routeList =
+				GetRouteListForFastDelivery(uow, latitude, longitude, false, deliveryRulesParametersProvider, nomenclatureNodes);
 			return routeList != null;
 		}
 
-		public int? GetRouteListIdForOneHourDelivery(IUnitOfWork uow, double latitude, double longitude,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IList<NomenclatureAmountNode> nomenclatureNodes)
+		public RouteList GetRouteListForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool getClosestByRoute,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes)
 		{
-			var latestTrackPointDateTime = DateTime.Now.Subtract(deliveryRulesParametersProvider.MaxTrackPointTimeOffsetForOneHourDelivery);
-			var maxDistanceToTrackPoint = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointForOneHourDeliveryKm;
-			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
+			var maxDistanceToTrackPoint = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
+			var driverGoodWeightLiftPerHand = deliveryRulesParametersProvider.DriverGoodWeightLiftPerHandInKg;
+			var maxFastOrdersPerSpecificTime = deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
 
-			var rlIds = uow.Session.Query<RouteList>().Where(x => x.Status == RouteListStatus.EnRoute).Select(x => x.Id).ToList();
+			//Переводим всё в минуты
+			var trackPointTimeOffset = (int)deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes;
+			var maxTimeForFastDelivery = (int)deliveryRulesParametersProvider.MaxTimeForFastDelivery.TotalMinutes;
+			var minTimeForNewOrder = (int)deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder.TotalMinutes;
+			var driverUnloadTime = (int)deliveryRulesParametersProvider.DriverUnloadTime.TotalMinutes;
+			var specificTimeForFastOrdersCount = (int)deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+
+			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
 
 			Track t = null;
 			TrackPoint tp = null;
-			RouteListCoordinates routeListCoordinatesAlias = null;
-
-			var allCoordinates = uow.Session.QueryOver<Track>(() => t)
-				.Inner.JoinAlias(() => t.TrackPoints, () => tp)
-				.WhereRestrictionOn(() => t.RouteList.Id).IsIn(rlIds)
-				.And(() => tp.TimeStamp > latestTrackPointDateTime)
-				.SelectList(list => list
-					.Select(() => t.RouteList.Id).WithAlias(() => routeListCoordinatesAlias.RouteListId)
-					.Select(() => tp.TimeStamp).WithAlias(() => routeListCoordinatesAlias.TimeStamp)
-					.Select(() => tp.Latitude).WithAlias(() => routeListCoordinatesAlias.Latitude)
-					.Select(() => tp.Longitude).WithAlias(() => routeListCoordinatesAlias.Longitude))
-				.TransformUsing(Transformers.AliasToBean<RouteListCoordinates>())
-				.List<RouteListCoordinates>();
-
-			var latestRouteListCoordinates = allCoordinates
-				.GroupBy(x => x.RouteListId)
-				.Select(group => group.MaxBy(x => x.TimeStamp))
-				.Where(x => DistanceHelper.GetDistanceKm(x.Latitude, x.Longitude, latitude, longitude) < maxDistanceToTrackPoint)
-				.OrderBy(x => DistanceHelper.GetDistanceKm(x.Latitude, x.Longitude, latitude, longitude))
-				.ToList();
-
-			var latestRouteListIds = latestRouteListCoordinates.Select(x => x.RouteListId).ToArray();
+			RouteList rl = null;
+			TrackPoint tpInner = null;
+			RouteListWithCoordinateNode result = null;
+			Employee e = null;
 
 			RouteListItem rla = null;
 			Order o = null;
@@ -169,11 +166,144 @@ namespace Vodovoz.EntityRepositories.Delivery
 			RouteListNomenclatureAmount ordersAmountAlias = null;
 			RouteListNomenclatureAmount loadDocumentsAmountAlias = null;
 
+			var lastTimeTrackQuery = QueryOver.Of(() => tpInner)
+				.Where(() => tpInner.Track.Id == t.Id)
+				.Select(Projections.Max(() => tpInner.TimeStamp));
+
+			//МЛ только в пути + последняя координата не раньше указанного времени
+			var routeListNodes = uow.Session.QueryOver(() => rl)
+				.JoinEntityAlias(() => t, () => t.RouteList.Id == rl.Id)
+				.Inner.JoinAlias(() => t.TrackPoints, () => tp)
+				.Inner.JoinAlias(() => rl.Driver, () => e)
+				.WithSubquery.WhereProperty(() => tp.TimeStamp).Eq(lastTimeTrackQuery)
+				.And(() => rl.Status == RouteListStatus.EnRoute)
+				.And(Restrictions.GeProperty(
+					Projections.Property(() => tp.TimeStamp),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(
+							NHibernateUtil.DateTime,
+							$"TIMESTAMPADD(MINUTE, -{trackPointTimeOffset}, CURRENT_TIMESTAMP)"),
+						NHibernateUtil.DateTime)))
+				.SelectList(list => list
+					.Select(() => tp.TimeStamp).WithAlias(() => result.TimeStamp)
+					.Select(() => tp.Latitude).WithAlias(() => result.Latitude)
+					.Select(() => tp.Longitude).WithAlias(() => result.Longitude)
+					.Select(Projections.Entity(() => rl)).WithAlias(() => result.RouteList))
+				.TransformUsing(Transformers.AliasToBean<RouteListWithCoordinateNode>())
+				.List<RouteListWithCoordinateNode>();
+
+			//Последняя координата в указанном радиусе
+			routeListNodes = routeListNodes
+				.Where(x => DistanceHelper.GetDistanceKm(x.Latitude, x.Longitude, latitude, longitude) < maxDistanceToTrackPoint)
+				.ToList();
+
+			//Сортировка по расстоянию на карте. getClosestByRoute - расстояние считается по дорогам на карте
+			if(getClosestByRoute)
+			{
+				var deliveryPoint = new PointOnEarth(latitude, longitude);
+
+				int OrderBySelector(RouteListWithCoordinateNode x)
+				{
+					var proposedRoute = OsrmMain
+						.GetRoute(new List<PointOnEarth> { new PointOnEarth(x.Latitude, x.Longitude), deliveryPoint }).Routes
+						.FirstOrDefault();
+
+					//Если не удалось подобрать маршрут ставим самый низкий приоритет в сортировке
+					return proposedRoute?.TotalDistance ?? int.MaxValue;
+				}
+
+				routeListNodes = routeListNodes
+					.OrderBy(OrderBySelector)
+					.ToList();
+			}
+			else
+			{
+				routeListNodes = routeListNodes
+					.OrderBy(x => DistanceHelper.GetDistanceKm(x.Latitude, x.Longitude, latitude, longitude))
+					.ToList();
+			}
+
+			//Не более определённого кол-ва заказов с быстрой доставкой в определённый промежуток времени
+			var addressCountSubquery = QueryOver.Of(() => rla)
+				.Inner.JoinAlias(() => rla.Order, () => o)
+				.Where(() => rla.RouteList.Id == rl.Id)
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(RouteListItem.GetNotDeliveredStatuses())
+				.And(() => o.IsFastDelivery)
+				.And(Restrictions.GtProperty(
+					Projections.Property(() => rla.CreationDate),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.DateTime,
+							$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
+						NHibernateUtil.DateTime)))
+				.Select(Projections.Count(() => rla.Id));
+
+			var routeListsWithoutTooMuchFastOrders = uow.Session.QueryOver(() => rl)
+				.WhereRestrictionOn(() => rl.Id).IsInG(routeListNodes.Select(x => x.RouteList.Id))
+				.And(Subqueries.Gt(maxFastOrdersPerSpecificTime, addressCountSubquery.DetachedCriteria))
+				.Select(x => x.Id)
+				.List<int>();
+
+			routeListNodes = routeListNodes.Where(x => routeListsWithoutTooMuchFastOrders.Contains(x.RouteList.Id)).ToList();
+
+			//Время доставки следующего (текущего) заказа позволяет взять быструю доставку
+			foreach(var routeListNode in routeListNodes.ToList())
+			{
+				RouteListItem latestAddress = null;
+
+				var orderedEnRouteAddresses = routeListNode.RouteList.Addresses
+					.Where(x => x.Status == RouteListItemStatus.EnRoute).OrderBy(x => x.IndexInRoute).ToList();
+
+				var orderedCompletedAddresses = routeListNode.RouteList.Addresses
+					.Where(x => x.Status == RouteListItemStatus.Completed).OrderBy(x => x.IndexInRoute).ToList();
+
+				var latestCompletedAddress = orderedCompletedAddresses.OrderByDescending(x => x.StatusLastUpdate).FirstOrDefault();
+
+				if(latestCompletedAddress != null)
+				{
+					latestAddress = orderedEnRouteAddresses.FirstOrDefault(x => x.IndexInRoute > latestCompletedAddress.IndexInRoute);
+				}
+				if(latestAddress == null)
+				{
+					latestAddress = orderedEnRouteAddresses.FirstOrDefault();
+				}
+
+				if(latestAddress == null || maxTimeForFastDelivery - latestAddress.Order.DeliveryPoint.MinutesToUnload < minTimeForNewOrder)
+				{
+					routeListNodes.Remove(routeListNode);
+					continue;
+				}
+
+				var water19Count = latestAddress.Order.OrderItems
+					.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L && x.Nomenclature.Category == NomenclatureCategory.water)
+					.Sum(x => x.Count);
+
+				var orderItemsSummaryWeight = latestAddress.Order.OrderItems
+					.Where(x => x.Nomenclature.TareVolume != TareVolume.Vol19L || x.Nomenclature.Category != NomenclatureCategory.water)
+					.Sum(x => x.Nomenclature.Weight * x.Count);
+
+				var orderEquipmentsSummaryWeight = latestAddress.Order.OrderEquipments
+					.Where(x => x.Direction == Direction.Deliver)
+					.Sum(x => x.Nomenclature.Weight * x.Count);
+
+				var goodsSummaryWeight = orderItemsSummaryWeight + orderEquipmentsSummaryWeight;
+
+				//Время выгрузки след. заказа:
+				//(Суммарный вес прочих товаров / кол-во кг, которое водитель может унести в одной руке + кол-во 19л) / 2 руки * время выгрузки в 2 руках 2 бутылей или товара
+				var unloadTime = (goodsSummaryWeight / driverGoodWeightLiftPerHand + water19Count) / 2 * driverUnloadTime;
+
+				if(maxTimeForFastDelivery - unloadTime < minTimeForNewOrder)
+				{
+					routeListNodes.Remove(routeListNode);
+				}
+			}
+
+			var rlIds = routeListNodes.Select(x => x.RouteList.Id).ToArray();
+
 			//OrderItems
-			var orderItemsNomenclatureAmount = uow.Session.QueryOver<RouteListItem>(() => rla)
+			var orderItemsToDeliver = uow.Session.QueryOver<RouteListItem>(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
-				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(latestRouteListIds)
+				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
@@ -183,23 +313,24 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Future<RouteListNomenclatureAmount>();
 
 			//OrderEquipments
-			var orderEquipmentsNomenclatureAmount = uow.Session.QueryOver<RouteListItem>(() => rla)
+			var orderEquipmentsToDeliver = uow.Session.QueryOver<RouteListItem>(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Inner.JoinAlias(() => o.OrderEquipments, () => oe)
-				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(latestRouteListIds)
+				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oe.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
-					.SelectSum(() => oe.Count).WithAlias(() => ordersAmountAlias.Amount))
+					.Select(Projections.Sum(Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => oe.Count)))
+					).WithAlias(() => ordersAmountAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
 				.Future<RouteListNomenclatureAmount>();
 
 			//CarLoadDocuments
-			var loadDocumentsNomenclatureAmount = uow.Session.QueryOver<CarLoadDocument>(() => scld)
+			var allLoaded = uow.Session.QueryOver<CarLoadDocument>(() => scld)
 				.Inner.JoinAlias(() => scld.Items, () => scldi)
-				.WhereRestrictionOn(() => scld.RouteList.Id).IsIn(latestRouteListIds)
+				.WhereRestrictionOn(() => scld.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => scldi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.SelectList(list => list
 					.SelectGroup(() => scld.RouteList.Id).WithAlias(() => loadDocumentsAmountAlias.RouteListId)
@@ -208,9 +339,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
 				.Future<RouteListNomenclatureAmount>();
 
-			var ordersNomenclautreAmount = orderItemsNomenclatureAmount
-				.Union(orderEquipmentsNomenclatureAmount)
-				.GroupBy(x => new { x.RouteListId, x.NomenclatureId }).Select(group => new RouteListNomenclatureAmount
+			var allToDeliver = orderItemsToDeliver
+				.Union(orderEquipmentsToDeliver)
+				.GroupBy(x => new { x.RouteListId, x.NomenclatureId })
+				.Select(group => new RouteListNomenclatureAmount
 				{
 					RouteListId = group.Key.RouteListId,
 					NomenclatureId = group.Key.NomenclatureId,
@@ -218,16 +350,19 @@ namespace Vodovoz.EntityRepositories.Delivery
 				})
 				.ToList();
 
-			foreach(var rlCoordinate in latestRouteListCoordinates)
+			//Выбираем МЛ, в котором хватает запаса номенклатур на поступивший быстрый заказ
+			foreach(var routeListNode in routeListNodes)
 			{
-				var inOrdersNomenclatures = ordersNomenclautreAmount.Where(x => x.RouteListId == rlCoordinate.RouteListId).ToList();
-				var inLoadDocs = loadDocumentsNomenclatureAmount.Where(x => x.RouteListId == rlCoordinate.RouteListId).ToList();
-				bool isValidRl = true;
+				var toDeliverForRL = allToDeliver.Where(x => x.RouteListId == routeListNode.RouteList.Id).ToList();
+				var loadedForRL = allLoaded.Where(x => x.RouteListId == routeListNode.RouteList.Id).ToList();
+				var isValidRl = true;
 
-				foreach(var loaded in inLoadDocs)
+				foreach(var need in neededNomenclatures)
 				{
-					var inOrders = inOrdersNomenclatures.FirstOrDefault(x => x.NomenclatureId == loaded.NomenclatureId);
-					if(loaded.Amount - (inOrders?.Amount ?? 0) < neededNomenclatures[loaded.NomenclatureId])
+					var toDeliver = toDeliverForRL.FirstOrDefault(x => x.NomenclatureId == need.Key)?.Amount ?? 0;
+					var loaded = loadedForRL.FirstOrDefault(x => x.NomenclatureId == need.Key)?.Amount ?? 0;
+
+					if(loaded - toDeliver < need.Value)
 					{
 						isValidRl = false;
 						break;
@@ -236,19 +371,11 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 				if(isValidRl)
 				{
-					return rlCoordinate.RouteListId;
+					return routeListNode.RouteList;
 				}
 			}
 
 			return null;
-		}
-
-		private class RouteListCoordinates
-		{
-			public int RouteListId { get; set; }
-			public DateTime TimeStamp { get; set; }
-			public double Latitude { get; set; }
-			public double Longitude { get; set; }
 		}
 
 		private class RouteListNomenclatureAmount
@@ -256,6 +383,14 @@ namespace Vodovoz.EntityRepositories.Delivery
 			public int RouteListId { get; set; }
 			public int NomenclatureId { get; set; }
 			public decimal Amount { get; set; }
+		}
+
+		private class RouteListWithCoordinateNode
+		{
+			public DateTime TimeStamp { get; set; }
+			public double Latitude { get; set; }
+			public double Longitude { get; set; }
+			public RouteList RouteList { get; set; }
 		}
 
 		#endregion

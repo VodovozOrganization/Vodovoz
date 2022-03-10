@@ -14,6 +14,7 @@ using QS.Osm.Osrm;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tools;
+using QS.Utilities.Extensions;
 using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -31,6 +32,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
@@ -540,6 +542,14 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _driverTerminalCondition, value);
 		}
 
+		private AdditionalLoadingDocument _additionalLoadingDocument;
+		[Display(Name = "Документ запаса")]
+		public virtual AdditionalLoadingDocument AdditionalLoadingDocument
+		{
+			get => _additionalLoadingDocument;
+			set => SetField(ref _additionalLoadingDocument, value);
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -835,9 +845,8 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
-
 		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded,
-		                                                  List<ReturnsNode> allReturnsToWarehouse)
+			List<ReturnsNode> allReturnsToWarehouse)
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
@@ -956,6 +965,21 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
+			//Остатки запаса
+
+			if(AdditionalLoadingDocument != null)
+			{
+				foreach(var item in AdditionalLoadingDocument.Items)
+				{
+					AddDiscrepancy(result, new Discrepancy
+					{
+						Nomenclature = item.Nomenclature,
+						AdditionaLoading = item.Amount,
+						Name = item.Nomenclature.Name
+					});
+				}
+			}
+
 			return result;
 		}
 
@@ -973,6 +997,7 @@ namespace Vodovoz.Domain.Logistic
 				existingDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
 				existingDiscrepancy.ToWarehouse += item.ToWarehouse;
 				existingDiscrepancy.FromWarehouse += item.FromWarehouse;
+				existingDiscrepancy.AdditionaLoading += item.AdditionaLoading;
 			}
 		}
 
@@ -1259,15 +1284,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void TransferAddressTo(int id, RouteListItem targetAddress)
+		public virtual void TransferAddressTo(RouteListItem transferringAddress, RouteListItem targetAddress)
 		{
-			Addresses.First(a => a.Id == id).TransferTo(targetAddress);
+			transferringAddress.TransferTo(targetAddress);
 			UpdateStatus();
 		}
 
 		public virtual void RevertTransferAddress(
-			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress) =>
-				targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
+		{
+			targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+			UpdateStatus();
+		}
 
 		private void UpdateClosedInformation()
 		{
@@ -1474,7 +1502,8 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
-						var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider));
+						var orderParametersProvider = validationContext.GetService<IOrderParametersProvider>();
+						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesParametersProvider>();
 						foreach(var address in Addresses) {
 							var orderValidator = new ObjectValidator();
 							var orderValidationContext = new ValidationContext(
@@ -1487,7 +1516,8 @@ namespace Vodovoz.Domain.Logistic
 									{ "AddressStatus", address.Status }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+							orderValidationContext.ServiceContainer.AddService(orderParametersProvider);
+							orderValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
 							orderValidator.Validate(address.Order, orderValidationContext);
 
 							foreach(var result in orderValidator.Results)
@@ -2178,8 +2208,11 @@ namespace Vodovoz.Domain.Logistic
 		/// Полный вес товаров и оборудования в маршрутном листе
 		/// </summary>
 		/// <returns>Вес в килограммах</returns>
-		public virtual double GetTotalWeight() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
-														   .Sum(item => item.Order.FullWeight());
+		public virtual decimal GetTotalWeight() =>
+			Math.Round(
+				Addresses.Where(item => item.Status != RouteListItemStatus.Transfered).Sum(item => item.Order.FullWeight())
+				+ (AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0),
+				3);
 
 		/// <summary>
 		/// Проверка на перегруз автомобиля
@@ -2199,7 +2232,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Перегруз в килограммах
 		/// </summary>
 		/// <returns>Возрат значения перегруза в килограммах.</returns>
-		public virtual double Overweight() => HasOverweight() ? Math.Round(GetTotalWeight() - Car.CarModel.MaxWeight, 2) : 0;
+		public virtual decimal Overweight() => HasOverweight() ? Math.Round(GetTotalWeight() - Car.CarModel.MaxWeight, 2) : 0;
 		#endregion Вес
 
 		#region Объём
@@ -2207,8 +2240,10 @@ namespace Vodovoz.Domain.Logistic
 		/// Полный объём товаров и оборудования в маршрутном листе
 		/// </summary>
 		/// <returns>Объём в кубических метрах</returns>
-		public virtual decimal GetTotalVolume() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
-														   .Sum(item => item.Order.FullVolume());
+		public virtual decimal GetTotalVolume() =>
+			Addresses.Where(item => item.Status != RouteListItemStatus.Transfered).Sum(item => item.Order.FullVolume())
+			+ (AdditionalLoadingDocument?.Items.Sum(x => (decimal)x.Nomenclature.Volume * x.Amount) ?? 0);
+
 		/// <summary>
 		/// Проверка на превышение объёма груза автомобиля
 		/// </summary>

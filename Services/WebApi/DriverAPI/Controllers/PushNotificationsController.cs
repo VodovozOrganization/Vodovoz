@@ -61,9 +61,9 @@ namespace DriverAPI.Controllers
 		}
 
 		/// <summary>
-		/// 
+		/// Эндпоинт уведомления о смене формы оплаты в заказе
 		/// </summary>
-		/// <param name="orderId"></param>
+		/// <param name="orderId">Id заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
@@ -78,6 +78,27 @@ namespace DriverAPI.Controllers
 			{
 				_logger.LogInformation($"Sending PUSH message of status changed for order: {orderId}");
 				await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
+			}
+		}
+
+		/// <summary>
+		/// Эндпоинт уведомления о новом поступившем заказе с быстрой доставкой
+		/// </summary>
+		/// <param name="orderId">Id заказа</param>
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("/api/NotifyOfFastDeliveryOrderAdded")]
+		public async Task NotifyOfFastDeliveryOrderAdded([FromBody] int orderId)
+		{
+			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation($"No token found for order driver PUSH message. Order: {orderId}");
+			}
+			else
+			{
+				_logger.LogInformation($"Sending PUSH message of fast delivery order ({orderId}) added");
+				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", orderId.ToString());
 			}
 		}
 	}
