@@ -127,9 +127,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			if(Entity.Counterparty != null)
 			{
-				Entity.PaymentNum = 
-					_paymentsRepository.GetMaxPaymentNumFromManualPaymentsByCounterpartyAndCurrentYear(UoW, Entity.Counterparty.Id);
-				Entity.PaymentNum++;
+				Entity.PaymentNum =
+					_paymentsRepository.GetMaxPaymentNumFromManualPayments(
+						UoW, Entity.Counterparty.Id, _organizationParametersProvider.VodovozOrganizationId)
+					+ 1;
 				_defaultPaymentNum = Entity.PaymentNum;
 			}
 		}
