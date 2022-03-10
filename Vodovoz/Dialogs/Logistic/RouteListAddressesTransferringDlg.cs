@@ -206,8 +206,7 @@ namespace Vodovoz
 				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
 				.AddColumn("Статус").AddEnumRenderer(node => node.Status)
 				.AddColumn("Доставка за час")
-					.AddToggleRenderer(x => x.IsFastDelivery).Editing(false)
-					.AddSetter((c, n) => c.Visible = n.IsFastDelivery);
+					.AddToggleRenderer(x => x.IsFastDelivery).Editing(false);
 
 			if(isRightPanel)
 			{
