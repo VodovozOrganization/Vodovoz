@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SmsPaymentService
 {
-	public class DriverAPIHelper : ISmsPaymentStatusNotificationReciever
+	public class DriverAPIHelper : ISmsPaymentStatusNotificationReciever, IDisposable
 	{
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
@@ -49,6 +49,11 @@ namespace SmsPaymentService
 				}
 				throw new DriverAPIHelperException(response.ReasonPhrase);
 			}
+		}
+
+		public void Dispose()
+		{
+			_apiClient?.Dispose();
 		}
 	}
 

@@ -955,10 +955,11 @@ public partial class MainWindow : Window
 		var employeeRepository = new EmployeeRepository();
 		var chatRepository = new ChatRepository();
 		var trackRepository = new TrackRepository();
+		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider)
 		);
 	}
 
