@@ -28,7 +28,7 @@ namespace Vodovoz.Tools.Orders
 			new OrganizationParametersProvider(new ParametersProvider());
 
 		public static OrderDocumentType[] GetSetOfDocumets(OrderStateKey key) =>
-		rules.Where(r => r.Condition(key)).SelectMany(r => r.Documents).Distinct().ToArray();
+			rules.Where(r => r.Condition(key)).SelectMany(r => r.Documents).Distinct().ToArray();
 
 		static OrderDocumentRulesRepository()
 		{
@@ -253,20 +253,26 @@ namespace Vodovoz.Tools.Orders
 
 		static bool GetConditionForDriverTicket(OrderStateKey key) =>
 		(
-			GetConditionForBill(key)
+			key.PaymentType == PaymentType.cashless
+			&& IsOrderWithOrderItemsAndWithoutDeposits(key)
 			&& key.OrderStatus >= OrderStatus.Accepted
 		);
-		
+
 		static bool ConditionForUPD(OrderStateKey key)
 		{
 			var beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+			
+			var billCondition = key.HaveSpecialFields
+				? GetConditionForSpecialBill(key) 
+				: GetConditionForBill(key);
+
 			return (
-				(GetConditionForBill(key) ||
-				(key.Order.Client.UPDCount.HasValue
-				&& ((key.Order.OurOrganization != null && key.Order.OurOrganization.Id == beveragesWorldOrganizationId)
-					|| (key.Order.Client?.WorksThroughOrganization != null
-						&& key.Order.Client.WorksThroughOrganization.Id == beveragesWorldOrganizationId))
-				&& IsOrderWithOrderItemsAndWithoutDeposits(key)))
+				(billCondition ||
+				 (key.Order.Client.UPDCount.HasValue
+				  && ((key.Order.OurOrganization != null && key.Order.OurOrganization.Id == beveragesWorldOrganizationId)
+				      || (key.Order.Client?.WorksThroughOrganization != null
+				          && key.Order.Client.WorksThroughOrganization.Id == beveragesWorldOrganizationId))
+				  && IsOrderWithOrderItemsAndWithoutDeposits(key)))
 				&& (key.OrderStatus >= OrderStatus.Accepted ||
 					(key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
 			);
@@ -276,6 +282,7 @@ namespace Vodovoz.Tools.Orders
 		(
 			!key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
 			&& ConditionForUPD(key)
+			&& !key.HaveSpecialFields
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
@@ -288,11 +295,13 @@ namespace Vodovoz.Tools.Orders
 		(
 			key.PaymentType == PaymentType.cashless
 			&& IsOrderWithOrderItemsAndWithoutDeposits(key)
+			&& !key.HaveSpecialFields
 		);
 
-		static bool GetConditionForSpecialBill(OrderStateKey key) =>
+		static bool GetConditionForSpecialBill(OrderStateKey key, OrderDocumentType[] documentTypes = null) =>
 		(
-			GetConditionForBill(key)
+			key.PaymentType == PaymentType.cashless
+			&& IsOrderWithOrderItemsAndWithoutDeposits(key)
 			&& key.HaveSpecialFields
 		);
 
