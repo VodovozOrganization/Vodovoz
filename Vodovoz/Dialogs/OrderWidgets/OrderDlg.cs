@@ -286,6 +286,7 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			_driverApiHelper?.Dispose();
 			base.Destroy();
 		}
 

@@ -1,20 +1,20 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModel
 {
 	public class DriverRouteListAddressesVM : RepresentationModelEntityBase<RouteListItem, DriverRouteListAddressVMNode>
 	{
 		#region IRepresentationModel implementation
-		private int driverId;
+		private readonly int _driverId;
 
 		public override void UpdateNodes()
 		{
@@ -24,41 +24,34 @@ namespace Vodovoz.ViewModel
 			RouteListItem routeListItemAlias = null;
 			Order orderAlias = null;
 
-			var query = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias);
-
-			var result = query
+			var result = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 				.JoinAlias(rli => rli.RouteList, () => routeListAlias)
 				.JoinAlias(rli => rli.RouteList.Driver, () => driverAlias)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
-
-				.Where (() => routeListAlias.Status == RouteListStatus.EnRoute)
-				.Where (() => routeListAlias.Driver.Id == driverId)
+				.Where(() => routeListAlias.Status == RouteListStatus.EnRoute)
+				.Where(() => routeListAlias.Driver.Id == _driverId)
 				.SelectList(list => list
 					.Select(() => routeListItemAlias.Id).WithAlias(() => resultAlias.Id)
-				    .Select (() => orderAlias.Id).WithAlias (() => resultAlias.OrderId)
+					.Select(Projections.Entity(() => orderAlias)).WithAlias(() => resultAlias.Order)
+					.Select(Projections.Entity(() => routeListItemAlias)).WithAlias(() => resultAlias.RouteListItem)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.Status)
 					.Select(() => orderAlias.DeliverySchedule).WithAlias(() => resultAlias.Time)
-					.Select(() => orderAlias.DeliveryPoint).WithAlias(() => resultAlias.Address)
-
-				)
+					.Select(() => orderAlias.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint))
 				.TransformUsing(Transformers.AliasToBean<DriverRouteListAddressVMNode>())
 				.List<DriverRouteListAddressVMNode>();
 
 			SetItemsSource(result);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<DriverRouteListAddressVMNode>.Create()
-			.AddColumn("МЛ №").SetDataProperty(node => node.RouteListNumber.ToString())
-			.AddColumn("Время").SetDataProperty(node => node.Time.DeliveryTime)
-			.AddColumn("Статус").SetDataProperty(node => node.Status.GetEnumTitle())
-			.AddColumn("Адрес").SetDataProperty(node => node.Address.CompiledAddress)
+		private readonly IColumnsConfig _columnsConfig = FluentColumnsConfig<DriverRouteListAddressVMNode>.Create()
+			.AddColumn("МЛ №").AddTextRenderer(node => node.RouteListNumber.ToString())
+			.AddColumn("Время").AddTextRenderer(node => node.Time.DeliveryTime)
+			.AddColumn("Статус").AddTextRenderer(node => node.Status.GetEnumTitle())
+			.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryPoint.CompiledAddress)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig
-		{
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => _columnsConfig;
 
 		#endregion
 
@@ -77,25 +70,20 @@ namespace Vodovoz.ViewModel
 		}
 
 		public DriverRouteListAddressesVM(IUnitOfWork uow, int driverId)
-			: base()
 		{
-			this.driverId = driverId;
-			this.UoW = uow;
+			_driverId = driverId;
+			UoW = uow;
 		}
 	}
 
 	public class DriverRouteListAddressVMNode
 	{
-		public int Id{ get; set; }
-
-		public int OrderId { get; set; }
-
-		public DeliveryPoint Address { get; set; }
-
+		public int Id { get; set; }
+		public Order Order { get; set; }
+		public RouteListItem RouteListItem { get; set; }
+		public DeliveryPoint DeliveryPoint { get; set; }
 		public DeliverySchedule Time { get; set; }
-
 		public RouteListItemStatus Status { get; set; }
-
 		public int RouteListNumber { get; set; }
 	}
 }
