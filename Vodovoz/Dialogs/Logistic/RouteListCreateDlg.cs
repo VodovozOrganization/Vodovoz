@@ -73,6 +73,7 @@ namespace Vodovoz
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
 		private bool _isLogistican;
+		private bool _canСreateRoutelistInPastPeriod;
 
 		public RouteListCreateDlg()
 		{
@@ -287,6 +288,8 @@ namespace Vodovoz
 				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";
 			}
 
+			_canСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+
 			_oldDriver = Entity.Driver;
 			UpdateDlg(_isLogistican);
 
@@ -353,7 +356,7 @@ namespace Vodovoz
 
 		private void OnDatepickerDateDateChangedByUser(object sender, EventArgs e)
 		{
-			if(Entity.Date < DateTime.Today.AddDays(-1))
+			if(Entity.Date < DateTime.Today.AddDays(-1) && !_canСreateRoutelistInPastPeriod)
 			{
 				MessageDialogHelper.RunWarningDialog("Нельзя выставлять дату ранее вчерашнего дня!");
 				Entity.Date = _previousSelectedDate;
