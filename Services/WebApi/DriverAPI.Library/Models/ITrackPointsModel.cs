@@ -5,6 +5,6 @@ namespace DriverAPI.Library.Models
 {
 	public interface ITrackPointsModel
 	{
-		void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList, int driverId);
+		void RegisterForRouteList(int routeListId, IList<TrackCoordinateDto> trackList, int driverId);
 	}
 }
