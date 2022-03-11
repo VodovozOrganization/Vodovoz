@@ -83,7 +83,8 @@ namespace VodovozSmsPaymentService
 					Database = mysqlDatabase,
 					UserID = mysqlUser,
 					Password = mysqlPassword,
-					SslMode = MySqlSslMode.None
+					SslMode = MySqlSslMode.None,
+					ConnectionTimeout = 30
 				};
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
