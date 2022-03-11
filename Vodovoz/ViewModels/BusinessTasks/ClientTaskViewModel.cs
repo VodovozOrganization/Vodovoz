@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
-		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IContactsParameters _contactsParameters;
 
 		public ClientTaskViewModel(
@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			CounterpartyContractFactory counterpartyContractFactory,
 			IContactsParameters contactsParameters,
 			ICommonServices commonServices,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
@@ -126,15 +126,15 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory,
+			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactsParameters contactsParameters,
 			int counterpartyId,
-			int deliveryPointId) 
-			: this(employeeRepository, 
-					bottleRepository, 
-				  	callTaskRepository, 
-					phoneRepository, 
-					uowBuilder, 
+			int deliveryPointId)
+			: this(employeeRepository,
+					bottleRepository,
+				  	callTaskRepository,
+					phoneRepository,
+					uowBuilder,
 					unitOfWorkFactory,
 					organizationProvider,
 					counterpartyContractRepository,
@@ -153,8 +153,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			ClientPhonesVM = CreatePhonesViewModel();
 			DeliveryPointPhonesVM = CreatePhonesViewModel();
 
-			CounterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, 
-																						CounterpartyJournalViewModel, 
+			CounterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty,
+																						CounterpartyJournalViewModel,
 																						CounterpartyJournalFilterViewModel>(CommonServices);
 
 			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
@@ -259,7 +259,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			);
 		}
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			if(Entity.ObservableComments.Any()) {
 
@@ -267,6 +267,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 					UoW.Save(docComment);
 				}
 			}
+			return base.BeforeSave();
 		}
 
 		public void OnDeliveryPointVMEntryChangedByUser(object sender, EventArgs e)

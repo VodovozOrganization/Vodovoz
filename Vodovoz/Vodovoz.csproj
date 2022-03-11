@@ -73,6 +73,7 @@
       <Package>gtk-sharp-2.0</Package>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.ServiceModel" />
@@ -99,6 +100,9 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -427,7 +431,6 @@
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
-    <Compile Include="JournalNodes\WaterJournalNode.cs" />
     <Compile Include="JournalViewModels\CarModelJournalViewModel.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
@@ -455,8 +458,8 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
+    <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
@@ -506,7 +509,7 @@
     <Compile Include="TempAdapters\CarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
-    <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
+    <Compile Include="TempAdapters\DeliveryScheduleJournalFactory.cs" />
     <Compile Include="TempAdapters\OrganizationJournalFactory.cs" />
     <Compile Include="TempAdapters\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IncomeCategorySelectorFactory.cs" />
@@ -1699,6 +1702,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
     <Compile Include="Views\Logistic\TariffZoneView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
+    <Compile Include="Views\Organization\RoboatsCatalogExportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsCatalogExportView.cs" />
+    <Compile Include="Views\Organization\RoboatsEntityView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsEntityView.cs" />
+    <Compile Include="Views\Organization\RoboatsStreetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsStreetView.cs" />
+    <Compile Include="Views\Organization\RoboatsWaterTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsWaterTypeView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1903,138 +1914,7 @@
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="icons\" />
-    <Folder Include="icons\menu\" />
-    <Folder Include="icons\toolbar\" />
-    <Folder Include="toolbars\" />
-    <Folder Include="Dialogs\" />
-    <Folder Include="Dialogs\DocumentDialogs\" />
-    <Folder Include="Representations\" />
-    <Folder Include="ViewWidgets\" />
-    <Folder Include="ServiceDialogs\" />
-    <Folder Include="ServiceDialogs\LoadFrom1c\" />
-    <Folder Include="ViewWidgets\Logistics\" />
-    <Folder Include="JournalViewers\" />
-    <Folder Include="JournalFilters\" />
-    <Folder Include="Dialogs\Store\" />
-    <Folder Include="Dialogs\Cash\" />
-    <Folder Include="JournalFilters\Cash\" />
-    <Folder Include="ReportsParameters\" />
-    <Folder Include="JournalViewers\Cash\" />
-    <Folder Include="Dialogs\Logistic\" />
-    <Folder Include="ViewWidgets\Store\" />
-    <Folder Include="Commons\" />
-    <Folder Include="SidePanel\" />
-    <Folder Include="SidePanel\InfoViews\" />
-    <Folder Include="SidePanel\InfoProviders\" />
-    <Folder Include="ServiceDialogs\ExportTo1c\" />
-    <Folder Include="Dialogs\Client\" />
-    <Folder Include="Dialogs\Employees\" />
-    <Folder Include="Dialogs\Goods\" />
-    <Folder Include="Additions\" />
-    <Folder Include="Additions\Logistic\" />
-    <Folder Include="icons\map\" />
-    <Folder Include="ReportsParameters\Logistic\" />
-    <Folder Include="ServiceDialogs\Chat\" />
-    <Folder Include="ServiceDialogs\Database\" />
-    <Folder Include="Additions\Logistic\RouteOptimization\" />
-    <Folder Include="Dialogs\Sale\" />
-    <Folder Include="ReportsParameters\Sales\" />
-    <Folder Include="ReportsParameters\Store\" />
-    <Folder Include="Core\" />
-    <Folder Include="Additions\Store\" />
-    <Folder Include="ReportsParameters\Bottles\" />
-    <Folder Include="Dialogs\OnlineStore\" />
-    <Folder Include="icons\map\points\" />
-    <Folder Include="ReportsParameters\Payments\" />
-    <Folder Include="Core\Journal\" />
-    <Folder Include="Additions\Printing\" />
-    <Folder Include="Dialogs\Cash\CashTransfer\" />
-    <Folder Include="JournalFilters\QueryFilterViews\" />
-    <Folder Include="ReportsParameters\Orders\" />
-    <Folder Include="Dialogs\Fuel\" />
-    <Folder Include="Dialogs\OrderWidgets\" />
-    <Folder Include="Infrastructure\" />
-    <Folder Include="Filters\" />
-    <Folder Include="Filters\GtkViews\" />
-    <Folder Include="Filters\ViewModels\" />
-    <Folder Include="Infrastructure\Converters\" />
-    <Folder Include="Infrastructure\Services\" />
-    <Folder Include="Infrastructure\Journal\" />
-    <Folder Include="ReportsParameters\Bookkeeping\" />
-    <Folder Include="JournalViewModels\" />
-    <Folder Include="JournalNodes\" />
-    <Folder Include="JournalColumnsConfigs\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Views\" />
-    <Folder Include="Dialogs\Phones\" />
-    <Folder Include="Views\Complaints\" />
-    <Folder Include="Views\Employees\" />
-    <Folder Include="Views\Organization\" />
-    <Folder Include="Views\Client\" />
-    <Folder Include="ViewModels\Client\" />
-    <Folder Include="Views\Suppliers\" />
-    <Folder Include="ViewModels\Suppliers\" />
-    <Folder Include="JournalViewModels\Suppliers\" />
-    <Folder Include="Views\WageCalculation\" />
-    <Folder Include="ViewModels\Logistic\" />
-    <Folder Include="Views\Logistic\" />
-    <Folder Include="ViewModels\FuelDocuments\" />
-    <Folder Include="icons\buttons\NullableCheckBox\" />
-    <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
-    <Folder Include="TempAdapters\" />
-    <Folder Include="Views\Orders\" />
-    <Folder Include="ViewModels\Orders\" />
-    <Folder Include="ViewWidgets\PromoSetAction\" />
-    <Folder Include="JournalSelector\" />
-    <Folder Include="Views\Contacts\" />
-    <Folder Include="Views\Users\" />
-    <Folder Include="ViewWidgets\Permissions\" />
-    <Folder Include="Views\ErrorReporting\" />
-    <Folder Include="Views\Comments\" />
-    <Folder Include="ViewModels\Comments\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\Catalogs\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\ExportDefaults\" />
-    <Folder Include="ServiceDialogs\OldExportTo1c\ExportNodes\" />
-    <Folder Include="ViewModels\BusinessTasks\" />
-    <Folder Include="Views\BusinessTasks\" />
-    <Folder Include="Footers\" />
-    <Folder Include="Footers\Views\" />
-    <Folder Include="Footers\ViewModels\" />
-    <Folder Include="Views\Orders\OrdersWithoutShipment\" />
-    <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
-    <Folder Include="Dialogs\Email\" />
-    <Folder Include="Views\Cash\" />
-    <Folder Include="Views\Mango\" />
-    <Folder Include="ViewModels\Mango\" />
-    <Folder Include="Infrastructure\Mango\" />
-    <Folder Include="ViewModels\Mango\Talks\" />
-    <Folder Include="Views\Mango\Talks\" />
-    <Folder Include="Views\Mango\Incoming\" />
-    <Folder Include="ViewModels\Mango\WidgetsModel\" />
-    <Folder Include="ViewWidgets\Mango\" />
-    <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Goods\" />
-    <Folder Include="ReportsParameters\Production\" />
-    <Folder Include="Views\Accounting\" />
-    <Folder Include="Views\Payments\" />
-    <Folder Include="Views\Proposal\" />
-    <Folder Include="JournalFilters\Proposal\" />
-    <Folder Include="Views\Security\" />
-    <Folder Include="Views\Retail\" />
-    <Folder Include="ReportsParameters\Retail\" />
-    <Folder Include="Views\Rent\" />
-    <Folder Include="Views\Reports\" />
-    <Folder Include="ReportsParameters\Employees\" />
-    <Folder Include="JournalViewers\Complaints\" />
-    <Folder Include="Views\Flyers\" />
-    <Folder Include="Views\Print\" />
-    <Folder Include="Views\ReportsParameters\" />
-    <Folder Include="Views\ReportsParameters\Cash\" />
-    <Folder Include="Views\Settings\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

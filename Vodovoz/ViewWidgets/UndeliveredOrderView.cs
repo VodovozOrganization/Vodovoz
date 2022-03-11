@@ -5,6 +5,7 @@ using System.Text;
 using Gamma.GtkWidgets;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -20,10 +21,13 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -121,10 +125,16 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
-			referenceNewDeliverySchedule.ItemsQuery = _deliveryScheduleRepository.AllQuery();
-			referenceNewDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
-			referenceNewDeliverySchedule.Binding.AddBinding(undelivery, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
-			referenceNewDeliverySchedule.Sensitive = false;
+
+			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, SingletonErrorReporter.Instance);
+			var deliveryScheduleRepository = new DeliveryScheduleRepository();
+			var fileDialogService = new FileDialogService();
+			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+			var deliveryScheduleJournalFactory = new DeliveryScheduleJournalFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, _roboatsViewModelFactory);
+			entryNewDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
+			entryNewDeliverySchedule.Binding.AddBinding(undelivery, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
+			entryNewDeliverySchedule.Sensitive = false;
 
 			SetLabelsAcordingToNewOrder();
 
@@ -139,8 +149,8 @@ namespace Vodovoz.ViewWidgets
 			yentInProcessAtDepartment.Binding.AddBinding(undelivery, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
 			yentInProcessAtDepartment.ChangedByUser += (s, e) => {
 				undelivery.AddCommentToTheField(
-					UoW, 
-					CommentedFields.Reason, 
+					UoW,
+					CommentedFields.Reason,
 					String.Format(
 						"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
 						_initialProcDepartmentName,
@@ -277,7 +287,7 @@ namespace Vodovoz.ViewWidgets
 				;
 
 			//кнопки для выбора/создания нового заказа и группа "В работе у отдела"
-			//доступны всегда, если статус недовоза не "Закрыт"			 
+			//доступны всегда, если статус недовоза не "Закрыт"
 			hbxInProcessAtDepartment.Sensitive =
 				hbxForNewOrder.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
 		}
@@ -383,7 +393,7 @@ namespace Vodovoz.ViewWidgets
 				_newOrder.Author = this._oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
-				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) && 
+				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) &&
 					(_oldOrder.OrderSum == _newOrder.OrderSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					_newOrder.PaymentType = _oldOrder.PaymentType;
@@ -460,12 +470,12 @@ namespace Vodovoz.ViewWidgets
 				} else
 					return;
 			}
-			
+
 			FineDlg fineDlg;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				fineDlg = new FineDlg(uow.GetById<UndeliveredOrder>(_undelivery.Id));
 			}
-			
+
 			MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Fine>(_undelivery.Id),
 				() => fineDlg
@@ -475,11 +485,11 @@ namespace Vodovoz.ViewWidgets
 
 			if (address != null)
 				fineDlg.Entity.AddAddress(address);
-			
-			fineDlg.EntitySaved += (object sender2, QS.Tdi.EntitySavedEventArgs args) => { 
+
+			fineDlg.EntitySaved += (object sender2, QS.Tdi.EntitySavedEventArgs args) => {
 				_undelivery.Fines.Add(args.Entity as Fine);
 
-				GetFines(); 
+				GetFines();
 			};
 		}
 	}

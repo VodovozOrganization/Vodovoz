@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using Autofac;
+﻿using Autofac;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -9,6 +6,7 @@ using QS.Deletion.Views;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -16,6 +14,7 @@ using QS.Navigation;
 using QS.Permissions;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
 using QS.Report;
 using QS.Report.Repository;
@@ -30,16 +29,30 @@ using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
 using QSReport;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.IO;
+using System.Reflection;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
+using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
+using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Filters.Views;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.FilterViewModels.Goods;
@@ -52,40 +65,99 @@ using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Bookkeeping;
+using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Dialogs.Logistic;
+using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Dialogs.Organizations;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Users;
+using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Flyers;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.ViewModels.ViewModels.Proposal;
+using Vodovoz.ViewModels.ViewModels.Rent;
+using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Retail;
+using Vodovoz.ViewModels.ViewModels.Security;
+using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Views;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Views.Cash;
+using Vodovoz.Views.Client;
 using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Contacts;
 using Vodovoz.Views.Employees;
+using Vodovoz.Views.Flyers;
+using Vodovoz.Views.Goods;
 using Vodovoz.Views.Logistic;
+using Vodovoz.Views.Mango.Talks;
 using Vodovoz.Views.Orders;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Organization;
+using Vodovoz.Views.Payments;
+using Vodovoz.Views.Print;
+using Vodovoz.Views.Proposal;
+using Vodovoz.Views.Rent;
+using Vodovoz.Views.Reports;
+using Vodovoz.Views.Retail;
+using Vodovoz.Views.Security;
+using Vodovoz.Views.Settings;
+using Vodovoz.Views.Store;
 using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.WageCalculation;
@@ -93,76 +165,8 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.ViewModels.Cash;
-using Vodovoz.Views.Goods;
-using Vodovoz.Core.DataService;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Factories;
-using Vodovoz.Filters.Views;
-using Vodovoz.Views.Mango.Talks;
-using Vodovoz.ViewModels.Mango.Talks;
-using Vodovoz.ViewModels.ViewModels;
-using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.ViewModels.ViewModels.Store;
-using Vodovoz.Views.Store;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
-using Vodovoz.JournalFilters.Proposal;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.ViewModels.Proposal;
-using Vodovoz.Views.Proposal;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Security;
-using Vodovoz.Views.Security;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
-using Vodovoz.ViewModels.ViewModels.Retail;
-using Vodovoz.Views.Retail;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Complaints;
-using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.Views.Reports;
-using Vodovoz.ViewModels.ViewModels.Orders;
-using Vodovoz.ViewModels.ViewModels.Reports;
-using Vodovoz.JournalViewers.Complaints;
-using Vodovoz.Parameters;
-using Vodovoz.ReportsParameters.Bookkeeping;
-using Vodovoz.Services;
-using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.Dialogs.Goods;
-using Vodovoz.ViewModels.Dialogs.Orders;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
-using Vodovoz.Views.Client;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.ViewModels.ViewModels.Flyers;
-using Vodovoz.ViewModels.ViewModels.Rent;
-using Vodovoz.ViewModels.ViewModels.Settings;
-using Vodovoz.ViewModels.ViewModels.Suppliers;
-using Vodovoz.Views.Flyers;
-using Vodovoz.Views.Print;
-using Vodovoz.Views.Rent;
-using Vodovoz.Views.Settings;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
-using Vodovoz.ViewModels.ViewModels.Payments;
-using Vodovoz.Views.Payments;
-using QS.Dialog.GtkUI.FileDialog;
-using QS.Project.Services.FileDialog;
+//using Vodovoz.ViewModels.Dialogs.Organization;
 
 namespace Vodovoz
 {
@@ -283,6 +287,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyNameViewModel, RoboAtsCounterpartyNameView>()
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyPatronymicViewModel, RoboAtsCounterpartyPatronymicView>()
 				.RegisterWidgetForTabViewModel<TariffZoneViewModel, TariffZoneView>()
+				.RegisterWidgetForTabViewModel<DeliveryScheduleViewModel, DeliveryScheduleView>()
+				.RegisterWidgetForTabViewModel<RoboatsCatalogExportViewModel, RoboatsCatalogExportView>()
+				.RegisterWidgetForTabViewModel<RoboatsWaterTypeViewModel, RoboatsWaterTypeView>()
+				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				;
 
             //Регистрация виджетов
@@ -299,7 +307,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalFilterViewModel, IncomeCategoryJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ExpenseCategoryJournalFilterViewModel, ExpenseCategoryJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<PayoutRequestJournalFilterViewModel, PayoutRequestJournalFilterView>() 
+				.RegisterWidgetForWidgetViewModel<PayoutRequestJournalFilterViewModel, PayoutRequestJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductGroupFilterViewModel, ProductGroupFilterView>()
 				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
@@ -359,7 +367,7 @@ namespace Vodovoz
 		{
 			JournalsColumnsConfigs.RegisterColumns();
 		}
-		
+
 		static void GetPermissionsSettings() {
 			string    sql = "SELECT * FROM permissions_settings";
 			DbCommand cmd = QSMain.ConnectionDB.CreateCommand();
@@ -385,7 +393,7 @@ namespace Vodovoz
 			var tempVodUserPath = Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
 			DirectoryInfo dirInfo = new DirectoryInfo(tempVodUserPath);
 
-			if(!dirInfo.Exists) 
+			if(!dirInfo.Exists)
 				dirInfo.Create();
 		}
 
@@ -399,7 +407,7 @@ namespace Vodovoz
 			var tempVodUserPath = Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
 			DirectoryInfo dirInfo = new DirectoryInfo(tempVodUserPath);
 
-			if(dirInfo.Exists) 
+			if(dirInfo.Exists)
 			{
 				foreach(FileInfo file in dirInfo.EnumerateFiles()) {
 					file.Delete();
@@ -514,6 +522,17 @@ namespace Vodovoz
 
 			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
+			builder.RegisterType<RoboatsFileStorageFactory>().AsSelf();
+			builder.RegisterType<DeliveryScheduleJournalFactory>().AsImplementedInterfaces().AsSelf();
+
+			builder.RegisterAssemblyTypes(
+					Assembly.GetExecutingAssembly(),
+					Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
+					Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
+				.Where(t => t.Name.EndsWith("Factory"))
+				.AsSelf()
+				.AsImplementedInterfaces()
+				.SingleInstance();
 
 			#endregion
 
@@ -590,6 +609,12 @@ namespace Vodovoz
 
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
 				.Where(t => t.Name.EndsWith("Provider"))
+				.AsImplementedInterfaces()
+				.AsSelf()
+				.SingleInstance();
+
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
+				.Where(t => t.Name.EndsWith("Settings"))
 				.AsImplementedInterfaces()
 				.AsSelf()
 				.SingleInstance();

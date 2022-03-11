@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		public FuelIncomeInvoiceViewModel
 		(
-			IEntityUoWBuilder uowBuilder, 
+			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
@@ -87,10 +87,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			UpdateBalanceCache();
 		}
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.UpdateOperations(fuelRepository);
-			base.BeforeSave();
+			return base.BeforeSave();
 		}
 
 		#region Properties
@@ -160,7 +160,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }
 
 		#endregion Entries

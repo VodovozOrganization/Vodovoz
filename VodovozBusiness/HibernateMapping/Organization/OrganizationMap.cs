@@ -1,9 +1,8 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.HibernateMapping
 {
-    public class OrganizationMap : ClassMap<Organization>
+    public class OrganizationMap : ClassMap<Domain.Organizations.Organization>
     {
         public OrganizationMap()
         {

@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
 
@@ -146,12 +147,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<UndeliveredOrder>.Create().Dialog<UndeliveredOrderDlg>(),
                 OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
                     .SearchColumn("Название", x => x.Name).End(),
-                OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView()
-                    .SearchColumn("Название", x => x.Name)
-                    .SearchColumn("Время доставки", x => x.DeliveryTime)
-                    .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
-                    .OrderAsc(x => x.IsArchive).OrderAsc(x => x.From).OrderAsc(x => x.To)
-                    .End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
                     .SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<EquipmentKind>.Create().Dialog<EquipmentKindDlg>().DefaultTableView()

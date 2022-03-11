@@ -1,16 +1,15 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Diagnostics;
+using System.IO;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
 
-namespace Vodovoz.ViewModels.ViewModels.Counterparty
+namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
 	public class CounterpartyFilesViewModel : EntityWidgetViewModelBase<Domain.Client.Counterparty>
 	{

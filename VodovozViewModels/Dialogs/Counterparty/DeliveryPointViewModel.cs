@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Fias.Service.Loaders;
+﻿using Fias.Service.Loaders;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -31,7 +30,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
-namespace Vodovoz.ViewModels.ViewModels.Counterparty
+namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
 	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
 		IAskSaveOnCloseViewModel
@@ -60,9 +59,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
-			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
+			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
 			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory,
+			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -99,9 +98,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, roboAtsCounterpartyJournalFactory, CommonServices)
+			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, CommonServices)
 			{
-				PhonesList = Entity.ObservablePhones, 
+				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,
 				ReadOnly = !CanEdit
 			};
@@ -120,9 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			DeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
-			DeliveryScheduleSelectorFactory =
-				deliveryScheduleSelectorFactory?.CreateDeliveryScheduleAutocompleteSelectorFactory()
-				?? throw new ArgumentNullException(nameof(deliveryScheduleSelectorFactory));
+			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
 
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 
@@ -345,7 +342,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		}
 
 		#endregion
-		
+
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
