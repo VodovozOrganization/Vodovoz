@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
@@ -56,6 +57,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteListsDetails")]
 		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(RouteListIds: {string.Join(',', routeListsIds)}) User token: {tokenStr}");
+
 			var routeLists = _aPIRouteListData.Get(routeListsIds);
 			var ordersIds = routeLists.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
@@ -87,6 +91,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteList")]
 		public RouteListDto Get(int routeListId)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(routeListId: {routeListId}) User token: {tokenStr}");
+
 			return _aPIRouteListData.Get(routeListId);
 		}
 
@@ -98,6 +105,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteListsIds")]
 		public async Task<IEnumerable<int>> GetIds()
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"User token: {tokenStr}");
+
 			var user = await _userManager.GetUserAsync(User);
 			var userName = await _userManager.GetUserNameAsync(user);
 
@@ -113,6 +123,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
 		public void RollbackRouteListAddressStatusEnRoute([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(RoutelistAddressId: {requestDto.RoutelistAddressId}) User token: {tokenStr}");
+
 			_logger.LogInformation($"Попытка вернуть в путь адрес МЛ: { requestDto.RoutelistAddressId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var recievedTime = DateTime.Now;

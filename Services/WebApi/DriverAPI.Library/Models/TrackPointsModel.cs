@@ -30,7 +30,7 @@ namespace DriverAPI.Library.Models
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
-		public void RegisterForRouteList(int routeListId, IEnumerable<TrackCoordinateDto> trackList, int driverId)
+		public void RegisterForRouteList(int routeListId, IList<TrackCoordinateDto> trackList, int driverId)
 		{
 			var track = _trackRepository.GetTrackByRouteListId(_unitOfWork, routeListId);
 
@@ -53,30 +53,52 @@ namespace DriverAPI.Library.Models
 
 			if (track == null)
 			{
-				track = new Track()
+				track = new Track
 				{
 					RouteList = routeList,
 					Driver = routeList.Driver
 				};
 			}
 
-			var receivedPoints = new Dictionary<DateTime, TrackPoint>();
-
-			foreach (var trackCoordinate in trackList)
+			foreach(var trackPoint in trackList)
 			{
-				if (track.TrackPoints.Any(t => t.TimeStamp == trackCoordinate.ActionTime))
+				trackPoint.Latitude = Math.Round(trackPoint.Latitude, 8);
+				trackPoint.Longitude = Math.Round(trackPoint.Longitude, 8);
+				trackPoint.ActionTime = new DateTime(
+					trackPoint.ActionTime.Year,
+					trackPoint.ActionTime.Month,
+					trackPoint.ActionTime.Day,
+					trackPoint.ActionTime.Hour,
+					trackPoint.ActionTime.Minute,
+					trackPoint.ActionTime.Second,
+					trackPoint.ActionTime.Kind
+				);
+			}
+
+			var trackPoints = trackList
+				.GroupBy(x =>
+					new
+					{
+						x.ActionTime,
+						x.Latitude,
+						x.Longitude
+					})
+				.Select(group =>
+					new TrackPoint
+					{
+						Track = track,
+						Latitude = decimal.ToDouble(group.Key.Latitude),
+						Longitude = decimal.ToDouble(group.Key.Longitude),
+						TimeStamp = group.Key.ActionTime
+					});
+
+			foreach(var trackPoint in trackPoints)
+			{
+				if(track.TrackPoints.Any(t => t.TimeStamp == trackPoint.TimeStamp))
 				{
-					_logger.LogInformation($"Уже зарегистрирована точка для времени {trackCoordinate.ActionTime}");
+					_logger.LogInformation($"Уже зарегистрирована точка для времени {trackPoint.TimeStamp}");
 					continue;
 				}
-
-				var trackPoint = new TrackPoint()
-				{
-					Track = track,
-					Latitude = decimal.ToDouble(trackCoordinate.Latitude),
-					Longitude = decimal.ToDouble(trackCoordinate.Longitude),
-					TimeStamp = trackCoordinate.ActionTime
-				};
 
 				track.TrackPoints.Add(trackPoint);
 			}
