@@ -1092,7 +1092,27 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Топливо")]
 		fuel,
 		[Display(Name = "Кассовое оборудование")]
-		CashEquipment
+		CashEquipment,
+		[Display(Name = "Автомобильные запчасти")]
+		CarParts,
+		[Display(Name = "Инструменты")]
+		Tools,
+		[Display(Name = "Канцелярия")]
+		Stationery,
+		[Display(Name = "Оборудование для внутреннего использования")]
+		EquipmentForIndoorUse,
+		[Display(Name = "Орг.техника")]
+		OfficeEquipment,
+		[Display(Name = "Производственное оборудование")]
+		ProductionEquipment,
+		[Display(Name = "Рекламная продукция")]
+		PromotionalProducts,
+		[Display(Name = "Спецодежда")]
+		Overalls,
+		[Display(Name = "Транспортное средство")]
+		Vehicle,
+		[Display(Name = "Хоз.инвентарь")]
+		HouseholdInventory
 	}
 
 	public enum TareVolume
