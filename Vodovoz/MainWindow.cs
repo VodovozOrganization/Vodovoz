@@ -191,7 +191,8 @@ public partial class MainWindow : Gtk.Window
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
 		ActionAccounting.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
@@ -202,12 +203,12 @@ public partial class MainWindow : Gtk.Window
 		bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
 		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
 		bool hasAccessToWagesAndBonuses = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
-		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
-		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
-		ActionDriverWages.Sensitive = hasAccessToSalaries;
-		ActionWagesOperations.Sensitive = hasAccessToSalaries;
-		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
-		ActionDriversWageBalance.Visible = hasAccessToSalaries;
+		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses; //Премии сотрудников
+		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses; //Штрафы сотрудников
+		ActionDriverWages.Sensitive = hasAccessToSalaries; //Зарплаты водителей
+		ActionWagesOperations.Sensitive = hasAccessToSalaries; //Зарплаты сотрудников
+		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
+		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
 		ActionCRM.Sensitive = hasAccessToCRM;
 
 		bool canEditWage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
