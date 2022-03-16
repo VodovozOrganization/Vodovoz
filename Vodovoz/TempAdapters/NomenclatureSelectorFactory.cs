@@ -54,7 +54,7 @@ namespace Vodovoz.TempAdapters
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -85,7 +85,7 @@ namespace Vodovoz.TempAdapters
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -117,7 +117,7 @@ namespace Vodovoz.TempAdapters
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -149,7 +149,7 @@ namespace Vodovoz.TempAdapters
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -186,7 +186,7 @@ namespace Vodovoz.TempAdapters
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				counterpartyJournalFactory,
 				nomRep,
 				userRepository)
@@ -220,7 +220,7 @@ namespace Vodovoz.TempAdapters
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
 						new EmployeeService(),
-						nomenclatureSelectorFactory,
+						new NomenclatureSelectorFactory(),
 						counterpartyJournalFactory,
 						nomenclatureRepository,
 						userRepository)

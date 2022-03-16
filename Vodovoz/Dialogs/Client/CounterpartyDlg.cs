@@ -845,7 +845,7 @@ namespace Vodovoz
 					ServicesConfig.CommonServices,
 					_employeeService,
 					CounterpartySelectorFactory,
-					NomenclatureSelectorFactory,
+					new NomenclatureSelectorFactory(),
 					NomenclatureRepository,
 					_userRepository);
 			supplierPricesWidget.Sensitive = CanEdit;
@@ -1017,7 +1017,9 @@ namespace Vodovoz
 				new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(),
 				new NomenclatureSelectorFactory(),
-				new UndeliveredOrdersRepository()
+				new UndeliveredOrdersRepository(),
+				new SubdivisionRepository(new ParametersProvider()),
+				new FileDialogService()
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);

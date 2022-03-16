@@ -464,7 +464,7 @@ public partial class MainWindow : Window
 				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository(),
 				counterpartyJournalFactory,
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				nomenclatureRepository,
 				userRepository
 			)
@@ -489,7 +489,7 @@ public partial class MainWindow : Window
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository(),
 			counterpartyJournalFactory,
-			nomenclatureSelectorFactory,
+			new NomenclatureSelectorFactory(),
 			nomenclatureRepository,
 			userRepository
 		);
