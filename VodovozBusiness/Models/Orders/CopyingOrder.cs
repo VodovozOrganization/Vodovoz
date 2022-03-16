@@ -123,8 +123,9 @@ namespace Vodovoz.Models.Orders
 		/// <summary>
 		/// Копирование товаров (<see cref="OrderItem"/>) заказа и связанного с ним оборудования (<see cref="OrderEquipment"/>)
 		/// </summary>
-		/// <param name="withDiscounts">Копируем со скидками или без</param>
-		public CopyingOrder CopyOrderItems(bool withDiscounts = false)
+		/// <param name="withDiscountsAndPrices">true - копируем со скидками и ставим ценам флаг ручного изменения, чтобы они были неизменны
+		/// false - не переносим скидки и выставляем флаг ручной цены из копируемого заказа</param>
+		public CopyingOrder CopyOrderItems(bool withDiscountsAndPrices = false)
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
@@ -132,7 +133,7 @@ namespace Vodovoz.Models.Orders
 
 			foreach(var orderItem in orderItems)
 			{
-				CopyOrderItem(orderItem, withDiscounts);
+				CopyOrderItem(orderItem, withDiscountsAndPrices);
 				CopyDependentOrderEquipment(orderItem);
 			}
 
@@ -239,7 +240,7 @@ namespace Vodovoz.Models.Orders
 			}
 		}
 
-		private void CopyOrderItem(OrderItem orderItem, bool withDiscounts = false)
+		private void CopyOrderItem(OrderItem orderItem, bool withDiscountsAndPrices = false)
 		{
 			var newOrderItem = new OrderItem
 			{
@@ -247,12 +248,12 @@ namespace Vodovoz.Models.Orders
 				Nomenclature = orderItem.Nomenclature,
 				PromoSet = orderItem.PromoSet,
 				Price = orderItem.Price,
-				IsUserPrice = orderItem.IsUserPrice,
+				IsUserPrice = withDiscountsAndPrices || orderItem.IsUserPrice,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS
 			};
 
-			if(withDiscounts)
+			if(withDiscountsAndPrices)
 			{
 				CopyingDiscounts(orderItem, newOrderItem);
 			}
