@@ -1112,11 +1112,12 @@ namespace Vodovoz.JournalViewModels
 					selectedItems => {
 						var selectedNodes = selectedItems.OfType<OrderJournalNode>().ToList();
 						if(selectedNodes.Count != 1)
+						{
 							return;
+						}
 						var selectedOrder = selectedNodes.First();
 
-						var order = UoW.GetById<VodovozOrder>(selectedOrder.Id);
-						var dlg = new CreateComplaintViewModel(
+						var complaintViewModel = new CreateComplaintViewModel(
 							EntityUoWBuilder.ForCreate(),
 							UnitOfWorkFactory,
 							_employeeService,
@@ -1135,10 +1136,11 @@ namespace Vodovoz.JournalViewModels
 							_nomenclatureSelectorFactory,
 							_undeliveredOrdersRepository
 						);
-						dlg.Entity.Counterparty = order.Client;
-						dlg.Entity.Order = order;
-						dlg.Entity.DeliveryPoint = order.DeliveryPoint;
-						TabParent.OpenTab(() => dlg, this);
+						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);
+						complaintViewModel.Entity.Counterparty = order.Client;
+						complaintViewModel.Entity.Order = order;
+						complaintViewModel.Entity.DeliveryPoint = order.DeliveryPoint;
+						TabParent.OpenTab(() => complaintViewModel, this);
 					}
 				)
 			);
