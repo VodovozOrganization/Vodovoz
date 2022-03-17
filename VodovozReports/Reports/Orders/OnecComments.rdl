@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -21,6 +21,38 @@
       <DataType>String</DataType>
       <Nullable>False</Nullable>
       <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="districts_include">
+        <DataType>Integer</DataType>
+        <Nullable>false</Nullable>
+        <AllowBlank>false</AllowBlank>
+        <MultiValue>true</MultiValue>
+        <Prompt>
+        </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="districts_exclude">
+        <DataType>Integer</DataType>
+        <Nullable>false</Nullable>
+        <AllowBlank>false</AllowBlank>
+        <MultiValue>true</MultiValue>
+        <Prompt>
+        </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups_include">
+        <DataType>Integer</DataType>
+        <Nullable>false</Nullable>
+        <AllowBlank>false</AllowBlank>
+        <MultiValue>true</MultiValue>
+        <Prompt>
+        </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_groups_exclude">
+        <DataType>Integer</DataType>
+        <Nullable>false</Nullable>
+        <AllowBlank>false</AllowBlank>
+        <MultiValue>true</MultiValue>
+        <Prompt>
+        </Prompt>
     </ReportParameter>
   </ReportParameters>
   <PageHeader>
@@ -311,17 +343,46 @@ LEFT JOIN
 	counterparty ON counterparty.id = orders.client_id
 LEFT JOIN  
 	delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN 
+    districts ON delivery_points.district_id = districts.id
+LEFT JOIN 
+    geographic_groups ON geographic_groups.id = districts.geographic_group_id
 WHERE
 	orders.comment_logist IS NOT NULL
 		AND orders.comment_logist &lt;&gt; ''
-		AND (delivery_date BETWEEN @start_date AND @end_date);</CommandText>
+		AND (delivery_date BETWEEN @start_date AND @end_date)
+        AND (
+	            ((districts.id IN (@districts_include) AND 0 IN (@districts_exclude) )
+	            OR
+	            (districts.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
+	            OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
+	        )
+        AND (
+	            ((geographic_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+	            OR
+	            (geographic_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
+	            OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
+        )        
+;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
+            <QueryParameter Name="start_date">
+                <Value>=Parameters!start_date</Value>
+            </QueryParameter>
+            <QueryParameter Name="end_date">
+                <Value>=Parameters!end_date</Value>
+            </QueryParameter>
+            <QueryParameter Name="districts_include">
+                <Value>={?districts_include}</Value>
+            </QueryParameter>
+            <QueryParameter Name="districts_exclude">
+                <Value>={?districts_exclude}</Value>
+            </QueryParameter>
+            <QueryParameter Name="geographic_groups_include">
+                <Value>={?geographic_groups_include}</Value>
+            </QueryParameter>
+            <QueryParameter Name="geographic_groups_exclude">
+                <Value>={?geographic_groups_exclude}</Value>
+            </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
