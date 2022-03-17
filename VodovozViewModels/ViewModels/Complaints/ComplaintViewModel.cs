@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -45,6 +46,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private DelegateCommand _changeDeliveryPointCommand;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 
 		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
@@ -76,6 +78,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -90,7 +93,7 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
@@ -388,6 +391,7 @@ namespace Vodovoz.ViewModels.Complaints
 						EmployeeService,
 						_employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+						_employeeSettings,
 						CommonServices
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -421,6 +425,7 @@ namespace Vodovoz.ViewModels.Complaints
 						_undeliveryViewOpener,
 						EmployeeService,
 						_employeeSelectorFactory,
+						_employeeSettings,
 						CommonServices
 					);
 					fineViewModel.FineReasonString = Entity.GetFineReason();

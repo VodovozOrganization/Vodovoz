@@ -998,6 +998,7 @@ public partial class MainWindow : Gtk.Window
 			subdivisionJournalFactory,
 			new SalesPlanJournalFactory(),
 			new NomenclatureSelectorFactory(),
+			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository()
 		);
 
@@ -2123,6 +2124,7 @@ public partial class MainWindow : Gtk.Window
 					subdivisionJournalFactory,
 					new SalesPlanJournalFactory(),
 					new NomenclatureSelectorFactory(),
+					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository()
 				);
 			}

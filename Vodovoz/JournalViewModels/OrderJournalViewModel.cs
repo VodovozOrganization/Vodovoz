@@ -986,7 +986,9 @@ namespace Vodovoz.JournalViewModels
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
-							_undeliveredOrdersRepository);
+							_undeliveredOrdersRepository,
+							new EmployeeSettings(new ParametersProvider())
+						);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					}
