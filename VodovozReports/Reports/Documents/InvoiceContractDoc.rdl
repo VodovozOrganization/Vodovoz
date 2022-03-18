@@ -1468,20 +1468,6 @@ WHERE stored_resource.id = @id21</CommandText>
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
-          <Image Name="Image11">
-            <Height>48.26pt</Height>
-            <Width>94.16pt</Width>
-            <Left>380.90pt</Left>
-            <Top>127.20pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Sizing>Fit</Sizing>
-            <Source>Embedded</Source>
-            <Value>embeddedimage2</Value>
-          </Image>
         </ReportItems>
         <Style>
           <BorderStyle />
