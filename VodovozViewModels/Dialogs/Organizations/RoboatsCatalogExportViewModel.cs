@@ -43,10 +43,11 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
-		private RoboatsEntityType _selectedExportType;
+		private RoboatsEntityType? _selectedExportType;
 		private OpenViewModelCommand _openDialogCommand;
+		private bool exportStarting;
 
-		public RoboatsEntityType SelectedExportType
+		public RoboatsEntityType? SelectedExportType
 		{
 			get => _selectedExportType;
 			set
@@ -54,11 +55,12 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 				if(SetField(ref _selectedExportType, value))
 				{
 					UpdateJournal();
+					OnPropertyChanged(nameof(CanStartExport));
 				}
 			}
 		}
 
-		public bool CanStartExport { get; set; }
+		public bool CanStartExport => !exportStarting && SelectedExportType != null;
 
 		public RoboatsCatalogExportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -94,7 +96,6 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			}
 
 			Title = "Справочники Roboats";
-			CanStartExport = true;
 
 			SetAvailableJournals();
 			UpdateJournal();
@@ -284,12 +285,14 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 				{
 					try
 					{
-						CanStartExport = false;
+						exportStarting = true;
+						OnPropertyChanged(nameof(CanStartExport));
 						Export();
 					}
 					finally
 					{
-						CanStartExport = true;
+						exportStarting = false;
+						OnPropertyChanged(nameof(CanStartExport));
 					}
 				}, () => CanStartExport);
 				_startExport.CanExecuteChangedWith(this, x => x.CanStartExport);
@@ -308,7 +311,6 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			}
 
 			bool isExported = ExportCatalog(exportDirectory);
-
 			if(isExported)
 			{
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Выгрузка успешно завершена", "Выгрузка Roboats");
@@ -317,10 +319,15 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 
 		public bool ExportCatalog(string exportDirectory)
 		{
-			var storage = _roboatsFileStorageFactory.CreateStorage(SelectedExportType);
+			if(!SelectedExportType.HasValue)
+			{
+				return false;
+			}
+
+			var storage = _roboatsFileStorageFactory.CreateStorage(SelectedExportType.Value);
 			storage.Refresh();
 
-			var exportedItems = _roboatsRepository.GetExportedEntities(SelectedExportType);
+			var exportedItems = _roboatsRepository.GetExportedEntities(SelectedExportType.Value);
 
 			var incorrectFiles = new List<IRoboatsEntity>();
 			var incorrectRoboatsId = new List<IRoboatsEntity>();

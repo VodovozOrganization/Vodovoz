@@ -13,6 +13,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 	public class RoboAtsCounterpartyPatronymicViewModel : EntityTabViewModelBase<RoboAtsCounterpartyPatronymic>
 	{
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
+		private readonly bool _canEdit;
+		private readonly bool _canCreate;
 
 		public RoboAtsCounterpartyPatronymicViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
@@ -25,7 +27,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			TabName = "Отчество контрагента RoboATS";
 
 			RoboatsEntityViewModel = roboatsViewModelFactory.CreateViewModel(Entity);
+
+			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyPatronymic));
+			_canEdit = permissionResult.CanUpdate;
+			_canCreate = permissionResult.CanCreate;
 		}
+
+		public bool CanEdit => _canEdit || (_canCreate && UoW.IsNew);
 
 		public RoboatsEntityViewModel RoboatsEntityViewModel
 		{

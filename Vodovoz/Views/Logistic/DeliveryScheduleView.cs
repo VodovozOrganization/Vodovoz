@@ -16,12 +16,28 @@ namespace Vodovoz.Views.Logistic
 
 		private void ConfigureDlg ()
 		{
-			entryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			entryFrom.Binding.AddBinding(ViewModel.Entity, e => e.From, w => w.Time).InitializeFromSource();
-			entryTo.Binding.AddBinding(ViewModel.Entity, e => e.To, w => w.Time).InitializeFromSource();
-            ycheckIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			entryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entryFrom.Binding
+				.AddBinding(ViewModel.Entity, e => e.From, w => w.Time)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entryTo.Binding
+				.AddBinding(ViewModel.Entity, e => e.To, w => w.Time)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			buttonSave.Clicked += (s, e) => ViewModel.Save(true);
+			buttonSave.Sensitive = ViewModel.CanEdit;
 			buttonCancel.Clicked += (s, e) => ViewModel.Cancel();
 
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -47,6 +63,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				_roboatsEntityView = new RoboatsEntityView(ViewModel.RoboatsEntityViewModel);
 				boxRoboatsHolder.Add(_roboatsEntityView);
+				_roboatsEntityView.Sensitive = ViewModel.CanEdit;
 				_roboatsEntityView.Show();
 			}
 		}

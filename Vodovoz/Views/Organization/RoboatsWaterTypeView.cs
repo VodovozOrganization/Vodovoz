@@ -20,10 +20,14 @@ namespace Vodovoz.Views.Organization
 		{
 			labelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
 			entryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryNomenclature.Binding.AddBinding(ViewModel.Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
+			entryNomenclature.Binding
+				.AddBinding(ViewModel.Entity, e => e.Nomenclature, w => w.Subject)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			entryNomenclature.OpenWithoutTabParent = true;
 
 			buttonSave.Clicked += (s, e) => ViewModel.Save(true);
+			buttonSave.Sensitive = ViewModel.CanEdit;
 			buttonCancel.Clicked += (s, e) => ViewModel.Cancel();
 
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -49,6 +53,7 @@ namespace Vodovoz.Views.Organization
 			{
 				_roboatsEntityView = new RoboatsEntityView(ViewModel.RoboatsEntityViewModel);
 				boxRoboatsHolder.Add(_roboatsEntityView);
+				_roboatsEntityView.Sensitive = ViewModel.CanEdit;
 				_roboatsEntityView.Show();
 			}
 		}

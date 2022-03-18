@@ -20,6 +20,8 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		private readonly ICommonServices _commonServices;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly bool _canEdit;
+		private readonly bool _canCreate;
 
 		private bool _isDefaultName;
 
@@ -36,7 +38,13 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			RoboatsEntityViewModel = _roboatsViewModelFactory.CreateViewModel(Entity);
+
+			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliverySchedule));
+			_canEdit = permissionResult.CanUpdate;
+			_canCreate = permissionResult.CanCreate;
 		}
+
+		public bool CanEdit => _canEdit || (_canCreate && UoW.IsNew);
 
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
 

@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			var entityConfig = EntityConfigs.First().Value;
 			var action = new JournalAction("Добавить",
 				(selected) => entityConfig.PermissionResult.CanCreate,
-				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => true,
 				(selected) => {
 					var docConfig = entityConfig.EntityDocumentConfigurations.First();
 					var viewModel = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction() as ViewModelBase;
@@ -118,9 +118,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			}
 
 			var entityConfig = EntityConfigs.First().Value;
-			var action = new JournalAction("Изменить",
-				(selected) => entityConfig.PermissionResult.CanRead,
-				(selected) => entityConfig.PermissionResult.CanRead,
+
+			string actionName = entityConfig.PermissionResult.CanRead && !entityConfig.PermissionResult.CanUpdate ? "Открыть" : "Изменить";
+			bool canOpen = entityConfig.PermissionResult.CanRead || entityConfig.PermissionResult.CanUpdate;
+
+			var action = new JournalAction(actionName,
+				(selected) => canOpen && selected.Any(),
+				(selected) => true,
 				(selected) => {
 					var selectedNode = selected.FirstOrDefault() as RoboAtsCounterpartyPatronymicJournalNode;
 					var docConfig = entityConfig.EntityDocumentConfigurations.First();

@@ -15,6 +15,8 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
 		private readonly INomenclatureSelectorFactory _nomenclatureJournalFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
+		private readonly bool _canEdit;
+		private readonly bool _canCreate;
 
 		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureSelectorFactory nomenclatureJournalFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
 		{
@@ -28,7 +30,13 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			RoboatsEntityViewModel = roboatsViewModelFactory.CreateViewModel(Entity);
 
 			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetRoboatsWaterJournalFactory();
+
+			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboatsWaterType));
+			_canEdit = permissionResult.CanUpdate;
+			_canCreate = permissionResult.CanCreate;
 		}
+
+		public bool CanEdit => _canEdit || (_canCreate && UoW.IsNew);
 
 		public RoboatsEntityViewModel RoboatsEntityViewModel
 		{

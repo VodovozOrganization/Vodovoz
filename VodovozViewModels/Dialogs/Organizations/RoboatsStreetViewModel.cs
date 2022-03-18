@@ -12,13 +12,21 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 	{
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
 		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly bool _canEdit;
+		private readonly bool _canCreate;
 
 		public RoboatsStreetViewModel(IEntityUoWBuilder uowBuilder, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
 		{
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 
 			RoboatsEntityViewModel = _roboatsViewModelFactory.CreateViewModel(Entity);
+
+			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboatsStreet));
+			_canEdit = permissionResult.CanUpdate;
+			_canCreate = permissionResult.CanCreate;
 		}
+
+		public bool CanEdit => _canEdit || (_canCreate && UoW.IsNew);
 
 		public RoboatsEntityViewModel RoboatsEntityViewModel
 		{

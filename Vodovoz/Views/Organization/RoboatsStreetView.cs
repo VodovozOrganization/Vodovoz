@@ -19,10 +19,19 @@ namespace Vodovoz.Views.Organization
 		private void Configure()
 		{
 			labelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
-			yentryStreetType.Binding.AddBinding(ViewModel.Entity, e => e.Type, w => w.Text).InitializeFromSource();
-			yentryStreet.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+
+			yentryStreetType.Binding
+				.AddBinding(ViewModel.Entity, e => e.Type, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yentryStreet.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			buttonSave.Clicked += (s, e) => ViewModel.Save(true);
+			buttonSave.Sensitive = ViewModel.CanEdit;
 			buttonCancel.Clicked += (s, e) => ViewModel.Cancel();
 
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -48,6 +57,7 @@ namespace Vodovoz.Views.Organization
 			{
 				_roboatsEntityView = new RoboatsEntityView(ViewModel.RoboatsEntityViewModel);
 				boxRoboatsHolder.Add(_roboatsEntityView);
+				_roboatsEntityView.Sensitive = ViewModel.CanEdit;
 				_roboatsEntityView.Show();
 			}
 		}

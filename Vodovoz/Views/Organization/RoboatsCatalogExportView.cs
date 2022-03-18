@@ -1,7 +1,9 @@
 ﻿using Gtk;
 using QS.Journal.GtkUI;
+using QS.Project.Journal;
 using QS.Tdi;
 using QS.Views.GtkUI;
+using System.Linq;
 using Vodovoz.Core;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Dialogs.Organizations;
@@ -20,13 +22,10 @@ namespace Vodovoz.Views.Organization
 		private void Configure()
 		{
 			comboCatalog.ItemsEnum = typeof(RoboatsEntityType);
-			comboCatalog.AddEnumToHideList(ViewModel.DeniedEntityTypes);
+			object[] enums = ViewModel.DeniedEntityTypes.Cast<object>().ToArray();
+			comboCatalog.AddEnumToHideList(enums);
 			comboCatalog.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.SelectedExportType, w => w.SelectedItem)
-				.InitializeFromSource();
-
-			comboCatalog.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.SelectedExportType, w => w.SelectedItem)
+				.AddBinding(vm => vm.SelectedExportType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			buttonExport.Clicked += (s, e) => ViewModel.StartExport.Execute();
@@ -61,6 +60,12 @@ namespace Vodovoz.Views.Organization
 			{
 				return;
 			}
+
+			if(ViewModel.Journal.FailInitialize)
+			{
+				return;
+			}
+
 			_journalView = new JournalView(ViewModel.Journal);
 			journalHolder.Add(_journalView);
 			_journalView.Show();
