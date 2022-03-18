@@ -719,21 +719,7 @@ namespace Vodovoz
 						OnContractChanged();
 						break;
 					case nameof(Order.Client):
-						var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
-						if(Entity.Client?.IsForRetail ?? false)
-						{
-							while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
-							{
-								enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
-							}
-						}
-						else
-						{
-							if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
-							{
-								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
-							}
-						}
+						UpdateAvailableEnumSignatureTypes();
 						if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 						{
 							Entity.OrderAddressType = OrderAddressType.ChainStore;
@@ -756,6 +742,27 @@ namespace Vodovoz
 
 			ybuttonToStorageLogicAddressType.Sensitive = ybuttonToDeliveryAddressType.Sensitive =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
+
+			UpdateAvailableEnumSignatureTypes();
+		}
+
+		private void UpdateAvailableEnumSignatureTypes()
+		{
+			var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
+			if(Entity.Client?.IsForRetail ?? false)
+			{
+				while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+				{
+					enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
+				}
+			}
+			else
+			{
+				if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+				{
+					enumSignatureType.AddEnumToHideList(signatureTranscriptType);
+				}
+			}
 		}
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
