@@ -8,6 +8,7 @@
 		public const string Address = "address";
 		public const string Order = "order";
 		public const string DateTime = "datetime";
+		public const string WaterType = "watertype";
 
 		//old
 		/*public const string LastOrderDataBottles = "lastorderdata_bottles";

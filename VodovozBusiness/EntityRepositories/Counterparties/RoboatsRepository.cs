@@ -67,6 +67,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
+		public IEnumerable<RoboatsWaterType> GetWaterTypes()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				return uow.GetAll<RoboatsWaterType>().ToList();
+			}
+		}
 
 		public int GetRoboatsCounterpartyNameId(int counterpartyId)
 		{
@@ -161,8 +168,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				DeliverySchedule deliveryScheduleAlias = null;
 
 				var query = uow.Session.QueryOver(() => deliveryScheduleAlias)
-					.Where(Restrictions.IsNotNull(Projections.Property(() => deliveryScheduleAlias.RoboatsId)))
-					.Select(Projections.Property(() => deliveryScheduleAlias.RoboatsId));
+					.Where(Restrictions.IsNotNull(Projections.Property(() => deliveryScheduleAlias.RoboatsAudiofile)))
+					.Select(Projections.Property(() => deliveryScheduleAlias.Id));
 				var result = query.List<int>();
 
 				return result;
@@ -289,7 +296,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				DeliverySchedule deliveryScheduleAlias = null;
 
 				var query = uow.Session.QueryOver(() => deliveryScheduleAlias)
-					.Where(() => deliveryScheduleAlias.RoboatsId == roboatsTimeId);
+					.Where(() => deliveryScheduleAlias.Id == roboatsTimeId);
 
 				var result = query.SingleOrDefault();
 				return result;
@@ -302,19 +309,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			{
 
 				var availaleWaters = uow.GetAll<RoboatsWaterType>().ToList();
-				/*Nomenclature nomenclatureAlias = null;
-				RoboatsWaterNode resultAlias = null;
-
-				var query = uow.Session.QueryOver(() => nomenclatureAlias)
-					.Where(Restrictions.IsNotNull(Projections.Property(() => nomenclatureAlias.RoboatsId)))
-					.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.NomenclatureId)
-						.Select(x => x.RoboatsId).WithAlias(() => resultAlias.RoboatsId)
-						.Select(x => x.RoboatsAudiofile).WithAlias(() => resultAlias.Audiofile)
-					)
-					.TransformUsing(Transformers.AliasToBean<RoboatsWaterNode>());
-
-				var result = query.List<RoboatsWaterNode>();*/
 				return availaleWaters;
 			}
 		}

@@ -29,32 +29,8 @@ namespace RoboAtsService.Requests
 					return new ClientCheckHandler(_roboatsRepository, request);
 				case RoboatsRequestType.DateTime:
 					return new DeliveryIntervalsHandler(_roboatsRepository, request);
-				/*case RoboatsRequestType.LastOrderDataBottles:
-					return new LastOrderBottleCountHandler(request);
-				case RoboatsRequestType.LastOrderDataReturn:
-					return new LastOrderDataReturnHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataAddressHouse:
-					return new LastOrderDataAddressHouseHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataAddressApartment:
-					return new LastOrderDataAddressApartmentHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataAddressCorp:
-					return new LastOrderDataAddressCorpusHandler(_roboatsRepository, request);
-				case RoboatsRequestType.QuantityAddress:
-					return new QuantityAddressHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataFirstNameCode:
-					return new LastOrderDataFirstNameCodeHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataPatronymicCode:
-					return new LastOrderDataPatronymicCodeHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataStreetCode:
-					return new LastOrderDataStreetCodeHandler(_roboatsRepository, request);
-				case RoboatsRequestType.Check:
-					return new CheckHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataFirstName:
-					return new LastOrderDataClientNameHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataLastName:
-					return new LastOrderDataClientNameHandler(_roboatsRepository, request);
-				case RoboatsRequestType.LastOrderDataPatronymic:
-					return new LastOrderDataClientNameHandler(_roboatsRepository, request);*/
+				case RoboatsRequestType.WaterType:
+					return new WaterTypeHandler(_roboatsRepository, request);
 				default:
 					return null;
 			}
