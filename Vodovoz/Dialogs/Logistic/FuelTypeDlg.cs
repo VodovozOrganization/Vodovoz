@@ -26,7 +26,11 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			yentryName.Binding.AddBinding 	  (Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			var canEdit = permissionResult.CanUpdate
+			              || (permissionResult.CanCreate && Entity.Id == 0);
+			yentryName.Sensitive = yspinbuttonCost.Sensitive = buttonSave.Sensitive = canEdit;
+
+			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yspinbuttonCost.Binding.AddBinding(Entity, e => e.Cost, w => w.ValueAsDecimal).InitializeFromSource();
 		}
 

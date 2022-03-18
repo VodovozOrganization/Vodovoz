@@ -10,6 +10,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 	{
 		public FuelTypeViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			CanEdit = PermissionResult.CanUpdate 
+			          || (PermissionResult.CanCreate && Entity.Id == 0);
 		}
+
+		public bool CanEdit { get; }
 	}
 }

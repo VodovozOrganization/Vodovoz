@@ -15,6 +15,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private void ConfigureDlg()
 		{
+			yentryName.Sensitive = yspinbuttonCost.Sensitive = buttonSave.Sensitive = ViewModel.CanEdit;
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yspinbuttonCost.Binding.AddBinding(ViewModel.Entity, e => e.Cost, w => w.ValueAsDecimal).InitializeFromSource();
 
