@@ -718,7 +718,8 @@ public partial class MainWindow : Gtk.Window
 		var commonServices = ServicesConfig.CommonServices;
 		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
 
-		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
+		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
+			x => x.Name,
 			() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
 			(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
