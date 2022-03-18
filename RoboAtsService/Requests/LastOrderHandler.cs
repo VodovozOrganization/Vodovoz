@@ -107,7 +107,7 @@ namespace RoboAtsService.Requests
 			List<string> results = new List<string>();
 			foreach(var waterItem in waterQuantity)
 			{
-				var roboatsWaterInfo = availableWaters.FirstOrDefault(x => x.NomenclatureId == waterItem.NomenclatureId);
+				var roboatsWaterInfo = availableWaters.FirstOrDefault(x => x.Nomenclature.Id == waterItem.NomenclatureId);
 				if(roboatsWaterInfo == null)
 				{
 					return ErrorMessage;

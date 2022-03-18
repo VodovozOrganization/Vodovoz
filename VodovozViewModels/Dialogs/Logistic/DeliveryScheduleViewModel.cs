@@ -91,43 +91,12 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 				return false; // нашли/разархивировали старый
 			}
 
-			return TrySave(close);
+			return base.Save(close);
 		}
 
 		protected override bool BeforeSave()
 		{
 			return RoboatsEntityViewModel.Save();
-		}
-
-		private bool TrySave(bool close)
-		{
-			try
-			{
-				SetLastRoboatsId();
-				return base.Save(close);
-			}
-			catch(ADOException ex) when ((ex.InnerException as MySqlException)?.Number == 1062) //duplicate entry
-			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "График доставки с текущем Id уже был сохранен или изменен другим пользователем, " +
-					"закройте вкладку и повторите попытку.", "Ошибка сохранения");
-				return false;
-			}
-		}
-
-		private void SetLastRoboatsId()
-		{
-			if(string.IsNullOrWhiteSpace(Entity.RoboatsAudiofile) && string.IsNullOrWhiteSpace(Entity.NewRoboatsAudiofile) && Entity.RoboatsId.HasValue)
-			{
-				Entity.RoboatsId = null;
-				return;
-			}
-
-			if(Entity.RoboatsId.HasValue || string.IsNullOrWhiteSpace(Entity.NewRoboatsAudiofile))
-			{
-				return;
-			}
-
-			Entity.RoboatsId = _deliveryScheduleRepository.GetNextRoboatsId();
 		}
 
 		public void Cancel()

@@ -18,7 +18,6 @@ namespace Vodovoz.Domain.Logistic
 		private TimeSpan _from;
 		private TimeSpan _to;
 		private Guid? _fileId;
-		private int? _roboatsId;
 		private string _roboatsAudiofile;
 		private bool _isArchive;
 
@@ -48,13 +47,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField (ref _to, value, () => To);
 		}
 
-		[Display(Name = "Id в справочнике Roboats")]
-		public virtual int? RoboatsId
-		{
-			get => _roboatsId;
-			set => SetField(ref _roboatsId, value);
-		}
-
 		[Display(Name = "Имя аудиозаписи Roboats")]
 		public virtual string RoboatsAudiofile
 		{
@@ -77,6 +69,7 @@ namespace Vodovoz.Domain.Logistic
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
+		public virtual int? RoboatsId => Id;
 
 		public virtual RoboatsEntityType RoboatsEntityType => RoboatsEntityType.DeliverySchedules;
 

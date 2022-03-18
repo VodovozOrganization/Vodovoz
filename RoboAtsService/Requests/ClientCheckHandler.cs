@@ -34,7 +34,37 @@ namespace RoboAtsService.Requests
 				return ErrorMessage;
 			}
 
-			return $"{counterpartyCount}";
+			var counterpartyId = counterpartyIds.First();
+
+			switch(RequestDto.RequestSubType)
+			{
+				case "firstname":
+					return GetCounterpartyNameId(counterpartyId);
+				case "patronymic":
+					return GetCounterpartyPatronymicId(counterpartyId);
+				default:
+					return $"{counterpartyCount}";
+			}
+		}
+
+		private string GetCounterpartyNameId(int counterpartyId)
+		{
+			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId);
+			if(nameId == 0)
+			{
+				return "NO DATA";
+			}
+			return $"{nameId}";
+		}
+
+		private string GetCounterpartyPatronymicId(int counterpartyId)
+		{
+			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId);
+			if(patronymicId == 0)
+			{
+				return "NO DATA";
+			}
+			return $"{patronymicId}";
 		}
 	}
 }

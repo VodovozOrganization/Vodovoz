@@ -1,9 +1,8 @@
-﻿using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
+﻿using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Osm.DTO;
+using QS.Utilities.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Roboats;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -64,6 +64,63 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 				var result = query.List<int>();
 				return result;
+			}
+		}
+
+
+		public int GetRoboatsCounterpartyNameId(int counterpartyId)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				Counterparty counterpartyAlias = null;
+				RoboAtsCounterpartyName counterpartyNameAlias = null;
+
+				var query = uow.Session.QueryOver(() => counterpartyAlias)
+					.Where(() => counterpartyAlias.Id == counterpartyId)
+					.Select(Projections.Property(() => counterpartyAlias.FullName));
+
+				var counterpartyName = query.SingleOrDefault<string>();
+
+				PersonHelper.SplitFullName(counterpartyName, out string lastName, out string firstName, out string patronymic);
+				if(string.IsNullOrWhiteSpace(firstName))
+				{
+					return 0;
+				}
+
+				var nameId = uow.Session.QueryOver(() => counterpartyNameAlias)
+					.Where(() => counterpartyNameAlias.Name == firstName)
+					.Select(Projections.Property(() => counterpartyNameAlias.Id))
+					.SingleOrDefault<int>();
+
+				return nameId;
+			}
+		}
+
+		public int GetRoboatsCounterpartyPatronymicId(int counterpartyId)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				Counterparty counterpartyAlias = null;
+				RoboAtsCounterpartyPatronymic counterpartyPatronymicAlias = null;
+
+				var query = uow.Session.QueryOver(() => counterpartyAlias)
+					.Where(() => counterpartyAlias.Id == counterpartyId)
+					.Select(Projections.Property(() => counterpartyAlias.FullName));
+
+				var counterpartyName = query.SingleOrDefault<string>();
+
+				PersonHelper.SplitFullName(counterpartyName, out string lastName, out string firstName, out string patronymic);
+				if(string.IsNullOrWhiteSpace(patronymic))
+				{
+					return 0;
+				}
+
+				var nameId = uow.Session.QueryOver(() => counterpartyPatronymicAlias)
+					.Where(() => counterpartyPatronymicAlias.Patronymic == patronymic)
+					.Select(Projections.Property(() => counterpartyPatronymicAlias.Id))
+					.SingleOrDefault<int>();
+
+				return nameId;
 			}
 		}
 
@@ -239,11 +296,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		public IEnumerable<RoboatsWaterNode> GetAvailableWaters()
+		public IEnumerable<RoboatsWaterType> GetAvailableWaters()
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				Nomenclature nomenclatureAlias = null;
+
+				var availaleWaters = uow.GetAll<RoboatsWaterType>().ToList();
+				/*Nomenclature nomenclatureAlias = null;
 				RoboatsWaterNode resultAlias = null;
 
 				var query = uow.Session.QueryOver(() => nomenclatureAlias)
@@ -255,8 +314,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					)
 					.TransformUsing(Transformers.AliasToBean<RoboatsWaterNode>());
 
-				var result = query.List<RoboatsWaterNode>();
-				return result;
+				var result = query.List<RoboatsWaterNode>();*/
+				return availaleWaters;
 			}
 		}
 

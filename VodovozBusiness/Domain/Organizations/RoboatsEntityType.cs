@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Organizations
 		[Display(Name = "Графики доставки")]
 		DeliverySchedules,
 		[Display(Name = "Улицы")]
-		Street,
+		Streets,
 		[Display(Name = "Типы воды")]
 		WaterTypes,
 		[Display(Name = "Имена контрагентов")]

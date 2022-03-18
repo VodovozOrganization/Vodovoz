@@ -38,7 +38,7 @@ namespace Vodovoz.EntityRepositories.Organizations
 			{
 				case RoboatsEntityType.DeliverySchedules:
 					return GetRoboatsEntity<DeliverySchedule>();
-				case RoboatsEntityType.Street:
+				case RoboatsEntityType.Streets:
 					return GetRoboatsEntity<RoboatsStreet>();
 				case RoboatsEntityType.WaterTypes:
 					return GetRoboatsEntity<RoboatsWaterType>();
@@ -63,7 +63,7 @@ namespace Vodovoz.EntityRepositories.Organizations
 				return query.List().Cast<IRoboatsEntity>();
 			}
 		}
-
+		/*
 		public IEnumerable<Nomenclature> GetWaterTypesForRoboats()
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
@@ -75,6 +75,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 				var result = query.List();
 				return result;
 			}
-		}
+		}*/
 	}
 }

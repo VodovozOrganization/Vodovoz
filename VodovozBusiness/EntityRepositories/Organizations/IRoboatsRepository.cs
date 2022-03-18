@@ -8,6 +8,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 	public interface IRoboatsRepository
 	{
 		IEnumerable<IRoboatsEntity> GetExportedEntities(RoboatsEntityType roboatsEntityType);
-		IEnumerable<Nomenclature> GetWaterTypesForRoboats();
+		//IEnumerable<Nomenclature> GetWaterTypesForRoboats();
 	}
 }

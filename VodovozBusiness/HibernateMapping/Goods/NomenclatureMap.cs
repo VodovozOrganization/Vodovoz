@@ -48,8 +48,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Description).Column("description");
 			Map(x => x.BottleCapColor).Column("bottle_cap_color");
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
-			Map(x => x.RoboatsId).Column("roboats_id");
-			Map(x => x.RoboatsAudiofile).Column("roboats_audiofile");
 
 			//Характеристики товара
 			Map(x => x.Color).Column("color");

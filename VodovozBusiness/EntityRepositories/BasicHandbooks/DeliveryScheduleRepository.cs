@@ -21,18 +21,5 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		{
 			return uow.Session.QueryOver<DeliverySchedule>().List<DeliverySchedule>();
 		}
-
-		public int GetNextRoboatsId()
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var lastRoboatsId = uow.Session.QueryOver<DeliverySchedule>()
-					.Select(x => x.RoboatsId)
-					.OrderBy(x => x.RoboatsId).Desc
-					.Take(1)
-					.SingleOrDefault<int>();
-				return lastRoboatsId + 1;
-			}
-		}
 	}
 }

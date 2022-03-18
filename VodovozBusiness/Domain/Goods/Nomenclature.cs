@@ -484,22 +484,6 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _purchasePrices, value);
 		}
 
-		private int? _roboatsId;
-		[Display(Name = "Id в справочнике Roboats")]
-		public int? RoboatsId
-		{
-			get { return _roboatsId; }
-			set { _roboatsId = value; }
-		}
-
-		private string _roboatsAudiofile;
-		[Display(Name = "Имя аудиозаписи Roboats")]
-		public string RoboatsAudiofile
-		{
-			get { return _roboatsAudiofile; }
-			set { _roboatsAudiofile = value; }
-		}
-
 		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
 

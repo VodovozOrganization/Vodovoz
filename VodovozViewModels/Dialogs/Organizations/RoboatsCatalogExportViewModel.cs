@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 
 			if(!validationService.ValidateEntityPermission(typeof(RoboatsStreet)).CanRead)
 			{
-				deniedEntityTypes.Add(RoboatsEntityType.Street);
+				deniedEntityTypes.Add(RoboatsEntityType.Streets);
 			}
 
 			if(!validationService.ValidateEntityPermission(typeof(RoboatsWaterType)).CanRead)
@@ -163,7 +163,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 					deliveryScheduleJournal.OnSelectResult += OnDeliveryScheduleJournalSelected;
 					Journal = deliveryScheduleJournal;
 					break;
-				case RoboatsEntityType.Street:
+				case RoboatsEntityType.Streets:
 					var streetJournal = _roboatsJournalsFactory.CreateStreetJournal();
 					streetJournal.SetForRoboatsCatalogExport(_openDialogCommand);
 					streetJournal.OnSelectResult += OnStreetJournalSelected;
@@ -327,13 +327,9 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 
 			foreach(var exportedItem in exportedItems)
 			{
-				if(!storage.FileExist(exportedItem.RoboatsAudiofile))
+				if(!storage.FileExist(exportedItem.FileId.ToString()))
 				{
 					incorrectFiles.Add(exportedItem);
-				}
-				if(exportedItem.RoboatsId == null || exportedItem.RoboatsId.Value <= 0)
-				{
-					incorrectRoboatsId.Add(exportedItem);
 				}
 			}
 
@@ -376,7 +372,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			foreach(var exportedItem in exportedItems)
 			{
 				var filePath = Path.Combine(audiofilesDirectory, exportedItem.RoboatsAudiofile);
-				if(!storage.TryTakeTo(exportedItem.RoboatsAudiofile, filePath, true))
+				if(!storage.TryTakeTo(exportedItem.FileId.ToString(), filePath, true))
 				{
 					return false;
 				}
@@ -410,7 +406,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 					var deliverySchedule = (roboatsEntity as DeliverySchedule);
 					title = $"{deliverySchedule.DeliveryTime} ({deliverySchedule.Id})";
 					break;
-				case RoboatsEntityType.Street:
+				case RoboatsEntityType.Streets:
 					var street = (roboatsEntity as RoboatsStreet);
 					title = $"{street.Type} {street.Name} ({street.Id})";
 					break;

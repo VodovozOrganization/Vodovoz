@@ -52,7 +52,7 @@ namespace Vodovoz.Domain.Organizations
 		}
 
 		public virtual int? RoboatsId => Id;
-		public virtual RoboatsEntityType RoboatsEntityType => RoboatsEntityType.Street;
+		public virtual RoboatsEntityType RoboatsEntityType => RoboatsEntityType.Streets;
 
 		#region IValidatableObject implementation
 

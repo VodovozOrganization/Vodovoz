@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Roboats
 {

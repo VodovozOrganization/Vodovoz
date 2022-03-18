@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,26 +15,20 @@ using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.HistoryLog;
 using QS.Project.DB;
-using QS.Project.Services;
+using QS.Project.Domain;
 using QS.Project.Versioning;
 using QS.Services;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Vodovoz;
-using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Models.Orders;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
 namespace RoboAtsService
 {
-    public class Startup
+	public class Startup
     {
 		private ILogger<Startup> _logger;
 
@@ -172,6 +164,7 @@ namespace RoboAtsService
 					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
+					System.Reflection.Assembly.GetAssembly(typeof(TypeOfEntity)),
 					System.Reflection.Assembly.GetAssembly(typeof(Attachment))
 				}
 			);

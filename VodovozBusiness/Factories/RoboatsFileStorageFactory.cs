@@ -44,7 +44,7 @@ namespace Vodovoz.Factories
 				case RoboatsEntityType.DeliverySchedules:
 					storagePath = _roboatsSettings.DeliverySchedulesAudiofilesFolder;
 					break;
-				case RoboatsEntityType.Street:
+				case RoboatsEntityType.Streets:
 					storagePath = _roboatsSettings.AddressesAudiofilesFolder;
 					break;
 				case RoboatsEntityType.WaterTypes:

@@ -10,7 +10,5 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		QueryOver<DeliverySchedule> AllQuery();
 		QueryOver<DeliverySchedule> NotArchiveQuery();
 		IList<DeliverySchedule> All(IUnitOfWork uow);
-
-		int GetNextRoboatsId();
 	}
 }

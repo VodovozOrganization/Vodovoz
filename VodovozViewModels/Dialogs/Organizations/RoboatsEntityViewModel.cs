@@ -134,7 +134,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			SetNewAudioFilePath(null);
 		}
 
-		private void SetNewAudioFilePath(string path)
+		public void SetNewAudioFilePath(string path)
 		{
 			Entity.NewRoboatsAudiofile = path;
 			_deleteFileNeeded = true;
