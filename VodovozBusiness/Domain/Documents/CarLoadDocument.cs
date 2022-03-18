@@ -140,8 +140,8 @@ namespace Vodovoz.Domain.Documents
 				return;
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
-				Warehouse.Id,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),
+				Warehouse.Id,
 				TimeStamp
 			);
 

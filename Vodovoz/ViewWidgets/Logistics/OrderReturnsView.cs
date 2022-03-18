@@ -25,6 +25,7 @@ using QS.Project.Journal;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Services;
+using QS.Utilities.Extensions;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.EntityFactories;
@@ -110,8 +111,11 @@ namespace Vodovoz
 		}
 
 		#region Поля и свойства
-		
+
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
+			new DeliveryRulesParametersProvider(_parametersProvider);
+		private static readonly IOrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
@@ -368,7 +372,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter())
+			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			_routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => { UpdateItemsList(); };
@@ -600,13 +604,13 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			IOrderParametersProvider orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
 			ValidationContext validationContext = new ValidationContext(_routeListItem.Order, null, new Dictionary<object, object>
 			{
 				{"NewStatus", OrderStatus.Closed},
 				{"AddressStatus", _routeListItem.Status}
 			});
-			validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+			validationContext.ServiceContainer.AddService(_orderParametersProvider);
+			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
 			_routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(_routeListItem.Order, validationContext);
 			_routeListItem.Order.CheckAndSetOrderIsService();
 			orderEquipmentItemsView.UnsubscribeOnEquipmentAdd();

@@ -70,6 +70,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using NHibernate;
 using QS.Utilities;
+using QS.Project.Services.FileDialog;
+using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -98,7 +101,7 @@ namespace Vodovoz
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
-		private IFilePickerService _filePickerService;
+		private IFileDialogService _fileDialogService;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -122,8 +125,8 @@ namespace Vodovoz
 		public virtual IRouteListItemRepository RouteListItemRepository =>
 			_routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
 
-		public virtual IFilePickerService FilePickerService =>
-			_filePickerService ?? (_filePickerService = new GtkFilePicker());
+		public virtual IFileDialogService FilePickerService =>
+			_fileDialogService ?? (_fileDialogService = new FileDialogService());
 
 		public virtual INomenclatureRepository NomenclatureRepository =>
 			_nomenclatureRepository ?? (_nomenclatureRepository =
@@ -211,7 +214,7 @@ namespace Vodovoz
 			}
 			set => base.HasChanges = value;
 		}
-		
+
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
@@ -234,6 +237,23 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id)
 		{
+		}
+
+		public CounterpartyDlg(NewCounterpartyParameters parameters)
+		{
+			Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+
+			Entity.Name = parameters.Name;
+			Entity.FullName = parameters.FullName;
+			Entity.INN = parameters.INN;
+			Entity.KPP = parameters.KPP;
+			Entity.PaymentMethod = parameters.PaymentMethod;
+			Entity.TypeOfOwnership = parameters.TypeOfOwnership;
+			Entity.PersonType = parameters.PersonType;
+			Entity.AddAccount(parameters.Account);
+
+			ConfigureDlg();
 		}
 
 		public CounterpartyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
@@ -268,7 +288,7 @@ namespace Vodovoz
 			_currentUserCanEditCounterpartyDetails =
 				UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_edit_counterparty_details", _currentUserId);
-			
+
 			if(UoWGeneric.Root.CounterpartyContracts == null)
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
@@ -475,7 +495,7 @@ namespace Vodovoz
 			// Прикрепляемые документы
 
 			var filesViewModel =
-				new CounterpartyFilesViewModel(Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository)
+				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
 				{
 					ReadOnly = !CanEdit
 				};
@@ -556,9 +576,8 @@ namespace Vodovoz
 			_phonesViewModel =
 				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
 			{
-				PhonesList = Entity.ObservablePhones, 
+				PhonesList = Entity.ObservablePhones,
 				Counterparty = Entity,
-				ShowRoboAtsCounterpartyNameAndPatronymic = true,
 				ReadOnly = !CanEdit
 			};
 			phonesView.ViewModel = _phonesViewModel;
@@ -668,7 +687,7 @@ namespace Vodovoz
 			yentrySignBaseOf.IsEditable = CanEdit;
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
-			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
+			accountsView.SetAccountOwner(UoW, Entity);
 		}
 
 		private void ConfigureTabProxies()

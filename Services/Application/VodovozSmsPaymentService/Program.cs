@@ -83,7 +83,8 @@ namespace VodovozSmsPaymentService
 					Database = mysqlDatabase,
 					UserID = mysqlUser,
 					Password = mysqlPassword,
-					SslMode = MySqlSslMode.None
+					SslMode = MySqlSslMode.None,
+					ConnectionTimeout = 30
 				};
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
@@ -98,12 +99,23 @@ namespace VodovozSmsPaymentService
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
 
 				QS.HistoryLog.HistoryMain.Enable();
 
-				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
+				var driverApiSection = configuration.GetSection("DriverAPI");
+
+				var driverApiHelperConfiguration = new DriverApiHelperConfiguration
+				{
+					ApiBase = new Uri(driverApiSection["ApiBase"]),
+					NotifyOfSmsPaymentStatusChangedURI = driverApiSection["NotifyOfSmsPaymentStatusChangedURI"],
+					NotifyOfFastDeliveryOrderAddedURI = driverApiSection["NotifyOfFastDeliveryOrderAddedURI"]
+				};
+
+				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever =
+					new DriverAPIHelper(driverApiHelperConfiguration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
 
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");

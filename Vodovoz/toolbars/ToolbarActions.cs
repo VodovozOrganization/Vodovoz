@@ -435,8 +435,7 @@ public partial class MainWindow : Window
 
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
-		var subdivisionRepository = autofacScope.Resolve<ISubdivisionRepository>();
-		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
+		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
 
 		var page = NavigationManager.OpenViewModel<SalaryByEmployeeJournalViewModel, SalaryByEmployeeJournalFilterViewModel>(null, filter);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -534,6 +533,7 @@ public partial class MainWindow : Window
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
+		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
 
 		tdiMain.OpenTab(
@@ -542,6 +542,7 @@ public partial class MainWindow : Window
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
 				routeListRepository,
+				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
 				new CategoryRepository(parametersProvider)
@@ -648,6 +649,7 @@ public partial class MainWindow : Window
 					new EmployeeJournalFactory(),
 					new GeographicGroupRepository(),
 					new ScheduleRestrictionRepository(),
+					new CarModelJournalFactory(),
 					new GeographicGroupParametersProvider(parametersProvider)
 				)
 			);
@@ -746,7 +748,8 @@ public partial class MainWindow : Window
 				ServicesConfig.CommonServices.UserService,
 				SingletonErrorReporter.Instance),
             new OrderPaymentSettings(parametersProvider),
-			new OrderParametersProvider(new ParametersProvider()),
+			new OrderParametersProvider(parametersProvider),
+			new DeliveryRulesParametersProvider(parametersProvider),
 			VodovozGtkServicesConfig.EmployeeService
 		);
 
@@ -779,7 +782,7 @@ public partial class MainWindow : Window
 		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 
 		var expenseCategoryFactory = new ExpenseCategorySelectorFactory();
 
@@ -935,7 +938,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		var filter = autofacScope.Resolve<RouteListJournalFilterViewModel>();
+		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
 		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
@@ -943,18 +946,20 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
-    }
+		var page = NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
+		page.ViewModel.NavigationManager = NavigationManager;
+	}
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
 		var employeeRepository = new EmployeeRepository();
 		var chatRepository = new ChatRepository();
 		var trackRepository = new TrackRepository();
+		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider)
 		);
 	}
 
@@ -1143,9 +1148,9 @@ public partial class MainWindow : Window
 			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
 	}
 
-	void ActionCarEventsJournalActivated(object sender, System.EventArgs e)
+	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 

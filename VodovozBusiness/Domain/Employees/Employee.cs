@@ -14,6 +14,7 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
@@ -188,13 +189,20 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref largusDriver, value, () => LargusDriver); }
 		}
 
-		private CarTypeOfUse? driverOf;
+		private CarTypeOfUse? _driverOfCarTypeOfUse;
 		[Display(Name = "Водитель автомобиля типа")]
-		public virtual CarTypeOfUse? DriverOf {
-			get { return driverOf; }
-			set { SetField(ref driverOf, value, () => DriverOf); }
+		public virtual CarTypeOfUse? DriverOfCarTypeOfUse {
+			get => _driverOfCarTypeOfUse;
+			set => SetField(ref _driverOfCarTypeOfUse, value);
 		}
-		
+
+		private CarOwnType? _driverOfCarOwnType;
+		[Display(Name = "Водитель автомобиля принадлежности")]
+		public virtual CarOwnType? DriverOfCarOwnType {
+			get => _driverOfCarOwnType;
+			set => SetField(ref _driverOfCarOwnType, value);
+		}
+
 		private Gender? gender;
 		[Display(Name = "Пол сотрудника")]
 		public virtual Gender? Gender {
@@ -451,9 +459,13 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if (Category == EmployeeCategory.driver && DriverOf == null) {
-				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
-					new[] { nameof(DriverOf) });
+			if(Category == EmployeeCategory.driver)
+			{
+				if(DriverOfCarTypeOfUse == null || DriverOfCarOwnType == null)
+				{
+					yield return new ValidationResult(@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
+						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
+				}
 			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionParametersProvider.GetParentVodovozSubdivisionId())
@@ -543,13 +555,20 @@ namespace Vodovoz.Domain.Employees
 
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
 			if(defaultLevel == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
 			if(defaultLevelForOurCar == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
+				return;
+			}
+
+			var defaultLevelForRaskatCar = wageRepository.DefaultLevelForNewEmployeesOnRaskatCars(UoW);
+			if(defaultLevelForRaskatCar == null)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
@@ -560,7 +579,8 @@ namespace Vodovoz.Domain.Employees
 				case EmployeeCategory.driver:
 					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter {
 						WageParameterItem = new ManualWageParameterItem(),
-						WageParameterItemForOurCars = new ManualWageParameterItem()
+						WageParameterItemForOurCars = new ManualWageParameterItem(),
+						WageParameterItemForRaskatCars = new ManualWageParameterItem()
 					};
 					if(VisitingMaster && !IsDriverForOneDay) {
 						parameterForDriver = new EmployeeWageParameter {
@@ -568,6 +588,10 @@ namespace Vodovoz.Domain.Employees
 								PercentWageType = PercentWageTypes.Service
 							},
 							WageParameterItemForOurCars = new PercentWageParameterItem {
+								PercentWageType = PercentWageTypes.Service
+							},
+							WageParameterItemForRaskatCars = new PercentWageParameterItem
+							{
 								PercentWageType = PercentWageTypes.Service
 							}
 						};
@@ -579,6 +603,10 @@ namespace Vodovoz.Domain.Employees
 							},
 							WageParameterItemForOurCars = new RatesLevelWageParameterItem {
 								WageDistrictLevelRates = defaultLevelForOurCar
+							},
+							WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
+							{
+								WageDistrictLevelRates = defaultLevelForRaskatCar
 							}
 						};
 					}
@@ -593,6 +621,10 @@ namespace Vodovoz.Domain.Employees
 						WageParameterItemForOurCars = new RatesLevelWageParameterItem
 						{
 							WageDistrictLevelRates = defaultLevelForOurCar
+						},
+						WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
+						{
+							WageDistrictLevelRates = defaultLevelForRaskatCar
 						}
 					};
 					ChangeWageParameter(parameterForForwarder, DateTime.Today);

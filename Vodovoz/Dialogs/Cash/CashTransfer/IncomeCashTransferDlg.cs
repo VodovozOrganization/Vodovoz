@@ -10,11 +10,6 @@ using Vodovoz.ViewModelBased;
 using Vodovoz.Domain.Cash;
 using Gtk;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModel;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 

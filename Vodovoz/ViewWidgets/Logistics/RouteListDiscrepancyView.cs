@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using Gamma.GtkWidgets;
 using Gtk;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class RouteListDiscrepancyView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		public RouteListDiscrepancyView()
@@ -34,6 +34,7 @@ namespace Vodovoz
 		/// Sensitive теперь работает только с таблицей
 		/// К сожалению Gtk обходит этот параметр, если выставлять Sensitive какому-либо элементу управления выше по дереву
 		/// </summary>
+		[Browsable(false)]
 		public new bool Sensitive
         {
 			get => ytreeRouteListDiscrepancyItemsView.Sensitive;
@@ -60,6 +61,9 @@ namespace Vodovoz
 				.AddColumn("От \nклиента")
 					.AddNumericRenderer(node => node.PickedUpFromClient)
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+				.AddColumn("Запас")
+					.AddNumericRenderer(node => node.AdditionaLoading)
+					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddColumn("Расхо-\nждения")
 					.AddNumericRenderer(node => node.Remainder)
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
@@ -82,21 +86,8 @@ namespace Vodovoz
 			});
 		}
 
-		public void FindDiscrepancies(IList<RouteListItem> items, List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse) {
+		public void FindDiscrepancies(List<ReturnsNode> allReturnsToWarehouse) {
 			Items = RouteList.GetDiscrepancies(ItemsLoaded, allReturnsToWarehouse);
-		}
-	}
-
-	public class EquipmentKindGroupingResult
-	{
-		public EquipmentKind EquipmentKind { get; set; }
-		public int Amount { get; set; }
-		public static EquipmentKindGroupingResult Selector(EquipmentKind kind, IEnumerable<int> amounts)
-		{
-			return new EquipmentKindGroupingResult {
-				EquipmentKind = kind,
-				Amount = amounts.Sum()
-			};
 		}
 	}
 }

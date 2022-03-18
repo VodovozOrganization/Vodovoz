@@ -5,7 +5,6 @@ using System.Threading;
 using ClientMangoService;
 using Gtk;
 using MangoService;
-using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -16,11 +15,10 @@ using QS.Services;
 using QS.Utilities.Debug;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
+using xNetStandard;
 
 namespace Vodovoz.Infrastructure.Mango
 {
@@ -40,8 +38,6 @@ namespace Vodovoz.Infrastructure.Mango
 		private IPage CurrentPage;
 		private uint timer;
 		private MangoController _mangoController;
-		private readonly string[] _exceptionMessagesToCatch =
-			{ "The error on the client side. Status code: 503", "The error on the client side. Status code: 429" };
 
 		public MangoManager(Gtk.Action toolbarIcon,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -358,9 +354,9 @@ namespace Vodovoz.Infrastructure.Mango
 			{
 				_mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
 			}
-			catch(Exception e)
+			catch(HttpException e)
 			{
-				if(e.InnerException != null && _exceptionMessagesToCatch.Contains(e.InnerException.Message))
+				if(e.HttpStatusCode == HttpStatusCode.TooManyRequests || e.HttpStatusCode == HttpStatusCode.ServiceUnavailable)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
 				}

@@ -60,6 +60,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PaymentBySms)                      .Column("payment_by_sms");
 			Map(x => x.ODZComment)                        .Column("odz_comment");
 			Map(x => x.OPComment)                         .Column("op_comment");
+			Map(x => x.IsFastDelivery)                    .Column("is_fast_delivery");
 
 			Map(x => x.OrderStatus)                       .Column("order_status")
 				.CustomType<OrderStatusStringType>();

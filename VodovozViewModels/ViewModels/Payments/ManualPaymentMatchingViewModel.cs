@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
@@ -172,20 +173,23 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 		}
 
-		public bool CanRevertPay => SelectedAllocatedNode != null && CanRevertPayFromOrderPermission;
+		public bool CanRevertPay =>
+			SelectedAllocatedNode != null
+			&& SelectedAllocatedNode.PaymentItemStatus != AllocationStatus.Cancelled
+			&& CanRevertPayFromOrderPermission;
 
 		#endregion
 
 		public void GetLastBalance()
 		{
 			LastBalance = Entity.Counterparty != null
-				? _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id)
+				? _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
 				: default(decimal);
 		}
 
 		public void UpdateSumToAllocate()
 		{
-			if(Entity.CashlessMovementOperation == null)
+			if(Entity.CashlessMovementOperation == null && !Entity.IsRefundPayment)
 			{
 				SumToAllocate = Entity.Total + LastBalance;
 			}
@@ -375,7 +379,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			AddCounterpatyCommand = new DelegateCommand(
 				() =>
 				{
-					var client = new Domain.Client.Counterparty
+					var parameters = new NewCounterpartyParameters
 					{
 						Name = Entity.CounterpartyName,
 						FullName = Entity.CounterpartyName,
@@ -385,34 +389,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						TypeOfOwnership = TryGetOrganizationType(Entity.CounterpartyName)
 					};
 
-					if(client.TypeOfOwnership != null)
+					if(parameters.TypeOfOwnership != null)
 					{
-						client.PersonType = PersonType.legal;
+						parameters.PersonType = PersonType.legal;
 					}
 					else
 					{
-						if(AskQuestion($"Не удалось определить тип контрагента. Контрагент \"{Entity.CounterpartyName}\" является юридическим лицом?"))
-						{
-							client.PersonType = PersonType.legal;
-						}
-						else
-						{
-							client.PersonType = PersonType.natural;
-						}
+						parameters.PersonType =
+							AskQuestion(
+								$"Не удалось определить тип контрагента. Контрагент \"{Entity.CounterpartyName}\" является юридическим лицом?")
+								? PersonType.legal
+								: PersonType.natural;
 					}
 
-					Bank bank = FillBank(Entity);
+					var bank = FillBank(Entity);
+					parameters.Account = new Account { Number = Entity.CounterpartyCurrentAcc, InBank = bank };
 
-					client.AddAccount(new Account
-					{
-						Number = Entity.CounterpartyCurrentAcc,
-						InBank = bank
-					});
+					var dlg = _dialogsFactory.CreateCounterpartyDlg(parameters);
 
-					UoW.Save(client);
-
-					var dlg =
-						_dialogsFactory.CreateCounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(client.Id, UoW), UnitOfWorkFactory);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.EntitySaved += NewCounterpartySaved;
 				}
@@ -451,6 +445,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			if(!valid)
 			{
 				return;
+			}
+
+			if(Entity.Status == PaymentState.Cancelled)
+			{
+				ShowWarningMessage($"Платеж находится в статусе {Entity.Status.GetEnumTitle()} распределения не возможны!");
 			}
 
 			if(CurrentBalance < 0)
@@ -567,13 +566,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			CounterpartyContract contractAlias = null;
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(x => x.Contract, () => contractAlias)
-					.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
-					.Where(x => x.OrderStatus != OrderStatus.Canceled)
-					.And(x => x.OrderStatus != OrderStatus.DeliveryCanceled)
-					.And(x => x.OrderStatus != OrderStatus.NotDelivered)
-					.And(x => x.PaymentType == PaymentType.cashless)
-					.And(() => organisationAlias.Id == Entity.Organization.Id);
+				.Left.JoinAlias(o => o.Contract, () => contractAlias)
+				.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
+				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
+				.And(o => o.PaymentType == PaymentType.cashless)
+				.And(() => organisationAlias.Id == Entity.Organization.Id);
 
 			if(Entity.Counterparty != null)
 			{
@@ -601,6 +598,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			var lastPayment = QueryOver.Of(() => paymentItemAlias)
 				.Where(() => paymentItemAlias.Order.Id == orderAlias.Id)
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => paymentItemAlias.Sum));
 
 			var orderSum = QueryOver.Of(() => orderItemAlias)
@@ -644,8 +642,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				.Inner.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Where(() => paymentItemAlias.Payment.Id == Entity.Id);
 
-			var allocatedSum = QueryOver.Of(() => paymentItemAlias2)
+			var allAllocatedSum = QueryOver.Of(() => paymentItemAlias2)
 				.Where(() => paymentItemAlias2.Order.Id == orderAlias.Id)
+				.And(() => paymentItemAlias2.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => paymentItemAlias2.Sum));
 
 			var orderSum = QueryOver.Of(() => orderItemAlias)
@@ -659,9 +658,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
-					.Select(() => paymentItemAlias.Sum).WithAlias(() => resultAlias.AllocatedSum)
+					.Select(() => paymentItemAlias.PaymentItemStatus).WithAlias(() => resultAlias.PaymentItemStatus)
+					.Select(Projections.Conditional(
+						Restrictions.Eq(Projections.Property(() => paymentItemAlias.PaymentItemStatus), AllocationStatus.Accepted),
+						Projections.Property(() => paymentItemAlias.Sum),
+						Projections.Constant(0m))).WithAlias(() => resultAlias.AllocatedSum)
 					.SelectSubQuery(orderSum).WithAlias(() => resultAlias.OrderSum)
-					.SelectSubQuery(allocatedSum).WithAlias(() => resultAlias.AllAllocatedSum))
+					.SelectSubQuery(allAllocatedSum).WithAlias(() => resultAlias.AllAllocatedSum))
 				.TransformUsing(Transformers.AliasToBean<ManualPaymentMatchingViewModelAllocatedNode>())
 				.List<ManualPaymentMatchingViewModelAllocatedNode>();
 
@@ -750,5 +753,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public decimal AllocatedSum { get; set; }
 		public decimal AllAllocatedSum { get; set; }
 		public OrderPaymentStatus OrderPaymentStatus { get; set; }
+		public AllocationStatus PaymentItemStatus { get; set; }
 	}
 }

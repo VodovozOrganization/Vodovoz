@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -470,8 +468,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -493,8 +490,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -517,8 +513,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -541,8 +536,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -565,8 +559,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -589,8 +582,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -613,8 +605,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -637,8 +628,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -661,8 +651,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -685,8 +674,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -709,8 +697,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -733,8 +720,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -757,8 +743,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
@@ -784,8 +769,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>5pt</PaddingLeft>
@@ -808,8 +792,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>5pt</PaddingLeft>
@@ -832,8 +815,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>5pt</PaddingLeft>
@@ -856,8 +838,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>5pt</PaddingLeft>
@@ -883,8 +864,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -905,8 +885,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -927,8 +906,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -949,8 +927,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -971,8 +948,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox86">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1140,8 +1116,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1162,8 +1137,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1184,8 +1158,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1206,8 +1179,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox104">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1228,8 +1200,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox110">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1650,8 +1621,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1674,8 +1644,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1698,8 +1667,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1722,8 +1690,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1747,8 +1714,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1770,8 +1736,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1794,8 +1759,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1818,8 +1782,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1842,8 +1805,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1866,8 +1828,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1890,8 +1851,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1914,8 +1874,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1938,8 +1897,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1962,8 +1920,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1986,8 +1943,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -2010,8 +1966,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -2034,8 +1989,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
@@ -2064,8 +2018,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2086,8 +2039,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2108,8 +2060,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2130,8 +2081,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2166,16 +2116,14 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2196,8 +2144,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2344,8 +2291,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2366,8 +2312,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2388,8 +2333,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox84">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2410,8 +2354,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2509,14 +2452,14 @@
     CashIncomeDocument.CashIncomeDates,
     CashIncomeDocument.employee_name,
 
-    IFNULL(nedovoz.order_sum, 0) AS NedovozSum,
+    IFNULL(nedovoz.TotalNedovozSum, 0) AS NedovozSum,
     IFNULL(internal_transfer.TotalOrdersSum, 0) AS TransferedSum,
     transferML.TransferedFromML,
     transferML.TransferedToML,
 
     (IFNULL(CashIncomeDocument.MoneyIncome,0) - IFNULL(CashExpenceDocument.MoneyExpence, 0))/*Факт*/
         - IFNULL(Orders.TotalOrdersSum, 0)/*План*/
-        + IFNULL(nedovoz.order_sum, 0)
+        + IFNULL(nedovoz.TotalNedovozSum, 0)
         -IFNULL(internal_transfer.TotalOrdersSum, 0) as unspecified_balance
 FROM
     route_lists
@@ -2584,9 +2527,11 @@ FROM
 
         LEFT JOIN #недовозы
         (
-            SELECT
+            SELECT route_list_id, ROUND(SUM(order_sum),2) AS TotalNedovozSum
+            FROM
+            (SELECT
                 route_list_addresses.route_list_id,
-                ROUND(SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)), 2) as order_sum
+                SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)) as order_sum
             FROM
                 route_list_addresses
                     JOIN orders AS ord ON ord.id = route_list_addresses.order_id
@@ -2597,6 +2542,23 @@ FROM
               AND ord.payment_type IN ('cash','BeveragesWorld')
             GROUP BY
                 route_list_addresses.route_list_id
+
+            UNION
+
+            SELECT
+                route_list_addresses.route_list_id as rl_id,
+                - SUM(IFNULL(order_deposit_items.count * order_deposit_items.deposit_sum, 0)) AS order_sum
+            FROM
+                route_list_addresses
+                JOIN orders AS ord ON ord.id = route_list_addresses.order_id
+                LEFT JOIN order_deposit_items ON order_deposit_items.order_id = ord.id
+            WHERE
+                  ord.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
+              AND route_list_addresses.transfered_to_id IS NULL
+              AND ord.payment_type IN ('cash','BeveragesWorld')
+            GROUP BY route_list_addresses.route_list_id
+            ) AS nedovoz_sum
+            GROUP BY route_list_id
         ) AS nedovoz ON nedovoz.route_list_id = route_lists.id
 
         LEFT JOIN #переносы
@@ -2647,7 +2609,7 @@ WHERE
   AND route_lists.date &gt;= @StartDate
   AND route_lists.date &lt;= @EndDate
 GROUP BY route_lists.id
-
+;
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
@@ -2720,7 +2682,7 @@ GROUP BY route_lists.id
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>SELECT
@@ -2884,7 +2846,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2969,16 +2931,14 @@ GROUP BY route_lists.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>System.String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

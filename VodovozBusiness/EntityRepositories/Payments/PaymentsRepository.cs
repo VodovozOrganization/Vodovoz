@@ -63,25 +63,37 @@ namespace Vodovoz.EntityRepositories.Payments
 			return payment != null;
 		}
 
-		public decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId)
+		public decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId)
 		{
-			CashlessMovementOperation cashlessOperationAlias = null;
-			Payment paymentAlias = null;
-			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessIncomeOperationAlias = null;
+			CashlessMovementOperation cashlessExpenseOperationAlias = null;
 
-			var income = uow.Session.QueryOver(() => paymentAlias)
-									.Left.JoinAlias(() => paymentAlias.CashlessMovementOperation, () => cashlessOperationAlias)
-									.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
-									.Select(Projections.Sum(() => cashlessOperationAlias.Income))
-									.SingleOrDefault<decimal>();
+			var income = uow.Session.QueryOver(() => cashlessIncomeOperationAlias)
+				.Where(() => cashlessIncomeOperationAlias.Counterparty.Id == counterpartyId)
+				.And(() => cashlessIncomeOperationAlias.Organization.Id == organizationId)
+				.Where(() => cashlessIncomeOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessIncomeOperationAlias.Income))
+				.SingleOrDefault<decimal>();
 
-			var expense = uow.Session.QueryOver(() => paymentItemAlias)
-									.Left.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
-									.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
-									.Select(Projections.Sum(() => paymentItemAlias.Sum))
-									.SingleOrDefault<decimal>();
+			var expense = uow.Session.QueryOver(() => cashlessExpenseOperationAlias)
+				.Where(() => cashlessExpenseOperationAlias.Counterparty.Id == counterpartyId)
+				.And(() => cashlessExpenseOperationAlias.Organization.Id == organizationId)
+				.Where(() => cashlessExpenseOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessExpenseOperationAlias.Expense))
+				.SingleOrDefault<decimal>();
 
 			return income - expense;
+		}
+		
+		public int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId)
+		{
+			return uow.Session.QueryOver<Payment>()
+				.Where(p => p.IsManuallyCreated)
+				.And(p => p.Counterparty.Id == counterpartyId)
+				.And(p => p.Organization.Id == organizationId)
+				.And(p => p.Date.Year == DateTime.Today.Year)
+				.Select(Projections.Max<Payment>(p => p.PaymentNum))
+				.SingleOrDefault<int>();
 		}
 
 		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider)
@@ -103,43 +115,54 @@ namespace Vodovoz.EntityRepositories.Payments
 			return distributedPayments;
 		}
 
-		public Payment GetRefundPayment(IUnitOfWork uow, int refundedPaymentId)
+		public Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId)
 		{
-			var refund = uow.Session.QueryOver<Payment>()
-				.Where(p => p.RefundedPayment.Id == refundedPaymentId)
+			return uow.Session.QueryOver<Payment>()
+				.Where(p => p.RefundPaymentFromOrderId == orderId)
+				.And(p => p.Status != PaymentState.Cancelled)
 				.SingleOrDefault();
-			return refund;
 		}
 		
 		public IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-			IUnitOfWork uow, int counterpartyId, int organizationId)
+			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments)
 		{
+			Payment paymentAlias = null;
 			PaymentItem paymentItemAlias = null;
-			CashlessMovementOperation cashlessMovementOperationAlias = null;
 			NotFullyAllocatedPaymentNode resultAlias = null;
 
-			var payments = uow.Session.QueryOver<Payment>()
-				.Left.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
-				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+			var query = uow.Session.QueryOver(() => paymentAlias)
 				.Where(p => p.Counterparty.Id == counterpartyId)
-				.And(p => p.Organization.Id == organizationId)
-				.And(Restrictions.GtProperty(
-					Projections.Property<Payment>(p => p.Total),
-					Projections.Sum(Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
-						NHibernateUtil.Decimal,
-						Projections.Property(() => cashlessMovementOperationAlias.Expense),
-						Projections.Constant(0)))))
-				.SelectList(list =>
+				.And(p => p.Organization.Id == organizationId);
+
+			if(allocateCompletedPayments)
+			{ 
+				query.And(p => p.Status == PaymentState.completed);
+			}
+			else
+			{
+				query.And(p => p.Status != PaymentState.Cancelled);
+			}
+
+			var unAllocatedSumProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
+				NHibernateUtil.Decimal,
+				Projections.Property(() => paymentAlias.Total),
+				Projections.Sum(() => paymentItemAlias.Sum),
+				Projections.Constant(0));
+			
+			var unAllocatedSum = QueryOver.Of(() => paymentItemAlias)
+				.Where(pi => pi.Payment.Id == paymentAlias.Id)
+				.And(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(unAllocatedSumProjection);
+
+			var payments = query.SelectList(list =>
 					list.SelectGroup(p => p.Id).WithAlias(() => resultAlias.Id)
-						.Select(Projections.Sum(Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
-							NHibernateUtil.Decimal,
-							Projections.Property(() => cashlessMovementOperationAlias.Expense),
-							Projections.Constant(0))))
-						.WithAlias(() => resultAlias.AllocatedSum)
-						.Select(p => p.Total).WithAlias(() => resultAlias.PaymentSum))
+						.SelectSubQuery(unAllocatedSum).WithAlias(() => resultAlias.UnallocatedSum)
+						.Select(p => p.Date).WithAlias(() => resultAlias.PaymentDate))
+				.Where(Restrictions.Gt(Projections.SubQuery(unAllocatedSum), 0))
 				.TransformUsing(Transformers.AliasToBean<NotFullyAllocatedPaymentNode>())
+				.OrderBy(Projections.SubQuery(unAllocatedSum)).Desc
+				.OrderBy(p => p.Date).Asc
 				.List<NotFullyAllocatedPaymentNode>();
 
 			return payments;
@@ -167,11 +190,13 @@ namespace Vodovoz.EntityRepositories.Payments
 			var income = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Income));
 			
 			var expense = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Expense));
 
 			var balanceProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - ?2"),
@@ -205,6 +230,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.Inner.JoinAlias(() => orderAlias2.DeliverySchedule, () => deliveryScheduleAlias2)
 				.Where(() => orderAlias2.Client.Id == counterpartyAlias.Id)
 				.And(() => orderOrganizationAlias.Id == organizationAlias.Id)
+				.And(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.And(() => orderAlias2.OrderStatus == OrderStatus.Shipped
 					|| orderAlias2.OrderStatus == OrderStatus.UnloadingOnStock
 					|| orderAlias2.OrderStatus == OrderStatus.Closed)
@@ -249,7 +275,7 @@ namespace Vodovoz.EntityRepositories.Payments
 	public class NotFullyAllocatedPaymentNode
 	{
 		public int Id { get; set; }
-		public decimal AllocatedSum { get; set; }
-		public decimal PaymentSum { get; set; }
+		public decimal UnallocatedSum { get; set; }
+		public DateTime PaymentDate { get; set; }
 	}
 }

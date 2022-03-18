@@ -27,88 +27,94 @@
                  NULL,
                  employees.patronymic)) AS driver_name,
     IFNULL((SELECT
-                    SUM(total_cash) - IFNULL(money, 0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
-            FROM
-                route_list_addresses
-            WHERE
-                    route_list_addresses.status = 'Completed'
-              AND route_list_addresses.route_list_id = routeListId),
+        SUM(total_cash) - IFNULL(money, 0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
+    FROM
+        route_list_addresses
+    WHERE
+          route_list_addresses.status = 'Completed'
+      AND route_list_addresses.route_list_id = routeListId),
            0) AS nal,
-    (SELECT 
-         cast(SUM(order_items.count) as SIGNED)
-     FROM
-         route_list_addresses
-             LEFT JOIN
-         orders ON orders.id = route_list_addresses.order_id
-             LEFT JOIN
-         order_items ON order_items.order_id = orders.id
-             LEFT JOIN
-         nomenclature ON nomenclature.id = order_items.nomenclature_id
-     WHERE
-             nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-       AND route_list_addresses.route_list_id = routeListId) AS bottles,
+    (SELECT
+        cast(SUM(order_items.count) as SIGNED)
+    FROM
+        route_list_addresses
+        LEFT JOIN
+            orders ON orders.id = route_list_addresses.order_id
+        LEFT JOIN
+            order_items ON order_items.order_id = orders.id
+        LEFT JOIN
+            nomenclature ON nomenclature.id = order_items.nomenclature_id
+    WHERE
+        nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
+                                        AND route_list_addresses.route_list_id = routeListId) AS bottles,
     SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
     (SELECT
-         ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
-                      0))
-     FROM
-         warehouse_movement_operations
-             LEFT JOIN
-         store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-             LEFT JOIN
-         store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
-             LEFT JOIN
-         nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-     WHERE
-             nomenclature.category = 'bottle'
-       AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
+        ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
+                     0))
+    FROM
+        warehouse_movement_operations
+        LEFT JOIN
+            store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+        LEFT JOIN
+            store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+        LEFT JOIN
+            nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+    WHERE
+          nomenclature.category = 'bottle'
+      AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
     closing_comment
 FROM
     route_lists
-        LEFT JOIN
-    employees ON employees.id = route_lists.driver_id
-        LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN
-    orders ON route_list_addresses.order_id = orders.id
-        LEFT JOIN
-    cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
-        LEFT JOIN
-    cars ON cars.id = route_lists.car_id
-        INNER JOIN 
-    (
-        SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
-        WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
-        GROUP BY ggte.route_list_id
-    ) AS gg ON gg.route_list_id = route_lists.id
+    LEFT JOIN
+        employees ON employees.id = route_lists.driver_id
+    LEFT JOIN
+        route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+    LEFT JOIN
+        orders ON route_list_addresses.order_id = orders.id
+    LEFT JOIN
+        cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
+    LEFT JOIN
+        cars ON cars.id = route_lists.car_id
+    INNER JOIN
+        (
+            SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
+            WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
+            GROUP BY ggte.route_list_id
+        ) AS gg ON gg.route_list_id = route_lists.id
+    INNER JOIN car_models cm ON cars.model_id = cm.id
+    INNER JOIN
+        car_versions cv ON cars.id = cv.car_id
+            AND cv.start_date &lt;= route_lists.date
+            AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
-        route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
-  # скрыть сегодняшние МЛ
-  AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
-  # скрыть МЛ с фурами
-  AND ((@RemTruckRLs = 1 AND !(cars.type_of_use IS NOT NULL AND cars.type_of_use = 'CompanyTruck')) OR @RemTruckRLs = 0)
-  # скрыть МЛ с выездными мастерами
-  AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
-  # скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
-  AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'CompanyTruck')) OR @RemMercRLs = 0)
+      route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
+  AND (@show_today_route_lists OR route_lists.date &lt; CURDATE())
+  AND (
+      CASE @include_visiting_masters
+          WHEN 'True' THEN employees.visiting_master = 1
+          WHEN 'False' THEN employees.visiting_master = 0
+          ELSE TRUE
+      END)
+  AND cm.car_type_of_use IN (@car_types_of_use)
+  AND cv.car_own_type IN (@car_own_types)
 GROUP BY routeListId
 ORDER BY routeListDate, routeListId
 ;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="@todayRloff">
-            <Value>={?todayRloff}</Value>
-          </QueryParameter>
-          <QueryParameter Name="@RemTruckRLs">
-            <Value>={?RemTruckRLs}</Value>
-          </QueryParameter>
-          <QueryParameter Name="@RemServiceRLs">
-            <Value>={?RemServiceRLs}</Value>
-          </QueryParameter>
-          <QueryParameter Name="@RemMercRLs">
-            <Value>={?RemMercRLs}</Value>
-          </QueryParameter>
           <QueryParameter Name="@geographic_group_id">
             <Value>={?geographic_group_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_types_of_use">
+            <Value>={?car_types_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_own_types">
+            <Value>={?car_own_types}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@show_today_route_lists">
+            <Value>={?show_today_route_lists}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@include_visiting_masters">
+            <Value>={?include_visiting_masters}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -195,10 +201,10 @@ ORDER BY routeListDate, routeListId
             <Width>23.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.1pt</Width>
+            <Width>46.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.9pt</Width>
+            <Width>38.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>105.7pt</Width>
@@ -207,28 +213,25 @@ ORDER BY routeListDate, routeListId
             <Width>58.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.3pt</Width>
+            <Width>42.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.8pt</Width>
+            <Width>51.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>126.0pt</Width>
+            <Width>171.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>127.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>84.9pt</Width>
+            <Width>171.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>36.9pt</Height>
+              <Height>42.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -318,7 +321,9 @@ ORDER BY routeListDate, routeListId
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>Отгруженных бутылей</Value>
+                      <Value>Отгру-
+женных
+бутылей</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -338,7 +343,10 @@ ORDER BY routeListDate, routeListId
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Предполаг. возвратная тара</Value>
+                      <Value>Предпо-
+лагаемая
+возврат.
+тара</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -412,23 +420,6 @@ ORDER BY routeListDate, routeListId
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>Ответственный</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -451,6 +442,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -469,6 +461,7 @@ ORDER BY routeListDate, routeListId
                         <Format>dd.MM.yy</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -486,6 +479,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -503,6 +497,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -519,8 +514,10 @@ ORDER BY routeListDate, routeListId
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -538,6 +535,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -554,6 +552,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -570,6 +569,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -586,8 +586,11 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop>20pt</PaddingTop>
-                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingTop>=Len({closing_comment}) / 25 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({closing_comment}) / 25 + "pt"</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -605,26 +608,15 @@ ORDER BY routeListDate, routeListId
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop>=Len({logisticians_comment}) / 25 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({logisticians_comment}) / 25 + "pt"</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -633,7 +625,7 @@ ORDER BY routeListDate, routeListId
           </TableRows>
         </Details>
         <Left>6.1pt</Left>
-        <Top>0.2pt</Top>
+        <Top>0.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -669,8 +661,10 @@ ORDER BY routeListDate, routeListId
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <Value>=Sum({nal})</Value>
                     </Textbox>
@@ -689,6 +683,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -705,6 +700,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -721,6 +717,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -736,6 +733,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <Value></Value>
                     </Textbox>
@@ -753,22 +751,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -811,6 +794,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -827,6 +811,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -843,6 +828,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -859,6 +845,7 @@ ORDER BY routeListDate, routeListId
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -875,6 +862,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -891,22 +879,7 @@ ORDER BY routeListDate, routeListId
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -917,7 +890,7 @@ ORDER BY routeListDate, routeListId
         </Footer>
       </Table>
     </ReportItems>
-    <Height>165.7pt</Height>
+    <Height>138.1pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -952,59 +925,39 @@ ORDER BY routeListDate, routeListId
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
-    <ReportParameter Name="todayRloff">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="RemTruckRLs">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="RemServiceRLs">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="RemMercRLs">
-      <DataType>Boolean</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
+  <ReportParameters >
     <ReportParameter Name="geographic_group_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="car_types_of_use">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="car_own_types">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_today_route_lists">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="include_visiting_masters">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>

@@ -429,7 +429,7 @@ namespace Vodovoz.ViewModels.Warehouses
 								var nomsAmount = new Dictionary<int, decimal>();
 								if (nomIds != null && nomIds.Any()) {
 									nomIds = nomIds.Distinct().ToList();
-									nomsAmount = _stockRepository.NomenclatureInStock(UoW, Entity.FromWarehouse.Id, nomIds.ToArray());
+									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.FromWarehouse.Id);
 								}
 								foreach (var item in orderItems) {
 									var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);

@@ -4,55 +4,56 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки трека",
 		Nominative = "точка трека")]
 	public class TrackPoint : PropertyChangedBase
 	{
-		Track track;
+		private Track _track;
+		private double _latitude;
+		private double _longitude;
+		private DateTime _timeStamp;
 
-		[Display (Name = "Трек")]
-		public virtual Track Track {
-			get { return track; }
-			set { SetField (ref track, value, () => Track); }
-		}
-
-		Double latitude;
-
-		[Display (Name = "Широта")]
-		public virtual Double Latitude {
-			get { return latitude; }
-			set { SetField (ref latitude, value, () => Latitude); }
-		}
-
-		Double longitude;
-
-		[Display (Name = "Долгота")]
-		public virtual Double Longitude {
-			get { return longitude; }
-			set { SetField (ref longitude, value, () => Longitude); }
-		}
-			
-		DateTime timeStamp;
-
-		[Display (Name = "Время")]
-		public virtual DateTime TimeStamp {
-			get { return timeStamp; }
-			set { SetField (ref timeStamp, value, () => TimeStamp); }
-		}
-
-		public override bool Equals (object obj)
+		[Display(Name = "Трек")]
+		public virtual Track Track
 		{
-			var tp = obj as TrackPoint;
-			if (tp != null) {
-				return DomainHelper.EqualDomainObjects (tp.Track, this.Track) && tp.TimeStamp == this.TimeStamp;
+			get => _track;
+			set => SetField(ref _track, value, () => Track);
+		}
+
+		[Display(Name = "Широта")]
+		public virtual double Latitude
+		{
+			get => _latitude;
+			set => SetField(ref _latitude, value, () => Latitude);
+		}
+
+		[Display(Name = "Долгота")]
+		public virtual double Longitude
+		{
+			get => _longitude;
+			set => SetField(ref _longitude, value, () => Longitude);
+		}
+
+		[Display(Name = "Время")]
+		public virtual DateTime TimeStamp
+		{
+			get => _timeStamp;
+			set => SetField(ref _timeStamp, value, () => TimeStamp);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if(obj is TrackPoint tp)
+			{
+				return DomainHelper.EqualDomainObjects(tp.Track, Track) && tp.TimeStamp == TimeStamp;
 			}
 			return false;
 		}
 
-		public override int GetHashCode ()
+		public override int GetHashCode()
 		{
-			return this.TimeStamp.GetHashCode () ^ this.Track.Id.GetHashCode ();
+			return TimeStamp.GetHashCode() ^ Track.Id.GetHashCode();
 		}
 	}
 }

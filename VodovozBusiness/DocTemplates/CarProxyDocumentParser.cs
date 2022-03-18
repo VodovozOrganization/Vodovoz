@@ -35,7 +35,7 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Organization.Buhgalter.FullName, PatternFieldType.FString);
 			AddField(x => x.Organization.Buhgalter.ShortName, PatternFieldType.FString);
 
-			AddField(x => x.Car.Model, PatternFieldType.FString);
+			AddField(x => x.Car.CarModel.Name, PatternFieldType.FString);
 			AddField(x => x.Car.RegistrationNumber, PatternFieldType.FString);
 			AddField(x => x.Car.VIN, PatternFieldType.FString);
 			AddField(x => x.Car.ManufactureYear, PatternFieldType.FString);

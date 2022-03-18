@@ -46,7 +46,6 @@ namespace Vodovoz
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly IRouteListRepository
 			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 		IList<Equipment> alreadyUnloadedEquipment;
 		private WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
@@ -236,7 +235,7 @@ namespace Vodovoz
 					Entity.RouteList.Id,
 					Entity.RouteList.Date,
 					Entity.RouteList.Driver.FullName,
-					Entity.RouteList.Car.Model,
+					Entity.RouteList.Car.CarModel.Name,
 					Entity.RouteList.Car.RegistrationNumber,
 					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)"
 				);

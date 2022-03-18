@@ -8,6 +8,7 @@ using GMap.NET.MapProviders;
 using Pango;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Utilities;
 using QSOrmProject;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chats;
@@ -17,6 +18,7 @@ using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ServiceDialogs.Chat;
+using Vodovoz.Services;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -39,17 +41,20 @@ namespace Vodovoz
 		private Dictionary<int, CarMarkerType> lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 		private Gtk.Window mapWindow;
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
+		private readonly TimeSpan _fastDeliveryTime;
 
-		public RouteListTrackDlg(IEmployeeRepository employeeRepository, IChatRepository chatRepository, ITrackRepository trackRepository)
+		public RouteListTrackDlg(IEmployeeRepository employeeRepository, IChatRepository chatRepository, ITrackRepository trackRepository,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-
+			_fastDeliveryTime =
+				(deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider)))
+				.MaxTimeForFastDelivery;
 			Build();
 			TabName = "Мониторинг";
-			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM(uow);
-			yTreeViewDrivers.RepresentationModel.UpdateNodes();
+			yTreeViewDrivers.RepresentationModel = new WorkingDriversVM(uow);
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Visible = buttonSendMessage.Visible = false;
@@ -68,11 +73,41 @@ namespace Vodovoz
 			gmapWidget.Overlays.Add(carsOverlay);
 			gmapWidget.Overlays.Add(tracksOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
+			gmapWidget.OnMarkerEnter += GmapWidgetOnMarkerEnter;
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.SelectedItem = MapProviders.GoogleMap;
+		}
+
+		private void GmapWidgetOnMarkerEnter(GMapMarker item)
+		{
+			if(!(item.Tag is DriverRouteListAddressVMNode node) || !node.Order.IsFastDelivery)
+			{
+				return;
+			}
+
+			var index = item.ToolTipText.LastIndexOf("\nОсталось времени", StringComparison.CurrentCulture);
+			if(index != -1)
+			{
+				item.ToolTipText = item.ToolTipText.Remove(index);
+			}
+			if(node.RouteListItem.Status != RouteListItemStatus.EnRoute)
+			{
+				return;
+			}
+			var timeDiff = node.RouteListItem.CreationDate.Add(_fastDeliveryTime) - DateTime.Now;
+			var timeRemainingStr = timeDiff.Days == 0
+				? timeDiff.ToString("hh':'mm':'ss")
+				: $"{Math.Abs(timeDiff.Days)} {NumberToTextRus.Case(timeDiff.Days, "день", "дня", "дней")} {timeDiff:hh':'mm':'ss}";
+
+			if(DateTime.Now > node.RouteListItem.CreationDate.Add(_fastDeliveryTime))
+			{
+				timeRemainingStr = $"-{timeRemainingStr}";
+			}
+
+			item.ToolTipText += $"\nОсталось времени: {timeRemainingStr}";
 		}
 
 		void GmapWidget_ExposeEvent (object o, Gtk.ExposeEventArgs args)
@@ -252,14 +287,14 @@ namespace Vodovoz
 			}
 
 			//LoadAddresses
-			foreach(var point in yTreeAddresses.RepresentationModel.ItemsList as IList<DriverRouteListAddressVMNode>)
+			foreach(var point in (IList<DriverRouteListAddressVMNode>)yTreeAddresses.RepresentationModel.ItemsList)
 			{
-				if(point.Address == null)
+				if(point.DeliveryPoint == null)
 				{
-					logger.Warn ("Для заказа №{0}, отсутствует точка доставки. Поэтому добавление маркера пропущено.", point.OrderId);
+					logger.Warn("Для заказа №{0}, отсутствует точка доставки. Поэтому добавление маркера пропущено.", point.Order.Id);
 					continue;
 				}
-				if(point.Address.Latitude.HasValue && point.Address.Longitude.HasValue)
+				if(point.DeliveryPoint.Latitude.HasValue && point.DeliveryPoint.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
 					switch(point.Status)
@@ -268,7 +303,14 @@ namespace Vodovoz
 							type = GMarkerGoogleType.green_small;
 							break;
 						case RouteListItemStatus.EnRoute:
-							type = GMarkerGoogleType.gray_small;
+							if(point.Order != null && point.Order.IsFastDelivery)
+							{
+								type = GMarkerGoogleType.yellow_small;
+							}
+							else
+							{
+								type = GMarkerGoogleType.gray_small;
+							}
 							break;
 						case RouteListItemStatus.Canceled:
 							type = GMarkerGoogleType.purple_small;
@@ -280,9 +322,9 @@ namespace Vodovoz
 							type = GMarkerGoogleType.none;
 							break;
 					}
-					var addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Address.Latitude, (double)point.Address.Longitude),	type);
-					addressMarker.ToolTipText =
-						$"{point.Address.ShortAddress}\nВремя доставки: {point.Time?.Name ?? "Не назначено"}";
+					var addressMarker = new GMarkerGoogle(new PointLatLng((double)point.DeliveryPoint.Latitude, (double)point.DeliveryPoint.Longitude),	type);
+					addressMarker.Tag = point;
+					addressMarker.ToolTipText = $"{point.DeliveryPoint.ShortAddress}\nВремя доставки: {point.Time?.Name ?? "Не назначено"}";
 					tracksOverlay.Markers.Add(addressMarker);
 				}
 			}

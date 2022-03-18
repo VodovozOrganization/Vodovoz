@@ -213,10 +213,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles");
 
-			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight).ToArray();
+			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.CarModel.MaxWeight).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
+			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.CarModel.MaxVolume * 1000)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
 			var addressCapacity = possibleRoutes.Select(x => (long)(x.Driver.MaxRouteAddresses)).ToArray();
@@ -601,12 +601,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				AddWarning("Автомобили {0} не смогут везти воду, так как максимальное количество бутылей у них меньше 1.",
 						   string.Join(", ", bottlesProblems.Select(x => x.RegistrationNumber)));
 
-			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxVolume < 1).ToList();
+			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.CarModel.MaxVolume < 1).ToList();
 			if(volumeProblems.Count > 1)
 				AddWarning("Автомобили {0} смогут погрузить только безобъёмные товары, так как максимальный объём погрузки у них меньше 1.",
 						   string.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
 
-			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxWeight < 1).ToList();
+			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.CarModel.MaxWeight < 1).ToList();
 			if(weightProblems.Count > 1)
 				AddWarning("Автомобили {0} не смогут везти грузы, так как грузоподъёмность у них меньше 1 кг.",
 						   string.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));

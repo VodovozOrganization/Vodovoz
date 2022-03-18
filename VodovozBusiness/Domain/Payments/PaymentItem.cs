@@ -15,36 +15,45 @@ namespace Vodovoz.Domain.Payments
 	[HistoryTrace]
 	public class PaymentItem : PropertyChangedBase, IDomainObject
 	{
+		private decimal _sum;
+		private AllocationStatus _paymentItemStatus;
+		private Order _order;
+		private Payment _payment;
+		private CashlessMovementOperation _cashlessMovementOperation;
+
 		public virtual int Id { get; set; }
 
-		Order order;
 		[Display(Name = "Заказ")]
-		public virtual Order Order {
-			get => order;
-			set => SetField(ref order, value);
-		}
-
-		Payment payment;
-		[Display(Name = "Платеж")]
-		public virtual Payment Payment {
-			get => payment;
-			set => SetField(ref payment, value);
-		}
-
-		CashlessMovementOperation cashlessMovementOperation;
-		public virtual CashlessMovementOperation CashlessMovementOperation {
-			get => cashlessMovementOperation;
-			set => SetField(ref cashlessMovementOperation, value);
-		}
-
-		decimal sum;
-		public virtual decimal Sum {
-			get => sum;
-			set => SetField(ref sum, value);
-		}
-
-		public PaymentItem()
+		public virtual Order Order
 		{
+			get => _order;
+			set => SetField(ref _order, value);
+		}
+
+		[Display(Name = "Платеж")]
+		public virtual Payment Payment
+		{
+			get => _payment;
+			set => SetField(ref _payment, value);
+		}
+
+		[Display(Name = "Операция распределения по безналу")]
+		public virtual CashlessMovementOperation CashlessMovementOperation
+		{
+			get => _cashlessMovementOperation;
+			set => SetField(ref _cashlessMovementOperation, value);
+		}
+
+		public virtual decimal Sum
+		{
+			get => _sum;
+			set => SetField(ref _sum, value);
+		}
+		
+		public virtual AllocationStatus PaymentItemStatus
+		{
+			get => _paymentItemStatus;
+			set => SetField(ref _paymentItemStatus, value);
 		}
 
 		public virtual void CreateOrUpdateExpenseOperation()
@@ -53,10 +62,11 @@ namespace Vodovoz.Domain.Payments
 			{
 				CashlessMovementOperation = new CashlessMovementOperation
 				{
-					Expense = sum, 
+					Expense = _sum, 
 					Counterparty = Payment.Counterparty,
 					Organization = Payment.Organization,
-					OperationTime = DateTime.Now
+					OperationTime = DateTime.Now,
+					CashlessMovementOperationStatus = AllocationStatus.Accepted
 				};
 			}
 			else
@@ -67,9 +77,9 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual void UpdateExpenseOperation()
 		{
-			if(CashlessMovementOperation.Expense != sum)
+			if(CashlessMovementOperation.Expense != _sum)
 			{
-				CashlessMovementOperation.Expense = sum;
+				CashlessMovementOperation.Expense = _sum;
 				CashlessMovementOperation.Counterparty = Payment.Counterparty;
 				CashlessMovementOperation.Organization = Payment.Organization;
 				CashlessMovementOperation.OperationTime = DateTime.Now;
@@ -83,6 +93,31 @@ namespace Vodovoz.Domain.Payments
 			if(CashlessMovementOperation != null)
 			{
 				UpdateExpenseOperation();
+			}
+		}
+
+		public virtual void CancelAllocation(bool needUpdateOrderPaymentStatus = false)
+		{
+			UpdateStatuses(AllocationStatus.Cancelled);
+
+			if(needUpdateOrderPaymentStatus)
+			{
+				Order.UpdateOrderPaymentStatus();
+			}
+		}
+		
+		public virtual void ReturnFromCancelled()
+		{
+			UpdateStatuses(AllocationStatus.Accepted);
+		}
+
+		private void UpdateStatuses(AllocationStatus status)
+		{
+			PaymentItemStatus = status;
+
+			if(CashlessMovementOperation != null)
+			{
+				CashlessMovementOperation.CashlessMovementOperationStatus = status;
 			}
 		}
 	}
