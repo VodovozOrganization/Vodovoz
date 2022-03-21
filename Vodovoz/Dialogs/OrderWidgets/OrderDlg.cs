@@ -711,7 +711,8 @@ namespace Vodovoz
 				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
-			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+			//ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+			ycheckPaymentByQR.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 
 			UpdateOrderAddressTypeWithUI();
 
@@ -2454,10 +2455,10 @@ namespace Vodovoz
 			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
 			
 			if (Entity.PaymentType != PaymentType.cash) {
-				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
+				ycheckPaymentByQR.Visible = ycheckPaymentByQR.Active = false;
 			}
 			else {
-				ycheckPaymentBySms.Visible = true;
+				ycheckPaymentByQR.Visible = true;
 			}
 			
 			if (Entity.PaymentType == PaymentType.Terminal) {
@@ -2995,7 +2996,7 @@ namespace Vodovoz
 			//pickerDeliveryDate.Sensitive = val; // оно повторно устанавливается в ChangeOrderEditable(val) -> SetPadInfoSensitive(val)
 			dataSumDifferenceReason.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
-			ycheckPaymentBySms.Sensitive = val;
+			ycheckPaymentByQR.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;

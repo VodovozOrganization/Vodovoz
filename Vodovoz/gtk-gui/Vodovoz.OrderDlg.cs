@@ -1328,13 +1328,13 @@ namespace Vodovoz
 			this.ycheckPaymentByQR.DrawIndicator = true;
 			this.ycheckPaymentByQR.UseUnderline = true;
 			this.table1.Add(this.ycheckPaymentByQR);
-			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckPaymentByQR]));
-			w70.TopAttach = ((uint)(13));
-			w70.BottomAttach = ((uint)(14));
-			w70.LeftAttach = ((uint)(3));
-			w70.RightAttach = ((uint)(4));
-			w70.XOptions = ((global::Gtk.AttachOptions)(4));
-			w70.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w73 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckPaymentByQR]));
+			w73.TopAttach = ((uint)(13));
+			w73.BottomAttach = ((uint)(14));
+			w73.LeftAttach = ((uint)(3));
+			w73.RightAttach = ((uint)(4));
+			w73.XOptions = ((global::Gtk.AttachOptions)(4));
+			w73.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox1.Name = "yhbox1";
