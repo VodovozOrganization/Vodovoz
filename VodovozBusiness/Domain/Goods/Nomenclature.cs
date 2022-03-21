@@ -261,15 +261,9 @@ namespace Vodovoz.Domain.Goods
 		public virtual NomenclatureCategory Category {
 			get => category;
 			set {
-				if(SetField(ref category, value, () => Category))
+				if(SetField(ref category, value))
 				{
-					var categoriesWithSerial = new[]
-					{
-						NomenclatureCategory.equipment, NomenclatureCategory.Stationery, NomenclatureCategory.EquipmentForIndoorUse,
-						NomenclatureCategory.OfficeEquipment, NomenclatureCategory.ProductionEquipment, NomenclatureCategory.Vehicle
-					};
-
-					if(!categoriesWithSerial.Contains(Category))
+					if(!CategoriesWithSerial.Contains(Category))
 					{
 						IsSerial = false;
 					}
@@ -1079,6 +1073,19 @@ namespace Vodovoz.Domain.Goods
 			NomenclatureCategory.equipment,
 			NomenclatureCategory.additional,
 			NomenclatureCategory.bottle
+		};
+
+		/// <summary>
+		/// Категории для номенклатур с серийным номером
+		/// </summary>
+		public static readonly NomenclatureCategory[] CategoriesWithSerial =
+		{
+			NomenclatureCategory.equipment,
+			NomenclatureCategory.Stationery,
+			NomenclatureCategory.EquipmentForIndoorUse,
+			NomenclatureCategory.OfficeEquipment,
+			NomenclatureCategory.ProductionEquipment,
+			NomenclatureCategory.Vehicle
 		};
 
 		#endregion
