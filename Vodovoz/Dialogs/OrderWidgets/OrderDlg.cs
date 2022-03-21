@@ -763,6 +763,7 @@ namespace Vodovoz
 					enumSignatureType.AddEnumToHideList(signatureTranscriptType);
 				}
 			}
+			enumSignatureType.Binding.InitializeFromSource();
 		}
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
