@@ -261,9 +261,18 @@ namespace Vodovoz.Domain.Goods
 		public virtual NomenclatureCategory Category {
 			get => category;
 			set {
-				if(SetField(ref category, value, () => Category)) {
-					if(Category != NomenclatureCategory.equipment)
+				if(SetField(ref category, value, () => Category))
+				{
+					var categoriesWithSerial = new[]
+					{
+						NomenclatureCategory.equipment, NomenclatureCategory.Stationery, NomenclatureCategory.EquipmentForIndoorUse,
+						NomenclatureCategory.OfficeEquipment, NomenclatureCategory.ProductionEquipment, NomenclatureCategory.Vehicle
+					};
+
+					if(!categoriesWithSerial.Contains(Category))
+					{
 						IsSerial = false;
+					}
 
 					if(Category != NomenclatureCategory.water)
 						TareVolume = null;
@@ -998,7 +1007,12 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
 				NomenclatureCategory.water,
-				NomenclatureCategory.CashEquipment
+				NomenclatureCategory.CashEquipment,
+				NomenclatureCategory.Stationery,
+				NomenclatureCategory.OfficeEquipment,
+				NomenclatureCategory.PromotionalProducts,
+				NomenclatureCategory.Overalls,
+				NomenclatureCategory.HouseholdInventory
 			};
 		}
 
@@ -1013,6 +1027,7 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.PromotionalProducts
 			};
 		}
 
