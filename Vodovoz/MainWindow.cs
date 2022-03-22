@@ -145,6 +145,8 @@ using Vodovoz.ViewModels.ViewModels.Settings;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.Entity;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -713,10 +715,33 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<FuelType>(),
-			() => new OrmReference(typeof(FuelType))
-		);
+		var commonServices = ServicesConfig.CommonServices;
+		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
+
+		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
+			x => x.Name,
+			() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
+			(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
+			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			commonServices);
+
+		var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
+		if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
+		{
+			var viewAction = new JournalAction("Просмотр",
+				(selected) => selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
+					fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
+				}
+			);
+
+			(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
+		}
+
+		tdiMain.AddTab(fuelTypeJournalViewModel);
 	}
 
 	protected void OnActionDeliveryShiftActivated(object sender, EventArgs e)
