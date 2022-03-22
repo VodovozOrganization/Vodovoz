@@ -599,7 +599,7 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -1648,7 +1648,7 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				counterpartyJournalFactory,
-				nomenclatureSelectorFactory,
+				new NomenclatureSelectorFactory(),
 				nomenclatureRepository,
 				userRepository
 			)

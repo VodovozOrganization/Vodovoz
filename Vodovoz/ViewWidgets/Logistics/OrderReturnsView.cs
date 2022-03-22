@@ -214,7 +214,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				new NomenclatureSelectorFactory().GetDefaultNomenclatureSelectorFactory(),
+				new NomenclatureSelectorFactory(),
 				new CounterpartyJournalFactory(),
 				_nomenclatureRepository,
 				new UserRepository()

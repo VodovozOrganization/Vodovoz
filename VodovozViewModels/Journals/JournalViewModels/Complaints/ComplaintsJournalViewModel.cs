@@ -436,7 +436,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						_unitOfWorkFactory,
 						_employeeService,
-						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_subdivisionRepository,
 						_commonServices,
 						_nomenclatureRepository,
