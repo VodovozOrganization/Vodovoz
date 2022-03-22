@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Logistic
 
 		decimal cost;
 
-		[Display (Name = "Название")]
+		[Display (Name = "Цена")]
 		[Required (ErrorMessage = "Цена должна быть заполнена.")]
 		public virtual decimal Cost {
 			get { return cost; }
