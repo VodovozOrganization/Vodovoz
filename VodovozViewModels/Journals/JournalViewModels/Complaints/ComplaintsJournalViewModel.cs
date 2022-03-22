@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -9,10 +6,12 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using System;
+using System.Collections;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -65,6 +64,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureSelectorFactory _nomenclatureSelector;
+		private readonly IEmployeeSettings _employeeSettings;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -92,6 +92,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureSelectorFactory nomenclatureSelector,
+			IEmployeeSettings employeeSettings,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this._unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -114,6 +115,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 
@@ -472,6 +474,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_salesPlanJournalFactory,
 						_nomenclatureSelector,
 						_undeliveredOrdersRepository,
+						_employeeSettings,
 						new ComplaintResultsRepository()
 					),
 					//функция идентификации документа
@@ -515,6 +518,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_salesPlanJournalFactory,
 						_nomenclatureSelector,
 						_undeliveredOrdersRepository,
+						_employeeSettings,
 						new ComplaintResultsRepository()
 					),
 					//функция идентификации документа
@@ -628,6 +632,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_salesPlanJournalFactory,
 								_nomenclatureSelector,
 								_undeliveredOrdersRepository,
+								_employeeSettings,
 								new ComplaintResultsRepository()
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
@@ -666,6 +671,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_salesPlanJournalFactory,
 								_nomenclatureSelector,
 								_undeliveredOrdersRepository,
+								_employeeSettings,
 								new ComplaintResultsRepository()
 							);
 							string msg = string.Empty;

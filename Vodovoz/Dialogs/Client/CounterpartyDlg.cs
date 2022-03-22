@@ -1053,6 +1053,7 @@ namespace Vodovoz
 				subdivisionJournalFactory,
 				new SalesPlanJournalFactory(),
 				new NomenclatureSelectorFactory(),
+				new EmployeeSettings(new ParametersProvider()),
 				new UndeliveredOrdersRepository()
 			);
 

@@ -21,6 +21,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -163,6 +164,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
+			Entity.SaveAdditionalWorkingClothesFine(UoW, new EmployeeSettings(new ParametersProvider()));
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 
@@ -317,7 +319,8 @@ namespace Vodovoz
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory(),
-				new UndeliveredOrdersRepository()
+				new UndeliveredOrdersRepository(),
+				new EmployeeSettings(new ParametersProvider())
 				);
 
 			TabParent.AddSlaveTab(this, dlg);
