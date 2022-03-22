@@ -124,7 +124,8 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsView>(),
-                OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeViewModel>(),
+                OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeViewModel>().DefaultTableView()
+					.SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<MovementWagon>.Create().Dialog<MovementWagonViewModel>().DefaultTableView()
                     .SearchColumn("Название", x => x.Name).End(),
                 //Остальные справочники
