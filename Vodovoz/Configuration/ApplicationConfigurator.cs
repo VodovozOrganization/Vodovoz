@@ -45,6 +45,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -123,9 +124,9 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsView>(),
-                OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
-                    .SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
-                OrmObjectMapping<MovementWagon>.Create().Dialog<MovementWagonViewModel>().DefaultTableView()
+                OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeViewModel>().DefaultTableView()
+					.SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<MovementWagon>.Create().Dialog<MovementWagonViewModel>().DefaultTableView()
                     .SearchColumn("Название", x => x.Name).End(),
                 //Остальные справочники
                 OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),

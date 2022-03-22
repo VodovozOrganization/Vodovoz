@@ -15,11 +15,12 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private void ConfigureDlg()
 		{
+			yentryName.Sensitive = yspinbuttonCost.Sensitive = buttonSave.Sensitive = ViewModel.CanEdit;
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yspinbuttonCost.Binding.AddBinding(ViewModel.Entity, e => e.Cost, w => w.ValueAsDecimal).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel); };
 		}
 	}
 }
