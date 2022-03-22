@@ -169,7 +169,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// <summary>
 		/// Возвращает сумму находящуюся в перемещении между кассами
 		/// </summary>
-		public decimal GetCashInTransfering(IUnitOfWork uow)
+		public decimal GetCashInTransferring(IUnitOfWork uow)
 		{
 			CashTransferOperation cashTransferOperationAlias = null;
 			CashTransferDocumentBase cashTransferDocumentAlias = null;
