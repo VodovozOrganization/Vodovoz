@@ -203,15 +203,23 @@ namespace RoboAtsService.Requests
 					Enumerable.Empty<RoboatsWaterInfo>();
 				}
 
-				var waterTypeParsed = int.TryParse(waterParts[0], out int waterType);
+
+				var waterTypeParsed = int.TryParse(waterParts[0], out int waterTypeId);
 				var bottlesCountParsed = int.TryParse(waterParts[1], out int bottlesCount);
+
 
 				if(!waterTypeParsed || !bottlesCountParsed)
 				{
 					return Enumerable.Empty<RoboatsWaterInfo>();
 				}
 
-				var waterInfo = new RoboatsWaterInfo(waterType, bottlesCount);
+				var roboatsWater =  waters.FirstOrDefault(x => x.Id == waterTypeId);
+				if(roboatsWater == null)
+				{
+					return Enumerable.Empty<RoboatsWaterInfo>();
+				}
+
+				var waterInfo = new RoboatsWaterInfo(roboatsWater.Nomenclature.Id, bottlesCount);
 				result.Add(waterInfo);
 			}
 
