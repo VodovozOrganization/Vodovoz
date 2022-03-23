@@ -589,6 +589,13 @@ namespace Vodovoz
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsImplementedInterfaces()
+				.AsSelf()
+				.SingleInstance();
+
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
+				.Where(t => t.Name.EndsWith("Settings"))
+				.AsImplementedInterfaces()
+				.AsSelf()
 				.SingleInstance();
 
 			builder.RegisterType<RdlViewerViewModel>().AsSelf();
