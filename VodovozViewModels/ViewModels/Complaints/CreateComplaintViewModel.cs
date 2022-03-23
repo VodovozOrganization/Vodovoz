@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
+			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			string phone = null
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
@@ -108,7 +108,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
+			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService,
 			subdivisionRepository, commonServices, nomenclatureRepository, userRepository, filePickerService,
@@ -137,7 +137,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
+			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, subdivisionRepository,
 			commonServices, nomenclatureRepository, userRepository, filePickerService, orderSelectorFactory,
@@ -284,7 +284,7 @@ namespace Vodovoz.ViewModels.Complaints
         public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
         public IGtkTabsOpener GtkDialogsOpener { get; }
         public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
-		public INomenclatureSelectorFactory NomenclatureSelector { get; }
+		public INomenclatureJournalFactory NomenclatureSelector { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
 	}
 }

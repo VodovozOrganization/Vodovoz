@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelector,
+			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository) : base(uowBuilder, uowFactory, commonServices)
@@ -466,7 +466,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
-		public INomenclatureSelectorFactory NomenclatureSelector { get; }
+		public INomenclatureJournalFactory NomenclatureSelector { get; }
 
 		public void CloseComplaint(ComplaintStatuses status)
 		{

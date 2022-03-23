@@ -16,10 +16,10 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
-			INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
+			INomenclatureJournalFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));

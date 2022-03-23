@@ -464,7 +464,7 @@ public partial class MainWindow : Window
 				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository(),
 				counterpartyJournalFactory,
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
 				nomenclatureRepository,
 				userRepository
 			)
@@ -489,7 +489,7 @@ public partial class MainWindow : Window
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository(),
 			counterpartyJournalFactory,
-			new NomenclatureSelectorFactory(),
+			new NomenclatureJournalFactory(),
 			nomenclatureRepository,
 			userRepository
 		);
@@ -779,7 +779,7 @@ public partial class MainWindow : Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IFuelRepository fuelRepository = new FuelRepository();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
-		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		INomenclatureJournalFactory nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
@@ -857,7 +857,7 @@ public partial class MainWindow : Window
 					ServicesConfig.CommonServices,
 					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory()
+					new NomenclatureJournalFactory()
 				);
 			});
 
