@@ -44,7 +44,7 @@ namespace Vodovoz.TempAdapters
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
                 new EmployeeService(),
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
                 counterpartyJournalFactory,
                 nomenclatureRepository,
                 userRepository

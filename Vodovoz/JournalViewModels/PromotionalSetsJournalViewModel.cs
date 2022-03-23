@@ -24,14 +24,14 @@ namespace Vodovoz.JournalViewModels
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public PromotionalSetsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			bool hideJournalForOpenDialog = false,

@@ -12,7 +12,7 @@ namespace Vodovoz.TempAdapters
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private IEmployeeJournalFactory _employeeJournalFactory;
 		private ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public SubdivisionJournalFactory(SubdivisionFilterViewModel filterViewModel = null)
 		{
@@ -23,7 +23,7 @@ namespace Vodovoz.TempAdapters
 		{
 			_employeeJournalFactory = new EmployeeJournalFactory();
 			_salesPlanJournalFactory = new SalesPlanJournalFactory();
-			_nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		}
 		
 		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(

@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository

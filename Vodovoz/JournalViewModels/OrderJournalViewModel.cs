@@ -62,7 +62,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -82,7 +82,7 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)

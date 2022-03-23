@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Warehouses
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
-		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly IOrderSelectorFactory orderSelectorFactory;
 		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IWarehousePermissionService warehousePermissionService,
 			IEmployeeService employeeService,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IOrderSelectorFactory orderSelectorFactory,
 			IWarehouseRepository warehouseRepository,
 			IUserRepository userRepository,

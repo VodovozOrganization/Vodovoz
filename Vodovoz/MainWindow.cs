@@ -559,7 +559,7 @@ public partial class MainWindow : Gtk.Window
 					ServicesConfig.CommonServices,
 					new DiscountReasonRepository(),
 					new ProductGroupJournalFactory(),
-					new NomenclatureSelectorFactory()
+					new NomenclatureJournalFactory()
 				);
 			}
 		);
@@ -601,7 +601,7 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -1022,7 +1022,7 @@ public partial class MainWindow : Gtk.Window
 			new DeliveryPointJournalFactory(),
 			subdivisionJournalFactory,
 			new SalesPlanJournalFactory(),
-			new NomenclatureSelectorFactory(),
+			new NomenclatureJournalFactory(),
 			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository()
 		);
@@ -1673,7 +1673,7 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				counterpartyJournalFactory,
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
 				nomenclatureRepository,
 				userRepository
 			)
@@ -1826,7 +1826,7 @@ public partial class MainWindow : Gtk.Window
 			new SalesPlanJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new NomenclatureSelectorFactory()
+				new NomenclatureJournalFactory()
 			)
 		);
 	}
@@ -1843,7 +1843,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var employeeJournalFactory = new EmployeeJournalFactory();
 		var salesPlanJournalFactory = new SalesPlanJournalFactory();
-		var nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 		tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
 			new ComplaintKindJournalFilterViewModel
@@ -2148,7 +2148,7 @@ public partial class MainWindow : Gtk.Window
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory(),
+					new NomenclatureJournalFactory(),
 					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository()
 				);
@@ -2445,7 +2445,7 @@ public partial class MainWindow : Gtk.Window
 		var journal = new FlyersJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			new NomenclatureSelectorFactory(),
+			new NomenclatureJournalFactory(),
 			new FlyerRepository());
 
 		tdiMain.AddTab(journal);

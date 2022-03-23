@@ -87,7 +87,7 @@ namespace Vodovoz.TempAdapters
 						subdivisionJournalFactory,
 						new GtkTabsOpener(),
 						new UndeliveredOrdersJournalOpener(),
-						new NomenclatureSelectorFactory(),
+						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new FileDialogService());
@@ -127,7 +127,7 @@ namespace Vodovoz.TempAdapters
 						subdivisionJournalFactory,
 						new GtkTabsOpener(),
 						new UndeliveredOrdersJournalOpener(),
-						new NomenclatureSelectorFactory(),
+						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new FileDialogService());
@@ -156,7 +156,7 @@ namespace Vodovoz.TempAdapters
 				subdivisionJournalFactory,
 				new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
 				new FileDialogService()

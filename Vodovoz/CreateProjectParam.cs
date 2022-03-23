@@ -497,7 +497,7 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 
-			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
+			builder.RegisterType<NomenclatureJournalFactory>().As<INomenclatureJournalFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
 			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();

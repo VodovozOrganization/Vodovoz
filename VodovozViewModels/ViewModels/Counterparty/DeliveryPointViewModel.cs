@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleSelectorFactory deliveryScheduleSelectorFactory,
@@ -169,7 +169,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public IStreetsDataLoader StreetsDataLoader { get; }
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
-		public INomenclatureSelectorFactory NomenclatureSelectorFactory { get; }
+		public INomenclatureJournalFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
 
 		public override bool HasChanges
