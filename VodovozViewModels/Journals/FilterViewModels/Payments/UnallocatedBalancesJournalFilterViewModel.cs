@@ -17,7 +17,6 @@ namespace Vodovoz.Filters.ViewModels
 	public class UnallocatedBalancesJournalFilterViewModel : FilterViewModelBase<UnallocatedBalancesJournalFilterViewModel>, IJournalFilterViewModel
 	{
 		private readonly IInteractiveMessage _interactiveMessage;
-		private readonly string _closingDocumentDeliveryScheduleName;
 		private Counterparty _counterparty;
 		private Organization _organization;
 		private DelegateCommand _helpCommand;
@@ -27,15 +26,12 @@ namespace Vodovoz.Filters.ViewModels
 			INavigationManager navigationManager,
 			IInteractiveMessage interactiveMessage,
 			ITdiTab journalTab,
-			string closingDocumentDeliveryScheduleName,
 			params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)
 		{
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
-			_closingDocumentDeliveryScheduleName =
-			 closingDocumentDeliveryScheduleName ?? throw new ArgumentNullException(nameof(closingDocumentDeliveryScheduleName));
 			Refilter(filterParams);
 		}
 
@@ -65,9 +61,7 @@ namespace Vodovoz.Filters.ViewModels
 						"В журнал попадают клиенты у которых есть нераспределенный баланс и сумма долга больше 0\n" +
 						"Сумма долга рассчитывается по заказам у которых:\n" +
 						$"- форма оплаты {PaymentType.cashless.GetEnumTitle()}\n" +
-						$"- статус заказа: {OrderStatus.Shipped.GetEnumTitle()}, {OrderStatus.UnloadingOnStock.GetEnumTitle()}, {OrderStatus.Closed.GetEnumTitle()}\n" +
 						$"- статус оплаты отличен от {OrderPaymentStatus.Paid.GetEnumTitle()}\n" +
-						$"- время доставки не соответствует {_closingDocumentDeliveryScheduleName}\n" +
 						"- сумма заказа больше 0\n" +
 						"Сортировка по убыванию суммы баланса клиента");
 				}
