@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.Client
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public event EventHandler ListContentChanged;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Client
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository)
 			: base(entity, commonServices)

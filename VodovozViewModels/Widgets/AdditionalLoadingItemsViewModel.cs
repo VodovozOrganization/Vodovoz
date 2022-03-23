@@ -21,11 +21,11 @@ namespace Vodovoz.ViewModels.Widgets
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ITdiTab _master;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IInteractiveService _interactiveService;
 		private AdditionalLoadingDocument _additionalLoadingDocument;
 
-		public AdditionalLoadingItemsViewModel(IUnitOfWork uow, ITdiTab master, INomenclatureSelectorFactory nomenclatureSelectorFactory,
+		public AdditionalLoadingItemsViewModel(IUnitOfWork uow, ITdiTab master, INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IInteractiveService interactiveService)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));

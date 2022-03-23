@@ -212,7 +212,7 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					new NomenclatureSelectorFactory(),
+					new NomenclatureJournalFactory(),
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
 					userRepository
@@ -306,7 +306,7 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					new NomenclatureSelectorFactory(),
+					new NomenclatureJournalFactory(),
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
 					userRepository

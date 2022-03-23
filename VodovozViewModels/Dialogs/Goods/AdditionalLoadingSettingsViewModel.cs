@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Goods
 	{
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IInteractiveService _interactiveService;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		private DelegateCommand<IList<AdditionalLoadingNomenclatureDistribution>> _removeNomenclatureDistributionCommand;
 		private DelegateCommand _addNomenclatureDistributionCommand;
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Goods
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
 				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_interactiveService = commonServices.InteractiveService;
-			_nomenclatureSelectorFactory = scope.Resolve<INomenclatureSelectorFactory>();
+			_nomenclatureSelectorFactory = scope.Resolve<INomenclatureJournalFactory>();
 
 			CanEdit = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;

@@ -845,7 +845,7 @@ namespace Vodovoz
 					ServicesConfig.CommonServices,
 					_employeeService,
 					CounterpartySelectorFactory,
-					new NomenclatureSelectorFactory(),
+					new NomenclatureJournalFactory(),
 					NomenclatureRepository,
 					_userRepository);
 			supplierPricesWidget.Sensitive = CanEdit;
@@ -857,7 +857,7 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureSelectorFactory();
+			var nomSelectorFactory = new NomenclatureJournalFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
@@ -1016,7 +1016,7 @@ namespace Vodovoz
 				subdivisionJournalFactory,
 				new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
 				new FileDialogService()
@@ -1054,7 +1054,7 @@ namespace Vodovoz
 				new DeliveryPointJournalFactory(),
 				subdivisionJournalFactory,
 				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
 				new EmployeeSettings(new ParametersProvider()),
 				new UndeliveredOrdersRepository()
 			);

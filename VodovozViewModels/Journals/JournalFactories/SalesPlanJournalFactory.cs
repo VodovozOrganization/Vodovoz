@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class SalesPlanJournalFactory : ISalesPlanJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureSelectorFactory nomenclatureSelectorFactory)
+		public IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureJournalFactory nomenclatureSelectorFactory)
 		{
 			return new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(typeof(SalesPlan), () =>
 			{
