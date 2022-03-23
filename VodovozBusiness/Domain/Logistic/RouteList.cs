@@ -19,6 +19,7 @@ using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -2297,7 +2298,7 @@ namespace Vodovoz.Domain.Logistic
 			return notLoadedNomenclatures;
 		}
 
-		public virtual void RecountMileage()
+		public virtual bool RecountMileage()
 		{
 			var pointsToRecalculate = new List<PointOnEarth>();
 			var pointsToBase = new List<PointOnEarth>();
@@ -2306,12 +2307,13 @@ namespace Vodovoz.Domain.Logistic
 
 			decimal totalDistanceTrack = 0;
 
-			IEnumerable<RouteListItem> completedAddresses = Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
+			IEnumerable<RouteListItem> completedAddresses =
+				Addresses.Where(x => x.Status == RouteListItemStatus.Completed).ToList();
 
 			if(!completedAddresses.Any())
 			{
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
-				return;
+				return true;
 			}
 
 			if(completedAddresses.Count() > 1)
@@ -2320,7 +2322,19 @@ namespace Vodovoz.Domain.Logistic
 				{
 					if(address.Status == RouteListItemStatus.Completed)
 					{
-						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+						var deliveryPoint = address.Order.DeliveryPoint;
+
+						if(!deliveryPoint.CoordinatesExist)
+						{
+							ServicesConfig.InteractiveService.ShowMessage(
+								ImportanceLevel.Error,
+								$"В точке доставки №{deliveryPoint.Id} {deliveryPoint.ShortAddress} необходимо указать координаты",
+								"У точки доставки не указаны координаты");
+
+							return false;
+						}
+						
+						pointsToRecalculate.Add(new PointOnEarth((double)deliveryPoint.Latitude, (double)deliveryPoint.Longitude));
 					}
 				}
 
@@ -2332,6 +2346,17 @@ namespace Vodovoz.Domain.Logistic
 			else
 			{
 				var point = Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
+				
+				if(!point.CoordinatesExist)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"В точке доставки №{point.Id} {point.ShortAddress} необходимо указать координаты",
+						"У точки доставки не указаны координаты");
+					
+					return false;
+				}
+				
 				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
 			}
 
@@ -2343,6 +2368,7 @@ namespace Vodovoz.Domain.Logistic
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 
 			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
+			return true;
 		}
 
 		#endregion
