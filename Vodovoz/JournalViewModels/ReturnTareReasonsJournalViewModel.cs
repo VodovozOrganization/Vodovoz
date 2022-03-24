@@ -23,7 +23,7 @@ namespace Vodovoz.JournalViewModels
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, navigationManager, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			TabName = "Категории причин забора тары";
+			TabName = "Причины забора тары";
 
 			var threadLoader = DataLoader as ThreadDataLoader<ReturnTareReasonsJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
