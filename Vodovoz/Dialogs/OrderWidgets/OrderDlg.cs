@@ -3233,7 +3233,7 @@ namespace Vodovoz
 
 			var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill);
 
-			if(!(document is BillDocument || document is SpecialBillDocument))
+			if(document == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
