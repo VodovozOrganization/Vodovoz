@@ -4,11 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class SpecialBillDocument : PrintableOrderDocument, IPrintableRDLDocument
+	public class SpecialBillDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.SpecialBill;
@@ -38,6 +40,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override string Name => String.Format("Особый счет №{0}", Order.Id);
 
 		public override DateTime? DocumentDate => Order?.BillDate;
+		
+		public virtual Counterparty Counterparty => Order?.Client;
 
 		public override PrinterType PrintType => PrinterType.RDL;
 

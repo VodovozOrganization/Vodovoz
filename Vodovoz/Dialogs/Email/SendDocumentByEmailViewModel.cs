@@ -94,6 +94,7 @@ namespace Vodovoz.Dialogs.Email
 					switch (Document.Type)
 					{
 						case OrderDocumentType.Bill:
+						case OrderDocumentType.SpecialBill:
 							SendDocument();
 							break;
 						case OrderDocumentType.BillWSForDebt:
@@ -143,7 +144,7 @@ namespace Vodovoz.Dialogs.Email
 					{
 						return false;
 					}
-					if(Document.Type == OrderDocumentType.Bill)
+					if(Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
 					{
 						return Document?.Order != null;
 					}
@@ -184,14 +185,14 @@ namespace Vodovoz.Dialogs.Email
 
 				switch(Document.Type)
 				{
-					case OrderDocumentType.Bill :
+					case OrderDocumentType.Bill:
+					case OrderDocumentType.SpecialBill:
 						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
 							.Where(o => o.OrderDocument.Id == Document.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.Bill
-												&& _emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
 												&& Document.Order.Id > 0;
 						break;
 					case OrderDocumentType.BillWSForDebt:
@@ -200,8 +201,7 @@ namespace Vodovoz.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForDebt
-						                        && _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForAdvancePayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>()
@@ -209,8 +209,7 @@ namespace Vodovoz.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForAdvancePayment
-						                        && _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForPayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
@@ -218,8 +217,7 @@ namespace Vodovoz.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForPayment
-						                        && _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					default:
 						BtnSendEmailSensitive = false;
@@ -255,14 +253,15 @@ namespace Vodovoz.Dialogs.Email
 				result = false;
 			}
 
-			if(Document.Type == OrderDocumentType.Bill 
+			if((Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
 				&& (Document.Order?.Id == 0 || Document.Order?.OrderStatus == OrderStatus.NewOrder))
 			{
 				stringBuilder.AppendLine("Для отправки необходимо подтвердить заказ.");
 				result = false;
 			}
 
-			if(Document.Type == OrderDocumentType.Bill && client == null)
+			if((Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
+			   && client == null)
 			{
 				stringBuilder.AppendLine("Должен быть выбран клиент в заказе");
 				result = false;
@@ -331,6 +330,7 @@ namespace Vodovoz.Dialogs.Email
 					switch(Document.Type)
 					{
 						case OrderDocumentType.Bill:
+						case OrderDocumentType.SpecialBill:
 							var orderDocumentEmail = new OrderDocumentEmail
 							{
 								StoredEmail = storedEmail,
