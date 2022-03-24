@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -45,7 +45,8 @@ namespace Vodovoz.ViewModels.Logistic
 
             var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
             CanEditDistrict = districtPermissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanDeleteDistrict = (districtPermissionResult.CanDelete || districtPermissionResult.CanCreate && Entity.Id == 0) && Entity.Status != DistrictsSetStatus.Active;
+            CanEditDeliveryRules = CanEditDistrict || commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_rules");
+			CanDeleteDistrict = (districtPermissionResult.CanDelete || districtPermissionResult.CanCreate && Entity.Id == 0) && Entity.Status != DistrictsSetStatus.Active;
             CanCreateDistrict = districtPermissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
 
             var deliveryScheduleRestrictionPermissionResult =
@@ -71,7 +72,8 @@ namespace Vodovoz.ViewModels.Logistic
 
         public readonly bool CanChangeDistrictWageTypePermissionResult;
         public readonly bool CanEditDistrict;
-        public readonly bool CanEditDeliveryScheduleRestriction;
+        public readonly bool CanEditDeliveryRules;
+		public readonly bool CanEditDeliveryScheduleRestriction;
         public readonly bool CanDeleteDistrict;
         public readonly bool CanCreateDistrict;
         public readonly bool CanSave;

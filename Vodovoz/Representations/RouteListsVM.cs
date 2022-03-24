@@ -582,6 +582,7 @@ namespace Vodovoz.ViewModel
 									new GtkTabsOpener(),
 									new UndeliveredOrdersJournalOpener(),
 									new DeliveryShiftRepository(),
+									new EmployeeSettings(new ParametersProvider()),
 									new UndeliveredOrdersRepository()
 								)
 							);

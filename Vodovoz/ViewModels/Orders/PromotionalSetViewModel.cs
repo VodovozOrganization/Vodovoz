@@ -29,15 +29,15 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+
 		public PromotionalSetViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Orders
 					x => x.SelectCategory = NomenclatureCategory.water,
 					x => x.SelectSaleCategory = SaleCategory.forSale);
 
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, 
+				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory,
 					CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
 					_nomenclatureRepository, _userRepository) {
 					SelectionMode = JournalSelectionMode.Single
@@ -162,7 +162,7 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, 
+				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW,
 					_counterpartySelectorFactory, _nomenclatureRepository, _userRepository);
 				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
 

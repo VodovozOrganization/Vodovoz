@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "виды топлива",
 		Nominative = "вид топлива")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class FuelType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
@@ -27,7 +29,7 @@ namespace Vodovoz.Domain.Logistic
 
 		decimal cost;
 
-		[Display (Name = "Название")]
+		[Display (Name = "Цена")]
 		[Required (ErrorMessage = "Цена должна быть заполнена.")]
 		public virtual decimal Cost {
 			get { return cost; }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
 
 namespace DriverAPI.Controllers
 {
@@ -43,6 +44,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/EnablePushNotifications")]
 		public void EnablePushNotifications([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(FirebaseToken: {enablePushNotificationsRequest.Token}) User token: {tokenStr}");
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
@@ -55,6 +59,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/DisablePushNotifications")]
 		public void DisablePushNotifications()
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"User token: {tokenStr}");
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_employeeData.DisablePushNotifications(driver);

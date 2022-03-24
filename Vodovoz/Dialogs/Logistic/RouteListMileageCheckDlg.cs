@@ -85,6 +85,15 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
 				UpdateSensitivity();
 			}
+
+			if(_canEdit && Entity.Status != RouteListStatus.Closed)
+			{
+				if(!Entity.RecountMileage())
+				{
+					FailInitialize = true;
+					return;
+				}
+			}
 			
 			buttonAcceptFine.Clicked += ButtonAcceptFineOnClicked;	
 
@@ -125,7 +134,6 @@ namespace Vodovoz
 					.AddEnumRenderer(node => node.Status).Editing(false)
 				.AddColumn("Доставка за час")
 					.AddToggleRenderer(x => x.RouteListItem.Order.IsFastDelivery).Editing(false)
-					.AddSetter((c, n) => c.Visible = n.RouteListItem.Order.IsFastDelivery)
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
 				.RowCells()
@@ -146,11 +154,6 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ItemsDataSource = items;
 			ytextviewMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Buffer.Text).InitializeFromSource();
-			
-			if(_canEdit && Entity.Status != RouteListStatus.Closed)
-			{
-				Entity.RecountMileage();
-			}
 
 			//Телефон
 			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;

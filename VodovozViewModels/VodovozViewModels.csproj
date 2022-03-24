@@ -343,7 +343,7 @@
     <Compile Include="Infrastructure\Permissions\WarehousePermissionValidator.cs" />
     <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidatorFactory.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
-    <Compile Include="TempAdapters\INomenclatureSelectorFactory.cs" />
+    <Compile Include="TempAdapters\INomenclatureJournalFactory.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
@@ -428,37 +428,7 @@
     <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\" />
-    <Folder Include="ViewModels\Complaints\" />
-    <Folder Include="ViewModels\Employees\" />
-    <Folder Include="Infrastructure\" />
-    <Folder Include="Infrastructure\Services\" />
-    <Folder Include="TempAdapters\" />
-    <Folder Include="Infrastructure\InfoProviders\" />
-    <Folder Include="ViewModels\WageCalculation\" />
-    <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
-    <Folder Include="ViewModels\Warehouses\" />
-    <Folder Include="Infrastructure\Permissions\" />
-    <Folder Include="Infrastructure\Print\" />
-    <Folder Include="ViewModels\Contacts\" />
-    <Folder Include="ViewModels\Users\" />
-    <Folder Include="ViewModels\Permissions\" />
-    <Folder Include="Infrastructure\Report\" />
-    <Folder Include="Infrastructure\Report\SelectableParametersFilter\" />
-    <Folder Include="ViewModels\Reports\" />
-    <Folder Include="ViewModels\Logistic\" />
-    <Folder Include="Journals\" />
-    <Folder Include="Journals\JournalViewModels\" />
-    <Folder Include="Journals\JournalNodes\" />
-    <Folder Include="Journals\FilterViewModels\" />
-    <Folder Include="Journals\Nodes\" />
-    <Folder Include="Journals\Nodes\Cash\" />
-    <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewModels\Counterparty\" />
-    <Folder Include="ViewModels\Rent\" />
-    <Folder Include="ViewModels\Payments\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
@@ -560,7 +530,7 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="Vodovoz.ClosedXML.Report" Version="0.2.0.2" />
+    <PackageReference Include="Vodovoz.ClosedXML.Report" Version="0.2.0.1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

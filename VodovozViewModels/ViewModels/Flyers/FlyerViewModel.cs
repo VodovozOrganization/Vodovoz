@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IFlyerRepository flyerRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			FlyerAutocompleteSelectorFactory =

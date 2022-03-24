@@ -14,7 +14,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// </summary>
 		IEnumerable<BalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds);
 		decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId);
-		decimal GetCashInTransfering(IUnitOfWork uow);
+		decimal GetCashInTransferring(IUnitOfWork uow);
 		Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId);
 		decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId, int? excludedExpenseDoc = null);
 		Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId);

@@ -286,6 +286,7 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			_driverApiHelper?.Dispose();
 			base.Destroy();
 		}
 
@@ -718,21 +719,7 @@ namespace Vodovoz
 						OnContractChanged();
 						break;
 					case nameof(Order.Client):
-						var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
-						if(Entity.Client?.IsForRetail ?? false)
-						{
-							while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
-							{
-								enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
-							}
-						}
-						else
-						{
-							if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
-							{
-								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
-							}
-						}
+						UpdateAvailableEnumSignatureTypes();
 						if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 						{
 							Entity.OrderAddressType = OrderAddressType.ChainStore;
@@ -755,6 +742,28 @@ namespace Vodovoz
 
 			ybuttonToStorageLogicAddressType.Sensitive = ybuttonToDeliveryAddressType.Sensitive =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
+
+			UpdateAvailableEnumSignatureTypes();
+		}
+
+		private void UpdateAvailableEnumSignatureTypes()
+		{
+			var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
+			if(Entity.Client?.IsForRetail ?? false)
+			{
+				while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+				{
+					enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
+				}
+			}
+			else
+			{
+				if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+				{
+					enumSignatureType.AddEnumToHideList(signatureTranscriptType);
+				}
+			}
+			enumSignatureType.Binding.InitializeFromSource();
 		}
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
@@ -1913,7 +1922,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_employeeService,
-				NomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				_userRepository
@@ -1954,7 +1963,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_employeeService,
-				NomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				_userRepository

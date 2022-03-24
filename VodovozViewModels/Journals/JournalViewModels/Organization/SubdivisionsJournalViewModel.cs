@@ -26,7 +26,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public SubdivisionsJournalViewModel(
 			SubdivisionFilterViewModel filterViewModel,
@@ -34,7 +34,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organization
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory
+			INomenclatureJournalFactory nomenclatureSelectorFactory
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));

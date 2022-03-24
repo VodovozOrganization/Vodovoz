@@ -385,12 +385,13 @@ namespace SmsPaymentService
 
         public void SynchronizePaymentStatuses()
         {
-            try {
+            try
+			{
                 _logger.Info("Запущен процесс синхронизации статусов платежей");
                 
-                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-
-                    RouteListItem routeListItemAlias = null;
+                using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					RouteListItem routeListItemAlias = null;
                     Order orderAlias = null;
                     SmsPayment smsPaymentAlias = null;
                     RouteList routeListAlias = null;
@@ -406,12 +407,15 @@ namespace SmsPaymentService
                         .List<SmsPayment>();
 
                     int count = 0;
-                    foreach (var payment in payments) {
+                    foreach (var payment in payments)
+					{
                         var actualStatus = _paymentController.GetPaymentStatus(payment.ExternalId);
                         if(actualStatus == null || actualStatus == payment.SmsPaymentStatus)
-                            continue;
+						{
+							continue;
+						}
 
-                        switch (actualStatus.Value) {
+						switch (actualStatus.Value) {
                             case SmsPaymentStatus.WaitingForPayment:
                                 payment.SetWaitingForPayment();
                                 break;
@@ -426,18 +430,14 @@ namespace SmsPaymentService
                         }
 
                         uow.Save(payment);
+						uow.Commit();
                         count++;
                     }
 
-                    if(payments.Count == 0) {
-                        _logger.Info($"Не найдено ни одного платежа для синхронизации");
-                    }
-                    else {
-                        if(count != 0)
-                            uow.Commit();
-                        _logger.Info($"Синхронизировано {count} статусов платежей");
-                    }
-                }
+					_logger.Info(payments.Count == 0
+						? $"Не найдено ни одного платежа для синхронизации"
+						: $"Синхронизировано {count} статусов платежей");
+				}
             }
             catch (Exception ex) {
                 _logger.Error(ex,"При синхронизации произошла ошибка");

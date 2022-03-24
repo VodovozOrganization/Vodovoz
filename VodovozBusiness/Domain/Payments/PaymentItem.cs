@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref _payment, value);
 		}
 
+		[Display(Name = "Операция распределения по безналу")]
 		public virtual CashlessMovementOperation CashlessMovementOperation
 		{
 			get => _cashlessMovementOperation;

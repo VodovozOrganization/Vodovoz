@@ -150,7 +150,17 @@ namespace Vodovoz.SidePanel.InfoViews
 			});
 
 			var smsSender = new SmsPaymentSender();
-			var result = smsSender.SendSmsPaymentToNumber(_order.Id, validatedPhoneEntry.Text);
+			PaymentResult result;
+			try
+			{
+				result = smsSender.SendSmsPaymentToNumber(_order.Id, validatedPhoneEntry.Text);
+			}
+			catch(TimeoutException)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Превышено время ожидания ответа от сервиса оплаты по SMS.\nЕсли SMS не была отправлена, произведите повторную отправку");
+				return;
+			}
 			switch(result.Status)
 			{
 				case PaymentResult.MessageStatus.Ok:

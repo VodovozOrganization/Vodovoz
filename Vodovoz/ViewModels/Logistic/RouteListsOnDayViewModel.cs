@@ -99,7 +99,9 @@ namespace Vodovoz.ViewModels.Logistic
 			
 			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 			                                    throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
-			
+
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+
 			CreateUoW();
 
 			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
@@ -1509,5 +1511,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ObservableDeliverySummary.Add(totalLeft);
 			ObservableDeliverySummary.Add(totalForDay);
 		}
+
+		public bool CanСreateRoutelistInPastPeriod { get; }
 	}
 }
