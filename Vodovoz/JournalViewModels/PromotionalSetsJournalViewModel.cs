@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -19,7 +20,6 @@ namespace Vodovoz.JournalViewModels
 {
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
@@ -34,11 +34,11 @@ namespace Vodovoz.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
+			INavigationManager navigationManager = null,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(unitOfWorkFactory, commonServices, navigationManager, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -77,7 +77,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<PromotionalSetViewModel> CreateDialogFunction => () => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForCreate(),
-			_unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices,
 			_employeeService,
 			_counterpartySelectorFactory,
@@ -88,7 +88,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			_unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices,
 			_employeeService,
 			_counterpartySelectorFactory,

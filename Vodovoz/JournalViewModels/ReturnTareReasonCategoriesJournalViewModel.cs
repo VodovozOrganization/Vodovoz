@@ -2,6 +2,7 @@ using System;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -14,14 +15,14 @@ namespace Vodovoz.JournalViewModels
 {
     public class ReturnTareReasonCategoriesJournalViewModel : SingleEntityJournalViewModelBase<ReturnTareReasonCategory, ReturnTareReasonCategoryViewModel, ReturnTareReasonCategoriesJournalNode>
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public ReturnTareReasonCategoriesJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public ReturnTareReasonCategoriesJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager = null,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
+			: base(unitOfWorkFactory, commonServices, navigationManager, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Категории причин забора тары";
 
 			var threadLoader = DataLoader as ThreadDataLoader<ReturnTareReasonCategoriesJournalNode>;
@@ -51,13 +52,13 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<ReturnTareReasonCategoryViewModel> CreateDialogFunction => () => new ReturnTareReasonCategoryViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<ReturnTareReasonCategoriesJournalNode, ReturnTareReasonCategoryViewModel> OpenDialogFunction => node => new ReturnTareReasonCategoryViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices
 	   	);
 

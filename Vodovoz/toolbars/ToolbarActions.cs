@@ -693,17 +693,18 @@ public partial class MainWindow : Window
 	{
 		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
 
-		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
+		var financialDistrictsSetsJournal = new FinancialDistrictsSetsJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new EntityDeleteWorker(),
+			null,
 			true,
 			true
 		);
 
-		tdiMain.AddTab(paymentsJournalViewModel);
+		tdiMain.AddTab(financialDistrictsSetsJournal);
 	}
 
 
@@ -1145,7 +1146,7 @@ public partial class MainWindow : Window
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
 		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
+			new DeliveryRulesParametersProvider(new ParametersProvider()), null, true, true));
 	}
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)

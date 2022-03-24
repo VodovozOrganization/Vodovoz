@@ -3,6 +3,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Client;
@@ -27,8 +28,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			bool hideJournalForOpen,
-			bool hideJournalForCreate)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
+			bool hideJournalForCreate,
+			INavigationManager navigationManager = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager, hideJournalForOpen, hideJournalForCreate)
 		{
 			TabName = "Журнал точек доставки клиента";
 

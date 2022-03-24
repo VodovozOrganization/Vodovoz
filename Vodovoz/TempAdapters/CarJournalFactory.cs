@@ -27,8 +27,11 @@ namespace Vodovoz.TempAdapters
 				{
 					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
 					var journalViewModel =
-						new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-					journalViewModel.NavigationManager = _navigationManager;
+						new CarJournalViewModel(
+							filter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							_navigationManager);
 					journalViewModel.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
 					return journalViewModel;
 				});

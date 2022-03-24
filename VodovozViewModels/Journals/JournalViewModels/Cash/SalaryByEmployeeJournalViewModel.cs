@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Services;
@@ -28,9 +29,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			IGtkTabsOpener gtkTabsOpener,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager = null,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(filterViewModel,
+				unitOfWorkFactory,
+				commonServices,
+				navigationManager,
+				hideJournalForOpenDialog,
+				hideJournalForCreateDialog)
 		{
 			TabName = "Журнал выдач З/П";
 

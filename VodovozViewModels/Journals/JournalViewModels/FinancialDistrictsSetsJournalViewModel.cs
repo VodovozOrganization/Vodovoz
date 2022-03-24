@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -24,13 +25,12 @@ namespace Vodovoz.Journals.JournalViewModels
                                                      FinancialDistrictsSetsJournalNode, 
                                                      FinancialDistrictsSetsJournalFilterViewModel>
     {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly IEmployeeService employeeService;
-        private readonly IEntityDeleteWorker entityDeleteWorker;
+        private readonly IEmployeeService _employeeService;
+        private readonly IEntityDeleteWorker _entityDeleteWorker;
 		
-        private readonly bool canUpdate;
-        private readonly bool canCreate;
-        private readonly bool canActivateDistrictsSet;
+        private readonly bool _canUpdate;
+        private readonly bool _canCreate;
+        private readonly bool _canActivateDistrictsSet;
 
         public FinancialDistrictsSetsJournalViewModel(
             FinancialDistrictsSetsJournalFilterViewModel filterViewModel,
@@ -38,18 +38,23 @@ namespace Vodovoz.Journals.JournalViewModels
             ICommonServices commonServices,
             IEmployeeService employeeService,
             IEntityDeleteWorker entityDeleteWorker,
+			INavigationManager navigationManager = null,
             bool hideJournalForOpenDialog = false, 
             bool hideJournalForCreateDialog = false)
-            : base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+            : base(filterViewModel,
+				unitOfWorkFactory,
+				commonServices,
+				navigationManager,
+				hideJournalForOpenDialog,
+				hideJournalForCreateDialog)
         {
-            this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
-            this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            _entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
+            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			
-            canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_financial_districts_set");
+            _canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_financial_districts_set");
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialDistrictsSet));
-            canCreate = permissionResult.CanCreate;
-            canUpdate = permissionResult.CanUpdate;
+            _canCreate = permissionResult.CanCreate;
+            _canUpdate = permissionResult.CanUpdate;
 
             TabName = "Журнал версий финансовых районов";
             UpdateOnChanges(typeof(FinancialDistrictsSet));
@@ -85,11 +90,11 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		protected override Func<FinancialDistrictsSetViewModel> CreateDialogFunction => () =>
 			new FinancialDistrictsSetViewModel(
-				EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, entityDeleteWorker, employeeService);
+				EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _entityDeleteWorker, _employeeService);
 
 		protected override Func<FinancialDistrictsSetsJournalNode, FinancialDistrictsSetViewModel> OpenDialogFunction => node =>
 			new FinancialDistrictsSetViewModel(
-				EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, entityDeleteWorker, employeeService);
+				EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _entityDeleteWorker, _employeeService);
 		
 		protected override void CreateNodeActions()
 		{
@@ -103,7 +108,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private void CreateCopyAction()
 		{
 			var copyAction = new JournalAction("Копировать",
-				selectedItems => canCreate && 
+				selectedItems => _canCreate && 
 				                 selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault() != null,
 				selected => true,
 				selected => {
@@ -129,7 +134,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					if(commonServices.InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\"")) {
 						var copy = districtsSetToCopy.Clone() as FinancialDistrictsSet;
 						copy.Name += " - копия";
-						copy.Author = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
+						copy.Author = _employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
 						copy.Status = DistrictsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;
 						
@@ -156,7 +161,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Активировать",
-					selectedItems => canActivateDistrictsSet && canUpdate
+					selectedItems => _canActivateDistrictsSet && _canUpdate
 						&& selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
@@ -189,7 +194,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть",
-					selectedItems => canUpdate &&
+					selectedItems => _canUpdate &&
 						selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
@@ -218,7 +223,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"В черновик",
-					selectedItems => canUpdate &&
+					selectedItems => _canUpdate &&
 						selectedItems.OfType<FinancialDistrictsSetsJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Closed,
 					selectedItems => true,
 					selectedItems => {

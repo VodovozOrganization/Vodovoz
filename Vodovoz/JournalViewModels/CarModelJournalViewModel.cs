@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -23,9 +24,15 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICarManufacturerJournalFactory carManufacturerJournalFactory,
+			INavigationManager navigationManager = null,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(filterViewModel,
+				unitOfWorkFactory,
+				commonServices,
+				navigationManager,
+				hideJournalForOpenDialog,
+				hideJournalForCreateDialog)
 		{
 			_carManufacturerJournalFactory =
 				carManufacturerJournalFactory ?? throw new ArgumentNullException(nameof(carManufacturerJournalFactory));

@@ -904,7 +904,11 @@ namespace Vodovoz.Views.Logistic
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
-			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ViewModel.CommonServices);
+			var journal = new CarJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ViewModel.CommonServices,
+				ViewModel.NavigationManager);
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>
 			{

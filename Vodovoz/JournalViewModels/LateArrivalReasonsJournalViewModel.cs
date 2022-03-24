@@ -9,19 +9,20 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.JournalNodes;
 using NHibernate;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class LateArrivalReasonsJournalViewModel : SingleEntityJournalViewModelBase<LateArrivalReason, LateArrivalReasonViewModel, LateArrivalReasonsJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-
-		public LateArrivalReasonsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public LateArrivalReasonsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager = null,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
+			: base(unitOfWorkFactory, commonServices, navigationManager, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
 			TabName = "Причины опозданий водителей";
 
 			var threadLoader = DataLoader as ThreadDataLoader<LateArrivalReasonsJournalNode>;
@@ -53,13 +54,13 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<LateArrivalReasonViewModel> CreateDialogFunction => () => new LateArrivalReasonViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<LateArrivalReasonsJournalNode, LateArrivalReasonViewModel> OpenDialogFunction => node => new LateArrivalReasonViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices
 	   	);
 
@@ -69,7 +70,6 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
-
 		}
 	}
 }

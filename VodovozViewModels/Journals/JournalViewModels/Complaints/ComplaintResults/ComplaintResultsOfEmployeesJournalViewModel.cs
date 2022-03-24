@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -17,9 +18,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResu
 		public ComplaintResultsOfEmployeesJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager = null,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false
-		) : base(uowFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		) : base(uowFactory, commonServices, navigationManager, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			TabName = "Журнал результатов рекламаций по сотрудникам";
 			

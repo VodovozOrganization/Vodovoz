@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -23,8 +24,13 @@ namespace Vodovoz.Journals.JournalViewModels
 	public sealed class DistrictsSetJournalViewModel : FilterableSingleEntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode, DistrictsSetJournalFilterViewModel>
 	{
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IEntityDeleteWorker _entityDeleteWorker;
+		private readonly bool _canUpdate;
+		private readonly bool _canCreate;
+		private readonly bool _canActivateDistrictsSet;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
-		
+
 		public DistrictsSetJournalViewModel(
 			DistrictsSetJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -32,20 +38,25 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeRepository employeeRepository,
 			IEntityDeleteWorker entityDeleteWorker,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			INavigationManager navigationManager = null,
 			bool hideJournalForOpenDialog = false, 
 			bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(filterViewModel,
+				unitOfWorkFactory,
+				commonServices,
+				navigationManager,
+				hideJournalForOpenDialog,
+				hideJournalForCreateDialog)
 		{
-			this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_deliveryRulesParametersProvider = 
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			
-			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
+			_canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
-			canCreate = permissionResult.CanCreate;
-			canUpdate = permissionResult.CanUpdate;
+			_canCreate = permissionResult.CanCreate;
+			_canUpdate = permissionResult.CanUpdate;
 			_сanChangeOnlineDeliveriesToday = 
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_online_deliveries_today");
 
@@ -53,14 +64,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			UpdateOnChanges(typeof(DistrictsSet));
 			SetIsStoppedOnlineDeliveriesToday();
 		}
-
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly IEmployeeRepository employeeRepository;
-		private readonly IEntityDeleteWorker entityDeleteWorker;
-		
-		private readonly bool canUpdate;
-		private readonly bool canCreate;
-		private readonly bool canActivateDistrictsSet;
 		
 		private bool IsStoppedOnlineDeliveriesToday { get; set; }
 
@@ -96,19 +99,19 @@ namespace Vodovoz.Journals.JournalViewModels
 		protected override Func<DistrictsSetViewModel> CreateDialogFunction => () =>
 			new DistrictsSetViewModel(
 				EntityUoWBuilder.ForCreate(),
-				unitOfWorkFactory,
+				UnitOfWorkFactory,
 				commonServices,
-				entityDeleteWorker,
-				employeeRepository,
+				_entityDeleteWorker,
+				_employeeRepository,
 				new DistrictRuleRepository());
 
 		protected override Func<DistrictsSetJournalNode, DistrictsSetViewModel> OpenDialogFunction => node =>
 			new DistrictsSetViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
-				unitOfWorkFactory,
+				UnitOfWorkFactory,
 				commonServices,
-				entityDeleteWorker,
-				employeeRepository,
+				_entityDeleteWorker,
+				_employeeRepository,
 				new DistrictRuleRepository());
 		
 		protected override void CreateNodeActions()
@@ -130,7 +133,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private void CreateCopyAction()
 		{
 			var copyAction = new JournalAction("Копировать",
-				selectedItems => canCreate && selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault() != null,
+				selectedItems => _canCreate && selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault() != null,
 				selected => true,
 				selected => {
 					var selectedNode = selected.OfType<DistrictsSetJournalNode>().FirstOrDefault();
@@ -151,7 +154,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						{
 							copy.Name = copy.Name.Remove(DistrictsSet.NameMaxLength);
 						}
-						copy.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
+						copy.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 						copy.Status = DistrictsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;
 						
@@ -213,7 +216,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Активировать",
-					selectedItems => canActivateDistrictsSet && canUpdate
+					selectedItems => _canActivateDistrictsSet && _canUpdate
 						&& selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
@@ -250,7 +253,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть",
-					selectedItems => canUpdate &&
+					selectedItems => _canUpdate &&
 						selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
@@ -277,7 +280,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"В черновик",
-					selectedItems => canUpdate &&
+					selectedItems => _canUpdate &&
 						selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Closed,
 					selectedItems => true,
 					selectedItems => {
@@ -298,6 +301,5 @@ namespace Vodovoz.Journals.JournalViewModels
 				)
 			);
 		}
-		
 	}
 }

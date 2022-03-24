@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using QS.Navigation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -18,9 +19,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
     /// <summary>
     /// View Model журнала ответственных за точку доставки лиц
     /// </summary>
-    public class DeliveryPointResponsiblePersonJournalViewModel : FilterableSingleEntityJournalViewModelBase<DeliveryPointResponsiblePerson, DeliveryPointResponsiblePersonViewModel, DeliveryPointResponsiblePersonJournalNode, DeliveryPointResponsiblePersonJournalFilterViewModel>
+    public class DeliveryPointResponsiblePersonJournalViewModel
+		: FilterableSingleEntityJournalViewModelBase<DeliveryPointResponsiblePerson,
+			DeliveryPointResponsiblePersonViewModel,
+			DeliveryPointResponsiblePersonJournalNode,
+			DeliveryPointResponsiblePersonJournalFilterViewModel>
     {
-        public DeliveryPointResponsiblePersonJournalViewModel(DeliveryPointResponsiblePersonJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false) : base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+        public DeliveryPointResponsiblePersonJournalViewModel(
+			DeliveryPointResponsiblePersonJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager = null,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
+			: base(filterViewModel,
+				unitOfWorkFactory,
+				commonServices,
+				navigationManager,
+				hideJournalForOpenDialog,
+				hideJournalForCreateDialog)
         {
             TabName = "Журнал ответственных за точку доставки лиц";
         }

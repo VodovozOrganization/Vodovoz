@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -31,7 +32,8 @@ namespace Vodovoz.JournalViewModels
 		public CarJournalViewModel(
 			CarJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager) : base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			TabName = "Журнал автомобилей";
 			UpdateOnChanges(

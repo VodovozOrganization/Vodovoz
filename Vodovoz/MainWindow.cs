@@ -539,8 +539,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
-		var page = NavigationManager.OpenViewModel<CarJournalViewModel>(null);
-		page.ViewModel.NavigationManager = NavigationManager;
+		NavigationManager.OpenViewModel<CarJournalViewModel>(null);
 	}
 
 	protected void OnActionUnitsActivated(object sender, EventArgs e)
@@ -2219,8 +2218,11 @@ public partial class MainWindow : Gtk.Window
 					};
 					filter.SetFilterSensitivity(false);
 					filter.CanChangeRestrictedCarOwnTypes = true;
-					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices);
+					return new CarJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						NavigationManager);
 				}
 			);
 

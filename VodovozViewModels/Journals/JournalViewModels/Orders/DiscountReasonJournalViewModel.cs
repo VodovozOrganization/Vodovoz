@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -27,9 +28,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IDiscountReasonRepository discountReasonRepository,
 			IProductGroupJournalFactory productGroupJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			INavigationManager navigationManager = null,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
+			: base(unitOfWorkFactory, commonServices, navigationManager, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
@@ -72,7 +74,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		protected override Func<DiscountReasonViewModel> CreateDialogFunction =>
 			() => new DiscountReasonViewModel(
 				EntityUoWBuilder.ForCreate(),
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+				UnitOfWorkFactory,
 				commonServices,
 				_discountReasonRepository,
 				_productGroupJournalFactory,
@@ -81,7 +83,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
 			(node) => new DiscountReasonViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+				UnitOfWorkFactory,
 				commonServices,
 				_discountReasonRepository,
 				_productGroupJournalFactory,
