@@ -14,6 +14,7 @@ namespace Vodovoz.EntityRepositories.Payments
 		bool NotManuallyPaymentFromBankClientExists(
 			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber);
 		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId);
+		int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId);
 		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider);
 		IList<Payment> GetAllDistributedPayments(IUnitOfWork uow);
 		Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId);

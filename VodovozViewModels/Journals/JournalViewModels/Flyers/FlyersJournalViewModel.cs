@@ -16,13 +16,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 {
 	public class FlyersJournalViewModel : SingleEntityJournalViewModelBase<Flyer, FlyerViewModel, FlyersJournalNode>
 	{
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IFlyerRepository _flyerRepository;
 		
 		public FlyersJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IFlyerRepository flyerRepository,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false

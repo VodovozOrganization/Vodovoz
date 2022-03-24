@@ -28,7 +28,8 @@ namespace Vodovoz.ViewModels.Client
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+
 		public event EventHandler ListContentChanged;
 
 		public IJournalSearch Search { get; private set; }
@@ -39,7 +40,7 @@ namespace Vodovoz.ViewModels.Client
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository)
 			: base(entity, commonServices)
@@ -50,8 +51,8 @@ namespace Vodovoz.ViewModels.Client
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+
 			CreateCommands();
 			RefreshPrices();
 			
@@ -102,7 +103,7 @@ namespace Vodovoz.ViewModels.Client
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
 						employeeService,
-						nomenclatureSelectorFactory,
+						_nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
 						userRepository

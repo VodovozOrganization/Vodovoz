@@ -22,11 +22,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public ComplaintKindJournalViewModel(ComplaintKindJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IEntityAutocompleteSelectorFactory employeeSelectorFactory, ISalesPlanJournalFactory salesPlanJournalFactory, 
-			INomenclatureSelectorFactory nomenclatureSelectorFactory)
+			INomenclatureJournalFactory nomenclatureSelectorFactory)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
