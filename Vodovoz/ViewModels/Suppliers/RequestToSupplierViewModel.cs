@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Suppliers
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{

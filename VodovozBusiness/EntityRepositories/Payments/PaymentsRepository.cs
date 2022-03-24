@@ -84,6 +84,17 @@ namespace Vodovoz.EntityRepositories.Payments
 
 			return income - expense;
 		}
+		
+		public int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId)
+		{
+			return uow.Session.QueryOver<Payment>()
+				.Where(p => p.IsManuallyCreated)
+				.And(p => p.Counterparty.Id == counterpartyId)
+				.And(p => p.Organization.Id == organizationId)
+				.And(p => p.Date.Year == DateTime.Today.Year)
+				.Select(Projections.Max<Payment>(p => p.PaymentNum))
+				.SingleOrDefault<int>();
+		}
 
 		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider)
 		{

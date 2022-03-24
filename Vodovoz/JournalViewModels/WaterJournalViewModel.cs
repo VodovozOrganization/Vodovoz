@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -26,7 +26,7 @@ namespace Vodovoz.JournalViewModels
     public class WaterJournalViewModel: SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
@@ -35,14 +35,14 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
 		) : base(unitOfWorkFactory, commonServices) 
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -141,7 +141,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
+				employeeService, _nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
 				userRepository);
 	}
 }

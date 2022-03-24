@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -175,6 +176,45 @@ namespace Vodovoz.Domain.Employees
 
 				uow.Save(item.FuelOutlayedOperation);
 			}
+		}
+
+		public virtual void SaveAdditionalWorkingClothesFine(IUnitOfWork uow, IEmployeeSettings employeeSettings)
+		{
+			if(!uow.IsNew)
+			{
+				return;
+			}
+			if(FineType != FineTypes.Standart)
+			{
+				return;
+			}
+			var workingClothesTemplate = uow.GetById<FineTemplate>(employeeSettings.WorkingClothesFineTemplateId);
+			if(FineReasonString != workingClothesTemplate.Reason)
+			{
+				return;
+			}
+
+			var additionalEntity = new Fine();
+			additionalEntity.Author = Author;
+			additionalEntity.Date = Date.AddDays(14);
+			additionalEntity.FineType = FineType;
+			additionalEntity.FineReasonString = FineReasonString;
+
+			foreach(var fineItem in Items)
+			{
+				var newFineItem = new FineItem()
+				{
+					Employee = fineItem.Employee,
+					Money = Math.Round(fineItem.Money / 2, 2),
+					Fine = additionalEntity
+				};
+				fineItem.Money = fineItem.Money - newFineItem.Money;
+				additionalEntity.Items.Add(newFineItem);
+			}
+
+			additionalEntity.TotalMoney = additionalEntity.Items.Sum(x => x.Money);
+			TotalMoney = additionalEntity.Items.Sum(x => x.Money);
+			uow.Save(additionalEntity);
 		}
 
 		#endregion
