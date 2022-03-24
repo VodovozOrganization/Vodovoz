@@ -1639,9 +1639,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
-				() => new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
+			TabParent.AddSlaveTab(this, new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
 			);
 		}
 
