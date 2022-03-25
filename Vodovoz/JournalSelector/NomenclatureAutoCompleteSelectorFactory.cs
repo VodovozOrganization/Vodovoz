@@ -26,10 +26,11 @@ namespace Vodovoz.JournalSelector
 
 		public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
 		{
+			var nomecnlatureJournalFactory = new NomenclatureJournalFactory();
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
 			.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, 
-				UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService, 
-				this, counterpartySelectorFactory, nomenclatureRepository, userRepository});
+				UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService,
+				nomecnlatureJournalFactory, counterpartySelectorFactory, nomenclatureRepository, userRepository});
 			
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 			return selectorViewModel;
