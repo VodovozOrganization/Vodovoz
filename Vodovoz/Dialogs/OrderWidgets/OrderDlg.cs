@@ -3229,20 +3229,19 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument))
+			var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill);
+
+			if(document == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи о письме со счетом"))
 			{
 				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-
-				var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
 
 				var storedEmail = new StoredEmail
 				{
