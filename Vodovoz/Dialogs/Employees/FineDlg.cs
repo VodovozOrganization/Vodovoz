@@ -127,6 +127,14 @@ namespace Vodovoz
 			ylabelDate.Binding
 				.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp)
 				.InitializeFromSource();
+			ylabelDate.Visible = !UoW.IsNew;
+
+			ydatepicker.Binding
+				.AddBinding(Entity, e => e.Date, w => w.Date)
+				.InitializeFromSource();
+			ydatepicker.Visible = UoW.IsNew;
+			ydatepicker.IsEditable = true;
+
 			yspinMoney.Binding
 				.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal)
 				.InitializeFromSource();
@@ -164,7 +172,6 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.SaveAdditionalWorkingClothesFine(UoW, new EmployeeSettings(new ParametersProvider()));
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 
