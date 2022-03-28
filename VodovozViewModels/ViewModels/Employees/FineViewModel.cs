@@ -118,6 +118,8 @@ namespace Vodovoz.ViewModels.Employees
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 
+		public bool IsNewFine => UoW.IsNew;
+
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
@@ -173,7 +175,6 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override void BeforeSave()
 		{
-			Entity.SaveAdditionalWorkingClothesFine(UoW, _employeeSettings);
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 			base.BeforeSave();

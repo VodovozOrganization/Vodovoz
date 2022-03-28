@@ -1124,7 +1124,7 @@
     <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
     <Compile Include="JournalViewModels\SelfDeliveriesJournalViewModel.cs" />
     <Compile Include="JournalNodes\SelfDeliveryJournalNode.cs" />
-    <Compile Include="Infrastructure\Converters\BooleanInvertedConverted.cs" />
+    <Compile Include="Infrastructure\Converters\BooleanInvertedConverter.cs" />
     <Compile Include="JournalViewModels\ClientCameFromJournalViewModel.cs" />
     <Compile Include="Filters\ViewModels\ClientCameFromFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ClientCameFromFilterView.cs" />
