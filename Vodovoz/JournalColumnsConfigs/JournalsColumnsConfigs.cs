@@ -1510,6 +1510,17 @@ namespace Vodovoz.JournalColumnsConfigs
 						.Digits(2)
 					.Finish()
 			);
+
+			//TrackPointJournalViewModel
+			TreeViewColumnsConfigFactory.Register<TrackPointJournalViewModel>(
+				() => FluentColumnsConfig<TrackPointJournalNode>.Create()
+					.AddColumn("Номер МЛ").AddNumericRenderer(node => node.RouteListId)
+					.AddColumn("Время").AddTextRenderer(node => node.Time.ToString("G"))
+					.AddColumn("Долгота").AddNumericRenderer(node => node.Longitude).Digits(8)
+					.AddColumn("Широта").AddNumericRenderer(node => node.Latitude).Digits(8)
+					.AddColumn("Время получения").AddTextRenderer(node => node.ReceiveTime.ToString("G"))
+					.Finish()
+			);
 		}
 	}
 }
