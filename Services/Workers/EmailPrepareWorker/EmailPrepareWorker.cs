@@ -93,7 +93,7 @@ namespace EmailPrepareWorker
 
 			QS.HistoryLog.HistoryMain.Enable();
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Status update worker"))
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
 			{
 				_instanceId = Convert.ToInt32(unitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
