@@ -60,7 +60,8 @@ namespace Vodovoz.ViewModels.Employees
 			);
 
 			SetPropertyChangeRelation(e => e.RouteList,
-				() => CanShowRequestRouteListMessage
+				() => CanShowRequestRouteListMessage,
+				() => DateEditable
 			);
 
 			OnEntityPropertyChanged(SetDefaultReason,
@@ -118,7 +119,7 @@ namespace Vodovoz.ViewModels.Employees
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 
-		public bool IsNewFine => UoW.IsNew;
+		public bool DateEditable => UoW.IsNew && Entity.RouteList == null;
 
 		#region IAskSaveOnCloseViewModel
 
