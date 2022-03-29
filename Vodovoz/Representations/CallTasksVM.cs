@@ -26,8 +26,6 @@ namespace Vodovoz.Representations
 		private readonly Pixbuf img;
 		private readonly Pixbuf emptyImg;
 
-		private int taskCount = 0;
-
 		private CallTaskFilterViewModel filter;
 		public CallTaskFilterViewModel Filter 
 		{
@@ -176,7 +174,6 @@ namespace Vodovoz.Representations
 				)
 			.TransformUsing(Transformers.AliasToBean<CallTaskVMNode>())
 			.List<CallTaskVMNode>();
-			taskCount = tasks.Count;
 			tasks = SortResult(tasks).ToList();
 			SetItemsSource(tasks);
 		}
@@ -249,7 +246,7 @@ namespace Vodovoz.Representations
 			var jobTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Task);
 			statisticsParam.Add("Заданий : ", difTaskQuery.RowCount());
 
-			statisticsParam.Add("Кол-во задач : ", taskCount);
+			statisticsParam.Add("Кол-во задач : ", ItemsList.Count);
 
 			statisticsParam.Add("Тара на забор : ", ItemsList.OfType<CallTaskVMNode>().Sum(x => x.TareReturn));
 
