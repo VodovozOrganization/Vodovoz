@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "order_id",  Order.Id },
 					{ "hide_signature", HideSignature },
 					{ "special", true },
-					{ "special_contract_number", "" },
+					{ "special_contract_number", SpecialContractNumber },
 					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
 				}
 			};
@@ -35,7 +35,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => String.Format("Особый счет №{0} от {1:d}", Order.Id, Order.BillDate);
+		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.SpecialContractNumber : string.Empty;
+
+		public virtual string Title => $"Особый счет № { Order.Id } от { Order.BillDate.ToShortDateString() } { SpecialContractNumber }";
 
 		public override string Name => String.Format("Особый счет №{0}", Order.Id);
 
