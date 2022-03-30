@@ -44,7 +44,7 @@
           <TableColumn>
             <Width>43.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>46.1pt</Width>
           </TableColumn>
         </TableColumns>
@@ -137,7 +137,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>Кол-во отгруж. в посл. реализ. бутыл.</Value>
@@ -265,7 +265,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>={delivered_bottles}</Value>
@@ -328,7 +328,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>=Sum({delivered_bottles})</Value>
@@ -540,14 +540,65 @@ WHERE
                 )
             )
         )
-        
-    )       
+    )
+    AND (
+    		(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString1,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString1,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString1, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString1, counterparty.id))
+			)
+			AND
+			(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString2,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString2,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString2, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString2, counterparty.id))
+    		)
+			AND
+			(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString3,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString3,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString3, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString3, counterparty.id))
+    		)
+			AND
+			(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString4,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString4,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString4, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString4, counterparty.id))
+    		)
+		)
+		AND
+		(
+			@HideWithoutEmail = ''
+			OR
+			EXISTS (
+				SELECT
+					id
+				FROM
+					emails
+				WHERE
+					emails.counterparty_id = counterparty.id
+			)
+		)
         
 GROUP BY
     delivery_points.id,
-    counterparty.id
-    
-</CommandText>
+    counterparty.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="CounterpartyId">
             <Value>={?CounterpartyId}</Value>
@@ -588,6 +639,21 @@ GROUP BY
           <QueryParameter Name="HideWithOneOrder">
             <Value>={?HideWithOneOrder}</Value>
           </QueryParameter>
+          <QueryParameter Name="SearchString1">
+            <Value>={?SearchString1}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SearchString2">
+            <Value>={?SearchString2}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SearchString3">
+            <Value>={?SearchString3}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SearchString4">
+            <Value>={?SearchString4}</Value>
+          </QueryParameter>
+          <QueryParameter Name="HideWithoutEmail">
+            <Value>={?HideWithoutEmail}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -609,7 +675,7 @@ GROUP BY
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="discount_reason_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -720,6 +786,41 @@ GROUP BY
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString1">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString2">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString3">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString4">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="HideWithoutEmail">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

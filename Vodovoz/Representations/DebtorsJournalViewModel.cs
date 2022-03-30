@@ -646,7 +646,12 @@ namespace Vodovoz.Representations
 					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : ""},
 					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : ""},
 					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""},
-					{ "HideWithOneOrder", FilterViewModel.HideWithOneOrder ? "true" : ""}
+					{ "HideWithOneOrder", FilterViewModel.HideWithOneOrder ? "true" : ""},
+					{ "SearchString1", Search.SearchValues?.Length > 0 ? Search.SearchValues[0] : null },
+					{ "SearchString2", Search.SearchValues?.Length > 1 ? Search.SearchValues[1] : null },
+					{ "SearchString3", Search.SearchValues?.Length > 2 ? Search.SearchValues[2] : null },
+					{ "SearchString4", Search.SearchValues?.Length > 3 ? Search.SearchValues[3] : null },
+					{ "HideWithoutEmail", FilterViewModel.HideWithoutEmail ? "true" : "" }
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
