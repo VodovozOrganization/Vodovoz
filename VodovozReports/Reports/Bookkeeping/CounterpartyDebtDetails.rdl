@@ -43,7 +43,7 @@
           <TableColumn>
             <Width>112.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>100.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -104,7 +104,29 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>="Кол-во дней отсрочки: " + First({delay_days_for_buyers}, "Counterparty")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -219,7 +241,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>Статус заказа/платежа</Value>
@@ -239,7 +261,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>Описание платежа</Value>
+                      <Value>Описание платежа / Дней просрочки по заказам</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -362,11 +384,10 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -527,7 +548,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>={doc_status}</Value>
@@ -606,7 +627,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     0 AS income,
@@ -685,7 +706,7 @@ ORDER BY date DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="income">
           <DataField>income</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -719,7 +740,7 @@ ORDER BY date DESC;</CommandText>
     <DataSet Name="Counterparty">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT c.name
+        <CommandText>SELECT c.name, c.delay_days_for_buyers
 FROM counterparty c
 WHERE c.id = @counterparty_id</CommandText>
         <QueryParameters>
@@ -733,6 +754,10 @@ WHERE c.id = @counterparty_id</CommandText>
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="delay_days_for_buyers">
+          <DataField>delay_days_for_buyers</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -742,13 +767,12 @@ WHERE c.id = @counterparty_id</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -803,7 +827,7 @@ WHERE c.id = @counterparty_id</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt/>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
