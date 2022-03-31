@@ -1151,7 +1151,7 @@ namespace Vodovoz.JournalViewModels
 		private bool CanCreateComplaint(object[] selectedItems)
 		{
 			var selectedNode = GetSelectedNode(selectedItems);
-			if(selectedNode.EntityType != typeof(VodovozOrder))
+			if(selectedNode?.EntityType != typeof(VodovozOrder))
 			{
 				return false;
 			}
