@@ -959,7 +959,7 @@ public partial class MainWindow : Window
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
 		);
 	}
 
