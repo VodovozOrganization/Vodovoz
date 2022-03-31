@@ -22,6 +22,8 @@ namespace Vodovoz.Filters.GtkViews
 			yvalidatedentryRouteListId.KeyReleaseEvent += OnKeyReleased;
 			yvalidatedentryRouteListId.ValidationMode = ValidationType.numeric;
 			yvalidatedentryRouteListId.Binding.AddBinding(ViewModel, vm => vm.RouteListId, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			
+			ylabelRouteList.Binding.AddBinding(ViewModel, vm => vm.RouteListLabelText, w => w.LabelProp).InitializeFromSource();
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)

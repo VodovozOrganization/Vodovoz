@@ -37,6 +37,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		protected override Func<IUnitOfWork, IQueryOver<TrackPoint>> ItemsSourceQueryFunction => (uow) =>
 		{
+			if(FilterViewModel.RouteListId == null)
+			{
+				return null;
+			}
+
 			TrackPoint trackPointAlias = null;
 			Track trackAlias = null;
 			TrackPointJournalNode resultAlias = null;
