@@ -358,7 +358,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -376,7 +376,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1010,7 +1010,8 @@ Switch(
    {payment_type}='barter', 'Оплачено',
    {payment_type}='ContractDoc', 'Оплачено',
    {payment_type}='Terminal', 'Терминал',
-   {payment_type}='cash',  Iif({payment_by_sms}, 'Наличными или по смс', 'Наличными')
+   {payment_type}='cash',  Iif({payment_by_sms}, 'Наличными
+или смс', 'Наличными')
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
