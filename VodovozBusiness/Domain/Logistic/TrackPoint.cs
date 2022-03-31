@@ -7,12 +7,15 @@ namespace Vodovoz.Domain.Logistic
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки трека",
 		Nominative = "точка трека")]
-	public class TrackPoint : PropertyChangedBase
+	public class TrackPoint : PropertyChangedBase, IDomainObject
 	{
 		private Track _track;
 		private double _latitude;
 		private double _longitude;
 		private DateTime _timeStamp;
+		private DateTime _receiveTimeStamp;
+
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Трек")]
 		public virtual Track Track
@@ -40,6 +43,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _timeStamp;
 			set => SetField(ref _timeStamp, value, () => TimeStamp);
+		}
+
+		[Display(Name = "Время получения координаты")]
+		public virtual DateTime ReceiveTimeStamp
+		{
+			get => _receiveTimeStamp;
+			set => SetField(ref _receiveTimeStamp, value);
 		}
 
 		public override bool Equals(object obj)

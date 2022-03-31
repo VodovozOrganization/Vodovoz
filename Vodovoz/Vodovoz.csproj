@@ -1687,6 +1687,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.AdditionalLoadingTextView.cs" />
     <Compile Include="ViewWidgets\Logistics\AdditionalLoadingItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.AdditionalLoadingItemsView.cs" />
+    <Compile Include="Filters\GtkViews\TrackPointJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.TrackPointJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
