@@ -1075,6 +1075,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1091,6 +1093,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
