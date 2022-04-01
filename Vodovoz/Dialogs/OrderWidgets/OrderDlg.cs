@@ -780,6 +780,12 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
+			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
+			{
+				MessageDialogHelper.RunWarningDialog("Доставка за час возможна только на текущую дату");
+				return;
+			}
+
 			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(Entity.PaymentType))
 			{
 				MessageDialogHelper.RunWarningDialog(
@@ -1413,6 +1419,11 @@ namespace Vodovoz
 
 			if(Entity.IsFastDelivery)
 			{
+				if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
+				{
+					throw new InvalidOperationException("Доставка за час возможна только на текущую дату");
+				}
+
 				if(Entity.DeliveryPoint?.Latitude == null || Entity.DeliveryPoint.Longitude == null)
 				{
 					throw new InvalidOperationException(
