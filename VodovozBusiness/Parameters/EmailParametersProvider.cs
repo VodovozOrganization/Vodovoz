@@ -15,5 +15,7 @@ namespace Vodovoz.Parameters
 		public string DefaultEmailSenderAddress => _parametersProvider.GetStringValue("email_for_email_delivery");
 		public string DocumentEmailSenderName => DefaultEmailSenderName;
 		public string DocumentEmailSenderAddress => DefaultEmailSenderAddress;
+		public string InvalidSignatureNotificationEmailAddress =>
+			_parametersProvider.GetStringValue("invalid_signature_notification_email");
 	}
 }

@@ -51,7 +51,7 @@ namespace VodovozBusinessTests.Deletion
 		[Test, TestCaseSource(nameof(NhibernateMappedClasses))]
 		public override void DeleteRuleExisitForNHMappedClasssTest(NHibernate.Mapping.PersistentClass mapping)
 		{
-			base.DeleteRuleExisitForNHMappedClasssTest(mapping);
+			base.DeleteRuleExistForNhMappedClassTest(mapping);
 		}
 
 		public new static IEnumerable NhibernateMappedEntityRelation => DeleteConfigTestBase.NhibernateMappedEntityRelation;
@@ -59,7 +59,7 @@ namespace VodovozBusinessTests.Deletion
 		[Test, TestCaseSource(nameof(NhibernateMappedEntityRelation))]
 		public override void DeleteRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property)
 		{
-			base.DeleteRuleExisitForNHMappedEntityRelationTest(mapping, property);
+			base.DeleteRuleExistForNhMappedEntityRelationTest(mapping, property);
 		}
 
 		public new static IEnumerable NhibernateMappedEntityRelationWithExistRule => DeleteConfigTestBase.NhibernateMappedEntityRelationWithExistRule;
@@ -67,7 +67,7 @@ namespace VodovozBusinessTests.Deletion
 		[Test, TestCaseSource(nameof(NhibernateMappedEntityRelationWithExistRule))]
 		public override void DependenceRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
 		{
-			base.DependenceRuleExisitForNHMappedEntityRelationTest(mapping, property, related);
+			base.DependenceRuleExistForNhMappedEntityRelationTest(mapping, property, related);
 		}
 
 		public new static IEnumerable NhibernateMappedEntityRelationWithExistRuleCascadeRelated => DeleteConfigTestBase.NhibernateMappedEntityRelationWithExistRuleCascadeRelated;
@@ -75,7 +75,7 @@ namespace VodovozBusinessTests.Deletion
 		[Test, TestCaseSource(nameof(NhibernateMappedEntityRelationWithExistRuleCascadeRelated))]
 		public override void CascadeDependenceRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
 		{
-			base.CascadeDependenceRuleExisitForNHMappedEntityRelationTest(mapping, property, related);
+			base.CascadeDependenceRuleExistForNhMappedEntityRelationTest(mapping, property, related);
 		}
 
 		public new static IEnumerable NhibernateMappedCollection => DeleteConfigTestBase.NhibernateMappedCollection;

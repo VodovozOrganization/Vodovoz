@@ -119,6 +119,8 @@
     <Compile Include="Domain\Employees\CashSubdivisionSortingSettings.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
+    <Compile Include="Domain\FastPayments\FastPayment.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
@@ -236,6 +238,8 @@
     <Compile Include="EntityRepositories\Equipments\IEquipmentKindRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\IEquipmentRepository.cs" />
     <Compile Include="EntityRepositories\Equipments\LocationType.cs" />
+    <Compile Include="EntityRepositories\FastPayments\FastPaymentRepository.cs" />
+    <Compile Include="EntityRepositories\FastPayments\IFastPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\FlyerRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\IFlyerRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
@@ -328,6 +332,7 @@
     <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentBaseMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminal\DriverAttachedTerminalDocumentsMap.cs" />
     <Compile Include="HibernateMapping\Employees\CashSubdivisionSortingSettingsMap.cs" />
+    <Compile Include="HibernateMapping\FastPayments\FastPaymentMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
@@ -393,6 +398,7 @@
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
+    <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
     <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\EmailParametersProvider.cs" />
@@ -404,6 +410,7 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Services\IFastPaymentParametersProvider.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
