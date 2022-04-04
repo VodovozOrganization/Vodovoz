@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -183,6 +184,23 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						}
 						Entity.AddNewWriteoffItem(UoW.GetById<FuelType>(node.Id));
 					};
+
+					var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
+					if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
+					{
+						var viewAction = new JournalAction("Просмотр",
+							(selected) => selected.Any(),
+							(selected) => true,
+							(selected) =>
+							{
+								var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
+								fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
+							}
+						);
+
+						(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
+					}
+
 					TabParent.AddSlaveTab(this, fuelTypeJournalViewModel);
 				},
 				() => CanEdit

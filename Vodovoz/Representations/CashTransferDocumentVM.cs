@@ -84,7 +84,7 @@ namespace Vodovoz.Representations
 
 		public override string GetSummaryInfo()
 		{
-			return $"{ base.GetSummaryInfo() }. В сейфе инкасcатора: { CurrencyWorks.GetShortCurrencyString(_cashRepository.GetCashInTransfering(UoW)) }";
+			return $"{ base.GetSummaryInfo() }. В сейфе инкасcатора: { CurrencyWorks.GetShortCurrencyString(_cashRepository.GetCashInTransferring(UoW)) }";
 		}
 
 		private void RegisterIncomeTransfer()

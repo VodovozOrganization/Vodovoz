@@ -145,6 +145,8 @@ using Vodovoz.ViewModels.ViewModels.Settings;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.Entity;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -557,7 +559,7 @@ public partial class MainWindow : Gtk.Window
 					ServicesConfig.CommonServices,
 					new DiscountReasonRepository(),
 					new ProductGroupJournalFactory(),
-					new NomenclatureSelectorFactory()
+					new NomenclatureJournalFactory()
 				);
 			}
 		);
@@ -599,7 +601,7 @@ public partial class MainWindow : Gtk.Window
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -713,10 +715,33 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<FuelType>(),
-			() => new OrmReference(typeof(FuelType))
-		);
+		var commonServices = ServicesConfig.CommonServices;
+		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
+
+		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
+			x => x.Name,
+			() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
+			(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
+			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			commonServices);
+
+		var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
+		if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
+		{
+			var viewAction = new JournalAction("Просмотр",
+				(selected) => selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
+					fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
+				}
+			);
+
+			(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
+		}
+
+		tdiMain.AddTab(fuelTypeJournalViewModel);
 	}
 
 	protected void OnActionDeliveryShiftActivated(object sender, EventArgs e)
@@ -997,7 +1022,8 @@ public partial class MainWindow : Gtk.Window
 			new DeliveryPointJournalFactory(),
 			subdivisionJournalFactory,
 			new SalesPlanJournalFactory(),
-			new NomenclatureSelectorFactory(),
+			new NomenclatureJournalFactory(),
+			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository()
 		);
 
@@ -1647,7 +1673,7 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				counterpartyJournalFactory,
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				nomenclatureRepository,
 				userRepository
 			)
@@ -1800,7 +1826,7 @@ public partial class MainWindow : Gtk.Window
 			new SalesPlanJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new NomenclatureSelectorFactory()
+				new NomenclatureJournalFactory()
 			)
 		);
 	}
@@ -1817,7 +1843,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var employeeJournalFactory = new EmployeeJournalFactory();
 		var salesPlanJournalFactory = new SalesPlanJournalFactory();
-		var nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 		tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
 			new ComplaintKindJournalFilterViewModel
@@ -2122,7 +2148,8 @@ public partial class MainWindow : Gtk.Window
 					new DeliveryPointJournalFactory(),
 					subdivisionJournalFactory,
 					new SalesPlanJournalFactory(),
-					new NomenclatureSelectorFactory(),
+					new NomenclatureJournalFactory(),
+					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository()
 				);
 			}
@@ -2418,7 +2445,7 @@ public partial class MainWindow : Gtk.Window
 		var journal = new FlyersJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			new NomenclatureSelectorFactory(),
+			new NomenclatureJournalFactory(),
 			new FlyerRepository());
 
 		tdiMain.AddTab(journal);

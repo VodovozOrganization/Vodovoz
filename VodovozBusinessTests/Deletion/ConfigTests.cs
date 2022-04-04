@@ -49,7 +49,7 @@ namespace VodovozBusinessTests.Deletion
 		public new static IEnumerable NhibernateMappedClasses => DeleteConfigTestBase.NhibernateMappedClasses;
 
 		[Test, TestCaseSource(nameof(NhibernateMappedClasses))]
-		public override void DeleteRuleExisitForNHMappedClasssTest(NHibernate.Mapping.PersistentClass mapping)
+		public override void DeleteRuleExistForNhMappedClassTest(NHibernate.Mapping.PersistentClass mapping)
 		{
 			base.DeleteRuleExistForNhMappedClassTest(mapping);
 		}
@@ -57,7 +57,7 @@ namespace VodovozBusinessTests.Deletion
 		public new static IEnumerable NhibernateMappedEntityRelation => DeleteConfigTestBase.NhibernateMappedEntityRelation;
 
 		[Test, TestCaseSource(nameof(NhibernateMappedEntityRelation))]
-		public override void DeleteRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property)
+		public override void DeleteRuleExistForNhMappedEntityRelationTest(PersistentClass mapping, Property property)
 		{
 			base.DeleteRuleExistForNhMappedEntityRelationTest(mapping, property);
 		}
@@ -65,7 +65,7 @@ namespace VodovozBusinessTests.Deletion
 		public new static IEnumerable NhibernateMappedEntityRelationWithExistRule => DeleteConfigTestBase.NhibernateMappedEntityRelationWithExistRule;
 
 		[Test, TestCaseSource(nameof(NhibernateMappedEntityRelationWithExistRule))]
-		public override void DependenceRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
+		public override void DependenceRuleExistForNhMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
 		{
 			base.DependenceRuleExistForNhMappedEntityRelationTest(mapping, property, related);
 		}
@@ -73,7 +73,7 @@ namespace VodovozBusinessTests.Deletion
 		public new static IEnumerable NhibernateMappedEntityRelationWithExistRuleCascadeRelated => DeleteConfigTestBase.NhibernateMappedEntityRelationWithExistRuleCascadeRelated;
 
 		[Test, TestCaseSource(nameof(NhibernateMappedEntityRelationWithExistRuleCascadeRelated))]
-		public override void CascadeDependenceRuleExisitForNHMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
+		public override void CascadeDependenceRuleExistForNhMappedEntityRelationTest(PersistentClass mapping, Property property, IDeleteRule related)
 		{
 			base.CascadeDependenceRuleExistForNhMappedEntityRelationTest(mapping, property, related);
 		}

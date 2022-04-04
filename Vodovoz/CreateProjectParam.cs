@@ -348,6 +348,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProductGroupJournalFilterViewModel, ProductGroupJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
+				.RegisterWidgetForWidgetViewModel<TrackPointJournalFilterViewModel, TrackPointJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -497,7 +498,7 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 
-			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
+			builder.RegisterType<NomenclatureJournalFactory>().As<INomenclatureJournalFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
 			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
 			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();
@@ -589,6 +590,13 @@ namespace Vodovoz
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsImplementedInterfaces()
+				.AsSelf()
+				.SingleInstance();
+
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
+				.Where(t => t.Name.EndsWith("Settings"))
+				.AsImplementedInterfaces()
+				.AsSelf()
 				.SingleInstance();
 
 			builder.RegisterType<RdlViewerViewModel>().AsSelf();

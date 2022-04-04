@@ -53,7 +53,15 @@ namespace Vodovoz.Views.Employees
 
 			ylabelDate.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Date.ToString("D"), w => w.LabelProp)
+				.AddBinding(ViewModel, e => e.DateEditable, w => w.Visible, new BooleanInvertedConverter())
 				.InitializeFromSource();
+
+			ydatepicker.Binding
+				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
+				.AddBinding(ViewModel, e => e.DateEditable, w => w.Visible)
+				.InitializeFromSource();
+			ydatepicker.IsEditable = true;
+
 
 			yspinMoney.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsStandartFine && vm.CanEdit, w => w.Sensitive)

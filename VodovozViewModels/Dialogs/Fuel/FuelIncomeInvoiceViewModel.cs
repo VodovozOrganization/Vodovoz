@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 	public class FuelIncomeInvoiceViewModel : EntityTabViewModelBase<FuelIncomeInvoice>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
 		private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,

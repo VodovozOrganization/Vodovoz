@@ -77,7 +77,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IStockRepository _stockRepository;
 		private readonly IReportPrinter _reportPrinter;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
-
+		private readonly IEmployeeSettings _employeeSettings;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -106,6 +106,7 @@ namespace Vodovoz.JournalViewModels
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -135,7 +136,7 @@ namespace Vodovoz.JournalViewModels
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
-
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();
@@ -577,6 +578,7 @@ namespace Vodovoz.JournalViewModels
 								_gtkTabsOpener,
 								_undeliveredOrdersJournalOpener,
 								_deliveryShiftRepository,
+								_employeeSettings,
 								_undeliveredOrdersRepository
 							),
 							this,

@@ -98,7 +98,7 @@ namespace Vodovoz
 								VodovozGtkServicesConfig.EmployeeService,
 								new EntityExtendedPermissionValidator(
 									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureSelectorFactory(),
+								new NomenclatureJournalFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new UserRepository(),
@@ -121,7 +121,7 @@ namespace Vodovoz
 								VodovozGtkServicesConfig.EmployeeService,
 								new EntityExtendedPermissionValidator(
 									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureSelectorFactory(),
+								new NomenclatureJournalFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
@@ -174,7 +174,7 @@ namespace Vodovoz
 									VodovozGtkServicesConfig.EmployeeService,
 									new EntityExtendedPermissionValidator(
 										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureSelectorFactory(),
+									new NomenclatureJournalFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
@@ -203,7 +203,7 @@ namespace Vodovoz
 									VodovozGtkServicesConfig.EmployeeService,
 									new EntityExtendedPermissionValidator(
 										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureSelectorFactory(),
+									new NomenclatureJournalFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new UserRepository(),

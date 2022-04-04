@@ -5,6 +5,6 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public interface ISalesPlanJournalFactory
 	{
-		IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureSelectorFactory nomenclatureSelectorFactory);
+		IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureJournalFactory nomenclatureSelectorFactory);
 	}
 }

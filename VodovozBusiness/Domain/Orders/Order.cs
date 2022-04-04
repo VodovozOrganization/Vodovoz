@@ -1519,7 +1519,8 @@ namespace Vodovoz.Domain.Orders
 				&& PaymentType == PaymentType.cashless
 				&& !emailRepository.HaveSendedEmailForBill(Id)) {
 				//Проверка должен ли формироваться счет для текущего заказа
-				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
+				var requirementDocTypes = GetRequirementDocTypes();
+				return requirementDocTypes.Contains(OrderDocumentType.Bill) || requirementDocTypes.Contains(OrderDocumentType.SpecialBill);
 			}
 			return false;
 		}

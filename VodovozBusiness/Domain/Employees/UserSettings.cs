@@ -258,7 +258,11 @@ namespace Vodovoz.Domain.Employees
 
 			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivision.Id).ToList();
 			var notListedAsAvailable = availableSubdivisions.Where(x => listedIds.IndexOf(x.Id) == -1).ToList();
-			var lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
+			int lastIndex = -1;
+			if(CashSubdivisionSortingSettings.Any())
+			{
+				lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
+			}
 			foreach(var item in notListedAsAvailable)
 			{//добавляем кассы, к которым появился доступ
 				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, this, item));

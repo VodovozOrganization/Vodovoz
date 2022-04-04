@@ -32,7 +32,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 
 		public RequestsToSuppliersJournalViewModel(
 			RequestsToSuppliersFilterViewModel filterViewModel,
@@ -41,7 +41,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)

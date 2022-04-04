@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -8,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
@@ -85,8 +87,10 @@ namespace Vodovoz.TempAdapters
 						subdivisionJournalFactory,
 						new GtkTabsOpener(),
 						new UndeliveredOrdersJournalOpener(),
-						new NomenclatureSelectorFactory(),
-						new UndeliveredOrdersRepository());
+						new NomenclatureJournalFactory(),
+						new UndeliveredOrdersRepository(),
+						new SubdivisionRepository(new ParametersProvider()),
+						new FileDialogService());
 				});
 		}
 
@@ -123,8 +127,10 @@ namespace Vodovoz.TempAdapters
 						subdivisionJournalFactory,
 						new GtkTabsOpener(),
 						new UndeliveredOrdersJournalOpener(),
-						new NomenclatureSelectorFactory(),
-						new UndeliveredOrdersRepository());
+						new NomenclatureJournalFactory(),
+						new UndeliveredOrdersRepository(),
+						new SubdivisionRepository(new ParametersProvider()),
+						new FileDialogService());
 				});
 		}
 
@@ -150,8 +156,10 @@ namespace Vodovoz.TempAdapters
 				subdivisionJournalFactory,
 				new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureSelectorFactory(),
-				new UndeliveredOrdersRepository()
+				new NomenclatureJournalFactory(),
+				new UndeliveredOrdersRepository(),
+				new SubdivisionRepository(new ParametersProvider()),
+				new FileDialogService()
 			);
 		}
 	}

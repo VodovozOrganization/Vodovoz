@@ -98,14 +98,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 			OrderDocumentType[] selectedByDefault = {
 				OrderDocumentType.Contract,
-				OrderDocumentType.Invoice,
-				OrderDocumentType.InvoiceBarter,
 				OrderDocumentType.InvoiceContractDoc,
 				OrderDocumentType.Bill,
 				OrderDocumentType.UPD,
 				OrderDocumentType.SpecialBill,
 				OrderDocumentType.SpecialUPD,
-				OrderDocumentType.DriverTicket,
 				OrderDocumentType.M2Proxy,
 				OrderDocumentType.EquipmentTransfer,
 				OrderDocumentType.DoneWorkReport,

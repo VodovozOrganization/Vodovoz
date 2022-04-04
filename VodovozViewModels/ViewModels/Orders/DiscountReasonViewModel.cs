@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ICommonServices commonServices,
 			IDiscountReasonRepository discountReasonRepository,
 			IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory)
+			INomenclatureJournalFactory nomenclatureSelectorFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));

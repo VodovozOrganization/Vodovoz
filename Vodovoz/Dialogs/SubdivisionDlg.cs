@@ -105,7 +105,7 @@ namespace Vodovoz
 					() => new SalesPlanJournalViewModel(
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						new NomenclatureSelectorFactory())
+						new NomenclatureJournalFactory())
 					{
 						SelectionMode = JournalSelectionMode.Single
 					}

@@ -72,7 +72,7 @@ namespace Vodovoz.EntityRepositories
 			double timeLimit = 10;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
 			{
-				if(type == OrderDocumentType.Bill)
+				if(type == OrderDocumentType.Bill || type == OrderDocumentType.SpecialBill)
 				{
 					StoredEmail storedEmailAlias = null;
 					OrderDocument orderDocumentAlias = null;

@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -60,8 +60,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrderDiscountsController _discountsController;
 
 		public RetailOrderJournalViewModel(
-			OrderJournalFilterViewModel filterViewModel, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
+			OrderJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
@@ -73,7 +73,7 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IOrderDiscountsController discountsController) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -89,8 +89,7 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
-			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
-			                                   ?? throw new ArgumentNullException(nameof(_nomenclatureSelectorFactory));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_counterpartySelectorFactory = counterpartyJournalFactory;
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
@@ -841,7 +840,8 @@ namespace Vodovoz.JournalViewModels
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
-							_undeliveredOrdersRepository
+							_undeliveredOrdersRepository,
+							new EmployeeSettings(new ParametersProvider())
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

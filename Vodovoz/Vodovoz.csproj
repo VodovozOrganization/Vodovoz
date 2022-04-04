@@ -752,8 +752,6 @@
     <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
     <Compile Include="ReportsParameters\RevisionBottlesAndDeposits.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
-    <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
@@ -1126,7 +1124,7 @@
     <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
     <Compile Include="JournalViewModels\SelfDeliveriesJournalViewModel.cs" />
     <Compile Include="JournalNodes\SelfDeliveryJournalNode.cs" />
-    <Compile Include="Infrastructure\Converters\BooleanInvertedConverted.cs" />
+    <Compile Include="Infrastructure\Converters\BooleanInvertedConverter.cs" />
     <Compile Include="JournalViewModels\ClientCameFromJournalViewModel.cs" />
     <Compile Include="Filters\ViewModels\ClientCameFromFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ClientCameFromFilterView.cs" />
@@ -1260,7 +1258,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.MovementDocumentView.cs" />
     <Compile Include="Core\WarehousePermissionValidator.cs" />
     <Compile Include="Core\WarehousePermissionValidatorFactory.cs" />
-    <Compile Include="TempAdapters\NomenclatureSelectorFactory.cs" />
+    <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
     <Compile Include="Core\RdlPreviewOpener.cs" />
     <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
@@ -1689,6 +1687,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.AdditionalLoadingTextView.cs" />
     <Compile Include="ViewWidgets\Logistics\AdditionalLoadingItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.AdditionalLoadingItemsView.cs" />
+    <Compile Include="Filters\GtkViews\TrackPointJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.TrackPointJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

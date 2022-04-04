@@ -17,7 +17,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
-	public class NomenclatureSelectorFactory : INomenclatureSelectorFactory
+	public class NomenclatureJournalFactory : INomenclatureJournalFactory
 	{
 		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
 		{
@@ -42,26 +42,20 @@ namespace Vodovoz.TempAdapters
 
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
-
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
 			);
 
 			vm.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
-
 			return vm;
 		}
 		
@@ -85,7 +79,7 @@ namespace Vodovoz.TempAdapters
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -107,17 +101,12 @@ namespace Vodovoz.TempAdapters
 			
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartyJournalFactory, nomenclatureRepository,
-					userRepository);
-
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -140,16 +129,12 @@ namespace Vodovoz.TempAdapters
 
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartyJournalFactory, nomenclatureRepository, userRepository);
-
 			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository
@@ -177,16 +162,12 @@ namespace Vodovoz.TempAdapters
 			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
-			var nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, nomenclatureFilter, counterpartyJournalFactory, nomRep, userRepository);
-
 			var journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomRep,
 				userRepository)
@@ -211,16 +192,12 @@ namespace Vodovoz.TempAdapters
 					var userRepository = new UserRepository();
 					var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-					var nomenclatureSelectorFactory =
-						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, filter, counterpartyJournalFactory, nomenclatureRepository, userRepository);
-
 					var journal = new NomenclaturesJournalViewModel(
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
 						new EmployeeService(),
-						nomenclatureSelectorFactory,
+						new NomenclatureJournalFactory(),
 						counterpartyJournalFactory,
 						nomenclatureRepository,
 						userRepository)

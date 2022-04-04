@@ -261,9 +261,12 @@ namespace Vodovoz.Domain.Goods
 		public virtual NomenclatureCategory Category {
 			get => category;
 			set {
-				if(SetField(ref category, value, () => Category)) {
-					if(Category != NomenclatureCategory.equipment)
+				if(SetField(ref category, value))
+				{
+					if(!CategoriesWithSerial.Contains(Category))
+					{
 						IsSerial = false;
+					}
 
 					if(Category != NomenclatureCategory.water)
 						TareVolume = null;
@@ -998,7 +1001,12 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
 				NomenclatureCategory.water,
-				NomenclatureCategory.CashEquipment
+				NomenclatureCategory.CashEquipment,
+				NomenclatureCategory.Stationery,
+				NomenclatureCategory.OfficeEquipment,
+				NomenclatureCategory.PromotionalProducts,
+				NomenclatureCategory.Overalls,
+				NomenclatureCategory.HouseholdInventory
 			};
 		}
 
@@ -1013,6 +1021,7 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.material,
 				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.PromotionalProducts
 			};
 		}
 
@@ -1066,6 +1075,19 @@ namespace Vodovoz.Domain.Goods
 			NomenclatureCategory.bottle
 		};
 
+		/// <summary>
+		/// Категории для номенклатур с серийным номером
+		/// </summary>
+		public static readonly NomenclatureCategory[] CategoriesWithSerial =
+		{
+			NomenclatureCategory.equipment,
+			NomenclatureCategory.Stationery,
+			NomenclatureCategory.EquipmentForIndoorUse,
+			NomenclatureCategory.OfficeEquipment,
+			NomenclatureCategory.ProductionEquipment,
+			NomenclatureCategory.Vehicle
+		};
+
 		#endregion
 	}
 
@@ -1092,7 +1114,27 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Топливо")]
 		fuel,
 		[Display(Name = "Кассовое оборудование")]
-		CashEquipment
+		CashEquipment,
+		[Display(Name = "Автомобильные запчасти")]
+		CarParts,
+		[Display(Name = "Инструменты")]
+		Tools,
+		[Display(Name = "Канцелярия")]
+		Stationery,
+		[Display(Name = "Оборудование для внутреннего использования")]
+		EquipmentForIndoorUse,
+		[Display(Name = "Орг.техника")]
+		OfficeEquipment,
+		[Display(Name = "Производственное оборудование")]
+		ProductionEquipment,
+		[Display(Name = "Рекламная продукция")]
+		PromotionalProducts,
+		[Display(Name = "Спецодежда")]
+		Overalls,
+		[Display(Name = "Транспортное средство")]
+		Vehicle,
+		[Display(Name = "Хоз.инвентарь")]
+		HouseholdInventory
 	}
 
 	public enum TareVolume

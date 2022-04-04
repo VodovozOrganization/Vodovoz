@@ -16,6 +16,10 @@ using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Services;
+using Vodovoz.Domain.Cash;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Employees
 {
@@ -25,6 +29,8 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ICategoryRepository _categoryRepository;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -32,6 +38,7 @@ namespace Vodovoz.ViewModels.Employees
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
+			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices
 		) : base(uowBuilder, uowFactory, commonServices)
 		{
@@ -39,7 +46,7 @@ namespace Vodovoz.ViewModels.Employees
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateEmployeeList();
@@ -53,7 +60,8 @@ namespace Vodovoz.ViewModels.Employees
 			);
 
 			SetPropertyChangeRelation(e => e.RouteList,
-				() => CanShowRequestRouteListMessage
+				() => CanShowRequestRouteListMessage,
+				() => DateEditable
 			);
 
 			OnEntityPropertyChanged(SetDefaultReason,
@@ -110,6 +118,8 @@ namespace Vodovoz.ViewModels.Employees
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
+
+		public bool DateEditable => UoW.IsNew && Entity.RouteList == null;
 
 		#region IAskSaveOnCloseViewModel
 
@@ -177,8 +187,9 @@ namespace Vodovoz.ViewModels.Employees
 			{
 				Entity.Author = CurrentEmployee;
 			}
+
 			return base.Save(close);
-		}
+		}		
 
 		#region Commands
 

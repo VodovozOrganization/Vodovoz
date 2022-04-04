@@ -41,6 +41,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.EntityRepositories.Subdivisions;
+using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -50,7 +53,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly bool _userHasAccessToRetail = false;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -60,8 +62,11 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IFileDialogService _fileDialogService;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -77,8 +82,10 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionRepository subdivisionRepository,
+			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -92,13 +99,14 @@ namespace Vodovoz.JournalViewModels
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
 			_counterpartySelectorFactory = _counterpartyJournalFactory;
-			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
-				?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -905,12 +913,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			OrderJournalNode GetSelectedNode(object[] selectedItems)
-			{
-				var selectedNodes = selectedItems.OfType<OrderJournalNode>();
-				return selectedNodes.Count() != 1 ? null : selectedNodes.FirstOrDefault();
-			}
-
 			bool IsOrder(OrderJournalNode selectedNode)
 			{
 				if(selectedNode == null)
@@ -986,7 +988,9 @@ namespace Vodovoz.JournalViewModels
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
-							_undeliveredOrdersRepository);
+							_undeliveredOrdersRepository,
+							new EmployeeSettings(new ParametersProvider())
+						);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					}
@@ -1101,6 +1105,73 @@ namespace Vodovoz.JournalViewModels
 					}
 				)
 			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Создать рекламацию",
+					selectedItems => CanCreateComplaint(selectedItems),
+					selectedItems => true,
+					selectedItems => {
+						var selectedNodes = selectedItems.OfType<OrderJournalNode>().ToList();
+						if(selectedNodes.Count != 1)
+						{
+							return;
+						}
+						var selectedOrder = selectedNodes.First();
+
+						var complaintViewModel = new CreateComplaintViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory,
+							_employeeService,
+							_subdivisionRepository,
+							_commonServices,
+							_nomenclatureRepository,
+							_userRepository,
+							_fileDialogService,
+							_orderSelectorFactory,
+							_employeeJournalFactory,
+							_counterpartyJournalFactory,
+							_deliveryPointJournalFactory,
+							_subdivisionJournalFactory,
+							_gtkDialogsOpener,
+							_undeliveredOrdersJournalOpener,
+							_nomenclatureSelectorFactory,
+							_undeliveredOrdersRepository
+						);
+						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);
+						complaintViewModel.Entity.Counterparty = order.Client;
+						complaintViewModel.Entity.Order = order;
+						complaintViewModel.Entity.DeliveryPoint = order.DeliveryPoint;
+						TabParent.OpenTab(() => complaintViewModel, this);
+					}
+				)
+			);
+		}
+
+		private bool CanCreateComplaint(object[] selectedItems)
+		{
+			var selectedNode = GetSelectedNode(selectedItems);
+			if(selectedNode?.EntityType != typeof(VodovozOrder))
+			{
+				return false;
+			}
+			switch(selectedNode.StatusEnum)
+			{
+				case OrderStatus.Shipped:
+				case OrderStatus.OnTheWay:
+				case OrderStatus.Closed:
+				case OrderStatus.UnloadingOnStock:
+				case OrderStatus.WaitForPayment:
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		private OrderJournalNode GetSelectedNode(object[] selectedItems)
+		{
+			var selectedNodes = selectedItems.OfType<OrderJournalNode>();
+			return selectedNodes.Count() != 1 ? null : selectedNodes.FirstOrDefault();
 		}
 
 		private bool AccessToRouteListClosing(int orderId)

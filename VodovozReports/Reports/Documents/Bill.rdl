@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -81,7 +79,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -439,7 +437,7 @@ WHERE o.id = @order_id
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>724.2pt</Height>
+    <Height>785.5pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Image Name="Image1">
@@ -1481,7 +1479,7 @@ WHERE o.id = @order_id
 номер и дату составления счета. СПАСИБО.</Value>
         <ZIndex>1</ZIndex>
         <Left>136.1pt</Left>
-        <Top>684.9pt</Top>
+        <Top>746.5pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1689,8 +1687,8 @@ Iif(
       <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>145.13pt</Height>
         <Width>250.77pt</Width>
-        <Left>175.2pt</Left>
-        <Top>533.2pt</Top>
+        <Left>175.20pt</Left>
+        <Top>533.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1702,8 +1700,7 @@ Iif(
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
         <ZIndex>1</ZIndex>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1725,6 +1722,36 @@ Iif(
         </Visibility>
         <ZIndex>20</ZIndex>
       </Image>
+      <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>50pt</Height>
+        <Width>326.52pt</Width>
+        <Value>ВНИМАНИЕ! Срок действия счета на все товары, кроме бутилированной воды объемом 19 литров, три рабочих дня с момента выставления.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>136.1pt</Left>
+        <Top>684.9pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+            <Left>3pt</Left>
+            <Right>3pt</Right>
+            <Top>3pt</Top>
+            <Bottom>3pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <PaddingTop>1pt</PaddingTop>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2166,8 +2193,7 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -2179,24 +2205,21 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="without_vat">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special_contract_number">
       <DataType>String</DataType>

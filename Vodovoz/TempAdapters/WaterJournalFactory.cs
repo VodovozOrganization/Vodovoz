@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -44,7 +44,7 @@ namespace Vodovoz.TempAdapters
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
                 new EmployeeService(),
-                nomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
                 counterpartyJournalFactory,
                 nomenclatureRepository,
                 userRepository

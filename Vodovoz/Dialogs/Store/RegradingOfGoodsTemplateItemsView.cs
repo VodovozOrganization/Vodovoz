@@ -15,7 +15,7 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private RegradingOfGoodsTemplateItem _newRow;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 		public RegradingOfGoodsTemplateItemsView()
 		{

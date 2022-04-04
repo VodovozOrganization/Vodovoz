@@ -350,7 +350,7 @@ namespace Vodovoz.ViewWidgets
 			}
 
 
-			var nomenclaturesJournalViewModel = new NomenclatureSelectorFactory().CreateNomenclaturesJournalViewModel();
+			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory().CreateNomenclaturesJournalViewModel();
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			filter.SelectCategory = NomenclatureCategory.equipment;
@@ -382,7 +382,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			var nomenclaturesJournalViewModel = new NomenclatureSelectorFactory().CreateNomenclaturesJournalViewModel();
+			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory().CreateNomenclaturesJournalViewModel();
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 			filter.SelectCategory = NomenclatureCategory.equipment;

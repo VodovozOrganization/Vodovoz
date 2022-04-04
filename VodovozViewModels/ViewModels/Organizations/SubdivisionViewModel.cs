@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IPermissionRepository permissionRepository,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ISubdivisionRepository subdivisionRepository
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{

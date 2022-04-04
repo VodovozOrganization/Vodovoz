@@ -728,21 +728,7 @@ namespace Vodovoz
 						OnContractChanged();
 						break;
 					case nameof(Order.Client):
-						var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
-						if(Entity.Client?.IsForRetail ?? false)
-						{
-							while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
-							{
-								enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
-							}
-						}
-						else
-						{
-							if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
-							{
-								enumSignatureType.AddEnumToHideList(signatureTranscriptType);
-							}
-						}
+						UpdateAvailableEnumSignatureTypes();
 						if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
 						{
 							Entity.OrderAddressType = OrderAddressType.ChainStore;
@@ -765,6 +751,28 @@ namespace Vodovoz
 
 			ybuttonToStorageLogicAddressType.Sensitive = ybuttonToDeliveryAddressType.Sensitive =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
+
+			UpdateAvailableEnumSignatureTypes();
+		}
+
+		private void UpdateAvailableEnumSignatureTypes()
+		{
+			var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
+			if(Entity.Client?.IsForRetail ?? false)
+			{
+				while(enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+				{
+					enumSignatureType.RemoveEnumFromHideList(signatureTranscriptType);
+				}
+			}
+			else
+			{
+				if(!enumSignatureType.HiddenItems.Contains(OrderSignatureType.SignatureTranscript))
+				{
+					enumSignatureType.AddEnumToHideList(signatureTranscriptType);
+				}
+			}
+			enumSignatureType.Binding.InitializeFromSource();
 		}
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
@@ -781,6 +789,12 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
+			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
+			{
+				MessageDialogHelper.RunWarningDialog("Доставка за час возможна только на текущую дату");
+				return;
+			}
+
 			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(Entity.PaymentType))
 			{
 				MessageDialogHelper.RunWarningDialog(
@@ -1414,6 +1428,11 @@ namespace Vodovoz
 
 			if(Entity.IsFastDelivery)
 			{
+				if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
+				{
+					throw new InvalidOperationException("Доставка за час возможна только на текущую дату");
+				}
+
 				if(Entity.DeliveryPoint?.Latitude == null || Entity.DeliveryPoint.Longitude == null)
 				{
 					throw new InvalidOperationException(
@@ -1640,9 +1659,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
-				() => new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
+			TabParent.AddSlaveTab(this, new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
 			);
 		}
 
@@ -1923,7 +1940,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_employeeService,
-				NomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				_userRepository
@@ -1964,7 +1981,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_employeeService,
-				NomenclatureSelectorFactory,
+				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				_userRepository
@@ -3230,20 +3247,19 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument))
+			var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill);
+
+			if(document == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи о письме со счетом"))
 			{
 				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-
-				var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
 
 				var storedEmail = new StoredEmail
 				{
