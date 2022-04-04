@@ -47,12 +47,6 @@ public class PaidOrderInfoDTO
 
 	[XmlElement(ElementName = "exp_yy")]
 	public string ExpYY { get; set; }
-	
-	/*[XmlElement(ElementName = "response_code")]
-	public int ResponseCode { get; set; }
-
-	[XmlElement(ElementName = "response_message")]
-	public string ResponseMessage { get; set; }*/
 
 	[XmlElement(ElementName = "signature")]
 	public string Signature { get; set; }
