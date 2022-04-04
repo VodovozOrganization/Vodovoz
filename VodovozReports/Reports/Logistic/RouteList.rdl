@@ -702,9 +702,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_name-->
-                <TableCell>
+                </TableCell><!--table_cell_name--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -910,9 +908,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_value-->
-                <TableCell>
+                </TableCell><!--table_cell_value--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1014,7 +1010,8 @@ Switch(
    {payment_type}='barter', 'Оплачено',
    {payment_type}='ContractDoc', 'Оплачено',
    {payment_type}='Terminal', 'Терминал',
-   {payment_type}='cash',  Iif({payment_by_sms}, 'Наличными\nили смс', 'Наличными')
+   {payment_type}='cash',  Iif({payment_by_sms}, 'Наличными
+или смс', 'Наличными')
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1084,9 +1081,7 @@ Switch(
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
-                </TableCell>
-                <!--table_cell_total-->
-                <TableCell>
+                </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>Километраж</Value>
@@ -1300,9 +1295,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                        <!--table_cell_total_without_stock-->
-                      </Value>
+                      <Value><!--table_cell_total_without_stock--></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2064,7 +2057,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
@@ -2263,7 +2256,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
