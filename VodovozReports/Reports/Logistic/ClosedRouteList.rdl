@@ -101,7 +101,7 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>128.7pt</Width>
+            <Width>100pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>0.0pt</Width>
@@ -111,25 +111,25 @@
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>97.6pt</Width>
+            <Width>75pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>95.6pt</Width>
+            <Width>75pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.0pt</Width>
+            <Width>35pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.2pt</Width>
+            <Width>35pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.6pt</Width>
+            <Width>35pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.4pt</Width>
+            <Width>35pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.2pt</Width>
+            <Width>35pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -225,7 +225,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -243,7 +243,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -397,7 +397,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -415,7 +415,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -468,11 +468,11 @@
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                         <Format>dd.MM.yy</Format>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1075,6 +1075,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1091,6 +1093,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>

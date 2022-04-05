@@ -150,7 +150,7 @@ namespace Vodovoz.Additions.Logistic
 				//Запрос..
 				if(isFirstColumn)
 				{
-					SqlSelect += $", orders.comment AS { _orderCommentTagName }" +
+					SqlSelect += $", CONCAT_WS('\\n',orders.comment, CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
 						$" SELECT * FROM guilty_in_undelivered_orders giuo" +
 						$" INNER JOIN undelivered_orders uo ON giuo.undelivery_id = uo.id" +
