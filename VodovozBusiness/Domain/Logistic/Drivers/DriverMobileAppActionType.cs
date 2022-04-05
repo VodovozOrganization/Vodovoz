@@ -8,6 +8,7 @@
 		CompleteOrderClicked,
 		ChangeOrderPaymentTypeClicked,
 		RollbackRouteListAddressStatusEnRouteClicked,
-		PayBySmsClicked
+		PayBySmsClicked,
+		PayByQRClicked
 	}
 }
