@@ -1010,8 +1010,7 @@ Switch(
    {payment_type}='barter', 'Оплачено',
    {payment_type}='ContractDoc', 'Оплачено',
    {payment_type}='Terminal', 'Терминал',
-   {payment_type}='cash',  Iif({payment_by_sms}, 'Наличными
-или смс', 'Наличными')
+   {payment_type}='cash',  Iif({payment_by_sms}, 'Налич \n ными \n или смс', 'Наличными')
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
