@@ -20,7 +20,7 @@ using VodovozInfrastructure.Configuration;
 
 namespace FastPaymentsAPI.Library.Models
 {
-	public class OrderModel : IOrderModel
+	public class FastPaymentOrderModel : IFastPaymentOrderModel
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
@@ -28,7 +28,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly IOrderRequestManager _orderRequestManager;
 
-		public OrderModel(
+		public FastPaymentOrderModel(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
@@ -68,11 +68,6 @@ namespace FastPaymentsAPI.Library.Models
 
 		public void NotifyEmployee(string orderNumber, string signature)
 		{
-			var instanceId = Convert.ToInt32(_uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
-
 			var configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {signature}" +
@@ -102,8 +97,7 @@ namespace FastPaymentsAPI.Library.Models
 				Payload = new EmailPayload
 				{
 					Id = 0,
-					Trackable = false,
-					InstanceId = instanceId
+					Trackable = false
 				}
 			};
 

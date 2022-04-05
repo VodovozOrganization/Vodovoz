@@ -18,20 +18,20 @@ namespace FastPaymentsAPI.Controllers
 	public class FastPaymentsController : Controller
 	{
 		private readonly ILogger<FastPaymentsController> _logger;
-		private readonly IOrderModel _orderModel;
+		private readonly IFastPaymentOrderModel _fastPaymentOrderModel;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly IDriverAPIService _driverApiService;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 
 		public FastPaymentsController(
 			ILogger<FastPaymentsController> logger,
-			IOrderModel orderModel,
+			IFastPaymentOrderModel fastPaymentOrderModel,
 			IFastPaymentModel fastPaymentModel,
 			IDriverAPIService driverApiService,
 			IResponseCodeConverter responseCodeConverter)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_orderModel = orderModel ?? throw new ArgumentNullException(nameof(orderModel));
+			_fastPaymentOrderModel = fastPaymentOrderModel ?? throw new ArgumentNullException(nameof(fastPaymentOrderModel));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
@@ -50,7 +50,7 @@ namespace FastPaymentsAPI.Controllers
 			_logger.LogInformation($"Поступил запрос отправки QR-кода для заказа №{orderId}");
 			
 			var response = new QRResponseDTO();
-			var paramsValidationResult = _orderModel.ValidateParameters(orderId);
+			var paramsValidationResult = _fastPaymentOrderModel.ValidateParameters(orderId);
 			
 			if(paramsValidationResult != null)
 			{
@@ -75,7 +75,7 @@ namespace FastPaymentsAPI.Controllers
 					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
 					{
 						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {fastPayment.Ticket}");
-						var orderInfoResponseDto = await _orderModel.GetOrderInfo(fastPayment.Ticket);
+						var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(fastPayment.Ticket);
 						
 						if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
 						{
@@ -97,8 +97,8 @@ namespace FastPaymentsAPI.Controllers
 					}
 				}
 				
-				var order = _orderModel.GetOrder(orderId);
-				var orderValidationResult = _orderModel.ValidateOrder(order, orderId);
+				var order = _fastPaymentOrderModel.GetOrder(orderId);
+				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
 				
 				if(orderValidationResult != null)
 				{
@@ -107,7 +107,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _orderModel.RegisterOrder(order);
+				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order);
 				
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicket(orderRegistrationResponseDto, orderId);
@@ -131,7 +131,7 @@ namespace FastPaymentsAPI.Controllers
 			_logger.LogInformation($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
 
 			var response = new FastPaymentResponseDTO();
-			var paramsValidationResult = _orderModel.ValidateParameters(orderId, ref phoneNumber);
+			var paramsValidationResult = _fastPaymentOrderModel.ValidateParameters(orderId, ref phoneNumber);
 			
 			if(paramsValidationResult != null)
 			{
@@ -158,7 +158,7 @@ namespace FastPaymentsAPI.Controllers
 					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
 					{
 						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {ticket}");
-						var orderInfoResponseDto = await _orderModel.GetOrderInfo(ticket);
+						var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(ticket);
 
 						if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
 						{
@@ -174,7 +174,7 @@ namespace FastPaymentsAPI.Controllers
 						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 						{
 							_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
-							var cancelPaymentResponse = await _orderModel.CancelPayment(ticket);
+							var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket);
 
 							if(cancelPaymentResponse.ResponseCode == 0)
 							{
@@ -191,8 +191,8 @@ namespace FastPaymentsAPI.Controllers
 					}
 				}
 				
-				var order = _orderModel.GetOrder(orderId);
-				var orderValidationResult = _orderModel.ValidateOrder(order, orderId);
+				var order = _fastPaymentOrderModel.GetOrder(orderId);
+				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
 				
 				if(orderValidationResult != null)
 				{
@@ -201,7 +201,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _orderModel.RegisterOrder(order, phoneNumber);
+				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, phoneNumber);
 								
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicket(orderRegistrationResponseDto, orderId, phoneNumber);
@@ -250,7 +250,7 @@ namespace FastPaymentsAPI.Controllers
 					
 					try
 					{
-						_orderModel.NotifyEmployee(orderNumber, signature);
+						_fastPaymentOrderModel.NotifyEmployee(orderNumber, signature);
 					}
 					catch(Exception e)
 					{
@@ -304,7 +304,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
-				var cancelPaymentResponse = await _orderModel.CancelPayment(ticket);
+				var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket);
 
 				if(cancelPaymentResponse.ResponseCode == 0)
 				{
@@ -327,7 +327,7 @@ namespace FastPaymentsAPI.Controllers
 		{
 			try
 			{
-				return await _orderModel.GetOrderInfo(ticket);
+				return await _fastPaymentOrderModel.GetOrderInfo(ticket);
 			}
 			catch(Exception e)
 			{
@@ -345,7 +345,7 @@ namespace FastPaymentsAPI.Controllers
 		[Route("/api/GetOrderId")]
 		public OrderDTO GetOrderId(int orderId)
 		{
-			var order = _orderModel.GetOrder(orderId);
+			var order = _fastPaymentOrderModel.GetOrder(orderId);
 			var orderDto = new OrderDTO
 			{
 				OrderId = order?.Id ?? -1

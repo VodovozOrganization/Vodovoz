@@ -67,7 +67,7 @@ namespace FastPaymentsAPI.Library.Models
 			catch(Exception e)
 			{
 				_logger.LogError(e, $"При загрузке заказа№ {orderId} произошла ошибка, записываю в файл...");
-				CachData(orderRegistrationResponseDto, orderId, creationDate);
+				CacheData(orderRegistrationResponseDto, orderId, creationDate);
 				return;
 			}
 
@@ -81,7 +81,7 @@ namespace FastPaymentsAPI.Library.Models
 			catch(Exception e)
 			{
 				_logger.LogError(e, "При сохранении платежа произошла ошибка, записываю в файл...");
-				CachData(orderRegistrationResponseDto, orderId, creationDate);
+				CacheData(orderRegistrationResponseDto, orderId, creationDate);
 			}
 		}
 
@@ -109,7 +109,7 @@ namespace FastPaymentsAPI.Library.Models
 			_logger.LogInformation($"Статус платежа с externalId: {fastPayment.ExternalId} изменён c {oldStatus} на {newStatus}");
 		}
 
-		private void CachData(OrderRegistrationResponseDTO orderRegistrationResponseDto, int orderId, DateTime creationDate)
+		private void CacheData(OrderRegistrationResponseDTO orderRegistrationResponseDto, int orderId, DateTime creationDate)
 		{
 			var fastPaymentDTO = new FastPaymentDTO
 			{

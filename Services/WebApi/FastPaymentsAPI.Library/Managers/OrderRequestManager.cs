@@ -60,7 +60,8 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var signatureParameters = _fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(order.Id, order.OrderSum);
 			var signature = _signatureManager.GenerateSignature(signatureParameters);
-			var orderRegistrationRequestDTO = _fastPaymentApiFactory.GetOrderRegistrationRequestDTO(order.Id, signature, order.OrderSum);
+			var orderRegistrationRequestDTO = _fastPaymentApiFactory.GetOrderRegistrationRequestDTO(
+				order.Id, signature, order.OrderSum, _fastPaymentParametersProvider.GetFastPaymentBackUrl);
 
 			if(phoneNumber == null)
 			{

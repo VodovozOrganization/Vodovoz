@@ -115,7 +115,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IResponseCodeConverter, ResponseCodeConverter>();
 
 			//models
-			services.AddScoped<IOrderModel, OrderModel>();
+			services.AddScoped<IFastPaymentOrderModel, FastPaymentOrderModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 
 			//validators

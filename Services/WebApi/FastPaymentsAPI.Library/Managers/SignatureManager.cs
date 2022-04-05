@@ -6,12 +6,12 @@ namespace FastPaymentsAPI.Library.Managers
 	{
 		public string GenerateSignature(SignatureParams parameters)
 		{
-			var MD5Hash1 = MD5HexHashFromString.GetMD5HexHashFromString(parameters.Sign);
-			var MD5Hash2 = MD5HexHashFromString.GetMD5HexHashFromString(
+			var md5Hash1 = MD5HexHashFromString.GetMD5HexHashFromString(parameters.Sign);
+			var md5Hash2 = MD5HexHashFromString.GetMD5HexHashFromString(
 				parameters.ShopId.ToString() + parameters.OrderId + parameters.OrderSumInKopecks);
-			var MD5Hash3 = MD5HexHashFromString.GetMD5HexHashFromString((MD5Hash1 + MD5Hash2).ToUpper());
+			var md5Hash3 = MD5HexHashFromString.GetMD5HexHashFromString((md5Hash1 + md5Hash2).ToUpper());
 
-			return MD5Hash3.ToUpper();
+			return md5Hash3.ToUpper();
 		}
 
 		public bool Validate(string signature, SignatureParams parameters)

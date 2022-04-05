@@ -4,7 +4,7 @@ using Vodovoz.Domain.Orders;
 
 namespace FastPaymentsAPI.Library.Models
 {
-	public interface IOrderModel
+	public interface IFastPaymentOrderModel
 	{
 		Order GetOrder(int orderId);
 		string ValidateParameters(int orderId);

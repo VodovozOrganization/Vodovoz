@@ -33,7 +33,7 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum)
+		public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum, string backUrl)
 		{
 			return new OrderRegistrationRequestDTO
 			{
@@ -44,7 +44,7 @@ namespace FastPaymentsAPI.Library.Factories
 				OrderNumber = orderId.ToString(),
 				OrderDescription = $"Заказ №{orderId}",
 				Language = "RU",
-				BackUrl = "https://pay.avangard.ru",
+				BackUrl = backUrl,
 			};
 		}
 
