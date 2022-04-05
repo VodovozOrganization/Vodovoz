@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace FastPaymentsAPI.Library.Services;
-
-public interface IDriverAPIService
+namespace FastPaymentsAPI.Library.Services
 {
-	Task NotifyOfFastPaymentStatusChangedAsync(int orderId);
+	public interface IDriverAPIService
+	{
+		Task NotifyOfFastPaymentStatusChangedAsync(int orderId);
+	}
 }

@@ -1,6 +1,7 @@
-﻿namespace FastPaymentsAPI.Library.DTO_s.Requests;
-
-public class CancelTicketRequestDTO
+﻿namespace FastPaymentsAPI.Library.DTO_s.Requests
 {
-	public string Ticket { get; set; }
+	public class CancelTicketRequestDTO
+	{
+		public string Ticket { get; set; }
+	}
 }

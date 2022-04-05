@@ -1,10 +1,11 @@
-﻿namespace FastPaymentsAPI.Library.Converters;
-
-public class OrderSumConverter : IOrderSumConverter
+﻿namespace FastPaymentsAPI.Library.Converters
 {
-	public int ConvertOrderSumToKopecks(decimal orderSum)
+	public class OrderSumConverter : IOrderSumConverter
 	{
-		var sumInKopecks = (int)(orderSum * 100);
-		return sumInKopecks;
+		public int ConvertOrderSumToKopecks(decimal orderSum)
+		{
+			var sumInKopecks = (int)(orderSum * 100);
+			return sumInKopecks;
+		}
 	}
 }

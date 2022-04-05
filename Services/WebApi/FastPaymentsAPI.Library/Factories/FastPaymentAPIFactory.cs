@@ -8,103 +8,104 @@ using Microsoft.Extensions.Configuration;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 
-namespace FastPaymentsAPI.Library.Factories;
-
-public class FastPaymentAPIFactory : IFastPaymentAPIFactory
+namespace FastPaymentsAPI.Library.Factories
 {
-	private readonly IOrderSumConverter _orderSumConverter;
-	private readonly IConfigurationSection _signatureSection;
+	public class FastPaymentAPIFactory : IFastPaymentAPIFactory
+	{
+		private readonly IOrderSumConverter _orderSumConverter;
+		private readonly IConfigurationSection _signatureSection;
 
-	public FastPaymentAPIFactory(
-		IConfiguration configuration,
-		IOrderSumConverter orderSumConverter)
-	{
-		_orderSumConverter = orderSumConverter ?? throw new ArgumentNullException(nameof(orderSumConverter));
-		_signatureSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Signature");
-	}
-	
-	public OrderInfoRequestDTO GetOrderInfoRequestDTO(string ticket)
-	{
-		return new OrderInfoRequestDTO
+		public FastPaymentAPIFactory(
+			IConfiguration configuration,
+			IOrderSumConverter orderSumConverter)
 		{
-			Ticket = ticket,
-			ShopId = _signatureSection.GetValue<long>("ShopId"),
-			ShopPasswd = _signatureSection.GetValue<string>("ShopPasswd"),
-		};
-	}
+			_orderSumConverter = orderSumConverter ?? throw new ArgumentNullException(nameof(orderSumConverter));
+			_signatureSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Signature");
+		}
 
-	public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum)
-	{
-		return new OrderRegistrationRequestDTO
+		public OrderInfoRequestDTO GetOrderInfoRequestDTO(string ticket)
 		{
-			ShopId = _signatureSection.GetValue<long>("ShopId"),
-			ShopPasswd =  _signatureSection.GetValue<string>("ShopPasswd"),
-			Signature = signature,
-			Amount = _orderSumConverter.ConvertOrderSumToKopecks(orderSum),
-			OrderNumber = orderId.ToString(),
-			OrderDescription = $"Заказ №{orderId}",
-			Language = "RU",
-			BackUrl = "https://pay.avangard.ru",
-		};
-	}
+			return new OrderInfoRequestDTO
+			{
+				Ticket = ticket,
+				ShopId = _signatureSection.GetValue<long>("ShopId"),
+				ShopPasswd = _signatureSection.GetValue<string>("ShopPasswd"),
+			};
+		}
 
-	public CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket)
-	{
-		return new CancelPaymentRequestDTO
+		public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum)
 		{
-			Ticket = ticket,
-			ShopId = _signatureSection.GetValue<long>("ShopId"),
-			ShopPasswd = _signatureSection.GetValue<string>("ShopPasswd"),
-		};
-	}
+			return new OrderRegistrationRequestDTO
+			{
+				ShopId = _signatureSection.GetValue<long>("ShopId"),
+				ShopPasswd = _signatureSection.GetValue<string>("ShopPasswd"),
+				Signature = signature,
+				Amount = _orderSumConverter.ConvertOrderSumToKopecks(orderSum),
+				OrderNumber = orderId.ToString(),
+				OrderDescription = $"Заказ №{orderId}",
+				Language = "RU",
+				BackUrl = "https://pay.avangard.ru",
+			};
+		}
 
-	public SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum)
-	{
-		return new SignatureParams
+		public CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket)
 		{
-			ShopId = _signatureSection.GetValue<long>("ShopId"),
-			Sign = _signatureSection.GetValue<string>("ShopSign"),
-			OrderId = orderId.ToString(),
-			OrderSumInKopecks = _orderSumConverter.ConvertOrderSumToKopecks(orderSum)
-		};
-	}
+			return new CancelPaymentRequestDTO
+			{
+				Ticket = ticket,
+				ShopId = _signatureSection.GetValue<long>("ShopId"),
+				ShopPasswd = _signatureSection.GetValue<string>("ShopPasswd"),
+			};
+		}
 
-	public SignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto)
-	{
-		return new SignatureParams
+		public SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum)
 		{
-			OrderId = paidOrderInfoDto.OrderNumber,
-			OrderSumInKopecks = paidOrderInfoDto.Amount,
-			ShopId = paidOrderInfoDto.ShopId,
-			Sign = _signatureSection.GetValue<string>("AvSign")
-		};
-	}
+			return new SignatureParams
+			{
+				ShopId = _signatureSection.GetValue<long>("ShopId"),
+				Sign = _signatureSection.GetValue<string>("ShopSign"),
+				OrderId = orderId.ToString(),
+				OrderSumInKopecks = _orderSumConverter.ConvertOrderSumToKopecks(orderSum)
+			};
+		}
 
-	public FastPayment GetFastPayment(
-		OrderRegistrationResponseDTO orderRegistrationResponseDto, Order order, DateTime creationDate, string phoneNumber = null)
-	{
-		return new FastPayment
+		public SignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto)
 		{
-			Amount = order.OrderSum,
-			CreationDate = creationDate,
-			Order = order,
-			Ticket = orderRegistrationResponseDto.Ticket,
-			QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
-			ExternalId = (int)orderRegistrationResponseDto.Id,
-			PhoneNumber = phoneNumber
-		};
-	}
+			return new SignatureParams
+			{
+				OrderId = paidOrderInfoDto.OrderNumber,
+				OrderSumInKopecks = paidOrderInfoDto.Amount,
+				ShopId = paidOrderInfoDto.ShopId,
+				Sign = _signatureSection.GetValue<string>("AvSign")
+			};
+		}
 
-	public FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto)
-	{
-		return new FastPayment
+		public FastPayment GetFastPayment(
+			OrderRegistrationResponseDTO orderRegistrationResponseDto, Order order, DateTime creationDate, string phoneNumber = null)
 		{
-			Amount = order.OrderSum,
-			CreationDate = paymentDto.CreationDate,
-			Order = order,
-			Ticket = paymentDto.Ticket,
-			QRPngBase64 = paymentDto.QRPngBase64,
-			ExternalId = paymentDto.ExternalId
-		};
+			return new FastPayment
+			{
+				Amount = order.OrderSum,
+				CreationDate = creationDate,
+				Order = order,
+				Ticket = orderRegistrationResponseDto.Ticket,
+				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
+				ExternalId = (int)orderRegistrationResponseDto.Id,
+				PhoneNumber = phoneNumber
+			};
+		}
+
+		public FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto)
+		{
+			return new FastPayment
+			{
+				Amount = order.OrderSum,
+				CreationDate = paymentDto.CreationDate,
+				Order = order,
+				Ticket = paymentDto.Ticket,
+				QRPngBase64 = paymentDto.QRPngBase64,
+				ExternalId = paymentDto.ExternalId
+			};
+		}
 	}
 }

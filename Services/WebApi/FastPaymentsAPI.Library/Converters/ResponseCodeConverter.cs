@@ -1,37 +1,38 @@
 ﻿using FastPaymentsAPI.Library.DTO_s.Responses;
 
-namespace FastPaymentsAPI.Library.Converters;
-
-public class ResponseCodeConverter : IResponseCodeConverter
+namespace FastPaymentsAPI.Library.Converters
 {
-	public ResponseStatus ConvertToResponseStatus(int responseCode)
+	public class ResponseCodeConverter : IResponseCodeConverter
 	{
-		switch(responseCode)
+		public ResponseStatus ConvertToResponseStatus(int responseCode)
 		{
-			case 0:
-				return ResponseStatus.Success;
-			case 1:
-				return ResponseStatus.ShopIdIsEmpty;
-			case 2:
-				return ResponseStatus.ShopPasswdIsEmpty;
-			case 3:
-				return ResponseStatus.ShopIdOrShopPasswdInvalidValue;
-			case 4:
-				return ResponseStatus.InternalSystemError;
-			case 5:
-				return ResponseStatus.TicketIsEmpty;
-			case 6:
-				return ResponseStatus.InvalidIPAddress;
-			case 7:
-				return ResponseStatus.InvalidXMLRequest;
-			case 8:
-				return ResponseStatus.XMLRequestIsEmpty;
-			case 9:
-				return ResponseStatus.UnsupportedRequestEncoding;
-			case 10:
-				return ResponseStatus.InvalidAmountFormat;
-			default:
-				return ResponseStatus.UnknownError;
+			switch(responseCode)
+			{
+				case 0:
+					return ResponseStatus.Success;
+				case 1:
+					return ResponseStatus.ShopIdIsEmpty;
+				case 2:
+					return ResponseStatus.ShopPasswdIsEmpty;
+				case 3:
+					return ResponseStatus.ShopIdOrShopPasswdInvalidValue;
+				case 4:
+					return ResponseStatus.InternalSystemError;
+				case 5:
+					return ResponseStatus.TicketIsEmpty;
+				case 6:
+					return ResponseStatus.InvalidIPAddress;
+				case 7:
+					return ResponseStatus.InvalidXMLRequest;
+				case 8:
+					return ResponseStatus.XMLRequestIsEmpty;
+				case 9:
+					return ResponseStatus.UnsupportedRequestEncoding;
+				case 10:
+					return ResponseStatus.InvalidAmountFormat;
+				default:
+					return ResponseStatus.UnknownError;
+			}
 		}
 	}
 }

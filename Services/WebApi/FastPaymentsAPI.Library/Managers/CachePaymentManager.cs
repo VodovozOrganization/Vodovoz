@@ -10,87 +10,88 @@ using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 
-namespace FastPaymentsAPI.Library.Managers;
-
-public class CachePaymentManager : BackgroundService
+namespace FastPaymentsAPI.Library.Managers
 {
-	private readonly ILogger<CachePaymentManager> _logger;
-	private readonly FastPaymentFileCache _fastPaymentFileCache;
-	private readonly IFastPaymentRepository _fastPaymentRepository;
-	private readonly IOrderRepository _orderRepository;
-	private readonly IFastPaymentAPIFactory _fastPaymentApiFactory;
-
-	public CachePaymentManager(
-		ILogger<CachePaymentManager> logger,
-		FastPaymentFileCache fastPaymentFileCache,
-		IFastPaymentRepository fastPaymentRepository,
-		IOrderRepository orderRepository,
-		IFastPaymentAPIFactory fastPaymentApiFactory)
+	public class CachePaymentManager : BackgroundService
 	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-		_fastPaymentFileCache = fastPaymentFileCache ?? throw new ArgumentNullException(nameof(fastPaymentFileCache));
-		_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
-		_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-		_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new ArgumentNullException(nameof(fastPaymentApiFactory));
-	}
+		private readonly ILogger<CachePaymentManager> _logger;
+		private readonly FastPaymentFileCache _fastPaymentFileCache;
+		private readonly IFastPaymentRepository _fastPaymentRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IFastPaymentAPIFactory _fastPaymentApiFactory;
 
-	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-	{
-		_logger.LogInformation("Процесс синхронизации платежей из кэша запущен");
-		while(!stoppingToken.IsCancellationRequested)
+		public CachePaymentManager(
+			ILogger<CachePaymentManager> logger,
+			FastPaymentFileCache fastPaymentFileCache,
+			IFastPaymentRepository fastPaymentRepository,
+			IOrderRepository orderRepository,
+			IFastPaymentAPIFactory fastPaymentApiFactory)
 		{
-			await Task.Delay(30000, stoppingToken);
-			
-			try
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_fastPaymentFileCache = fastPaymentFileCache ?? throw new ArgumentNullException(nameof(fastPaymentFileCache));
+			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new ArgumentNullException(nameof(fastPaymentApiFactory));
+		}
+
+		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		{
+			_logger.LogInformation("Процесс синхронизации платежей из кэша запущен");
+			while(!stoppingToken.IsCancellationRequested)
 			{
-				_logger.LogInformation("Поиск данных платежей в кэше...");
+				await Task.Delay(30000, stoppingToken);
 
-				var paymentsInCache = _fastPaymentFileCache.GetAllPaymentCaches();
-
-				var message = $"Найдено {paymentsInCache.Count} данных платежей.";
-				if(paymentsInCache.Count > 0)
+				try
 				{
-					_logger.LogInformation(message + " Синхронизация...");
-				}
-				else
-				{
-					_logger.LogInformation(message);
-					continue;
-				}
+					_logger.LogInformation("Поиск данных платежей в кэше...");
 
-				IList<FastPaymentDTO> cachesToRemove = new List<FastPaymentDTO>();
-				int savedPayments = 0;
+					var paymentsInCache = _fastPaymentFileCache.GetAllPaymentCaches();
 
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-				{
-					foreach(var paymentDto in paymentsInCache)
+					var message = $"Найдено {paymentsInCache.Count} данных платежей.";
+					if(paymentsInCache.Count > 0)
 					{
-						var fastPayment = _fastPaymentRepository.GetFastPaymentByTicket(uow, paymentDto.Ticket);
+						_logger.LogInformation(message + " Синхронизация...");
+					}
+					else
+					{
+						_logger.LogInformation(message);
+						continue;
+					}
 
-						if(fastPayment == null)
+					IList<FastPaymentDTO> cachesToRemove = new List<FastPaymentDTO>();
+					int savedPayments = 0;
+
+					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						foreach(var paymentDto in paymentsInCache)
 						{
-							var order = _orderRepository.GetOrder(uow, paymentDto.OrderId);
-							var newPayment = _fastPaymentApiFactory.GetFastPayment(order, paymentDto);
-							newPayment.SetProcessingStatus();
-							uow.Save(newPayment);
-							uow.Commit();
+							var fastPayment = _fastPaymentRepository.GetFastPaymentByTicket(uow, paymentDto.Ticket);
+
+							if(fastPayment == null)
+							{
+								var order = _orderRepository.GetOrder(uow, paymentDto.OrderId);
+								var newPayment = _fastPaymentApiFactory.GetFastPayment(order, paymentDto);
+								newPayment.SetProcessingStatus();
+								uow.Save(newPayment);
+								uow.Commit();
+							}
+
+							cachesToRemove.Add(paymentDto);
+							savedPayments++;
 						}
 
-						cachesToRemove.Add(paymentDto);
-						savedPayments++;
+						if(savedPayments > 0)
+						{
+							_fastPaymentFileCache.RemovePaymentCaches(cachesToRemove);
+						}
 					}
 
-					if(savedPayments > 0)
-					{
-						_fastPaymentFileCache.RemovePaymentCaches(cachesToRemove);
-					}
+					_logger.LogInformation($"Обработано {savedPayments} платежей");
 				}
-
-				_logger.LogInformation($"Обработано {savedPayments} платежей");
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при синхронизации платежей из кэша");
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка при синхронизации платежей из кэша");
+				}
 			}
 		}
 	}

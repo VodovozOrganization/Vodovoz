@@ -3,27 +3,28 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
-namespace FastPaymentsAPI.Library.Services;
-
-public class DriverAPIService : IDriverAPIService
+namespace FastPaymentsAPI.Library.Services
 {
-	private readonly HttpClient _httpClient;
-	private readonly IConfiguration _configuration;
-
-	public DriverAPIService(HttpClient client, IConfiguration configuration)
+	public class DriverAPIService : IDriverAPIService
 	{
-		_httpClient = client ?? throw new ArgumentNullException(nameof(client));
-		_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-	}
+		private readonly HttpClient _httpClient;
+		private readonly IConfiguration _configuration;
 
-	public async Task NotifyOfFastPaymentStatusChangedAsync(int orderId)
-	{
-		var response = await _httpClient.PostAsJsonAsync(
-			_configuration.GetSection("DriverAPIService").GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), orderId);
-
-		if(!response.IsSuccessStatusCode)
+		public DriverAPIService(HttpClient client, IConfiguration configuration)
 		{
-			throw new Exception(response.ReasonPhrase);
+			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+		}
+
+		public async Task NotifyOfFastPaymentStatusChangedAsync(int orderId)
+		{
+			var response = await _httpClient.PostAsJsonAsync(
+				_configuration.GetSection("DriverAPIService").GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), orderId);
+
+			if(!response.IsSuccessStatusCode)
+			{
+				throw new Exception(response.ReasonPhrase);
+			}
 		}
 	}
 }

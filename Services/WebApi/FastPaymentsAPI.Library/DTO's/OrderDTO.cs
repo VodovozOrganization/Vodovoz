@@ -1,6 +1,7 @@
-﻿namespace FastPaymentsAPI.Library.DTO_s;
-
-public class OrderDTO
+﻿namespace FastPaymentsAPI.Library.DTO_s
 {
-	public int OrderId { get; set; }
+	public class OrderDTO
+	{
+		public int OrderId { get; set; }
+	}
 }

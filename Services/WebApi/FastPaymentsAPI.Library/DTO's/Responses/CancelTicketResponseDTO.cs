@@ -1,26 +1,29 @@
 ﻿using Gamma.Utilities;
 
-namespace FastPaymentsAPI.Library.DTO_s.Responses;
-
-public class CancelTicketResponseDTO
+namespace FastPaymentsAPI.Library.DTO_s.Responses
 {
-	public CancelTicketResponseDTO() {	}
-
-	public CancelTicketResponseDTO(ResponseStatus status)
+	public class CancelTicketResponseDTO
 	{
-		ResponseStatus = status;
-		if(status != ResponseStatus.Success)
+		public CancelTicketResponseDTO()
 		{
-			ErrorMessage = status.GetEnumTitle();
 		}
-	}
-	
-	public CancelTicketResponseDTO(string errorMessage)
-	{
-		ResponseStatus = ResponseStatus.UnknownError;
-		ErrorMessage = errorMessage;
-	}
 
-	public ResponseStatus ResponseStatus { get; }
-	public string ErrorMessage { get; }
+		public CancelTicketResponseDTO(ResponseStatus status)
+		{
+			ResponseStatus = status;
+			if(status != ResponseStatus.Success)
+			{
+				ErrorMessage = status.GetEnumTitle();
+			}
+		}
+
+		public CancelTicketResponseDTO(string errorMessage)
+		{
+			ResponseStatus = ResponseStatus.UnknownError;
+			ErrorMessage = errorMessage;
+		}
+
+		public ResponseStatus ResponseStatus { get; }
+		public string ErrorMessage { get; }
+	}
 }

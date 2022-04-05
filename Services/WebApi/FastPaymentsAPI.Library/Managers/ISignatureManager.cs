@@ -1,7 +1,8 @@
-﻿namespace FastPaymentsAPI.Library.Managers;
-
-public interface ISignatureManager
+﻿namespace FastPaymentsAPI.Library.Managers
 {
-	string GenerateSignature(SignatureParams parameters);
-	bool Validate(string signature, SignatureParams parameters);
+	public interface ISignatureManager
+	{
+		string GenerateSignature(SignatureParams parameters);
+		bool Validate(string signature, SignatureParams parameters);
+	}
 }

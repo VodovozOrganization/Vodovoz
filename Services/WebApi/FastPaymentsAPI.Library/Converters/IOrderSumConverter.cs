@@ -1,6 +1,7 @@
-﻿namespace FastPaymentsAPI.Library.Converters;
-
-public interface IOrderSumConverter
+﻿namespace FastPaymentsAPI.Library.Converters
 {
-	int ConvertOrderSumToKopecks(decimal orderSum);
+	public interface IOrderSumConverter
+	{
+		int ConvertOrderSumToKopecks(decimal orderSum);
+	}
 }
