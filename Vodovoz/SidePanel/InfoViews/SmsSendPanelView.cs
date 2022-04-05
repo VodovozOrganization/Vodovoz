@@ -78,6 +78,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
+			btnSendFastPaymentUrlBySms.Sensitive = false; //Пока банк не решил все вопросы - блокируем кнопку
 			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
 			btnSendFastPaymentUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
