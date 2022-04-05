@@ -9,6 +9,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
@@ -39,7 +40,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository());
 				case PanelViewType.SmsSendPanelView:
-					return new SmsSendPanelView(ServicesConfig.CommonServices, new SmsPaymentRepository());
+					return new SmsSendPanelView(ServicesConfig.CommonServices, new SmsPaymentRepository(), new FastPaymentRepository());
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
