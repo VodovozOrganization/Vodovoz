@@ -34,7 +34,11 @@ namespace RoboAtsService.Requests
 				return ErrorMessage;
 			}
 
-			var counterpartyId = counterpartyIds.First();
+			int? counterpartyId = null;
+			if(counterpartyCount == 1)
+			{
+				counterpartyId = counterpartyIds.First();
+			}	
 
 			switch(RequestDto.RequestSubType)
 			{
@@ -43,13 +47,17 @@ namespace RoboAtsService.Requests
 				case "patronymic":
 					return GetCounterpartyPatronymicId(counterpartyId);
 				default:
-					return $"{counterpartyCount}";
+					return counterpartyCount != null ? $"{counterpartyCount}" : "0";
 			}
 		}
 
-		private string GetCounterpartyNameId(int counterpartyId)
+		private string GetCounterpartyNameId(int? counterpartyId)
 		{
-			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId);
+			if(!counterpartyId.HasValue)
+			{
+				return "NO DATA";
+			}
+			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value);
 			if(nameId == 0)
 			{
 				return "NO DATA";
@@ -57,9 +65,13 @@ namespace RoboAtsService.Requests
 			return $"{nameId}";
 		}
 
-		private string GetCounterpartyPatronymicId(int counterpartyId)
+		private string GetCounterpartyPatronymicId(int? counterpartyId)
 		{
-			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId);
+			if(!counterpartyId.HasValue)
+			{
+				return "NO DATA";
+			}
+			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId.Value);
 			if(patronymicId == 0)
 			{
 				return "NO DATA";
