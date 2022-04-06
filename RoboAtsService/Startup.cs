@@ -18,6 +18,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Versioning;
 using QS.Services;
+using RoboAtsService.Middleware;
 using System.Linq;
 using Vodovoz;
 using Vodovoz.Core.DataService;
@@ -42,12 +43,12 @@ namespace RoboAtsService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
+
+			services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
                 .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
             services.AddMvc().AddControllersAsServices();
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			NLogBuilder.ConfigureNLog("NLog.config");
 
 			CreateBaseConfig();
 
@@ -62,7 +63,6 @@ namespace RoboAtsService
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
-
 			builder.RegisterType<RoboatsRepository>().AsSelf();
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
@@ -119,12 +119,12 @@ namespace RoboAtsService
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+            app.UseAuthorization();
+			app.UseMiddleware<ApiKeyMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
