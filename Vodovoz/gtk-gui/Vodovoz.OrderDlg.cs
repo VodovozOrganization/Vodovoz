@@ -1324,7 +1324,7 @@ namespace Vodovoz
 			this.ycheckPaymentBySms = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckPaymentBySms.CanFocus = true;
 			this.ycheckPaymentBySms.Name = "ycheckPaymentBySms";
-			this.ycheckPaymentBySms.Label = global::Mono.Unix.Catalog.GetString("Оплата по SMS");
+			this.ycheckPaymentBySms.Label = global::Mono.Unix.Catalog.GetString("Оплата по Sms");
 			this.ycheckPaymentBySms.DrawIndicator = true;
 			this.ycheckPaymentBySms.UseUnderline = true;
 			this.table1.Add(this.ycheckPaymentBySms);
