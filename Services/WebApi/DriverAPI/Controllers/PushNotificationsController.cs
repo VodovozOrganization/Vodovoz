@@ -105,7 +105,7 @@ namespace DriverAPI.Controllers
 			else
 			{
 				_logger.LogInformation($"Sending PUSH message of fast delivery order ({orderId}) added");
-				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", orderId.ToString());
+				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ { orderId } с доставкой за час");
 			}
 		}
 	}
