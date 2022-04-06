@@ -173,7 +173,7 @@ namespace Vodovoz.Models.Orders
 		public DateTime Date { get; set; }
 		public int DeliveryScheduleId { get; set; }
 		public RoboAtsOrderPayment PaymentType { get; set; }
-		public int BanknoteForReturn { get; set; }
+		public int? BanknoteForReturn { get; set; }
 	}
 
 	public enum RoboAtsOrderPayment

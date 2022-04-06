@@ -143,17 +143,18 @@ namespace RoboAtsService.Requests
 					return ErrorMessage;
 			}
 
-			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn))
-			{
-				return ErrorMessage;
-			}
-
-			if(banknoteForReturn > 10000 || banknoteForReturn <= 0)
-			{
-				return ErrorMessage;
-			}
-
 			var isFullOrder = RequestDto.IsFullOrder == "1";
+
+			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn) && isFullOrder)
+			{
+				return ErrorMessage;
+			}
+
+			if((banknoteForReturn > 10000 || banknoteForReturn <= 0) && isFullOrder)
+			{
+				return ErrorMessage;
+			}
+
 
 			//Вызов модели создания заказа для создания заказа
 			var orderArgs = new RoboatsOrderArgs();
@@ -164,7 +165,10 @@ namespace RoboAtsService.Requests
 			orderArgs.Date = date;
 			orderArgs.DeliveryScheduleId = deliverySchedule.Id;
 			orderArgs.PaymentType = payment;
-			orderArgs.BanknoteForReturn = banknoteForReturn;
+			if(banknoteForReturn > 0)
+			{
+				orderArgs.BanknoteForReturn = banknoteForReturn;
+			}
 
 			try
 			{
