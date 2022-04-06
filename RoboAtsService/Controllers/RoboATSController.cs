@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RoboAtsService.Requests;
+using System.Diagnostics;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models.Orders;
 
@@ -11,6 +13,7 @@ namespace RoboAtsService.Controllers
 	public class RoboATSController : ControllerBase
 	{
 		private readonly ILogger<RoboATSController> _logger;
+
 		private readonly RoboatsRepository _roboatsRepository;
 		private readonly RoboatsOrderModel _roboatsOrderModel;
 
@@ -38,6 +41,8 @@ namespace RoboAtsService.Controllers
 			[FromQuery(Name = "terminal")] string isTerminal
 			)
 		{
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
 			var request = new RequestDto
 			{
 				ClientPhone = clientPhone,
@@ -62,6 +67,9 @@ namespace RoboAtsService.Controllers
 				return "null request";
 			}
 			var result = roboatsRequest.Execute();
+			sw.Stop();
+			var query = HttpContext.Request.GetEncodedPathAndQuery();
+			_logger.LogInformation($"Request: {query} | Response: {result} | Request time: {sw.Elapsed.Seconds}.{sw.Elapsed.Milliseconds} sec.");
 			return result;
 		}
 	}
