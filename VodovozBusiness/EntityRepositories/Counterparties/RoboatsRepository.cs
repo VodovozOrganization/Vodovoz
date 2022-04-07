@@ -1,6 +1,7 @@
 ﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
+using QS.Osm.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,59 +74,73 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		public int GetRoboatsCounterpartyNameId(int counterpartyId)
+		public int GetRoboatsCounterpartyNameId(int counterpartyId, string phone)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				Counterparty counterpartyAlias = null;
-				RoboAtsCounterpartyName counterpartyNameAlias = null;
+				Phone phoneAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
 
-				var query = uow.Session.QueryOver(() => counterpartyAlias)
-					.Where(() => counterpartyAlias.Id == counterpartyId)
-					.Select(Projections.Property(() => counterpartyAlias.FullName));
+				var queryDeliveryPoint = uow.Session.QueryOver(() => phoneAlias)
+					.Left.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
+					.Where(() => phoneAlias.DigitsNumber == phone)
+					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.DeliveryPoint)))
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName)))
+					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName.Id));
 
-				var counterpartyName = query.SingleOrDefault<string>();
+				var nameIdFromDeliveryPoint = queryDeliveryPoint.SingleOrDefault<int>();
 
-				PersonHelper.SplitFullName(counterpartyName, out string lastName, out string firstName, out string patronymic);
-				if(string.IsNullOrWhiteSpace(firstName))
+				if(nameIdFromDeliveryPoint > 0)
 				{
-					return 0;
+					return nameIdFromDeliveryPoint;
 				}
 
-				var nameId = uow.Session.QueryOver(() => counterpartyNameAlias)
-					.Where(() => counterpartyNameAlias.Name == firstName)
-					.Select(Projections.Property(() => counterpartyNameAlias.Id))
-					.SingleOrDefault<int>();
+				var queryCounterparty = uow.Session.QueryOver(() => phoneAlias)
+					.Where(() => phoneAlias.DigitsNumber == phone)
+					.Where(() => phoneAlias.Counterparty.Id == counterpartyId)
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.Counterparty)))
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName)))
+					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName.Id));
 
-				return nameId;
+				var nameIdFromCounterparty = queryCounterparty.SingleOrDefault<int>();
+
+				return nameIdFromCounterparty;
 			}
 		}
 
-		public int GetRoboatsCounterpartyPatronymicId(int counterpartyId)
+		public int GetRoboatsCounterpartyPatronymicId(int counterpartyId, string phone)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				Counterparty counterpartyAlias = null;
-				RoboAtsCounterpartyPatronymic counterpartyPatronymicAlias = null;
+				Phone phoneAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
 
-				var query = uow.Session.QueryOver(() => counterpartyAlias)
-					.Where(() => counterpartyAlias.Id == counterpartyId)
-					.Select(Projections.Property(() => counterpartyAlias.FullName));
+				var queryDeliveryPoint = uow.Session.QueryOver(() => phoneAlias)
+					.Left.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
+					.Where(() => phoneAlias.DigitsNumber == phone)
+					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.DeliveryPoint)))
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic)))
+					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic.Id));
 
-				var counterpartyName = query.SingleOrDefault<string>();
+				var patronymicIdFromDeliveryPoint = queryDeliveryPoint.SingleOrDefault<int>();
 
-				PersonHelper.SplitFullName(counterpartyName, out string lastName, out string firstName, out string patronymic);
-				if(string.IsNullOrWhiteSpace(patronymic))
+				if(patronymicIdFromDeliveryPoint > 0)
 				{
-					return 0;
+					return patronymicIdFromDeliveryPoint;
 				}
 
-				var nameId = uow.Session.QueryOver(() => counterpartyPatronymicAlias)
-					.Where(() => counterpartyPatronymicAlias.Patronymic == patronymic)
-					.Select(Projections.Property(() => counterpartyPatronymicAlias.Id))
-					.SingleOrDefault<int>();
+				var queryCounterparty = uow.Session.QueryOver(() => phoneAlias)
+					.Where(() => phoneAlias.DigitsNumber == phone)
+					.Where(() => phoneAlias.Counterparty.Id == counterpartyId)
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.Counterparty)))
+					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic)))
+					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic.Id));
 
-				return nameId;
+				var patronymicIdFromCounterparty = queryCounterparty.SingleOrDefault<int>();
+
+				return patronymicIdFromCounterparty;
 			}
 		}
 
@@ -140,6 +155,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				var query = uow.Session.QueryOver(() => orderAlias)
 					.Where(() => orderAlias.Client.Id == counterpartyId)
 					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
+					.Where(() => !orderAlias.IsBottleStock)
 					.Where(
 						Restrictions.In(
 								Projections.Property(() => orderAlias.OrderStatus),
@@ -174,75 +190,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		public int GetLastOrderBottlesCount(int clientId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
-				Order orderAlias = null;
-				OrderItem orderItemAlias = null;
-				Nomenclature nomenclatureAlias = null;
-
-				var orderSubQuery = QueryOver.Of(() => orderAlias)
-					.Where(() => orderAlias.Client.Id == clientId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Select(x => x.Id)
-					.OrderByAlias(() => orderAlias.CreateDate).Desc
-					.Take(1);
-
-				var query = uow.Session.QueryOver(() => orderItemAlias)
-					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-					.WithSubquery.WhereProperty(() => orderItemAlias.Order.Id).Eq(orderSubQuery)
-					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
-					.Where(() => nomenclatureAlias.IsDisposableTare == false)
-					.Select(
-						Projections.Sum(
-							Projections.Conditional(
-								Restrictions.IsNull(Projections.Property(() => orderItemAlias.ActualCount)),
-								Projections.Property(() => orderItemAlias.Count),
-								Projections.Property(() => orderItemAlias.ActualCount)
-							)
-						)
-					);
-
-				var result = (int)(query.SingleOrDefault<decimal>());
-				return result;
-			}
-		}
-
-		public int GetLastOrderBottlesReturnCount(int clientId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
-				Order orderAlias = null;
-
-				var query = uow.Session.QueryOver(() => orderAlias)
-					.Where(() => orderAlias.Client.Id == clientId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Select(x => x.BottlesReturn)
-					.OrderByAlias(() => orderAlias.CreateDate).Desc
-					.Take(1);
-
-				var result = query.SingleOrDefault<int>();
-				return result;
-			}
-		}
-
 		public IEnumerable<int> GetLastDeliveryPointIds(int clientId)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
@@ -254,6 +201,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				var query = uow.Session.QueryOver(() => orderAlias)
 					.Where(() => orderAlias.Client.Id == clientId)
 					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
+					.Where(() => !orderAlias.IsBottleStock)
 					.Where(
 						Restrictions.In(
 								Projections.Property(() => orderAlias.OrderStatus),
@@ -363,34 +311,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		public string GetLastOrderDataAddressBuilding(int counterpartyId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
-				Order orderAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
-
-				var query = uow.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Select(Projections.Property(() => deliveryPointAlias.Building))
-					.OrderByAlias(() => orderAlias.CreateDate).Desc
-					.Take(1);
-
-				var result = query.SingleOrDefault<string>();
-				return result;
-			}
-		}
-
 		public string GetDeliveryPointBuilding(int deliveryPointId, int counterpartyId)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
@@ -401,37 +321,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					.Where(() => deliveryPointAlias.Id == deliveryPointId)
 					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
 					.Select(Projections.Property(() => deliveryPointAlias.Building));
-
-				var result = query.SingleOrDefault<string>();
-				return result;
-			}
-		}
-
-
-
-		public string GetLastOrderDataAddressApartment(int counterpartyId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
-				Order orderAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
-
-				var query = uow.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
-					.Select(Projections.Property(() => deliveryPointAlias.Room))
-					.OrderByAlias(() => orderAlias.CreateDate).Desc
-					.Take(1);
 
 				var result = query.SingleOrDefault<string>();
 				return result;
@@ -449,88 +338,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
 					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
 					.Select(Projections.Property(() => deliveryPointAlias.Room));
-
-				var result = query.SingleOrDefault<string>();
-				return result;
-			}
-		}
-
-		public string GetLastOrderDataAddressOffice(int counterpartyId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
-				Order orderAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
-
-				var query = uow.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Where(() => deliveryPointAlias.RoomType == RoomType.Office)
-					.Select(Projections.Property(() => deliveryPointAlias.Room))
-					.OrderByAlias(() => orderAlias.CreateDate).Desc
-					.Take(1);
-
-				var result = query.SingleOrDefault<string>();
-				return result;
-			}
-		}
-
-		public string GetDeliveryPointOffice(int deliveryPointId, int counterpartyId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				DeliveryPoint deliveryPointAlias = null;
-
-				var query = uow.Session.QueryOver(() => deliveryPointAlias)
-					.Where(() => deliveryPointAlias.Id == deliveryPointId)
-					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
-					.Where(() => deliveryPointAlias.RoomType == RoomType.Office)
-					.Select(Projections.Property(() => deliveryPointAlias.Room));
-
-				var result = query.SingleOrDefault<string>();
-				return result;
-			}
-		}
-
-		public RoomType GetDeliveryPointRoomType(int deliveryPointId, int counterpartyId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				DeliveryPoint deliveryPointAlias = null;
-
-				var query = uow.Session.QueryOver(() => deliveryPointAlias)
-					.Where(() => deliveryPointAlias.Id == deliveryPointId)
-					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
-					.Select(Projections.Property(() => deliveryPointAlias.RoomType));
-
-				var result = query.SingleOrDefault<RoomType>();
-				return result;
-			}
-		}
-
-		public RoomType GetLastOrderDeliveryPointRoomType(int counterpartyId)
-		{
-			throw new NotImplementedException();
-		}
-
-		public string GetCounterpartyFullName(int clientId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				Counterparty counterpartyAlias = null;
-
-				var query = uow.Session.QueryOver(() => counterpartyAlias)
-					.Where(() => counterpartyAlias.Id == clientId)
-					.Select(Projections.Property(() => counterpartyAlias.FullName));
 
 				var result = query.SingleOrDefault<string>();
 				return result;

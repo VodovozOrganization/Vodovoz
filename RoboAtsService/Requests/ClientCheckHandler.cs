@@ -57,7 +57,7 @@ namespace RoboAtsService.Requests
 			{
 				return "NO DATA";
 			}
-			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value);
+			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value, ClientPhone);
 			if(nameId == 0)
 			{
 				return "NO DATA";
@@ -71,7 +71,7 @@ namespace RoboAtsService.Requests
 			{
 				return "NO DATA";
 			}
-			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId.Value);
+			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId.Value, ClientPhone);
 			if(patronymicId == 0)
 			{
 				return "NO DATA";

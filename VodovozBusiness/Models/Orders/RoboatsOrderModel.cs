@@ -159,6 +159,7 @@ namespace Vodovoz.Models.Orders
 				var nomenclature = uow.GetById<Nomenclature>(waterInfo.NomenclatureId);
 				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 			}
+			order.BottlesReturn = roboatsOrderArgs.BottlesReturn;
 			order.CalculateDeliveryPrice();
 			return order;
 		}

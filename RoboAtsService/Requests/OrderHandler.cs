@@ -1,11 +1,7 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models.Orders;
 
@@ -145,16 +141,15 @@ namespace RoboAtsService.Requests
 
 			var isFullOrder = RequestDto.IsFullOrder == "1";
 
-			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn) && isFullOrder)
+			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
 			{
 				return ErrorMessage;
 			}
 
-			if((banknoteForReturn > 10000 || banknoteForReturn <= 0) && isFullOrder)
+			if((banknoteForReturn > 10000 || banknoteForReturn <= 0) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
 			{
 				return ErrorMessage;
 			}
-
 
 			//Вызов модели создания заказа для создания заказа
 			var orderArgs = new RoboatsOrderArgs();
@@ -230,15 +225,11 @@ namespace RoboAtsService.Requests
 			return result;
 		}
 
-
-
 		public enum OrderRequestType
 		{
 			Unknown,
 			CreateOrder,
 			PriceCheck
 		}
-
-
 	}
 }
