@@ -534,12 +534,23 @@ namespace Vodovoz
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
-
-			var excludedPaymentFromId = new OrderParametersProvider(_parametersProvider).PaymentByCardFromSmsId;
-			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
-				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
+			
+			var excludedPaymentFromIds = new[]
+			{
+				_orderParametersProvider.PaymentByCardFromSmsId,
+				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId
+			};
+			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
+			{
+				ySpecPaymentFrom.ItemsList =
+					UoW.Session.QueryOver<PaymentFrom>()
+						.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds).List();
+			}
 			else
+			{
 				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
+			}
+
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
 			enumTax.ItemsEnum = typeof(TaxType);
@@ -607,15 +618,13 @@ namespace Vodovoz
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
-				Enum[] hideEnums = { PaymentType.Terminal };
-
 				if(Entity.SelfDelivery)
 				{
-					enumPaymentType.AddEnumToHideList(hideEnums);
+					enumPaymentType.AddEnumToHideList(PaymentType.Terminal);
 				}
 				else
 				{
-					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.Terminal });
+					enumPaymentType.RemoveEnumFromHideList(PaymentType.Terminal);
 				}
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
@@ -1650,9 +1659,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
-				() => new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
+			TabParent.AddSlaveTab(this, new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
 			);
 		}
 
@@ -2284,15 +2291,13 @@ namespace Vodovoz
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
 
-				Enum[] hideEnums = { PaymentType.cashless };
-
 				if(Entity.Client.PersonType == PersonType.natural) {
 					chkContractCloser.Active = false;
 					chkContractCloser.Visible = false;
-					enumPaymentType.AddEnumToHideList(hideEnums);
+					enumPaymentType.AddEnumToHideList(PaymentType.cashless);
 				} else {
 					chkContractCloser.Visible = true;
-					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.cashless });
+					enumPaymentType.RemoveEnumFromHideList( PaymentType.cashless);
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
@@ -2301,7 +2306,7 @@ namespace Vodovoz
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
 						enumPaymentType.SelectedItem = previousPaymentType.Value;
-					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
+					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.cashless) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
 					} else {

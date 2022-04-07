@@ -18,6 +18,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .Where(() => routeListItemAlias.Order.Id == order.Id)
 					  .SingleOrDefault();
 		}
+		
+		public IList<RouteListItem> GetRouteListItemsForOrder(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<RouteListItem>()
+				.Where(x => x.Order.Id == orderId)
+				.List();
+		}
 
 		public RouteListItem GetTransferredRouteListItemFromRouteListForOrder(IUnitOfWork uow, int routeListId, int orderId)
 		{

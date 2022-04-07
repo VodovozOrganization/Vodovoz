@@ -19,6 +19,8 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using QS.Project.Services;
+using QS.Dialog;
 
 namespace Vodovoz.Reports
 {
@@ -118,8 +120,16 @@ namespace Vodovoz.Reports
 
 		#endregion
 
-		void OnUpdate (bool hide = false) => 
-			LoadReport?.Invoke (this, new LoadReportEventArgs (GetReportInfo (), hide));
+		void OnUpdate(bool hide = false)
+		{
+			if(!UserSubdivisions.Any())
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "Пользователь не имеет доступа к кассам. Отчет сформировать невозможно.");
+				return;
+			}
+
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		}
 
 		protected void OnButtonRunClicked (object sender, EventArgs e) => OnUpdate (true);
 

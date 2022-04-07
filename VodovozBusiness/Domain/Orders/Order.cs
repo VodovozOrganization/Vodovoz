@@ -3103,7 +3103,13 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrder(
+			IUnitOfWork uow,
+			IStandartNomenclatures standartNomenclatures,
+			IRouteListItemRepository routeListItemRepository,
+			ISelfDeliveryRepository selfDeliveryRepository,
+			ICashRepository cashRepository,
+			SelfDeliveryDocument closingDocument = null)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));

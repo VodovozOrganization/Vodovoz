@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+      <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
+      <ProjectReference Include="..\..\..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+      <ProjectReference Include="..\..\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+      <PackageReference Include="NLog.Extensions.Logging" Version="5.0.0-rc2" />
+    </ItemGroup>
+
+</Project>

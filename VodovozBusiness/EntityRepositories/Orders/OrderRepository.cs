@@ -604,7 +604,9 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(() => counterpartyAlias.AlwaysSendReceipts))
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId));
+					.Add(Restrictions.Disjunction()
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)));
 
 			var statusRestriction = Restrictions.Disjunction()
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
