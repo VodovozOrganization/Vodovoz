@@ -534,20 +534,24 @@ namespace Vodovoz
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
-			
+
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
-				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId
+				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
+				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
-				ySpecPaymentFrom.ItemsList =
-					UoW.Session.QueryOver<PaymentFrom>()
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
 						.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds).List();
+				labelEShop.Hide();
+				yvalidatedentryEShopOrder.Hide();
 			}
 			else
-			{
+			{			
+				labelEShop.Show();
+				yvalidatedentryEShopOrder.Show();
 				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
 			}
 
@@ -685,7 +689,7 @@ namespace Vodovoz
 
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
-
+			
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
