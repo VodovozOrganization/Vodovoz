@@ -116,11 +116,11 @@ namespace Vodovoz.Representations
 			if(FilterViewModel.DeliveryPoint != null)
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 
-			if(FilterViewModel.RestrictStartDate != null)
-				query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+			if(FilterViewModel.StartDate != null)
+				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 
-			if(FilterViewModel.RestrictEndDate != null)
-				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null)
+				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 
 			if(FilterViewModel.PaymentOrder != null) {
 				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;
