@@ -7,6 +7,7 @@ namespace DriverAPI.Library.DTOs
 	{
 		public int OrderId { get; set; }
 		public SmsPaymentDtoStatus? SmsPaymentStatus { get; set; }
+		public QRPaymentDTOStatus? QRPaymentStatus { get; set; }
 		public string DeliveryTime { get; set; }
 		public int FullBottleCount { get; set; }
 		public int EmptyBottlesToReturn { get; set; }

@@ -12,6 +12,7 @@ using NHibernate.Impl;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -646,7 +647,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return ordersToSend;
 		}
 
-		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)
+		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
 

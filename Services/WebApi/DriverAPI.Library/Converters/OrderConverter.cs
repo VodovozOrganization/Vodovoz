@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.Converters
@@ -14,19 +15,26 @@ namespace DriverAPI.Library.Converters
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
+		private readonly QRPaymentConverter _qrPaymentConverter;
 
 		public OrderConverter(ILogger<OrderConverter> logger,
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
-			PaymentTypeConverter paymentTypeConverter)
+			PaymentTypeConverter paymentTypeConverter,
+			QRPaymentConverter qrPaymentConverter)
 		{
 			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			this._deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			this._smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
 			this._paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
+			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 		}
 
-		public OrderDto ConvertToApiOrder(Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus, DateTime addedToRouteListTime)
+		public OrderDto convertToAPIOrder(
+			Order vodovozOrder,
+			DateTime addedToRouteListTime,
+			SmsPaymentStatus? smsPaymentStatus,
+			FastPaymentStatus? qrPaymentDtoStatus)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -34,6 +42,7 @@ namespace DriverAPI.Library.Converters
 			{
 				OrderId = vodovozOrder.Id,
 				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
+				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(qrPaymentDtoStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
 				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
@@ -54,18 +63,18 @@ namespace DriverAPI.Library.Converters
 		}
 
 		private (IEnumerable<OrderDeliveryItemDto> orderDeliveryItems, IEnumerable<OrderReceptionItemDto> orderReceptionItems)
-			SplitDeliveryItems(IEnumerable<Vodovoz.Domain.Orders.OrderEquipment> orderEquipment)
+			SplitDeliveryItems(IEnumerable<OrderEquipment> orderEquipment)
 		{
 			var deliveryItems = new List<OrderDeliveryItemDto>();
 			var receptionItems = new List<OrderReceptionItemDto>();
 
 			foreach (var transferItem in orderEquipment)
 			{
-				if (transferItem.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+				if (transferItem.Direction == Direction.Deliver)
 				{
 					deliveryItems.Add(ConvertToAPIOrderDeliveryItem(transferItem));
 				}
-				else if (transferItem.Direction == Vodovoz.Domain.Orders.Direction.PickUp)
+				else if (transferItem.Direction == Direction.PickUp)
 				{
 					receptionItems.Add(ConvertToAPIOrderReceptionItem(transferItem));
 				}
@@ -74,7 +83,7 @@ namespace DriverAPI.Library.Converters
 			return (deliveryItems, receptionItems);
 		}
 
-		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(IEnumerable<Vodovoz.Domain.Orders.OrderItem> orderItems)
+		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(IEnumerable<OrderItem> orderItems)
 		{
 			var result = new List<OrderSaleItemDto>();
 
@@ -86,7 +95,7 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private OrderSaleItemDto ConvertToAPIOrderSaleItem(Vodovoz.Domain.Orders.OrderItem saleItem)
+		private OrderSaleItemDto ConvertToAPIOrderSaleItem(OrderItem saleItem)
 		{
 			var result = new OrderSaleItemDto()
 			{
@@ -99,7 +108,7 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private OrderDeliveryItemDto ConvertToAPIOrderDeliveryItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
+		private OrderDeliveryItemDto ConvertToAPIOrderDeliveryItem(OrderEquipment saleItem)
 		{
 			var result = new OrderDeliveryItemDto()
 			{
@@ -111,7 +120,7 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
-		private OrderReceptionItemDto ConvertToAPIOrderReceptionItem(Vodovoz.Domain.Orders.OrderEquipment saleItem)
+		private OrderReceptionItemDto ConvertToAPIOrderReceptionItem(OrderEquipment saleItem)
 		{
 			var result = new OrderReceptionItemDto()
 			{

@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 
@@ -128,7 +127,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 
-		SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId);
+		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
 
