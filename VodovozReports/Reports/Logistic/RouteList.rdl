@@ -94,10 +94,10 @@
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>85pt</Width>
+            <Width>75pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>85pt</Width>
+            <Width>75pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>45.0pt</Width>
@@ -106,7 +106,7 @@
             <Width>43pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45pt</Width>
+            <Width>65pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>0pt</Width>
@@ -486,6 +486,7 @@
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -1006,11 +1007,11 @@
                       <Value>=
 Switch(
    {payment_type}='ByCard', 'Оплачено',
-   {payment_type}='cashless', 'Оплачено',
+   {payment_type}='cashless', 'Б/Н \n Подписать \n УПД',
    {payment_type}='barter', 'Оплачено',
    {payment_type}='ContractDoc', 'Оплачено',
    {payment_type}='Terminal', 'Терминал',
-   {payment_type}='cash',  Iif({payment_by_sms}, 'Налич \n ными \n или смс', 'Наличными')
+   {payment_type}='cash',  Iif({payment_by_sms}, 'Наличными \n или смс', 'Наличными')
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1028,6 +1029,7 @@ Switch(
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
                         <Format>0.00</Format>
+                        <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
