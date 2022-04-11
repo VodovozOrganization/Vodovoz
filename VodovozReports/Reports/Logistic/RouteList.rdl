@@ -87,7 +87,7 @@
             <Width>40.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125pt</Width>
+            <Width>115pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.6pt</Width>
@@ -130,6 +130,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -149,6 +150,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -205,7 +207,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,7 +225,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,7 +243,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -260,7 +262,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -283,6 +285,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -302,6 +305,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -340,7 +344,7 @@
                         </FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -414,7 +418,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -437,6 +441,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -454,6 +459,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -471,6 +477,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,6 +515,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -568,7 +576,7 @@
                           <Left>3pt</Left>
                           <Right>3pt</Right>
                         </BorderWidth>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -608,6 +616,7 @@
                           <Left>3pt</Left>
                           <Right>3pt</Right>
                         </BorderWidth>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -627,6 +636,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -648,6 +658,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -683,6 +694,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -700,6 +712,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -847,6 +860,7 @@
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -888,6 +902,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -906,6 +921,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -927,6 +943,7 @@
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
                         <Format>="N0"</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -949,6 +966,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -974,6 +992,7 @@
                         <PaddingRight>5pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -997,6 +1016,7 @@
                         <PaddingRight>5pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1053,6 +1073,7 @@ Switch(
                         <Format>0.00</Format>
                         <BackgroundColor>
                         </BackgroundColor>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1078,6 +1099,7 @@ Switch(
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1094,6 +1116,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1111,6 +1134,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <TextDecoration>7</TextDecoration>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1127,6 +1151,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1143,6 +1168,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1159,6 +1185,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1175,6 +1202,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1197,6 +1225,7 @@ Switch(
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1215,6 +1244,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <Format>0</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1232,6 +1262,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1250,6 +1281,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <Format>#,##0.00</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1266,6 +1298,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1288,6 +1321,7 @@ Switch(
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1305,6 +1339,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <Format>0</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1323,6 +1358,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1339,6 +1375,7 @@ Switch(
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <Format>#,##0.00</Format>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1356,6 +1393,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>

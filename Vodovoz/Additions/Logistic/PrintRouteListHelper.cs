@@ -60,10 +60,10 @@ namespace Vodovoz.Additions.Logistic
 			RdlText = RdlText.Replace("<!--colspan-->", $"<ColSpan>{ RouteColumns.Count }</ColSpan>");
 
 			//Расширяем таблицу
-			string columnsXml = "<TableColumn><Width>18pt</Width></TableColumn>";
+			string columnsXml = "<TableColumn><Width>20pt</Width></TableColumn>";
 			string columns = string.Empty;
 
-			columns += "<TableColumn><Width>100pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
+			columns += "<TableColumn><Width>90pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
 			for(int i = 1; i < RouteColumns.Count; i++)
 			{
 				columns += columnsXml;
