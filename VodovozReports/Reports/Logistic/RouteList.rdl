@@ -120,9 +120,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>="Водитель: " + First({DriverLastname}, 'RouteList') + " " + First({DriverName}, 'RouteList')</Value>
+                      <Value>="Вод: " + First({DriverLastname}, 'RouteList') + " " + First({DriverName}, 'RouteList') + ", " + First({DriverPhone}, 'RouteList')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
@@ -159,7 +159,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>="Вод: " + First({DriverPhone}, 'RouteList')</Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -275,9 +275,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>="Экспедитор: " + First({ForwarderLastname}, 'RouteList') + " " + First({ForwarderName}, 'RouteList')</Value>
+                      <Value>="Экс: " + First({ForwarderLastname}, 'RouteList') + " " + First({ForwarderName}, 'RouteList') + ", " + First({ForwarderPhone}, 'RouteList')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
@@ -313,8 +313,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox53">
-                      <Value>="Эксп: " + First({ForwarderPhone}, 'RouteList')</Value>
+                    <Textbox Name="Textbox20" >
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
