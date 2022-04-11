@@ -577,8 +577,8 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
-                          <Right>3pt</Right>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
                         </BorderWidth>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -662,8 +662,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                        <FontWeight >Bold</FontWeight>
-                        <TextAlign >Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -682,7 +682,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Top</VerticalAlign>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -699,9 +699,9 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                        <FontWeight >Bold</FontWeight>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Top</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -719,7 +719,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <FontWeight >Bold</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -770,8 +770,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
-                          <Right>3pt</Right>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
@@ -792,7 +792,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Right>3pt</Right>
+                          <Right>1pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
@@ -813,7 +813,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
+                          <Left>1pt</Left>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
@@ -898,7 +898,7 @@
                       <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "") + '\n――――――――――――――\n' +{phone_and_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <PaddingBottom>=Len({Address}) / 4 + "pt"</PaddingBottom>
+                        <PaddingBottom>4pt</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -910,6 +910,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
+                        <PaddingTop >4pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -929,6 +930,8 @@
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingBottom >4pt</PaddingBottom>
+                        <PaddingTop >4pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -945,10 +948,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingBottom>4pt</PaddingBottom>
                         <Format>="N0"</Format>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -969,10 +972,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>3pt</PaddingLeft>
-                        <PaddingRight>3pt</PaddingRight>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingBottom>4pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -989,16 +992,16 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
-                          <Right>3pt</Right>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingBottom>4pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1014,15 +1017,15 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
+                          <Left>1pt</Left>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingBottom>4pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1046,15 +1049,15 @@ Switch(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
-                          <Right>3pt</Right>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <PaddingLeft>5pt</PaddingLeft>
-                        <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingBottom>4pt</PaddingBottom>
                         <Format>0.00</Format>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1097,16 +1100,19 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>ИТОГО:</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Bottom</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1114,16 +1120,18 @@ Switch(
                 </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>Километраж</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1222,17 +1230,19 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>
-                      </Value>
+                      <Value>ИТОГО:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1323,6 +1333,7 @@ Switch(
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Top >None</Top>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -1484,7 +1495,7 @@ Switch(
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <FontSize>10pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1671,7 +1682,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>18.6pt</Height>
+              <Height>17.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1843,7 +1854,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>19.4pt</Height>
+              <Height>18.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
