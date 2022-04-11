@@ -104,7 +104,9 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 					{ "creation_date", DateTime.Now },
 					{ "order_statuses", orderStatuses },
 					{ "exclude_closing_documents", ycheckExcludeClosingDocuments.Active },
-					{ "closing_document_delivery_schedule_id",_deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId }
+					{ "closing_document_delivery_schedule_id",_deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId },
+					{ "exclude_chain_stores", ycheckExcludeChainStores.Active },
+					{ "expired_only", ycheckExpiredOnly.Active }
 				}
 			};
 
@@ -168,6 +170,14 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 			resultString += ycheckExcludeClosingDocuments.Active
 				? "Без закрывающих документов\n"
+				: "";
+
+			resultString += ycheckExcludeChainStores.Active
+				? "Без сетей\n"
+				: "";
+
+			resultString += ycheckExpiredOnly.Active
+				? "Только просроченные\n"
 				: "";
 
 			var selectedOrderStatuses = enumcheckOrderStatuses.SelectedValuesList.Cast<OrderStatus>().ToList();
