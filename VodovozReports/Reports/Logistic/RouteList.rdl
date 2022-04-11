@@ -30,7 +30,7 @@
           <BorderWidth />
           <FontSize>12pt</FontSize>
           <TextAlign>Center</TextAlign>
-          <FontWeight >Bold</FontWeight>
+          <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1406,15 +1406,15 @@ Switch(
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>68.4pt</Top>
-        <ZIndex >20</ZIndex>
+        <Top>73.2pt</Top>
+        <ZIndex>20</ZIndex>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>86.23pt</Height>
-        <Width>86.36pt</Width>
+        <Height>86pt</Height>
+        <Width>86pt</Width>
         <CustomProperties>
-          <CustomProperty >
+          <CustomProperty>
             <Name>QrCode</Name>
             <Value>="RouteList;"+{?RouteListId}+";"+Format({?RouteListDate}, "ddMMyyyy")</Value>
           </CustomProperty>
@@ -1638,7 +1638,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1659,7 +1659,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1683,7 +1683,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1702,7 +1702,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                           <Right>3pt</Right>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1724,7 +1724,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1745,7 +1745,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1769,7 +1769,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1788,7 +1788,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                           <Right>3pt</Right>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1810,7 +1810,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1831,7 +1831,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1856,7 +1856,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1876,7 +1876,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                           <Bottom>3pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1898,7 +1898,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1919,7 +1919,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >10pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1929,19 +1929,19 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>194.0pt</Top>
+        <Top>198.8pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>64.87pt</Height>
         <Width>99.41pt</Width>
         <Left>627.2pt</Left>
-        <Top>8.8pt</Top>
+        <Top>10.4pt</Top>
         <ReportItems>
           <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>63.49pt</Height>
             <Width>89.92pt</Width>
-            <Left>5.10pt</Left>
-            <Top>1.70pt</Top>
+            <Left>5.1pt</Left>
+            <Top>1.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
