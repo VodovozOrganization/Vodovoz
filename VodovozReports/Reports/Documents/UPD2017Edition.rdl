@@ -388,6 +388,25 @@ WHERE o.id = @order_id
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Signatures">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	(SELECT binary_file FROM stored_resource WHERE id = 16) as chief,
+	(SELECT binary_file FROM stored_resource WHERE id = 24) as bookkeeper
+;</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="chief">
+          <DataField>chief</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bookkeeper">
+          <DataField>bookkeeper</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -3736,9 +3755,9 @@ WHERE o.id = @order_id
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({bookkeeper}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
+            <MIMEType>image/png</MIMEType>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
