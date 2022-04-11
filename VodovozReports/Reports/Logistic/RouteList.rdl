@@ -12,7 +12,7 @@
   <RightMargin>4mm</RightMargin>
   <BottomMargin>4mm</BottomMargin>
   <PageHeader>
-    <Height>13.0pt</Height>
+    <Height>16.1pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -895,7 +895,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "") + '\n' + '――――――――――' +{phone_and_name}</Value>
+                      <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "") + '\n――――――――――――――\n' +{phone_and_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <PaddingBottom>=Len({Address}) / 4 + "pt"</PaddingBottom>
@@ -1410,7 +1410,7 @@ Switch(
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>73.2pt</Top>
+        <Top>77.2pt</Top>
         <ZIndex>20</ZIndex>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1933,7 +1933,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>198.8pt</Top>
+        <Top>202.8pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>64.87pt</Height>
