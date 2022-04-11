@@ -938,7 +938,7 @@
                     <Textbox Name="Textbox27">
                       <Value>={phone_and_name}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -950,7 +950,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
-                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingTop>5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -961,7 +961,7 @@
                       <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -973,7 +973,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
-                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingTop>5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -993,8 +993,8 @@
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingBottom>4pt</PaddingBottom>
-                        <PaddingTop>4pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1013,8 +1013,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>4pt</PaddingTop>
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <Format>="N0"</Format>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -1037,8 +1037,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>4pt</PaddingTop>
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -1063,8 +1063,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>4pt</PaddingTop>
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1087,8 +1087,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>4pt</PaddingTop>
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1119,8 +1119,8 @@ Switch(
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>4pt</PaddingTop>
-                        <PaddingBottom>4pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <Format>0.00</Format>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
