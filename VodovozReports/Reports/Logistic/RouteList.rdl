@@ -132,6 +132,7 @@
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>1pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
@@ -287,6 +288,7 @@
                           <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>1pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
@@ -639,8 +641,8 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth>
-                          <Left>3pt</Left>
-                          <Right>3pt</Right>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
                         </BorderWidth>
                         <FontSize>8pt</FontSize>
                       </Style>
