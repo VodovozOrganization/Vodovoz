@@ -120,7 +120,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>="Вод: " + First({DriverLastname}, 'RouteList') + " " + First({DriverName}, 'RouteList') + ", " + First({DriverPhone}, 'RouteList')</Value>
+                      <Value>="Вод: " + First({DriverLastname}, 'RouteList') + " " + First({DriverName}, 'RouteList') + " " + First({DriverPhone}, 'RouteList')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -275,7 +275,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>="Экс: " + First({ForwarderLastname}, 'RouteList') + " " + First({ForwarderName}, 'RouteList') + ", " + First({ForwarderPhone}, 'RouteList')</Value>
+                      <Value>="Экс: " + First({ForwarderLastname}, 'RouteList') + " " + First({ForwarderName}, 'RouteList') + " " + First({ForwarderPhone}, 'RouteList')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -644,7 +644,7 @@
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>11.2pt</Height>
+              <Height>23pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -888,7 +888,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "") + '\n' +{phone_and_name}</Value>
+                      <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "") + '\n' + '――――――――――' +{phone_and_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <PaddingBottom>=Len({Address}) / 4 + "pt"</PaddingBottom>
