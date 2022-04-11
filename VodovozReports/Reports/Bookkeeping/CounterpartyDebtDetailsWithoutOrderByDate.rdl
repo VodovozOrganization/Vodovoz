@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -106,13 +104,12 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox1">
+                      <Value>="Кол-во дней отсрочки: " + First({delay_days_for_buyers}, "Counterparty")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -126,10 +123,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Top</VerticalAlign>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -264,7 +261,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>Описание платежа</Value>
+                      <Value>Описание платежа / Дней просрочки по заказам</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -371,8 +368,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -391,8 +387,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -411,8 +406,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -795,10 +789,13 @@ SELECT
         WHEN 'Closed' THEN 'Закрыт'
         ELSE o.order_status
         END AS doc_status,
-    '' AS payment_description,
+    IF((DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT)) &gt; 0,
+       CONCAT('Оплата по заказу просрочена на ', (DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT)), ' дней'),
+       '') AS payment_description,
     1 AS sorting_rank_by_entities,
     0 AS sorting_rank_payment_docs
 FROM orders o
+INNER JOIN counterparty c on c.id = o.client_id 
 WHERE
         o.client_id = @counterparty_id
   AND o.order_payment_status != 'Paid'
@@ -919,7 +916,7 @@ ORDER BY date DESC;</CommandText>
     <DataSet Name="Counterparty">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT c.name
+        <CommandText>SELECT c.name, c.delay_days_for_buyers
 FROM counterparty c
 WHERE c.id = @counterparty_id</CommandText>
         <QueryParameters>
@@ -933,6 +930,10 @@ WHERE c.id = @counterparty_id</CommandText>
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="delay_days_for_buyers">
+          <DataField>delay_days_for_buyers</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -942,8 +943,7 @@ WHERE c.id = @counterparty_id</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -954,56 +954,49 @@ WHERE c.id = @counterparty_id</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="filters_text">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_statuses">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="closing_document_delivery_schedule_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="exclude_closing_documents">
       <DataType>Boolean</DataType>
