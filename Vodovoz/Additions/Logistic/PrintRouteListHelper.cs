@@ -60,10 +60,10 @@ namespace Vodovoz.Additions.Logistic
 			RdlText = RdlText.Replace("<!--colspan-->", $"<ColSpan>{ RouteColumns.Count }</ColSpan>");
 
 			//Расширяем таблицу
-			string columnsXml = "<TableColumn><Width>20pt</Width></TableColumn>";
+			string columnsXml = "<TableColumn><Width>21pt</Width></TableColumn>";
 			string columns = string.Empty;
 
-			columns += "<TableColumn><Width>90pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
+			columns += "<TableColumn><Width>85pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
 			for(int i = 1; i < RouteColumns.Count; i++)
 			{
 				columns += columnsXml;
@@ -259,7 +259,7 @@ namespace Vodovoz.Additions.Logistic
 				   "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 				   "<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
 				   "<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
-				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
+				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
 		private static string GetCellTag(int id, string value, string formatString, bool isClosed)
@@ -274,7 +274,7 @@ namespace Vodovoz.Additions.Logistic
 				   ? $"<BackgroundColor>=Iif((Fields!Status.Value = \"{ RouteListItemStatus.EnRoute }\") or (Fields!Status.Value = \"{ RouteListItemStatus.Completed }\"), White, Lightgrey)</BackgroundColor>"
 				   : "") +
 				   "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
-				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
+				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
