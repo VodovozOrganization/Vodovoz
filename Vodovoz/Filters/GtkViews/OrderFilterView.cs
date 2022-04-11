@@ -62,11 +62,16 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
-			dateperiodOrders.StartDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToBack);
-			dateperiodOrders.EndDateOrNull = DateTime.Today.AddDays(ViewModel.DaysToForward);
+			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
+			yenumcomboboxDateType.Binding
+				.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem)
+				.AddBinding(ViewModel, x => x.CanChangeFilterDateType, w => w.Sensitive)
+				.InitializeFromSource();
+
 			dateperiodOrders.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.RestrictStartDate, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.RestrictEndDate, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
@@ -102,8 +107,7 @@ namespace Vodovoz.Filters.GtkViews
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
 			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
-			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
-			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
+			
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();
