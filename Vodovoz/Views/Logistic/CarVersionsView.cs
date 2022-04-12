@@ -21,7 +21,10 @@ namespace Vodovoz.Views.Logistic
 
 		protected override void ConfigureWidget()
 		{
-			datepickerVersionDate.Binding.AddBinding(ViewModel, vm => vm.SelectedDate, w => w.DateOrNull).InitializeFromSource();
+			datepickerVersionDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedDate, w => w.DateOrNull)
+				.AddFuncBinding(vm => !vm.IsNewCar, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ytreeCarVersions.ColumnsConfig = FluentColumnsConfig<CarVersion>.Create()
 				.AddColumn("Код").MinWidth(50).HeaderAlignment(0.5f).AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString()).XAlign(0.5f)
