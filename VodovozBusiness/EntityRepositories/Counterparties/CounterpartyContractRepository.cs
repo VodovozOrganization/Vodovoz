@@ -50,13 +50,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					)
 				)
 				.OrderBy(x => x.IssueDate).Desc.List();
-			
-			if(result.Count > 1 && errorReporter != null)
-			{
-				Exception ex = new ArgumentException("Query returned >1 CounterpartyContract");
-				errorReporter.SendErrorReport(new Exception[] {ex}, 
-					description: $"Ошибка в {nameof(CounterpartyContractRepository)}, GetCounterpartyContract() вернул больше 1 контракта");
-			}
 			return result.FirstOrDefault();
 		}
  
