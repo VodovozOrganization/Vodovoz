@@ -39,6 +39,7 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -59,8 +60,9 @@ namespace Vodovoz
 			applicationInfo = new ApplicationVersionInfo();
 
 			#region Первоначальная настройка обработки ошибок
-			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), applicationInfo, new LogService(), null, false, null);
-			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
+			ErrorReporter.Instance.AutomaticallySendEnabled = false;
+			ErrorReporter.Instance.SendedLogRowCount = 100;
+			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, null, null);
 			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, applicationInfo);
 
 			exceptionHandler.SubscribeToUnhandledExceptions();
@@ -108,16 +110,13 @@ namespace Vodovoz
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
 			var baseParameters = new BaseParametersProvider(parametersProvider);
-			SingletonErrorReporter.Initialize(
-				ReportWorker.GetReportService(),
-				applicationInfo,
-				new LogService(), 
-				LoginDialog.BaseName, 
-				LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend(),
-				baseParameters.GetRowCountForErrorLog()
-			);
 
-			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			bool canAutomaticallyErrorSend = LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend();
+			ErrorReporter.Instance.DatabaseName = LoginDialog.BaseName;
+			ErrorReporter.Instance.AutomaticallySendEnabled = canAutomaticallyErrorSend;
+			ErrorReporter.Instance.SendedLogRowCount = baseParameters.GetRowCountForErrorLog();
+
+			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.

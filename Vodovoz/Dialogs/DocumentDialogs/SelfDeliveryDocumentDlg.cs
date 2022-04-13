@@ -278,7 +278,7 @@ namespace Vodovoz
 						_employeeRepository,
 						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 

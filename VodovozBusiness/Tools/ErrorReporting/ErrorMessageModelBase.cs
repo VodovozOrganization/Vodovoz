@@ -46,8 +46,8 @@ namespace Vodovoz.Tools
 			set { SetField(ref exceptions, value, () => Exceptions); }
 		}
 
-		private ErrorReportType errorReportType;
-		public virtual ErrorReportType ErrorReportType {
+		private ReportType errorReportType;
+		public virtual ReportType ErrorReportType {
 			get => errorReportType;
 			set { SetField(ref errorReportType, value, () => ErrorReportType); }
 		}

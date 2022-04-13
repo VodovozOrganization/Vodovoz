@@ -746,7 +746,7 @@ public partial class MainWindow : Window
 				new EmployeeRepository(),
 				new BaseParametersProvider(parametersProvider),
 				ServicesConfig.CommonServices.UserService,
-				SingletonErrorReporter.Instance),
+				ErrorReporter.Instance),
             new OrderPaymentSettings(parametersProvider),
 			new OrderParametersProvider(parametersProvider),
 			new DeliveryRulesParametersProvider(parametersProvider),
