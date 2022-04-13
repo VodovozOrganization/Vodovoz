@@ -100,7 +100,7 @@ namespace Vodovoz.Tools
 				},
 				User = new UserInfo
 				{
-					Name = user?.Name,
+					Name = user == null ? "" : user.Name,
 					Email = email
 				},
 				Report = new ErrorInfo

@@ -105,6 +105,10 @@
       <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
       <Name>QS.Attachments</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.ErrorReporting.Client\QS.ErrorReporting.Client.csproj">
+      <Project>{BABA2CB7-6EFE-4B1B-9324-74CBCBACF257}</Project>
+      <Name>QS.ErrorReporting.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
