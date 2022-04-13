@@ -2307,7 +2307,7 @@ WHERE order_deposit_items.deposit_type = 'Bottles'
                             WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
                             WHEN order_equipment.own_type = 'Client' THEN '(Клиент)'
                             WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
-                            ELSE order_equipment.own_type
+                            ELSE ''
                             END
                     ) AS name,
                 SUM(order_equipment.count) AS cnt
