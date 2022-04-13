@@ -134,10 +134,14 @@ namespace Vodovoz
 			OrderEquipment orderEquipmentAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteListItem routeListItemToAlias = null;
+			RouteList routeListAlias = null;
+			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
 
 			IList<ReceptionItemNode> returnableItems = new List<ReceptionItemNode>();
 			IList<ReceptionItemNode> returnableEquipment = new List<ReceptionItemNode>();
-			
+			IList<ReceptionItemNode> returnableAdditionalLoadingItems = new List<ReceptionItemNode>();
+
 			ReceptionItemNode returnableTerminal = null;
 			int loadedTerminalAmount = default(int);
 
@@ -220,6 +224,22 @@ namespace Vodovoz
 					)
 					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 					.List<ReceptionItemNode>();
+
+				returnableAdditionalLoadingItems = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
+					.JoinAlias(() => routeListAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+					.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
+					.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => routeListAlias.Id == RouteList.Id)
+					.SelectList(list => list
+						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+						.Select(Projections.Cast(NHibernateUtil.Int32, 
+							Projections.Property(() => additionalLoadingDocumentItemAlias.Amount))
+						).WithAlias(() => resultAlias.ExpectedAmount)
+					)
+					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
+					.List<ReceptionItemNode>();
 			}
 
 			foreach(var item in returnableItems) {
@@ -235,6 +255,19 @@ namespace Vodovoz
 			if (returnableTerminal != null && loadedTerminalAmount > 0) {
 				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
 					ReceptionReturnsList.Add(returnableTerminal);
+			}
+
+			foreach(var item in returnableAdditionalLoadingItems)
+			{
+				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
+				{
+					ReceptionReturnsList.Add(item);
+				}
+				else
+				{
+					var existingNomenclature = ReceptionReturnsList.Single(x => x.NomenclatureId == item.NomenclatureId);
+					existingNomenclature.ExpectedAmount += item.ExpectedAmount;
+				}
 			}
 		}
 		
