@@ -1615,8 +1615,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this,
-				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
+			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			if(counterpartyContract == null)
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);

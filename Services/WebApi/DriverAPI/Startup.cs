@@ -228,7 +228,7 @@ namespace DriverAPI
 			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
-			services.AddScoped<IErrorReporter>((sp) => SingletonErrorReporter.Instance);
+			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();

@@ -531,7 +531,7 @@ namespace Vodovoz
 			builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
-			builder.Register(c => SingletonErrorReporter.Instance).As<IErrorReporter>();
+			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 
 			#endregion
 

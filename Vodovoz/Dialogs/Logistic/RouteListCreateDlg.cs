@@ -567,7 +567,7 @@ namespace Vodovoz
 					_employeeRepository,
 					_baseParametersProvider,
 					ServicesConfig.CommonServices.UserService,
-					SingletonErrorReporter.Instance);
+					ErrorReporter.Instance);
 
 				if(Entity.Car == null)
 				{

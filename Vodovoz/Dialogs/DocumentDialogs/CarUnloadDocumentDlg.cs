@@ -109,7 +109,7 @@ namespace Vodovoz
 				_employeeRepository,
 				_baseParametersProvider,
 				ServicesConfig.CommonServices.UserService,
-				SingletonErrorReporter.Instance);
+				ErrorReporter.Instance);
 
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.CarUnloadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
