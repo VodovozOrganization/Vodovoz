@@ -47,6 +47,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			resultSum += CalculateWageFor6LBottles(src);
 			resultSum += CalculateWageFor1500mlBottles(src);
 			resultSum += CalculateWageFor500mlBottles(src);
+			resultSum += CalculateWageForFastDelivery(src);
 
 			return new RouteListItemWageResult(
 				resultSum,
@@ -198,6 +199,23 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		}
 
 		/// <summary>
+		/// Оплата доставки за час
+		/// </summary>
+		decimal CalculateWageForFastDelivery(IRouteListItemWageCalculationSource src)
+		{
+			if(!src.IsFastDelivery)
+			{
+				return 0;
+			}
+
+			WageDistrictLevelRate wageCalcMethodic = GetCurrentWageDistrictLevelRate(src);
+
+			var rate = wageCalcMethodic.WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.FastDelivery);
+
+			return GetRateValue(src, rate);
+		}
+
+		/// <summary>
 		/// Возврат текущей методики расчёта ЗП. Берёться значение либо
 		/// актуальное из сотрудника, в случае первого расчёта, либо из
 		/// сохранённого в уже посчитанном адресе МЛ
@@ -319,6 +337,17 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 					Count = src.Bottle500mlCount,
 					Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle500ml))
 				});
+
+			if(src.IsFastDelivery)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = WageRateTypes.FastDelivery.GetEnumTitle(),
+						Count = 1,
+						Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.FastDelivery))
+					});
+			}
 
 			return addressWageDetails;
 		}
