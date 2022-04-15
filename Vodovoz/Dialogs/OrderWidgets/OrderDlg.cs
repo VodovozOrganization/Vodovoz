@@ -361,14 +361,16 @@ namespace Vodovoz
 			var orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
+				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true)
+				.CopyOrderItems(true, true)
+				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
-
-			templateOrder = copying.GetCopiedOrder;
-			if(templateOrder.PaymentType == PaymentType.ByCard
+			
+			Entity.IsCopiedFromUndelivery = true;
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{
 				copying.CopyPaymentByCardDataIfPossible();
@@ -1028,7 +1030,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
+					.AddSetter((c, node) => c.Editable = node.CanEditPrice && _canChangeDiscountValue)
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
@@ -1331,9 +1333,7 @@ namespace Vodovoz
 				SetSensitivity(false);
 				Entity.CheckAndSetOrderIsService();
 
-				ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object>{
-					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				});
+				ValidationContext validationContext = new ValidationContext(Entity);
 
 				if(!Validate(validationContext))
 				{
@@ -1549,7 +1549,6 @@ namespace Vodovoz
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
 			{
 				{ "NewStatus", OrderStatus.Accepted },
-				{ "IsCopiedFromUndelivery", templateOrder != null },//индикатор того, что заказ - копия, созданная из недовозов
 				{ "uowFactory", uowFactory }
 			});
 
@@ -1649,10 +1648,7 @@ namespace Vodovoz
 
 		protected void OnBtnAddM2ProxyForThisOrderClicked(object sender, EventArgs e)
 		{
-			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
-			{
-				{"IsCopiedFromUndelivery", templateOrder != null} //индикатор того, что заказ - копия, созданная из недовозов
-			});
+			ValidationContext validationContext = new ValidationContext(Entity);
 			
 			if(Validate(validationContext) && SaveOrderBeforeContinue<M2ProxyDocument>())
 			{
@@ -2584,8 +2580,7 @@ namespace Vodovoz
 			}
 			
 			ValidationContext validationContext = new ValidationContext(Entity,null, new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.Canceled },
-				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				{ "NewStatus", OrderStatus.Canceled }
 			});
 
 			if(!Validate(validationContext))
@@ -2642,8 +2637,7 @@ namespace Vodovoz
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)
 		{
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.WaitForPayment },
-				{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
+				{ "NewStatus", OrderStatus.WaitForPayment }
 			});
 
 			if(!Validate(validationContext))

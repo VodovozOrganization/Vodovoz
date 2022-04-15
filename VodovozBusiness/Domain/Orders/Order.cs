@@ -757,6 +757,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref returnTareReasonCategory, value);
 		}
 
+		private bool _isCopiedFromUndelivery;
+		[Display(Name = "Перенос из недовоза")]
+		public virtual bool IsCopiedFromUndelivery {
+			get => _isCopiedFromUndelivery;
+			set => SetField(ref _isCopiedFromUndelivery, value);
+		}
+		
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -988,31 +995,43 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					// Проверка соответствия цен в заказе ценам в номенклатуре
-					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
-					List<string> incorrectPriceItems = new List<string>();
-					foreach(OrderItem item in ObservableOrderItems) {
-						decimal fixedPrice = GetFixedPrice(item);
-						decimal nomenclaturePrice = GetNomenclaturePrice(item);
-						if(fixedPrice > 0m) {
-							if(item.Price < fixedPrice) {
-								incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-																	  item.NomenclatureString,
-																	  item.Price,
-																	  fixedPrice));
+					if(!IsCopiedFromUndelivery)
+					{
+						// Проверка соответствия цен в заказе ценам в номенклатуре
+						string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
+						List<string> incorrectPriceItems = new List<string>();
+						foreach(OrderItem item in ObservableOrderItems)
+						{
+							decimal fixedPrice = GetFixedPrice(item);
+							decimal nomenclaturePrice = GetNomenclaturePrice(item);
+							if(fixedPrice > 0m)
+							{
+								if(item.Price < fixedPrice)
+								{
+									incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
+										item.NomenclatureString,
+										item.Price,
+										fixedPrice));
+								}
 							}
-						} else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice) {
-							incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-																  item.NomenclatureString,
-																  item.Price,
-																  nomenclaturePrice));
+							else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice)
+							{
+								incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
+									item.NomenclatureString,
+									item.Price,
+									nomenclaturePrice));
+							}
 						}
-					}
-					if(incorrectPriceItems.Any()) {
-						foreach(string item in incorrectPriceItems) {
-							priceResult += item;
+
+						if(incorrectPriceItems.Any())
+						{
+							foreach(string item in incorrectPriceItems)
+							{
+								priceResult += item;
+							}
+
+							yield return new ValidationResult(priceResult);
 						}
-						yield return new ValidationResult(priceResult);
 					}
 					// Конец проверки цен
 
@@ -1021,8 +1040,7 @@ namespace Vodovoz.Domain.Orders
 					                 && DeliveryDate.HasValue
 					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
 					                 && validationContext.Items.ContainsKey("uowFactory")
-					                 && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") 
-					                 && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) 
+					                 && !IsCopiedFromUndelivery)
 					{
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
