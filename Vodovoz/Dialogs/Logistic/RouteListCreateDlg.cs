@@ -262,7 +262,6 @@ namespace Vodovoz
 			ggToStringWidget.Binding.AddBinding(Entity, x => x.ObservableGeographicGroups, x => x.Items).InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
 			bool IsLoadDocumentPrintable = ServicesConfig.CommonServices.CurrentPermissionService
