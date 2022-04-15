@@ -25,8 +25,7 @@ namespace DriverAPI.Library.Helpers
 				notification = new
 				{
 					title = title,
-					body = body,
-					sound = "default"
+					body = body
 				}
 			};
 

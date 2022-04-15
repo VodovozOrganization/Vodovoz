@@ -20,6 +20,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
+		private readonly int _fastDeliveryNomenclatureId;
 
 		internal CopyingOrder(IUnitOfWork uow, Order copiedOrder, Order resultOrder, INomenclatureParametersProvider nomenclatureParametersProvider, IFlyerRepository flyerRepository)
 		{
@@ -36,6 +37,7 @@ namespace Vodovoz.Models.Orders
 
 			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 			_flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
+			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
 		}
 
 		public Order GetCopiedOrder => _copiedOrder;
@@ -128,7 +130,8 @@ namespace Vodovoz.Models.Orders
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
-				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId);
 
 			foreach(var orderItem in orderItems)
 			{

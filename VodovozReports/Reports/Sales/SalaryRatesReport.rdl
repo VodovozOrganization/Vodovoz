@@ -56,85 +56,91 @@
             <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>23pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>23pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>23pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -205,7 +211,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>14</ColSpan>
+                  <ColSpan>15</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -224,7 +230,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>14</ColSpan>
+                  <ColSpan>15</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -580,8 +586,28 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox102">
+                    <Textbox Name="Textbox57">
                       <Value>За расторжение</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Lighter</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <WritingMode>tb-lr</WritingMode>
+                        <FontStyle>Italic</FontStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox102">
+                      <Value>Экспресс доставка</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -884,6 +910,26 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>Экспресс доставка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Lighter</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <WritingMode>tb-lr</WritingMode>
+                        <FontStyle>Italic</FontStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -950,7 +996,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -972,7 +1018,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -994,7 +1040,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1016,7 +1062,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1038,7 +1084,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1060,7 +1106,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1082,7 +1128,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1104,7 +1150,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1126,7 +1172,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1148,7 +1194,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1170,7 +1216,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1192,7 +1238,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1214,7 +1260,29 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>={ContractCancelationCity}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor></BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1226,7 +1294,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>={ContractCancelationCity}</Value>
+                      <Value>={FastDeliveryCity}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1236,7 +1304,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1258,7 +1326,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1280,7 +1348,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1302,7 +1370,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1324,7 +1392,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1346,7 +1414,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1368,7 +1436,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1390,7 +1458,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1412,7 +1480,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1434,7 +1502,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1456,7 +1524,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1478,7 +1546,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1500,7 +1568,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1522,7 +1590,7 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1544,7 +1612,29 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor></BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>6pt</FontSize>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>={FastDeliverySuburb}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor></BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>6pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>0pt</PaddingTop>
@@ -1613,6 +1703,7 @@
        SUM(IF(wr.wage_rate_type = 'Address' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as AddressCity,
        SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as ForeignAddressCity,
        SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as ContractCancelationCity,
+       SUM(IF(wr.wage_rate_type = 'FastDelivery' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as FastDeliveryCity,
        SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as PhoneCompensationSuburb,
        SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle19LSuburb,
        SUM(IF(wr.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LSuburb,
@@ -1626,7 +1717,8 @@
        SUM(IF(wr.wage_rate_type = 'Equipment' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as EquipmentSuburb,
        SUM(IF(wr.wage_rate_type = 'Address' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ForeignAddressSuburb,
-       SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ContractCancelationSuburb
+       SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ContractCancelationSuburb,
+       SUM(IF(wr.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as FastDeliverySuburb
 from wage_rates wr
 left join wage_district_level_rate wdlr on wr.wage_district_level_rate_id = wdlr.id
 left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
@@ -1656,6 +1748,7 @@ select
        SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as AddressCity,
        SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressCity,
        SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationCity,
+       SUM(IF(wr2.wage_rate_type = 'FastDelivery' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as FastDeliveryCity,
        SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationSuburb,
        SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle19LSuburb,
        SUM(IF(wr2.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LSuburb,
@@ -1669,7 +1762,8 @@ select
        SUM(IF(wr2.wage_rate_type = 'Equipment' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as EquipmentSuburb,
        SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressSuburb,
-       SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationSuburb
+       SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationSuburb,
+       SUM(IF(wr2.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as FastDeliverySuburb
 from wage_rates wr2
 left join wage_district_level_rate wdlr on wr2.wage_district_level_rate_id = wdlr.id
 left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
@@ -1699,6 +1793,7 @@ SELECT
        SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = @cityId, wr3.for_forwarder, 0)) as AddressCity,
        SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr3.for_forwarder, 0)) as ForeignAddressCity,
        SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr3.for_forwarder, 0)) as ContractCancelationCity,
+       SUM(IF(wr3.wage_rate_type = 'FastDelivery' and wd.id = @cityId, wr3.for_forwarder, 0)) as FastDeliveryCity,
        SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as PhoneCompensationSuburb,
        SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle19LSuburb,
        SUM(IF(wr3.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as EmptyBottle19LSuburb,
@@ -1712,7 +1807,8 @@ SELECT
        SUM(IF(wr3.wage_rate_type = 'Equipment' and wd.id = @suburbId, wr3.for_forwarder, 0)) as EquipmentSuburb,
        SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = @suburbId, wr3.for_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ForeignAddressSuburb,
-       SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ContractCancelationSuburb
+       SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ContractCancelationSuburb,
+       SUM(IF(wr3.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr3.for_forwarder, 0)) as FastDeliverySuburb
 from wage_rates wr3
 left join wage_district_level_rate wdlr on wr3.wage_district_level_rate_id = wdlr.id
 left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
@@ -1861,6 +1957,14 @@ ORDER BY
         <Field Name="car_type_of_use">
           <DataField>car_type_of_use</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="FastDeliverySuburb">
+          <DataField>FastDeliverySuburb</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="FastDeliveryCity">
+          <DataField>FastDeliveryCity</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>

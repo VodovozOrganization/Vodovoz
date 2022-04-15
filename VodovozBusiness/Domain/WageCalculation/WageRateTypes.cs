@@ -34,7 +34,9 @@ namespace Vodovoz.Domain.WageCalculation
 		[Display(Name = "За 1 адрес не в своем районе")]
 		ForeignAddress,
 		[Display(Name = "За расторжение")]
-		ContractCancelation
+		ContractCancelation,
+		[Display(Name = "Услуга экспресс доставки")]
+		FastDelivery
 	}
 
 	public class WageRateTypesStringType : NHibernate.Type.EnumStringType

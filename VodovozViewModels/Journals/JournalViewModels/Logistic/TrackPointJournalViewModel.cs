@@ -71,6 +71,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => trackAlias.RouteList.Id).WithAlias(() => resultAlias.RouteListId)
 				)
 				.OrderBy(() => trackPointAlias.ReceiveTimeStamp).Desc
+				.ThenBy(() => trackPointAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<TrackPointJournalNode>());
 
 			return itemsQuery;
