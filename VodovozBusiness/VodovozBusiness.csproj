@@ -664,7 +664,6 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
-    <Compile Include="Tools\LoggedMySqlClientDriver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
