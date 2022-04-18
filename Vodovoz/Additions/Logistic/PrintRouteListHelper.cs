@@ -371,20 +371,6 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
-		public static ReportInfo GetRDLLoadSofiyskaya(int routeListId)
-		{
-			return new ReportInfo
-			{
-				Title = $"Погрузка Софийская для МЛ № { routeListId }",
-				Identifier = "RouteList.CarLoadDocSofiyskaya",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id", routeListId },
-				},
-				UseUserVariables = true
-			};
-		}
-
 		public static ReportInfo GetRDLFine(RouteList routeList)
 		{
 
@@ -410,8 +396,6 @@ namespace Vodovoz.Additions.Logistic
 			{
 				case RouteListPrintableDocuments.LoadDocument:
 					return GetRDLLoadDocument(routeList.Id);
-				case RouteListPrintableDocuments.LoadSofiyskaya:
-					return GetRDLLoadSofiyskaya(routeList.Id);
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
 				case RouteListPrintableDocuments.RouteMap:

@@ -14,21 +14,32 @@ namespace DriverAPI.Library.Converters
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
+		private readonly SignatureTypeConverter _signatureTypeConverter;
 
 		public OrderConverter(ILogger<OrderConverter> logger,
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
-			PaymentTypeConverter paymentTypeConverter)
+			PaymentTypeConverter paymentTypeConverter,
+			SignatureTypeConverter signatureTypeConverter)
 		{
 			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			this._deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			this._smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
 			this._paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
+			_signatureTypeConverter = signatureTypeConverter ?? throw new ArgumentNullException(nameof(signatureTypeConverter));
 		}
 
 		public OrderDto ConvertToApiOrder(Order vodovozOrder, SmsPaymentStatus? smsPaymentStatus, DateTime addedToRouteListTime)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
+
+			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
+				.Select(x => new PhoneDto {Number = "+7" + x.DigitsNumber, PhoneType = PhoneDtoType.DeliveryPoint})
+				.ToList();
+
+			var counterpartyPhones = vodovozOrder.Client.Phones
+				.Select(x => new PhoneDto { Number = "+7" + x.DigitsNumber, PhoneType = PhoneDtoType.Counterparty })
+				.ToList();
 
 			var apiOrder = new OrderDto
 			{
@@ -38,7 +49,7 @@ namespace DriverAPI.Library.Converters
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
 				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
 				Counterparty = vodovozOrder.Client.FullName,
-				PhoneNumbers = vodovozOrder.DeliveryPoint.Phones.Concat(vodovozOrder.Client.Phones).Select(x => "+7" + x.DigitsNumber),
+				PhoneNumbers = deliveryPointPhones.Concat(counterpartyPhones),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,
@@ -47,7 +58,9 @@ namespace DriverAPI.Library.Converters
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
-				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss")
+				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
+				Trifle = vodovozOrder.Trifle ?? 0,
+				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType)
 			};
 
 			return apiOrder;

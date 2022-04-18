@@ -152,7 +152,7 @@ namespace Vodovoz
 					new EmployeeRepository(),
 					new BaseParametersProvider(_parametersProvider),
 					ServicesConfig.CommonServices.UserService,
-					SingletonErrorReporter.Instance));
+					ErrorReporter.Instance));
 			set => _callTaskWorker = value;
 		}
 		

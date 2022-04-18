@@ -95,6 +95,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public bool IsFastDelivery => item.Order.IsFastDelivery;
+
 		#region Для старого расчета оплаты за оборудование
 
 		/// <summary>

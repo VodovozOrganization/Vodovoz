@@ -354,7 +354,7 @@ namespace Vodovoz.ViewModel
 					new EmployeeRepository(),
 					new BaseParametersProvider(_parametersProvider),
 					ServicesConfig.CommonServices.UserService,
-					SingletonErrorReporter.Instance);
+					ErrorReporter.Instance);
 
 				var result = new List<IJournalPopupItem>();
 

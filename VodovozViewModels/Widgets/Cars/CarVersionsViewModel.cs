@@ -25,6 +25,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
 				|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version");
 			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version_date");
+
+			if(IsNewCar)
+			{
+				SelectedDate = DateTime.Now.Date;
+			}
 		}
 
 		public virtual DateTime? SelectedDate
@@ -101,5 +106,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		{
 			return _carVersionsController.GetAllAffectedRouteLists(uow);
 		}
+
+		public bool IsNewCar => Entity.Id == 0;
 	}
 }

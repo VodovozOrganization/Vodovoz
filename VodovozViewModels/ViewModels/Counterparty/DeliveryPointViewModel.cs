@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
@@ -88,6 +89,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			{
 				throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			}
+
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -205,7 +208,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 				if(_isBuildingsInLoadingProcess)
 				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
+					ShowWarningMessage( "Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
 					return false;
 				}
 
@@ -228,6 +231,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					"Проверьте координаты!"))
 				{
 					return false;
+				}
+				if (UoW.IsNew)
+				{
+					ShowAddressesWithFixedPrices();
 				}
 
 				return base.Save(close);
@@ -303,6 +310,15 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			decimal coordDiff = Math.Abs(coord1.Value - coord2.Value);
 			return Math.Round(coordDiff, 6) == decimal.Zero;
+		}
+
+		private void ShowAddressesWithFixedPrices()
+		{
+			var addresses = _deliveryPointRepository.GetAddressesWithFixedPrices(Entity.Counterparty.Id);
+			if(addresses.Any())
+			{
+				ShowInfoMessage($"На других адресах имеется фиксированная стоимость:\r\n {string.Join(", \r\n", addresses)}");
+			}
 		}
 
 		public string CityBeforeChange { get; set; }

@@ -260,7 +260,7 @@ namespace Vodovoz
 						_employeeRepository,
 						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}
@@ -613,8 +613,8 @@ namespace Vodovoz
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
 			checkSelfDelivery.Toggled += (sender, e) => {
-				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = ybuttonFastDeliveryCheck.Sensitive =
-					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active;
+				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+				ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
@@ -777,13 +777,24 @@ namespace Vodovoz
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
 		{
-			if(ycheckFastDelivery.Active && Entity.DeliverySchedule?.Id != _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+			if(ycheckFastDelivery.Active)
 			{
-				Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesParametersProvider.FastDeliveryScheduleId);
+				if(Entity.DeliverySchedule?.Id != _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+				{
+					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesParametersProvider.FastDeliveryScheduleId);
+				}
+
+				Entity.AddFastDeliveryNomenclature();
 			}
-			if(!ycheckFastDelivery.Active && Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+
+			if(!ycheckFastDelivery.Active)
 			{
-				Entity.DeliverySchedule = null;
+				if(Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+				{
+					Entity.DeliverySchedule = null;
+				}
+
+				Entity.RemoveFastDeliveryNomenclature();
 			}
 		}
 
@@ -2999,8 +3010,8 @@ namespace Vodovoz
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
 			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
 			evmeDeliveryPoint.IsEditable = entityVMEntryClient.IsEditable = val;
-			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = ybuttonFastDeliveryCheck.Sensitive =
-				ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val;
+			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
+			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
 			lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =

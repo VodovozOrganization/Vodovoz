@@ -34,12 +34,12 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 				BottlesTo = 6
 			}; // 5 > x < 6
 
-			yield return new TestCaseData(param1, param2).Returns(true).SetName($"{param1} VS {param2}");
-			yield return new TestCaseData(param1, param3).Returns(false).SetName($"{param1} VS {param3}");
-			yield return new TestCaseData(param1, param4).Returns(true).SetName($"{param1} VS {param4}");
-			yield return new TestCaseData(param2, param3).Returns(false).SetName($"{param2} VS {param3}");
-			yield return new TestCaseData(param2, param4).Returns(true).SetName($"{param2} VS {param4}");
-			yield return new TestCaseData(param3, param4).Returns(false).SetName($"{param3} VS {param4}");
+			yield return new TestCaseData(param1, param2).Returns(true).SetDescription($"{param1} VS {param2}");
+			yield return new TestCaseData(param1, param3).Returns(false).SetDescription($"{param1} VS {param3}");
+			yield return new TestCaseData(param1, param4).Returns(true).SetDescription($"{param1} VS {param4}");
+			yield return new TestCaseData(param2, param3).Returns(false).SetDescription($"{param2} VS {param3}");
+			yield return new TestCaseData(param2, param4).Returns(true).SetDescription($"{param2} VS {param4}");
+			yield return new TestCaseData(param3, param4).Returns(false).SetDescription($"{param3} VS {param4}");
 		}
 		[TestCaseSource(nameof(ConflictBetwenParamsGroup))]
 		[Test(Description = "Проверка на конфликт между двумя параметрами")]
@@ -87,13 +87,13 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 				BottlesTo = 6
 			}; // 4 > x null 6
 
-			yield return new TestCaseData(param1).Returns((1,1)).SetName($"{param1}");
-			yield return new TestCaseData(param2).Returns((0,1)).SetName($"{param2}");
-			yield return new TestCaseData(param3).Returns((5,5)).SetName($"{param3}");
-			yield return new TestCaseData(param4).Returns((0,4)).SetName($"{param4}");
-			yield return new TestCaseData(param5).Returns((5, 5)).SetName($"{param5}");
-			yield return new TestCaseData(param6).Returns((2, 2)).SetName($"{param6}");
-			yield return new TestCaseData(param7).Returns((0,3)).SetName($"{param7}");
+			yield return new TestCaseData(param1).Returns((1,1)).SetDescription($"{param1}");
+			yield return new TestCaseData(param2).Returns((0,1)).SetDescription($"{param2}");
+			yield return new TestCaseData(param3).Returns((5,5)).SetDescription($"{param3}");
+			yield return new TestCaseData(param4).Returns((0,4)).SetDescription($"{param4}");
+			yield return new TestCaseData(param5).Returns((5, 5)).SetDescription($"{param5}");
+			yield return new TestCaseData(param6).Returns((2, 2)).SetDescription($"{param6}");
+			yield return new TestCaseData(param7).Returns((0,3)).SetDescription($"{param7}");
 		}
 		[TestCaseSource(nameof(CheckParameterRangeCalculationParams))]
 		[Test(Description = "Проверка расчета диапазона бутылей в параметре")]

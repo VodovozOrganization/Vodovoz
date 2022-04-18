@@ -1615,8 +1615,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this,
-				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
+			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			if(counterpartyContract == null)
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
@@ -4084,6 +4083,52 @@ namespace Vodovoz.Domain.Orders
 			result.ForEach(x => uow.Save(x));
 
 			return result;
+		}
+
+		#endregion
+
+		#region Доставка за час
+
+		public virtual bool CanChangeFastDelivery => OrderStatus == OrderStatus.NewOrder;
+
+		private Nomenclature _fastDeliveryNomenclature;
+		private Nomenclature FastDeliveryNomenclature
+		{
+			get
+			{
+				if(_fastDeliveryNomenclature == null)
+				{
+					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
+					_fastDeliveryNomenclature = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+				}
+
+				return _fastDeliveryNomenclature;
+			}
+		}
+
+		public virtual void AddFastDeliveryNomenclature()
+		{
+			if(orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
+			{
+				var fastDeliveryNomenclature = UoW.GetById<Nomenclature>(FastDeliveryNomenclature.Id);
+				var fastDeliveryItemToAdd = new OrderItem
+				{
+					Order = this,
+					Nomenclature = FastDeliveryNomenclature,
+					Count = 1,
+					Price = FastDeliveryNomenclature.GetPrice(1)
+				};
+
+				ObservableOrderItems.Add(fastDeliveryItemToAdd);
+			}
+		}
+
+		public virtual void RemoveFastDeliveryNomenclature()
+		{
+			var fastDeliveryItemToRemove =
+					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
+
+			ObservableOrderItems.Remove(fastDeliveryItemToRemove);
 		}
 
 		#endregion
