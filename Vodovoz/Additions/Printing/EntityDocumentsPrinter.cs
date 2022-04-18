@@ -70,7 +70,6 @@ namespace Vodovoz.Additions.Printing
 			RouteListPrintableDocuments[] documentsToSkip =
 			{
 				RouteListPrintableDocuments.All,
-				RouteListPrintableDocuments.LoadSofiyskaya,
 				RouteListPrintableDocuments.TimeList,
 				RouteListPrintableDocuments.OrderOfAddresses
 			};

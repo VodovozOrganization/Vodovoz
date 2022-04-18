@@ -47,7 +47,7 @@ namespace Vodovoz.Views
 
 		void YbuttonSendReport_Clicked(object sender, EventArgs e)
 		{
-			ViewModel.SendReportCommand.Execute(ErrorReportType.User); 
+			ViewModel.SendReportCommand.Execute(ReportType.User); 
 			this.Destroy();
 		}
 

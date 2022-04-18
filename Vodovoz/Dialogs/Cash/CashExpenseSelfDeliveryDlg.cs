@@ -50,7 +50,7 @@ namespace Vodovoz.Dialogs.Cash
 						_employeeRepository,
 						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}

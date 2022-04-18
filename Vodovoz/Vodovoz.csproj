@@ -1708,6 +1708,10 @@
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.ErrorReporting.Client\QS.ErrorReporting.Client.csproj">
+      <Project>{BABA2CB7-6EFE-4B1B-9324-74CBCBACF257}</Project>
+      <Name>QS.ErrorReporting.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.MachineConfig\QS.MachineConfig.csproj">
       <Project>{769710d2-bf98-4120-9e07-67bd740cfa1d}</Project>
       <Name>QS.MachineConfig</Name>

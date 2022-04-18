@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.DTOs
 {
@@ -12,7 +13,7 @@ namespace DriverAPI.Library.DTOs
 		public int FullBottleCount { get; set; }
 		public int EmptyBottlesToReturn { get; set; }
 		public string Counterparty { get; set; }
-		public IEnumerable<string> PhoneNumbers { get; set; }
+		public IEnumerable<PhoneDto> PhoneNumbers { get; set; }
 		public PaymentDtoType PaymentType { get; set; }
 		public AddressDto Address { get; set; }
 		public string OrderComment { get; set; }
@@ -23,5 +24,7 @@ namespace DriverAPI.Library.DTOs
 		public IEnumerable<OrderDeliveryItemDto> OrderDeliveryItems { get; set; }
 		public IEnumerable<OrderReceptionItemDto> OrderReceptionItems { get; set; }
 		public OrderAdditionalInfoDto OrderAdditionalInfo { get; set; }
+		public int Trifle { get; set; }
+		public SignatureDtoType? SignatureType { get; set; }
 	}
 }

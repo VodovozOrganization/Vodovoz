@@ -18,8 +18,6 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
 		TimeList,
 		[Display(Name = "Документ погрузки")]
 		LoadDocument,
-		[Display(Name = "Погрузка Софийская")]
-		LoadSofiyskaya,
 		[Display(Name = "Отчёт по порядку адресов")]
 		OrderOfAddresses
 	}

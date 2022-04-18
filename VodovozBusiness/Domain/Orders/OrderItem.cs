@@ -20,11 +20,16 @@ namespace Vodovoz.Domain.Orders
 	[HistoryTrace]
 	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource, IDiscount
 	{
+		private NomenclatureParametersProvider _nomenclatureParameterProvider = new NomenclatureParametersProvider(new ParametersProvider());
+
 		private int? paidDeliveryNomenclatureId;
-		private int PaidDeliveryNomenclatureId => 
-			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId =
-				new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId).Value;
-		
+		private int PaidDeliveryNomenclatureId =>
+			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = _nomenclatureParameterProvider.PaidDeliveryNomenclatureId).Value;
+
+		private int? _fastDeliveryNomenclatureId;
+		private int FastDeliveryNomenclatureId =>
+			_fastDeliveryNomenclatureId ?? (_fastDeliveryNomenclatureId = _nomenclatureParameterProvider.FastDeliveryNomenclatureId).Value;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -413,6 +418,11 @@ namespace Vodovoz.Domain.Orders
 
 				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)
 					result = false;
+
+				if(Nomenclature.Id == FastDeliveryNomenclatureId)
+				{
+					result = false;
+				}
 
 				return result;
 			}

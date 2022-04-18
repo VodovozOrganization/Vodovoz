@@ -35,22 +35,28 @@
             <Width>68.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>249.4pt</Width>
+            <Width>230.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>148.8pt</Width>
+            <Width>122.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>68.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>72.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>67.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>74.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>41.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -79,7 +85,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -131,7 +137,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -276,6 +282,42 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Отсрочка контра-гента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Max дней просро-чки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -427,6 +469,44 @@
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>=Sum({not_paid_orders_sum} - {unallocated_balance} - {partial_paid_orders_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>0pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>0pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -632,12 +712,54 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>={delay_days_for_buyers}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Iif({max_delay_days_fact} &gt; 0, {max_delay_days_fact},  "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>8.9pt</Top>
+        <Left>0.0pt</Left>
+        <Top>9.7pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
       </Table>
     </ReportItems>
@@ -701,7 +823,9 @@
                 WHERE pi.order_id = o.id
                   AND cmo.cashless_movement_operation_status != 'Cancelled'),
             0
-        ) AS partial_paid_orders_sum
+        ) AS partial_paid_orders_sum,
+        c.delay_days_for_buyers,
+        MAX(DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT)) AS max_delay_days_fact
     FROM orders o
     INNER JOIN counterparty c ON o.client_id = c.id
     LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
@@ -715,6 +839,8 @@
       AND (@counterparty_id = 0 OR o.client_id = @counterparty_id)
       AND (@exclude_closing_documents = FALSE OR o.delivery_schedule_id != @closing_document_delivery_schedule_id)
       AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
+      AND (@exclude_chain_stores = FALSE OR c.is_chain_store = FALSE)
+      AND (@expired_only = FALSE OR DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
     GROUP BY org.id, c.id
     ) AS T
 ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_sum) DESC
@@ -737,6 +863,12 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
           <QueryParameter Name="order_statuses">
             <Value>={?order_statuses}</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_chain_stores">
+            <Value>={?exclude_chain_stores}</Value>
+          </QueryParameter>
+          <QueryParameter Name="expired_only">
+            <Value>={?expired_only}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -765,11 +897,28 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <DataField>partial_paid_orders_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="delay_days_for_buyers">
+          <DataField>delay_days_for_buyers</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="max_delay_days_fact">
+          <DataField>max_delay_days_fact</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString></ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
@@ -827,14 +976,19 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="exclude_chain_stores">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="expired_only">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

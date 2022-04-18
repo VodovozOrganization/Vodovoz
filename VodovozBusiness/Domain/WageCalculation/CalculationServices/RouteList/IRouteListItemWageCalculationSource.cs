@@ -119,5 +119,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		bool IsDriverForeignDistrict { get; }
 
 		EmployeeCategory EmployeeCategory { get; }
+
+		bool IsFastDelivery { get; }
 	}
 }

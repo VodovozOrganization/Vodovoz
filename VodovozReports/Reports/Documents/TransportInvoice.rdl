@@ -862,7 +862,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >0.000</Format>
+                        <Format>0.000</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -986,7 +986,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1097,7 +1097,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >0.000</Format>
+                        <Format>0.000</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1223,7 +1223,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1308,7 +1308,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >0.000</Format>
+                        <Format>0.000</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1434,7 +1434,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1611,7 +1611,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>6pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2023,8 +2023,8 @@
         <Width>70.73pt</Width>
         <Value>расшифровка подписи</Value>
         <ZIndex>1</ZIndex>
-        <Left>254.7pt</Left>
-        <Top>214.7pt</Top>
+        <Left>254.70pt</Left>
+        <Top>214.70pt</Top>
         <Style>
           <FontSize>5pt</FontSize>
           <TextAlign>Center</TextAlign>
@@ -2039,7 +2039,7 @@
       <Textbox Name="Textbox121" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.31pt</Height>
         <Width>70.73pt</Width>
-        <Value>Сосновцев С.С.</Value>
+        <Value>=First({leader}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>254.7pt</Left>
         <Top>204.9pt</Top>
@@ -2094,7 +2094,7 @@
       <Textbox Name="Textbox124" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.31pt</Height>
         <Width>45.98pt</Width>
-        <Value>Ген. директор</Value>
+        <Value>Гл. бухгалтер</Value>
         <ZIndex>1</ZIndex>
         <Left>158.6pt</Left>
         <Top>222.5pt</Top>
@@ -2171,7 +2171,7 @@
       <Textbox Name="Textbox128" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.31pt</Height>
         <Width>70.73pt</Width>
-        <Value>Сосновцев С.С.</Value>
+        <Value>=First({buhgalter}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>254.7pt</Left>
         <Top>222.5pt</Top>
@@ -2303,7 +2303,7 @@
       <Textbox Name="Textbox135" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.31pt</Height>
         <Width>70.73pt</Width>
-        <Value>Сосновцев С.С.</Value>
+        <Value>=First({leader}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>254.7pt</Left>
         <Top>240.3pt</Top>
@@ -3417,8 +3417,8 @@
         <Width>176.94pt</Width>
         <Value>=First({organization_address}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>70.7pt</Left>
-        <Top>356.9pt</Top>
+        <Left>70.70pt</Left>
+        <Top>356.90pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -11858,66 +11858,70 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	orders.id AS order_id, 
-	DATE_FORMAT(orders.delivery_date, '%d.%m.%Y') AS order_date,
-	organizations.name AS org_name,
-	COMPILE_ADDRESS(delivery_points.id) AS counterparty_address,
-	SUBSTRING(organizations.jur_address FROM 10) AS organization_address,
-	#грузополучатель
-	IF(counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields,
-		counterparty.special_cargo_receiver,	
-		CONCAT_WS(', ',	
-			CASE
-				WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
-				#WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
-		   ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
-			
-			#телефоны, выбирается только 2 первых
-			NULLIF(
-				(SELECT REPLACE(phones.number, ' ', '') 
-				FROM phones 
-				WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
-				LIMIT 1) ,
-			''),
-			
-			CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
-		)
-	)	AS cargo_receiver,
-	#плательщик	
-	CONCAT_WS(', ',	
-		CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address),			
-		#телефоны, выбирается только 2 первых
-		NULLIF(
-			(SELECT REPLACE(phones.number, ' ', '') 
-			FROM phones 
-			WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
-			LIMIT 1) ,
-		''),			
-		CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
-	)	AS payer,
-	#грузоотправитель
-	CONCAT_WS(', ', 
-		organizations.name,
-		CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(organizations.INN), ''), NULLIF(TRIM(organizations.KPP), '')), '')),
-		NULLIF((SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.org_id = organizations.id), ''),
-		organizations.jur_address,
-		CONCAT('р/с ', organization_accounts.number, ' в ', organization_banks.name, ', БИК ', organization_banks.bik, ', к/с ', organization_banks_cor_accs.cor_account_number)
-	)	AS organization_fullname,
-	orders.delivery_date as delivery_date
+    orders.id AS order_id,
+    DATE_FORMAT(orders.delivery_date, '%d.%m.%Y') AS order_date,
+    organizations.name AS org_name,
+    GET_PERSON_NAME_WITH_INITIALS(leader.last_name, leader.name, leader.patronymic) as leader,
+    GET_PERSON_NAME_WITH_INITIALS(buhgalter.last_name, buhgalter.name, buhgalter.patronymic) as buhgalter,
+    COMPILE_ADDRESS(delivery_points.id) AS counterparty_address,
+    SUBSTRING(organizations.jur_address FROM 10) AS organization_address,
+    #грузополучатель
+    IF(counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields,
+       counterparty.special_cargo_receiver,
+       CONCAT_WS(', ',
+                 CASE
+                     WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+                     #WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+                     ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
+
+           #телефоны, выбирается только 2 первых
+                 NULLIF(
+                         (SELECT REPLACE(phones.number, ' ', '')
+                          FROM phones
+                          WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+                          LIMIT 1) ,
+                         ''),
+
+                 CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
+           )
+        )	AS cargo_receiver,
+    #плательщик	
+    CONCAT_WS(', ',
+              CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address),
+        #телефоны, выбирается только 2 первых
+              NULLIF(
+                      (SELECT REPLACE(phones.number, ' ', '')
+                       FROM phones
+                       WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+                       LIMIT 1) ,
+                      ''),
+              CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
+        )	AS payer,
+    #грузоотправитель
+    CONCAT_WS(', ',
+              organizations.name,
+              CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(organizations.INN), ''), NULLIF(TRIM(organizations.KPP), '')), '')),
+              NULLIF((SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.org_id = organizations.id), ''),
+              organizations.jur_address,
+              CONCAT('р/с ', organization_accounts.number, ' в ', organization_banks.name, ', БИК ', organization_banks.bik, ', к/с ', organization_banks_cor_accs.cor_account_number)
+        )	AS organization_fullname,
+    orders.delivery_date as delivery_date
 FROM
-	orders
-	LEFT JOIN counterparty ON counterparty.id = orders.client_id
-	LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
-	LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
-	LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-	
-	LEFT JOIN accounts AS counterparty_accounts ON counterparty_accounts.counterparty_id = counterparty.id AND counterparty_accounts.is_default
-	LEFT JOIN banks ON banks.id = counterparty_accounts.bank_id
-	LEFT JOIN banks_cor_accounts ON counterparty_accounts.bank_cor_account_id = banks_cor_accounts.id
-	
-	LEFT JOIN accounts AS organization_accounts ON organization_accounts.org_id = organizations.id AND organization_accounts.is_default
-	LEFT JOIN banks AS organization_banks ON organization_banks.id = organization_accounts.bank_id
-	LEFT JOIN banks_cor_accounts organization_banks_cor_accs ON organization_accounts.bank_cor_account_id = organization_banks_cor_accs.id	
+    orders
+        LEFT JOIN counterparty ON counterparty.id = orders.client_id
+        LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
+        LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+        LEFT JOIN employees leader ON leader.id = organizations.leader_id
+        LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+
+        LEFT JOIN accounts AS counterparty_accounts ON counterparty_accounts.counterparty_id = counterparty.id AND counterparty_accounts.is_default
+        LEFT JOIN banks ON banks.id = counterparty_accounts.bank_id
+        LEFT JOIN banks_cor_accounts ON counterparty_accounts.bank_cor_account_id = banks_cor_accounts.id
+
+        LEFT JOIN accounts AS organization_accounts ON organization_accounts.org_id = organizations.id AND organization_accounts.is_default
+        LEFT JOIN banks AS organization_banks ON organization_banks.id = organization_accounts.bank_id
+        LEFT JOIN banks_cor_accounts organization_banks_cor_accs ON organization_accounts.bank_cor_account_id = organization_banks_cor_accs.id
 WHERE orders.id = @order_id
 GROUP BY orders.id</CommandText>
         <QueryParameters>
@@ -11962,6 +11966,14 @@ GROUP BY orders.id</CommandText>
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="leader">
+          <DataField>leader</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buhgalter">
+          <DataField>buhgalter</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>

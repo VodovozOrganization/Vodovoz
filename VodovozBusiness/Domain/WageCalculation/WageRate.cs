@@ -139,6 +139,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.Bottle19LInBigOrder:
 					case WageRateTypes.EmptyBottle19LInBigOrder:
 					case WageRateTypes.ContractCancelation:
+					case WageRateTypes.FastDelivery:	
 						return CurrencyWorks.CurrencyShortName;
 					case WageRateTypes.MinBottlesQtyInBigOrder:
 						return "шт.";
@@ -164,6 +165,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.Bottle19LInBigOrder:
 					case WageRateTypes.EmptyBottle19LInBigOrder:
 					case WageRateTypes.ContractCancelation:
+					case WageRateTypes.FastDelivery:
 						return ForDriverWithForwarder.ToShortCurrencyString();
 					case WageRateTypes.MinBottlesQtyInBigOrder:
 						return string.Format("{0} шт.", ForDriverWithForwarder);
@@ -189,6 +191,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.Bottle19LInBigOrder:
 					case WageRateTypes.EmptyBottle19LInBigOrder:
 					case WageRateTypes.ContractCancelation:
+					case WageRateTypes.FastDelivery:
 						return ForDriverWithoutForwarder.ToShortCurrencyString();
 					case WageRateTypes.MinBottlesQtyInBigOrder:
 						return string.Format("{0} шт.", ForDriverWithoutForwarder);
@@ -214,6 +217,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.Bottle19LInBigOrder:
 					case WageRateTypes.EmptyBottle19LInBigOrder:
 					case WageRateTypes.ContractCancelation:
+					case WageRateTypes.FastDelivery:
 						return ForForwarder.ToShortCurrencyString();
 					case WageRateTypes.MinBottlesQtyInBigOrder:
 						return string.Format("{0} шт.", ForForwarder);
