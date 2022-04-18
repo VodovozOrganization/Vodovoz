@@ -92,7 +92,8 @@ namespace Vodovoz.Additions.Logistic
 							TextBoxNumber++,
 							$"=Iif({{{ _orderPrioritizedTagName }}}, \'Приоритет! \', \"\") + {{{ _orderCommentTagName }}}",
 							"0",
-							isClosed
+							isClosed,
+							true
 						);
 				}
 				else
@@ -262,19 +263,20 @@ namespace Vodovoz.Additions.Logistic
 				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
-		private static string GetCellTag(int id, string value, string formatString, bool isClosed)
+		private static string GetCellTag(int id, string value, string formatString, bool isClosed, bool canGrow = false)
 		{
-			return "<TableCell><ReportItems>" +
+			var canGrowText = canGrow ? "true" : "false";
+			return $"<TableCell><ReportItems>" +
 				   $"<Textbox Name=\"Textbox{ id }\">" +
 				   $"<Value>{ value }</Value>" +
-				   "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-				   "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
+				   $"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
+				   $"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
 				   $"<TextAlign>Center</TextAlign><Format>{ formatString }</Format><VerticalAlign>Middle</VerticalAlign>" +
 				   (isClosed
 				   ? $"<BackgroundColor>=Iif((Fields!Status.Value = \"{ RouteListItemStatus.EnRoute }\") or (Fields!Status.Value = \"{ RouteListItemStatus.Completed }\"), White, Lightgrey)</BackgroundColor>"
 				   : "") +
-				   "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
-				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
+				   $"<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
+				   $"<CanGrow>{canGrowText}</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
