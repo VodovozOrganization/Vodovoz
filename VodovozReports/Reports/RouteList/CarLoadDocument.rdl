@@ -159,7 +159,7 @@ LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
 LEFT JOIN route_list_addresses rla ON rla.order_id = oi.order_id
 WHERE
 	rla.route_list_id = @id
-	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
+	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle','PromotionalProducts','Overalls')
 	AND n.online_store_id IS NULL
 GROUP BY n.id
 #Equipment
