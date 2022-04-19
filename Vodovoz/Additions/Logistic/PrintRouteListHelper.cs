@@ -324,7 +324,7 @@ namespace Vodovoz.Additions.Logistic
 			};
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm))
+			using(var calc = new RouteGeometryCalculator())
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}

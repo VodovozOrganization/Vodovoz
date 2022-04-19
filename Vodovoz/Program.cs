@@ -150,8 +150,6 @@ namespace Vodovoz
 
 			DatePicker.CalendarFontSize = 16;
 			DateRangePicker.CalendarFontSize = 16;
-
-			QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
