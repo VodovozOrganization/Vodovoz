@@ -177,7 +177,6 @@ namespace Vodovoz
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 						.Select(Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.Int32,
 								"SUM(IF(?1 = 'Canceled' OR ?1 = 'Overdue' OR (?1 = 'Transfered' AND ?2 = 1), ?3, 0))"),
@@ -225,6 +224,14 @@ namespace Vodovoz
 					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 					.List<ReceptionItemNode>();
 
+				var additionalItemsSubquery = QueryOver.Of(() => orderItemsAlias)
+					.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+					.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
+					.And(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
+					.And(() => orderAlias.IsFastDelivery == true)
+					.Select(Projections.Sum(() => orderItemsAlias.Count));
+
 				returnableAdditionalLoadingItems = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
 					.JoinAlias(() => routeListAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 					.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
@@ -234,8 +241,14 @@ namespace Vodovoz
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-						.Select(Projections.Cast(NHibernateUtil.Int32, 
-							Projections.Property(() => additionalLoadingDocumentItemAlias.Amount))
+						.Select(Projections.SqlFunction(
+								new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 - ?2"),
+								NHibernateUtil.Int32,
+								Projections.Property(() => additionalLoadingDocumentItemAlias.Amount),
+								Projections.Conditional(
+									Restrictions.IsNotNull(Projections.SubQuery(additionalItemsSubquery)),
+									Projections.SubQuery(additionalItemsSubquery),
+									Projections.Constant(0m)))
 						).WithAlias(() => resultAlias.ExpectedAmount)
 					)
 					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
