@@ -25,7 +25,7 @@
     IFNULL(orders.time_delivered,
            route_list_addresses.status_last_update) AS delivered_time,
 IF(is_fast_delivery,
-    	TIMEDIFF(TIME(route_list_addresses.creation_date + (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'fast_delivery_time')), delivery_schedule.to_time),
+		TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update), (route_list_addresses.creation_date + INTERVAL (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'fast_delivery_time') HOUR )),
 		TIMEDIFF(TIME(IFNULL(orders.time_delivered, route_list_addresses.status_last_update)), delivery_schedule.to_time)) AS delay,
 
     lar.name as late_reason_name,
