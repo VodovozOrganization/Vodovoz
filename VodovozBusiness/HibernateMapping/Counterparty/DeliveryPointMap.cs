@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using NHibernate.Type;
-using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping

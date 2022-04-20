@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DriverAPI.DTOs
 {
-	public class OrderPaymentStatusResponseDto
+	public class OrderSmsPaymentStatusResponseDto
 	{
 		public IEnumerable<PaymentDtoType> AvailablePaymentTypes { get; set; }
 		public bool CanSendSms { get; set; }

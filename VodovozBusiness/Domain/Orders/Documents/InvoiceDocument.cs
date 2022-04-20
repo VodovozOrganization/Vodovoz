@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },
 					{ "payment_by_sms", Order.PaymentBySms },
+					{ "payment_by_qr", Order.PaymentByQr },
 					{ "need_terminal", Order.PaymentType == PaymentType.Terminal }
 			}
 			};

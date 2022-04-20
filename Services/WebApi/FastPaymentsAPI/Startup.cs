@@ -29,7 +29,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Tools;
 
 namespace FastPaymentsAPI
 {
@@ -141,7 +140,6 @@ namespace FastPaymentsAPI
 			}
 			else
 			{
-				app.UseExceptionHandler("/Home/Error");
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
@@ -152,7 +150,6 @@ namespace FastPaymentsAPI
 			app.UseRouting();
 			app.UseAuthorization();
 
-			
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(
@@ -180,8 +177,7 @@ namespace FastPaymentsAPI
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.Driver<LoggedMySqlClientDriver>();
+				.ConnectionString(connectionString);
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(

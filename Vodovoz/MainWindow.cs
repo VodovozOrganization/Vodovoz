@@ -2069,7 +2069,7 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices.InteractiveService,
 				NavigationManagerProvider.NavigationManager,
 				new WayBillDocumentRepository(),
-				new RouteGeometryCalculator(DistanceProvider.Osrm),
+				new RouteGeometryCalculator(),
 				employeesJournalFactory,
 				docTemplateRepository,
 				fileChooser

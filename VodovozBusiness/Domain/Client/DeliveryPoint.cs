@@ -10,15 +10,14 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Osm;
-using QS.Osm.DTO;
-using QS.Osm.Osrm;
+using QS.Osrm;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Domain.Client
 {
@@ -724,8 +723,8 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
-
-			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+			
+			var result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False);
 			if(result == null) {
 				logger.Error("Сервер расчета расстояний не вернул ответа.");
 				return false;

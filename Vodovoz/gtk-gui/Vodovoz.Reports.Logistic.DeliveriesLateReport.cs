@@ -20,6 +20,12 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckExcludeTruckAndOfficeEmployees;
 
+		private global::Gtk.RadioButton ycheckAllSelect;
+
+		private global::Gtk.RadioButton ycheckOnlyFastSelect;
+
+		private global::Gtk.RadioButton ycheckWithoutFastSelect;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -114,16 +120,52 @@ namespace Vodovoz.Reports.Logistic
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.ycheckAllSelect = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Отображать все заказы"));
+			this.ycheckAllSelect.CanFocus = true;
+			this.ycheckAllSelect.Name = "ycheckAllSelect";
+			this.ycheckAllSelect.DrawIndicator = true;
+			this.ycheckAllSelect.UseUnderline = true;
+			this.ycheckAllSelect.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.vbox1.Add(this.ycheckAllSelect);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckAllSelect]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ycheckOnlyFastSelect = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Отображать заказы с доставкой за час"));
+			this.ycheckOnlyFastSelect.CanFocus = true;
+			this.ycheckOnlyFastSelect.Name = "ycheckOnlyFastSelect";
+			this.ycheckOnlyFastSelect.DrawIndicator = true;
+			this.ycheckOnlyFastSelect.UseUnderline = true;
+			this.ycheckOnlyFastSelect.Group = this.ycheckAllSelect.Group;
+			this.vbox1.Add(this.ycheckOnlyFastSelect);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckOnlyFastSelect]));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ycheckWithoutFastSelect = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Отображать заказы без доставки за час"));
+			this.ycheckWithoutFastSelect.CanFocus = true;
+			this.ycheckWithoutFastSelect.Name = "ycheckWithoutFastSelect";
+			this.ycheckWithoutFastSelect.DrawIndicator = true;
+			this.ycheckWithoutFastSelect.UseUnderline = true;
+			this.ycheckWithoutFastSelect.Group = this.ycheckAllSelect.Group;
+			this.vbox1.Add(this.ycheckWithoutFastSelect);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckWithoutFastSelect]));
+			w10.Position = 5;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w8.Position = 3;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w11.Position = 6;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

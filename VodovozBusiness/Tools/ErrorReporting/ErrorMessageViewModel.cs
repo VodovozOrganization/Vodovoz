@@ -55,25 +55,25 @@ namespace Vodovoz.Tools
 		public void SendReportAutomatically()
 		{
 			if(errorMessageModel.CanSendErrorReportAutomatically)
-				SendReportCommand.Execute(ErrorReportType.Automatic);
+				SendReportCommand.Execute(ReportType.Automatic);
 		}
 
-		public DelegateCommand<ErrorReportType> SendReportCommand;
+		public DelegateCommand<ReportType> SendReportCommand;
 		private void CreateSendReportCommand()
 		{
-			SendReportCommand = new DelegateCommand<ErrorReportType>(
+			SendReportCommand = new DelegateCommand<ReportType>(
 				(errorReportType) => {
 					errorMessageModel.ErrorReportType = errorReportType;
 					errorMessageModel.SendErrorReport();
 
-					if(!errorMessageModel.ReportSent && errorReportType != ErrorReportType.Automatic){
+					if(!errorMessageModel.ReportSent && errorReportType != ReportType.Automatic){
 						interactiveMessage?.ShowMessage(ImportanceLevel.Warning, "Отправка сообщения не удалась.\n" +
 							"Проверьте ваше интернет соединение и повторите попытку. " +
 							"Если отправка неудастся возможно имеются проблемы на стороне сервера."
 						);
 					}
 				},
-				(errorReportType) => errorReportType == ErrorReportType.Automatic || CanSendErrorReportManually
+				(errorReportType) => errorReportType == ReportType.Automatic || CanSendErrorReportManually
 			);
 		}
 	}

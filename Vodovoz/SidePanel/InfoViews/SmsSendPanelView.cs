@@ -8,7 +8,6 @@ using QS.Services;
 using QS.Utilities.Numeric;
 using SmsPaymentService;
 using Vodovoz.Additions;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -25,6 +24,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly ISmsPaymentRepository _smsPaymentRepository;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
+		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly IInteractiveService _interactiveService;
 		private readonly PhoneFormatter _phoneFormatter;
@@ -40,7 +40,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		public SmsSendPanelView(
 			ICommonServices commonServices,
 			ISmsPaymentRepository smsPaymentRepository,
-			IFastPaymentRepository fastPaymentRepository)
+			IFastPaymentRepository fastPaymentRepository,
+			IFastPaymentParametersProvider fastPaymentParametersProvider)
 		{
 			if(commonServices == null)
 			{
@@ -48,6 +49,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			_smsPaymentRepository = smsPaymentRepository ?? throw new ArgumentNullException(nameof(smsPaymentRepository));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
+			_fastPaymentParametersProvider =
+				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
 			var currentPermissionService = commonServices.CurrentPermissionService;
 			_interactiveService = commonServices.InteractiveService;
 			_phoneFormatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
@@ -228,10 +231,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				return false;
 			});
 
-			var smsSender = new SmsSender(
-				new BaseParametersProvider(new ParametersProvider()), InstantSmsServiceSetting.GetInstantSmsService());
-			
-			var resultTask = smsSender.SendFastPaymentUrlAsync(_order.Id, validatedPhoneEntry.Text);
+			var smsSender = new SmsSender(_fastPaymentParametersProvider, InstantSmsServiceSetting.GetInstantSmsService());
+			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text);
 			resultTask.Wait();
 			var result = resultTask.Result;
 
