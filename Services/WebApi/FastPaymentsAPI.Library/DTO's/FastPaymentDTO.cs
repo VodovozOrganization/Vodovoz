@@ -9,5 +9,6 @@ namespace FastPaymentsAPI.Library.DTO_s
 		public string Ticket { get; set; }
 		public string QRPngBase64 { get; set; }
 		public int ExternalId { get; set; }
+		public Guid FastPaymentGuid { get; set; }
 	}
 }

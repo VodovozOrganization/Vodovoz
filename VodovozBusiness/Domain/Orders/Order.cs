@@ -742,6 +742,14 @@ namespace Vodovoz.Domain.Orders
 			get => paymentBySms;
 			set => SetField(ref paymentBySms, value, () => PaymentBySms);
 		}
+		
+		bool _paymentByQr;
+		[Display(Name = "Оплата по QR")]
+		public virtual bool PaymentByQr
+		{
+			get => _paymentByQr;
+			set => SetField(ref _paymentByQr, value);
+		}
 
 		ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]

@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.FastPayments;
+﻿using System;
+using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Library.DTO_s.Responses
 {
@@ -14,7 +15,7 @@ namespace FastPaymentsAPI.Library.DTO_s.Responses
 		}
 
 		public string Ticket { get; set; }
-		public string PhoneNumber { get; set; }
+		public Guid FastPaymentGuid { get; set; }
 		public string ErrorMessage { get; set; }
 		public FastPaymentStatus? FastPaymentStatus { get; set; }
 	}

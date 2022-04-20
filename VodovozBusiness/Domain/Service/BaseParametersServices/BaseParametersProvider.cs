@@ -219,24 +219,6 @@ namespace Vodovoz.Core.DataService
 			}
 			return _parametersProvider.GetParameterValue("undelivery_autotransport_notapproved_sms_text_template");
 		}
-		
-		public string GetFastPaymentApiBaseUrl()
-		{
-			if(!_parametersProvider.ContainsParameter("fast_payment_api_base_url"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен параметр(fast_payment_api_base_url)");
-			}
-			return _parametersProvider.GetParameterValue("fast_payment_api_base_url");
-		}
-		
-		public string GetAvangardFastPayBaseUrl()
-		{
-			if(!_parametersProvider.ContainsParameter("avangard_fast_pay_base_url"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен параметр(avangard_fast_pay_base_url)");
-			}
-			return _parametersProvider.GetParameterValue("avangard_fast_pay_base_url");
-		}
 
 		#endregion ISmsNotifierParameters implementation
 

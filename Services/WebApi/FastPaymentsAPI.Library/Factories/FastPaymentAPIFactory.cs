@@ -33,7 +33,7 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum, string backUrl)
+		public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum)
 		{
 			return new OrderRegistrationRequestDTO
 			{
@@ -43,8 +43,7 @@ namespace FastPaymentsAPI.Library.Factories
 				Amount = _orderSumConverter.ConvertOrderSumToKopecks(orderSum),
 				OrderNumber = orderId.ToString(),
 				OrderDescription = $"Заказ №{orderId}",
-				Language = "RU",
-				BackUrl = backUrl,
+				Language = "RU"
 			};
 		}
 
@@ -81,7 +80,11 @@ namespace FastPaymentsAPI.Library.Factories
 		}
 
 		public FastPayment GetFastPayment(
-			OrderRegistrationResponseDTO orderRegistrationResponseDto, Order order, DateTime creationDate, string phoneNumber = null)
+			OrderRegistrationResponseDTO orderRegistrationResponseDto,
+			Order order,
+			DateTime creationDate,
+			Guid fastPaymentGuid,
+			string phoneNumber = null)
 		{
 			return new FastPayment
 			{
@@ -91,7 +94,8 @@ namespace FastPaymentsAPI.Library.Factories
 				Ticket = orderRegistrationResponseDto.Ticket,
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = (int)orderRegistrationResponseDto.Id,
-				PhoneNumber = phoneNumber
+				PhoneNumber = phoneNumber,
+				FastPaymentGuid = fastPaymentGuid
 			};
 		}
 
@@ -104,7 +108,8 @@ namespace FastPaymentsAPI.Library.Factories
 				Order = order,
 				Ticket = paymentDto.Ticket,
 				QRPngBase64 = paymentDto.QRPngBase64,
-				ExternalId = paymentDto.ExternalId
+				ExternalId = paymentDto.ExternalId,
+				FastPaymentGuid = paymentDto.FastPaymentGuid
 			};
 		}
 	}

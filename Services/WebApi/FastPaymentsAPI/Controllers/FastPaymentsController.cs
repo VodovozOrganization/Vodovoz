@@ -106,11 +106,12 @@ namespace FastPaymentsAPI.Controllers
 					return response;
 				}
 
+				var fastPaymentGuid = Guid.NewGuid();
 				_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order);
+				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid);
 				
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicket(orderRegistrationResponseDto, orderId);
+				_fastPaymentModel.SaveNewTicket(orderRegistrationResponseDto, orderId, fastPaymentGuid);
 
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
@@ -200,15 +201,16 @@ namespace FastPaymentsAPI.Controllers
 					return response;
 				}
 
+				var fastPaymentGuid = Guid.NewGuid();
 				_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, phoneNumber);
+				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber);
 								
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicket(orderRegistrationResponseDto, orderId, phoneNumber);
+				_fastPaymentModel.SaveNewTicket(orderRegistrationResponseDto, orderId, fastPaymentGuid, phoneNumber);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
+				response.FastPaymentGuid = fastPaymentGuid;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
-				response.PhoneNumber = phoneNumber;
 			}
 			catch(Exception e)
 			{
@@ -231,13 +233,27 @@ namespace FastPaymentsAPI.Controllers
 		/// <summary>
 		/// Эндпойнт получения инфы об оплаченном заказе
 		/// </summary>
-		/// <param name="paidOrderInfoDto">Dto с информацией об оплате</param>
+		/// <param name="paidOrderDto">Dto с информацией об оплате</param>
 		/// <returns>При успешном выполнении отправляем 202</returns>
 		[HttpPost]
 		[Route("/api/ReceivePayment")]
-		public IActionResult ReceivePayment([FromBody] PaidOrderInfoDTO paidOrderInfoDto)
+		[Consumes("application/x-www-form-urlencoded")]
+		public IActionResult ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
 			_logger.LogInformation("Пришел ответ об успешной оплате");
+			PaidOrderInfoDTO paidOrderInfoDto = null;
+
+			try
+			{
+				_logger.LogInformation("Парсим и получаем объект PaidOrderInfoDTO из ответа");
+				paidOrderInfoDto = _fastPaymentOrderModel.GetPaidOrderInfo(paidOrderDto.xml);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при парсинге ответа по успешной оплате");
+				return StatusCode(500);
+			}
+			
 			try
 			{
 				_logger.LogInformation("Проверяем подпись");
@@ -245,8 +261,7 @@ namespace FastPaymentsAPI.Controllers
 				{
 					var signature = paidOrderInfoDto.Signature;
 					var orderNumber = paidOrderInfoDto.OrderNumber;
-					_logger.LogError(
-						$"Ответ по оплате заказа №{orderNumber} пришел с неверной подписью {signature}");
+					_logger.LogError($"Ответ по оплате заказа №{orderNumber} пришел с неверной подписью {signature}");
 					
 					try
 					{
@@ -269,16 +284,16 @@ namespace FastPaymentsAPI.Controllers
 					$"Ошибка при обработке поступившего платежа (ticket: {paidOrderInfoDto.Ticket}, status: {paidOrderInfoDto.Status})");
 				return StatusCode(500);
 			}
-
-			//Пока не реализована опата по qr убираем уведомление водителя об оплате
-			/*try
+			
+			try
 			{
+				_logger.LogInformation($"Уведомляем водителя о изменении статуса оплаты заказа: {paidOrderInfoDto.OrderNumber}");
 				_driverApiService.NotifyOfFastPaymentStatusChangedAsync(int.Parse(paidOrderInfoDto.OrderNumber));
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Не удалось уведомить службу DriverApi об изменении статуса оплаты заказа");
-			}*/
+			}
 			return new AcceptedResult();
 		}
 

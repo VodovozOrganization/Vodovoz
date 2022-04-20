@@ -36,11 +36,18 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
-					return new CallTaskPanelView(new BaseParametersProvider(new ParametersProvider()), new EmployeeRepository(), ServicesConfig.CommonServices);
+					return new CallTaskPanelView(
+						new BaseParametersProvider(new ParametersProvider()),
+						new EmployeeRepository(),
+						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository());
 				case PanelViewType.SmsSendPanelView:
-					return new SmsSendPanelView(ServicesConfig.CommonServices, new SmsPaymentRepository(), new FastPaymentRepository());
+					return new SmsSendPanelView(
+						ServicesConfig.CommonServices,
+						new SmsPaymentRepository(),
+						new FastPaymentRepository(),
+						new FastPaymentParametersProvider(new ParametersProvider()));
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
