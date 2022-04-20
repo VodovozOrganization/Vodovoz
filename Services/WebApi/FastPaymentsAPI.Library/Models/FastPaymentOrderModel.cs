@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using FastPaymentsAPI.Library.DTO_s;
 using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Validators;
@@ -51,9 +54,9 @@ namespace FastPaymentsAPI.Library.Models
 		public string ValidateParameters(int orderId, ref string phoneNumber) => _fastPaymentValidator.Validate(orderId, ref phoneNumber);
 		public string ValidateOrder(Order order, int orderId) => _fastPaymentValidator.Validate(order, orderId);
 
-		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, string phoneNumber = null)
+		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null)
 		{
-			return _orderRequestManager.RegisterOrder(order, phoneNumber);
+			return _orderRequestManager.RegisterOrder(order, fastPaymentGuid, phoneNumber);
 		}
 
 		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)
@@ -64,6 +67,12 @@ namespace FastPaymentsAPI.Library.Models
 		public Task<CancelPaymentResponseDTO> CancelPayment(string ticket)
 		{
 			return _orderRequestManager.CancelPayment(ticket);
+		}
+		
+		public PaidOrderInfoDTO GetPaidOrderInfo(string data)
+		{
+			using TextReader reader = new StringReader(data);
+			return (PaidOrderInfoDTO)new XmlSerializer(typeof(PaidOrderInfoDTO)).Deserialize(reader);
 		}
 
 		public void NotifyEmployee(string orderNumber, string signature)

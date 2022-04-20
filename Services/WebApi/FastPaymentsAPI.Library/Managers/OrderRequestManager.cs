@@ -32,9 +32,9 @@ namespace FastPaymentsAPI.Library.Managers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 
-		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, string phoneNumber = null)
+		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null)
 		{
-			var orderDTO = GetOrderRegistrationRequestDTO(order, phoneNumber);
+			var orderDTO = GetOrderRegistrationRequestDTO(order, fastPaymentGuid, phoneNumber);
 			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
@@ -56,18 +56,22 @@ namespace FastPaymentsAPI.Library.Managers
 			return _orderService.CancelPaymentAsync(xmlStringFromCancelPaymentRequestDTO);
 		}
 
-		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, string phoneNumber = null)
+		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, string phoneNumber = null)
 		{
 			var signatureParameters = _fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(order.Id, order.OrderSum);
 			var signature = _signatureManager.GenerateSignature(signatureParameters);
-			var orderRegistrationRequestDTO = _fastPaymentApiFactory.GetOrderRegistrationRequestDTO(
-				order.Id, signature, order.OrderSum, _fastPaymentParametersProvider.GetFastPaymentBackUrl);
+			var orderRegistrationRequestDTO = _fastPaymentApiFactory.GetOrderRegistrationRequestDTO(order.Id, signature, order.OrderSum);
 
 			if(phoneNumber == null)
 			{
 				orderRegistrationRequestDTO.IsQR = 1;
 				orderRegistrationRequestDTO.ReturnQRImage = 1;
 				orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetQRLifetime;
+				orderRegistrationRequestDTO.BackUrl = _fastPaymentParametersProvider.GetFastPaymentBackUrl;
+			}
+			else
+			{
+				orderRegistrationRequestDTO.BackUrl = $"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
 			}
 
 			return orderRegistrationRequestDTO;

@@ -10,7 +10,11 @@ namespace FastPaymentsAPI.Library.Models
 	{
 		FastPayment GetFastPaymentByTicket(string ticket);
 		IList<FastPayment> GetAllPerformedOrProcessingFastPayments(int orderId);
-		void SaveNewTicket(OrderRegistrationResponseDTO orderRegistrationResponseDto, int orderId, string phoneNumber = null);
+		void SaveNewTicket(
+			OrderRegistrationResponseDTO orderRegistrationResponseDto,
+			int orderId,
+			Guid fastPaymentGuid,
+			string phoneNumber = null);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);
