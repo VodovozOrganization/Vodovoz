@@ -420,7 +420,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
-		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator(DistanceProvider.Osrm);
+		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator();
 
 		Employee driverFromRouteList;
 		public virtual Employee DriverFromRouteList {

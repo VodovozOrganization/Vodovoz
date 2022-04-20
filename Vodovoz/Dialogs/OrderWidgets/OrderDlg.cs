@@ -260,7 +260,7 @@ namespace Vodovoz
 						_employeeRepository,
 						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}
@@ -710,7 +710,12 @@ namespace Vodovoz
 				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
+			
+			ycheckPaymentBySms.Toggled += OnCheckPaymentBySmsToggled;
+			chkPaymentByQr.Toggled += OnCheckPaymentByQrToggled;
+			
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
 
 			UpdateOrderAddressTypeWithUI();
 
@@ -753,6 +758,30 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 
 			UpdateAvailableEnumSignatureTypes();
+		}
+
+		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
+		{
+			if(Entity.PaymentBySms)
+			{
+				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
+			}
+			else
+			{
+				chkPaymentByQr.Visible = true;
+			}
+		}
+		
+		private void OnCheckPaymentByQrToggled(object sender, EventArgs e)
+		{
+			if(Entity.PaymentByQr)
+			{
+				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
+			}
+			else
+			{
+				ycheckPaymentBySms.Visible = true;
+			}
 		}
 
 		private void UpdateAvailableEnumSignatureTypes()
@@ -2482,9 +2511,11 @@ namespace Vodovoz
 			
 			if (Entity.PaymentType != PaymentType.cash) {
 				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
+				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
 			}
 			else {
 				ycheckPaymentBySms.Visible = true;
+				chkPaymentByQr.Visible = true;
 			}
 			
 			if (Entity.PaymentType == PaymentType.Terminal) {
@@ -3023,6 +3054,7 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
 			ycheckPaymentBySms.Sensitive = val;
+			chkPaymentByQr.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;

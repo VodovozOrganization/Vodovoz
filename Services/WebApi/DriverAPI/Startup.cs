@@ -26,6 +26,7 @@ using QS.Attachments.Domain;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
@@ -130,6 +131,12 @@ namespace DriverAPI
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
 			});
+			
+			services.AddHttpClient<IFastPaymentsServiceAPIHelper, FastPaymentsesServiceApiHelper>(c =>
+			{
+				c.BaseAddress = new Uri(Configuration.GetSection("FastPaymentsServiceAPI").GetValue<string>("ApiBase"));
+				c.DefaultRequestHeaders.Add("Accept", "application/json");
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -228,7 +235,7 @@ namespace DriverAPI
 			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
-			services.AddScoped<IErrorReporter>((sp) => SingletonErrorReporter.Instance);
+			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();
@@ -238,6 +245,7 @@ namespace DriverAPI
 			services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
 			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();
@@ -269,6 +277,7 @@ namespace DriverAPI
 			services.AddScoped<IEmployeeModel, EmployeeModel>();
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
+			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 		}
 	}
 }

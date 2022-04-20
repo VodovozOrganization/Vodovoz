@@ -8,7 +8,5 @@
 		string GetLowBalanceNotifiedPhone();
 		string GetLowBalanceNotifyText();
 		string GetUndeliveryAutoTransferNotApprovedTextTemplate();
-		string GetFastPaymentApiBaseUrl();
-		string GetAvangardFastPayBaseUrl();
 	}
 }

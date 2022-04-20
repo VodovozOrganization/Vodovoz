@@ -21,10 +21,11 @@ namespace FastPaymentsAPI.Library.Services
 			var response = await _httpClient.PostAsJsonAsync(
 				_configuration.GetSection("DriverAPIService").GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), orderId);
 
-			if(!response.IsSuccessStatusCode)
+			if(response.IsSuccessStatusCode)
 			{
-				throw new Exception(response.ReasonPhrase);
+				return;
 			}
+			throw new Exception(response.ReasonPhrase);
 		}
 	}
 }

@@ -250,7 +250,7 @@ namespace Android
 						return null;
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					OrderDTO orderDTO = new OrderDTO(routeListItem);
-					SmsPaymentStatus? smsPaymentStatus = _orderRepository.GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
+					SmsPaymentStatus? smsPaymentStatus = _orderRepository.GetOrderSmsPaymentStatus(orderUoW, orderUoW.Root.Id);
 					if(smsPaymentStatus == null) {
 						orderDTO.PaymentStatus = PaymentStatus.None;
 					} else {

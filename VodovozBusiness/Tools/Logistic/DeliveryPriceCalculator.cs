@@ -1,14 +1,14 @@
-﻿using System;
+﻿using NetTopologySuite.Geometries;
+using QS.DomainModel.UoW;
+using QS.Osrm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NetTopologySuite.Geometries;
-using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -71,7 +71,7 @@ namespace Vodovoz.Tools.Logistic
 						return result;
 					}
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
-					var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+					var osrmResult = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False);
 					if(osrmResult == null) {
 						result.ErrorMessage = "Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.";
 						return result;

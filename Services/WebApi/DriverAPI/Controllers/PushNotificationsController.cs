@@ -76,6 +76,19 @@ namespace DriverAPI.Controllers
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
+			await SendPushNotificationAsync(orderId);
+		}
+		
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("/api/NotifyOfFastPaymentStatusChanged")]
+		public async Task NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
+		{
+			await SendPushNotificationAsync(orderId);
+		}
+
+		private async Task SendPushNotificationAsync(int orderId)
+		{
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 			if(string.IsNullOrWhiteSpace(token))
 			{

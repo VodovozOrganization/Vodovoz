@@ -43,7 +43,7 @@ namespace Vodovoz.Dialogs.Logistic
 						new EmployeeRepository(),
 						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}

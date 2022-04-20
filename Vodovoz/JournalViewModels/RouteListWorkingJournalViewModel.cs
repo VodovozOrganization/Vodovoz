@@ -326,7 +326,7 @@ namespace Vodovoz.JournalViewModels
 					new EmployeeRepository(),
 					_baseParametersProvider,
 					commonServices.UserService,
-					SingletonErrorReporter.Instance);
+					ErrorReporter.Instance);
 
 			PopupActionsList.Add(new JournalAction(
 				"Закрытие МЛ",
