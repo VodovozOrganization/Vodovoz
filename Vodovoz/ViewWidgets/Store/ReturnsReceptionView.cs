@@ -134,10 +134,14 @@ namespace Vodovoz
 			OrderEquipment orderEquipmentAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteListItem routeListItemToAlias = null;
+			RouteList routeListAlias = null;
+			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
 
 			IList<ReceptionItemNode> returnableItems = new List<ReceptionItemNode>();
 			IList<ReceptionItemNode> returnableEquipment = new List<ReceptionItemNode>();
-			
+			IList<ReceptionItemNode> returnableAdditionalLoadingItems = new List<ReceptionItemNode>();
+
 			ReceptionItemNode returnableTerminal = null;
 			int loadedTerminalAmount = default(int);
 
@@ -172,7 +176,6 @@ namespace Vodovoz
 					.SelectList(list => list
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 						.Select(Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.Int32,
@@ -220,6 +223,36 @@ namespace Vodovoz
 					)
 					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 					.List<ReceptionItemNode>();
+
+				var additionalItemsSubquery = QueryOver.Of(() => orderItemsAlias)
+					.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+					.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
+					.And(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
+					.And(() => orderAlias.IsFastDelivery == true)
+					.Select(Projections.Sum(() => orderItemsAlias.Count));
+
+				returnableAdditionalLoadingItems = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
+					.JoinAlias(() => routeListAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+					.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
+					.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => routeListAlias.Id == RouteList.Id)
+					.SelectList(list => list
+						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+						.Select(Projections.SqlFunction(
+								new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 - ?2"),
+								NHibernateUtil.Int32,
+								Projections.Property(() => additionalLoadingDocumentItemAlias.Amount),
+								Projections.Conditional(
+									Restrictions.IsNotNull(Projections.SubQuery(additionalItemsSubquery)),
+									Projections.SubQuery(additionalItemsSubquery),
+									Projections.Constant(0m)))
+						).WithAlias(() => resultAlias.ExpectedAmount)
+					)
+					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
+					.List<ReceptionItemNode>();
 			}
 
 			foreach(var item in returnableItems) {
@@ -235,6 +268,19 @@ namespace Vodovoz
 			if (returnableTerminal != null && loadedTerminalAmount > 0) {
 				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
 					ReceptionReturnsList.Add(returnableTerminal);
+			}
+
+			foreach(var item in returnableAdditionalLoadingItems)
+			{
+				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
+				{
+					ReceptionReturnsList.Add(item);
+				}
+				else
+				{
+					var existingNomenclature = ReceptionReturnsList.Single(x => x.NomenclatureId == item.NomenclatureId);
+					existingNomenclature.ExpectedAmount += item.ExpectedAmount;
+				}
 			}
 		}
 		
