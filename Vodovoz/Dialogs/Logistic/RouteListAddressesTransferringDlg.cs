@@ -288,7 +288,10 @@ namespace Vodovoz
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach(var item in routeListFrom.Addresses)
 			{
-				items.Add(new RouteListItemNode { RouteListItem = item });
+				if(!item.Order.IsFastDelivery)
+				{
+					items.Add(new RouteListItemNode { RouteListItem = item });
+				}
 			}
 
 			ytreeviewRLFrom.ItemsDataSource = items;

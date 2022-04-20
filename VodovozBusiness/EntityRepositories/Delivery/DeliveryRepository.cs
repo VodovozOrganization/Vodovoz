@@ -267,33 +267,37 @@ namespace Vodovoz.EntityRepositories.Delivery
 					latestAddress = orderedEnRouteAddresses.FirstOrDefault();
 				}
 
-				if(latestAddress == null || maxTimeForFastDelivery - latestAddress.Order.DeliveryPoint.MinutesToUnload < minTimeForNewOrder)
+				if(latestAddress != null)
 				{
-					routeListNodes.Remove(routeListNode);
-					continue;
-				}
 
-				var water19Count = latestAddress.Order.OrderItems
-					.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L && x.Nomenclature.Category == NomenclatureCategory.water)
-					.Sum(x => x.Count);
+					if(maxTimeForFastDelivery - latestAddress.Order.DeliveryPoint.MinutesToUnload < minTimeForNewOrder)
+					{
+						routeListNodes.Remove(routeListNode);
+						continue;
+					}
 
-				var orderItemsSummaryWeight = latestAddress.Order.OrderItems
-					.Where(x => x.Nomenclature.TareVolume != TareVolume.Vol19L || x.Nomenclature.Category != NomenclatureCategory.water)
-					.Sum(x => x.Nomenclature.Weight * x.Count);
+					var water19Count = latestAddress.Order.OrderItems
+						.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L && x.Nomenclature.Category == NomenclatureCategory.water)
+						.Sum(x => x.Count);
 
-				var orderEquipmentsSummaryWeight = latestAddress.Order.OrderEquipments
-					.Where(x => x.Direction == Direction.Deliver)
-					.Sum(x => x.Nomenclature.Weight * x.Count);
+					var orderItemsSummaryWeight = latestAddress.Order.OrderItems
+						.Where(x => x.Nomenclature.TareVolume != TareVolume.Vol19L || x.Nomenclature.Category != NomenclatureCategory.water)
+						.Sum(x => x.Nomenclature.Weight * x.Count);
 
-				var goodsSummaryWeight = orderItemsSummaryWeight + orderEquipmentsSummaryWeight;
+					var orderEquipmentsSummaryWeight = latestAddress.Order.OrderEquipments
+						.Where(x => x.Direction == Direction.Deliver)
+						.Sum(x => x.Nomenclature.Weight * x.Count);
 
-				//Время выгрузки след. заказа:
-				//(Суммарный вес прочих товаров / кол-во кг, которое водитель может унести в одной руке + кол-во 19л) / 2 руки * время выгрузки в 2 руках 2 бутылей или товара
-				var unloadTime = (goodsSummaryWeight / driverGoodWeightLiftPerHand + water19Count) / 2 * driverUnloadTime;
+					var goodsSummaryWeight = orderItemsSummaryWeight + orderEquipmentsSummaryWeight;
 
-				if(maxTimeForFastDelivery - unloadTime < minTimeForNewOrder)
-				{
-					routeListNodes.Remove(routeListNode);
+					//Время выгрузки след. заказа:
+					//(Суммарный вес прочих товаров / кол-во кг, которое водитель может унести в одной руке + кол-во 19л) / 2 руки * время выгрузки в 2 руках 2 бутылей или товара
+					var unloadTime = (goodsSummaryWeight / driverGoodWeightLiftPerHand + water19Count) / 2 * driverUnloadTime;
+
+					if(maxTimeForFastDelivery - unloadTime < minTimeForNewOrder)
+					{
+						routeListNodes.Remove(routeListNode);
+					}
 				}
 			}
 
