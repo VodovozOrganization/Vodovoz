@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using Gamma.Widgets;
+﻿using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -8,8 +6,9 @@ using GMap.NET.MapProviders;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
-using QS.Osm.DTO;
 using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
