@@ -178,7 +178,7 @@ LEFT JOIN nomenclature n ON n.id = scldi.nomenclature_id
 LEFT JOIN measurement_units mu ON mu.id = n.unit_id
 WHERE
 	scldi.car_load_document_id = @id
-	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment')
+	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment', 'PromotionalProducts','Overalls')
 	AND n.online_store_external_id IS NULL
 GROUP BY n.id, scldi.own_type </CommandText>
         <QueryParameters>

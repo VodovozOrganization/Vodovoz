@@ -625,7 +625,7 @@ namespace Vodovoz
 							createroutelistitemsview1.DisableColumnsUpdate = true;
 							newRoute.UpdateAddressOrderInRealRoute(Entity);
 							//Рассчитываем расстояние
-							using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm))
+							using(var calc = new RouteGeometryCalculator())
 							{
 								Entity.RecalculatePlanedDistance(calc);
 							}

@@ -30,6 +30,7 @@ namespace Vodovoz.Domain.FastPayments
 		private FastPaymentStatus _fastPaymentStatus;
 		private decimal _amount;
 		private int _externalId;
+		private Guid _fastPaymnetGuid;
 
 		public virtual int Id { get; set; }
         
@@ -94,6 +95,12 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			get => _phoneNumber;
 			set => SetField(ref _phoneNumber, value);
+		}
+		
+		public virtual Guid FastPaymentGuid
+		{
+			get => _fastPaymnetGuid;
+			set => SetField(ref _fastPaymnetGuid, value);
 		}
 
 		public virtual void SetProcessingStatus()

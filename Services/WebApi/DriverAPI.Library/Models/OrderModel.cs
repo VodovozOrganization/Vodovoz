@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -30,12 +31,15 @@ namespace DriverAPI.Library.Models
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentModel _aPISmsPaymentModel;
 		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
+		private readonly IFastPaymentsServiceAPIHelper _fastPaymentsServiceApiHelper;
 		private readonly IUnitOfWork _unitOfWork;
-
+		private readonly QRPaymentConverter _qrPaymentConverter;
+		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
-		private readonly PaymentType[] _smsNotPayable = new[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
-		public OrderModel(ILogger<OrderModel> logger,
+		public OrderModel(
+			ILogger<OrderModel> logger,
 			IOrderRepository orderRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
@@ -44,8 +48,10 @@ namespace DriverAPI.Library.Models
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentModel aPISmsPaymentModel,
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
-			IUnitOfWork unitOfWork
-			)
+			IFastPaymentsServiceAPIHelper fastPaymentsServiceApiHelper,
+			IUnitOfWork unitOfWork,
+			QRPaymentConverter qrPaymentConverter,
+			IFastPaymentModel fastPaymentModel)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -56,8 +62,11 @@ namespace DriverAPI.Library.Models
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
+			_fastPaymentsServiceApiHelper = fastPaymentsServiceApiHelper ?? throw new ArgumentNullException(nameof(fastPaymentsServiceApiHelper));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-	}
+			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
+			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
+		}
 
 		/// <summary>
 		/// Получение заказа в требуемом формате из заказа программы ДВ (использует функцию ниже)
@@ -68,10 +77,13 @@ namespace DriverAPI.Library.Models
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
-			var paymentStatus = _aPISmsPaymentModel.GetOrderPaymentStatus(orderId);
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
 
-			var order = _orderConverter.ConvertToApiOrder(vodovozOrder, paymentStatus, routeListItem.CreationDate);
+			var order = _orderConverter.convertToAPIOrder(
+				vodovozOrder,
+				routeListItem.CreationDate,
+				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
+				_fastPaymentModel.GetOrderFastPaymentStatus(orderId));
 			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 
 			return order;
@@ -89,10 +101,10 @@ namespace DriverAPI.Library.Models
 
 			foreach(var vodovozOrder in vodovozOrders)
 			{
-				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderPaymentStatus(vodovozOrder.Id);
+				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
+				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
-
-				var order = _orderConverter.ConvertToApiOrder(vodovozOrder, smsPaymentStatus, routeListItem.CreationDate);
+				var order = _orderConverter.convertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
 			}
@@ -155,10 +167,11 @@ namespace DriverAPI.Library.Models
 		/// <returns>APIOrderAdditionalInfo</returns>
 		public OrderAdditionalInfoDto GetAdditionalInfo(Order order)
 		{
-			return new OrderAdditionalInfoDto()
+			return new OrderAdditionalInfoDto
 			{
 				AvailablePaymentTypes = GetAvailableToChangePaymentTypes(order),
-				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentModel.GetOrderPaymentStatus(order.Id)),
+				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentModel.GetOrderSmsPaymentStatus(order.Id)),
+				CanReceiveQRCode = CanReceiveQRCodeForPayment(order),
 			};
 		}
 
@@ -170,8 +183,17 @@ namespace DriverAPI.Library.Models
 		/// <returns></returns>
 		private bool CanSendSmsForPayment(Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
-			return !_smsNotPayable.Contains(order.PaymentType)
-				&& order.OrderSum > 0;
+			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
+		}
+		
+		/// <summary>
+		/// Проверка возможности отправки QR-кода для оплаты
+		/// </summary>
+		/// <param name="order">Заказ программы ДВ</param>
+		/// <returns></returns>
+		private bool CanReceiveQRCodeForPayment(Order order)
+		{
+			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
 		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
@@ -335,6 +357,45 @@ namespace DriverAPI.Library.Models
 			}
 
 			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
+		}
+		
+		public async Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).FirstOrDefault();
+
+			if(vodovozOrder is null || routeList is null || routeListAddress is null)
+			{
+				throw new DataNotFoundException(nameof(orderId), "Не найден или не находится в МЛ");
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute || routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				throw new InvalidOperationException("Нельзя отправлять QR-код на оплату для адреса МЛ не в пути");
+			}
+
+			if(routeList.Driver.Id != driverId)
+			{
+				_logger.LogWarning($"Водитель {driverId} попытался запросить оплату по QR для заказа {orderId} водителя {routeList.Driver.Id}");
+				throw new InvalidOperationException("Нельзя запросить оплату по QR для заказа другого водителя");
+			}
+
+			var qrResponseDto = await _fastPaymentsServiceApiHelper.SendPaymentAsync(orderId);
+			var payByQRResponseDto = _qrPaymentConverter.ConvertToPayByQRResponseDto(qrResponseDto);
+
+			if(payByQRResponseDto.QRPaymentStatus == QRPaymentDTOStatus.Paid)
+			{
+				payByQRResponseDto.AvailablePaymentTypes = Array.Empty<PaymentDtoType>();
+				payByQRResponseDto.CanReceiveQR = false;
+			}
+			else
+			{
+				payByQRResponseDto.AvailablePaymentTypes = GetAvailableToChangePaymentTypes(orderId);
+				payByQRResponseDto.CanReceiveQR = true;
+			}
+
+			return payByQRResponseDto;
 		}
 	}
 }

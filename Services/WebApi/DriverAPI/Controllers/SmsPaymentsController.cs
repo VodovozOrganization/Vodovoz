@@ -59,7 +59,7 @@ namespace DriverAPI.Controllers
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
 		[Route("/api/GetOrderSmsPaymentStatus")]
-		public OrderPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
+		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation($"(orderId: {orderId}) User token: {tokenStr}");
@@ -67,12 +67,12 @@ namespace DriverAPI.Controllers
 			var additionalInfo = _aPIOrderData.GetAdditionalInfo(orderId)
 				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
 
-			var response = new OrderPaymentStatusResponseDto()
+			var response = new OrderSmsPaymentStatusResponseDto()
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
 				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(
-					_aPISmsPaymentData.GetOrderPaymentStatus(orderId)
+					_aPISmsPaymentData.GetOrderSmsPaymentStatus(orderId)
 				)
 			};
 

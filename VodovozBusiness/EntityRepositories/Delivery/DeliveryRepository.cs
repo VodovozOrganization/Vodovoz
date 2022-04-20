@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Osrm;
+using QS.Osrm;
 using QS.Utilities.Spatial;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -17,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Factories;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -204,7 +204,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 				int OrderBySelector(RouteListWithCoordinateNode x)
 				{
-					var proposedRoute = OsrmMain
+					var proposedRoute = OsrmClientFactory.Instance
 						.GetRoute(new List<PointOnEarth> { new PointOnEarth(x.Latitude, x.Longitude), deliveryPoint }).Routes
 						.FirstOrDefault();
 

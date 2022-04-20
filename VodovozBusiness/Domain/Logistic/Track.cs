@@ -5,9 +5,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using QS.DomainModel.Entity;
-using QS.Osm;
-using QS.Osm.Osrm;
+using QS.Osrm;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -137,7 +137,7 @@ namespace Vodovoz.Domain.Logistic
 				logger.Error("В подобранной части города не указаны координаты базы");
 				return null;
 			}
-			var response = OsrmMain.GetRoute(points, false, GeometryOverview.Simplified);
+			var response = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Simplified);
 			if(response.Code == "Ok") {
 				DistanceToBase = (double)response.Routes.First().TotalDistanceKm;
 			} else
