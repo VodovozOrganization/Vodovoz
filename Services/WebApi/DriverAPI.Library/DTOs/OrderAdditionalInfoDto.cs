@@ -6,5 +6,6 @@ namespace DriverAPI.Library.DTOs
 	{
 		public IEnumerable<PaymentDtoType> AvailablePaymentTypes { get; set; }
 		public bool CanSendSms { get; set; }
+		public bool CanReceiveQRCode { get; set; }
 	}
 }

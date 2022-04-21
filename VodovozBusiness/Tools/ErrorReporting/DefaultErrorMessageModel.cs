@@ -23,7 +23,7 @@ namespace Vodovoz.Tools
 		IUnitOfWorkFactory unitOfWorkFactory;
 
 		public override bool CanSendErrorReportManually => !String.IsNullOrWhiteSpace(Description);
-		public override bool CanSendErrorReportAutomatically => errorReporter.CanSendAutomatically;
+		public override bool CanSendErrorReportAutomatically => errorReporter.AutomaticallySendEnabled;
 		public override string CanSendManuallyText => "Для отправки необходимо ввести описание";
 		public override bool IsEmailValid => new Regex(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$").IsMatch(Email ?? "");
 
@@ -39,11 +39,19 @@ namespace Vodovoz.Tools
 		public override void SendErrorReport()
 		{
 			if(ReportSent)
+			{
 				return;
-			if(!CanSendErrorReportManually && ErrorReportType != ErrorReportType.Automatic)
+			}
+
+			if(!CanSendErrorReportManually && ErrorReportType != ReportType.Automatic)
+			{
 				return;
-			if(!CanSendErrorReportAutomatically && ErrorReportType == ErrorReportType.Automatic)
+			}
+
+			if(!CanSendErrorReportAutomatically && ErrorReportType == ReportType.Automatic)
+			{
 				return;
+			}
 
 			UserBase user = null;
 			try {
@@ -56,13 +64,25 @@ namespace Vodovoz.Tools
 				AddDescription($"Не удалось автоматически получить пользователя ({ex.Message})"); 
 			}
 
-			ReportSent = errorReporter.SendErrorReport(
-				Exceptions.ToArray(),
-				ErrorReportType,
-				Description,
-				Email,
-				user
-			);
+			if(ErrorReportType == ReportType.Automatic)
+			{
+				ReportSent = errorReporter.AutomaticSendErrorReport(
+					Description,
+					Email,
+					user,
+					Exceptions.ToArray()
+				);
+			}
+			else
+			{
+				ReportSent = errorReporter.ManuallySendErrorReport(
+					Description,
+					Email,
+					user,
+					Exceptions.ToArray()
+				);
+			}
+			
 		}
 	}
 }

@@ -2,12 +2,13 @@
 using NSubstitute;
 using NUnit.Framework;
 using QS.ErrorReporting;
+using QS.Project.Domain;
 using QS.Project.Versioning;
 using Vodovoz.Tools;
 
 namespace VodovozBusinessTests.ErrorReporting
 {
-	[TestFixture(TestOf = typeof(SingletonErrorReporter))]
+	[TestFixture(TestOf = typeof(ErrorReporter))]
 	public class SingletonErrorReporterTest
 	{
 		[Test(Description = "Проверяем что действительно не отправим автоматический отчет, если автоматическая отправка отключена в настройках.")]
@@ -16,21 +17,23 @@ namespace VodovozBusinessTests.ErrorReporting
 			var sendService = Substitute.For<IErrorReportSender>();
 			var appInfo = Substitute.For<IApplicationInfo>();
 			appInfo.ProductName.Returns("Test");
+			appInfo.Version.Returns(new Version("1.1.1.1"));
+			var logService = Substitute.For<ILogService>();
+			logService.GetLog(Arg.Any<int>()).Returns("");
 
-			var assembly = System.Reflection.Assembly.GetAssembly(typeof(SingletonErrorReporter));
-			var name = assembly.GetName();
-			var version = name.Version;
-			appInfo.Version.Returns(version);
+			ErrorReporter errorReporter = new ErrorReporter(sendService, appInfo, logService);
+			errorReporter.DatabaseName = "DBName";
+			errorReporter.AutomaticallySendEnabled = false;
+			errorReporter.SendedLogRowCount = 0;
 
-			SingletonErrorReporter.Initialize(sendService, appInfo, null, "DBName", false, null);
-			SingletonErrorReporter.Instance.SendErrorReport(new Exception[] { }, ErrorReportType.Automatic, null, null , null);
-			sendService.DidNotReceive().SubmitErrorReport(Arg.Any<ErrorReport>());
+			errorReporter.AutomaticSendErrorReport("", "", null, new Exception());
+			sendService.DidNotReceive().SubmitErrorReport(Arg.Any<SubmitErrorRequest>());
 
 			//Для теста самого теста проверяем что при тех же настройках но разрешенной отправки отчет всетаки отправится.
 			//Чтобы исключить возможность что он не отправляется по другой причине.
-			SingletonErrorReporter.Initialize(sendService, appInfo, null, "DBName", true, null);
-			SingletonErrorReporter.Instance.SendErrorReport(new Exception[] { }, ErrorReportType.Automatic, null, null, null);
-			sendService.Received().SubmitErrorReport(Arg.Any<ErrorReport>());
+			errorReporter.AutomaticallySendEnabled = true;
+			errorReporter.AutomaticSendErrorReport("", "", null, new Exception());
+			sendService.Received().SubmitErrorReport(Arg.Any<SubmitErrorRequest>());
 		}
 	}
 }

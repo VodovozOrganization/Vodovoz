@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -33,6 +34,13 @@ namespace Vodovoz.EntityRepositories.FastPayments
 		{
 			return GetFastPaymentByTicketQuery(ticket)
 				.GetExecutableQueryOver(uow.Session)
+				.SingleOrDefault();
+		}
+		
+		public FastPayment GetFastPaymentByGuid(IUnitOfWork uow, Guid fastPaymentGuid)
+		{
+			return uow.Session.QueryOver<FastPayment>()
+				.Where(fp => fp.FastPaymentGuid == fastPaymentGuid)
 				.SingleOrDefault();
 		}
 		

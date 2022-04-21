@@ -55,8 +55,7 @@ namespace FastPaymentsAPI.Library.Managers
 
 						using(var scope = _serviceScopeFactory.CreateScope())
 						{
-							var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
-							await UpdateFastPaymentStatusAsync(processingFastPayments, orderRequestManager, uow);
+							await UpdateFastPaymentStatusAsync(processingFastPayments, scope, uow);
 						}
 					}
 
@@ -78,28 +77,33 @@ namespace FastPaymentsAPI.Library.Managers
 
 		private async Task UpdateFastPaymentStatusAsync(
 			IEnumerable<FastPayment> processingFastPayments,
-			IOrderRequestManager orderRequestManager,
+			IServiceScope scope,
 			IUnitOfWork uow)
 		{
+			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
 			foreach(var payment in processingFastPayments)
 			{
 				var response = await orderRequestManager.GetOrderInfo(payment.Ticket);
 
 				if((int)response.Status == (int)payment.FastPaymentStatus)
 				{
-					if(!_fastPaymentManager.IsTimeToCancelPayment(
-							payment.CreationDate, !string.IsNullOrWhiteSpace(payment.QRPngBase64)))
+					var fastPaymentWithQR = !string.IsNullOrWhiteSpace(payment.QRPngBase64);
+					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQR))
 					{
 						continue;
 					}
 
-					var cancelPaymentResponse = await orderRequestManager.CancelPayment(payment.Ticket);
-
-					if(cancelPaymentResponse.ResponseCode != 0)
+					//Отправляем запрос на отмену сессии в банк только для быстрых платежей не по QR-коду
+					if(!fastPaymentWithQR)
 					{
-						_logger.LogError(
-							$"Не удалось отменить сессию оплаты {payment.Ticket}. Код ответа: {cancelPaymentResponse.ResponseCode}");
-						continue;
+						var cancelPaymentResponse = await orderRequestManager.CancelPayment(payment.Ticket);
+						
+						if(cancelPaymentResponse.ResponseCode != 0)
+						{
+							_logger.LogError(
+								$"Не удалось отменить сессию оплаты {payment.Ticket}. Код ответа: {cancelPaymentResponse.ResponseCode}");
+							continue;
+						}
 					}
 
 					_logger.LogInformation($"Отменяем платеж с сессией: {payment.Ticket}");

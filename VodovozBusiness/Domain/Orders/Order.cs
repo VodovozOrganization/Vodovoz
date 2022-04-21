@@ -742,6 +742,14 @@ namespace Vodovoz.Domain.Orders
 			get => paymentBySms;
 			set => SetField(ref paymentBySms, value, () => PaymentBySms);
 		}
+		
+		bool _paymentByQr;
+		[Display(Name = "Оплата по QR")]
+		public virtual bool PaymentByQr
+		{
+			get => _paymentByQr;
+			set => SetField(ref _paymentByQr, value);
+		}
 
 		ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]
@@ -1615,8 +1623,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this,
-				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
+			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			if(counterpartyContract == null)
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);

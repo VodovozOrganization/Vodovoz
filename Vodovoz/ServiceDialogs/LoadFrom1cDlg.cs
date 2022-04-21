@@ -82,7 +82,7 @@ namespace Vodovoz
 						new EmployeeRepository(),
 						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}

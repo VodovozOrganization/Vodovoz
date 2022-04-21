@@ -43,7 +43,7 @@ namespace FastPaymentsAPI.Library.Managers
 
 			if(fastPaymentWithQR)
 			{
-				if(elapsedTime > _fastPaymentParametersProvider.GetQRLifetime - 2)
+				if(elapsedTime > _fastPaymentParametersProvider.GetQRLifetime)
 				{
 					return true;
 				}

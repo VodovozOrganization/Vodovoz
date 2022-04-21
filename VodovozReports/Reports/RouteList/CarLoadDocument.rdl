@@ -11,34 +11,73 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    nomenclature.name AS nomenclature,
-    nomenclature.category,
-    measurement_units.name AS unit,
-    measurement_units.digits AS digits,
-    nomenclature.tare_volume,
-    CASE nomenclature.tare_volume
-        WHEN 'Vol19L' THEN 0
-        WHEN 'Vol6L' THEN 1
-        WHEN 'Vol600ml' THEN 2
-        ELSE 3
-        END AS clmn_for_sorting,
-    SUM(order_items.count) AS amount
+        <CommandText>SELECT 
+	nom_id,
+	nomenclature,
+	category,
+	unit,
+	digits,
+	tare_volume,
+	CASE tare_volume
+		WHEN 'Vol19L' THEN 0
+		WHEN 'Vol6L' THEN 1
+		WHEN 'Vol600ml' THEN 2
+		ELSE 3
+	END AS clmn_for_sorting,
+	SUM(amount) as amount
 FROM
-    route_list_addresses
-        LEFT JOIN
-    order_items ON route_list_addresses.order_id = order_items.order_id
-        LEFT JOIN
-    nomenclature ON order_items.nomenclature_id = nomenclature.id
-        LEFT JOIN
-    measurement_units ON measurement_units.id = nomenclature.unit_id
-WHERE
-        route_list_addresses.route_list_id = @id
-  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
-  AND nomenclature.online_store_id IS NULL
-GROUP BY nomenclature.id
+(
+	SELECT
+		nomenclature.id AS nom_id,
+	    nomenclature.name AS nomenclature,
+	    nomenclature.category,
+	    measurement_units.name AS unit,
+	    measurement_units.digits AS digits,
+	    nomenclature.tare_volume,
+	    SUM(order_items.count) AS amount
+	FROM
+	    route_list_addresses
+	        LEFT JOIN
+	    order_items ON route_list_addresses.order_id = order_items.order_id
+	        LEFT JOIN
+	    nomenclature ON order_items.nomenclature_id = nomenclature.id
+	        LEFT JOIN
+	    measurement_units ON measurement_units.id = nomenclature.unit_id
+	WHERE
+	  route_list_addresses.route_list_id = @id
+	  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
+	  AND nomenclature.online_store_id IS NULL
+	GROUP BY nom_id
+	
+UNION ALL 
+	
+	SELECT 
+		aldi.nomenclature_id AS nom_id,
+		n.name,
+		n.category,  
+	    mu.name AS unit,
+	    mu.digits AS digits,
+	    n.tare_volume,
+	    SUM(aldi.amount) AS amount
+	FROM
+		additional_loading_document_items aldi 
+	INNER JOIN
+		additional_loading_documents ald ON aldi.additional_loading_document_id =ald.id 
+	INNER JOIN
+		route_lists rl ON rl.additional_loading_document_id = ald.id 
+	INNER JOIN
+		nomenclature n ON aldi.nomenclature_id = n.id
+	INNER JOIN
+		measurement_units mu ON mu.id = n.unit_id
+	WHERE
+		rl.id = @id
+		AND n.category NOT IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
+	GROUP BY nom_id
+) t
+
+GROUP BY nom_id, nomenclature, category, unit, digits, tare_volume, clmn_for_sorting
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
@@ -46,7 +85,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -146,46 +185,75 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Equipment">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>#OrderItems
-SELECT 
-	n.official_name,
-	SUM(oi.count) as count,
-	oi.order_id
-FROM
-	order_items oi
-LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
-LEFT JOIN route_list_addresses rla ON rla.order_id = oi.order_id
-WHERE
-	rla.route_list_id = @id
-	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-	AND n.online_store_id IS NULL
-GROUP BY n.id
-#Equipment
-UNION ALL
+
 SELECT
-	CASE oe.own_type
-		WHEN 'None'  THEN n.official_name
-		WHEN 'Client'THEN CONCAT(n.official_name, ' (Клиент)')
-		WHEN 'Duty'	 THEN CONCAT(n.official_name, ' (Дежурный)')
-		WHEN 'Rent'	 THEN CONCAT(n.official_name, ' (Аренда)')
-		ELSE n.official_name
-	END as official_name,
-	SUM(oe.count) as count,
-	oe.order_id
+	nom_id,
+	official_name,
+	SUM(count) AS count
 FROM
-	order_equipment oe
-LEFT JOIN nomenclature n ON n.id = oe.nomenclature_id
-LEFT JOIN route_list_addresses rla ON rla.order_id = oe.order_id
-WHERE
-	rla.route_list_id = @id
-	AND n.online_store_id IS NULL
-	AND oe.direction = 'Deliver'
-	AND (rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
-GROUP BY oe.own_type, n.id
+(
+	SELECT
+		n.id as nom_id,
+		n.official_name,
+		SUM(oi.count) as count
+	FROM
+		order_items oi
+	LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
+	LEFT JOIN route_list_addresses rla ON rla.order_id = oi.order_id
+	WHERE
+		rla.route_list_id = @id
+		AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle','PromotionalProducts','Overalls')
+		AND n.online_store_id IS NULL
+	GROUP BY nom_id
+	
+	#Equipment
+	UNION ALL
+	SELECT
+		n.id as nom_id,
+		CASE oe.own_type
+			WHEN 'None'  THEN n.official_name
+			WHEN 'Client'THEN CONCAT(n.official_name, ' (Клиент)')
+			WHEN 'Duty'	 THEN CONCAT(n.official_name, ' (Дежурный)')
+			WHEN 'Rent'	 THEN CONCAT(n.official_name, ' (Аренда)')
+			ELSE n.official_name
+		END as official_name,
+		SUM(oe.count) as count
+	FROM
+		order_equipment oe
+	LEFT JOIN nomenclature n ON n.id = oe.nomenclature_id
+	LEFT JOIN route_list_addresses rla ON rla.order_id = oe.order_id
+	WHERE
+		rla.route_list_id = @id
+		AND n.online_store_id IS NULL
+		AND oe.direction = 'Deliver'
+		AND (rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
+	GROUP BY oe.own_type, nom_id
+	
+	UNION ALL 
+	#AdditionalLoading
+	SELECT
+		n.id as nom_id,
+		n.official_name,
+		SUM(aldi.amount) as count
+	FROM
+		additional_loading_document_items aldi 
+	INNER JOIN
+		additional_loading_documents ald ON aldi.additional_loading_document_id =ald.id 
+	INNER JOIN
+		route_lists rl ON rl.additional_loading_document_id = ald.id 
+	INNER JOIN
+		nomenclature n ON aldi.nomenclature_id = n.id
+	WHERE
+		rl.id = @id
+		AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
+		AND n.online_store_id IS NULL
+	GROUP BY nom_id
+) t
 
-
+GROUP BY nom_id
 
 </CommandText>
         <QueryParameters>
@@ -194,7 +262,7 @@ GROUP BY oe.own_type, n.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
@@ -202,10 +270,6 @@ GROUP BY oe.own_type, n.id
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
-          <TypeName>System.UInt32</TypeName>
         </Field>
       </Fields>
     </DataSet>
