@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using QS.Project.Services;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
@@ -18,20 +19,30 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureDlg()
 		{
 
-			yentryPromotionalSetName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			yentryPromotionalSetName.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+			yentryPromotionalSetName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+											.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+											.InitializeFromSource();
 
-			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			yChkIsArchive.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+								 .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+								 .InitializeFromSource();
 
-			yentryDiscountReason.Binding.AddBinding(ViewModel.Entity, e => e.DiscountReasonInfo, w => w.Text).InitializeFromSource();
-			yentryDiscountReason.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+			yentryDiscountReason.Binding.AddBinding(ViewModel.Entity, e => e.DiscountReasonInfo, w => w.Text)
+										.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+										.InitializeFromSource();
 
-			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active).InitializeFromSource();
-			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active)
+										  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+										  .InitializeFromSource();
 
-			ycheckCanBeAddedWithOtherPromoSets.Binding.AddBinding(ViewModel.Entity, e => e.CanBeAddedWithOtherPromoSets, w => w.Active).InitializeFromSource();
-			ycheckCanBeAddedWithOtherPromoSets.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+			ycheckCanBeAddedWithOtherPromoSets.Binding.AddBinding(ViewModel.Entity, e => e.CanBeAddedWithOtherPromoSets, w => w.Active)
+													  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+													  .InitializeFromSource();
+
+			ycheckForTheFirstOrderOnlyToTheAddress.Binding.AddBinding(ViewModel.Entity, e => e.ForTheFirstOrderOnlyToTheAddress, w => w.Active)
+														  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+														  .InitializeFromSource();
+			ycheckForTheFirstOrderOnlyToTheAddress.Visible = ycheckForTheFirstOrderOnlyToTheAddress.Sensitive = ViewModel.CanChangeType;
 
 			widgetcontainerview.Binding.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 

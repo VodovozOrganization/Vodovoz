@@ -25,26 +25,26 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Id { get; set; }
 
-		string name;
+		string _name;
 		[Display(Name = "Название набора")]
 		public virtual string Name {
-			get => name;
-			set => SetField(ref name, value, () => Name);
+			get => _name;
+			set => SetField(ref _name, value, () => Name);
 		}
 
-		DateTime createDate;
+		DateTime _createDate;
 		[Display(Name = "Дата создания")]
 		[IgnoreHistoryTrace]
 		public virtual DateTime CreateDate {
-			get => createDate;
-			set => SetField(ref createDate, value, () => CreateDate);
+			get => _createDate;
+			set => SetField(ref _createDate, value, () => CreateDate);
 		}
 
-		bool isArchive;
+		bool _isArchive;
 		[Display(Name = "В архиве?")]
 		public virtual bool IsArchive {
-			get => isArchive;
-			set => SetField(ref isArchive, value, () => IsArchive);
+			get => _isArchive;
+			set => SetField(ref _isArchive, value, () => IsArchive);
 		}
 
 		private string _discountReasonInfo;
@@ -55,51 +55,59 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discountReasonInfo, value);
 		}
 
-		bool canEditNomenclatureCount;
+		bool _canEditNomenclatureCount;
 		[Display(Name = "Можно менять количество номенклатур")]
 		public virtual bool CanEditNomenclatureCount {
-			get => canEditNomenclatureCount;
-			set => SetField(ref canEditNomenclatureCount, value, () => CanEditNomenclatureCount);
+			get => _canEditNomenclatureCount;
+			set => SetField(ref _canEditNomenclatureCount, value, () => CanEditNomenclatureCount);
 		}
 
-		bool canBeAddedWithOtherPromoSets;
+		bool _canBeAddedWithOtherPromoSets;
 		[Display(Name = "Может быть добавлен вместе с другими промонаборами")]
 		public virtual bool CanBeAddedWithOtherPromoSets {
-			get => canBeAddedWithOtherPromoSets;
-			set => SetField(ref canBeAddedWithOtherPromoSets, value, () => CanBeAddedWithOtherPromoSets);
+			get => _canBeAddedWithOtherPromoSets;
+			set => SetField(ref _canBeAddedWithOtherPromoSets, value, () => CanBeAddedWithOtherPromoSets);
 		}
 
-		IList<PromotionalSetItem> promotionalSetItems = new List<PromotionalSetItem>();
+		bool _forTheFirstOrderOnlyToTheAddress;
+		[Display(Name = "Только для первого заказа на адрес")]
+		public virtual bool ForTheFirstOrderOnlyToTheAddress
+		{
+			get => _forTheFirstOrderOnlyToTheAddress;
+			set => SetField(ref _forTheFirstOrderOnlyToTheAddress, value);
+		}
+
+		IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
 		[Display(Name = "Строки рекламного набора")]
 		public virtual IList<PromotionalSetItem> PromotionalSetItems {
-			get => promotionalSetItems;
-			set => SetField(ref promotionalSetItems, value, () => PromotionalSetItems);
+			get => _promotionalSetItems;
+			set => SetField(ref _promotionalSetItems, value, () => PromotionalSetItems);
 		}
 
-		GenericObservableList<PromotionalSetItem> observablePromotionalSetItems;
+		GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<PromotionalSetItem> ObservablePromotionalSetItems {
 			get {
-				if(observablePromotionalSetItems == null)
-					observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(promotionalSetItems);
-				return observablePromotionalSetItems;
+				if(_observablePromotionalSetItems == null)
+					_observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(_promotionalSetItems);
+				return _observablePromotionalSetItems;
 			}
 		}
 
-		IList<Order> orders = new List<Order>();
+		IList<Order> _orders = new List<Order>();
 		[Display(Name = "Использован для заказов")]
 		public virtual IList<Order> Orders {
-			get => orders;
-			set => SetField(ref orders, value, () => Orders);
+			get => _orders;
+			set => SetField(ref _orders, value, () => Orders);
 		}
 
-		GenericObservableList<Order> observableOrders;
+		GenericObservableList<Order> _observableOrders;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Order> ObservableOrders {
 			get {
-				if(observableOrders == null)
-					observableOrders = new GenericObservableList<Order>(Orders);
-				return observableOrders;
+				if(_observableOrders == null)
+					_observableOrders = new GenericObservableList<Order>(Orders);
+				return _observableOrders;
 			}
 		}
 
@@ -142,19 +150,19 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		IList<PromotionalSetActionBase> promotionalSetActions = new List<PromotionalSetActionBase>();
+		IList<PromotionalSetActionBase> _promotionalSetActions = new List<PromotionalSetActionBase>();
 		public virtual IList<PromotionalSetActionBase> PromotionalSetActions {
-			get => promotionalSetActions;
-			set => SetField(ref promotionalSetActions, value, () => PromotionalSetActions);
+			get => _promotionalSetActions;
+			set => SetField(ref _promotionalSetActions, value, () => PromotionalSetActions);
 		}
 
-		GenericObservableList<PromotionalSetActionBase> observablePromotionalSetActions;
+		GenericObservableList<PromotionalSetActionBase> _observablePromotionalSetActions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<PromotionalSetActionBase> ObservablePromotionalSetActions {
 			get {
-				if(observablePromotionalSetActions == null)
-					observablePromotionalSetActions = new GenericObservableList<PromotionalSetActionBase>(promotionalSetActions);
-				return observablePromotionalSetActions;
+				if(_observablePromotionalSetActions == null)
+					_observablePromotionalSetActions = new GenericObservableList<PromotionalSetActionBase>(_promotionalSetActions);
+				return _observablePromotionalSetActions;
 			}
 		}
 
