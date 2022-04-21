@@ -512,7 +512,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 				node.UnClosedFastDeliveries.ParameterValue = countUnclosedFastDeliveryAddresses;
 				if(countUnclosedFastDeliveryAddresses < maxFastOrdersPerSpecificTime)
 				{
-					
 					node.UnClosedFastDeliveries.IsValidParameter = true;
 				}
 				else
@@ -546,10 +545,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 				if(latestAddress != null)
 				{
-					var nededTime1 = maxTimeForFastDelivery - latestAddress.Order.DeliveryPoint.MinutesToUnload;
-					if(nededTime1 < minTimeForNewOrder)
+					var neededTime1 = maxTimeForFastDelivery - latestAddress.Order.DeliveryPoint.MinutesToUnload;
+					if(neededTime1 < minTimeForNewOrder)
 					{
-						routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, nededTime1, 0);
+						routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime1, 0);
 						routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = false;
 						routeListNode.IsValidRLToFastDelivery = false;
 						continue;

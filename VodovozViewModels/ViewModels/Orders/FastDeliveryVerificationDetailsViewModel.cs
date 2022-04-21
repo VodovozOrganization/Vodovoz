@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-		private readonly VerificationData _verificationData;
+		private readonly FastDeliveryVerificationData _fastDeliveryVerificationData;
 		private string _message;
 		
 		public FastDeliveryVerificationDetailsViewModel(
@@ -25,15 +25,15 @@ namespace Vodovoz.ViewModels.Orders
 			IDeliveryRepository deliveryRepository,
 			INavigationManager navigationManager,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			VerificationData verificationData) : base(navigationManager)
+			FastDeliveryVerificationData fastDeliveryVerificationData) : base(navigationManager)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_verificationData = verificationData ?? throw new ArgumentNullException(nameof(verificationData));
+			_fastDeliveryVerificationData = fastDeliveryVerificationData ?? throw new ArgumentNullException(nameof(fastDeliveryVerificationData));
 			WindowPosition = WindowGravity.None;
-			DetailsTitle = $"Детализация по заказу№{verificationData.OrderId}, адрес: {verificationData.Address}";
+			DetailsTitle = $"Детализация по заказу№{fastDeliveryVerificationData.OrderId}, адрес: {fastDeliveryVerificationData.Address}";
 			UpdateNodes();
 		}
 
@@ -50,8 +50,8 @@ namespace Vodovoz.ViewModels.Orders
 		private void UpdateNodes()
 		{
 			var fastOrders = _deliveryRepository.GetRouteListsForFastDelivery(
-				_uow, _verificationData.Latitude, _verificationData.Longitude, _deliveryRulesParametersProvider,
-				_verificationData.NomenclatureNodes);
+				_uow, _fastDeliveryVerificationData.Latitude, _fastDeliveryVerificationData.Longitude, _deliveryRulesParametersProvider,
+				_fastDeliveryVerificationData.NomenclatureNodes);
 
 			foreach(var node in fastOrders)
 			{
@@ -64,9 +64,9 @@ namespace Vodovoz.ViewModels.Orders
 		}
 	}
 
-	public class VerificationData
+	public class FastDeliveryVerificationData
 	{
-		public VerificationData(
+		public FastDeliveryVerificationData(
 			int orderId,
 			string address,
 			double latitude,

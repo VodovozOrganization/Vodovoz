@@ -856,13 +856,13 @@ namespace Vodovoz
 			}
 
 			var verificationData =
-				new VerificationData(
+				new FastDeliveryVerificationData(
 					Entity.Id,
 					Entity.DeliveryPoint.ShortAddress,
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
 					Entity.GetAllGoodsToDeliver());
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, VerificationData>(
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
 				null, UoW, verificationData);
 		}
 
