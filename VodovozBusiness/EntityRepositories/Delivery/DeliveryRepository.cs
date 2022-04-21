@@ -446,7 +446,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			{
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
-				var proposedRoute = OsrmMain
+				var proposedRoute = OsrmClientFactory.Instance
 					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }).Routes
 					.FirstOrDefault();
 				
