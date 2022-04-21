@@ -394,9 +394,11 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var driverGoodWeightLiftPerHand = deliveryRulesParametersProvider.DriverGoodWeightLiftPerHandInKg;
 			var maxFastOrdersPerSpecificTime = deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
 
+			var maxTimeForFastDeliveryTimespan = deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+			
 			//Переводим всё в минуты
 			var trackPointTimeOffset = (int)deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes;
-			var maxTimeForFastDelivery = (int)deliveryRulesParametersProvider.MaxTimeForFastDelivery.TotalMinutes;
+			var maxTimeForFastDelivery = (int)maxTimeForFastDeliveryTimespan.TotalMinutes;
 			var minTimeForNewOrder = (int)deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder.TotalMinutes;
 			var driverUnloadTime = (int)deliveryRulesParametersProvider.DriverUnloadTime.TotalMinutes;
 			var specificTimeForFastOrdersCount = (int)deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
@@ -578,12 +580,16 @@ namespace Vodovoz.EntityRepositories.Delivery
 						routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = false;
 						routeListNode.IsValidRLToFastDelivery = false;
 					}
-
 					else
 					{
 						routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime2, 0);
 						routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
 					}
+				}
+				else
+				{
+					routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = maxTimeForFastDeliveryTimespan;
+					routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
 				}
 			}
 
@@ -708,7 +714,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public FastDeliveryVerificationParameter<TimeSpan> RemainingTimeForShipmentNewOrder { get; set; }
 			= new FastDeliveryVerificationParameter<TimeSpan>
 			{
-				IsValidParameter = true,
+				IsValidParameter = false,
 				ParameterValue = default
 			};
 		public FastDeliveryVerificationParameter<TimeSpan> LastCoordinateTime { get; set; }
