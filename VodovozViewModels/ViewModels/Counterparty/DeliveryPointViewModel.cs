@@ -20,6 +20,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -47,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
@@ -232,6 +234,18 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				{
 					return false;
 				}
+
+				if(Entity.Counterparty.PersonType == PersonType.natural
+					&& ((Entity.RoomType == RoomType.Office) || (Entity.RoomType == RoomType.Store))
+					&& !_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers( UoW, Entity ))
+				{
+					var createDeliveryPoint = AskQuestion( $"Уточните с клиентом: по данному адресу находится юр.лицо. Вы уверены, что хотите создать точку доставки?" );
+					if(!createDeliveryPoint)
+					{
+						return false;
+					}
+				}
+
 				if (UoW.IsNew)
 				{
 					ShowAddressesWithFixedPrices();

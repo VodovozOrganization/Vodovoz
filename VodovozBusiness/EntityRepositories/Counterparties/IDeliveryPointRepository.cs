@@ -25,5 +25,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IList<DeliveryPoint> GetDeliveryPointsByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 
 		IEnumerable<string> GetAddressesWithFixedPrices(int counterpartyId);
+
+		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
 	}
 }

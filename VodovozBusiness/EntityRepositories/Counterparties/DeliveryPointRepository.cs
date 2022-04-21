@@ -116,5 +116,22 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			return result;
 		}
+
+		public bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint )
+		{
+			DeliveryPoint deliveryPointAlias = null;
+			Counterparty counterpartyAlias = null;
+			var result = uow.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias)
+									.JoinAlias(() => deliveryPointAlias.Counterparty, () => counterpartyAlias )
+									.Where( () => deliveryPointAlias.City.IsLike( deliveryPoint.City, MatchMode.Anywhere )
+											   && deliveryPointAlias.Street.IsLike( deliveryPoint.Street, MatchMode.Anywhere )
+											   && deliveryPointAlias.Building.IsLike( deliveryPoint.Building, MatchMode.Anywhere )
+											   && deliveryPointAlias.Room.IsLike( deliveryPoint.Room, MatchMode.Anywhere )
+											   && counterpartyAlias.PersonType == PersonType.legal
+											   )
+									.List<DeliveryPoint>();
+
+			return result.Count() == 0;
+		}
 	}
 }

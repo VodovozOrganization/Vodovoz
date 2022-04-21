@@ -1502,6 +1502,14 @@ namespace Vodovoz
 				}
 			}
 
+			if(Entity.CanUsedPromo( _promotionalSetRepository ))
+			{
+				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
+								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
+				MessageDialogHelper.RunWarningDialog( message );
+				return false;
+			}
+
 			PrepareSendBillInformation();
 
 			if(_emailAddressForBill == null 
