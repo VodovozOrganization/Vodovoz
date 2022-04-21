@@ -49,7 +49,7 @@ namespace Vodovoz.Views.Orders
 					.AddSetter((c, n) =>
 						c.CellBackgroundGdk = n.RemainingTimeForShipmentNewOrder.IsValidParameter ? _colorWhite : _colorLightRed)
 				.AddColumn("Последние\nкоординаты")
-					.AddTextRenderer(n => n.LastCoordinateTime.ParameterValue.ToString())
+					.AddTextRenderer(n => n.LastCoordinateTime.ParameterValue.ToString(@"hh\:mm\:ss"))
 					.AddSetter((c, n) =>
 						c.CellBackgroundGdk = n.LastCoordinateTime.IsValidParameter ? _colorWhite : _colorLightRed)
 				.AddColumn("Расстояние до\nклиента по\nпрямой, км")
