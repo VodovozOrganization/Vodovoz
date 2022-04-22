@@ -112,6 +112,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 				if (cashSubdivisions.Contains(warehouse.OwningSubdivision))
 				{
 					terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList, warehouse);
+					if(routeList.AdditionalLoadingDocument != null)
+					{
+						result.AddRange(GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(uow, routeList).ToList());
+						result.AddRange(GetEquipmentsInRLWithSpecialRequirements(uow, routeList).ToList());
+					}
 				}
 				else
 				{
