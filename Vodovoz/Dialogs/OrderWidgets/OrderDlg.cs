@@ -854,6 +854,12 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
 				return;
 			}
+			
+			if(Entity.Total19LBottlesToDeliver == 0)
+			{
+				MessageDialogHelper.RunWarningDialog("В заказе нет 19л воды!!!");
+				return;
+			}
 
 			var verificationData =
 				new FastDeliveryVerificationData(
