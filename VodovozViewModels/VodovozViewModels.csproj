@@ -431,6 +431,7 @@
     <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
