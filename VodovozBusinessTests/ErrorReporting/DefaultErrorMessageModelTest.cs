@@ -18,19 +18,24 @@ namespace VodovozBusinessTests.ErrorReporting
 			interactive.ShowMessage(Arg.Any<ImportanceLevel>(), Arg.Any<string>());
 
 			var reporter = Substitute.For<IErrorReporter>();
-			reporter.CanSendAutomatically.Returns(true);
-			reporter.SendErrorReport(
-				Arg.Any<Exception[]>(), Arg.Any<ErrorReportType>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserBase>())
+			reporter.AutomaticallySendEnabled.Returns(true);
+			reporter.AutomaticSendErrorReport(
+				Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserBase>(), Arg.Any<Exception[]>())
+				.Returns(true);
+			reporter.ManuallySendErrorReport(
+				Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserBase>(), Arg.Any<Exception[]>())
 				.Returns(true);
 			var model = new DefaultErrorMessageModel(reporter, null, null);
 
+
 			model.Description = "Test";
-			model.ErrorReportType = ErrorReportType.User;
-			model.SendErrorReport();
-			model.ErrorReportType = ErrorReportType.Automatic;
+			model.ErrorReportType = ReportType.User;
 			model.SendErrorReport();
 
-			reporter.Received(1).SendErrorReport(Arg.Any<Exception[]>(), Arg.Any<ErrorReportType>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserBase>());
+			model.ErrorReportType = ReportType.Automatic;
+			model.SendErrorReport();
+			reporter.DidNotReceive().AutomaticSendErrorReport(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserBase>(), Arg.Any<Exception[]>());
+
 		}
 	}
 }

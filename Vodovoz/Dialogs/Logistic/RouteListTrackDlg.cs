@@ -8,6 +8,8 @@ using GMap.NET.MapProviders;
 using Pango;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Services;
+using QS.Tdi;
 using QS.Utilities;
 using QSOrmProject;
 using Vodovoz.Additions.Logistic;
@@ -20,6 +22,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -42,9 +46,11 @@ namespace Vodovoz
 		private Gtk.Window mapWindow;
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 		private readonly TimeSpan _fastDeliveryTime;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
 
 		public RouteListTrackDlg(IEmployeeRepository employeeRepository, IChatRepository chatRepository, ITrackRepository trackRepository,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
@@ -52,6 +58,8 @@ namespace Vodovoz
 			_fastDeliveryTime =
 				(deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider)))
 				.MaxTimeForFastDelivery;
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Build();
 			TabName = "Мониторинг";
 			yTreeViewDrivers.RepresentationModel = new WorkingDriversVM(uow);
@@ -437,6 +445,12 @@ namespace Vodovoz
 				yTreeViewDrivers.RepresentationModel.UpdateNodes ();
 			}
 			sendDlg.Destroy ();
+		}
+
+		protected void OnButtonTrackPointsClicked(object sender, EventArgs e)
+		{
+			var filterViewModel = new TrackPointJournalFilterViewModel();
+			TabParent.OpenTab(() => new TrackPointJournalViewModel(filterViewModel, _unitOfWorkFactory, _commonServices));
 		}
 	}
 }

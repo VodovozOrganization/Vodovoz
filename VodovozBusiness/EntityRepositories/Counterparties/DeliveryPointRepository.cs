@@ -56,8 +56,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			var bottlesOrdered = notConfirmedQueryResult.FirstOrDefault().GetValueOrDefault()
 				+ confirmedQueryResult.FirstOrDefault().GetValueOrDefault();
-			
-			return (int)bottlesOrdered;
+
+			return (int) bottlesOrdered;
 		}
 
 		public decimal GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
@@ -73,7 +73,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.OrderByAlias(() => orderAlias.DeliveryDate).Desc;
-			
+
 			if(countLastOrders.HasValue)
 			{
 				confirmedQueryResult.Take(countLastOrders.Value);
@@ -95,6 +95,24 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var result = uow.Session.QueryOver<DeliveryPoint>()
 				.Where(dp => dp.Counterparty.Id == counterpartyId)
 				.List<DeliveryPoint>();
+
+			return result;
+		}
+
+		public IEnumerable<string> GetAddressesWithFixedPrices(int counterpartyId)
+		{
+			IEnumerable<string> result;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
+			{
+				DeliveryPoint deliveryPointAlias = null;
+				NomenclatureFixedPrice fixedPriceAlias = null;
+
+				result = uow.Session.QueryOver<NomenclatureFixedPrice>(() => fixedPriceAlias)
+					.Inner.JoinAlias(() => fixedPriceAlias.DeliveryPoint, () => deliveryPointAlias)
+					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
+					.SelectList( list => list.SelectGroup( () => deliveryPointAlias.ShortAddress ) )
+					.List<string>();
+			}
 
 			return result;
 		}

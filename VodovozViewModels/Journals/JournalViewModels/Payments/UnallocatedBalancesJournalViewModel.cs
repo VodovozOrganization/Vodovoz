@@ -150,8 +150,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			Organization organizationAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			Organization orderOrganizationAlias = null;
-			DeliverySchedule deliveryScheduleAlias = null;
-			DeliverySchedule deliveryScheduleAlias2 = null;
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 
 			var query = uow.Session.QueryOver<Payment>()
@@ -181,15 +179,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.Inner.JoinAlias(() => counterpartyContractAlias.Organization, () => orderOrganizationAlias)
-				.Inner.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => orderOrganizationAlias.Id == organizationAlias.Id)
-				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
-					|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
-					|| orderAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.And(() => deliveryScheduleAlias.Id != _closingDocumentDeliveryScheduleId)
 				.Select(orderSumProjection)
 				.Where(Restrictions.Gt(orderSumProjection, 0));
 
@@ -198,16 +191,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Inner.JoinAlias(() => orderAlias2.Contract, () => counterpartyContractAlias)
 				.Inner.JoinAlias(() => counterpartyContractAlias.Organization, () => orderOrganizationAlias)
 				.Inner.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
-				.Inner.JoinAlias(() => orderAlias2.DeliverySchedule, () => deliveryScheduleAlias2)
 				.Where(() => orderAlias2.Client.Id == counterpartyAlias.Id)
 				.And(() => orderOrganizationAlias.Id == organizationAlias.Id)
 				.And(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-				.And(() => orderAlias2.OrderStatus == OrderStatus.Shipped
-					|| orderAlias2.OrderStatus == OrderStatus.UnloadingOnStock
-					|| orderAlias2.OrderStatus == OrderStatus.Closed)
 				.And(() => orderAlias2.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias2.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
-				.And(() => deliveryScheduleAlias2.Id != _closingDocumentDeliveryScheduleId)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 			
 			var counterpartyDebtProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),

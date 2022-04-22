@@ -23,6 +23,8 @@ namespace InstantSmsService
 
 		[DataMember]
 		public SmsMessageStatus MessageStatus { get; set; }
+		
+		public bool IsPaidStatus { get; set; }
 	}
 
 	public enum SmsMessageStatus

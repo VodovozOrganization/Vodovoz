@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
+using InstantSmsService;
 using QS.Dialog;
 using QS.Services;
 using QS.Utilities.Numeric;
@@ -11,7 +12,9 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -20,6 +23,8 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
 		private readonly ISmsPaymentRepository _smsPaymentRepository;
+		private readonly IFastPaymentRepository _fastPaymentRepository;
+		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly IInteractiveService _interactiveService;
 		private readonly PhoneFormatter _phoneFormatter;
@@ -30,14 +35,22 @@ namespace Vodovoz.SidePanel.InfoViews
 		private Phone _selectedPhone;
 		private Counterparty _counterparty;
 		private Order _order;
+		private bool _isPaidOrder;
 
-		public SmsSendPanelView(ICommonServices commonServices, ISmsPaymentRepository smsPaymentRepository)
+		public SmsSendPanelView(
+			ICommonServices commonServices,
+			ISmsPaymentRepository smsPaymentRepository,
+			IFastPaymentRepository fastPaymentRepository,
+			IFastPaymentParametersProvider fastPaymentParametersProvider)
 		{
 			if(commonServices == null)
 			{
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 			_smsPaymentRepository = smsPaymentRepository ?? throw new ArgumentNullException(nameof(smsPaymentRepository));
+			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
+			_fastPaymentParametersProvider =
+				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
 			var currentPermissionService = commonServices.CurrentPermissionService;
 			_interactiveService = commonServices.InteractiveService;
 			_phoneFormatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
@@ -68,7 +81,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
+			btnSendFastPaymentUrlBySms.Sensitive = false; //Пока банк не решил все вопросы - блокируем кнопку
 			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
+			btnSendFastPaymentUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
 
 		private void OnSendSmsButtonPressed(object btn, EventArgs args)
@@ -167,6 +182,71 @@ namespace Vodovoz.SidePanel.InfoViews
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "SMS отправлена успешно");
 					break;
 				case PaymentResult.MessageStatus.Error:
+					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorDescription, "Не удалось отправить SMS");
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		
+		private void OnSendFastPaymentUrlBySmsClicked(object btn, EventArgs args)
+		{
+			if(_order.Id == 0)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Перед отправкой QR необходимо сохранить заказ",
+					"Не удалось отправить QR по SMS");
+				return;
+			}
+			if(string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Вы забыли выбрать номер.", "Не удалось отправить QR по SMS");
+				return;
+			}
+
+			if(!InstantSmsServiceSetting.SendingAllowed)
+			{
+				return;
+			}
+
+			var lastProccessingPayment = _fastPaymentRepository.GetProcessingPaymentForOrder(InfoProvider.UoW, _order.Id);
+
+			if(lastProccessingPayment != null)
+			{
+				if(!_interactiveService.Question(
+						"Будет отменена текущая действующая сессия оплаты и сформирована новая ссылка на оплату. Продолжить?",
+						"Вы уверены что хотите отправить новую ссылку на оплату по SMS?"))
+				{
+					return;
+				}
+			}
+
+			btnSendFastPaymentUrlBySms.Sensitive = false;
+			GLib.Timeout.Add(10000, () =>
+			{
+				if(!_isPaidOrder)
+				{
+					btnSendFastPaymentUrlBySms.Sensitive = true;
+				}
+
+				return false;
+			});
+
+			var smsSender = new SmsSender(_fastPaymentParametersProvider, InstantSmsServiceSetting.GetInstantSmsService());
+			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text);
+			resultTask.Wait();
+			var result = resultTask.Result;
+
+			switch(result.MessageStatus)
+			{
+				case SmsMessageStatus.Ok:
+					_interactiveService.ShowMessage(ImportanceLevel.Info, "SMS отправлена успешно");
+					break;
+				case SmsMessageStatus.Error:
+					if(result.IsPaidStatus)
+					{
+						_isPaidOrder = true;
+						ySendSmsButton.Sensitive = false;
+					}
 					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorDescription, "Не удалось отправить SMS");
 					break;
 				default:

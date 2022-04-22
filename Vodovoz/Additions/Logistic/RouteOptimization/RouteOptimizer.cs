@@ -190,7 +190,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
 			// и в фоновом режиме начинает считать недостающую матрицу.
-			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
+			distanceCalculator = new ExtDistanceCalculator(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
@@ -439,7 +439,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 
-			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
+			distanceCalculator = new ExtDistanceCalculator(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 

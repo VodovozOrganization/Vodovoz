@@ -746,7 +746,7 @@ public partial class MainWindow : Window
 				new EmployeeRepository(),
 				new BaseParametersProvider(parametersProvider),
 				ServicesConfig.CommonServices.UserService,
-				SingletonErrorReporter.Instance),
+				ErrorReporter.Instance),
             new OrderPaymentSettings(parametersProvider),
 			new OrderParametersProvider(parametersProvider),
 			new DeliveryRulesParametersProvider(parametersProvider),
@@ -959,7 +959,7 @@ public partial class MainWindow : Window
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
 		);
 	}
 

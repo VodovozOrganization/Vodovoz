@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.ErrorReporting;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -79,8 +80,7 @@ namespace Vodovoz.Tools.CallTasks
 					catch(Exception ex)
 					{
 						var currUser = userService?.GetCurrentUser(uow);
-						errorReporter?.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}",
-							user: currUser);
+						errorReporter?.AutomaticSendErrorReport($"Ошибка в {nameof(CallTaskWorker)}", currUser, ex);
 					}
 				}
 			});

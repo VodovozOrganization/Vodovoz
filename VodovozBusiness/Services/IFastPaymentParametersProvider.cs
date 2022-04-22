@@ -1,0 +1,12 @@
+namespace Vodovoz.Parameters
+{
+	public interface IFastPaymentParametersProvider
+	{
+		int GetQRLifetime { get; }
+		int GetPayUrlLifetime { get; }
+		string GetFastPaymentBackUrl { get; }
+		string GetFastPaymentApiBaseUrl { get; }
+		string GetAvangardFastPayBaseUrl { get; }
+		string GetVodovozFastPayBaseUrl { get; }
+	}
+}

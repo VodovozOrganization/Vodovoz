@@ -96,6 +96,7 @@ using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz
 {
@@ -260,7 +261,7 @@ namespace Vodovoz
 						_employeeRepository,
 						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}
@@ -534,12 +535,23 @@ namespace Vodovoz
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
-
-			var excludedPaymentFromId = new OrderParametersProvider(_parametersProvider).PaymentByCardFromSmsId;
-			if (Entity.PaymentByCardFrom?.Id != excludedPaymentFromId)
-				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != excludedPaymentFromId).List();
+			
+			var excludedPaymentFromIds = new[]
+			{
+				_orderParametersProvider.PaymentByCardFromSmsId,
+				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId
+			};
+			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
+			{
+				ySpecPaymentFrom.ItemsList =
+					UoW.Session.QueryOver<PaymentFrom>()
+						.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds).List();
+			}
 			else
+			{
 				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
+			}
+
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
 			enumTax.ItemsEnum = typeof(TaxType);
@@ -602,20 +614,18 @@ namespace Vodovoz
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
 			checkSelfDelivery.Toggled += (sender, e) => {
-				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = ybuttonFastDeliveryCheck.Sensitive =
-					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active;
+				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+				ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
-				Enum[] hideEnums = { PaymentType.Terminal };
-
 				if(Entity.SelfDelivery)
 				{
-					enumPaymentType.AddEnumToHideList(hideEnums);
+					enumPaymentType.AddEnumToHideList(PaymentType.Terminal);
 				}
 				else
 				{
-					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.Terminal });
+					enumPaymentType.RemoveEnumFromHideList(PaymentType.Terminal);
 				}
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
@@ -701,7 +711,12 @@ namespace Vodovoz
 				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
+			
+			ycheckPaymentBySms.Toggled += OnCheckPaymentBySmsToggled;
+			chkPaymentByQr.Toggled += OnCheckPaymentByQrToggled;
+			
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
+			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
 
 			UpdateOrderAddressTypeWithUI();
 
@@ -746,6 +761,30 @@ namespace Vodovoz
 			UpdateAvailableEnumSignatureTypes();
 		}
 
+		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
+		{
+			if(Entity.PaymentBySms)
+			{
+				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
+			}
+			else
+			{
+				chkPaymentByQr.Visible = true;
+			}
+		}
+		
+		private void OnCheckPaymentByQrToggled(object sender, EventArgs e)
+		{
+			if(Entity.PaymentByQr)
+			{
+				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
+			}
+			else
+			{
+				ycheckPaymentBySms.Visible = true;
+			}
+		}
+
 		private void UpdateAvailableEnumSignatureTypes()
 		{
 			var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
@@ -768,18 +807,35 @@ namespace Vodovoz
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
 		{
-			if(ycheckFastDelivery.Active && Entity.DeliverySchedule?.Id != _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+			if(ycheckFastDelivery.Active)
 			{
-				Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesParametersProvider.FastDeliveryScheduleId);
+				if(Entity.DeliverySchedule?.Id != _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+				{
+					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesParametersProvider.FastDeliveryScheduleId);
+				}
+
+				Entity.AddFastDeliveryNomenclature();
 			}
-			if(!ycheckFastDelivery.Active && Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+
+			if(!ycheckFastDelivery.Active)
 			{
-				Entity.DeliverySchedule = null;
+				if(Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+				{
+					Entity.DeliverySchedule = null;
+				}
+
+				Entity.RemoveFastDeliveryNomenclature();
 			}
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
+			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
+			{
+				MessageDialogHelper.RunWarningDialog("Доставка за час возможна только на текущую дату");
+				return;
+			}
+
 			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(Entity.PaymentType))
 			{
 				MessageDialogHelper.RunWarningDialog(
@@ -799,20 +855,15 @@ namespace Vodovoz
 				return;
 			}
 
-			var fastDeliveryAvailable = _deliveryRepository.FastDeliveryAvailable(
-				UoW,
-				(double)Entity.DeliveryPoint.Latitude.Value,
-				(double)Entity.DeliveryPoint.Longitude.Value,
-				_deliveryRulesParametersProvider,
-				Entity.GetAllGoodsToDeliver()
-			);
-
-			if(!fastDeliveryAvailable)
-			{
-				MessageDialogHelper.RunWarningDialog("Не удалось подобрать МЛ для доставки за час");
-				return;
-			}
-			MessageDialogHelper.RunInfoDialog("Доставка за час доступна для этого заказа");
+			var verificationData =
+				new FastDeliveryVerificationData(
+					Entity.Id,
+					Entity.DeliveryPoint.ShortAddress,
+					(double)Entity.DeliveryPoint.Latitude.Value,
+					(double)Entity.DeliveryPoint.Longitude.Value,
+					Entity.GetAllGoodsToDeliver());
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
+				null, UoW, verificationData);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1413,6 +1464,11 @@ namespace Vodovoz
 
 			if(Entity.IsFastDelivery)
 			{
+				if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
+				{
+					throw new InvalidOperationException("Доставка за час возможна только на текущую дату");
+				}
+
 				if(Entity.DeliveryPoint?.Latitude == null || Entity.DeliveryPoint.Longitude == null)
 				{
 					throw new InvalidOperationException(
@@ -1639,9 +1695,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<AddExistingDocumentsDlg>(),
-				() => new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
+			TabParent.AddSlaveTab(this, new AddExistingDocumentsDlg(UoWGeneric, Entity.Client)
 			);
 		}
 
@@ -2273,15 +2327,13 @@ namespace Vodovoz
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
 
-				Enum[] hideEnums = { PaymentType.cashless };
-
 				if(Entity.Client.PersonType == PersonType.natural) {
 					chkContractCloser.Active = false;
 					chkContractCloser.Visible = false;
-					enumPaymentType.AddEnumToHideList(hideEnums);
+					enumPaymentType.AddEnumToHideList(PaymentType.cashless);
 				} else {
 					chkContractCloser.Visible = true;
-					enumPaymentType.RemoveEnumFromHideList(new Enum[] { PaymentType.cashless });
+					enumPaymentType.RemoveEnumFromHideList( PaymentType.cashless);
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
@@ -2290,7 +2342,7 @@ namespace Vodovoz
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
 						enumPaymentType.SelectedItem = previousPaymentType.Value;
-					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
+					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.cashless) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
 					} else {
@@ -2455,9 +2507,11 @@ namespace Vodovoz
 			
 			if (Entity.PaymentType != PaymentType.cash) {
 				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
+				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
 			}
 			else {
 				ycheckPaymentBySms.Visible = true;
+				chkPaymentByQr.Visible = true;
 			}
 			
 			if (Entity.PaymentType == PaymentType.Terminal) {
@@ -2983,8 +3037,8 @@ namespace Vodovoz
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
 			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
 			evmeDeliveryPoint.IsEditable = entityVMEntryClient.IsEditable = val;
-			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = ybuttonFastDeliveryCheck.Sensitive =
-				ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val;
+			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
+			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
 			lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
@@ -2996,6 +3050,7 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
 			ycheckPaymentBySms.Sensitive = val;
+			chkPaymentByQr.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
@@ -3231,20 +3286,19 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!(Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill) is BillDocument billDocument))
+			var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill);
+
+			if(document == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи о письме со счетом"))
 			{
 				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-
-				var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill);
 
 				var storedEmail = new StoredEmail
 				{

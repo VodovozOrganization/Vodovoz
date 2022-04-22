@@ -742,6 +742,14 @@ namespace Vodovoz.Domain.Orders
 			get => paymentBySms;
 			set => SetField(ref paymentBySms, value, () => PaymentBySms);
 		}
+		
+		bool _paymentByQr;
+		[Display(Name = "Оплата по QR")]
+		public virtual bool PaymentByQr
+		{
+			get => _paymentByQr;
+			set => SetField(ref _paymentByQr, value);
+		}
 
 		ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]
@@ -1519,7 +1527,8 @@ namespace Vodovoz.Domain.Orders
 				&& PaymentType == PaymentType.cashless
 				&& !emailRepository.HaveSendedEmailForBill(Id)) {
 				//Проверка должен ли формироваться счет для текущего заказа
-				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
+				var requirementDocTypes = GetRequirementDocTypes();
+				return requirementDocTypes.Contains(OrderDocumentType.Bill) || requirementDocTypes.Contains(OrderDocumentType.SpecialBill);
 			}
 			return false;
 		}
@@ -1614,8 +1623,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this,
-				SingletonErrorReporter.IsInitialized ? SingletonErrorReporter.Instance : null);
+			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			if(counterpartyContract == null)
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
@@ -3102,7 +3110,13 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrder(
+			IUnitOfWork uow,
+			IStandartNomenclatures standartNomenclatures,
+			IRouteListItemRepository routeListItemRepository,
+			ISelfDeliveryRepository selfDeliveryRepository,
+			ICashRepository cashRepository,
+			SelfDeliveryDocument closingDocument = null)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -4077,6 +4091,52 @@ namespace Vodovoz.Domain.Orders
 			result.ForEach(x => uow.Save(x));
 
 			return result;
+		}
+
+		#endregion
+
+		#region Доставка за час
+
+		public virtual bool CanChangeFastDelivery => OrderStatus == OrderStatus.NewOrder;
+
+		private Nomenclature _fastDeliveryNomenclature;
+		private Nomenclature FastDeliveryNomenclature
+		{
+			get
+			{
+				if(_fastDeliveryNomenclature == null)
+				{
+					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
+					_fastDeliveryNomenclature = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+				}
+
+				return _fastDeliveryNomenclature;
+			}
+		}
+
+		public virtual void AddFastDeliveryNomenclature()
+		{
+			if(orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
+			{
+				var fastDeliveryNomenclature = UoW.GetById<Nomenclature>(FastDeliveryNomenclature.Id);
+				var fastDeliveryItemToAdd = new OrderItem
+				{
+					Order = this,
+					Nomenclature = FastDeliveryNomenclature,
+					Count = 1,
+					Price = FastDeliveryNomenclature.GetPrice(1)
+				};
+
+				ObservableOrderItems.Add(fastDeliveryItemToAdd);
+			}
+		}
+
+		public virtual void RemoveFastDeliveryNomenclature()
+		{
+			var fastDeliveryItemToRemove =
+					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
+
+			ObservableOrderItems.Remove(fastDeliveryItemToRemove);
 		}
 
 		#endregion

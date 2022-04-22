@@ -325,6 +325,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
 				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
+				x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
 				x => x.RestrictStatus = OrderStatus.Accepted,
 				x => x.RestrictWithoutSelfDelivery = true,
 				x => x.RestrictOnlySelfDelivery = false,

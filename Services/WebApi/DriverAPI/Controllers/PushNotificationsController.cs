@@ -76,6 +76,19 @@ namespace DriverAPI.Controllers
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
+			await SendPushNotificationAsync(orderId);
+		}
+		
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("/api/NotifyOfFastPaymentStatusChanged")]
+		public async Task NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
+		{
+			await SendPushNotificationAsync(orderId);
+		}
+
+		private async Task SendPushNotificationAsync(int orderId)
+		{
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 			if(string.IsNullOrWhiteSpace(token))
 			{
@@ -105,7 +118,7 @@ namespace DriverAPI.Controllers
 			else
 			{
 				_logger.LogInformation($"Sending PUSH message of fast delivery order ({orderId}) added");
-				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", orderId.ToString());
+				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ { orderId } с доставкой за час");
 			}
 		}
 	}

@@ -6,5 +6,6 @@
 		string DefaultEmailSenderName { get; }
 		string DocumentEmailSenderAddress { get; }
 		string DocumentEmailSenderName { get; }
+		string InvalidSignatureNotificationEmailAddress { get; }
 	}
 }

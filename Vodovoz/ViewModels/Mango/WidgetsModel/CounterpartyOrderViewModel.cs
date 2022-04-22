@@ -166,7 +166,7 @@ namespace Vodovoz.ViewModels.Mango
 							_employeeRepository,
 							new BaseParametersProvider(_parametersProvider),
 							ServicesConfig.CommonServices.UserService,
-							SingletonErrorReporter.Instance);
+							ErrorReporter.Instance);
 
 			if(order.OrderStatus == OrderStatus.InTravelList)
 			{

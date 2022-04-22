@@ -12,6 +12,7 @@ using NHibernate.Impl;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -604,7 +605,9 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(() => counterpartyAlias.AlwaysSendReceipts))
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId));
+					.Add(Restrictions.Disjunction()
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)));
 
 			var statusRestriction = Restrictions.Disjunction()
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
@@ -644,7 +647,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return ordersToSend;
 		}
 
-		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)
+		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
 
@@ -678,7 +681,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
@@ -689,7 +691,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)

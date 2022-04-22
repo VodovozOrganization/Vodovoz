@@ -65,17 +65,20 @@ namespace Vodovoz
 		public FineDlg(decimal money, RouteList routeList, string reasonString, DateTime date, params Employee[] employees) : this()
 		{
 			Entity.Fill(money, routeList, reasonString, date, employees);
+			UpdateDateEditable();
 		}
 
 		public FineDlg(decimal money, RouteList routeList) : this(money, routeList.Driver)
 		{
 			Entity.RouteList = routeList;
 			Entity.Date = routeList.Date;
+			UpdateDateEditable();
 		}
 
 		public FineDlg(RouteList routeList) : this(default(decimal), routeList.Driver)
 		{
 			Entity.RouteList = routeList;
+			UpdateDateEditable();
 		}
 
 		public FineDlg(UndeliveredOrder undeliveredOrder) : this()
@@ -83,6 +86,7 @@ namespace Vodovoz
 			Entity.UndeliveredOrder = undeliveredOrder;
 			var RouteList = _routeListItemRepository.GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
 			Entity.RouteList = RouteList;
+			UpdateDateEditable();
 		}
 
 		public FineDlg (int id)
@@ -127,6 +131,12 @@ namespace Vodovoz
 			ylabelDate.Binding
 				.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp)
 				.InitializeFromSource();
+
+			ydatepicker.Binding
+				.AddBinding(Entity, e => e.Date, w => w.Date)
+				.InitializeFromSource();
+			ydatepicker.IsEditable = true;
+
 			yspinMoney.Binding
 				.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal)
 				.InitializeFromSource();
@@ -151,6 +161,16 @@ namespace Vodovoz
 			
             UpdateControlsState();
 			ShowLiters();
+
+			ylabelDate.Visible = !UoW.IsNew;
+			UpdateDateEditable();
+		}
+
+		private void UpdateDateEditable()
+		{
+			var dateEditable = UoW.IsNew && Entity.RouteList == null;
+			ydatepicker.Visible = dateEditable;
+			ylabelDate.Visible = !dateEditable;
 		}
 
 		void ObservableItems_ListChanged(object aList)
@@ -164,7 +184,6 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.SaveAdditionalWorkingClothesFine(UoW, new EmployeeSettings(new ParametersProvider()));
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 

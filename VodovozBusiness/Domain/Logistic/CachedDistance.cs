@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using GMap.NET;
-using QS.Osm;
+using QS.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 
@@ -63,8 +63,6 @@ namespace Vodovoz.Domain.Logistic
 			GetLatLon(hash, out double latitude, out double longitude);
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", longitude, latitude);
 		}
-
-		//public static long BaseHash => GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		#endregion
 

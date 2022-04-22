@@ -42,7 +42,8 @@ namespace Vodovoz.Reports.Logistic
 					{ "is_driver_sort", ychkDriverSort.Active },
 					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Id ?? 0 },
 					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Name ?? "Все" },
-					{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active }
+					{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active },
+					{ "select_mode", GetSelectMode().ToString() }
 				}
 			};
 		}
@@ -56,5 +57,24 @@ namespace Vodovoz.Reports.Logistic
 			OnUpdate (true);
 		}
 
+		private SelectMode GetSelectMode()
+		{
+			if (ycheckOnlyFastSelect.Active)
+			{
+				return SelectMode.DeliveryInAnHour;
+			}
+			if (ycheckWithoutFastSelect.Active)
+			{
+				return SelectMode.WithoutDeliveryInAnHour;
+			}
+			return SelectMode.All;
+		}
+
+		private enum SelectMode
+		{
+			All,
+			DeliveryInAnHour,
+			WithoutDeliveryInAnHour
+		}
 	}
 }

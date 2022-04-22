@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>279.4mm</PageHeight>
   <PageWidth>215.9mm</PageWidth>
   <Width>7.5in</Width>
@@ -17,7 +15,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>103.2pt</Height>
+    <Height>117.4pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -35,22 +33,25 @@
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>150.1pt</Width>
+            <Width>139.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>261.3pt</Width>
+            <Width>235.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>91.4pt</Width>
+            <Width>85.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.3pt</Width>
+            <Width>43.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>46.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>36.4pt</Height>
+              <Height>60.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -124,6 +125,22 @@
                   <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>Долг по таре по адресу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Кол-во отгруж. в посл. реализ. бутыл.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -248,6 +265,26 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>={delivered_bottles}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -288,6 +325,22 @@
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum({bottle_debt})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Sum({delivered_bottles})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -358,7 +411,8 @@
             AND (delivery_points.id = bm.delivery_point_id 
                 OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
                 )  
-    ) as bottle_debt
+    ) as bottle_debt,
+    bottles_movement_operations.delivered as delivered_bottles
 FROM
     orders 
     LEFT JOIN counterparty ON orders.client_id = counterparty.id 
@@ -486,14 +540,65 @@ WHERE
                 )
             )
         )
-        
-    )       
+    )
+    AND (
+    		(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString1,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString1,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString1, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString1, counterparty.id))
+			)
+			AND
+			(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString2,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString2,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString2, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString2, counterparty.id))
+    		)
+			AND
+			(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString3,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString3,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString3, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString3, counterparty.id))
+    		)
+			AND
+			(
+    			delivery_points.compiled_address LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString4,'%'), delivery_points.compiled_address))
+    			OR
+    			counterparty.name  LIKE (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, CONCAT('%',@SearchString4,'%'), counterparty.name))
+    			OR
+    			delivery_points.id  = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString4, delivery_points.id))
+    			OR
+    			counterparty.id = (IF(COALESCE(@SearchString1, @SearchString2, @SearchString3, @SearchString4) is not null, @SearchString4, counterparty.id))
+    		)
+		)
+		AND
+		(
+			@HideWithoutEmail = ''
+			OR
+			EXISTS (
+				SELECT
+					id
+				FROM
+					emails
+				WHERE
+					emails.counterparty_id = counterparty.id
+			)
+		)
         
 GROUP BY
     delivery_points.id,
-    counterparty.id
-    
-</CommandText>
+    counterparty.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="CounterpartyId">
             <Value>={?CounterpartyId}</Value>
@@ -534,6 +639,21 @@ GROUP BY
           <QueryParameter Name="HideWithOneOrder">
             <Value>={?HideWithOneOrder}</Value>
           </QueryParameter>
+          <QueryParameter Name="SearchString1">
+            <Value>={?SearchString1}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SearchString2">
+            <Value>={?SearchString2}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SearchString3">
+            <Value>={?SearchString3}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SearchString4">
+            <Value>={?SearchString4}</Value>
+          </QueryParameter>
+          <QueryParameter Name="HideWithoutEmail">
+            <Value>={?HideWithoutEmail}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -549,10 +669,13 @@ GROUP BY
         <Field Name="bottle_debt">
           <DataField>bottle_debt</DataField>
         </Field>
+        <Field Name="delivered_bottles">
+          <DataField>delivered_bottles</DataField>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="discount_reason_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -563,8 +686,7 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_id">
       <DataType>Integer</DataType>
@@ -576,40 +698,35 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderBottlesFrom">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderBottlesTo">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="AddressId">
       <DataType>Integer</DataType>
@@ -621,8 +738,7 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyId">
       <DataType>Integer</DataType>
@@ -634,48 +750,77 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="OPF">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="DebtBottlesFrom">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="DebtBottlesTo">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="HideActiveCounterparty">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="HideWithOneOrder">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString1">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString2">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString3">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SearchString4">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="HideWithoutEmail">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

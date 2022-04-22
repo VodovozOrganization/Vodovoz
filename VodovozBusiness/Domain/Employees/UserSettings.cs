@@ -84,27 +84,6 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		int journalDaysToAft;
-		[Obsolete("Нужно выпиливать. Было сделано для запоминания интервала дат в фильтре. Потеряло актульность с введением журнала с динамической подгрузкой.")]
-		[Display (Name = "Дней в фильтре журнала заказов назад")]
-		public virtual int JournalDaysToAft {
-			get { return journalDaysToAft; }
-			set {
-				SetField (ref journalDaysToAft, value, () => JournalDaysToAft);
-			}
-		}
-
-		int journalDaysToFwd;
-
-		[Obsolete("Нужно выпиливать. Было сделано для запоминания интервала дат в фильтре. Потеряло актульность с введением журнала с динамической подгрузкой.")]
-		[Display(Name = "Дней в фильтре журнала заказов вперёд")]
-		public virtual int JournalDaysToFwd {
-			get { return journalDaysToFwd; }
-			set {
-				SetField(ref journalDaysToFwd, value, () => JournalDaysToFwd);
-			}
-		}
-
 		NomenclatureCategory? defaultSaleCategory;
 
 		[Display(Name = "Номенклатура на продажу")]

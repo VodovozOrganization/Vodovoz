@@ -85,6 +85,22 @@ node('Vod6'){
 			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 		}
 	}
+	stage('FastPaymentsAPI Deploy')
+	{
+		if(env.BRANCH_NAME ==~ /(develop|master)/
+			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+		{
+			echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
+			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+			
+			echo 'Move files to CD folder'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
+	}
 }
 node('Vod3') {
 	stage('Deploy'){
