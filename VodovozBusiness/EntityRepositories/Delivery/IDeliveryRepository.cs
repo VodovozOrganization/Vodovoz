@@ -28,6 +28,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 		RouteList GetRouteListForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool getClosestByRoute,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes);
 
+		IEnumerable<FastDeliveryVerificationDetailsNode> GetRouteListsForFastDelivery(
+			IUnitOfWork uow, double latitude, double longitude, IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IEnumerable<NomenclatureAmountNode> nomenclatureNodes);
+
 		#endregion
 	}
 }

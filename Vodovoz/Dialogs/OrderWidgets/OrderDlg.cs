@@ -96,6 +96,7 @@ using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz
 {
@@ -853,21 +854,22 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
 				return;
 			}
-
-			var fastDeliveryAvailable = _deliveryRepository.FastDeliveryAvailable(
-				UoW,
-				(double)Entity.DeliveryPoint.Latitude.Value,
-				(double)Entity.DeliveryPoint.Longitude.Value,
-				_deliveryRulesParametersProvider,
-				Entity.GetAllGoodsToDeliver()
-			);
-
-			if(!fastDeliveryAvailable)
+			
+			if(Entity.Total19LBottlesToDeliver == 0)
 			{
-				MessageDialogHelper.RunWarningDialog("Не удалось подобрать МЛ для доставки за час");
+				MessageDialogHelper.RunWarningDialog("В доставке за час нет 19л воды!!!");
 				return;
 			}
-			MessageDialogHelper.RunInfoDialog("Доставка за час доступна для этого заказа");
+
+			var verificationData =
+				new FastDeliveryVerificationData(
+					Entity.Id,
+					Entity.DeliveryPoint.ShortAddress,
+					(double)Entity.DeliveryPoint.Latitude.Value,
+					(double)Entity.DeliveryPoint.Longitude.Value,
+					Entity.GetAllGoodsToDeliver());
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
+				null, UoW, verificationData);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1477,6 +1479,11 @@ namespace Vodovoz
 				{
 					throw new InvalidOperationException(
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
+				}
+				
+				if(Entity.Total19LBottlesToDeliver == 0)
+				{
+					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
 				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
