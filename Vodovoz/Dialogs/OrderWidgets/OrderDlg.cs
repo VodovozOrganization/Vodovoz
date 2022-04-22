@@ -1480,6 +1480,11 @@ namespace Vodovoz
 					throw new InvalidOperationException(
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
 				}
+				
+				if(Entity.Total19LBottlesToDeliver == 0)
+				{
+					throw new InvalidOperationException("В заказе нет 19л воды!!!");
+				}
 
 				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
 					UoW,
