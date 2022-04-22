@@ -857,7 +857,7 @@ namespace Vodovoz
 			
 			if(Entity.Total19LBottlesToDeliver == 0)
 			{
-				MessageDialogHelper.RunWarningDialog("В заказе нет 19л воды!!!");
+				MessageDialogHelper.RunWarningDialog("В доставке за час нет 19л воды!!!");
 				return;
 			}
 
