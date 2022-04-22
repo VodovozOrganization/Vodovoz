@@ -1483,7 +1483,7 @@ namespace Vodovoz
 				
 				if(Entity.Total19LBottlesToDeliver == 0)
 				{
-					throw new InvalidOperationException("В заказе нет 19л воды!!!");
+					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
 				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
