@@ -854,6 +854,12 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
 				return;
 			}
+			
+			if(Entity.Total19LBottlesToDeliver == 0)
+			{
+				MessageDialogHelper.RunWarningDialog("В доставке за час нет 19л воды!!!");
+				return;
+			}
 
 			var verificationData =
 				new FastDeliveryVerificationData(
@@ -1473,6 +1479,11 @@ namespace Vodovoz
 				{
 					throw new InvalidOperationException(
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
+				}
+				
+				if(Entity.Total19LBottlesToDeliver == 0)
+				{
+					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
 				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
