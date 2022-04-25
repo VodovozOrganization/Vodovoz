@@ -10,13 +10,13 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Label lblFile;
 
-		private global::Gtk.FileChooserButton fileChooserBtn;
+		private global::Gamma.GtkWidgets.yButton btnFileChooser;
 
 		private global::Gtk.HBox hbox2;
 
 		private global::Gamma.GtkWidgets.yButton btnReadFile;
 
-		private global::QS.Widgets.ProgressWidget progresswidget;
+		private global::Gamma.GtkWidgets.yLabel lblProgress;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox1;
 
@@ -52,11 +52,16 @@ namespace Vodovoz.Views.Reports
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.fileChooserBtn = new global::Gtk.FileChooserButton(global::Mono.Unix.Catalog.GetString("Select a File"), ((global::Gtk.FileChooserAction)(0)));
-			this.fileChooserBtn.Name = "fileChooserBtn";
-			this.hbox1.Add(this.fileChooserBtn);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.fileChooserBtn]));
+			this.btnFileChooser = new global::Gamma.GtkWidgets.yButton();
+			this.btnFileChooser.CanFocus = true;
+			this.btnFileChooser.Name = "btnFileChooser";
+			this.btnFileChooser.UseUnderline = true;
+			this.btnFileChooser.Label = global::Mono.Unix.Catalog.GetString("Выбрать файл");
+			this.hbox1.Add(this.btnFileChooser);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnFileChooser]));
 			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
 			this.vboxMain.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox1]));
 			w3.Position = 0;
@@ -78,11 +83,11 @@ namespace Vodovoz.Views.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.progresswidget = new global::QS.Widgets.ProgressWidget();
-			this.progresswidget.Name = "progresswidget";
-			this.hbox2.Add(this.progresswidget);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.progresswidget]));
-			w5.PackType = ((global::Gtk.PackType)(1));
+			this.lblProgress = new global::Gamma.GtkWidgets.yLabel();
+			this.lblProgress.Name = "lblProgress";
+			this.lblProgress.LabelProp = global::Mono.Unix.Catalog.GetString("@Progress@");
+			this.hbox2.Add(this.lblProgress);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblProgress]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
