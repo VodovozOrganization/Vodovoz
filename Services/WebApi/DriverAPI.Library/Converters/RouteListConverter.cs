@@ -28,7 +28,7 @@ namespace DriverAPI.Library.Converters
 			_routeListCompletionStatusConverter = routeListCompletionStatusConverter ?? throw new ArgumentNullException(nameof(routeListCompletionStatusConverter));
 		}
 
-		public RouteListDto convertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn)
+		public RouteListDto convertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, int loaded19lWater)
 		{
 			var result = new RouteListDto()
 			{
@@ -54,9 +54,8 @@ namespace DriverAPI.Library.Converters
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
 						.Count(),
-					FullBottlesToReturn = routeList.Addresses
-						.Where(rla => rla.Status == RouteListItemStatus.Canceled
-							|| rla.Status == RouteListItemStatus.Overdue)
+					FullBottlesToReturn = loaded19lWater - routeList.Addresses
+						.Where(rla => rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue)
 						.Sum(rla => rla.Order.Total19LBottlesToDeliver),
 					EmptyBottlesToReturn = routeList.Addresses
 						.Sum(rla => rla.DriverBottlesReturned ?? 0),

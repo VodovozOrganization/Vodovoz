@@ -970,10 +970,13 @@ namespace Vodovoz.Domain.Logistic
 			{
 				foreach(var item in AdditionalLoadingDocument.Items)
 				{
+					var fastDeliveryOrdersItemsInRL = _routeListRepository.GetFastDeliveryOrdersItemsInRL(UoW, this.Id);
+					var fastDeliveryItem = fastDeliveryOrdersItemsInRL.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 					AddDiscrepancy(result, new Discrepancy
 					{
 						Nomenclature = item.Nomenclature,
 						AdditionaLoading = item.Amount,
+						NomenclaturesInFastDeliveryOrders = fastDeliveryItem?.Amount ?? 0,
 						Name = item.Nomenclature.Name
 					});
 				}
@@ -997,6 +1000,7 @@ namespace Vodovoz.Domain.Logistic
 				existingDiscrepancy.ToWarehouse += item.ToWarehouse;
 				existingDiscrepancy.FromWarehouse += item.FromWarehouse;
 				existingDiscrepancy.AdditionaLoading += item.AdditionaLoading;
+				existingDiscrepancy.NomenclaturesInFastDeliveryOrders += item.NomenclaturesInFastDeliveryOrders;
 			}
 		}
 
@@ -2277,7 +2281,9 @@ namespace Vodovoz.Domain.Logistic
 					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
 					decimal loadedAmount = 0;
 					if(loaded != null)
+					{
 						loadedAmount = loaded.Amount;
+					}
 					if(loadedAmount < n.Amount) {
 						notLoadedNomenclatures.Add(new RouteListControlNotLoadedNode {
 							NomenclatureId = n.NomenclatureId,

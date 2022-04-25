@@ -45,7 +45,9 @@ namespace DriverAPI.Library.Models
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист { routeListId } не найден");
 
-			return _routeListConverter.convertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId));
+			var loaded19lWater = _routeListRepository.Get19LWaterInRLCount(_unitOfWork, routeListId);
+
+			return _routeListConverter.convertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), loaded19lWater);
 		}
 
 		/// <summary>
@@ -62,7 +64,8 @@ namespace DriverAPI.Library.Models
 			{
 				try
 				{
-					routeLists.Add(_routeListConverter.convertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id)));
+					var loaded19lWater = _routeListRepository.Get19LWaterInRLCount(_unitOfWork, routelist.Id);
+					routeLists.Add(_routeListConverter.convertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id), loaded19lWater));
 				}
 				catch (ConverterException e)
 				{
