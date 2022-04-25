@@ -232,6 +232,14 @@ namespace Vodovoz
 					.And(() => orderAlias.IsFastDelivery == true)
 					.Select(Projections.Sum(() => orderItemsAlias.Count));
 
+				var additionalEquipmentSubquery = QueryOver.Of(() => orderEquipmentAlias)
+					.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
+					.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
+					.And(() => orderEquipmentAlias.Nomenclature.Id == nomenclatureAlias.Id)
+					.And(() => orderAlias.IsFastDelivery == true)
+					.Select(Projections.Sum(() => orderEquipmentAlias.Count));
+
 				returnableAdditionalLoadingItems = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
 					.JoinAlias(() => routeListAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 					.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
@@ -242,13 +250,17 @@ namespace Vodovoz
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 						.Select(Projections.SqlFunction(
-								new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 - ?2"),
+								new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 - ?2 - ?3"),
 								NHibernateUtil.Int32,
 								Projections.Property(() => additionalLoadingDocumentItemAlias.Amount),
 								Projections.Conditional(
 									Restrictions.IsNotNull(Projections.SubQuery(additionalItemsSubquery)),
 									Projections.SubQuery(additionalItemsSubquery),
-									Projections.Constant(0m)))
+									Projections.Constant(0m)),
+							Projections.Conditional(
+								Restrictions.IsNotNull(Projections.SubQuery(additionalEquipmentSubquery)),
+								Projections.SubQuery(additionalEquipmentSubquery),
+								Projections.Constant(0)))
 						).WithAlias(() => resultAlias.ExpectedAmount)
 					)
 					.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())

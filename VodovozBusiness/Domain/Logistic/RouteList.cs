@@ -968,9 +968,9 @@ namespace Vodovoz.Domain.Logistic
 
 			if(AdditionalLoadingDocument != null)
 			{
+				var fastDeliveryOrdersItemsInRL = _routeListRepository.GetFastDeliveryOrdersItemsInRL(UoW, this);
 				foreach(var item in AdditionalLoadingDocument.Items)
 				{
-					var fastDeliveryOrdersItemsInRL = _routeListRepository.GetFastDeliveryOrdersItemsInRL(UoW, this);
 					var fastDeliveryItem = fastDeliveryOrdersItemsInRL.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 					AddDiscrepancy(result, new Discrepancy
 					{
