@@ -103,6 +103,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
