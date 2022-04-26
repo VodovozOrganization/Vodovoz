@@ -46,6 +46,26 @@ namespace FastPaymentsAPI.Library.Factories
 				Language = "RU"
 			};
 		}
+		
+		public OrderRegistrationRequestDTO GetOrderRegistrationRequestDTOForOnlineOrder(
+			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, string signature)
+		{
+			return new OrderRegistrationRequestDTO
+			{
+				ShopId = _signatureSection.GetValue<long>("ShopId"),
+				ShopPasswd = _signatureSection.GetValue<string>("ShopPasswd"),
+				Signature = signature,
+				Amount = _orderSumConverter.ConvertOrderSumToKopecks(registerOnlineOrderDto.OrderSum),
+				OrderNumber = registerOnlineOrderDto.OrderId.ToString(),
+				OrderDescription = $"Онлайн-заказ №{registerOnlineOrderDto.OrderId}",
+				Language = "RU",
+				IsQR = 1,
+				ReturnQRImage = 1,
+				BackUrl = registerOnlineOrderDto.BackUrl,
+				BackUrlOk = registerOnlineOrderDto.BackUrlOk,
+				BackUrlFail = registerOnlineOrderDto.BackUrlFail
+			};
+		}
 
 		public CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket)
 		{
@@ -81,10 +101,11 @@ namespace FastPaymentsAPI.Library.Factories
 
 		public FastPayment GetFastPayment(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
-			Order order,
 			DateTime creationDate,
 			Guid fastPaymentGuid,
-			string phoneNumber = null)
+			Order order = null,
+			string phoneNumber = null,
+			int? onlineOrderId = null)
 		{
 			return new FastPayment
 			{
@@ -95,7 +116,8 @@ namespace FastPaymentsAPI.Library.Factories
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = (int)orderRegistrationResponseDto.Id,
 				PhoneNumber = phoneNumber,
-				FastPaymentGuid = fastPaymentGuid
+				FastPaymentGuid = fastPaymentGuid,
+				OnlineOrderId = onlineOrderId
 			};
 		}
 

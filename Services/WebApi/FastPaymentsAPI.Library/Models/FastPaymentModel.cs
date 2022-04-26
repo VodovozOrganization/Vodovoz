@@ -50,12 +50,17 @@ namespace FastPaymentsAPI.Library.Models
 			return _fastPaymentRepository.GetFastPaymentByTicket(_uow, ticket);
 		}
 		
-		public IList<FastPayment> GetAllPerformedOrProcessingFastPayments(int orderId)
+		public IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOrder(int orderId)
 		{
 			return _fastPaymentRepository.GetAllPerformedOrProcessingFastPaymentsByOrder(_uow, orderId);
 		}
+		
+		public IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(int onlineOrderId, decimal onlineOrderSum)
+		{
+			return _fastPaymentRepository.GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(_uow, onlineOrderId, onlineOrderSum);
+		}
 
-		public void SaveNewTicket(
+		public void SaveNewTicketForOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			int orderId,
 			Guid fastPaymentGuid,
@@ -77,9 +82,9 @@ namespace FastPaymentsAPI.Library.Models
 
 			var fastPayment = _fastPaymentApiFactory.GetFastPayment(
 				orderRegistrationResponseDto,
-				order,
 				creationDate,
 				fastPaymentGuid,
+				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
 			
@@ -92,6 +97,25 @@ namespace FastPaymentsAPI.Library.Models
 				_logger.LogError(e, "При сохранении платежа произошла ошибка, записываю в файл...");
 				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid);
 			}
+		}
+		
+		public void SaveNewTicketForOnlineOrder(
+			OrderRegistrationResponseDTO orderRegistrationResponseDto,
+			Guid fastPaymentGuid,
+			int onlineOrderId)
+		{
+			var creationDate = DateTime.Now;
+			
+			var fastPayment = _fastPaymentApiFactory.GetFastPayment(
+				orderRegistrationResponseDto,
+				creationDate,
+				fastPaymentGuid,
+				null,
+				null,
+				onlineOrderId);
+			fastPayment.SetProcessingStatus();
+			
+			Save(fastPayment);
 		}
 
 		public bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto)

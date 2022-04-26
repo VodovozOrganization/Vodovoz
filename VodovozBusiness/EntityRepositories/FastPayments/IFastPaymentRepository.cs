@@ -8,6 +8,7 @@ namespace Vodovoz.EntityRepositories.FastPayments
 	public interface IFastPaymentRepository
 	{
 		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOrder(IUnitOfWork uow, int orderId);
+		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(IUnitOfWork uow, int onlineOrderId, decimal onlineOrderSum);
 		FastPaymentStatus? GetOrderFastPaymentStatus(IUnitOfWork uow, int orderId);
 		FastPayment GetFastPaymentByTicket(IUnitOfWork uow, string ticket);
 		FastPayment GetFastPaymentByGuid(IUnitOfWork uow, Guid fastPaymentGuid);

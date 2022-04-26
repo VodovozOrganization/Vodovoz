@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using FastPaymentsAPI.Library.DTO_s;
+using FastPaymentsAPI.Library.DTO_s.Requests;
 using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Validators;
@@ -53,10 +54,17 @@ namespace FastPaymentsAPI.Library.Models
 		public string ValidateParameters(int orderId) => _fastPaymentValidator.Validate(orderId);
 		public string ValidateParameters(int orderId, ref string phoneNumber) => _fastPaymentValidator.Validate(orderId, ref phoneNumber);
 		public string ValidateOrder(Order order, int orderId) => _fastPaymentValidator.Validate(order, orderId);
+		public string ValidateOnlineOrder(decimal onlineOrderSum) => _fastPaymentValidator.ValidateOnlineOrder(onlineOrderSum);
+		public string GetPayUrlForOnlineOrder(Guid fastPaymentGuid) => _orderRequestManager.GetVodovozFastPayUrl(fastPaymentGuid);
 
 		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null)
 		{
 			return _orderRequestManager.RegisterOrder(order, fastPaymentGuid, phoneNumber);
+		}
+		
+		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)
+		{
+			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto);
 		}
 
 		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)

@@ -24,6 +24,17 @@ namespace FastPaymentsAPI.Library.Validators
 
 			return null;
 		}
+		
+		public string ValidateOnlineOrder(decimal onlineOrderSum)
+		{
+			if(onlineOrderSum < 1)
+			{
+				_logger.LogError("Запрос на отправку платежа пришёл с суммой заказа меньше 1 рубля");
+				return "Нельзя отправить платеж на заказ, сумма которого меньше 1 рубля";
+			}
+
+			return null;
+		}
 
 		public string Validate(int orderId, ref string phoneNumber)
 		{

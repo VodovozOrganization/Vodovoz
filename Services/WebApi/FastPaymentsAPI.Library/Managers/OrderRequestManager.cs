@@ -39,6 +39,14 @@ namespace FastPaymentsAPI.Library.Managers
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
+		
+		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)
+		{
+			var orderDTO = GetOrderRegistrationRequestDTO(registerOnlineOrderDto);
+			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
+
+			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
+		}
 
 		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)
 		{
@@ -54,6 +62,11 @@ namespace FastPaymentsAPI.Library.Managers
 			var xmlStringFromCancelPaymentRequestDTO = _dtoManager.GetXmlStringFromDTO(cancelPaymentRequestDto);
 
 			return _orderService.CancelPaymentAsync(xmlStringFromCancelPaymentRequestDTO);
+		}
+		
+		public string GetVodovozFastPayUrl(Guid fastPaymentGuid)
+		{
+			return $"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
 		}
 
 		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, string phoneNumber = null)
@@ -71,8 +84,21 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 			else
 			{
-				orderRegistrationRequestDTO.BackUrl = $"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
+				orderRegistrationRequestDTO.BackUrl = GetVodovozFastPayUrl(fastPaymentGuid);
 			}
+
+			return orderRegistrationRequestDTO;
+		}
+
+		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)
+		{
+			var signatureParameters =
+				_fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(registerOnlineOrderDto.OrderId, registerOnlineOrderDto.OrderSum);
+			var signature = _signatureManager.GenerateSignature(signatureParameters);
+			var orderRegistrationRequestDTO =
+				_fastPaymentApiFactory.GetOrderRegistrationRequestDTOForOnlineOrder(registerOnlineOrderDto, signature);
+
+			orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetQRLifetime;
 
 			return orderRegistrationRequestDTO;
 		}

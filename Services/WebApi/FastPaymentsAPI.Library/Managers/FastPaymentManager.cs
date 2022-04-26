@@ -67,14 +67,21 @@ namespace FastPaymentsAPI.Library.Managers
 					fastPayment.SetProcessingStatus();
 					break;
 				case FastPaymentDTOStatus.Performed:
-					fastPayment.SetPerformedStatus(
-						uow,
-						statusDate,
-						uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId),
-						_standartNomenclatures,
-						_routeListItemRepository,
-						_selfDeliveryRepository,
-						_cashRepository);
+					if(fastPayment.Order != null)
+					{
+						fastPayment.SetPerformedStatusForOrder(
+							uow,
+							statusDate,
+							uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId),
+							_standartNomenclatures,
+							_routeListItemRepository,
+							_selfDeliveryRepository,
+							_cashRepository);
+					}
+					else
+					{
+						fastPayment.SetPerformedStatusForOnlineOrder(statusDate);
+					}
 					break;
 				case FastPaymentDTOStatus.Rejected:
 					fastPayment.SetRejectedStatus();
