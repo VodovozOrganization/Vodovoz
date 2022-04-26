@@ -1691,6 +1691,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.TrackPointJournalFilterView.cs" />
     <Compile Include="Views\Orders\FastDeliveryVerificationDetailsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.FastDeliveryVerificationDetailsView.cs" />
+    <Compile Include="Filters\GtkViews\RouteListTrackFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RouteListTrackFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

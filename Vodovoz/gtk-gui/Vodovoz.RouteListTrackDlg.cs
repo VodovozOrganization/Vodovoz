@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label1;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonFastDelivery;
+		private global::Vodovoz.Filters.GtkViews.RouteListTrackFilterView routelisttrackfilterview1;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -77,20 +77,12 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.label1]));
 			w1.Position = 0;
 			// Container child yhbox1.Gtk.Box+BoxChild
-			this.ycheckbuttonFastDelivery = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonFastDelivery.CanFocus = true;
-			this.ycheckbuttonFastDelivery.Name = "ycheckbuttonFastDelivery";
-			this.ycheckbuttonFastDelivery.Label = global::Mono.Unix.Catalog.GetString("Только доставка за час");
-			this.ycheckbuttonFastDelivery.DrawIndicator = true;
-			this.ycheckbuttonFastDelivery.UseUnderline = true;
-			this.ycheckbuttonFastDelivery.FocusOnClick = false;
-			this.ycheckbuttonFastDelivery.Xalign = 0F;
-			this.ycheckbuttonFastDelivery.Yalign = 0F;
-			this.yhbox1.Add(this.ycheckbuttonFastDelivery);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ycheckbuttonFastDelivery]));
+			this.routelisttrackfilterview1 = new global::Vodovoz.Filters.GtkViews.RouteListTrackFilterView();
+			this.routelisttrackfilterview1.Events = ((global::Gdk.EventMask)(256));
+			this.routelisttrackfilterview1.Name = "routelisttrackfilterview1";
+			this.yhbox1.Add(this.routelisttrackfilterview1);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.routelisttrackfilterview1]));
 			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
 			this.vbox2.Add(this.yhbox1);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.yhbox1]));
 			w3.Position = 0;
