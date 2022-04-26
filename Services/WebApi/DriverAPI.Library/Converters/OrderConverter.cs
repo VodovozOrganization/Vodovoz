@@ -56,7 +56,7 @@ namespace DriverAPI.Library.Converters
 				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(qrPaymentDtoStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
-				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
+				EmptyBottlesToReturn = (vodovozOrder.BottlesReturn ?? 0) + vodovozOrder.BottlesByStockCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = deliveryPointPhones.Concat(counterpartyPhones),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
