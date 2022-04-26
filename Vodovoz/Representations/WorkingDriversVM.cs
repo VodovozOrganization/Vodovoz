@@ -13,11 +13,14 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.ViewModel
 {
 	public class WorkingDriversVM : RepresentationModelEntityBase<RouteList, WorkingDriverVMNode>
 	{
+		private bool _isFastDeliveryOnly;
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()
@@ -60,6 +63,11 @@ namespace Vodovoz.ViewModel
 				Projections.Constant(false));
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
+
+			if(Filter.IsFastDeliveryOnly)
+			{
+				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+			}
 
 			var result = query
 				.JoinAlias(rl => rl.Driver, () => driverAlias)
@@ -107,6 +115,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
 			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
+			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.AdditionalWater19LLeft:N0}")
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -119,11 +128,26 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public WorkingDriversVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public WorkingDriversVM() : this(UnitOfWorkFactory.CreateWithoutRoot(), new RouteListTrackFilterViewModel()) { }
 
-		public WorkingDriversVM(IUnitOfWork uow) : base()
+		public WorkingDriversVM(IUnitOfWork uow, RouteListTrackFilterViewModel routeListTrackFilterViewModel) : base()
 		{
 			this.UoW = uow;
+			Filter = routeListTrackFilterViewModel;
+		}
+
+		private RouteListTrackFilterViewModel _filter;
+		public RouteListTrackFilterViewModel Filter
+		{
+			get => _filter;
+			set
+			{
+				if(_filter != value)
+				{
+					_filter = value;
+					_filter.OnFiltered += (sender, e) => UpdateNodes();
+				}
+			}
 		}
 	}
 
@@ -145,6 +169,8 @@ namespace Vodovoz.ViewModel
 		public int AddressesAll { get; set; }
 
 		public decimal BottlesLeft { get; set; } // @Дима
+
+		public int AdditionalWater19LLeft { get; set; }
 
 		public int CompletedPercent {
 			get {
