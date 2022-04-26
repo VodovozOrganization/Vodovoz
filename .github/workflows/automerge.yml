@@ -14,7 +14,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Merge
-      uses: robotology/gh-action-nightly-merge@v1.3.1
+      uses: robotology/gh-action-nightly-merge@v1.3.3
       with:
         stable_branch: 'master'
         development_branch: 'develop'
@@ -23,5 +23,4 @@ jobs:
         user_email: 'vodovoz.pril@gmail.com'
         push_token: 'VODOVOZ_TOKEN'
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VODOVOZ_TOKEN: ${{ secrets.VODOVOZ_ACTIONS }} 
