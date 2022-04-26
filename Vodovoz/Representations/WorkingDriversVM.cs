@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
@@ -14,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModel
 {
@@ -62,6 +65,46 @@ namespace Vodovoz.ViewModel
 				Projections.Constant(true),
 				Projections.Constant(false));
 
+			#region Additional19LWaterLeft
+
+			Nomenclature additionalNomenclatureAlias = null;
+			Nomenclature additionalNomenclatureDeliveredAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
+			OrderItem additionalOrderItemsAlias = null;
+			Order additionalOrderAlias = null;
+			RouteListItem additionalRouteListItemAlias = null;
+
+			var additional19LWaterAllSubquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => additionalNomenclatureAlias)
+				.Where(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id == routeListAlias.AdditionalLoadingDocument.Id)
+				.And(() => additionalNomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => additionalNomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
+
+			var additional19LWaterDeliveredSubquery = QueryOver.Of<OrderItem>(() => additionalOrderItemsAlias)
+				.JoinAlias(() => additionalOrderItemsAlias.Order, () => additionalOrderAlias)
+				.JoinAlias(() => additionalOrderItemsAlias.Nomenclature, () => additionalNomenclatureDeliveredAlias)
+				.JoinEntityAlias(() => additionalRouteListItemAlias, () => additionalRouteListItemAlias.Order.Id == additionalOrderAlias.Id)
+				.Where(() => additionalRouteListItemAlias.RouteList.Id == routeListAlias.Id)
+				.And(() => additionalOrderAlias.IsFastDelivery)
+				.And(Restrictions.Or(Restrictions.Not(Restrictions.In(Projections.Property(() => additionalRouteListItemAlias.Status),
+					new ArrayList { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })),
+					Restrictions.Conjunction()
+							.Add(() => additionalRouteListItemAlias.WasTransfered)
+							.Add(() => additionalRouteListItemAlias.NeedToReload)))
+				.And(() => additionalNomenclatureDeliveredAlias.Category == NomenclatureCategory.water)
+				.And(() => additionalNomenclatureDeliveredAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => additionalOrderItemsAlias.Count));
+
+			var additional19LWaterLeftProjection =
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+					NHibernateUtil.Decimal,
+					Projections.SubQuery(additional19LWaterAllSubquery),
+					Projections.SubQuery(additional19LWaterDeliveredSubquery));
+
+			#endregion
+
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
 			if(Filter.IsFastDeliveryOnly)
@@ -91,6 +134,7 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
 					.SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
+					.Select(additional19LWaterLeftProjection).WithAlias(() => resultAlias.Additional19LWaterLeft)
 					)
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverVMNode>())
 				.List<WorkingDriverVMNode>();
@@ -102,6 +146,7 @@ namespace Vodovoz.ViewModel
 				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
+				savedRow.Additional19LWaterLeft = driver.Sum(x => x.Additional19LWaterLeft);
 				summaryResult.Add(savedRow);
 			}
 
@@ -115,7 +160,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
 			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
-			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.AdditionalWater19LLeft:N0}")
+			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Additional19LWaterLeft:N0}")
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -170,7 +215,7 @@ namespace Vodovoz.ViewModel
 
 		public decimal BottlesLeft { get; set; } // @Дима
 
-		public int AdditionalWater19LLeft { get; set; }
+		public decimal Additional19LWaterLeft { get; set; }
 
 		public int CompletedPercent {
 			get {

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Filters.ViewModels;
+
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
