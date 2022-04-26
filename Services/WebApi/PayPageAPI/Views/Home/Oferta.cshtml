@@ -1,0 +1,16 @@
+﻿@{
+	ViewData["Title"] = "Оферта на бутилированную воду";
+}
+
+<script src="~/lib/pdfobject.js"></script>
+
+<script type="text/javascript">
+	if(PDFObject.supportsPDFs){
+		PDFObject.embed("/pdf/Oferta.pdf", document.body);
+	}
+	else{
+		alert("This browser not support PDFObject");
+	}
+	
+</script>
+
