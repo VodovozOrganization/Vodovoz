@@ -136,7 +136,7 @@ namespace Vodovoz.Domain.Client
 				if(!string.IsNullOrWhiteSpace(City))
 					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
-					address += $"{StreetTypeShort}. ";
+					address += GetStreetTypeShort();
 				if(!string.IsNullOrWhiteSpace(Street))
 					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
@@ -164,7 +164,7 @@ namespace Vodovoz.Domain.Client
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
 					address += $"{City}, ";
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
-					address += $"{StreetTypeShort}. ";
+					address += GetStreetTypeShort();
 				if(!string.IsNullOrWhiteSpace(Street))
 					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
@@ -879,6 +879,13 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
+
+		private string GetStreetTypeShort()
+		{
+			return string.Equals(streetType, StreetTypeShort, StringComparison.CurrentCultureIgnoreCase)
+				? $"{StreetTypeShort} "
+				: $"{StreetTypeShort}. ";
+		}
 	}
 
 	public enum EntranceType
