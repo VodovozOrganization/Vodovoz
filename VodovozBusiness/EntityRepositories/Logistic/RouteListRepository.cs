@@ -440,6 +440,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => routeListItemAlias.RouteList.Id == routeList.Id)
 				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
+				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => equipmentResultAlias.NomenclatureId)
 					.SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => equipmentResultAlias.Amount))

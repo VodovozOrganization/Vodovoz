@@ -237,6 +237,7 @@ namespace Vodovoz
 					.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
 					.And(() => orderEquipmentAlias.Nomenclature.Id == nomenclatureAlias.Id)
+					.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.Deliver)
 					.And(() => orderAlias.IsFastDelivery == true)
 					.Select(Projections.Sum(() => orderEquipmentAlias.Count));
 
