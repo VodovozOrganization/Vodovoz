@@ -112,6 +112,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 				if (cashSubdivisions.Contains(warehouse.OwningSubdivision))
 				{
 					terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList, warehouse);
+					if(routeList.AdditionalLoadingDocument != null)
+					{
+						result.AddRange(GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(uow, routeList).ToList());
+						result.AddRange(GetEquipmentsInRLWithSpecialRequirements(uow, routeList).ToList());
+					}
 				}
 				else
 				{
@@ -197,13 +202,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			if(routeList.AdditionalLoadingDocument != null)
 			{
-				result.AddRange(
-					routeList.AdditionalLoadingDocument.Items.Select(x => new GoodsInRouteListResult
+				var fastDeliveryOrdersItemsInRL = GetFastDeliveryOrdersItemsInRL(uow, routeList);
+				foreach(var additionalItem in routeList.AdditionalLoadingDocument.Items)
+				{
+					var fastDeliveryItem = fastDeliveryOrdersItemsInRL.FirstOrDefault(x => x.NomenclatureId == additionalItem.Nomenclature.Id);
+					result.Add(new GoodsInRouteListResult
 					{
-						NomenclatureId = x.Nomenclature.Id,
-						Amount = x.Amount
-					})
-				);
+						NomenclatureId = additionalItem.Nomenclature.Id,
+						Amount = additionalItem.Amount - (fastDeliveryItem?.Amount ?? 0)
+					});
+				}
 			}
 
 			return result
@@ -401,6 +409,49 @@ namespace Vodovoz.EntityRepositories.Logistic
 			}
 
 			return null;
+		}
+
+		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, RouteList routeList)
+		{
+			GoodsInRouteListResult resultAlias = null;
+			EquipmentInRouteListResult equipmentResultAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			RouteListItem routeListItemAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+
+			List<GoodsInRouteListResult> goodsInRouteListResults = new List<GoodsInRouteListResult>();
+
+			var items = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => routeListItemAlias.RouteList.Id == routeList.Id)
+				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
+				.SelectList(list => list
+					.SelectGroup(() => orderItemsAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
+				.List<GoodsInRouteListResult>();
+
+			var equipment = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => routeListItemAlias.RouteList.Id == routeList.Id)
+				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
+				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
+				.SelectList(list => list
+					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => equipmentResultAlias.NomenclatureId)
+					.SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => equipmentResultAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<EquipmentInRouteListResult>())
+				.List<EquipmentInRouteListResult>();
+
+			goodsInRouteListResults.AddRange(items);
+			goodsInRouteListResults.AddRange(equipment.Select(x => 
+				new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = Convert.ToDecimal(x.Amount) }));
+
+			return goodsInRouteListResults;
 		}
 
 		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
@@ -1050,7 +1101,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
 	}
-	
+	public class EquipmentInRouteListResult
+	{
+		public int NomenclatureId { get; set; }
+		public int Amount { get; set; }
+	}
+
 	public class GoodsInRouteListResultToDivide
 	{
 		public int NomenclatureId { get; set; }
