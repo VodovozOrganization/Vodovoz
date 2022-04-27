@@ -414,11 +414,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId)
 		{
 			GoodsInRouteListResult resultAlias = null;
+			EquipmentInRouteListResult equipmentResultAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			RouteListItem routeListItemAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
 
-			return uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+			List<GoodsInRouteListResult> goodsInRouteListResults = new List<GoodsInRouteListResult>();
+
+			var items = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
@@ -429,6 +433,25 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
+
+			var equipment = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => routeListItemAlias.RouteList.Id == routeListId)
+				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
+				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
+				.SelectList(list => list
+					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => equipmentResultAlias.NomenclatureId)
+					.SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => equipmentResultAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<EquipmentInRouteListResult>())
+				.List<EquipmentInRouteListResult>();
+
+			goodsInRouteListResults.AddRange(items);
+			goodsInRouteListResults.AddRange(equipment.Select(x => 
+				new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = Convert.ToDecimal(x.Amount) }));
+
+			return goodsInRouteListResults;
 		}
 
 		public int Get19LWaterInRLCount(IUnitOfWork uow, int routeListId)
@@ -440,7 +463,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Nomenclature nomenclatureAlias = null;
 			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
 
-			var orderItems = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+			var orderItems19LWater = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
@@ -452,7 +475,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(Projections.Sum(() => orderItemsAlias.Count))
 				.SingleOrDefault<decimal>();
 
-			var additionalItems = uow.Session.QueryOver<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+			var additionalItems19LWater = uow.Session.QueryOver<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinEntityAlias(() => routeListAlias,
 					() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id)
@@ -462,7 +485,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount))
 				.SingleOrDefault<decimal>();
 
-			return (int)(orderItems + additionalItems);
+			return (int)(orderItems19LWater + additionalItems19LWater);
 		}
 
 		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
@@ -1112,7 +1135,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
 	}
-	
+	public class EquipmentInRouteListResult
+	{
+		public int NomenclatureId { get; set; }
+		public int Amount { get; set; }
+	}
+
 	public class GoodsInRouteListResultToDivide
 	{
 		public int NomenclatureId { get; set; }

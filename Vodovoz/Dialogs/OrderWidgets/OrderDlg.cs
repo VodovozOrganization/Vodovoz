@@ -814,7 +814,7 @@ namespace Vodovoz
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesParametersProvider.FastDeliveryScheduleId);
 				}
 
-				Entity.AddFastDeliveryNomenclature();
+				Entity.AddFastDeliveryNomenclatureIfNeeded();
 			}
 
 			if(!ycheckFastDelivery.Active)
@@ -2912,6 +2912,8 @@ namespace Vodovoz
 				Entity.CheckAndSetOrderIsService();
 				OnFormOrderActions();
 			}
+
+			Entity.AddFastDeliveryNomenclatureIfNeeded();
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)

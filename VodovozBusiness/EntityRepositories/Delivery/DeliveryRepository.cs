@@ -228,7 +228,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var addressCountSubquery = QueryOver.Of(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Where(() => rla.RouteList.Id == rl.Id)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(RouteListItem.GetNotDeliveredStatuses())
+				.And(() => rla.Status == RouteListItemStatus.EnRoute)
 				.And(() => o.IsFastDelivery)
 				.And(Restrictions.GtProperty(
 					Projections.Property(() => rla.CreationDate),
@@ -486,7 +486,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var addressCountSubquery = QueryOver.Of(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Where(() => rla.RouteList.Id == rl.Id)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(RouteListItem.GetNotDeliveredStatuses())
+				.And(() => rla.Status == RouteListItemStatus.EnRoute)
 				.And(() => o.IsFastDelivery)
 				.And(Restrictions.GtProperty(
 					Projections.Property(() => rla.CreationDate),

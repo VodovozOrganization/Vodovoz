@@ -4114,9 +4114,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddFastDeliveryNomenclature()
+		public virtual void AddFastDeliveryNomenclatureIfNeeded()
 		{
-			if(orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
+			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
 			{
 				var fastDeliveryNomenclature = UoW.GetById<Nomenclature>(FastDeliveryNomenclature.Id);
 				var fastDeliveryItemToAdd = new OrderItem
@@ -4127,7 +4127,7 @@ namespace Vodovoz.Domain.Orders
 					Price = FastDeliveryNomenclature.GetPrice(1)
 				};
 
-				ObservableOrderItems.Add(fastDeliveryItemToAdd);
+				AddOrderItem(fastDeliveryItemToAdd);
 			}
 		}
 
@@ -4136,7 +4136,7 @@ namespace Vodovoz.Domain.Orders
 			var fastDeliveryItemToRemove =
 					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
 
-			ObservableOrderItems.Remove(fastDeliveryItemToRemove);
+			RemoveOrderItem(fastDeliveryItemToRemove);
 		}
 
 		#endregion
