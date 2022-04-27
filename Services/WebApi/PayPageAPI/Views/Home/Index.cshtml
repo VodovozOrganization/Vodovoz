@@ -4,7 +4,7 @@
 }
 
 <div class="text-left mt-4">
-	<h4 class="mb-3">Оплата заказа №@Model.OrderNum</h4>
+	<h4 class="mb-3">@Model.PayOrderTitle</h4>
 	<p>Дата заказа: @Model.OrderDate?.ToShortDateString()</p>
 	<p>Сумма заказа: @Model.SumString</p>
 	<div class="container mb-3">

@@ -8,8 +8,8 @@ namespace PayPageAPI.Models
 {
 	public class PayViewModel
 	{
-		private readonly decimal _orderSum;
-		private readonly FastPaymentStatus _fastPaymentStatus;
+		private decimal _orderSum;
+		private FastPaymentStatus _fastPaymentStatus;
 
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		
@@ -23,20 +23,38 @@ namespace PayPageAPI.Models
 				throw new ArgumentNullException(nameof(fastPayment));
 			}
 			
-			OrderNum = fastPayment.Order.Id;
-			OrderDate = fastPayment.Order.DeliveryDate;
-			_orderSum = fastPayment.Order.OrderSum;
+			Initialize(fastPayment);
+		}
+
+		private void Initialize(FastPayment fastPayment)
+		{
+			if(fastPayment.Order != null)
+			{
+				OrderNum = fastPayment.Order.Id;
+				OrderDate = fastPayment.Order.DeliveryDate;
+				_orderSum = fastPayment.Order.OrderSum;
+			}
+			else
+			{
+				OrderNum = fastPayment.OnlineOrderId;
+				OrderDate = DateTime.Today;
+				_orderSum = fastPayment.Amount;
+				IsOnlineOrder = true;
+			}
+			
 			Ticket = fastPayment.Ticket;
 			_fastPaymentStatus = fastPayment.FastPaymentStatus;
 		}
 
-		public int OrderNum { get; }
-		public DateTime? OrderDate { get; }
-		public string Ticket { get; }
+		public int OrderNum { get; private set; }
+		public DateTime? OrderDate { get; private set; }
+		public string Ticket { get; private set; }
+		public bool IsOnlineOrder { get; private set; }
 
 		public string PayUrl => $"{_fastPaymentParametersProvider.GetAvangardFastPayBaseUrl}?ticket={Ticket}";
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
 		public bool IsNotPayable => _fastPaymentStatus != FastPaymentStatus.Processing;
+		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа№{OrderNum}" : $"Оплата заказа№{OrderNum}";
 	}
 }
