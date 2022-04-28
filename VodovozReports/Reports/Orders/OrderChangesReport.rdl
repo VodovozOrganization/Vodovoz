@@ -733,7 +733,7 @@
     source.change_time,
     IF(source.operation = 'Delete', n2.official_name,
         IF(source.old_value = 'Наличная' and source.sms_new = 'True', 'Наличная,\nс оплатой по смс',
-           IF(source.old_value = 'Наличная' and source.qr_new = 'True', 'Наличная,\nс оплатой по qr', source.old_value))) as old_value,
+           IF(source.old_value = 'Наличная' and source.qr_new = 'True', 'Наличная,\nс оплатой по СБП', source.old_value))) as old_value,
     IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
     IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author,
     GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) as driver_fio
