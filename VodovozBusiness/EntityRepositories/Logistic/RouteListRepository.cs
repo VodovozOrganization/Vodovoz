@@ -202,7 +202,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			if(routeList.AdditionalLoadingDocument != null)
 			{
-				var fastDeliveryOrdersItemsInRL = GetFastDeliveryOrdersItemsInRL(uow, routeList);
+				var fastDeliveryOrdersItemsInRL = GetFastDeliveryOrdersItemsInRL(uow, routeList.Id);
 				foreach(var additionalItem in routeList.AdditionalLoadingDocument.Items)
 				{
 					var fastDeliveryItem = fastDeliveryOrdersItemsInRL.FirstOrDefault(x => x.NomenclatureId == additionalItem.Nomenclature.Id);
@@ -411,7 +411,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
-		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, RouteList routeList)
+		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId)
 		{
 			GoodsInRouteListResult resultAlias = null;
 			EquipmentInRouteListResult equipmentResultAlias = null;
@@ -426,7 +426,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
-				.And(() => routeListItemAlias.RouteList.Id == routeList.Id)
+				.And(() => routeListItemAlias.RouteList.Id == routeListId)
 				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => orderItemsAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -438,7 +438,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
-				.And(() => routeListItemAlias.RouteList.Id == routeList.Id)
+				.And(() => routeListItemAlias.RouteList.Id == routeListId)
 				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
 				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.SelectList(list => list
@@ -452,6 +452,40 @@ namespace Vodovoz.EntityRepositories.Logistic
 				new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = Convert.ToDecimal(x.Amount) }));
 
 			return goodsInRouteListResults;
+		}
+
+		public int Get19LWaterInRLCount(IUnitOfWork uow, int routeListId)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
+
+			var orderItems19LWater = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => routeListItemAlias.RouteList.Id == routeListId)
+				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => !orderAlias.IsFastDelivery)
+				.Select(Projections.Sum(() => orderItemsAlias.Count))
+				.SingleOrDefault<decimal>();
+
+			var additionalItems19LWater = uow.Session.QueryOver<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinEntityAlias(() => routeListAlias,
+					() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListAlias.Id == routeListId)
+				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount))
+				.SingleOrDefault<decimal>();
+
+			return (int)(orderItems19LWater + additionalItems19LWater);
 		}
 
 		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
