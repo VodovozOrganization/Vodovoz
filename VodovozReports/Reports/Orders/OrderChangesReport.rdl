@@ -719,7 +719,7 @@
         <Timeout>1800</Timeout>
         <CommandText>SELECT
     source.comment_manager,
-    sp.paid_date,
+    IF(sp.paid_date is not null, sp.paid_date, fp.paid_date) as paid_date,
     source.order_id,
     (
         SELECT
@@ -1019,6 +1019,7 @@ FROM
             )
     ) as source
         LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
+        LEFT JOIN fast_payments fp ON fp.order_id = source.order_id AND fp.payment_status = 'Performed'
         LEFT JOIN history_changeset hc2 ON hc2.id = source.changeset_id
         LEFT JOIN employees e2 ON e2.user_id = hc2.user_id
         LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
