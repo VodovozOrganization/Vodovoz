@@ -56,6 +56,7 @@ namespace Vodovoz.ReportsParameters.Orders
                 .Finish();
 
             AddIssueType("Проблемы с смс", "SmsIssues");
+            AddIssueType("Проблемы с qr", "QrIssues");
             AddIssueType("Проблемы с терминалами", "TerminalIssues");
             AddIssueType("Проблемы менеджеров", "ManagersIssues");
 
