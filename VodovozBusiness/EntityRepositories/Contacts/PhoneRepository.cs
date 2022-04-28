@@ -2,10 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using Dapper;
+using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -59,5 +62,69 @@ namespace Vodovoz.EntityRepositories
 		}
 
 		#endregion
+
+		public IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(
+			IUnitOfWork uow, IEnumerable<string> incomingCallsNumbers)
+		{
+			Phone phoneAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Order orderAlias = null;
+			IncomingCallsAnalysisReportNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => phoneAlias)
+				.Left.JoinAlias(() => phoneAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Where(() => counterpartyAlias.Id != null || deliveryPointAlias.Id != null)
+				.WhereRestrictionOn(() => phoneAlias.DigitsNumber).IsInG(incomingCallsNumbers);
+
+			var lastOrderIdForCounterparty = QueryOver.Of(() => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
+				.Select(o => o.Id)
+				.OrderBy(o => o.DeliveryDate).Desc
+				.Take(1);
+			
+			var lastOrderIdForDeliveryPoint = QueryOver.Of(() => orderAlias)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Select(o => o.Id)
+				.OrderBy(o => o.DeliveryDate).Desc
+				.Take(1);
+			
+			var lastOrderDeliveryDateForCounterparty = QueryOver.Of(() => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
+				.Select(o => o.DeliveryDate)
+				.OrderBy(o => o.DeliveryDate).Desc
+				.Take(1);
+			
+			var lastOrderDeliveryDateForDeliveryPoint = QueryOver.Of(() => orderAlias)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Select(o => o.DeliveryDate)
+				.OrderBy(o => o.DeliveryDate).Desc
+				.Take(1);
+
+			return query.SelectList(list => list
+					.Select(() => phoneAlias.DigitsNumber).WithAlias(() => resultAlias.PhoneDigitsNumber)
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.DeliveryPointId)
+					.Select(Projections.Conditional(
+						Restrictions.IsNull(Projections.Property(() => counterpartyAlias.Id)),
+						Projections.SubQuery(lastOrderIdForDeliveryPoint),
+						Projections.SubQuery(lastOrderIdForCounterparty))).WithAlias(() => resultAlias.LastOrderId)
+					.Select(Projections.Conditional(
+						Restrictions.IsNull(Projections.Property(() => counterpartyAlias.Id)),
+						Projections.SubQuery(lastOrderDeliveryDateForDeliveryPoint),
+						Projections.SubQuery(lastOrderDeliveryDateForCounterparty))).WithAlias(() => resultAlias.LastOrderDeliveryDate))
+				.TransformUsing(Transformers.AliasToBean<IncomingCallsAnalysisReportNode>())
+				.List<IncomingCallsAnalysisReportNode>();
+		}
+	}
+
+	public class IncomingCallsAnalysisReportNode
+	{
+		public string PhoneDigitsNumber { get; set; }
+		public int? CounterpartyId { get; set; }
+		public int? DeliveryPointId { get; set; }
+		public int? LastOrderId { get; set; }
+		public DateTime? LastOrderDeliveryDate { get; set; }
 	}
 }
