@@ -162,7 +162,7 @@ namespace Vodovoz.ReportsParameters
 			{
 				var monday = currentDay.AddDays(1 - ((int)currentDay.DayOfWeek == 0 ? 7 : (int)currentDay.DayOfWeek));
 				var daydiff = (monday - firstWorkDay).Days;
-				return (daydiff - 1) % 14 <= 7;
+				return (daydiff) % 14 < 7;
 			}
 
 			return false;
