@@ -42,11 +42,13 @@ namespace DriverAPI.Library.Converters
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
 			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
-				.Select(x => new PhoneDto {Number = "+7" + x.DigitsNumber, PhoneType = PhoneDtoType.DeliveryPoint})
+				.GroupBy(p => p.DigitsNumber)
+				.Select(x => new PhoneDto {Number = "+7" + x.First().DigitsNumber, PhoneType = PhoneDtoType.DeliveryPoint})
 				.ToList();
 
 			var counterpartyPhones = vodovozOrder.Client.Phones
-				.Select(x => new PhoneDto { Number = "+7" + x.DigitsNumber, PhoneType = PhoneDtoType.Counterparty })
+				.GroupBy(p => p.DigitsNumber)
+				.Select(x => new PhoneDto { Number = "+7" + x.First().DigitsNumber, PhoneType = PhoneDtoType.Counterparty })
 				.ToList();
 
 			var apiOrder = new OrderDto
@@ -56,7 +58,7 @@ namespace DriverAPI.Library.Converters
 				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(qrPaymentDtoStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
-				EmptyBottlesToReturn = vodovozOrder.BottlesReturn ?? 0,
+				EmptyBottlesToReturn = (vodovozOrder.BottlesReturn ?? 0) + vodovozOrder.BottlesByStockCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = deliveryPointPhones.Concat(counterpartyPhones),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
