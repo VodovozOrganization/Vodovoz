@@ -74,8 +74,8 @@ namespace Vodovoz.ReportsParameters.Orders
 					{ "start_date", datePeriodPicker.StartDateOrNull.Value },
 					{ "end_date", datePeriodPicker.EndDateOrNull.Value },
 					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
-					{ "order_status", GetOrderStatus() },
-					{ "type_of_payment", GetTypesOfPayment() },
+					{ "order_status", yChooseOrderStatus.SelectedItem.ToString() },
+					{ "payment_type", yChooseThePaymentTypeForTheOrder.SelectedItem.ToString() },
 					{ "district_id", entryDistrict.Subject?.GetIdOrNull() },
 					{ "has_promotional_sets", chkBtnWithPromotionalSets.Active }
 				}
@@ -86,18 +86,6 @@ namespace Vodovoz.ReportsParameters.Orders
 		protected void OnDatePeriodPickerPeriodChanged(object sender, EventArgs e)
 		{
 			SetSensitivity();
-		}
-
-		private string GetOrderStatus()
-		{
-			var key = yChooseOrderStatus.SelectedItem;
-			return key.ToString();
-		}
-
-		private string GetTypesOfPayment()
-		{
-			var key = yChooseThePaymentTypeForTheOrder.SelectedItem;
-			return key.ToString();
 		}
 
 		private void SetSensitivity()

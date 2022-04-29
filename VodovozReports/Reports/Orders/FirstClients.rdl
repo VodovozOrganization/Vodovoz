@@ -611,7 +611,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>={sum_to_receive}</Value>
+                      <Value>={price}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -812,7 +812,7 @@
                     d.id is not null OR i.promotional_set_id is not null
                 )
     ) AS discount,
-    SUM(i.price) AS sum_to_receive,
+    SUM(i.price) AS price,
     COUNT(nomenclature.tare_volume = 'Vol19L') as count_19_bottles,
     cc.name as came_from ,
     o.comment AS comment ,
@@ -842,7 +842,7 @@ WHERE
         END)
   AND (@district_id = '' OR districts.id = @district_id)
   AND (@order_status = 'All' OR (o.order_status = @order_status) )
-  AND (@type_of_payment = 'All' OR (o.payment_type  = @type_of_payment) )
+  AND (@payment_type = 'All' OR (o.payment_type  = @payment_type) )
 GROUP BY o.id DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -860,8 +860,8 @@ GROUP BY o.id DESC;</CommandText>
           <QueryParameter Name="has_promotional_sets">
             <Value>={?has_promotional_sets}</Value>
           </QueryParameter>
-          <QueryParameter Name="type_of_payment">
-            <Value>={?type_of_payment}</Value>
+          <QueryParameter Name="payment_type">
+            <Value>={?payment_type}</Value>
           </QueryParameter>
           <QueryParameter Name="order_status">
             <Value>={?order_status}</Value>
@@ -903,8 +903,8 @@ GROUP BY o.id DESC;</CommandText>
         <Field Name="nomenclatures">
           <DataField>nomenclatures</DataField>
         </Field>
-        <Field Name="sum_to_receive">
-          <DataField>sum_to_receive</DataField>
+        <Field Name="price">
+          <DataField>price</DataField>
         </Field>
         <Field Name="payment_type">
           <DataField>payment_type</DataField>
@@ -997,7 +997,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1063,9 +1063,10 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
-    <ReportParameter Name="type_of_payment">
+    <ReportParameter Name="payment_type">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
@@ -1075,7 +1076,8 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
