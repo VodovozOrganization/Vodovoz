@@ -532,6 +532,7 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
+		var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
@@ -545,7 +546,8 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider)
+				new CategoryRepository(parametersProvider),
+				nomenclatureParameterProvider
 			)
 		);
 	}
