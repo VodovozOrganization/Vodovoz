@@ -24,11 +24,11 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private global::Gtk.Label label5;
 
-		private global::Gamma.Widgets.ySpecComboBox yChooseTheTypeOfPaymentForTheOrder;
+		private global::Gamma.Widgets.yEnumComboBox yChooseOrderStatus;
+
+		private global::Gamma.Widgets.yEnumComboBox yChooseThePaymentTypeForTheOrder;
 
 		private global::Gamma.Widgets.ySpecComboBox yCpecCmbDiscountReason;
-
-		private global::Gamma.Widgets.ySpecComboBox ySelectOrderStatus;
 
 		protected virtual void Build()
 		{
@@ -38,6 +38,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.Name = "Vodovoz.ReportsParameters.Orders.FirstClientsReport";
 			// Container child Vodovoz.ReportsParameters.Orders.FirstClientsReport.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
@@ -150,20 +151,35 @@ namespace Vodovoz.ReportsParameters.Orders
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yChooseTheTypeOfPaymentForTheOrder = new global::Gamma.Widgets.ySpecComboBox();
-			this.yChooseTheTypeOfPaymentForTheOrder.Name = "yChooseTheTypeOfPaymentForTheOrder";
-			this.yChooseTheTypeOfPaymentForTheOrder.AddIfNotExist = false;
-			this.yChooseTheTypeOfPaymentForTheOrder.DefaultFirst = false;
-			this.yChooseTheTypeOfPaymentForTheOrder.ShowSpecialStateAll = true;
-			this.yChooseTheTypeOfPaymentForTheOrder.ShowSpecialStateNot = false;
-			this.table1.Add(this.yChooseTheTypeOfPaymentForTheOrder);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.yChooseTheTypeOfPaymentForTheOrder]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
+			this.yChooseOrderStatus = new global::Gamma.Widgets.yEnumComboBox();
+			this.yChooseOrderStatus.Name = "yChooseOrderStatus";
+			this.yChooseOrderStatus.ShowSpecialStateAll = true;
+			this.yChooseOrderStatus.ShowSpecialStateNot = false;
+			this.yChooseOrderStatus.UseShortTitle = false;
+			this.yChooseOrderStatus.DefaultFirst = false;
+			this.table1.Add(this.yChooseOrderStatus);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.yChooseOrderStatus]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yChooseThePaymentTypeForTheOrder = new global::Gamma.Widgets.yEnumComboBox();
+			this.yChooseThePaymentTypeForTheOrder.Name = "yChooseThePaymentTypeForTheOrder";
+			this.yChooseThePaymentTypeForTheOrder.ShowSpecialStateAll = true;
+			this.yChooseThePaymentTypeForTheOrder.ShowSpecialStateNot = false;
+			this.yChooseThePaymentTypeForTheOrder.UseShortTitle = false;
+			this.yChooseThePaymentTypeForTheOrder.DefaultFirst = false;
+			this.table1.Add(this.yChooseThePaymentTypeForTheOrder);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yChooseThePaymentTypeForTheOrder]));
+			w11.TopAttach = ((uint)(3));
+			w11.BottomAttach = ((uint)(4));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yCpecCmbDiscountReason = new global::Gamma.Widgets.ySpecComboBox();
 			this.yCpecCmbDiscountReason.Name = "yCpecCmbDiscountReason";
@@ -172,24 +188,9 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.yCpecCmbDiscountReason.ShowSpecialStateAll = true;
 			this.yCpecCmbDiscountReason.ShowSpecialStateNot = false;
 			this.table1.Add(this.yCpecCmbDiscountReason);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yCpecCmbDiscountReason]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ySelectOrderStatus = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySelectOrderStatus.Name = "ySelectOrderStatus";
-			this.ySelectOrderStatus.AddIfNotExist = false;
-			this.ySelectOrderStatus.DefaultFirst = false;
-			this.ySelectOrderStatus.ShowSpecialStateAll = true;
-			this.ySelectOrderStatus.ShowSpecialStateNot = false;
-			this.table1.Add(this.ySelectOrderStatus);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ySelectOrderStatus]));
-			w12.TopAttach = ((uint)(2));
-			w12.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.yCpecCmbDiscountReason]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));

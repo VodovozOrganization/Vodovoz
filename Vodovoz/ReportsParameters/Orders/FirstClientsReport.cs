@@ -16,34 +16,6 @@ namespace Vodovoz.ReportsParameters.Orders
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstClientsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly string _selectAllStatus = "All";
-		private readonly string _selectAllPymentType = "All";
-
-		private readonly Dictionary<string, OrderStatus> _allOrderStatus = new Dictionary<string, OrderStatus>()
-			{
-				{ "Отменён", OrderStatus.Canceled },
-				{ "Новый", OrderStatus.NewOrder },
-				{ "Ожидание оплаты", OrderStatus.WaitForPayment },
-				{ "В маршрутном листе", OrderStatus.InTravelList },
-				{ "На погрузке", OrderStatus.OnLoading },
-				{ "В пути", OrderStatus.OnTheWay },
-				{ "Доставка отменена", OrderStatus.DeliveryCanceled },
-				{ "Доставлен", OrderStatus.Shipped },
-				{ "Выгрузка на складе", OrderStatus.UnloadingOnStock },
-				{ "Недовоз", OrderStatus.NotDelivered },
-				{ "Закрыт", OrderStatus.Closed }
-			};
-
-		private readonly Dictionary<string, PaymentType> _allPaymentType = new Dictionary<string, PaymentType>()
-			{
-				{ "Наличная", PaymentType.cash },
-				{ "По карте/SMS", PaymentType.ByCard },
-				{ "Терминал", PaymentType.Terminal },
-				{ "Бартер", PaymentType.barter },
-				{ "Контрактная документация", PaymentType.ContractDoc },
-				{ "Безналичная", PaymentType.cashless }
-			};
-
 		public FirstClientsReport(
 			IEntityAutocompleteSelectorFactory districtAutocompleteSelectorFactory,
 			IDiscountReasonRepository discountReasonRepository)
@@ -63,8 +35,11 @@ namespace Vodovoz.ReportsParameters.Orders
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
 
-			ySelectOrderStatus.ItemsList = _allOrderStatus.Keys;
-			yChooseTheTypeOfPaymentForTheOrder.ItemsList = _allPaymentType.Keys;
+			yChooseOrderStatus.ItemsEnum = typeof(OrderStatus);
+			yChooseOrderStatus.ShowSpecialStateAll = true;
+
+			yChooseThePaymentTypeForTheOrder.ItemsEnum = typeof(PaymentType);
+			yChooseThePaymentTypeForTheOrder.ShowSpecialStateAll = true;
 
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 			entryDistrict.SetEntityAutocompleteSelectorFactory(districtSelector);
@@ -115,22 +90,14 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private string GetOrderStatus()
 		{
-			if (ySelectOrderStatus.SelectedItem == null)
-			{
-				return _selectAllStatus;
-			}
-			string key = ySelectOrderStatus.SelectedItem.ToString();
-			return _allOrderStatus[ key ].ToString();
+			var key = yChooseOrderStatus.SelectedItem;
+			return key.ToString();
 		}
 
 		private string GetTypesOfPayment()
 		{
-			if(yChooseTheTypeOfPaymentForTheOrder.SelectedItem == null)
-			{
-				return _selectAllPymentType;
-			}
-			string key = yChooseTheTypeOfPaymentForTheOrder.SelectedItem.ToString();
-			return _allPaymentType[ key ].ToString();
+			var key = yChooseThePaymentTypeForTheOrder.SelectedItem;
+			return key.ToString();
 		}
 
 		private void SetSensitivity()
