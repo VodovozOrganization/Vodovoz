@@ -719,7 +719,7 @@
         <Timeout>1800</Timeout>
         <CommandText>SELECT
     source.comment_manager,
-    sp.paid_date,
+    IF(sp.paid_date is not null, sp.paid_date, fp.paid_date) as paid_date,
     source.order_id,
     (
         SELECT
@@ -731,7 +731,9 @@
     CONCAT(c2.full_name, IF(c2.person_type = 'legal', CONCAT(' ИНН ', c2.inn), '')) as counterparty,
     source.shipped_date AS delivery_date,
     source.change_time,
-    IF(source.operation = 'Delete', n2.official_name, IF(source.old_value = 'Наличная' and source.sms_new = 'True', 'Наличная,\nс оплатой по смс', source.old_value)) as old_value,
+    IF(source.operation = 'Delete', n2.official_name,
+        IF(source.old_value = 'Наличная' and source.sms_new = 'True', 'Наличная,\nс оплатой по смс',
+           IF(source.old_value = 'Наличная' and source.qr_new = 'True', 'Наличная,\nс оплатой по СБП', source.old_value))) as old_value,
     IF(source.operation = 'Create', n2.official_name, source.new_value) as new_value,
     IF(hc2.user_login = 'vodovoz_service', 'Служба', GET_PERSON_NAME_WITH_INITIALS(e2.last_name, e2.name, e2.patronymic)) as author,
     GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) as driver_fio
@@ -756,7 +758,7 @@ FROM
                       WHEN 'cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
-                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
                       WHEN 'Terminal' THEN 'Терминал'
@@ -769,7 +771,7 @@ FROM
                       WHEN 'cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
-                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
                       WHEN 'Terminal' THEN 'Терминал'
@@ -786,7 +788,18 @@ FROM
                    and sub_hce.datetime &lt; o.time_delivered
                    order by h.id DESC
                    limit 1
-               ) as sms_new
+               ) as sms_new,
+               (
+                   select h.new_value
+                   from history_changed_entities sub_hce
+                            join history_changes h on sub_hce.id = h.changed_entity_id
+                       and h.field_name = 'PaymentByQr'
+                       and h.type in ('Added', 'Changed')
+                   where sub_hce.entity_id = o.id
+                     and sub_hce.datetime &lt; o.time_delivered
+                   order by h.id DESC
+                   limit 1
+               ) as qr_new
         FROM
             history_changed_entities hce
                 INNER JOIN orders o ON o.id = hce.entity_id
@@ -837,8 +850,17 @@ FROM
                               AND o.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
                               AND hc_pay_type.new_value = 'ByCard'
                           )
-                  )
+                      OR
+                      (
+                                  FIND_IN_SET('QrIssues', @issue_types) &gt; 0
+                              AND
+                                  o.payment_from_id = GET_PARAMETER('payment_by_card_from_fast_payment_service_id')
+                              AND
+                                  hc_pay_type.new_value = 'ByCard'
+                          )
+              )
                 LEFT JOIN history_changes hc ON hc.changed_entity_id = hce.id
+                LEFT JOIN payments_from payment_from ON o.payment_from_id = payment_from.id
         WHERE
                 hce.datetime &gt; o.time_delivered
           AND hc.type = 'Changed'
@@ -871,7 +893,7 @@ FROM
                       WHEN 'cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
-                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
                       WHEN 'Terminal' THEN 'Терминал'
@@ -884,7 +906,7 @@ FROM
                       WHEN 'cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
-                      WHEN 'ByCard' THEN 'По карте'
+                      WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
                       WHEN 'Terminal' THEN 'Терминал'
@@ -901,7 +923,18 @@ FROM
                    and sub_hce.datetime &lt; o.time_delivered
                    order by h.id DESC
                    limit 1
-               ) as sms_new
+               ) as sms_new,
+               (
+                   select h.new_value
+                   from history_changed_entities sub_hce
+                            join history_changes h on sub_hce.id = h.changed_entity_id
+                       and h.field_name = 'PaymentByQr'
+                       and h.type in ('Added', 'Changed')
+                   where sub_hce.entity_id = o.id
+                     and sub_hce.datetime &lt; o.time_delivered
+                   order by h.id DESC
+                   limit 1
+               ) as qr_new
         FROM
             history_changed_entities hce
                 INNER JOIN order_items oi ON oi.id = hce.entity_id
@@ -910,6 +943,7 @@ FROM
                 AND hce.datetime &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
                 AND hce.operation IN ('Create','Change','Delete')
                 INNER JOIN orders o ON o.id = oi.order_id
+                LEFT JOIN payments_from payment_from ON o.payment_from_id = payment_from.id
                 INNER JOIN counterparty_contract cc ON cc.id = o.counterparty_contract_id
                 AND cc.organization_id = @organization_id
                 INNER JOIN (
@@ -964,6 +998,14 @@ FROM
                                    AND
                                        hc_pay_type.new_value = 'ByCard'
                                )
+                               OR
+                               (
+                                           FIND_IN_SET('QrIssues', @issue_types) &gt; 0
+                                       AND
+                                           o_pay_type.payment_from_id = GET_PARAMETER('payment_by_card_from_fast_payment_service_id')
+                                       AND
+                                           hc_pay_type.new_value = 'ByCard'
+                               )
                        )
                 GROUP BY hce_pay_type.entity_id
             ) payment_type_changes ON payment_type_changes.order_id = o.id
@@ -977,6 +1019,7 @@ FROM
             )
     ) as source
         LEFT JOIN sms_payment sp ON sp.order_id = source.order_id AND sp.payment_status = 'Paid'
+        LEFT JOIN fast_payments fp ON fp.order_id = source.order_id AND fp.payment_status = 'Performed'
         LEFT JOIN history_changeset hc2 ON hc2.id = source.changeset_id
         LEFT JOIN employees e2 ON e2.user_id = hc2.user_id
         LEFT JOIN order_items oi3 ON oi3.id = source.entity_id AND source.entity_class = 'OrderItem'
