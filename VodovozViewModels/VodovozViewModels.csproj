@@ -295,6 +295,7 @@
     <Compile Include="ViewModels\Payments\PaymentLoaderViewModel.cs" />
     <Compile Include="ViewModels\Payments\TransferDocumentsFromBankParser.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />

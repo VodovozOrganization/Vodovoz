@@ -35,6 +35,14 @@ namespace Vodovoz.Views.Logistic
 
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
+			yspinPaymentTotalCarEvent.Binding
+				.AddBinding(ViewModel.Entity, e => e.Price, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			checkbuttonDoNotShowInOperation.Binding
+				.AddBinding(ViewModel.Entity, e => e.DoNotShowInOperation, w => w.Active)
+				.InitializeFromSource();
+
 			ytextviewCommnet.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();

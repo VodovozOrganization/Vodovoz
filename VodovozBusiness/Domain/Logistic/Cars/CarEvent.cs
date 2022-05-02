@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using NHibernate.Type;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -25,6 +26,9 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private string _comment;
+		private bool _doNotShowInOperation;
+		private Insurance _insurance;
+		private decimal _price;
 
 		#region Свойства
 
@@ -86,6 +90,27 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _comment, value);
 		}
 
+		[Display( Name = "Не отражать в эксплуатации ТС" )]
+		public virtual bool DoNotShowInOperation
+		{
+			get => _doNotShowInOperation;
+			set => SetField( ref _doNotShowInOperation, value );
+		}
+
+		[Display( Name = "Страховка" )]
+		public virtual Insurance Insurance
+		{
+			get => _insurance;
+			set => SetField( ref _insurance, value );
+		}
+
+		[Display( Name = "Стоимость ремонта" )]
+		public virtual decimal Price
+		{
+			get => _price;
+			set => SetField( ref _price, value );
+		}
+
 		#endregion
 
 		public override string ToString()
@@ -141,5 +166,19 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+	}
+
+	public enum Insurance
+	{
+		None,
+		Casco,
+		Ssago,
+		Gto
+	}
+
+	public class InsuranceOfUseStringType : EnumStringType
+	{
+		public InsuranceOfUseStringType() : base( typeof( Insurance ) )
+		{ }
 	}
 }

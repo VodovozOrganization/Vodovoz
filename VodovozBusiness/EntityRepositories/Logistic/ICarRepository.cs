@@ -13,5 +13,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		Car GetCarByDriver(IUnitOfWork uow, Employee driver);
 		IList<Car> GetCarsByDrivers(IUnitOfWork uow, int[] driversIds);
         bool IsInAnyRouteList(IUnitOfWork uow, Car car);
-    }
+		IList<Car> GetCars(IUnitOfWork uow);
+	}
 }
