@@ -22,7 +22,7 @@ namespace PayPageAPI.Controllers
 			_payViewModelFactory = payViewModelFactory ?? throw new ArgumentNullException(nameof(payViewModelFactory));
 		}
 
-		[Route("~/{fastPaymentGuid}")]
+		[Route("~/{fastPaymentGuid:guid}")]
 		public IActionResult Index(Guid fastPaymentGuid)
 		{
 			_logger.LogInformation("Поступил запрос на открытие главной страницы");
@@ -32,7 +32,7 @@ namespace PayPageAPI.Controllers
 			if(fastPayment == null)
 			{
 				_logger.LogError($"Запрос пришел с несуществующим платежом: guid {fastPaymentGuid}");
-				return new BadRequestResult();
+				return new NotFoundResult();
 			}
 			
 			_logger.LogInformation($"Загружаем страницу с сессией: {fastPayment.Ticket}");

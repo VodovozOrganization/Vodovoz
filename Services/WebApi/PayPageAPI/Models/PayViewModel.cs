@@ -26,26 +26,6 @@ namespace PayPageAPI.Models
 			Initialize(fastPayment);
 		}
 
-		private void Initialize(FastPayment fastPayment)
-		{
-			if(fastPayment.Order != null)
-			{
-				OrderNum = fastPayment.Order.Id;
-				OrderDate = fastPayment.Order.DeliveryDate;
-				_orderSum = fastPayment.Order.OrderSum;
-			}
-			else
-			{
-				OrderNum = fastPayment.OnlineOrderId;
-				OrderDate = DateTime.Today;
-				_orderSum = fastPayment.Amount;
-				IsOnlineOrder = true;
-			}
-			
-			Ticket = fastPayment.Ticket;
-			_fastPaymentStatus = fastPayment.FastPaymentStatus;
-		}
-
 		public int OrderNum { get; private set; }
 		public DateTime? OrderDate { get; private set; }
 		public string Ticket { get; private set; }
@@ -55,6 +35,29 @@ namespace PayPageAPI.Models
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
 		public bool IsNotPayable => _fastPaymentStatus != FastPaymentStatus.Processing;
-		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа№{OrderNum}" : $"Оплата заказа№{OrderNum}";
+		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
+		
+		private void Initialize(FastPayment fastPayment)
+		{
+			if(fastPayment.Order != null)
+			{
+				FillOrderData(fastPayment.Order.Id, fastPayment.Order.DeliveryDate, fastPayment.Order.OrderSum);
+			}
+			else
+			{
+				FillOrderData(fastPayment.OnlineOrderId.Value, DateTime.Today, fastPayment.Amount);
+				IsOnlineOrder = true;
+			}
+			
+			Ticket = fastPayment.Ticket;
+			_fastPaymentStatus = fastPayment.FastPaymentStatus;
+		}
+
+		private void FillOrderData(int orderId, DateTime? orderDate, decimal ordersum)
+		{
+			OrderNum = orderId;
+			OrderDate = orderDate;
+			_orderSum = ordersum;
+		}
 	}
 }
