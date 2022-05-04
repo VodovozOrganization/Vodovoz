@@ -1079,6 +1079,7 @@
     <DataSet Name="orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     orders.id as order_id,
     orders.bottles_return,
@@ -1476,8 +1477,7 @@ GROUP BY rtrc.name;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_include">
       <DataType>String</DataType>
