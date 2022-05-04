@@ -47,20 +47,20 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
-            <Width>35.8pt</Width>
-          </TableColumn>
           <TableColumn>
             <Width>35.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.2pt</Width>
+            <Width>35.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>152.1pt</Width>
+            <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>239.0pt</Width>
+            <Width>131.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>219.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>39.1pt</Width>
@@ -75,7 +75,7 @@
             <Width>71.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.4pt</Width>
+            <Width>114.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -83,7 +83,7 @@
             <TableRow>
               <Height>27.3pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>№</Value>
@@ -267,7 +267,7 @@
             <TableRow>
               <Height>14.4pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>=RowNumber()</Value>
@@ -461,7 +461,7 @@
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>
