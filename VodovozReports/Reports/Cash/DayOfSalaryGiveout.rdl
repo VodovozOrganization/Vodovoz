@@ -18,7 +18,7 @@
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) as full_name,
     IF((MOD(DATEDIFF(DATE_ADD(@start_date, INTERVAL 1 -
                                                     (IF(DAYOFWEEK(@start_date) = 1,
-                                                        7, DAYOFWEEK(@start_date) - 1)) DAY), first_work_day), 14) &lt; 7),
+                                                        7, DAYOFWEEK(@start_date) - 1)) DAY), first_work_day) - 1, 14) &lt; 7),
        STR_TO_DATE(CONCAT(YEARWEEK(@start_date, 1), 'Monday'), '%X%V %W'),
        STR_TO_DATE(CONCAT(YEARWEEK(DATE_ADD(@start_date, INTERVAL 1 WEEK ), 1), 'Monday'), '%X%V %W')
         ) as payment_date
