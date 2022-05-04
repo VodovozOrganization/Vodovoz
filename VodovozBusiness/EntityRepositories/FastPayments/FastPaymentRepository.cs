@@ -17,6 +17,17 @@ namespace Vodovoz.EntityRepositories.FastPayments
 				.OrderBy(fp => fp.FastPaymentStatus).Desc
 				.List();
 		}
+		
+		public IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(
+			IUnitOfWork uow, int onlineOrderId, decimal onlineOrderSum)
+		{
+			return uow.Session.QueryOver<FastPayment>()
+				.Where(fp => fp.OnlineOrderId == onlineOrderId)
+				.And(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed || fp.FastPaymentStatus == FastPaymentStatus.Processing)
+				.And(fp => fp.Amount == onlineOrderSum)
+				.OrderBy(fp => fp.FastPaymentStatus).Desc
+				.List();
+		}
 
 		public FastPaymentStatus? GetOrderFastPaymentStatus(IUnitOfWork uow, int orderId)
 		{
