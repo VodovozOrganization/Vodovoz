@@ -62,7 +62,7 @@ namespace Vodovoz
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Build();
 			TabName = "Мониторинг";
-			yTreeViewDrivers.RepresentationModel = new WorkingDriversVM(uow);
+			yTreeViewDrivers.RepresentationModel = new WorkingDriversVM(uow, routelisttrackfilterview1.FilterViewModel);
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Visible = buttonSendMessage.Visible = false;

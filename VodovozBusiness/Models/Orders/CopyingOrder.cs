@@ -22,17 +22,22 @@ namespace Vodovoz.Models.Orders
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private readonly int _fastDeliveryNomenclatureId;
 
-		internal CopyingOrder(IUnitOfWork uow, Order copiedOrder, Order resultOrder, INomenclatureParametersProvider nomenclatureParametersProvider, IFlyerRepository flyerRepository)
+		private bool _needCopyStockBottleDiscount;
+
+		internal CopyingOrder(IUnitOfWork uow, Order copiedOrder, Order resultOrder,
+			INomenclatureParametersProvider nomenclatureParametersProvider, IFlyerRepository flyerRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
 			_resultOrder = resultOrder ?? throw new ArgumentNullException(nameof(resultOrder));
 			if(resultOrder.Id > 0)
 			{
-				throw new ArgumentException($"Заказ, в который переносятся данные из копируемого заказа, должен быть новым. (Свойство {nameof(resultOrder.Id)} должно быть равно 0)");
+				throw new ArgumentException(
+					$"Заказ, в который переносятся данные из копируемого заказа, должен быть новым. (Свойство {nameof(resultOrder.Id)} должно быть равно 0)");
 			}
 
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureParametersProvider =
+				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 
 			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
@@ -80,6 +85,18 @@ namespace Vodovoz.Models.Orders
 
 			return this;
 		}
+		
+		/// <summary>
+		/// Копирование полей, связанных с акцией бутыль
+		/// </summary>
+		public CopyingOrder CopyStockBottle()
+		{
+			_resultOrder.IsBottleStock = _copiedOrder.IsBottleStock;
+			_resultOrder.BottlesByStockCount = _copiedOrder.BottlesByStockCount;
+			_needCopyStockBottleDiscount = true;
+
+			return this;
+		}
 
 		/// <summary>
 		/// Копирование дополнительных полей заказа
@@ -102,6 +119,7 @@ namespace Vodovoz.Models.Orders
 			{
 				throw new ArgumentException($"Должно быть выбрано только свойство.");
 			}
+
 			var value = propertyInfo.GetValue(_copiedOrder);
 			propertyInfo.SetValue(_resultOrder, value);
 		}
@@ -121,12 +139,13 @@ namespace Vodovoz.Models.Orders
 			return this;
 		}
 
-		
 		/// <summary>
 		/// Копирование товаров (<see cref="OrderItem"/>) заказа и связанного с ним оборудования (<see cref="OrderEquipment"/>)
 		/// </summary>
-		/// <param name="withDiscounts">Копируем со скидками или без</param>
-		public CopyingOrder CopyOrderItems(bool withDiscounts = false)
+		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
+		/// <param name="withPrices">true - ставим ценам флаг ручного изменения, чтобы они были неизменны
+		/// false - выставляем флаг ручной цены из копируемого заказа</param>
+		public CopyingOrder CopyOrderItems(bool withDiscounts = false, bool withPrices = false)
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
@@ -135,11 +154,33 @@ namespace Vodovoz.Models.Orders
 
 			foreach(var orderItem in orderItems)
 			{
-				CopyOrderItem(orderItem, withDiscounts);
+				CopyOrderItem(orderItem, withDiscounts, withPrices);
 				CopyDependentOrderEquipment(orderItem);
 			}
 
 			_resultOrder.RecalculateItemsPrice();
+
+			return this;
+		}
+
+		/// <summary>
+		/// Копирование доставки. При переносе из недовоза платная доставка должна переноситься со всеми скидками и старой ценой.
+		/// Использовать только после выполнения (<see cref="CopyOrderItems"/>)
+		/// </summary>
+		public CopyingOrder CopyPaidDeliveryItem()
+		{
+			var paidDeliveryFromCopiedOrder =
+				_copiedOrder.OrderItems.SingleOrDefault(x => x.Nomenclature.Id == _paidDeliveryNomenclatureId);
+
+			var currentPaidDelivery = _resultOrder.OrderItems.SingleOrDefault(x => x.Nomenclature.Id == _paidDeliveryNomenclatureId);
+			if(currentPaidDelivery != null)
+			{
+				_resultOrder.OrderItems.Remove(currentPaidDelivery);
+			}
+			if(paidDeliveryFromCopiedOrder != null)
+			{
+				CopyOrderItem(paidDeliveryFromCopiedOrder, true, true);
+			}
 
 			return this;
 		}
@@ -151,8 +192,8 @@ namespace Vodovoz.Models.Orders
 		public CopyingOrder CopyAdditionalOrderEquipments()
 		{
 			var orderEquipments = _copiedOrder.OrderEquipments
-					.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
-					.Where(x => x.OrderItem == null);
+				.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
+				.Where(x => x.OrderItem == null);
 
 			foreach(var orderEquipment in orderEquipments)
 			{
@@ -216,7 +257,7 @@ namespace Vodovoz.Models.Orders
 
 			foreach(var promosetOrderItem in orderItems)
 			{
-				CopyOrderItem(promosetOrderItem, true);
+				CopyOrderItem(promosetOrderItem, true, _needCopyStockBottleDiscount);
 				CopyDependentOrderEquipment(promosetOrderItem);
 			}
 
@@ -232,9 +273,9 @@ namespace Vodovoz.Models.Orders
 		private void CopyDependentOrderEquipment(OrderItem orderItem)
 		{
 			var orderEquipments = _copiedOrder.OrderEquipments
-					.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
-					.Where(x => x.OrderItem != null)
-					.Where(x => x.OrderItem.Id == orderItem.Id);
+				.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id))
+				.Where(x => x.OrderItem != null)
+				.Where(x => x.OrderItem.Id == orderItem.Id);
 
 			foreach(var orderEquipment in orderEquipments)
 			{
@@ -242,7 +283,10 @@ namespace Vodovoz.Models.Orders
 			}
 		}
 
-		private void CopyOrderItem(OrderItem orderItem, bool withDiscounts = false)
+		private void CopyOrderItem(
+			OrderItem orderItem,
+			bool withDiscounts = false,
+			bool withPrices = false)
 		{
 			var newOrderItem = new OrderItem
 			{
@@ -250,20 +294,20 @@ namespace Vodovoz.Models.Orders
 				Nomenclature = orderItem.Nomenclature,
 				PromoSet = orderItem.PromoSet,
 				Price = orderItem.Price,
-				IsUserPrice = orderItem.IsUserPrice,
+				IsUserPrice = withPrices || orderItem.IsUserPrice,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS
 			};
 
 			if(withDiscounts)
 			{
-				CopyingDiscounts(orderItem, newOrderItem);
+				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
 			_resultOrder.AddOrderItem(newOrderItem);
 		}
 
-		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo)
+		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)
 		{
 			var isPromoset = orderItemFrom.PromoSet != null;
 
@@ -280,6 +324,11 @@ namespace Vodovoz.Models.Orders
 				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
 				orderItemTo.DiscountMoney = orderItemFrom.OriginalDiscountMoney.Value;
 				orderItemTo.DiscountReason = orderItemFrom.OriginalDiscountReason;
+			}
+
+			if(withStockBottleDiscount)
+			{
+				orderItemTo.DiscountByStock = orderItemFrom.DiscountByStock;
 			}
 		}
 

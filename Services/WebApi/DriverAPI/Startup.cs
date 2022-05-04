@@ -195,8 +195,7 @@ namespace DriverAPI
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>();
+				.AdoNetBatchSize(100);
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(

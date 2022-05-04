@@ -410,6 +410,7 @@
     <Compile Include="Factories\PhonesViewModelFactory.cs" />
     <Compile Include="Factories\ValidationContextFactory.cs" />
     <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
+    <Compile Include="Filters\ViewModels\RouteListTrackFilterViewModel.cs" />
     <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="Filters\Views\PaymentsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
@@ -1691,6 +1692,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.TrackPointJournalFilterView.cs" />
     <Compile Include="Views\Orders\FastDeliveryVerificationDetailsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.FastDeliveryVerificationDetailsView.cs" />
+    <Compile Include="Filters\GtkViews\RouteListTrackFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RouteListTrackFilterView.cs" />
+    <Compile Include="Views\Reports\IncomingCallsAnalysisReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
