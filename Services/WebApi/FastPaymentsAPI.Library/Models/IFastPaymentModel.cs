@@ -19,7 +19,8 @@ namespace FastPaymentsAPI.Library.Models
 		void SaveNewTicketForOnlineOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			Guid fastPaymentGuid,
-			int onlineOrderId);
+			int onlineOrderId,
+			decimal onlineOrderSum);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);

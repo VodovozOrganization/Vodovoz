@@ -38,7 +38,7 @@ namespace FastPaymentsAPI.Controllers
 		}
 
 		/// <summary>
-		/// Эндпойнт для регистрации заказа и получения QR-кода для оплаты
+		/// Эндпойнт для регистрации заказа и получения QR-кода для оплаты с мобильного приложения водителей
 		/// </summary>
 		/// <param name="orderDto">Dto с номером заказа</param>
 		/// <returns></returns>
@@ -120,6 +120,7 @@ namespace FastPaymentsAPI.Controllers
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
+				_logger.LogError(e, $"При регистрации заказа {orderId} с получением QR-кода произошла ошибка");
 			}
 			
 			return response;
@@ -215,13 +216,14 @@ namespace FastPaymentsAPI.Controllers
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
+				_logger.LogError(e, $"При регистрации заказа {orderId} произошла ошибка");
 			}
 
 			return response;
 		}
 
 		/// <summary>
-		/// Эндпойнт для регистрации заказа в системе эквайринга и получения сессии оплаты
+		/// Эндпойнт для регистрации заказа в системе эквайринга и получения сессии оплаты для формирования ссылки на оплату для ДВ
 		/// </summary>
 		/// <param name="fastPaymentRequestDto">Dto с номерами заказа и телефона</param>
 		/// <returns></returns>
@@ -240,11 +242,23 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrder(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
+			//Пока нет обновления сайта возвращаем ошибку
+			return new ResponseRegisterOnlineOrderDTO
+			{
+				ErrorMessage = "Функция не реализована"
+			};
+			
 			var onlineOrderId = requestRegisterOnlineOrderDto.OrderId;
+			var onlineOrderSum = requestRegisterOnlineOrderDto.OrderSum;
 			_logger.LogInformation($"Поступил запрос регистрации онлайн-заказа №{onlineOrderId}");
 			
 			var response = new ResponseRegisterOnlineOrderDTO();
-			var paramsValidationResult = _fastPaymentOrderModel.ValidateParameters(onlineOrderId);
+			var paramsValidationResult =
+				_fastPaymentOrderModel.ValidateParameters(
+					onlineOrderId,
+					requestRegisterOnlineOrderDto.BackUrl,
+					requestRegisterOnlineOrderDto.BackUrlOk,
+					requestRegisterOnlineOrderDto.BackUrlFail);
 			
 			if(paramsValidationResult != null)
 			{
@@ -255,8 +269,7 @@ namespace FastPaymentsAPI.Controllers
 			try
 			{
 				var fastPayments =
-					_fastPaymentModel.GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(
-						onlineOrderId, requestRegisterOnlineOrderDto.OrderSum);
+					_fastPaymentModel.GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(onlineOrderId, onlineOrderSum);
 
 				if(fastPayments.Any())
 				{
@@ -271,28 +284,40 @@ namespace FastPaymentsAPI.Controllers
 					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
 					{
 						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {fastPayment.Ticket}");
-						var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(fastPayment.Ticket);
-						
-						if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
+						try
 						{
-							_fastPaymentModel.UpdateFastPaymentStatus(
-								fastPayment, orderInfoResponseDto.Status, orderInfoResponseDto.StatusDate);
-						}
+							var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(fastPayment.Ticket);
 
-						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Performed)
-						{
-							response.ErrorMessage = "Онлайн-заказ уже оплачен";
-							return response;
+							if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
+							{
+								_fastPaymentModel.UpdateFastPaymentStatus(
+									fastPayment, orderInfoResponseDto.Status, orderInfoResponseDto.StatusDate);
+							}
+
+							if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Performed)
+							{
+								response.ErrorMessage = "Онлайн-заказ уже оплачен";
+								return response;
+							}
+
+							if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
+							{
+								_logger.LogInformation("Отменяем платеж");
+								_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
+							}
 						}
-						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
+						catch(Exception e)
 						{
-							response.PayUrl = _fastPaymentOrderModel.GetPayUrlForOnlineOrder(fastPayment.FastPaymentGuid);
+							response.ErrorMessage = "При получении информации об оплате из банка или обновлении статуса платежа произошла ошибка";
+							_logger.LogError(
+								e,
+								$"При получении информации об оплате из банка {fastPayment.Ticket} или обновлении статуса платежа произошла ошибка");
 							return response;
 						}
 					}
 				}
 				
-				var orderValidationResult = _fastPaymentOrderModel.ValidateOnlineOrder(requestRegisterOnlineOrderDto.OrderSum);
+				var orderValidationResult = _fastPaymentOrderModel.ValidateOnlineOrder(onlineOrderSum);
 				
 				if(orderValidationResult != null)
 				{
@@ -301,18 +326,40 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				_logger.LogInformation("Регистрируем онлайн-заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOnlineOrder(requestRegisterOnlineOrderDto);
+				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
-				_logger.LogInformation("Сохраняем новую сессию оплаты для онлайн-заказа");
-				_fastPaymentModel.SaveNewTicketForOnlineOrder(orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId);
-
+				_logger.LogInformation($"Регистрируем онлайн-заказ {onlineOrderId} в системе эквайринга");
+				try
+				{
+					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOnlineOrder(requestRegisterOnlineOrderDto);
+				}
+				catch(Exception e)
+				{
+					var message = $"При регистрации онлайн-заказа {onlineOrderId} в системе эквайринга произошла ошибка";
+					response.ErrorMessage = message;
+					_logger.LogError(e, message);
+					return response;
+				}
+				
+				_logger.LogInformation($"Сохраняем новую сессию оплаты для онлайн-заказа №{onlineOrderId}");
+				try
+				{
+					_fastPaymentModel.SaveNewTicketForOnlineOrder(orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum);
+				}
+				catch(Exception e)
+				{
+					var message = $"При сохранении новой сессии оплаты для онлайн-заказа {onlineOrderId} произошла ошибка";
+					response.ErrorMessage = message;
+					_logger.LogError(e, message);
+					return response;
+				}
+				
 				response.PayUrl = _fastPaymentOrderModel.GetPayUrlForOnlineOrder(fastPaymentGuid);
-				return response;
 			}
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
+				_logger.LogError(e, $"При регистрации онлайн-заказа {onlineOrderId} произошла ошибка");
 			}
 			
 			return response;

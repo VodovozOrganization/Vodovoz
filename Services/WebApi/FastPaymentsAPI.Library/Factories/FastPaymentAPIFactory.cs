@@ -60,7 +60,6 @@ namespace FastPaymentsAPI.Library.Factories
 				OrderDescription = $"Онлайн-заказ №{registerOnlineOrderDto.OrderId}",
 				Language = "RU",
 				IsQR = 1,
-				ReturnQRImage = 1,
 				BackUrl = registerOnlineOrderDto.BackUrl,
 				BackUrlOk = registerOnlineOrderDto.BackUrlOk,
 				BackUrlFail = registerOnlineOrderDto.BackUrlFail
@@ -103,13 +102,14 @@ namespace FastPaymentsAPI.Library.Factories
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			DateTime creationDate,
 			Guid fastPaymentGuid,
+			decimal orderSum,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null)
 		{
 			return new FastPayment
 			{
-				Amount = order.OrderSum,
+				Amount = orderSum,
 				CreationDate = creationDate,
 				Order = order,
 				Ticket = orderRegistrationResponseDto.Ticket,

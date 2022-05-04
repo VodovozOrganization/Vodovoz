@@ -37,13 +37,20 @@ namespace FastPaymentsAPI.Library.Managers
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 		}
 
-		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQR)
+		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQR, bool fastPaymentFromOnline)
 		{
 			var elapsedTime = (DateTime.Now - fastPaymentCreationDate).TotalMinutes;
 
 			if(fastPaymentWithQR)
 			{
 				if(elapsedTime > _fastPaymentParametersProvider.GetQRLifetime)
+				{
+					return true;
+				}
+			}
+			else if(fastPaymentFromOnline)
+			{
+				if(elapsedTime > _fastPaymentParametersProvider.GetOnlinePayByQRLifetime)
 				{
 					return true;
 				}

@@ -84,6 +84,7 @@ namespace FastPaymentsAPI.Library.Models
 				orderRegistrationResponseDto,
 				creationDate,
 				fastPaymentGuid,
+				order.OrderSum,
 				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
@@ -102,7 +103,8 @@ namespace FastPaymentsAPI.Library.Models
 		public void SaveNewTicketForOnlineOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			Guid fastPaymentGuid,
-			int onlineOrderId)
+			int onlineOrderId,
+			decimal onlineOrderSum)
 		{
 			var creationDate = DateTime.Now;
 			
@@ -110,6 +112,7 @@ namespace FastPaymentsAPI.Library.Models
 				orderRegistrationResponseDto,
 				creationDate,
 				fastPaymentGuid,
+				onlineOrderSum,
 				null,
 				null,
 				onlineOrderId);

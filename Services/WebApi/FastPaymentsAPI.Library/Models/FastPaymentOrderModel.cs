@@ -52,6 +52,8 @@ namespace FastPaymentsAPI.Library.Models
 		}
 
 		public string ValidateParameters(int orderId) => _fastPaymentValidator.Validate(orderId);
+		public string ValidateParameters(int onlineOrderId, string backUrl, string backUrlOk, string backUrlFail) =>
+			_fastPaymentValidator.Validate(onlineOrderId, backUrl, backUrlOk, backUrlFail);
 		public string ValidateParameters(int orderId, ref string phoneNumber) => _fastPaymentValidator.Validate(orderId, ref phoneNumber);
 		public string ValidateOrder(Order order, int orderId) => _fastPaymentValidator.Validate(order, orderId);
 		public string ValidateOnlineOrder(decimal onlineOrderSum) => _fastPaymentValidator.ValidateOnlineOrder(onlineOrderSum);

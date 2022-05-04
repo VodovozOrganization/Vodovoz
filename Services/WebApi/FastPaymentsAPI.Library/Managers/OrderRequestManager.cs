@@ -97,8 +97,11 @@ namespace FastPaymentsAPI.Library.Managers
 			var signature = _signatureManager.GenerateSignature(signatureParameters);
 			var orderRegistrationRequestDTO =
 				_fastPaymentApiFactory.GetOrderRegistrationRequestDTOForOnlineOrder(registerOnlineOrderDto, signature);
-
-			orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetQRLifetime;
+			
+			orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetOnlinePayByQRLifetime;
+			orderRegistrationRequestDTO.BackUrl = registerOnlineOrderDto.BackUrl;
+			orderRegistrationRequestDTO.BackUrlOk = registerOnlineOrderDto.BackUrlOk;
+			orderRegistrationRequestDTO.BackUrlFail = registerOnlineOrderDto.BackUrlFail;
 
 			return orderRegistrationRequestDTO;
 		}

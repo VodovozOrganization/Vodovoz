@@ -11,6 +11,7 @@ namespace FastPaymentsAPI.Library.Models
 	{
 		Order GetOrder(int orderId);
 		string ValidateParameters(int orderId);
+		string ValidateParameters(int onlineOrderId, string backUrl, string backUrlOk, string backUrlFail);
 		string ValidateParameters(int orderId, ref string phoneNumber);
 		string ValidateOrder(Order order, int orderId);
 		string ValidateOnlineOrder(decimal onlineOrderSum);
