@@ -1696,6 +1696,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RouteListTrackFilterView.cs" />
     <Compile Include="Views\Reports\IncomingCallsAnalysisReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
+    <Compile Include="Views\Logistic\TariffZoneView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
